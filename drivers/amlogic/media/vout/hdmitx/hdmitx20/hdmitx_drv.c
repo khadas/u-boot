@@ -45,7 +45,7 @@ static void hdelay(int us)
 #define mdelay(i)   hdelay(i)
 #define msleep(i)   hdelay(i)
 
-static void hdmitx_set_hw(struct hdmitx_dev *hdev);
+static int hdmitx_set_hw(struct hdmitx_dev *hdev);
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev);
 
 /*Internal functions:*/
@@ -330,6 +330,7 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMIV_2560x1440p60hz, "2560x1440p60hz", 0},
 	{HDMIV_2560x1600p60hz, "2560x1600p60hz", 0},
 	{HDMIV_3440x1440p60hz, "3440x1440p60hz", 0},
+	{HDMIV_3840x1080p60hz, "3840x1080p60hz", 0},
 };
 
 static void hdmitx_list_support_modes(void)
@@ -430,14 +431,16 @@ void hdmitx_init(void)
 	hdmitx_load_dts_config(hdev);
 }
 
-void hdmi_tx_set(struct hdmitx_dev *hdev)
+int hdmi_tx_set(struct hdmitx_dev *hdev)
 {
+	int ret = 0;
+
 	unsigned char checksum[11];
 	char *p_tmp;
 	aml_audio_init();  /* Init audio hw firstly */
 	hdmitx_hw_init();
 	ddc_init_();
-	hdmitx_set_hw(hdev);
+	ret = hdmitx_set_hw(hdev);
 	/* add audio */
 	hdmitx_set_audmode(hdev);
 	//kernel will determine output mode on its own
@@ -453,7 +456,7 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 	printf("hdmi_tx_set: save mode: %s, attr: %s, hdmichecksum: %s\n",
 		env_get("outputmode"), env_get("colorattribute"), env_get("hdmichecksum"));
 	run_command("saveenv", 0);
-	return;
+	return ret;
 
 #if 0
 	hdmi_tx_gate(vic);
@@ -2788,8 +2791,11 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 		}
 		if (type == EOTF_T_DOLBYVISION) {
 			hdmitx_set_packet(HDMI_PACKET_VEND, VEN_DB1, VEN_HB);
+			/* Dolby Vision Source System-on-Chip Platform Kit Version 2.6:
+			 * 4.4.1 Expected AVI-IF for Dolby Vision output, need BT2020 for DV
+			 */
 			hdmitx_cntl_config(hdev, CONF_AVI_BT2020,
-				CLR_AVI_BT2020);/*BT709*/
+				SET_AVI_BT2020);/*BT2020*/
 			if (tunnel_mode == RGB_8BIT) {
 				hdmitx_cntl_config(hdev,CONF_AVI_RGBYCC_INDIC,
 					HDMI_COLOR_FORMAT_RGB);
@@ -2860,8 +2866,11 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 		/*Dolby Vision standard case*/
 		if (type == EOTF_T_DOLBYVISION) {
 			hdmitx_set_packet(HDMI_PACKET_VEND, VEN_DB2, VEN_HB);
+			/* Dolby Vision Source System-on-Chip Platform Kit Version 2.6:
+			 * 4.4.1 Expected AVI-IF for Dolby Vision output, need BT2020 for DV
+			 */
 			hdmitx_cntl_config(hdev, CONF_AVI_BT2020,
-				CLR_AVI_BT2020);/*BT709*/
+				SET_AVI_BT2020);/*BT2020*/
 			if (tunnel_mode == RGB_8BIT) {/*RGB444*/
 				hdmitx_cntl_config(hdev, CONF_AVI_RGBYCC_INDIC,
 					HDMI_COLOR_FORMAT_RGB);
@@ -2877,13 +2886,12 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 		/*Dolby Vision low-latency case*/
 		else if  (type == EOTF_T_LL_MODE) {
 			hdmitx_set_packet(HDMI_PACKET_VEND, VEN_DB2, VEN_HB);
-			if (hdev->RXCap.colorimetry_data & 0xe0)
-				/*if RX support BT2020, then output BT2020*/
-				hdmitx_cntl_config(hdev, CONF_AVI_BT2020,
-					SET_AVI_BT2020);/*BT2020*/
-			else
-				hdmitx_cntl_config(hdev, CONF_AVI_BT2020,
-					CLR_AVI_BT2020);/*BT709*/
+			/* Dolby vision HDMI Signaling Case25,
+			 * UCD323 not declare bt2020 colorimetry,
+			 * need to forcely send BT.2020
+			 */
+			hdmitx_cntl_config(hdev, CONF_AVI_BT2020,
+				SET_AVI_BT2020);/*BT2020*/
 			if (tunnel_mode == RGB_10_12BIT) {/*10/12bit RGB444*/
 				hdmitx_cntl_config(hdev, CONF_AVI_RGBYCC_INDIC,
 					HDMI_COLOR_FORMAT_RGB);
@@ -3096,14 +3104,14 @@ static void hdmitx_set_scdc(struct hdmitx_dev *hdev)
 	}
 }
 
-static void hdmitx_set_hw(struct hdmitx_dev* hdev)
+static int hdmitx_set_hw(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = NULL;
 
 	para = hdmi_get_fmt_paras(hdev->vic);
 	if (para == NULL) {
 		printk("error at %s[%d]\n", __func__, __LINE__);
-		return;
+		return -1;
 	}
 	hdmitx_set_scdc(hdev);
 	hdmitx_set_pll(hdev);
@@ -3161,6 +3169,7 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 		break;
 	}
 	hd_write_reg(P_ENCP_VIDEO_EN, 1); /* enable it finially */
+	return 0;
 }
 
 /*Use this self-made function rather than %,

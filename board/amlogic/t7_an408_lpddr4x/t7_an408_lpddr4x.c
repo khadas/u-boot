@@ -240,6 +240,13 @@ phys_size_t get_effective_memsize(void)
 
 }
 
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
+}
+
 ulong board_get_usable_ram_top(ulong total_size)
 {
 	unsigned long top = gd->ram_top;
@@ -426,8 +433,16 @@ const struct mtd_partition *get_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-	strcpy(name, "t7_a311d2_an408\0");
-	env_set("aml_dt", "t7_a311d2_an408\0");
+	cpu_id_t cpu_id;
+
+	cpu_id = get_cpu_id();
+	if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+		strcpy(name, "t7_a311d2_an408\0");
+		env_set("aml_dt", "t7_a311d2_an408\0");
+	} else if (cpu_id.chip_rev == 0xC) {
+		strcpy(name, "t7c_a311d2_an408-4g\0");
+		env_set("aml_dt", "t7c_a311d2_an408-4g\0");
+	}
 	return 0;
 }
 #endif

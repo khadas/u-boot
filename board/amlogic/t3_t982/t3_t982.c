@@ -36,6 +36,7 @@
 #include <linux/mtd/partitions.h>
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/aml_mtd.h>
+#include <asm/arch/stick_mem.h>
 
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
@@ -134,6 +135,7 @@ int board_init(void)
 {
 	printf("board init\n");
 
+	get_stick_reboot_flag();
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
@@ -160,8 +162,8 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	char outputModePre[30];
-	char outputModeCur[30];
+	char outputModePre[30] = {};
+	char outputModeCur[30] = {};
 
 	printf("board late init\n");
 
@@ -193,7 +195,7 @@ int board_late_init(void)
 	 * ****************************************************
 	 */
 	if (env_get("outputmode"))
-		strcpy(outputModePre, env_get("outputmode"));
+		strncpy(outputModePre, env_get("outputmode"), 29);
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -222,9 +224,11 @@ int board_late_init(void)
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
+	run_command("amlsecurecheck", 0);
+	run_command("update_tries", 0);
 
 	if (env_get("outputmode")) {
-		strcpy(outputModeCur, env_get("outputmode"));
+		strncpy(outputModeCur, env_get("outputmode"), 29);
 	}
 
 	if (strcmp(outputModeCur,outputModePre)) {
@@ -278,6 +282,22 @@ phys_size_t get_effective_memsize(void)
 	return ddr_size
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
+}
+
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
+}
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	unsigned long top = gd->ram_top;
+
+	if (top >= 0xE0000000UL)
+		return 0xE0000000UL;
+	return top;
 }
 
 static struct mm_region bd_mem_map[] = {

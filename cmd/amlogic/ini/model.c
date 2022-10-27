@@ -48,7 +48,7 @@ static unsigned int g_lcd_tcon_valid;
 #ifdef CONFIG_AML_LCD_TCON
 static int gLcdTconDataCnt, gLcdTconSpi_cnt;
 static unsigned int g_lcd_tcon_bin_block_cnt;
-static unsigned char *g_lcd_tcon_bin_path_mem;
+static unsigned char *g_lcd_tcon_bin_path_mem, *g_lcd_tcon_bin_path_resv_mem;
 
 static int handle_tcon_ext_pmu_data(int index, int flag, unsigned char *buf,
 				    unsigned int offset, unsigned int data_len);
@@ -247,6 +247,27 @@ void *handle_tcon_path_mem_get(unsigned int size)
 	return g_lcd_tcon_bin_path_mem;
 }
 
+void *handle_tcon_path_resv_mem_get(unsigned int size)
+{
+	unsigned int data_size = 0;
+
+	if (!g_lcd_tcon_bin_path_resv_mem) {
+		ALOGE("%s, buf is null\n", __func__);
+		return NULL;
+	}
+
+	data_size = g_lcd_tcon_bin_path_resv_mem[4] |
+		(g_lcd_tcon_bin_path_resv_mem[5] << 8) |
+		(g_lcd_tcon_bin_path_resv_mem[6] << 16) |
+		(g_lcd_tcon_bin_path_resv_mem[7] << 24);
+	if (data_size > size) {
+		ALOGE("%s, buf size invalid\n", __func__);
+		return NULL;
+	}
+
+	return g_lcd_tcon_bin_path_resv_mem;
+}
+
 static char *handle_tcon_path_file_name_get(unsigned int index)
 {
 	unsigned int n;
@@ -267,34 +288,12 @@ static char *handle_tcon_path_file_name_get(unsigned int index)
 	return str;
 }
 
-static int handle_tcon_path(void)
+static int handle_tcon_path_default(unsigned int version)
 {
 	unsigned char *buf;
-	char str[30], env_str[30];
+	char str[30];
 	const char *ini_value = NULL;
-	unsigned int temp, i, n, version, header, block_cnt, data_size, crc32;
-
-	/* version */
-	ini_value = IniGetString("tcon_Path", "version", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, version is (%s)\n", __func__, ini_value);
-	version = strtoul(ini_value, NULL, 0);
-
-	/* tcon_bin_header */
-	ini_value = IniGetString("tcon_Path", "header", "0");
-	if (model_debug_flag & DEBUG_TCON)
-		ALOGD("%s, header is (%s)\n", __func__, ini_value);
-	header = strtoul(ini_value, NULL, 0);
-	snprintf(str, 30, "%d", header);
-	env_set("model_tcon_bin_header", str);
-
-	/* tcon regs bin */
-	ini_value = IniGetString("tcon_Path", "TCON_BIN_PATH", "null");
-	if (!strcmp(ini_value, "null")) {
-		if (model_debug_flag & DEBUG_TCON)
-			ALOGE("%s, tcon bin load file error!\n", __func__);
-	}
-	env_set("model_tcon", ini_value);
+	unsigned int temp, i, n, block_cnt, data_size, crc32;
 
 	/* tcon data bin path */
 	g_lcd_tcon_bin_path_mem = (unsigned char *) malloc(CC_MAX_TCON_BIN_PATH_SIZE);
@@ -320,6 +319,12 @@ static int handle_tcon_path(void)
 	buf[13] = (temp >> 8) & 0xff;
 	buf[14] = (temp >> 16) & 0xff;
 	buf[15] = (temp >> 24) & 0xff;
+
+	ini_value = IniGetString("tcon_Path", "init_load", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, init_load is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	buf[20] = temp & 0xff;
 
 	block_cnt = 0;
 	n = 32;
@@ -389,7 +394,7 @@ static int handle_tcon_path(void)
 		buf[19] = (block_cnt >> 24) & 0xff;
 	}
 
-	/* tcon data bin path */
+	/* g_lcd_tcon_bin_block_cnt default for uboot load */
 	g_lcd_tcon_bin_block_cnt = block_cnt;
 
 	/* data size */
@@ -405,6 +410,176 @@ static int handle_tcon_path(void)
 	buf[1] = (crc32 >> 8) & 0xff;
 	buf[2] = (crc32 >> 16) & 0xff;
 	buf[3] = (crc32 >> 24) & 0xff;
+
+	return 0;
+}
+
+static int handle_tcon_path_resv_for_kernel(unsigned int version)
+{
+	unsigned char *buf;
+	char str[30];
+	const char *ini_value = NULL;
+	unsigned int temp, i, n, block_cnt, data_size, crc32;
+
+	g_lcd_tcon_bin_path_resv_mem = (unsigned char *)malloc(CC_MAX_TCON_BIN_PATH_SIZE);
+	if (!g_lcd_tcon_bin_path_resv_mem) {
+		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
+		return -1;
+	}
+	memset(g_lcd_tcon_bin_path_resv_mem, 0, CC_MAX_TCON_BIN_PATH_SIZE);
+	buf = g_lcd_tcon_bin_path_resv_mem;
+
+	/* detect tcon_path resv_for_kernel exist or not */
+	ini_value = IniGetString("tcon_Path", "TCON_BIN_PATH_K", "null");
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGD("%s, PATH_K not exist, use default path\n", __func__);
+		return -1;
+	}
+
+	/* version */
+	buf[8] = version & 0xff;
+	buf[9] = (version >> 8) & 0xff;
+	buf[10] = (version >> 16) & 0xff;
+	buf[11] = (version >> 24) & 0xff;
+
+	/* data_load_level */
+	ini_value = IniGetString("tcon_Path", "data_load_level", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, data_load_level is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	buf[12] = temp & 0xff;
+	buf[13] = (temp >> 8) & 0xff;
+	buf[14] = (temp >> 16) & 0xff;
+	buf[15] = (temp >> 24) & 0xff;
+
+	ini_value = IniGetString("tcon_Path", "init_load", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, init_load is (%s)\n", __func__, ini_value);
+	temp = strtoul(ini_value, NULL, 0);
+	buf[20] = temp & 0xff;
+
+	block_cnt = 0;
+	n = 32;
+
+	if (version == 0) {/* tcon data bin: old data format */
+		ini_value = IniGetString("tcon_Path", "TCON_VAC_PATH_K", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no vac ini file\n", __func__);
+		}
+		strncpy((char *)&buf[n + 4], ini_value, 256);
+		n += 256;
+
+		ini_value = IniGetString("tcon_Path", "TCON_DEMURA_SET_PATH_K", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no demura_set file\n", __func__);
+		}
+		strncpy((char *)&buf[n + 4], ini_value, 256);
+		n += 256;
+
+		ini_value = IniGetString("tcon_Path", "TCON_DEMURA_LUT_PATH_K", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no demura_lut file\n", __func__);
+		}
+		strncpy((char *)&buf[n + 4], ini_value, 256);
+		n += 256;
+
+		ini_value = IniGetString("tcon_Path", "TCON_ACC_LUT_PATH_K", "null");
+		if (!strcmp(ini_value, "null")) {
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, no acc_lut file\n", __func__);
+		}
+		strncpy((char *)&buf[n + 4], ini_value, 256);
+
+		/* block cnt */
+		block_cnt = 4;
+		buf[16] = block_cnt & 0xff;
+		buf[17] = (block_cnt >> 8) & 0xff;
+		buf[18] = (block_cnt >> 16) & 0xff;
+		buf[19] = (block_cnt >> 24) & 0xff;
+	} else {/* tcon data bin: new data format */
+		for (i = 0; i < 32; i++) {
+			snprintf(str, 30, "TCON_DATA_%d_BIN_PATH_K", i);
+			ini_value = IniGetString("tcon_Path", str, "null");
+			if (strcmp(ini_value, "null") == 0)
+				break;
+
+			if (model_debug_flag & DEBUG_TCON) {
+				ALOGD("%s, tcon_path %d is (%s)\n",
+					__func__, i, ini_value);
+			}
+			strncpy((char *)&buf[n + 4], ini_value, 252);
+			block_cnt++;
+			n += 256;
+		}
+
+		/* block cnt */
+		buf[16] = block_cnt & 0xff;
+		buf[17] = (block_cnt >> 8) & 0xff;
+		buf[18] = (block_cnt >> 16) & 0xff;
+		buf[19] = (block_cnt >> 24) & 0xff;
+	}
+
+	/* data size */
+	data_size = 32 + block_cnt * 256;
+	buf[4] = data_size & 0xff;
+	buf[5] = (data_size >> 8) & 0xff;
+	buf[6] = (data_size >> 16) & 0xff;
+	buf[7] = (data_size >> 24) & 0xff;
+
+	/* data check */
+	crc32 = CalCRC32(0, &buf[4], (data_size - 4));
+	buf[0] = crc32 & 0xff;
+	buf[1] = (crc32 >> 8) & 0xff;
+	buf[2] = (crc32 >> 16) & 0xff;
+	buf[3] = (crc32 >> 24) & 0xff;
+
+	return 0;
+}
+
+static int handle_tcon_path(void)
+{
+	char str[30], env_str[30];
+	const char *ini_value = NULL;
+	unsigned int version, header;
+	int i, ret;
+
+	/* version */
+	ini_value = IniGetString("tcon_Path", "version", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, version is (%s)\n", __func__, ini_value);
+	version = strtoul(ini_value, NULL, 0);
+
+	/* tcon_bin_header */
+	ini_value = IniGetString("tcon_Path", "header", "0");
+	if (model_debug_flag & DEBUG_TCON)
+		ALOGD("%s, header is (%s)\n", __func__, ini_value);
+	header = strtoul(ini_value, NULL, 0);
+	snprintf(str, 30, "%d", header);
+	env_set("model_tcon_bin_header", str);
+
+	/* tcon regs bin */
+	ini_value = IniGetString("tcon_Path", "TCON_BIN_PATH", "null");
+	if (!strcmp(ini_value, "null")) {
+		if (model_debug_flag & DEBUG_TCON)
+			ALOGE("%s, tcon bin load file error!\n", __func__);
+	}
+	env_set("model_tcon", ini_value);
+
+	handle_tcon_path_default(version);
+	ret = handle_tcon_path_resv_for_kernel(version);
+	if (ret) {
+		if (g_lcd_tcon_bin_path_resv_mem && g_lcd_tcon_bin_path_mem) {
+			memcpy(g_lcd_tcon_bin_path_resv_mem,
+			       g_lcd_tcon_bin_path_mem,
+			       CC_MAX_TCON_BIN_PATH_SIZE);
+			if (model_debug_flag & DEBUG_TCON)
+				ALOGD("%s, tcon bin path kernel same as uboot\n", __func__);
+		}
+	}
 
 	/* pmu bin */
 	for (i = 0; i < 4; i++) {
@@ -610,10 +785,21 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 		ALOGD("%s, vlock_val_3 is (%s)\n", __func__, ini_value);
 	p_attr->customer.vlock_val_3 = strtoul(ini_value, NULL, 0);
 
+	ini_value = IniGetString("lcd_Attr", "custom_pinmux", "0");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, custom_pinmux is (%s)\n", __func__, ini_value);
+	p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
+	if (p_attr->customer.custom_pinmux == 0) {
+		ini_value = IniGetString("lcd_Attr", "customer_value_9", "0");
+		if (model_debug_flag & DEBUG_LCD)
+			ALOGD("%s, customer_value_9 is (%s)\n", __func__, ini_value);
+		p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
+	}
+
 	ini_value = IniGetString("lcd_Attr", "fr_auto_disable", "0");
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, fr_auto_disable is (%s)\n", __func__, ini_value);
-	p_attr->customer.fr_auto_disable = strtoul(ini_value, NULL, 0);
+	p_attr->customer.fr_auto_dis = strtoul(ini_value, NULL, 0);
 
 	ini_value = IniGetString("lcd_Attr", "frame_rate_min", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -1833,10 +2019,23 @@ static int handle_ldim_dev_ctrl(struct ldim_dev_attr_s *p_attr)
 		ALOGD("%s, chip_count is (%s)\n", __func__, ini_value);
 	p_attr->ctrl.chip_cnt = strtoul(ini_value, NULL, 0);
 
-	ini_value = IniGetString("Ldim_dev_Attr", "zone_mapping_path", "0");
-	if (model_debug_flag & DEBUG_BACKLIGHT)
-		ALOGD("%s, zone_mapping_path is (%s)\n", __func__, ini_value);
-	strncpy(p_attr->ctrl.zone_map_path, ini_value, 255);
+	ini_value = IniGetString("Ldim_dev_Attr", "zone_mapping_path", "null");
+	if (strcmp(ini_value, "null") != 0) {
+		env_set("bl_mapping_path", ini_value);
+		strncpy(p_attr->ctrl.zone_map_path, ini_value, 255); //if no path_k
+		if (model_debug_flag & DEBUG_BACKLIGHT)
+			ALOGE("%s, zone_mapping_path is (%s)\n", __func__, ini_value);
+	}
+
+	ini_value = IniGetString("Ldim_dev_Attr", "zone_mapping_path_k", "null");
+	if (strcmp(ini_value, "null") != 0) {
+		if (model_debug_flag & DEBUG_BACKLIGHT)
+			ALOGD("%s, zone_mapping_path_k is (%s)\n", __func__, ini_value);
+		strncpy(p_attr->ctrl.zone_map_path, ini_value, 255);
+	} else {
+		if (model_debug_flag & DEBUG_BACKLIGHT)
+			ALOGD("%s, zone_mapping_path_k is NOT FOUND\n", __func__);
+	}
 
 	return 0;
 }
@@ -3484,7 +3683,7 @@ handle_tcon_data_load_next:
 		(data_buf[9] << 8) |
 		(data_buf[10] << 16) |
 		(data_buf[11] << 24);
-	if (data_size > bin_size) {
+	if (data_size > bin_size || data_size == 0) {
 		ALOGE("%s: data_size 0x%x invalid, bin_size 0x%lx\n",
 			__func__, data_size, bin_size);
 		free(data_buf);

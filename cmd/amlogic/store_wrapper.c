@@ -22,14 +22,18 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 #ifndef CONFIG_CMD_MTD
 	MsgP("Exception, boottype is MTD or snand, BUT CMD_MTD not defined\n");
 #else
-#ifndef CONFIG_USB_GADGET_CRG
 	struct mtd_info * mtdPartInf = NULL;
 	mtdPartInf = get_mtd_device_nm(partName);
-#endif
+	if (!mtdPartInf) {
+		errorP("device(%s) is null\n", partName);
+		return CMD_RET_FAILURE;
+	}
+
 	if (IS_ERR(mtdPartInf)) {
 		errorP("device(%s) is err\n", partName);
 		return CMD_RET_FAILURE;
 	}
+
 	const unsigned eraseSz = mtdPartInf->erasesize;
 	const unsigned offsetInBlk = logicAddr & (eraseSz - 1);
 	loff_t off = 0;
@@ -57,7 +61,6 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 		off = _map4SpeedUp.lastblkPhyOff;
 	}
 	for (; off < mtdPartInf->size; off += eraseSz, _map4SpeedUp.lastblkPhyOff += eraseSz) {
-#ifndef CONFIG_USB_GADGET_CRG
 		if (mtd_block_isbad(mtdPartInf, off)) {
 			MsgP("bad blk at  %08llx\n", (unsigned long long)off);
 		} else {
@@ -68,7 +71,6 @@ static int mtd_find_phy_off_by_lgc_off(const char* partName, const loff_t logicA
 			}
 			_map4SpeedUp.lastblkLgcOff += eraseSz;
 		}
-#endif
 	}
 #endif// #ifndef CONFIG_CMD_MTD
 	return __LINE__;

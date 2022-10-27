@@ -205,6 +205,12 @@ static void lcd_power_ctrl(struct aml_lcd_drv_s *pdrv, int status)
 	struct lcd_extern_driver_s *edrv;
 	struct lcd_extern_dev_s *edev;
 #endif
+
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return;
+#endif
+
 	i = 0;
 	lcd_power = &pdrv->config.power;
 	if (status) {
@@ -303,8 +309,12 @@ static void lcd_power_ctrl(struct aml_lcd_drv_s *pdrv, int status)
 			break;
 #ifdef CONFIG_AML_LCD_TCON
 		case LCD_POWER_TYPE_TCON_SPI_DATA_LOAD:
-			if (pdrv->tcon_spi_data_load)
-				pdrv->tcon_spi_data_load();
+			if (!pdrv->tcon_spi_data_load) {
+				LCDERR("[%d]: %s: tcon_spi_data_load is null\n",
+				       pdrv->index, __func__);
+				break;
+			}
+			pdrv->tcon_spi_data_load();
 			break;
 #endif
 		default:
@@ -337,6 +347,7 @@ static void lcd_encl_on(struct aml_lcd_drv_s *pdrv)
 static void lcd_interface_on(struct aml_lcd_drv_s *pdrv)
 {
 	lcd_power_ctrl(pdrv, 1);
+#ifndef CONFIG_AML_LCD_PXP
 	pdrv->config.retry_enable_cnt = 0;
 	while (pdrv->config.retry_enable_flag) {
 		if (pdrv->config.retry_enable_cnt++ >= LCD_ENABLE_RETRY_MAX)
@@ -348,6 +359,7 @@ static void lcd_interface_on(struct aml_lcd_drv_s *pdrv)
 		lcd_power_ctrl(pdrv, 1);
 	}
 	pdrv->config.retry_enable_cnt = 0;
+#endif
 	pdrv->status |= LCD_STATUS_IF_ON;
 }
 
@@ -379,8 +391,13 @@ static void lcd_module_enable(struct aml_lcd_drv_s *pdrv, char *mode, unsigned i
 		if (pdrv->boot_ctrl.init_level == LCD_INIT_LEVEL_NORMAL) {
 			lcd_interface_on(pdrv);
 #ifdef CONFIG_AML_LCD_BACKLIGHT
+#ifndef CONFIG_AML_LCD_PXP
 			aml_bl_driver_enable(pdrv->index);
 #endif
+#endif
+		} else {
+			LCDPR("[%d]: bypass interface for init_level %d\n",
+			      pdrv->index, pdrv->boot_ctrl.init_level);
 		}
 	}
 	if (!lcd_debug_test)
@@ -398,7 +415,9 @@ static void lcd_module_disable(struct aml_lcd_drv_s *pdrv)
 	lcd_mute_setting(pdrv, 1);
 	if (pdrv->status & LCD_STATUS_IF_ON) {
 #ifdef CONFIG_AML_LCD_BACKLIGHT
+#ifndef CONFIG_AML_LCD_PXP
 		aml_bl_driver_disable(pdrv->index);
+#endif
 #endif
 		lcd_power_ctrl(pdrv, 0);
 	}
@@ -495,7 +514,7 @@ static int lcd_init_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 			str = p;
 			if (strlen(str) == 0)
 				break;
-			strcpy(pconf->power.cpu_gpio[i], str);
+			strncpy(pconf->power.cpu_gpio[i], str, (LCD_CPU_GPIO_NAME_MAX - 1));
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				LCDPR("[%d]: i=%d, gpio=%s\n",
 				      pdrv->index, i, pconf->power.cpu_gpio[i]);
@@ -724,12 +743,14 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	default:
 		break;
 	}
+	pdrv->boot_ctrl.custom_pinmux = pdrv->config.custom_pinmux ? 1 : 0;
 	pdrv->boot_ctrl.init_level = env_get_ulong("lcd_init_level", 10, 0);
 
 	/*
 	 *bit[31:20]: reserved
 	 *bit[19:18]: lcd_init_level
-	 *bit[17:16]: reserved
+	 *bit[17]: reserved
+	 *bit[16]: custom pinmux flag
 	 *bit[15:8]: advanced flag(p2p_type when lcd_type=p2p)
 	 *bit[7:4]: lcd bits
 	 *bit[3:0]: lcd_type
@@ -737,8 +758,17 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	val |= (pdrv->boot_ctrl.lcd_type & 0xf);
 	val |= (pdrv->boot_ctrl.lcd_bits & 0xf) << 4;
 	val |= (pdrv->boot_ctrl.advanced_flag & 0xff) << 8;
+	val |= (pdrv->boot_ctrl.custom_pinmux & 0x1) << 16;
 	val |= (pdrv->boot_ctrl.init_level & 0x3) << 18;
 	sprintf(ctrl_str, "0x%08x", val);
+
+	if (strlen(pdrv->config.basic.model_name) > 0) {
+		if (pdrv->index == 0)
+			sprintf(env_str, "panel_name");
+		else
+			sprintf(env_str, "panel%d_name", pdrv->index);
+		env_set(env_str, pdrv->config.basic.model_name);
+	}
 
 	if (pdrv->index == 0)
 		sprintf(env_str, "lcd_ctrl");
@@ -984,7 +1014,7 @@ void aml_lcd_driver_list_support_mode(void)
 			continue;
 
 		if (pdrv->list_support_mode)
-			pdrv->list_support_mode(&pdrv->config);
+			pdrv->list_support_mode(pdrv);
 	}
 }
 
@@ -1328,7 +1358,7 @@ void aml_lcd_driver_bl_config_print(int index)
 #endif
 }
 
-int aml_lcd_driver_prbs(int index, unsigned int s, unsigned int mode_flag)
+int aml_lcd_driver_prbs(int index, unsigned int ms, unsigned int mode_flag)
 {
 	struct aml_lcd_drv_s *pdrv;
 
@@ -1336,7 +1366,7 @@ int aml_lcd_driver_prbs(int index, unsigned int s, unsigned int mode_flag)
 	if (!pdrv)
 		return 0;
 
-	return lcd_prbs_test(pdrv, s, mode_flag);
+	return lcd_prbs_test(pdrv, ms, mode_flag);
 }
 
 void aml_lcd_driver_unifykey_dump(int index, unsigned int flag)

@@ -12,8 +12,8 @@
  * platform power init config
  */
 
-#define AML_VCCK_A_INIT_VOLTAGE      999       // VCCK A power up voltage
-#define AML_VCCK_B_INIT_VOLTAGE      999       // VCCK B power up voltage
+#define AML_VCCK_A_INIT_VOLTAGE      1009       // VCCK A power up voltage
+#define AML_VCCK_B_INIT_VOLTAGE      1009       // VCCK B power up voltage
 #define AML_VDDEE_INIT_VOLTAGE       830       // VDDEE power up voltage
 #define AML_VDDGPU_INIT_VOLTAGE      830       // VDDGPU power up voltage
 #define AML_VDDNPU_INIT_VOLTAGE      830       // VDDNPU power up voltage
@@ -156,10 +156,17 @@
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
-        "cec_init="\
-            "echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-            "echo cec_init do nothing" \
-            "\0"\
+	"cec_init="\
+		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+		"if test ${cec_ac_wakeup} = 1; then "\
+			"cec ${logic_addr} ${cec_fun}; "\
+			"if test ${edid_select} = 1111; then "\
+				"hdmirx init ${port_map} ${edid_20_dir}; "\
+			"else "\
+				"hdmirx init ${port_map} ${edid_14_dir}; "\
+			"fi;"\
+		"fi;"\
+	"\0"\
         "ffv_freeze_action="\
             "run cec_init;"\
             "setenv ffv_freeze on;"\
@@ -428,6 +435,7 @@
         "ffv_wake=off\0"\
         "ffv_freeze=off\0"\
         "board_logo_part=odm_ext\0" \
+	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -440,6 +448,7 @@
         "cec_fun=0x2F\0" \
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
+	"disable_ir=0\0"\
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
@@ -464,14 +473,22 @@
 			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+		"androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} "\
+		"jtag=${jtag} disable_ir=${disable_ir};"\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
-        "cec_init="\
-            "echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-            "echo cec_init do nothing" \
-            "\0"\
+		"cec_init="\
+			"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+			"if test ${cec_ac_wakeup} = 1; then "\
+				"cec ${logic_addr} ${cec_fun}; "\
+				"if test ${edid_select} = 1111; then "\
+					"hdmirx init ${port_map} ${edid_20_dir}; "\
+				"else "\
+					"hdmirx init ${port_map} ${edid_14_dir}; "\
+				"fi;"\
+			"fi;"\
+		"\0"\
         "ffv_freeze_action="\
             "run cec_init;"\
             "setenv ffv_freeze on;"\
@@ -638,7 +655,6 @@
             "\0"\
         "init_display="\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
             "setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
@@ -656,15 +672,10 @@
             "fi; "\
             "\0"\
         "cmdline_keys="\
-            "setenv region_code US;"\
-            "if keyman init 0x1234; then "\
-                "if keyman read usid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                    "setenv serial ${usid}; setenv serial# ${usid};"\
-                "else "\
-                    "setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
-                    "setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
-                "fi;"\
+		"setenv region_code US;"\
+		"setenv usid an400${cpu_id};"\
+		"if keyman init 0x1234; then "\
+			"if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -674,13 +685,22 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+		"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+		"setenv serial ${usid}; setenv serial# ${usid};"\
             "factory_provision init;"\
             "\0"\
-        "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
-            "echo detect upgrade key; run update;"\
-            "fi;"\
-            "\0"
+          "upgrade_key="\
+              "if gpio input GPIOD_3; then "\
+                  "echo detect upgrade key;"\
+                  "if test ${boot_flag} = 0; then "\
+                      "echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
+                  "else if test ${boot_flag} = 1; then "\
+                      "echo enter update; setenv boot_flag 2; saveenv; run update;"\
+                  "else "\
+                      "echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+                  "fi;fi;"\
+              "fi;"\
+              "\0"
 #endif
 
 #define CONFIG_PREBOOT  \

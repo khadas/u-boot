@@ -39,7 +39,7 @@ static int check_lcd_output_mode(struct aml_lcd_drv_s *pdrv, char *mode, unsigne
 	return 0;
 }
 
-static void lcd_list_support_mode(struct lcd_config_s *pconf)
+static void lcd_list_support_mode(struct aml_lcd_drv_s *pdrv)
 {
 	printf("panel\n");
 }

@@ -93,6 +93,7 @@
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
         "board=ohm\0"\
+	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
@@ -212,7 +213,7 @@
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "else "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "if test ${partiton_mode} = normal; then "\
+                "if test ${partition_mode} = normal; then "\
                     "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
@@ -264,14 +265,9 @@
 			"\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
+			"setenv usid s4${cpu_id};"\
             "if keyman init 0x1234; then "\
-				"if keyman read usid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-					"setenv serial ${usid}; setenv serial# ${usid};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${cpu_id};"\
-					"setenv serial ${cpu_id}; setenv serial# ${cpu_id};"\
-				"fi;"\
+				"if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -281,13 +277,22 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+			"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+			"setenv serial ${usid}; setenv serial# ${usid};"\
 	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
-            "echo detect upgrade key; run update;"\
-            "fi;"\
-            "\0"\
+		"if gpio input GPIOD_3; then "\
+			"echo detect upgrade key;"\
+			"if test ${boot_flag} = 0; then "\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 0;"\
+			"else if test ${boot_flag} = 1; then "\
+				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
+			"else "\
+				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+			"fi;fi;"\
+		"fi;"\
+		"\0"\
 
 #if 0
 #define CONFIG_PREBOOT  \

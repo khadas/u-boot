@@ -21,7 +21,7 @@
 #undef pr_info
 #define pr_info       printf
 
-#ifdef CONFIG_SPI_FLASH
+#ifdef CONFIG_SPI_FLASH_MTD
 extern int spi_nor_pre(void);
 extern int spi_nor_probe(u32 init_flag);
 #endif
@@ -73,7 +73,7 @@ static struct device_node_t device_list[] = {
 #ifdef CONFIG_MTD_SPI_NAND
 	{BOOT_SNAND, "spi-nand", spi_nand_pre, spi_nand_probe},
 #endif
-//#if CONFIG_SPI_FLASH
+//#if CONFIG_SPI_FLASH_MTD
 //	{BOOT_SNOR, "spi-nor", spi_nor_pre, spi_nor_probe},
 //#endif
 #if 0

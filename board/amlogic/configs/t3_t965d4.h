@@ -26,8 +26,10 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  889	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    840       // VDDEE power up voltage
+/*Distinguish whether to use efuse to adjust vddee*/
+#define CONFIG_PDVFS_ENABLE
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func
@@ -80,7 +82,7 @@
         "os_ident_addr=0x00500000\0"\
         "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x03080000\0"\
-        "otg_device=1\0" \
+	"otg_device=0\0" \
         "panel_type=lvds_1\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
@@ -119,6 +121,7 @@
 	"ffv_wake=off\0"\
 	"ffv_freeze=off\0"\
         "board_logo_part=odm_ext\0" \
+	"boot_flag=0\0"\
 	"logic_addr=0x0\0" \
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
@@ -132,6 +135,7 @@
 		"cec_fun=0x2F\0" \
 		"logic_addr=0x0\0" \
 		"cec_ac_wakeup=1\0" \
+	"disable_ir=0\0"\
         "initargs="\
             "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe07a000"\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
@@ -154,7 +158,8 @@
 			"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
 			"irq_check_en=${Irq_check_en}  "\
 			"androidboot.selinux=${EnableSelinux} "\
-			"androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+			"androidboot.firstboot=${firstboot} jtag=${jtag} "\
+			"disable_ir=${disable_ir};"\
 		"setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} "\
 		"androidboot.hardware=amlogic;"\
 		"run cmdline_keys;"\
@@ -197,7 +202,6 @@
 		"fi; fi; fi; "\
 		"\0"\
 	"switch_bootmode="\
-		"get_rebootmode;"\
 		"setenv ffv_freeze off;"\
 		"echo reboot_mode : ${reboot_mode};"\
 		"if test ${reboot_mode} = factory_reset; then "\
@@ -304,7 +308,7 @@
             "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "else "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "if test ${partiton_mode} = normal; then "\
+                "if test ${partition_mode} = normal; then "\
                     "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
@@ -345,20 +349,26 @@
 			"else "\
 				"run init_display; "\
 			"fi; "\
+		"else if test ${reboot_mode} = cold_boot; then "\
+			"if test ${powermode} = on; then "\
+				"echo powermode : ${powermode} ,need to init_display; "\
+				"run init_display; "\
+			"else if test ${powermode} = last; then "\
+				"if test ${suspend} = off; then "\
+					"echo suspend : ${suspend} ,need to init_display; "\
+					"run init_display; "\
+				"fi; "\
+			"fi;fi; "\
 		"else "\
+			"echo reboot_mode is normal;"\
 			"run init_display; "\
-		"fi; "\
+		"fi;fi; "\
 		"\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
+			"setenv usid t965d4${cpu_id};"\
             "if keyman init 0x1234; then "\
-				"if keyman read usid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-					"setenv serial ${usid}; setenv serial# ${usid};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=t965d4${cpu_id};"\
-					"setenv serial t965d4${cpu_id}; setenv serial# t965d4${cpu_id};"\
-				"fi;"\
+				"if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -368,18 +378,28 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+			"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+			"setenv serial ${usid}; setenv serial# ${usid};"\
             "factory_provision init;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
-            "echo detect upgrade key; run update;"\
-            "fi;"\
-            "\0"\
+		"if gpio input GPIOD_3; then "\
+			"echo detect upgrade key;"\
+			"if test ${boot_flag} = 0; then "\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
+			"else if test ${boot_flag} = 1; then "\
+				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
+			"else "\
+				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+			"fi;fi;"\
+		"fi;"\
+		"\0"\
 
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run upgrade_check;"\
 	/* "run init_display;"\ */\
+	"get_rebootmode;"\
 	"run check_display;"\
 	"run storeargs;"\
             "run upgrade_key;" \

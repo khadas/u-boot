@@ -166,7 +166,7 @@ static void lcd_lvds_clk_util_set(struct aml_lcd_drv_s *pdrv)
 
 	if (pdrv->data->chip_type == LCD_CHIP_T7) {
 		switch (pdrv->index) {
-		case 0:
+		case 0: /* lane0~lane4 */
 			reg_phy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0;
 			reg_phy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1;
 			bit_data_in_lvds = 0;
@@ -175,12 +175,12 @@ static void lcd_lvds_clk_util_set(struct aml_lcd_drv_s *pdrv)
 			val_lane_sel = 0x155;
 			len_lane_sel = 10;
 			break;
-		case 1:
+		case 1: /* lane10~lane14 */
 			reg_phy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL0;
 			reg_phy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL1;
 			bit_data_in_lvds = 2;
 			bit_data_in_edp = 3;
-			bit_lane_sel = 10;
+			bit_lane_sel = 20;
 			val_lane_sel = 0x155;
 			len_lane_sel = 10;
 			break;
@@ -189,12 +189,12 @@ static void lcd_lvds_clk_util_set(struct aml_lcd_drv_s *pdrv)
 			reg_phy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1;
 			bit_data_in_lvds = 4;
 			bit_data_in_edp = 0xff;
-			if (pdrv->config.control.lvds_cfg.dual_port) {
+			if (pdrv->config.control.lvds_cfg.dual_port) { /* lane5~lane14 */
 				bit_lane_sel = 10;
 				val_lane_sel = 0xaaaaa;
 				len_lane_sel = 20;
-			} else {
-				bit_lane_sel = 20;
+			} else { /* lane5~lane9 */
+				bit_lane_sel = 10;
 				val_lane_sel = 0x2aa;
 				len_lane_sel = 10;
 			}
@@ -386,21 +386,35 @@ static void lcd_lvds_control_set(struct aml_lcd_drv_s *pdrv)
 		 *    a: d3_b
 		 *    b: d4_b
 		 */
-		if (port_swap) {
-			if (lane_reverse) {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x345789ab);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x0612);
-			} else {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x210a9876);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x5b43);
-			}
+		if (pdrv->index == 0) {
+			//don't support port_swap and lane_reverse
+			lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0xfff43210);
+			lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xffff);
+		} else if (pdrv->index == 1) {
+			lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0xf43210ff);
+			lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xffff);
 		} else {
-			if (lane_reverse) {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x9ab12345);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x6078);
+			if (dual_port) {
+				if (port_swap) {
+					if (lane_reverse) {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x345789ab);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x0612);
+					} else {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x210a9876);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x5b43);
+					}
+				} else {
+					if (lane_reverse) {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x9ab12345);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0x6078);
+					} else {
+						lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x87643210);
+						lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xb5a9);
+					}
+				}
 			} else {
-				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0x87643210);
-				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xb5a9);
+				lcd_vcbus_write(P2P_CH_SWAP0 + offset, 0xfff43210);
+				lcd_vcbus_write(P2P_CH_SWAP1 + offset, 0xffff);
 			}
 		}
 		lcd_vcbus_write(P2P_BIT_REV + offset, 2);
@@ -708,6 +722,11 @@ int lcd_tablet_driver_init(struct aml_lcd_drv_s *pdrv)
 	if (ret)
 		return -1;
 
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return 0;
+#endif
+
 	/* init driver */
 	switch (pdrv->config.basic.lcd_type) {
 	case LCD_TTL:
@@ -751,6 +770,11 @@ void lcd_tablet_driver_disable(struct aml_lcd_drv_s *pdrv)
 	ret = lcd_type_supported(&pdrv->config);
 	if (ret)
 		return;
+
+#ifdef CONFIG_AML_LCD_PXP
+	LCDPR("[%d]: %s: lcd_pxp bypass\n", pdrv->index, __func__);
+	return;
+#endif
 
 	switch (pdrv->config.basic.lcd_type) {
 	case LCD_TTL:

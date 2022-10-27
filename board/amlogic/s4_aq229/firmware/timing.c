@@ -2245,7 +2245,7 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 						  (1 << 14) |			  \
 						  (0 << 13) |			  \
 						  (64 << 6) |			  \
-						  (4 << 0),
+						  (8 << 0),
 		.reserved_area_blk_cnt		= 48,
 		.page_per_block			= 64,
 		.use_param_page_list		= 0,

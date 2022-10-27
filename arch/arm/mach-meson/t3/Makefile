@@ -4,6 +4,7 @@ obj-y   += bl31_apis.o
 obj-y	+= cpu_reset.o
 obj-y	+= timer.o
 obj-y	+= mailbox.o
+obj-y	+= stick_mem.o
 #obj-y   += gate_init.o
 #obj-y   += power_cal.o
 obj-$(CONFIG_CMD_PLLTEST)	+= pll.o

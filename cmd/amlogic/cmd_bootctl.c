@@ -322,9 +322,9 @@ static int do_GetValidSlot(
     }
 
     if (dynamic_partition)
-        env_set("partiton_mode","dynamic");
+        env_set("partition_mode","dynamic");
     else
-        env_set("partiton_mode","normal");
+        env_set("partition_mode","normal");
 
     return 0;
 }

@@ -112,8 +112,8 @@ struct lcd_basic_s {
 	unsigned short h_period_max;
 	unsigned short v_period_min;
 	unsigned short v_period_max;
-	unsigned short frame_rate_min;
-	unsigned short frame_rate_max;
+	unsigned char frame_rate_min;
+	unsigned char frame_rate_max;
 	unsigned int lcd_clk_min;
 	unsigned int lcd_clk_max;
 
@@ -435,6 +435,8 @@ struct lcd_pinmux_ctrl_s {
 struct lcd_config_s {
 	unsigned char retry_enable_flag;
 	unsigned char retry_enable_cnt;
+	unsigned char custom_pinmux;
+	unsigned char fr_auto_dis;
 	unsigned int backlight_index;
 	struct lcd_basic_s basic;
 	struct lcd_timing_s timing;
@@ -446,13 +448,21 @@ struct lcd_config_s {
 	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
 };
 
+struct lcd_duration_s {
+	unsigned int frame_rate;
+	unsigned int duration_num;
+	unsigned int duration_den;
+	unsigned int frac;
+};
+
 #define LCD_INIT_LEVEL_NORMAL         0
 #define LCD_INIT_LEVEL_PWR_OFF        1
 #define LCD_INIT_LEVEL_KERNEL_ON      2
 /*
  *bit[31:20]: reserved
  *bit[19:18]: lcd_init_level
- *bit[17:16]: reserved
+ *bit[17]: reserved
+ *bit[16]: custom pinmux flag
  *bit[15:8]: advanced flag(p2p_type when lcd_type=p2p)
  *bit[7:4]: lcd bits
  *bit[3:0]: lcd_type
@@ -461,6 +471,7 @@ struct lcd_boot_ctrl_s {
 	unsigned char lcd_type;
 	unsigned char lcd_bits;
 	unsigned char advanced_flag;
+	unsigned char custom_pinmux;
 	unsigned char init_level;
 };
 
@@ -522,10 +533,12 @@ struct aml_lcd_drv_s {
 	unsigned char mode;
 	unsigned char key_valid;
 	unsigned char clk_path; /* 0=hpll, 1=gp0_pll */
+	unsigned int output_vmode;
 
 	struct lcd_config_s config;
 	struct aml_lcd_data_s *data;
 	struct lcd_boot_ctrl_s boot_ctrl;
+	struct lcd_duration_s *std_duration;
 	void *clk_conf;
 
 	int  (*outputmode_check)(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int frac);
@@ -533,7 +546,7 @@ struct aml_lcd_drv_s {
 	void (*driver_init_pre)(struct aml_lcd_drv_s *pdrv);
 	int  (*driver_init)(struct aml_lcd_drv_s *pdrv);
 	void (*driver_disable)(struct aml_lcd_drv_s *pdrv);
-	void (*list_support_mode)(struct lcd_config_s *pconf);
+	void (*list_support_mode)(struct aml_lcd_drv_s *pdrv);
 #ifdef CONFIG_AML_LCD_TCON
 	void (*tcon_reg_print)(void);
 	void (*tcon_table_print)(void);

@@ -358,7 +358,9 @@ void usb_device_mode_init(int phy_num) {
 	u2p_aml_regs_t * u2p_aml_regs;
 	usb_aml_regs_t *usb_aml_regs;
 	unsigned int phy_base_addr, reset_addr;
+	int val;
 
+	phy_num = (readl(SYSCTRL_POC) >> 1) & 0x1U;
 	phy_aml_usb2_check_rev();
 	if (phy_num == 1) {
 		u2p_aml_regs = (u2p_aml_regs_t * )((unsigned long)(PHY_COMP_BASE + PHY_REGISTER_SIZE));
@@ -406,6 +408,12 @@ void usb_device_mode_init(int phy_num) {
 		usb_reset(reset_addr, PHY20_RESET_LEVEL_BIT);
 	}
 	udelay(50);
+
+	if (phy_num == 0) {
+		val = readl((PHY_COMP_BASE + 0x90));
+		val = (val | (1 << 4));
+		writel(val, (PHY_COMP_BASE + 0x90));
+	}
 
 	// step 6: wait for phy ready
 	dev_u2p_r1.d32	= u2p_aml_regs->u2p_r1;

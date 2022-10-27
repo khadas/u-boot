@@ -1298,7 +1298,6 @@ void update_dequeue_pt(struct event_trb_s *event, struct crg_udc_ep *udc_ep)
 
 void advance_dequeue_pt(struct crg_udc_ep *udc_ep)
 {
-
 	struct crg_udc_request *udc_req;
 
 	if (!list_empty(&udc_ep->queue)) {
@@ -1893,10 +1892,9 @@ static int crg_udc_ep_set_halt(struct usb_ep *_ep, int value)
 	udc_ep_ptr = container_of(_ep, struct crg_udc_ep, usb_ep);
 
 	if (value && usb_endpoint_dir_in(udc_ep_ptr->desc) &&
-			!list_empty(&udc_ep_ptr->queue)) {
-
+			!list_empty(&udc_ep_ptr->queue))
 		return -EAGAIN;
-	}
+
 	status = ep_halt(udc_ep_ptr, value, 1);
 
 	return status;
@@ -2072,9 +2070,9 @@ static int prepare_for_setup(struct crg_gadget_dev *crg_udc)
  * If we considering the opposite solution, we should wait all ep0 xfer
  * trbs be completed(with some err complete code)
  */
-	if (!list_empty(&udc_ep0_ptr->queue)) {
+	if (!list_empty(&udc_ep0_ptr->queue))
 		return -EBUSY;
-	}
+
 	enable_setup(crg_udc);
 
 	return 0;
@@ -3131,7 +3129,7 @@ int crg_handle_xfer_event(struct crg_gadget_dev *crg_udc,
 
 	xdebug("%s 2 ep%d dqpt=0x%p, eqpt=0x%p\n", __func__,
 		DCI, udc_ep_ptr->deq_pt, udc_ep_ptr->enq_pt);
-#if 1
+
 queue_more_trbs:
 	/* If there are some trbs dequeued by HW and the ring
 	 * was full before, then schedule any pending TRB's
@@ -3140,7 +3138,7 @@ queue_more_trbs:
 		udc_ep_ptr->tran_ring_full = false;
 		queue_pending_trbs(udc_ep_ptr);
 	}
-#endif
+
 	return 0;
 
 }
@@ -3513,15 +3511,14 @@ int usb_gadget_register_driver(struct usb_gadget_driver *drive)
 
 	crg_udc = &crg_udc_dev;
 
-	if (phy_num == 1) {
-		usb_device_mode_init(phy_num);
-		crg_udc->reg_base = (void __iomem *)(u64)0xfdd00000;
-		crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
-	} else {
-		usb_device_mode_init(phy_num);
-		crg_udc->reg_base = (void __iomem *)(u64)0xfde00000;
-		crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
-	}
+	usb_device_mode_init(phy_num);
+	crg_udc->reg_base = (void __iomem *)(u64)CEG_UDC_1_BASE;
+	crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
+
+#ifdef USB_C3
+	crg_udc->reg_base = (void __iomem *)(u64)CRG_UDC_ADDR_C3;
+	crg_udc->uccr = crg_udc->reg_base + CRG_UCCR_OFFSET;
+#endif
 	/* set controller device role */
 	reg_write(crg_udc->reg_base+0x20FC , (reg_read(crg_udc->reg_base+0x20FC)  | 0x1));
 

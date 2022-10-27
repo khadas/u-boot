@@ -41,6 +41,9 @@ static int ldim_set_level(struct aml_ldim_driver_s *ldim_drv, unsigned int level
 	unsigned int max, min;
 	int ret = 0;
 
+	if (!bdrv)
+		return -1;
+
 	ldim_drv->brightness_level = level;
 	if (ldim_drv->ldim_on_flag == 0)
 		return 0;

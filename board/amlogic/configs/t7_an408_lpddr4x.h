@@ -109,11 +109,20 @@
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
         "board_logo_part=odm_ext\0" \
+	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
+	"disable_ir=0\0"\
+		"edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
+		"edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
+		"edid_select=0\0" \
+		"port_map=0x4321\0" \
+		"cec_fun=0x2F\0" \
+		"logic_addr=0x0\0" \
+		"cec_ac_wakeup=1\0" \
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
@@ -134,10 +143,22 @@
                 "panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
                 "hdmimode=${hdmimode} outputmode=${outputmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+		"androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} "\
+		"jtag=${jtag} disable_ir=${disable_ir};"\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
+		"cec_init="\
+		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+		"if test ${cec_ac_wakeup} = 1; then "\
+			"cec ${logic_addr} ${cec_fun}; "\
+			"if test ${edid_select} = 1111; then "\
+				"hdmirx init ${port_map} ${edid_20_dir}; "\
+			"else "\
+				"hdmirx init ${port_map} ${edid_14_dir}; "\
+			"fi;"\
+		"fi;"\
+		"\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
             "echo reboot_mode : ${reboot_mode};"\
@@ -214,7 +235,7 @@
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "else "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "if test ${partiton_mode} = normal; then "\
+                "if test ${partition_mode} = normal; then "\
                     "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
@@ -249,14 +270,9 @@
             "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
+			"setenv usid an408${cpu_id};"\
             "if keyman init 0x1234; then "\
-				"if keyman read usid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-					"setenv serial ${usid}; setenv serial# ${usid};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=an408${cpu_id};"\
-					"setenv serial an408${cpu_id}; setenv serial# an408${cpu_id};"\
-				"fi;"\
+				"if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -266,13 +282,22 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+			"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+			"setenv serial ${usid}; setenv serial# ${usid};"\
 	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
-            "echo detect upgrade key; run update;"\
-            "fi;"\
-            "\0"\
+		"if gpio input GPIOD_3; then "\
+			"echo detect upgrade key;"\
+			"if test ${boot_flag} = 0; then "\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
+			"else if test ${boot_flag} = 1; then "\
+				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
+			"else "\
+				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+			"fi;fi;"\
+		"fi;"\
+		"\0"\
 
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\

@@ -114,6 +114,8 @@ static void lcd_config_load_print(struct aml_lcd_drv_s *pdrv)
 	LCDPR("clk_auto = %d\n", pconf->timing.clk_auto);
 	LCDPR("pixel_clk = %d\n", pconf->timing.lcd_clk);
 
+	LCDPR("custom_pinmux = %d\n", pconf->custom_pinmux);
+
 	pctrl = &pconf->control;
 	if (pconf->basic.lcd_type == LCD_TTL) {
 		LCDPR("clk_pol = %d\n", pctrl->ttl_cfg.clk_pol);
@@ -340,9 +342,9 @@ static int lcd_power_load_from_unifykey(struct aml_lcd_drv_s *pdrv,
 		if (pstep[j].type >= LCD_POWER_TYPE_MAX)
 			break;
 
-		if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
+		if (pstep[j].type == LCD_POWER_TYPE_EXTERN) {
 #ifdef CONFIG_AML_LCD_EXTERN
-			lcd_extern_drv_index_add(pdrv->index, pstep[i].index);
+			lcd_extern_drv_index_add(pdrv->index, pstep[j].index);
 #endif
 		}
 		j++;
@@ -452,6 +454,51 @@ static int lcd_pinmux_load_ttl(struct lcd_pinmux_ctrl_s *pinmux, struct lcd_conf
 	return 0;
 }
 
+static int lcd_custom_pinmux_load_config(struct lcd_pinmux_ctrl_s *pinmux,
+		struct lcd_config_s *pconf)
+{
+	char propname[35];
+	int set_cnt = 0, clr_cnt = 0;
+	int i, j;
+
+	sprintf(propname, "%s", pconf->basic.model_name);
+	for (i = 0; i < LCD_PINMX_MAX; i++) {
+		if (!pinmux)
+			break;
+		if (!pinmux->name)
+			break;
+		if (strncmp(pinmux->name, "invalid", 7) == 0)
+			break;
+		if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
+			for (j = 0; j < LCD_PINMUX_NUM; j++) {
+				if (pinmux->pinmux_set[j][0] == LCD_PINMUX_END)
+					return 0;
+				pconf->pinmux_set[j][0] = pinmux->pinmux_set[j][0];
+				pconf->pinmux_set[j][1] = pinmux->pinmux_set[j][1];
+				set_cnt++;
+			}
+			for (j = 0; j < LCD_PINMUX_NUM; j++) {
+				if (pinmux->pinmux_clr[j][0] == LCD_PINMUX_END)
+					return 0;
+				pconf->pinmux_clr[j][0] = pinmux->pinmux_clr[j][0];
+				pconf->pinmux_clr[j][1] = pinmux->pinmux_clr[j][1];
+				clr_cnt++;
+			}
+			return 0;
+		}
+		pinmux++;
+	}
+	if (set_cnt < LCD_PINMUX_NUM) {
+		pconf->pinmux_set[set_cnt][0] = LCD_PINMUX_END;
+		pconf->pinmux_set[set_cnt][1] = 0x0;
+	}
+	if (clr_cnt < LCD_PINMUX_NUM) {
+		pconf->pinmux_clr[clr_cnt][0] = LCD_PINMUX_END;
+		pconf->pinmux_clr[clr_cnt][1] = 0x0;
+	}
+	return 0;
+}
+
 static int lcd_pinmux_load_config(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_pinmux_ctrl_s *pinmux;
@@ -476,6 +523,13 @@ static int lcd_pinmux_load_config(struct aml_lcd_drv_s *pdrv)
 
 	if (pconf->basic.lcd_type == LCD_TTL) {
 		ret = lcd_pinmux_load_ttl(pinmux, pconf);
+		if (ret)
+			return -1;
+		goto lcd_pinmux_load_config_next;
+	}
+
+	if (pconf->custom_pinmux) {
+		ret = lcd_custom_pinmux_load_config(pinmux, pconf);
 		if (ret)
 			return -1;
 		goto lcd_pinmux_load_config_next;
@@ -1242,8 +1296,10 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 		((*(p + LCD_UKEY_PCLK_MAX + 2)) << 16) |
 		((*(p + LCD_UKEY_PCLK_MAX + 3)) << 24));
 	pconf->basic.frame_rate_min = *(p + LCD_UKEY_FRAME_RATE_MIN);
-	pconf->basic.frame_rate_max = (*(p + LCD_UKEY_FRAME_RATE_MAX) |
-		((*(p + LCD_UKEY_FRAME_RATE_MAX + 1)) << 8));
+	pconf->basic.frame_rate_max = *(p + LCD_UKEY_FRAME_RATE_MAX);
+
+	pconf->custom_pinmux = *(p + LCD_UKEY_CUST_PINMUX);
+	pconf->fr_auto_dis = *(p + LCD_UKEY_FR_AUTO_DIS);
 
 	/* interface: 20byte */
 	switch (pconf->basic.lcd_type) {
@@ -2026,7 +2082,8 @@ void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv)
 		pconf->timing.sync_duration_num = sync_duration;
 		pconf->timing.sync_duration_den = 1;
 	} else { /* regard as pixel clock */
-		temp = pconf->timing.lcd_clk * 1000;
+		temp = pconf->timing.lcd_clk;
+		temp *= 1000;
 		sync_duration = lcd_do_div(temp, (v_period * h_period));
 		pconf->timing.sync_duration_num = sync_duration;
 		pconf->timing.sync_duration_den = 1000;
@@ -2224,7 +2281,10 @@ int lcd_vmode_change(struct aml_lcd_drv_s *pdrv)
 		}
 		break;
 	case 4: /* hdmi mode */
-		if ((duration_num / duration_den) == 59) {
+		if (((duration_num / duration_den) == 59) ||
+		    ((duration_num / duration_den) == 47) ||
+		    ((duration_num / duration_den) == 119) ||
+		    ((duration_num / duration_den) == 95)) {
 			/* pixel clk adjust */
 			temp = duration_num;
 			temp = temp * h_period * v_period;

@@ -21,6 +21,7 @@
 /* 20210625: add tcon multi lut support*/
 /* 20211009: support 59 & 47 frame rate for tv mode*/
 /* 20211106: support vrr config*/
+/* 20211210: support load tcon bin by ioctl*/
 /* 20211216: support phy adjust by lane*/
 #define LCD_DRV_VERSION    "20211216"
 

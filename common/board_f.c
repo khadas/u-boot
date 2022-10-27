@@ -228,6 +228,10 @@ static int show_dram_config(void)
 	size = size + CONFIG_SYS_MEM_TOP_HIDE;
 #endif
 
+	/*Due to customer needs*/
+	if (get_ddr_info_size())
+		size = get_ddr_info_size();
+
 	print_size(size, "");
 	board_add_ram_info(0);
 	putc('\n');

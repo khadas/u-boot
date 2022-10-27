@@ -26,7 +26,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  889	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    840       // VDDEE power up voltage
 
 /* SMP Definitinos */
@@ -210,14 +210,9 @@
             "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
+			"setenv usid t3${cpu_id};"\
             "if keyman init 0x1234; then "\
-				"if keyman read usid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-					"setenv serial ${usid}; setenv serial# ${usid};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${cpu_id};"\
-					"setenv serial ${cpu_id}; setenv serial# ${cpu_id};"\
-				"fi;"\
+				"if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -227,6 +222,8 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+			"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+			"setenv serial ${usid}; setenv serial# ${usid};"\
             "factory_provision init;"\
             "\0"\
         "upgrade_key="\

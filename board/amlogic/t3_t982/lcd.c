@@ -16,6 +16,9 @@
 
 #include <common.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
+#ifdef CONFIG_AML_LCD_TCON
+#include "lcd_tconless_spi_data.h"
+#endif
 
 /***************************************************
  * lcd_0
@@ -227,6 +230,11 @@ static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 		.name = "lcd_p2p_usit_pin", //GPIOH_0~6
 		.pinmux_set = {{7, 0x01111113}, {LCD_PINMUX_END, 0x0}},
 		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "ST6451D06-3", //GPIOH_0~6,9~12,14
+		.pinmux_set = {{7, 0x01111112}, {8, 0x01011110}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{7, 0x0fffffff}, {8, 0x0f0ffff0}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "invalid",
@@ -442,4 +450,8 @@ void lcd_config_bsp_init(void)
 		pdata->dft_conf[0] = &lcd_dft_conf[0];
 		pdata->dft_conf[1] = &lcd_dft_conf[1];
 	}
+
+#ifdef CONFIG_AML_LCD_TCON
+	lcd_tconless_spi_data_probe();
+#endif
 }

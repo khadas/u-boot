@@ -111,11 +111,13 @@
         "vendor_boot_part=vendor_boot\0"\
         "board_logo_part=odm_ext\0" \
         "board=ohm\0"\
+	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
         "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
+	"disable_ir=0\0"\
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
@@ -137,7 +139,8 @@
                 "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
                 "frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
+		"androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} "\
+		"jtag=${jtag} disable_ir=${disable_ir};"\
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
@@ -231,7 +234,7 @@
                 "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
             "else "\
                 "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "if test ${partiton_mode} = normal; then "\
+                "if test ${partition_mode} = normal; then "\
                     "setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
                     "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
                 "else "\
@@ -290,14 +293,9 @@
 	    "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
+			"setenv usid ah232${cpu_id};"\
             "if keyman init 0x1234; then "\
-				"if keyman read usid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-					"setenv serial ${usid}; setenv serial# ${usid};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=ah232${cpu_id};"\
-					"setenv serial ah232${cpu_id}; setenv serial# ah232${cpu_id};"\
-				"fi;"\
+				"if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -307,13 +305,22 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+		"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+		"setenv serial ${usid}; setenv serial# ${usid};"\
 	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
-            "echo detect upgrade key; run update;"\
-            "fi;"\
-            "\0"\
+		"if gpio input GPIOD_3; then "\
+			"echo detect upgrade key;"\
+			"if test ${boot_flag} = 0; then "\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 0;"\
+			"else if test ${boot_flag} = 1; then "\
+				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
+			"else "\
+				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+			"fi;fi;"\
+		"fi;"\
+		"\0"\
 
 #if 1
 #define CONFIG_PREBOOT  \

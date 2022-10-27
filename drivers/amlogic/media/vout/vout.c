@@ -28,6 +28,7 @@
 static int g_vmode = -1;
 static struct vout_conf_s *vout_conf;
 static int vout_conf_check(void);
+static int getenv_int(char *env, int def);
 #include "vout_reg.h"
 
 static const struct vout_set_s vout_sets_lcd[] = {
@@ -530,9 +531,12 @@ static void vout_axis_init(ulong w, ulong h)
 {
 	ulong width = w;
 	ulong height = h;
-
-	env_set_ulong("display_width", width);
-	env_set_ulong("display_height", height);
+	if (getenv_int("display_width",0) != (int)width &&
+	    getenv_int("display_height",0) != (int)height) {
+		env_set_ulong("display_width", width);
+		env_set_ulong("display_height", height);
+		run_command("saveenv", 0);
+	}
 }
 
 static void vout_vmode_init(void)

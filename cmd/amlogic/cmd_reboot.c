@@ -11,6 +11,7 @@
 #include <asm/arch/bl31_apis.h>
 #include <partition_table.h>
 #include <amlogic/storage.h>
+#include <asm/arch/stick_mem.h>
 /*
 run get_rebootmode  //set reboot_mode env with current mode
 */
@@ -18,7 +19,12 @@ run get_rebootmode  //set reboot_mode env with current mode
 int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uint32_t reboot_mode_val;
+
 	reboot_mode_val = ((readl(AO_SEC_SD_CFG15) >> 12) & 0xf);
+	//this step prevent the reboot mode val stored in sticky register lost
+	//during the reset
+	if (reboot_mode_val == 0)
+		reboot_mode_val |= stick_reboot_flag;
 
 	debug("reboot_mode(0x%x)=0x%x\n", AO_SEC_SD_CFG15, reboot_mode_val);
 

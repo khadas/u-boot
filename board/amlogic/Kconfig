@@ -723,6 +723,12 @@ config T7_AN400P_LPDDR4X
 	help
 	  Select T7 AN400P LPDDR4X config
 
+config T7_REVC_SKT
+	bool "T7_REVC_SKT"
+	select TARGET_T7_REVC_SKT
+	help
+	  Select T7 REVC SKT(XXXX) config
+
 endchoice
 
 config TARGET_T7_SKT
@@ -752,6 +758,10 @@ config TARGET_T7_AN40A1
 config TARGET_T7_AN400P_LPDDR4X
 	bool "T7 AN400P lpddr4x board"
 	depends on T7_AN400P_LPDDR4X
+
+config TARGET_T7_REVC_SKT
+	bool "T7 REVC SKT board"
+	depends on T7_REVC_SKT
 
 endif
 
@@ -997,6 +1007,8 @@ source "board/amlogic/sm1_ac200_v1/Kconfig"
 source "board/amlogic/p1_skt/Kconfig"
 
 source "board/amlogic/t7_skt/Kconfig"
+
+source "board/amlogic/t7_revc_skt/Kconfig"
 
 source "board/amlogic/t7_an408_lpddr4x/Kconfig"
 

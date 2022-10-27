@@ -922,17 +922,18 @@ static int likely_frac_rate_mode(char *m)
 static void hdmitx_check_frac_rate(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = NULL;
+	char *frac_rate_str = NULL;
 
-	frac_rate = hdev->frac_rate_policy;
 	para = hdev->para;
-	if (para && para->timing.name && likely_frac_rate_mode(para->timing.name)) {
-		;
-	} else {
-		pr_info("this mode doesn't have frac_rate\n");
+	frac_rate_str = env_get("frac_rate_policy");
+	if (frac_rate_str && (frac_rate_str[0] == '0'))
 		frac_rate = 0;
-	}
-}
+	else if (para && para->timing.name && likely_frac_rate_mode(para->timing.name))
+		frac_rate = 1;
 
+	hdev->frac_rate_policy = frac_rate;
+	pr_info("hdmitx_check_frac_rate: frac_rate:%d\n", frac_rate);
+}
 void hdmitx21_set_clk(struct hdmitx_dev *hdev)
 {
 	hdmitx_check_frac_rate(hdev);

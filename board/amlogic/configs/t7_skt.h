@@ -110,6 +110,13 @@
         "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
+		"edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
+		"edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
+		"edid_select=0\0" \
+		"port_map=0x4321\0" \
+		"cec_fun=0x2F\0" \
+		"logic_addr=0x0\0" \
+		"cec_ac_wakeup=1\0" \
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000"\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
@@ -135,6 +142,17 @@
             "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
             "run cmdline_keys;"\
             "\0"\
+	"cec_init="\
+		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+		"if test ${cec_ac_wakeup} = 1; then "\
+			"cec ${logic_addr} ${cec_fun}; "\
+			"if test ${edid_select} = 1111; then "\
+				"hdmirx init ${port_map} ${edid_20_dir}; "\
+			"else "\
+				"hdmirx init ${port_map} ${edid_14_dir}; "\
+			"fi;"\
+		"fi;"\
+	"\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
             "if test ${reboot_mode} = factory_reset; then "\
@@ -220,14 +238,9 @@
             "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
+			"setenv usid t7${cpu_id};"\
             "if keyman init 0x1234; then "\
-				"if keyman read usid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-					"setenv serial ${usid}; setenv serial# ${usid};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${cpu_id};"\
-					"setenv serial ${cpu_id}; setenv serial# ${cpu_id};"\
-				"fi;"\
+				"if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
                 "if keyman read mac ${loadaddr} str; then "\
                     "setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
@@ -237,6 +250,8 @@
                 "fi;"\
             "fi;"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+			"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+			"setenv serial ${usid}; setenv serial# ${usid};"\
 	    "factory_provision init;"\
             "\0"\
         "upgrade_key="\

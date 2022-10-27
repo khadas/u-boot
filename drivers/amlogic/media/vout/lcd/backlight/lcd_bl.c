@@ -1061,7 +1061,7 @@ static int bl_config_load_from_dts(char *dt_addr, struct aml_bl_drv_s *bdrv)
 		BLERR("failed to get bl_name\n");
 		sprintf(bconf->name, "backlight_%d", bconf->index);
 	} else {
-		strcpy(bconf->name, propdata);
+		strncpy(bconf->name, propdata, (BL_NAME_MAX - 1));
 	}
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset,
@@ -2254,7 +2254,7 @@ static int lcd_bl_init_load_from_dts(char *dtaddr, struct aml_bl_drv_s *bdrv)
 			str = p;
 			if (strlen(str) == 0)
 				break;
-			strcpy(bdrv->config.gpio_name[i], str);
+			strncpy(bdrv->config.gpio_name[i], str, (LCD_CPU_GPIO_NAME_MAX - 1));
 			if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL)
 				BLPR("i=%d, gpio=%s\n", i, bdrv->config.gpio_name[i]);
 			i++;

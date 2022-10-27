@@ -30,6 +30,7 @@
 #define EXTENSION_VFPDB_TAG	0xd
 #define EXTENSION_Y420_VDB_TAG	0xe
 #define EXTENSION_Y420_CMDB_TAG	0xf
+#define EXTENSION_SCDB_EXT_TAG	0x79
 
 #define EDID_DETAILED_TIMING_DES_BLOCK0_POS 0x36
 #define EDID_DETAILED_TIMING_DES_BLOCK1_POS 0x48
@@ -113,7 +114,8 @@ static struct dispmode_vic dispmode_vic_tab[] = {
 	{"2560x1440p60hz", HDMIV_2560x1440p60hz},
 	{"2560x1600p60hz", HDMIV_2560x1600p60hz},
 	{"3440x1440p60hz", HDMIV_3440x1440p60hz},
-	{"2400x1200p90hz", HDMIV_2400x1200p90hz}
+	{"2400x1200p90hz", HDMIV_2400x1200p90hz},
+	{"3840x1080p60hz", HDMIV_3840x1080p60hz},
 };
 
 #if 0
@@ -265,167 +267,170 @@ static void edid_parsingvendspec(struct rx_cap *prxcap,
 		return;
 	}
 
-	if (ieeeoui != DV_IEEE_OUI) {
-		dv->block_flag = ERROR_OUI;
-		return;
-	}
-	/* it is a Dovi block*/
-	memset(dv, 0, sizeof(struct dv_info));
-	dv->block_flag = CORRECT;
-	dv->length = length;
-	memcpy(dv->rawdata, dat, dv->length + 1);
-	dv->ieeeoui = ieeeoui;
-	dv->ver = (dat[pos] >> 5) & 0x7;
-	if ((dv->ver) > 2) {
-		dv->block_flag = ERROR_VER;
-		return;
-	}
-	/* Refer to DV 2.9 Page 27 */
-	if (dv->ver == 0) {
-		if (dv->length == 0x19) {
-			dv->sup_yuv422_12bit = dat[pos] & 0x1;
-			dv->sup_2160p60hz = (dat[pos] >> 1) & 0x1;
-			dv->sup_global_dimming = (dat[pos] >> 2) & 0x1;
-			pos++;
-			dv->Rx =
-				(dat[pos+1] << 4) | (dat[pos] >> 4);
-			dv->Ry =
-				(dat[pos+2] << 4) | (dat[pos] & 0xf);
-			pos += 3;
-			dv->Gx =
-				(dat[pos+1] << 4) | (dat[pos] >> 4);
-			dv->Gy =
-				(dat[pos+2] << 4) | (dat[pos] & 0xf);
-			pos += 3;
-			dv->Bx =
-				(dat[pos+1] << 4) | (dat[pos] >> 4);
-			dv->By =
-				(dat[pos+2] << 4) | (dat[pos] & 0xf);
-			pos += 3;
-			dv->Wx =
-				(dat[pos+1] << 4) | (dat[pos] >> 4);
-			dv->Wy =
-				(dat[pos+2] << 4) | (dat[pos] & 0xf);
-			pos += 3;
-			dv->tminPQ =
-				(dat[pos+1] << 4) | (dat[pos] >> 4);
-			dv->tmaxPQ =
-				(dat[pos+2] << 4) | (dat[pos] & 0xf);
-			pos += 3;
-			dv->dm_major_ver = dat[pos] >> 4;
-			dv->dm_minor_ver = dat[pos] & 0xf;
-			pos++;
-			dv->support_DV_RGB_444_8BIT = 1;
-			printf("v0 VSVDB: len=%d, sup_2160p60hz=%d\n",
-				 dv->length, dv->sup_2160p60hz);
-		} else
-			dv->block_flag = ERROR_LENGTH;
-	}
-
-	if (dv->ver == 1) {
-		if (dv->length == 0x0B) {/* Refer to DV 2.9 Page 33 */
-			dv->dm_version = (dat[pos] >> 2) & 0x7;
-			dv->sup_yuv422_12bit = dat[pos] & 0x1;
-			dv->sup_2160p60hz = (dat[pos] >> 1) & 0x1;
-			pos++;
-			dv->sup_global_dimming = dat[pos] & 0x1;
-			dv->tmaxLUM = dat[pos] >> 1;
-			pos++;
-			dv->colorimetry = dat[pos] & 0x1;
-			dv->tminLUM = dat[pos] >> 1;
-			pos++;
-			dv->low_latency = dat[pos] & 0x3;
-			dv->Bx = 0x20 | ((dat[pos] >> 5) & 0x7);
-			dv->By = 0x08 | ((dat[pos] >> 2) & 0x7);
-			pos++;
-			dv->Gx = 0x00 | (dat[pos] >> 1);
-			dv->Ry = 0x40 | ((dat[pos] & 0x1) |
-				((dat[pos + 1] & 0x1) << 1) |
-				((dat[pos + 2] & 0x3) << 2));
-			pos++;
-			dv->Gy = 0x80 | (dat[pos] >> 1);
-			pos++;
-			dv->Rx = 0xA0 | (dat[pos] >> 3);
-			pos++;
-			dv->support_DV_RGB_444_8BIT = 1;
-			if (dv->low_latency == 0x01)
-				dv->support_LL_YCbCr_422_12BIT = 1;
-			printf("v1 VSVDB: len=%d, sup_2160p60hz=%d, low_latency=%d\n",
-			dv->length, dv->sup_2160p60hz, dv->low_latency);
-		} else if (dv->length == 0x0E) {
-			dv->dm_version = (dat[pos] >> 2) & 0x7;
-			dv->sup_yuv422_12bit = dat[pos] & 0x1;
-			dv->sup_2160p60hz = (dat[pos] >> 1) & 0x1;
-			pos++;
-			dv->sup_global_dimming = dat[pos] & 0x1;
-			dv->tmaxLUM = dat[pos] >> 1;
-			pos++;
-			dv->colorimetry = dat[pos] & 0x1;
-			dv->tminLUM = dat[pos] >> 1;
-			pos += 2; /* byte8 is reserved as 0 */
-			dv->Rx = dat[pos++];
-			dv->Ry = dat[pos++];
-			dv->Gx = dat[pos++];
-			dv->Gy = dat[pos++];
-			dv->Bx = dat[pos++];
-			dv->By = dat[pos++];
-			dv->support_DV_RGB_444_8BIT = 1;
-			printf("v1 VSVDB: len=%d, sup_2160p60hz=%d\n",
-				 dv->length, dv->sup_2160p60hz);
-		} else
-			dv->block_flag = ERROR_LENGTH;
-	}
-	if (dv->ver == 2) {
-		/* v2 VSVDB length could be greater than 0xB
-		 * and should not be treated as unrecognized
-		 * block. Instead, we should parse it as a regular
-		 * v2 VSVDB using just the remaining 11 bytes here
-		 */
-		if (dv->length >= 0x0B) {
-			dv->sup_2160p60hz = 0x1;/*default*/
-			dv->dm_version = (dat[pos] >> 2) & 0x7;
-			dv->sup_yuv422_12bit = dat[pos] & 0x1;
-			dv->sup_backlight_control = (dat[pos] >> 1) & 0x1;
-			pos++;
-			dv->sup_global_dimming = (dat[pos] >> 2) & 0x1;
-			dv->backlt_min_luma = dat[pos] & 0x3;
-			dv->tminPQ = dat[pos] >> 3;
-			pos++;
-			dv->Interface = dat[pos] & 0x3;
-			dv->tmaxPQ = dat[pos] >> 3;
-			pos++;
-			dv->sup_10b_12b_444 = ((dat[pos] & 0x1) << 1) |
-				(dat[pos + 1] & 0x1);
-			dv->Gx = 0x00 | (dat[pos] >> 1);
-			pos++;
-			dv->Gy = 0x80 | (dat[pos] >> 1);
-			pos++;
-			dv->Rx = 0xA0 | (dat[pos] >> 3);
-			dv->Bx = 0x20 | (dat[pos] & 0x7);
-			pos++;
-			dv->Ry = 0x40  | (dat[pos] >> 3);
-			dv->By = 0x08  | (dat[pos] & 0x7);
-			pos++;
-			if ((dv->Interface != 0x00) &&
-			    (dv->Interface != 0x01))
+	if (ieeeoui == DV_IEEE_OUI) {
+		/* it is a Dovi block*/
+		memset(dv, 0, sizeof(struct dv_info));
+		dv->block_flag = CORRECT;
+		dv->length = length;
+		memcpy(dv->rawdata, dat, dv->length + 1);
+		dv->ieeeoui = ieeeoui;
+		dv->ver = (dat[pos] >> 5) & 0x7;
+		if (dv->ver > 2) {
+			dv->block_flag = ERROR_VER;
+			return;
+		}
+		/* Refer to DV 2.9 Page 27 */
+		if (dv->ver == 0) {
+			if (dv->length == 0x19) {
+				dv->sup_yuv422_12bit = dat[pos] & 0x1;
+				dv->sup_2160p60hz = (dat[pos] >> 1) & 0x1;
+				dv->sup_global_dimming = (dat[pos] >> 2) & 0x1;
+				pos++;
+				dv->Rx =
+					(dat[pos + 1] << 4) | (dat[pos] >> 4);
+				dv->Ry =
+					(dat[pos + 2] << 4) | (dat[pos] & 0xf);
+				pos += 3;
+				dv->Gx =
+					(dat[pos + 1] << 4) | (dat[pos] >> 4);
+				dv->Gy =
+					(dat[pos + 2] << 4) | (dat[pos] & 0xf);
+				pos += 3;
+				dv->Bx =
+					(dat[pos + 1] << 4) | (dat[pos] >> 4);
+				dv->By =
+					(dat[pos + 2] << 4) | (dat[pos] & 0xf);
+				pos += 3;
+				dv->Wx =
+					(dat[pos + 1] << 4) | (dat[pos] >> 4);
+				dv->Wy =
+					(dat[pos + 2] << 4) | (dat[pos] & 0xf);
+				pos += 3;
+				dv->tminPQ =
+					(dat[pos + 1] << 4) | (dat[pos] >> 4);
+				dv->tmaxPQ =
+					(dat[pos + 2] << 4) | (dat[pos] & 0xf);
+				pos += 3;
+				dv->dm_major_ver = dat[pos] >> 4;
+				dv->dm_minor_ver = dat[pos] & 0xf;
+				pos++;
 				dv->support_DV_RGB_444_8BIT = 1;
-
-			dv->support_LL_YCbCr_422_12BIT = 1;
-			if ((dv->Interface == 0x01) ||
-			    (dv->Interface == 0x03)) {
-				if (dv->sup_10b_12b_444 == 0x1)
-					dv->support_LL_RGB_444_10BIT = 1;
-				if (dv->sup_10b_12b_444 == 0x2)
-					dv->support_LL_RGB_444_12BIT = 1;
+				printf("v0 VSVDB: len=%d, sup_2160p60hz=%d\n",
+					 dv->length, dv->sup_2160p60hz);
+			} else {
+				dv->block_flag = ERROR_LENGTH;
 			}
-			printf("v2 VSVDB: len=%d, sup_2160p60hz=%d, Interface=%d\n",
-				 dv->length, dv->sup_2160p60hz, dv->Interface);
-		} else
-			dv->block_flag = ERROR_LENGTH;
-	}
+		}
 
-	if (pos > dv->length + 1)
-		printf("hdmitx: edid: maybe invalid dv%d data\n", dv->ver);
+		if (dv->ver == 1) {
+			if (dv->length == 0x0B) {/* Refer to DV 2.9 Page 33 */
+				dv->dm_version = (dat[pos] >> 2) & 0x7;
+				dv->sup_yuv422_12bit = dat[pos] & 0x1;
+				dv->sup_2160p60hz = (dat[pos] >> 1) & 0x1;
+				pos++;
+				dv->sup_global_dimming = dat[pos] & 0x1;
+				dv->tmaxLUM = dat[pos] >> 1;
+				pos++;
+				dv->colorimetry = dat[pos] & 0x1;
+				dv->tminLUM = dat[pos] >> 1;
+				pos++;
+				dv->low_latency = dat[pos] & 0x3;
+				dv->Bx = 0x20 | ((dat[pos] >> 5) & 0x7);
+				dv->By = 0x08 | ((dat[pos] >> 2) & 0x7);
+				pos++;
+				dv->Gx = 0x00 | (dat[pos] >> 1);
+				dv->Ry = 0x40 | ((dat[pos] & 0x1) |
+					((dat[pos + 1] & 0x1) << 1) |
+					((dat[pos + 2] & 0x3) << 2));
+				pos++;
+				dv->Gy = 0x80 | (dat[pos] >> 1);
+				pos++;
+				dv->Rx = 0xA0 | (dat[pos] >> 3);
+				pos++;
+				dv->support_DV_RGB_444_8BIT = 1;
+				if (dv->low_latency == 0x01)
+					dv->support_LL_YCbCr_422_12BIT = 1;
+				printf("v1 VSVDB: len=%d, sup_2160p60hz=%d, low_latency=%d\n",
+				dv->length, dv->sup_2160p60hz, dv->low_latency);
+			} else if (dv->length == 0x0E) {
+				dv->dm_version = (dat[pos] >> 2) & 0x7;
+				dv->sup_yuv422_12bit = dat[pos] & 0x1;
+				dv->sup_2160p60hz = (dat[pos] >> 1) & 0x1;
+				pos++;
+				dv->sup_global_dimming = dat[pos] & 0x1;
+				dv->tmaxLUM = dat[pos] >> 1;
+				pos++;
+				dv->colorimetry = dat[pos] & 0x1;
+				dv->tminLUM = dat[pos] >> 1;
+				pos += 2; /* byte8 is reserved as 0 */
+				dv->Rx = dat[pos++];
+				dv->Ry = dat[pos++];
+				dv->Gx = dat[pos++];
+				dv->Gy = dat[pos++];
+				dv->Bx = dat[pos++];
+				dv->By = dat[pos++];
+				dv->support_DV_RGB_444_8BIT = 1;
+				printf("v1 VSVDB: len=%d, sup_2160p60hz=%d\n",
+					 dv->length, dv->sup_2160p60hz);
+			} else {
+				dv->block_flag = ERROR_LENGTH;
+			}
+		}
+		if (dv->ver == 2) {
+			/* v2 VSVDB length could be greater than 0xB
+			 * and should not be treated as unrecognized
+			 * block. Instead, we should parse it as a regular
+			 * v2 VSVDB using just the remaining 11 bytes here
+			 */
+			if (dv->length >= 0x0B) {
+				dv->sup_2160p60hz = 0x1;/*default*/
+				dv->dm_version = (dat[pos] >> 2) & 0x7;
+				dv->sup_yuv422_12bit = dat[pos] & 0x1;
+				dv->sup_backlight_control = (dat[pos] >> 1) & 0x1;
+				pos++;
+				dv->sup_global_dimming = (dat[pos] >> 2) & 0x1;
+				dv->backlt_min_luma = dat[pos] & 0x3;
+				dv->tminPQ = dat[pos] >> 3;
+				pos++;
+				dv->Interface = dat[pos] & 0x3;
+				dv->tmaxPQ = dat[pos] >> 3;
+				pos++;
+				dv->sup_10b_12b_444 = ((dat[pos] & 0x1) << 1) |
+					(dat[pos + 1] & 0x1);
+				dv->Gx = 0x00 | (dat[pos] >> 1);
+				pos++;
+				dv->Gy = 0x80 | (dat[pos] >> 1);
+				pos++;
+				dv->Rx = 0xA0 | (dat[pos] >> 3);
+				dv->Bx = 0x20 | (dat[pos] & 0x7);
+				pos++;
+				dv->Ry = 0x40  | (dat[pos] >> 3);
+				dv->By = 0x08  | (dat[pos] & 0x7);
+				pos++;
+				if (dv->Interface != 0x00 &&
+				    dv->Interface != 0x01)
+					dv->support_DV_RGB_444_8BIT = 1;
+
+				dv->support_LL_YCbCr_422_12BIT = 1;
+				if (dv->Interface == 0x01 ||
+				    dv->Interface == 0x03) {
+					if (dv->sup_10b_12b_444 == 0x1)
+						dv->support_LL_RGB_444_10BIT = 1;
+					if (dv->sup_10b_12b_444 == 0x2)
+						dv->support_LL_RGB_444_12BIT = 1;
+				}
+				printf("v2 VSVDB: len=%d, sup_2160p60hz=%d, Interface=%d\n",
+					 dv->length, dv->sup_2160p60hz, dv->Interface);
+			} else {
+				dv->block_flag = ERROR_LENGTH;
+			}
+		}
+
+		if (pos > dv->length + 1)
+			printf("hdmitx: edid: maybe invalid dv%d data\n", dv->ver);
+		return;
+	}
+	/* future: other new VSVDB add here: */
 }
 
 static void edid_dtd_parsing(struct rx_cap *prxcap, unsigned char *data)
@@ -703,13 +708,57 @@ static int edid_parsingvfpdb(struct rx_cap *prxcap, unsigned char *buf)
 	return 0;
 }
 
+static void hdmitx_edid_parse_hdmi14(struct rx_cap *prxcap,
+				     unsigned char offset,
+				     unsigned char *blockbuf,
+				     unsigned char count)
+{
+	int idx = 0, tmp = 0;
+
+	prxcap->IEEEOUI = 0x000c03;
+	prxcap->ColorDeepSupport = (count > 5) ? (unsigned long)blockbuf[offset + 5] : 0;
+	printf("HDMI_EDID_BLOCK_TYPE_VENDER: prxcap->ColorDeepSupport=0x%x\n",
+		prxcap->ColorDeepSupport);
+	if (count > 5)
+		set_vsdb_dc_cap(prxcap);
+	prxcap->Max_TMDS_Clock1 = (count > 6) ? (unsigned long)blockbuf[offset + 6] : 0;
+	if (count > 7) {
+		tmp = blockbuf[offset + 7];
+		idx = offset + 8;
+		if (tmp & (1 << 6))
+			idx += 2;
+		if (tmp & (1 << 7))
+			idx += 2;
+		if (tmp & (1 << 5)) {
+			idx += 1;
+			/* valid 4k */
+			if (blockbuf[idx] & 0xe0) {
+				hdmitx_edid_4k2k_parse(prxcap,
+					&blockbuf[idx + 1], blockbuf[idx] >> 5);
+			}
+		}
+	}
+}
+
+static void hdmitx_parse_sink_capability(struct rx_cap *prxcap,
+	unsigned char offset, unsigned char *blockbuf,
+	unsigned char count)
+{
+	prxcap->HF_IEEEOUI = 0xd85dc4;
+	prxcap->Max_TMDS_Clock2 = blockbuf[offset + 4];
+	prxcap->scdc_present = !!(blockbuf[offset + 5] & (1 << 7));
+	prxcap->scdc_rr_capable = !!(blockbuf[offset + 5] & (1 << 6));
+	prxcap->lte_340mcsc_scramble = !!(blockbuf[offset + 5] & (1 << 3));
+	set_vsdb_dc_420_cap(prxcap, &blockbuf[offset]);
+}
+
 static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 	unsigned char *blockbuf)
 {
 	unsigned char offset, end;
 	unsigned char count;
 	unsigned char tag;
-	int i, tmp, idx;
+	int i, idx;
 	unsigned char *vfpdb_offset = NULL;
 
 	/* CEA-861 implementations are required to use Tag = 0x02
@@ -769,50 +818,11 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 			if (blockbuf[offset] == 0x03 &&
 				blockbuf[offset + 1] == 0x0c &&
 				blockbuf[offset + 2] == 0x00)
-				prxcap->IEEEOUI = 0x000c03;
-			else
-				goto case_hf;
-			prxcap->ColorDeepSupport =
-				(unsigned long)blockbuf[offset + 5];
-			printf("HDMI_EDID_BLOCK_TYPE_VENDER: prxcap->ColorDeepSupport=0x%x\n",
-				prxcap->ColorDeepSupport);
-			set_vsdb_dc_cap(prxcap);
-			prxcap->Max_TMDS_Clock1 =
-				(unsigned long)blockbuf[offset + 6];
-			if (count > 7) {
-				tmp = blockbuf[offset + 7];
-				idx = offset + 8;
-				if (tmp & (1<<6))
-					idx += 2;
-				if (tmp & (1<<7))
-					idx += 2;
-				if (tmp & (1<<5)) {
-					idx += 1;
-					/* valid 4k */
-					if (blockbuf[idx] & 0xe0) {
-						hdmitx_edid_4k2k_parse(
-							prxcap,
-							&blockbuf[idx + 1],
-							blockbuf[idx] >> 5);
-					}
-				}
-			}
-			goto case_next;
-case_hf:
-			if (blockbuf[offset] == 0xd8 &&
-				blockbuf[offset + 1] == 0x5d &&
-				blockbuf[offset + 2] == 0xc4)
-				prxcap->HF_IEEEOUI = 0xd85dc4;
-			prxcap->Max_TMDS_Clock2 = blockbuf[offset + 4];
-			prxcap->scdc_present =
-				!!(blockbuf[offset + 5] & (1 << 7));
-			prxcap->scdc_rr_capable =
-				!!(blockbuf[offset + 5] & (1 << 6));
-			prxcap->lte_340mcsc_scramble =
-				!!(blockbuf[offset + 5] & (1 << 3));
-			set_vsdb_dc_420_cap(prxcap,
-				&blockbuf[offset]);
-case_next:
+				hdmitx_edid_parse_hdmi14(prxcap, offset, blockbuf, count);
+			else if (blockbuf[offset] == 0xd8 &&
+				   blockbuf[offset + 1] == 0x5d &&
+				   blockbuf[offset + 2] == 0xc4)
+				hdmitx_parse_sink_capability(prxcap, offset, blockbuf, count);
 			offset += count; /* ignore the remaind. */
 			break;
 
@@ -859,6 +869,10 @@ case_next:
 				case EXTENSION_Y420_CMDB_TAG:
 					edid_parsingy420cmdbblock(prxcap,
 						&blockbuf[offset]);
+					break;
+				case EXTENSION_SCDB_EXT_TAG:
+					hdmitx_parse_sink_capability(prxcap, offset + 1,
+						blockbuf, count);
 					break;
 				default:
 					break;
