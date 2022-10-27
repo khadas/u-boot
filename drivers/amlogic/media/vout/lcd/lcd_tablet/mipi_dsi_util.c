@@ -32,7 +32,7 @@
 #define MIPI_DSI_COLOR_18BIT            COLOR_18BIT_CFG_2//COLOR_18BIT_CFG_1
 #define MIPI_DSI_COLOR_24BIT            COLOR_24BIT
 #define MIPI_DSI_TEAR_SWITCH            MIPI_DCS_DISABLE_TEAR
-#define CMD_TIMEOUT_CNT                 5000
+#define CMD_TIMEOUT_CNT                 50000
 /* ************************************************************* */
 
 static char *operation_mode_table[] = {
@@ -891,7 +891,7 @@ static int wait_bta_ack(int index)
 	/* Check if phydirection is RX */
 	i = CMD_TIMEOUT_CNT;
 	do {
-		udelay(10);
+		udelay(1);
 		i--;
 		phy_status = dsi_host_read(index, MIPI_DSI_DWC_PHY_STATUS_OS);
 	} while ((((phy_status & 0x2) >> BIT_PHY_DIRECTION) == 0x0) && (i > 0));
@@ -903,7 +903,7 @@ static int wait_bta_ack(int index)
 	/* Check if phydirection is return to TX */
 	i = CMD_TIMEOUT_CNT;
 	do {
-		udelay(10);
+		udelay(1);
 		i--;
 		phy_status = dsi_host_read(index, MIPI_DSI_DWC_PHY_STATUS_OS);
 	} while ((((phy_status & 0x2) >> BIT_PHY_DIRECTION) == 0x1) && (i > 0));
@@ -1020,6 +1020,10 @@ static int dsi_generic_read_packet(int index, struct dsi_cmd_request_s *req,
 	unsigned int d_para[2], read_data;
 	unsigned int i, j, done;
 	int ret = 0;
+	struct aml_lcd_drv_s *pdrv = aml_lcd_get_driver(index);
+
+	if (pdrv->data->chip_type == LCD_CHIP_T7)
+		dsi_phy_setb(index, MIPI_DSI_CHAN_CTRL, 0x3, 20, 2);
 
 	switch (req->data_type) {
 	case DT_GEN_RD_1:
@@ -1049,7 +1053,7 @@ static int dsi_generic_read_packet(int index, struct dsi_cmd_request_s *req,
 		(((unsigned int)req->data_type) << BIT_GEN_DT)));
 	ret = wait_bta_ack(index);
 	if (ret)
-		return -1;
+		goto dsi_generic_read_packet_done;
 
 	i = 0;
 	done = 0;
@@ -1066,9 +1070,14 @@ static int dsi_generic_read_packet(int index, struct dsi_cmd_request_s *req,
 			}
 		}
 	}
+
+dsi_generic_read_packet_done:
 	if (MIPI_DSI_DCS_ACK_TYPE == MIPI_DSI_DCS_NO_ACK)
 		dsi_bta_control(index, 0);
-
+	if (pdrv->data->chip_type == LCD_CHIP_T7)
+		dsi_phy_setb(index, MIPI_DSI_CHAN_CTRL, 0x0, 20, 2);
+	if (ret)
+		return -1;
 	return dsi_rx_n;
 }
 
@@ -1078,6 +1087,10 @@ static int dsi_dcs_read_packet(int index, struct dsi_cmd_request_s *req,
 	unsigned int d_command, read_data;
 	unsigned int i, j, done;
 	int ret = 0;
+	struct aml_lcd_drv_s *pdrv = aml_lcd_get_driver(index);
+
+	if (pdrv->data->chip_type == LCD_CHIP_T7)
+		dsi_phy_setb(index, MIPI_DSI_CHAN_CTRL, 0x3, 20, 2);
 
 	d_command = ((unsigned int)req->payload[2]) & 0xff;
 
@@ -1090,7 +1103,7 @@ static int dsi_dcs_read_packet(int index, struct dsi_cmd_request_s *req,
 		(((unsigned int)req->data_type) << BIT_GEN_DT)));
 	ret = wait_bta_ack(index);
 	if (ret)
-		return -1;
+		goto dsi_dcs_read_packet_done;
 
 	i = 0;
 	done = 0;
@@ -1108,9 +1121,13 @@ static int dsi_dcs_read_packet(int index, struct dsi_cmd_request_s *req,
 		}
 	}
 
+dsi_dcs_read_packet_done:
 	if (MIPI_DSI_DCS_ACK_TYPE == MIPI_DSI_DCS_NO_ACK)
 		dsi_bta_control(index, 0);
-
+	if (pdrv->data->chip_type == LCD_CHIP_T7)
+		dsi_phy_setb(index, MIPI_DSI_CHAN_CTRL, 0x0, 20, 2);
+	if (ret)
+		return -1;
 	return dsi_rx_n;
 }
 #endif
