@@ -201,25 +201,20 @@
 };
 
 &crg20 {
-        status = "okay";
-        dr_mode = "host";
-};
-
-&crg30 {
-        status = "okay";
-        dr_mode = "host";
+	status = "okay";
+	dr_mode = "host";
 };
 
 &usb2_phy_v2 {
-        status = "okay";
-        portnum = <3>;
+	status = "okay";
+	portnum = <3>;
 };
 
 &usb3_phy_v2 {
-        status = "okay";
-        portnum = <0>;
-        gpio-vbus-power = "GPIOD_6";
-        gpios = <&gpio GPIOD_6 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+	portnum = <0>;
+	/* gpio-vbus-power = "GPIOD_6"; */
+	/* gpios = <&gpio GPIOD_6 GPIO_ACTIVE_HIGH>; */
 };
 
 &pwm_ef {

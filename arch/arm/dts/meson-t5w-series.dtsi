@@ -478,46 +478,39 @@
 			};
 		};
 
-                crg20: crg@fdd00000 {
-                        compatible = "crg-xhci";
-                        status = "disable";
-                        reg = <0x0 0xfdd00000 0x0 0x100000>;
-                        phys = <&usb2_phy_v2>, <&usb3_phy_v2>;
-                        phy-names = "usb2-phy", "usb3-phy";
-                };
+		crg20: crg@ff500000 {
+			compatible = "crg-xhci";
+			status = "disable";
+			reg = <0x0 0xff500000 0x0 0x100000>;
+			phys = <&usb2_phy_v2>, <&usb3_phy_v2>;
+			phy-names = "usb2-phy", "usb3-phy";
+		};
 
-                crg30: crg@fde00000 {
-                        compatible = "crg-xhci";
-                        status = "disable";
-                        reg = <0x0 0xfde00000 0x0 0x100000>;
-			portnum = <2>;
-                };
+		usb2_phy_v2: usb2phy@ffe09000 {
+			compatible = "amlogic, amlogic-new-usb2-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <2>;
+			reg = <0x0 0xffe09000 0x0 0x80
+				0x0 0xffd01008 0x0 0x100
+				0x0 0xff636000 0x0 0x2000
+				0x0 0xff63a000 0x0 0x2000
+				0x0 0xff658000 0x0 0x2000>;
+			dwc2_a_reg = <0xff400000>;
+			#phy-cells = <0>;
+		};
 
-                usb2_phy_v2: usb2phy@fe03a000 {
-                        compatible = "amlogic, amlogic-new-usb2-v2";
-                        status = "disable";
-                        #address-cells = <2>;
-                        #size-cells = <2>;
-                        phy-version = <2>;
-                        reg = <0x0 0xfe03a000 0x0 0x80
-                                        0x0 0xFE002000 0x0 0x100
-					0x0 0xfe032000 0x0 0x2000
-                                        0x0 0xfe03e000 0x0 0x2000
-					0x0 0xfe030000 0x0 0x2000>;
-			dwc2_a_reg = <0xfdf00000>;
-                        #phy-cells = <0>;
-                };
-
-                usb3_phy_v2: usb3phy@fe03a080 {
-                        compatible = "amlogic, amlogic-new-usb3-v2";
-                        status = "disable";
-                        #address-cells = <2>;
-                        #size-cells = <2>;
-                        phy-version = <3>;
-                        reg = <0x0 0xfe03a080 0x0 0x20>;
-                        usb2-phy-reg = <0xfe03a000>;
-                        usb2-phy-reg-size = <0x80>;
-                        #phy-cells = <0>;
-                };
+		usb3_phy_v2: usb3phy@ffe09080 {
+			compatible = "amlogic, amlogic-new-usb3-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <3>;
+			reg = <0x0 0xffe09080 0x0 0x20>;
+			usb2-phy-reg = <0xffe09000>;
+			usb2-phy-reg-size = <0x80>;
+			#phy-cells = <0>;
+		};
 	};
 };
