@@ -37,6 +37,8 @@
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 /* config for khadas kbi */
 #define CONFIG_KHADAS_KBI 1
+#define CONFIG_KHADAS_CFGLOAD 1
+#define CONFIG_KHADAS_SCRIPT 1
 #define CONFIG_USID_FROM_ETH_MAC 1
 
 #define CONFIG_POWER_FUSB302 1
@@ -199,6 +201,7 @@
             "\0" \
         "storeboot="\
             "kbi resetflag 0;"\
+            "cfgload;"\
             "if test ${reboot_mode} = normal; then "\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else "\
