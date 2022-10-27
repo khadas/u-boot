@@ -17,14 +17,13 @@ static int env_storage_save(void)
 		printf("env_storage: must init before save\n");
 		return -ENOENT;
 	}
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
-
-	if (env_export((env_t *)buf)) {
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
+	if (env_export(env_new)) {
 		printf("env_storage: export failed\n");
 		return -EINVAL;
 	}
 
-	if (store_rsv_write(RSV_ENV, CONFIG_ENV_SIZE, (void *)buf)) {
+	if (store_rsv_write(RSV_ENV, CONFIG_ENV_SIZE, (void *)env_new)) {
 		printf("env_storage: write failed\n");
 		return -EIO;
 	}

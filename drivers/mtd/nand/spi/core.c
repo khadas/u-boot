@@ -1306,7 +1306,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 				  const struct mtd_partition *parts,
 				  int nbparts)
 {
-	int part_num = 0, i = 0;
+	int part_num = 0, i = 0, ret = 1;
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
 
@@ -1378,12 +1378,12 @@ int spinand_add_partitions(struct mtd_info *mtd,
 			pr_err("name can't be null! ");
 			pr_err("please check your %d th partition name!\n",
 				 i + 1);
-			return 1;
+			goto _out;
 		}
 		if ((off + parts[i].size) > mtd->size) {
 			pr_err("%s %d over nand size!\n",
 				__func__, __LINE__);
-			return 1;
+			goto _out;
 		}
 		parts_nm[i].name = parts[i].name;
 #ifndef CONFIG_NOT_SKIP_BAD_BLOCK
@@ -1411,7 +1411,10 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		if (i == (nbparts - 1))
 			parts_nm[i].size = mtd->size - off;
 	}
-	return add_mtd_partitions(mtd, temp, part_num);
+	ret = add_mtd_partitions(mtd, temp, part_num);
+_out:
+	kfree(temp);
+	return ret;
 }
 #endif
 
@@ -1420,7 +1423,8 @@ static int spinand_scan_bbt(struct spinand_device *spinand, struct mtd_info *mtd
 {
 	loff_t offset = 0;
 	u64 block_cnt = mtd->size >> mtd->erasesize_shift;
-	int i = 0, ret = 0;
+	u64 i = 0;
+	int ret = 0;
 
 	spinand->bbt_scan = 1;
 	memset(spinand->bbt, 0, block_cnt);

@@ -218,19 +218,42 @@ static void m3_nand_select_chip(struct aml_nand_chip *aml_chip, int chipnr)
 	return;
 }
 
-void aml_nfc_get_clk_name(struct hw_controller *controller)
+static int aml_nfc_get_clk_name(struct hw_controller *controller)
 {
-	struct udevice *clk_udevice, *dev = controller->device;
+	struct udevice *dev = controller->device;
+	int ret;
 
-	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
+	ret = clk_get_by_name(dev, "fdiv2", &controller->fdiv2);
+	if (ret) {
+		pr_err("%s: failed to get fdiv2 clk\n", dev->name);
+		return ret;
+	}
 
-        clk_get_by_name(dev, "fdiv2", &controller->fdiv2);
-        clk_get_by_name(dev, "xtal", &controller->xtal);
-        clk_get_by_name(dev, "mux", &controller->mux);
-        clk_get_by_name(dev, "div", &controller->div);
-        clk_get_by_name(dev, "gate", &controller->gate);
+	ret = clk_get_by_name(dev, "xtal", &controller->xtal);
+	if (ret) {
+		pr_err("%s: failed to get xtal clk\n", dev->name);
+		return ret;
+	}
 
-	clk_enable(&controller->gate);
+	ret = clk_get_by_name(dev, "mux", &controller->mux);
+	if (ret) {
+		pr_err("%s: failed to get mux clk\n", dev->name);
+		return ret;
+	}
+
+	ret = clk_get_by_name(dev, "div", &controller->div);
+	if (ret) {
+		pr_err("%s: failed to get div clk\n", dev->name);
+		return ret;
+	}
+
+	ret = clk_get_by_name(dev, "gate", &controller->gate);
+	if (ret) {
+		pr_err("%s: failed to get gate clk\n", dev->name);
+		return ret;
+	}
+
+	return clk_enable(&controller->gate);
 }
 
 void get_sys_clk_rate_mtd(struct hw_controller *controller, int *rate)
@@ -760,7 +783,10 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	register_aml_chip_controller(aml_chip);
 	aml_chip->ran_mode = plat->ran_mode;
 	aml_chip->rbpin_detect = plat->rbpin_detect;
-	aml_nfc_get_clk_name(controller);
+	err = aml_nfc_get_clk_name(controller);
+	if (err)
+		goto exit_error;
+
 	chip->IO_ADDR_R = chip->IO_ADDR_W =
 		(void __iomem *)((volatile u32 *)(NAND_BASE_APB + P_NAND_BUF));
 

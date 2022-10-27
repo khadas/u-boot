@@ -238,8 +238,8 @@ static int meson_pwm_set_config(struct udevice *dev, uint channel, uint period_n
 	struct meson_pwm_priv *priv = dev_get_priv(dev);
 	struct meson_pwm_state *pwm_state = priv->pwm_state;
 
-	if ((duty_ns < 0) || (period_ns <= 0)) {
-		pr_err("Not available duty_ns period_ns error\n");
+	if (period_ns == 0) {
+		pr_err("Not available period_ns error\n");
 		return -1;
 	}
 

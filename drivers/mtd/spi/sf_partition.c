@@ -42,6 +42,7 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 	int part_num = 0, i = 0;
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
+	int ret = 1;
 
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)
 		part_num = nbparts + 5;
@@ -49,7 +50,6 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 		part_num = nbparts + 1;
 
 	temp = kzalloc(sizeof(*temp) * part_num, GFP_KERNEL);
-	memset(temp, 0, sizeof(*temp) * part_num);
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 		temp[BOOT_AREA_BB1ST].name = BOOT_LOADER;
 		temp[BOOT_AREA_BB1ST].offset = general_boot_part_entry[BOOT_AREA_BB1ST].offset;
@@ -99,12 +99,12 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 			pr_err("name can't be null! ");
 			pr_err("please check your %d th partition name!\n",
 				 i + 1);
-			return 1;
+			goto _out;
 		}
 		if ((off + parts[i].size) > mtd->size) {
 			pr_err("%s %d over nand size!\n",
 				__func__, __LINE__);
-			return 1;
+			goto _out;
 		}
 		parts_nm[i].name = parts[i].name;
 		parts_nm[i].offset = off;
@@ -119,8 +119,10 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 		if (i == (nbparts - 1))
 			parts_nm[i].size = mtd->size - off;
 	}
-
-	return add_mtd_partitions(mtd, temp, part_num);
+	ret = add_mtd_partitions(mtd, temp, part_num);
+_out:
+	kfree(temp);
+	return ret;
 }
 
 extern struct mtd_partition *get_spiflash_partition_table(int *partitions);
