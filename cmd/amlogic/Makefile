@@ -48,8 +48,13 @@ else
 ifdef CONFIG_MESON_P1
 obj-y += cmd_ddr_test_p1.o
 else
+ifdef CONFIG_MESON_S5
+obj-y += cmd_ddr_test_s5.o
+else
 obj-y += cmd_ddr_test_g12.o
 endif
+endif
+
 endif
 
 obj-$(CONFIG_CMD_OS_IDENT) += os_ident.o
