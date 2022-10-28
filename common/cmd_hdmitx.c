@@ -278,6 +278,13 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	return st;
 }
 
+static void save_default_720p(void)
+{
+	setenv("hdmimode", "720p60hz");
+	setenv("outputmode", "720p60hz");
+	setenv("colorattribute", "rgb,8bit");
+}
+
 static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 {
 	if (!hdev || !hdev->para)
@@ -317,18 +324,29 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		hdmi_tx_set(&hdmitx_device);
 		hdmitx_device.HWOp.test_bist(10);
 	} else { /* "output" */
-		/* in SWPL-34712: if EDID parsing error in kernel,
-		 * only forcely output default mode(480p,RGB,8bit)
-		 * in sysctl, not save the default mode to env.
-		 * if uboot follow this rule, will cause issue OTT-19333:
-		 * uboot read edid error and then output default mode,
-		 * without save it mode env. if then kernel edid normal,
-		 * sysctrl/kernel get mode from env, the actual output
-		 * mode differs with outputmode env,it will
-		 * cause display abnormal(such as stretch). so don't
-		 * follow this rule in uboot, that's to say the actual
-		 * output mode needs to stays with the outputmode env.
-		 */
+		if (!edid_parsing_ok(&hdmitx_device)) {
+			/* in SWPL-34712: if EDID parsing error in kernel,
+			 * only forcely output default mode(480p,RGB,8bit)
+			 * in sysctl, not save the default mode to env.
+			 * if uboot follow this rule, will cause issue OTT-19333:
+			 * uboot read edid error and then output default mode,
+			 * without save it mode env. if then kernel edid normal,
+			 * sysctrl/kernel get mode from env, the actual output
+			 * mode differs with outputmode env,it will
+			 * cause display abnormal(such as stretch). so don't
+			 * follow this rule in uboot, that's to say the actual
+			 * output mode needs to stays with the outputmode env.
+			 */
+			printf("edid parsing ng, forcely output 720p, rgb,8bit\n");
+			save_default_720p();
+			hdmitx_device.vic = HDMI_1280x720p60_16x9;
+			hdmitx_device.para =
+				hdmi_get_fmt_paras(hdmitx_device.vic);
+			hdmitx_device.para->cs = HDMI_COLOR_FORMAT_RGB;
+			hdmitx_device.para->cd = HDMI_COLOR_DEPTH_24B;
+			hdmi_tx_set(&hdmitx_device);
+			return CMD_RET_SUCCESS;
+		}
 		hdmitx_device.vic = hdmi_get_fmt_vic(argv[1]);
 		hdmitx_device.para = hdmi_get_fmt_paras(hdmitx_device.vic);
 		if (hdmitx_device.vic == HDMI_unknown) {
@@ -653,6 +671,8 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 				printf("update dv_type: %d\n",
 				       scene_output_info.final_dv_type);
 			}
+		} else {
+			save_default_720p();
 		}
 		printf("update outputmode: %s\n", getenv("outputmode"));
 		printf("update colorattribute: %s\n", getenv("colorattribute"));

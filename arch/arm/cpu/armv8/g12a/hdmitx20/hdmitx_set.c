@@ -669,7 +669,8 @@ static void hdmitx_set_spdinfo(void)
 static unsigned long modulo(unsigned long a, unsigned long b);
 static signed int to_signed(unsigned int a);
 
-static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
+static void config_hdmi20_tx(struct hdmitx_dev *hdev, enum hdmi_vic vic,
+			struct hdmi_format_para *para,
                         unsigned char   color_depth,            // Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit.
                         unsigned char   input_color_format,     // Pixel format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420.
                         unsigned char   input_color_range,      // Pixel range: 0=limited; 1=full.
@@ -880,6 +881,8 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	data32 |= (!(para->progress_mode) << 1);
 	data32 |= (!(para->progress_mode) << 0);
 	hdmitx_wr_reg(HDMITX_DWC_FC_INVIDCONF,  data32);
+	if (!hdev->RXCap.IEEEOUI) /* DVI devices */
+		hdmitx_set_reg_bits(HDMITX_DWC_FC_INVIDCONF, 0, 3, 1);
 
 	data32  = GET_TIMING(h_active)&0xff;
 	hdmitx_wr_reg(HDMITX_DWC_FC_INHACTV0,   data32);
@@ -1317,6 +1320,10 @@ static void set_phy_by_mode(struct hdmitx_dev *hdev, unsigned int mode)
 	int idx = 0;
 
 	/* get the envoriment variable */
+	/*
+	 * Describe the reason for the coverity ignore.
+	 */
+	/* coverity[tainted_return_value] */
 	s_phyidx = getenv("phy_idx");
 	if (s_phyidx[0] == '1' || s_phyidx[0] == '2')
 		idx = s_phyidx[0] - '0';
@@ -3131,7 +3138,7 @@ static void hdmitx_set_hw(struct hdmitx_dev* hdev)
 	// --------------------------------------------------------
 	// Set up HDMI
 	// --------------------------------------------------------
-	config_hdmi20_tx(hdev->vic, para,                     // pixel_repeat,
+	config_hdmi20_tx(hdev, hdev->vic, para,                     // pixel_repeat,
 		hdev->para->cd,                        // Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit.
 		TX_INPUT_COLOR_FORMAT,                 // input_color_format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420.
 		TX_INPUT_COLOR_RANGE,                  // input_color_range: 0=limited; 1=full.

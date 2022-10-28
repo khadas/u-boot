@@ -665,8 +665,8 @@ struct hdmitx_dev {
 #define DEFAULT_COLORATTRIBUTE_ENV	"444,8bit"
 
 #define DEFAULT_COLOR_FORMAT_4K         "420,8bit"
-#define DEFAULT_COLOR_FORMAT            "444,8bit"
-#define DEFAULT_HDMI_MODE               "480p60hz"
+#define DEFAULT_COLOR_FORMAT            "rgb,8bit"
+#define DEFAULT_HDMI_MODE               "720p60hz"
 
 typedef enum {
 	DOLBY_VISION_PRIORITY = 0,
