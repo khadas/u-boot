@@ -40,14 +40,11 @@ extern struct hdmitx_dev hdmitx_device;
 static int do_osd_open(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
-	char *s;
-	uint fb_for_4k2k= 0;
+	ulong fb_for_4k2k = 0;
 
-	s = getenv("fb_for_4k2k");
-	if (s != NULL) {
-		fb_for_4k2k = simple_strtoul(s, NULL, 10) ? 1 : 0;
-		printf("[OSD]using fb_for_4k2k %d\n", fb_for_4k2k);
-	}
+	fb_for_4k2k = getenv_ulong("fb_for_4k2k", 10, 0);
+	printf("[OSD]using fb_for_4k2k %ld\n", fb_for_4k2k);
+
 	osd_set_4k2k_fb_mode_hw(fb_for_4k2k);
 
 	gdev = video_hw_init(RECT_MODE);
