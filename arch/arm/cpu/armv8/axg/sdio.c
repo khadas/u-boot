@@ -53,7 +53,7 @@ int cpu_sd_emmc_init(unsigned port)
 	case SDIO_PORT_C:
 		writel(0x7fff, P_PAD_PULL_UP_EN_REG4);
 		writel(0x5fff, P_PAD_PULL_UP_REG4);
-		clrsetbits_le32(P_PERIPHS_PIN_MUX_0, 0xEEEEEEEE, 0x11111111);
+		writel(0x11111111, P_PERIPHS_PIN_MUX_0);
 		clrsetbits_le32(P_PERIPHS_PIN_MUX_1, 0xEFFEFE, 0x100101);
 
 		/* hardware reset with pull boot9 */

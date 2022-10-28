@@ -697,7 +697,7 @@ int gpt_verify_partitions(block_dev_desc_t *dev_desc,
 
 		/* Check if GPT and ENV partition names match */
 		gpt_convert_efi_name_to_char(efi_str, gpt_e[i].partition_name,
-					     PARTNAME_SZ + 1);
+					     PARTNAME_SZ);
 
 		debug("%s: part: %2d name - GPT: %16s, ENV: %16s ",
 		      __func__, i, efi_str, partitions[i].name);
