@@ -280,11 +280,12 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 {
+	if (!hdev || !hdev->para)
+		return;
+
 	if (getenv("colorattribute"))
 		hdmi_parse_attr(hdev->para, getenv("colorattribute"));
 
-	if (!hdev || !hdev->para)
-		return;
 	/* when current output color depth is 8bit, mask hdr capability */
 	/* refer to SWPL-44445 for more detail */
 	if (hdev->para->cd == HDMI_COLOR_DEPTH_24B)
@@ -504,7 +505,7 @@ void scene_process(struct hdmitx_dev *hdev,
 
 	/* 2. dolby vision scene process */
 	/* only for tv support dv and box enable dv */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
+	if (is_dv_preference(hdev)) {
 		dolbyvision_scene_process(&hdmidata, scene_output_info);
 	} else if (is_dolby_enabled()) {
 		/* for enable dolby vision core when
@@ -520,20 +521,29 @@ void scene_process(struct hdmitx_dev *hdev,
 	}
 	/* 3.sdr scene process */
 	/* decide final display mode and deepcolor */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
-		/* do nothing */
+	if (is_dv_preference(hdev)) {
+		/* do nothing
+		 * already done above, just sync with sysctrl
+		 */
+	} else if (is_hdr_preference(hdev)) {
+		hdr_scene_process(&hdmidata, scene_output_info);
 	} else {
 		sdr_scene_process(&hdmidata, scene_output_info);
 	}
+	/* not find outputmode and use default mode */
+	if (strlen(scene_output_info->final_displaymode) == 0)
+		strcpy(scene_output_info->final_displaymode, DEFAULT_HDMI_MODE);
+	/* not find color space and use default mode */
+	if (!strstr(scene_output_info->final_deepcolor, "bit"))
+		strcpy(scene_output_info->final_deepcolor, DEFAULT_COLOR_FORMAT);
 }
 
 static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	char * const argv[])
 {
 	struct hdmitx_dev *hdev = &hdmitx_device;
-	unsigned char *edid = hdev->rawedid;
+
 	unsigned char *store_checkvalue;
-	memset(edid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
 	unsigned int i;
 	unsigned int checkvalue[4];
 	unsigned int checkvalue1;
@@ -552,6 +562,7 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		return 1;
 	}
 	memset(&scene_output_info, 0, sizeof(scene_output_info_t));
+	memset(hdev->rawedid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
 
 	get_parse_edid_data(hdev);
 
@@ -589,13 +600,10 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 			xtochar(0x80 * i + 0x7f, &checksum[2* i + 2]);
 		checksum[10] = '\0';
 		memcpy(hdev->RXCap.checksum, checksum, 10);
-		printf("TV has changed, initial mode: %s  attr: %s now crc: %s\n",
-			getenv("outputmode"), getenv("colorattribute"), checksum);
+		printf("TV has changed, now crc: %s\n", checksum);
 	} else {
 		memcpy(hdev->RXCap.checksum, store_checkvalue, 10);
-		printf("TV is same, initial mode is: %s attr: %s, checksum: %s\n",
-		       getenv("outputmode"), getenv("colorattribute"),
-		       hdev->RXCap.checksum);
+		printf("TV is the same, checksum: %s\n", hdev->RXCap.checksum);
 	}
 
 	/* check current mode+colorattr support or not */
@@ -636,17 +644,19 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 			     DOLBY_VISION_DISABLE)) {
 				sprintf(dv_type, "%d", scene_output_info.final_dv_type);
 				setenv("dolby_status", dv_type);
+				/* according to the policy of systemcontrol,
+				 * if current DV mode is not supported by TV
+				 * EDID, DV type maybe changed to one witch
+				 * TV support, and need VPP/DV module to
+				 * update new DV output mode.
+				 */
+				printf("update dv_type: %d\n",
+				       scene_output_info.final_dv_type);
 			}
 		}
 		printf("update outputmode: %s\n", getenv("outputmode"));
 		printf("update colorattribute: %s\n", getenv("colorattribute"));
 		printf("update hdmichecksum: %s\n", getenv("hdmichecksum"));
-		/* according to the policy of systemcontrol, if current
-		 * DV mode is not supported by TV EDID, DV type maybe
-		 * changed to one witch TV support, and need VPP/DV
-		 * module to update new DV output mode.
-		 */
-		printf("update dv_type: %d\n", scene_output_info.final_dv_type);
 	}
 	hdev->vic = hdmi_get_fmt_vic(getenv("outputmode"));
 	hdev->para = hdmi_get_fmt_paras(hdev->vic);

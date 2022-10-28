@@ -660,11 +660,38 @@ struct hdmitx_dev {
 
 #define MODE_LEN	32
 #define VESA_MAX_TIMING 64
+#define DEFAULT_OUTPUTMODE_ENV		"1080p60hz"
+#define DEFAULT_HDMIMODE_ENV		"1080p60hz"
+#define DEFAULT_COLORATTRIBUTE_ENV	"444,8bit"
+
+#define DEFAULT_COLOR_FORMAT_4K         "420,8bit"
+#define DEFAULT_COLOR_FORMAT            "444,8bit"
+#define DEFAULT_HDMI_MODE               "480p60hz"
+
+typedef enum {
+	DOLBY_VISION_PRIORITY = 0,
+	HDR10_PRIORITY        = 1,
+	SDR_PRIORITY          = 2,
+} hdr_priority_e;
+
+typedef enum {
+	HDR_POLICY_SINK   = 0,
+	HDR_POLICY_SOURCE = 1,
+} hdr_policy_e;
+
+enum {
+	RESOLUTION_PRIORITY = 0,
+	FRAMERATE_PRIORITY  = 1,
+};
 
 typedef struct input_hdmi_data {
 	char ubootenv_hdmimode[MODE_LEN];
 	char ubootenv_colorattribute[MODE_LEN];
 	int ubootenv_dv_type;
+	/* dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr */
+	hdr_priority_e hdr_priority;
+	/* dynamic range policy,0 :follow sink, 1: match content */
+	hdr_policy_e hdr_policy;
 	#if 0
 	bool isbestpolicy;
 	bool isSupport4K30Hz;
@@ -701,14 +728,22 @@ enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 bool edid_parsing_ok(struct hdmitx_dev *hdev);
 bool is_dolby_enabled(void);
 bool is_tv_support_dv(struct hdmitx_dev *hdev);
+bool is_dv_preference(struct hdmitx_dev *hdev);
+bool is_hdr_preference(struct hdmitx_dev *hdev);
+
 void dolbyvision_scene_process(hdmi_data_t *hdmi_data,
 	scene_output_info_t *output_info);
 void sdr_scene_process(hdmi_data_t *hdmi_data,
 	scene_output_info_t *output_info);
+void hdr_scene_process(struct input_hdmi_data *hdmi_data,
+	scene_output_info_t *output_info);
+
 void get_hdmi_data(struct hdmitx_dev *hdev, hdmi_data_t *data);
 bool pre_process_str(char *name);
 struct hdmi_format_para *hdmi_tst_fmt_name(char const *name, char const *attr);
+bool is_support_4k(void);
 bool is_supported_mode_attr(hdmi_data_t *hdmi_data, char *mode_attr);
+bool hdmitx_chk_mode_attr_sup(hdmi_data_t *hdmi_data, char *mode, char *attr);
 int get_ubootenv_dv_type(void);
 
 void hdmi_tx_set(struct hdmitx_dev *hdev);
