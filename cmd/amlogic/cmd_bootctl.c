@@ -110,7 +110,7 @@ void boot_info_reset(BrilloBootInfo *info)
 	info->slot_info[1].bootable = 0;
 	info->slot_info[1].online = 0;
 	info->attemp_times = 0;
-	memcpy(info->bootctrl_suffix, "_a", 4);
+	memcpy(info->bootctrl_suffix, "_a", 2);
 }
 
 void dump_boot_info(BrilloBootInfo *info)
@@ -162,7 +162,7 @@ int boot_info_set_active_slot(BrilloBootInfo *info, int slot)
 		info->slot_info[1].bootable = 0;
 		info->slot_info[1].online = 0;
 		info->attemp_times = 0;
-		memcpy(info->bootctrl_suffix, "_a", 4);
+		memcpy(info->bootctrl_suffix, "_a", 2);
 	} else {
 		info->active_slot = 1;
 		info->slot_info[0].bootable = 0;
@@ -170,7 +170,7 @@ int boot_info_set_active_slot(BrilloBootInfo *info, int slot)
 		info->slot_info[1].bootable = 1;
 		info->slot_info[1].online = 1;
 		info->attemp_times = 0;
-		memcpy(info->bootctrl_suffix, "_b", 4);
+		memcpy(info->bootctrl_suffix, "_b", 2);
 	}
 
 	dump_boot_info(info);

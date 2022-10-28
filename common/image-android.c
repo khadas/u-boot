@@ -83,9 +83,17 @@ static int save_dtbo_idx(const char *cmdline)
 			       dtbo_chosen_idx_end - dtbo_chosen_idx_start + 1);
 			strncpy(dtbo_idx, dtbo_chosen_idx_start,
 				dtbo_chosen_idx_end - dtbo_chosen_idx_start);
-		} else
+		} else {
+			dtbo_idx = malloc(strlen(dtbo_chosen_idx_start) + 1);
+			if (!dtbo_idx) {
+				pr_info("dtbo out of memory\n");
+				return -1;
+			}
+			memset(dtbo_idx, 0x00,
+			       strlen(dtbo_chosen_idx_start) + 1);
 			strncpy(dtbo_idx, dtbo_chosen_idx_start,
 				strlen(dtbo_chosen_idx_start));
+		}
 
 		env_set("androidboot.dtbo_idx",
 		       dtbo_idx + strlen("androidboot.dtbo_idx="));

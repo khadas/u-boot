@@ -285,14 +285,6 @@ int lcd_mipi_dsi_init_table_detect(char *dtaddr, int nodeoffset,
 	table[0] = LCD_EXT_CMD_TYPE_END;
 	table[1] = 0;
 
-	if (!table) {
-		table = (unsigned char *)malloc(sizeof(unsigned char) * max_len);
-		if (!table) {
-			LCDERR("%s: Not enough memory\n", __func__);
-			return -1;
-		}
-	}
-
 	i = 0;
 	propdata = (char *)fdt_getprop(dtaddr, nodeoffset, propname, NULL);
 	if (propdata == NULL) {
