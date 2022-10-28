@@ -80,6 +80,7 @@ static unsigned short gamma_table_b[GAMMA_SIZE] = {
 /***************************** gxl hdr ****************************/
 
 #define EOTF_LUT_SIZE 33
+#ifndef AML_S5_DISPLAY
 static unsigned int osd_eotf_r_mapping[EOTF_LUT_SIZE] = {
 	0x0000,	0x0200,	0x0400, 0x0600,
 	0x0800, 0x0a00, 0x0c00, 0x0e00,
@@ -151,10 +152,11 @@ static unsigned int video_eotf_b_mapping[EOTF_LUT_SIZE] = {
 	0x3800, 0x3a00, 0x3c00, 0x3e00,
 	0x4000
 };
-
+#endif
 #define EOTF_COEFF_NORM(a) ((int)((((a) * 4096.0) + 1) / 2))
 #define EOTF_COEFF_SIZE 10
 #define EOTF_COEFF_RIGHTSHIFT 1
+#ifndef AML_S5_DISPLAY
 static int osd_eotf_coeff[EOTF_COEFF_SIZE] = {
 	EOTF_COEFF_NORM(1.0), EOTF_COEFF_NORM(0.0), EOTF_COEFF_NORM(0.0),
 	EOTF_COEFF_NORM(0.0), EOTF_COEFF_NORM(1.0), EOTF_COEFF_NORM(0.0),
@@ -171,7 +173,9 @@ static int video_eotf_coeff[EOTF_COEFF_SIZE] = {
 
 /******************** osd oetf **************/
 
+#endif
 #define OSD_OETF_LUT_SIZE 41
+#ifndef AML_S5_DISPLAY
 static unsigned int osd_oetf_r_mapping[OSD_OETF_LUT_SIZE] = {
 		0, 150, 250, 330,
 		395, 445, 485, 520,
@@ -333,11 +337,12 @@ static unsigned int video_oetf_b_mapping[VIDEO_OETF_LUT_SIZE] = {
 	1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023,
 	1023
 };
-
+#endif
 #define COEFF_NORM(a) ((int)((((a) * 2048.0) + 1) / 2))
 #define COEFF_NORM12(a) ((int)((((a) * 8192.0) + 1) / 2))
 
 #define MATRIX_5x3_COEF_SIZE 24
+#ifndef AML_S5_DISPLAY
 /******* osd1 matrix0 *******/
 /* default rgb to yuv_limit */
 static int osd_matrix_coeff[MATRIX_5x3_COEF_SIZE] = {
@@ -394,6 +399,7 @@ static int xvycc_matrix_coeff[MATRIX_5x3_COEF_SIZE] = {
 	0, 0, 0, /* offset */
 	0, 0, 0 /* mode, right_shift, clip_en */
 };
+#endif
 
 static int RGB709_to_YUV709l_coeff[MATRIX_5x3_COEF_SIZE] = {
 	0, 0, 0, /* pre offset */
@@ -406,6 +412,7 @@ static int RGB709_to_YUV709l_coeff[MATRIX_5x3_COEF_SIZE] = {
 	0, 0, 0 /* mode, right_shift, clip_en */
 };
 
+#ifndef AML_S5_DISPLAY
 /*  eotf matrix: bypass */
 static int eotf_bypass_coeff[EOTF_COEFF_SIZE] = {
 	EOTF_COEFF_NORM(1.0),	EOTF_COEFF_NORM(0.0),	EOTF_COEFF_NORM(0.0),
@@ -441,6 +448,7 @@ static unsigned int oetf_41_linear_mapping[OSD_OETF_LUT_SIZE] = {
 	1023, 1023, 1023, 1023,
 	1023
 };
+#endif
 
 /*static int YUV709l_to_RGB709_coeff[MATRIX_5x3_COEF_SIZE] = { */
 /*	-64, -512, -512,  pre offset */
@@ -504,11 +512,13 @@ int is_osd_high_version(void)
 
 /* OSD csc defines end */
 
+#ifndef AML_S5_DISPLAY
 static void vpp_set_matrix_default_init(void)
 {
 	/* default probe_sel, for highlight en */
 	vpp_reg_setb(VPP_MATRIX_CTRL, 0xf, 11, 4);
 }
+#endif
 
 static void vpp_top_post2_matrix_yuv2rgb(int vpp_top)
 {
@@ -594,6 +604,7 @@ static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
 		VPP_PR("g12a/b post2(bit12) matrix: YUV limit -> RGB ..............\n");
 		return;
 	}
+#ifndef AML_S5_DISPLAY
 	if (vd1_or_vd2_or_post == 0) { //vd1
 		vpp_reg_setb(VPP_MATRIX_CTRL, 1, 5, 1);
 		vpp_reg_setb(VPP_MATRIX_CTRL, 1, 8, 3);
@@ -672,11 +683,12 @@ static void vpp_set_matrix_ycbcr2rgb(int vd1_or_vd2_or_post, int mode)
 		vpp_reg_write(VPP_MATRIX_OFFSET2, 0x0);
 	}
 	vpp_reg_setb(VPP_MATRIX_CLIP, 0, 5, 3);
+#endif
 }
-
 
 void set_vpp_matrix(int m_select, int *s, int on)
 {
+#ifndef AML_S5_DISPLAY
 	int *m = NULL;
 	int size = 0;
 	int i;
@@ -824,6 +836,7 @@ void set_vpp_matrix(int m_select, int *s, int on)
 		vpp_reg_setb(VPP_MATRIX_CLIP,
 			m[22], 5, 3);
 	}
+#endif
 }
 
 const char lut_name[4][16] = {
@@ -833,6 +846,7 @@ const char lut_name[4][16] = {
 	"OETF",
 };
 
+#ifndef AML_S5_DISPLAY
 void set_vpp_lut(
 	enum vpp_lut_sel_e lut_sel,
 	unsigned int *r,
@@ -974,10 +988,12 @@ void set_vpp_lut(
 			vpp_reg_write(ctrl_port, 0x0);
 	}
 }
+#endif
 
  /*
 for G12A, set osd2 matrix(10bit) RGB2YUV
  */
+ #ifndef AML_S5_DISPLAY
  static void set_osd1_rgb2yuv(bool on)
  {
 	int *m = NULL;
@@ -1148,6 +1164,7 @@ static void set_osd4_rgb2yuv(bool on)
 		VPP_PR("T7 osd4 matrix rgb2yuv..............\n");
 	}
 }
+#endif
 
 #ifndef AML_T7_DISPLAY
 static void set_viu2_osd_matrix_rgb2yuv(bool on)
@@ -1182,6 +1199,7 @@ static void set_viu2_osd_matrix_rgb2yuv(bool on)
 }
 #endif
 
+#ifndef AML_S5_DISPLAY
 static void set_vpp_osd2_rgb2yuv(bool on)
 {
 	int *m = NULL;
@@ -1211,6 +1229,7 @@ static void set_vpp_osd2_rgb2yuv(bool on)
 	vpp_reg_setb(VPP_OSD2_MATRIX_EN_CTRL, on, 0, 1);
 	VPP_PR("vpp osd2 matrix rgb2yuv..............\n");
 }
+#endif
 
 /*
 for txlx, set vpp default data path to u10
@@ -1252,7 +1271,9 @@ static void video_adj2_brightness(int val)
 
 	vpp_reg_setb(VPP_VADJ2_Y, val << 1, 8, 10);
 
+#ifndef AML_S5_DISPLAY
 	vpp_reg_setb(VPP_VADJ_CTRL, 1, 2, 1);
+#endif
 }
 
 /* osd+video contrast */
@@ -1268,7 +1289,9 @@ static void video_adj2_contrast(int val)
 	val += 0x80;
 
 	vpp_reg_setb(VPP_VADJ2_Y, val, 0, 8);
+#ifndef AML_S5_DISPLAY
 	vpp_reg_setb(VPP_VADJ_CTRL, 1, 2, 1);
+#endif
 }
 
 /* osd+video saturation/hue */
@@ -1331,7 +1354,9 @@ static void amvecm_saturation_hue_post(int sat, int hue)
 	mab = ((mc&0x3ff)<<16)|(md&0x3ff);
 
 	vpp_reg_write(VPP_VADJ2_MC_MD, mab);
+#ifndef AML_S5_DISPLAY
 	vpp_reg_setb(VPP_VADJ_CTRL, 1, 2, 1);
+#endif
 }
 
 /* init osd+video brightness/contrast/saturaion/hue */
@@ -1628,7 +1653,9 @@ static void vpp_ofifo_init(void)
 	vpp_reg_write(VPP_OFIFO_SIZE, data32);
 
 	data32 = 0x08080808;
+#ifndef AML_S5_DISPLAY
 	vpp_reg_write(VPP_HOLD_LINES, data32);
+#endif
 }
 
 #ifdef CONFIG_AML_HDMITX
@@ -1729,10 +1756,13 @@ void vpp_init(void)
 	/* init vpu fifo control register */
 	vpp_ofifo_init();
 
+#ifndef AML_S5_DISPLAY
 	vpp_set_matrix_default_init();
+#endif
 
 	if (is_osd_high_version()) {
 		/* >= g12a: osd out is rgb */
+#ifndef AML_S5_DISPLAY
 		set_osd1_rgb2yuv(0);
 		set_osd2_rgb2yuv(0);
 		if (chip_id != MESON_CPU_MAJOR_ID_TL1 &&
@@ -1743,6 +1773,7 @@ void vpp_init(void)
 			set_vpp_osd2_rgb2yuv(1);
 		else
 			set_osd4_rgb2yuv(0);
+#endif
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
 		hdr_func(OSD1_HDR, HDR_BYPASS | RGB_OSD);
@@ -1753,8 +1784,10 @@ void vpp_init(void)
 		hdr_func(VD2_HDR, HDR_BYPASS);
 	} else {
 		/* set dummy data default YUV black */
+#ifndef AML_S5_DISPLAY
 		vpp_reg_write(VPP_DUMMY_DATA1, 0x108080);
 		/* osd1: rgb->yuv limit , osd2: yuv limit */
 		set_osd1_rgb2yuv(1);
+#endif
 	}
 }

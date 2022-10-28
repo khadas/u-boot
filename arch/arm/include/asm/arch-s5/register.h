@@ -34012,70 +34012,69 @@
 // synopsys translate_off
 // synopsys translate_on
 //osd1 0x40 - 0x7f
-#define OSD3_HDR2_CTRL                             ((0x5b50  << 2) + 0xff800000)
-#define OSD3_HDR2_CLK_GATE                         ((0x5b51  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF00_01                ((0x5b52  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF02_10                ((0x5b53  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF11_12                ((0x5b54  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF20_21                ((0x5b55  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF22                   ((0x5b56  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF30_31                ((0x5b57  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF32_40                ((0x5b58  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_COEF41_42                ((0x5b59  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_OFFSET0_1                ((0x5b5a  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_OFFSET2                  ((0x5b5b  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_PRE_OFFSET0_1            ((0x5b5c  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_PRE_OFFSET2              ((0x5b5d  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF00_01                ((0x5b5e  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF02_10                ((0x5b5f  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF11_12                ((0x5b60  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF20_21                ((0x5b61  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF22                   ((0x5b62  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF30_31                ((0x5b63  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF32_40                ((0x5b64  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_COEF41_42                ((0x5b65  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_OFFSET0_1                ((0x5b66  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_OFFSET2                  ((0x5b67  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_PRE_OFFSET0_1            ((0x5b68  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_PRE_OFFSET2              ((0x5b69  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_CLIP                     ((0x5b6a  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_CLIP                     ((0x5b6b  << 2) + 0xff800000)
-#define OSD3_HDR2_CGAIN_OFFT                       ((0x5b6c  << 2) + 0xff800000)
-#define OSD3_HDR2_HIST_RD                          ((0x5b6d  << 2) + 0xff800000)
-#define OSD3_EOTF_LUT_ADDR_PORT                    ((0x5b6e  << 2) + 0xff800000)
-#define OSD3_EOTF_LUT_DATA_PORT                    ((0x5b6f  << 2) + 0xff800000)
-#define OSD3_OETF_LUT_ADDR_PORT                    ((0x5b70  << 2) + 0xff800000)
-#define OSD3_OETF_LUT_DATA_PORT                    ((0x5b71  << 2) + 0xff800000)
-#define OSD3_CGAIN_LUT_ADDR_PORT                   ((0x5b72  << 2) + 0xff800000)
-#define OSD3_CGAIN_LUT_DATA_PORT                   ((0x5b73  << 2) + 0xff800000)
-#define OSD3_HDR2_CGAIN_COEF0                      ((0x5b74  << 2) + 0xff800000)
-#define OSD3_HDR2_CGAIN_COEF1                      ((0x5b75  << 2) + 0xff800000)
-#define OSD3_OGAIN_LUT_ADDR_PORT                   ((0x5b76  << 2) + 0xff800000)
-#define OSD3_OGAIN_LUT_DATA_PORT                   ((0x5b77  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_CTRL                        ((0x5b78  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_ALPHA0                      ((0x5b79  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_ALPHA1                      ((0x5b7a  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_BETA0                       ((0x5b7b  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_BETA1                       ((0x5b7c  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_BETA2                       ((0x5b7d  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_COEF0                       ((0x5b7e  << 2) + 0xff800000)
-#define OSD3_HDR2_ADPS_COEF1                       ((0x5b7f  << 2) + 0xff800000)
-#define OSD3_HDR2_GMUT_CTRL                        ((0x5b80  << 2) + 0xff800000)
-#define OSD3_HDR2_GMUT_COEF0                       ((0x5b81  << 2) + 0xff800000)
-#define OSD3_HDR2_GMUT_COEF1                       ((0x5b82  << 2) + 0xff800000)
-#define OSD3_HDR2_GMUT_COEF2                       ((0x5b83  << 2) + 0xff800000)
-#define OSD3_HDR2_GMUT_COEF3                       ((0x5b84  << 2) + 0xff800000)
-#define OSD3_HDR2_GMUT_COEF4                       ((0x5b85  << 2) + 0xff800000)
-#define OSD3_HDR2_PIPE_CTRL1                       ((0x5b86  << 2) + 0xff800000)
-#define OSD3_HDR2_PIPE_CTRL2                       ((0x5b87  << 2) + 0xff800000)
-#define OSD3_HDR2_PIPE_CTRL3                       ((0x5b88  << 2) + 0xff800000)
-#define OSD3_HDR2_PROC_WIN1                        ((0x5b89  << 2) + 0xff800000)
-#define OSD3_HDR2_PROC_WIN2                        ((0x5b8a  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXI_EN_CTRL                  ((0x5b8b  << 2) + 0xff800000)
-#define OSD3_HDR2_MATRIXO_EN_CTRL                  ((0x5b8c  << 2) + 0xff800000)
-#define OSD3_HDR2_HIST_CTRL                        ((0x5b8d  << 2) + 0xff800000)
-#define OSD3_HDR2_HIST_H_START_END                 ((0x5b8e  << 2) + 0xff800000)
-#define OSD3_HDR2_HIST_V_START_END                 ((0x5b8f  << 2) + 0xff800000)
+#define OSD3_HDR2_CTRL                             ((0x6c50 << 2) + 0xff800000)
+#define OSD3_HDR2_CLK_GATE                         ((0x6c51 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF00_01                ((0x6c52 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF02_10                ((0x6c53 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF11_12                ((0x6c54 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF20_21                ((0x6c55 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF22                   ((0x6c56 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF30_31                ((0x6c57 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF32_40                ((0x6c58 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_COEF41_42                ((0x6c59 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_OFFSET0_1                ((0x6c5a << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_OFFSET2                  ((0x6c5b << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_PRE_OFFSET0_1            ((0x6c5c << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_PRE_OFFSET2              ((0x6c5d << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF00_01                ((0x6c5e << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF02_10                ((0x6c5f << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF11_12                ((0x6c60 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF20_21                ((0x6c61 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF22                   ((0x6c62 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF30_31                ((0x6c63 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF32_40                ((0x6c64 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_COEF41_42                ((0x6c65 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_OFFSET0_1                ((0x6c66 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_OFFSET2                  ((0x6c67 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_PRE_OFFSET0_1            ((0x6c68 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_PRE_OFFSET2              ((0x6c69 << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_CLIP                     ((0x6c6a << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_CLIP                     ((0x6c6b << 2) + 0xff800000)
+#define OSD3_HDR2_CGAIN_OFFT                       ((0x6c6c << 2) + 0xff800000)
+#define OSD3_EOTF_LUT_ADDR_PORT                    ((0x6c6e << 2) + 0xff800000)
+#define OSD3_EOTF_LUT_DATA_PORT                    ((0x6c6f << 2) + 0xff800000)
+#define OSD3_OETF_LUT_ADDR_PORT                    ((0x6c70 << 2) + 0xff800000)
+#define OSD3_OETF_LUT_DATA_PORT                    ((0x6c71 << 2) + 0xff800000)
+#define OSD3_CGAIN_LUT_ADDR_PORT                   ((0x6c72 << 2) + 0xff800000)
+#define OSD3_CGAIN_LUT_DATA_PORT                   ((0x6c73 << 2) + 0xff800000)
+#define OSD3_HDR2_CGAIN_COEF0                      ((0x6c74 << 2) + 0xff800000)
+#define OSD3_HDR2_CGAIN_COEF1                      ((0x6c75 << 2) + 0xff800000)
+#define OSD3_OGAIN_LUT_ADDR_PORT                   ((0x6c76 << 2) + 0xff800000)
+#define OSD3_OGAIN_LUT_DATA_PORT                   ((0x6c77 << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_CTRL                        ((0x6c78 << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_ALPHA0                      ((0x6c79 << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_ALPHA1                      ((0x6c7a << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_BETA0                       ((0x6c7b << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_BETA1                       ((0x6c7c << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_BETA2                       ((0x6c7d << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_COEF0                       ((0x6c7e << 2) + 0xff800000)
+#define OSD3_HDR2_ADPS_COEF1                       ((0x6c7f << 2) + 0xff800000)
+#define OSD3_HDR2_GMUT_CTRL                        ((0x6c80 << 2) + 0xff800000)
+#define OSD3_HDR2_GMUT_COEF0                       ((0x6c81 << 2) + 0xff800000)
+#define OSD3_HDR2_GMUT_COEF1                       ((0x6c82 << 2) + 0xff800000)
+#define OSD3_HDR2_GMUT_COEF2                       ((0x6c83 << 2) + 0xff800000)
+#define OSD3_HDR2_GMUT_COEF3                       ((0x6c84 << 2) + 0xff800000)
+#define OSD3_HDR2_GMUT_COEF4                       ((0x6c85 << 2) + 0xff800000)
+#define OSD3_HDR2_PIPE_CTRL1                       ((0x6c86 << 2) + 0xff800000)
+#define OSD3_HDR2_PIPE_CTRL2                       ((0x6c87 << 2) + 0xff800000)
+#define OSD3_HDR2_PIPE_CTRL3                       ((0x6c88 << 2) + 0xff800000)
+#define OSD3_HDR2_PROC_WIN1                        ((0x6c89 << 2) + 0xff800000)
+#define OSD3_HDR2_PROC_WIN2                        ((0x6c8a << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXI_EN_CTRL                  ((0x6c8b << 2) + 0xff800000)
+#define OSD3_HDR2_MATRIXO_EN_CTRL                  ((0x6c8c << 2) + 0xff800000)
+#define OSD3_HDR2_HIST_CTRL                        ((0x6c8d << 2) + 0xff800000)
+#define OSD3_HDR2_HIST_H_START_END                 ((0x6c8e << 2) + 0xff800000)
+#define OSD3_HDR2_HIST_V_START_END                 ((0x6c8f << 2) + 0xff800000)
 // synopsys translate_off
 // synopsys translate_on
 //
@@ -35158,7 +35157,7 @@
 #define OSD1_PROC_DB_FLT_SEED5                     ((0x642b  << 2) + 0xff800000)
 //Bit 31: 0        reg_nrdeband_seed5           // unsigned , RW, default = 1621438242  ,debanding noise adding seed for V. seed[0]= 0x60a52f22; as default
 //OSD PROC UNIT1 HDR_TOP_MPPC_WRAP  ADDR_OFFSET
-#define OSD1_PROC_HDR2_CTRL                        ((0x6450  << 2) + 0xff800000)
+#define OSD1_HDR2_CTRL                        ((0x6450  << 2) + 0xff800000)
 //Bit 31:19        reserved
 //Bit 20:18        reg_din_swap              // unsigned , RW, default = 0
 //Bit 17           reg_out_fmt               // unsigned , RW, default = 0
@@ -35175,228 +35174,228 @@
 //Bit  2           reg_oe_enable             // unsigned , RW, default = 1
 //Bit  1           reg_ogain_enable          // unsigned , RW, default = 1
 //Bit  0           reg_cgain_enable          // unsigned , RW, default = 1
-#define OSD1_PROC_HDR2_CLK_GATE                    ((0x6451  << 2) + 0xff800000)
+#define OSD1_HDR2_CLK_GATE                    ((0x6451  << 2) + 0xff800000)
 //Bit  31:0        reg_gclk_ctrl             // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF00_01           ((0x6452  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF00_01           ((0x6452  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxi_coef00          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxi_coef01          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF02_10           ((0x6453  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF02_10           ((0x6453  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxi_coef02          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxi_coef10          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF11_12           ((0x6454  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF11_12           ((0x6454  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxi_coef11          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxi_coef12          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF20_21           ((0x6455  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF20_21           ((0x6455  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxi_coef20          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxi_coef21          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF22              ((0x6456  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF22              ((0x6456  << 2) + 0xff800000)
 //Bit 31:13        reserved
 //Bit 12: 0        reg_mtrxi_coef22          // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF30_31           ((0x6457  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF30_31           ((0x6457  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxi_coef30          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxi_coef31          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF32_40           ((0x6458  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF32_40           ((0x6458  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxi_coef32          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxi_coef40          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_COEF41_42           ((0x6459  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_COEF41_42           ((0x6459  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxi_coef41          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxi_coef42          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_OFFSET0_1           ((0x645a  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_OFFSET0_1           ((0x645a  << 2) + 0xff800000)
 //Bit 31:27        reserved
 //Bit 26:16        reg_mtrxi_offst_oup0      // signed , RW, default = 0
 //Bit 15:11        reserved
 //Bit 10: 0        reg_mtrxi_offst_oup1      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_OFFSET2             ((0x645b  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_OFFSET2             ((0x645b  << 2) + 0xff800000)
 //Bit 31:11        reserved
 //Bit 10: 0        reg_mtrxi_offst_oup2      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_PRE_OFFSET0_1       ((0x645c  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_PRE_OFFSET0_1       ((0x645c  << 2) + 0xff800000)
 //Bit 31:27        reserved
 //Bit 26:16        reg_mtrxi_offst_inp0      // signed , RW, default = 0
 //Bit 15:11        reserved
 //Bit 10: 0        reg_mtrxi_offst_inp1      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_PRE_OFFSET2         ((0x645d  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_PRE_OFFSET2         ((0x645d  << 2) + 0xff800000)
 //Bit 31:11        reserved
 //Bit 10: 0        reg_mtrxi_offst_inp2      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF00_01           ((0x645e  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF00_01           ((0x645e  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxo_coef00          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxo_coef01          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF02_10           ((0x645f  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF02_10           ((0x645f  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxo_coef02          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxo_coef10          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF11_12           ((0x6460  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF11_12           ((0x6460  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxo_coef11          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxo_coef12          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF20_21           ((0x6461  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF20_21           ((0x6461  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxo_coef20          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxo_coef21          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF22              ((0x6462  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF22              ((0x6462  << 2) + 0xff800000)
 //Bit 31:13        reserved
 //Bit 12: 0        reg_mtrxo_coef22          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF30_31           ((0x6463  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF30_31           ((0x6463  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxo_coef30          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxo_coef31          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF32_40           ((0x6464  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF32_40           ((0x6464  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxo_coef32          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxo_coef40          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_COEF41_42           ((0x6465  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_COEF41_42           ((0x6465  << 2) + 0xff800000)
 //Bit 31:29        reserved
 //Bit 28:16        reg_mtrxo_coef41          // signed , RW, default = 0
 //Bit 15:13        reserved
 //Bit 12: 0        reg_mtrxo_coef42          // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_OFFSET0_1           ((0x6466  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_OFFSET0_1           ((0x6466  << 2) + 0xff800000)
 //Bit 31:27        reserved
 //Bit 26:16        reg_mtrxo_offst_oup0      // signed , RW, default = 0
 //Bit 15:11        reserved
 //Bit 10: 0        reg_mtrxo_offst_oup1      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_OFFSET2             ((0x6467  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_OFFSET2             ((0x6467  << 2) + 0xff800000)
 //Bit 31:11        reserved
 //Bit 10: 0        reg_mtrxo_offst_oup2      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_PRE_OFFSET0_1       ((0x6468  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_PRE_OFFSET0_1       ((0x6468  << 2) + 0xff800000)
 //Bit 31:27        reserved
 //Bit 26:16        reg_mtrxo_offst_inp0      // signed , RW, default = 0
 //Bit 15:11        reserved
 //Bit 10: 0        reg_mtrxo_offst_inp1      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_PRE_OFFSET2         ((0x6469  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_PRE_OFFSET2         ((0x6469  << 2) + 0xff800000)
 //Bit 31:11        reserved
 //Bit 10: 0        reg_mtrxo_offst_inp2      // signed , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_CLIP                ((0x646a  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_CLIP                ((0x646a  << 2) + 0xff800000)
 //Bit 31:20        reserved
 //Bit 19:8         reg_mtrxi_comp_thrd       // signed ,   RW, default = 0
 //Bit 7:5          reg_mtrxi_rs              // unsigned , RW, default = 0
 //Bit 4:3          reg_mtrxi_clmod           // unsigned , RW, default = 0
 //Bit 2:0          reserved
-#define OSD1_PROC_HDR2_MATRIXO_CLIP                ((0x646b  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_CLIP                ((0x646b  << 2) + 0xff800000)
 //Bit 31:20        reserved
 //Bit 19:8         reg_mtrxo_comp_thrd       // signed ,   RW, default = 0
 //Bit 7:5          reg_mtrxo_rs              // unsigned , RW, default = 0
 //Bit 4:3          reg_mtrxo_clmod           // unsigned , RW, default = 0
 //Bit 2:0          reserved
-#define OSD1_PROC_HDR2_CGAIN_OFFT                  ((0x646c  << 2) + 0xff800000)
+#define OSD1_HDR2_CGAIN_OFFT                  ((0x646c  << 2) + 0xff800000)
 //Bit 31:27        reserved
 //Bit 26:16        reg_cgain_oft2            // signed , RW, default = 'h200
 //Bit 15:11        reserved
 //Bit 10: 0        reg_cgain_oft1            // signed , RW, default = 'h200
-#define OSD1_PROC_HDR2_CGAIN_COEF0                 ((0x6474  << 2) + 0xff800000)
+#define OSD1_HDR2_CGAIN_COEF0                 ((0x6474  << 2) + 0xff800000)
 //Bit 31:28        reserved
 //Bit 27:16        c_gain_lim_coef1          // unsigned , RW, default = 0
 //Bit 15:12        reserved
 //Bit 11: 0        c_gain_lim_coef0          // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_CGAIN_COEF1                 ((0x6475  << 2) + 0xff800000)
+#define OSD1_HDR2_CGAIN_COEF1                 ((0x6475  << 2) + 0xff800000)
 //Bit 31:28        reserved
 //Bit 27:16        reg_maxrgb                // unsigned , RW, default = 0
 //Bit 15:12        reserved
 //Bit 11: 0        c_gain_lim_coef2          // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_CTRL                   ((0x6478  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_CTRL                   ((0x6478  << 2) + 0xff800000)
 //Bit 31: 7        reserved
 //Bit  6           reg_adpscl_enable2        // unsigned , RW, default = 0
 //Bit  5           reg_adpscl_enable1        // unsigned , RW, default = 0
 //Bit  4           reg_adpscl_enable0        // unsigned , RW, default = 0
 //Bit  3: 2        reserved
 //Bit  1: 0        reg_adpscl_mode           // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_ALPHA0                 ((0x6479  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_ALPHA0                 ((0x6479  << 2) + 0xff800000)
 //Bit 31:30        reserved
 //Bit 29:16        reg_adpscl_alpha1         // unsigned , RW, default = 0
 //Bit 15:14        reserved
 //Bit 13: 0        reg_adpscl_alpha0         // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_ALPHA1                 ((0x647a  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_ALPHA1                 ((0x647a  << 2) + 0xff800000)
 //Bit 31:14        reserved
 //Bit 13: 0        reg_adpscl_alpha2         // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_BETA0                  ((0x647b  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_BETA0                  ((0x647b  << 2) + 0xff800000)
 //Bit 31:21        reserved
 //Bit 20: 0        reg_adpscl_beta0          // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_BETA1                  ((0x647c  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_BETA1                  ((0x647c  << 2) + 0xff800000)
 //Bit 31:21        reserved
 //Bit 20: 0        reg_adpscl_beta1          // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_BETA2                  ((0x647d  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_BETA2                  ((0x647d  << 2) + 0xff800000)
 //Bit 31:21        reserved
 //Bit 20: 0        reg_adpscl_beta2          // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_COEF0                  ((0x647e  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_COEF0                  ((0x647e  << 2) + 0xff800000)
 //Bit 31:28        reserved
 //Bit 27:16        reg_adpscl_ys_coef1       // unsigned , RW, default = 0
 //Bit 15:12        reserved
 //Bit 11: 0        reg_adpscl_ys_coef0       // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_ADPS_COEF1                  ((0x647f  << 2) + 0xff800000)
+#define OSD1_HDR2_ADPS_COEF1                  ((0x647f  << 2) + 0xff800000)
 //Bit 31:12        reserved
 //Bit 11: 0        reg_adpscl_ys_coef2       // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_GMUT_CTRL                   ((0x6480  << 2) + 0xff800000)
+#define OSD1_HDR2_GMUT_CTRL                   ((0x6480  << 2) + 0xff800000)
 //Bit 31: 4        reserved
 //Bit  3: 0        reg_gmut_shift            // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_GMUT_COEF0                  ((0x6481  << 2) + 0xff800000)
+#define OSD1_HDR2_GMUT_COEF0                  ((0x6481  << 2) + 0xff800000)
 //Bit 31:16        reg_gmut_coef01           // unsigned , RW, default = 0
 //Bit 15: 0        reg_gmut_coef00           // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_GMUT_COEF1                  ((0x6482  << 2) + 0xff800000)
+#define OSD1_HDR2_GMUT_COEF1                  ((0x6482  << 2) + 0xff800000)
 //Bit 31:16        reg_gmut_coef10           // unsigned , RW, default = 0
 //Bit 15: 0        reg_gmut_coef02           // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_GMUT_COEF2                  ((0x6483  << 2) + 0xff800000)
+#define OSD1_HDR2_GMUT_COEF2                  ((0x6483  << 2) + 0xff800000)
 //Bit 31:16        reg_gmut_coef12           // unsigned , RW, default = 0
 //Bit 15: 0        reg_gmut_coef11           // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_GMUT_COEF3                  ((0x6484  << 2) + 0xff800000)
+#define OSD1_HDR2_GMUT_COEF3                  ((0x6484  << 2) + 0xff800000)
 //Bit 31:16        reg_gmut_coef21           // unsigned , RW, default = 0
 //Bit 15: 0        reg_gmut_coef20           // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_GMUT_COEF4                  ((0x6485  << 2) + 0xff800000)
+#define OSD1_HDR2_GMUT_COEF4                  ((0x6485  << 2) + 0xff800000)
 //Bit 31:16        reserved
 //Bit 15: 0        reg_gmut_coef22           // unsigned , RW, default = 0
-#define OSD1_PROC_EOTF_LUT_ADDR_PORT               ((0x646e  << 2) + 0xff800000)
-#define OSD1_PROC_EOTF_LUT_DATA_PORT               ((0x646f  << 2) + 0xff800000)
-#define OSD1_PROC_OETF_LUT_ADDR_PORT               ((0x6470  << 2) + 0xff800000)
-#define OSD1_PROC_OETF_LUT_DATA_PORT               ((0x6471  << 2) + 0xff800000)
-#define OSD1_PROC_OGAIN_LUT_ADDR_PORT              ((0x6476  << 2) + 0xff800000)
-#define OSD1_PROC_OGAIN_LUT_DATA_PORT              ((0x6477  << 2) + 0xff800000)
-#define OSD1_PROC_CGAIN_LUT_ADDR_PORT              ((0x6472  << 2) + 0xff800000)
-#define OSD1_PROC_CGAIN_LUT_DATA_PORT              ((0x6473  << 2) + 0xff800000)
-#define OSD1_PROC_HDR2_PIPE_CTRL1                  ((0x6486  << 2) + 0xff800000)
+#define OSD1_EOTF_LUT_ADDR_PORT               ((0x646e  << 2) + 0xff800000)
+#define OSD1_EOTF_LUT_DATA_PORT               ((0x646f  << 2) + 0xff800000)
+#define OSD1_OETF_LUT_ADDR_PORT               ((0x6470  << 2) + 0xff800000)
+#define OSD1_OETF_LUT_DATA_PORT               ((0x6471  << 2) + 0xff800000)
+#define OSD1_OGAIN_LUT_ADDR_PORT              ((0x6476  << 2) + 0xff800000)
+#define OSD1_OGAIN_LUT_DATA_PORT              ((0x6477  << 2) + 0xff800000)
+#define OSD1_CGAIN_LUT_ADDR_PORT              ((0x6472  << 2) + 0xff800000)
+#define OSD1_CGAIN_LUT_DATA_PORT              ((0x6473  << 2) + 0xff800000)
+#define OSD1_HDR2_PIPE_CTRL1                  ((0x6486  << 2) + 0xff800000)
 //Bit 31:0        reg_pipe_ctrl1          // unsigned , RW, default = 'h04040a0a
-#define OSD1_PROC_HDR2_PIPE_CTRL2                  ((0x6487  << 2) + 0xff800000)
+#define OSD1_HDR2_PIPE_CTRL2                  ((0x6487  << 2) + 0xff800000)
 //Bit 31:0        reg_pipe_ctrl2          // unsigned , RW, default = 'h0a0a0b0b
-#define OSD1_PROC_HDR2_PIPE_CTRL3                  ((0x6488  << 2) + 0xff800000)
+#define OSD1_HDR2_PIPE_CTRL3                  ((0x6488  << 2) + 0xff800000)
 //Bit 31:0        reg_pipe_ctrl3          // unsigned , RW, default = 'h16160404
-#define OSD1_PROC_HDR2_PROC_WIN1                   ((0x6489  << 2) + 0xff800000)
+#define OSD1_HDR2_PROC_WIN1                   ((0x6489  << 2) + 0xff800000)
 //Bit 31:0        reg_proc_win1           // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_PROC_WIN2                   ((0x648a  << 2) + 0xff800000)
+#define OSD1_HDR2_PROC_WIN2                   ((0x648a  << 2) + 0xff800000)
 //Bit 31:0        reg_proc_win2           // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXI_EN_CTRL             ((0x648b  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXI_EN_CTRL             ((0x648b  << 2) + 0xff800000)
 //Bit 31:8        reserved
 //Bit 7:0         reg_matrixi_en_ctrl     // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_MATRIXO_EN_CTRL             ((0x648c  << 2) + 0xff800000)
+#define OSD1_HDR2_MATRIXO_EN_CTRL             ((0x648c  << 2) + 0xff800000)
 //Bit 31:8        reserved
 //Bit 7:0         reg_mattrixo_en_ctrl    // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_HIST_CTRL                   ((0x648d  << 2) + 0xff800000)
+#define OSD1_HDR2_HIST_CTRL                   ((0x648d  << 2) + 0xff800000)
 //Bit 31:24       reserved
 //Bit 23:16       reg_vcbus_rd_idx        // unsigned , WO, default = 0
 //Bit 15:0        reg_hist_ctrl           // unsigned , RW, default = 16'h1400
-#define OSD1_PROC_HDR2_HIST_H_START_END            ((0x648e  << 2) + 0xff800000)
+#define OSD1_HDR2_HIST_H_START_END            ((0x648e  << 2) + 0xff800000)
 //Bit 31:29       reserved
 //Bit 28:0        reg_hist_h_start_end    // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_HIST_V_START_END            ((0x648f  << 2) + 0xff800000)
+#define OSD1_HDR2_HIST_V_START_END            ((0x648f  << 2) + 0xff800000)
 //Bit 31:29       reserved
 //Bit 28:0        reg_hist_v_start_end    // unsigned , RW, default = 0
-#define OSD1_PROC_HDR2_HIST_RD                     ((0x646d  << 2) + 0xff800000)
+#define OSD1_HDR2_HIST_RD                     ((0x646d  << 2) + 0xff800000)
 //Bit 31:29       reserved
 //Bit 28:0        reg_hist_status         // unsigned , RO, default = 0
 //
