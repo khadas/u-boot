@@ -565,8 +565,8 @@ struct bl_config_s {
 	char gpio_name[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX];
 	unsigned char pinctrl_ver;
 	struct lcd_pinmux_ctrl_s *bl_pinmux;
-	unsigned int pinmux_set[10][2];
-	unsigned int pinmux_clr[10][2];
+	unsigned int pinmux_set[LCD_PINMUX_NUM][2];
+	unsigned int pinmux_clr[LCD_PINMUX_NUM][2];
 	int bl_extern_index;
 };
 

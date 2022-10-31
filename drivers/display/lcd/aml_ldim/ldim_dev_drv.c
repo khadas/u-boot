@@ -140,8 +140,8 @@ void ldim_set_duty_pwm(struct bl_pwm_config_s *bl_pwm)
 		lcd_cbus_write(pwm_reg[port], (pwm_hi << 16) | pwm_lo);
 		break;
 	case BL_PWM_VS:
-		memset(vs, 0xffff, sizeof(unsigned int) * 4);
-		memset(ve, 0xffff, sizeof(unsigned int) * 4);
+		memset(vs, 0xff, sizeof(unsigned int) * 4);
+		memset(ve, 0xff, sizeof(unsigned int) * 4);
 		n = bl_pwm->pwm_freq;
 		sw = (bl_pwm->pwm_cnt * 10 / n + 5) / 10;
 		pwm_hi = (pwm_hi * 10 / n + 5) / 10;

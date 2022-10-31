@@ -62,8 +62,8 @@ static int do_lcd_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		printf("%s: create mode failed\n", __func__);
 		return -1;
 	}
-	memset(mode, 0, sizeof(mode));
-	sprintf(mode, "%s", str);
+	memset(mode, 0, sizeof(char) * 64);
+	snprintf(mode, 64, "%s", str);
 	frac = lcd_parse_vout_name(mode);
 
 	if (lcd_drv) {

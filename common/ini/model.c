@@ -944,7 +944,7 @@ static int handle_lcd_phy(struct lcd_v2_attr_s *p_attr)
 {
 	const char *ini_value = NULL;
 	unsigned int reg_buf[216];
-	unsigned int reg_cnt = 0;
+	int reg_cnt = 0;
 	int i, j = 0;
 
 	ini_value = IniGetString("lcd_Attr", "phy_attr_flag", "0");
@@ -1017,6 +1017,10 @@ static int handle_lcd_phy(struct lcd_v2_attr_s *p_attr)
 		ALOGD("%s, phy_lane_pn_swap is (%s)\n", __func__, ini_value);
 	j += reg_cnt;
 	reg_cnt = transBufferData(ini_value, reg_buf + 0);
+	if (reg_cnt < 0) {
+		ALOGE("%s, transBufferData error!!!\n", __func__)
+		return -1;
+	}
 	for (i = 0; i < 4; i++)
 		p_attr->phy.phy_lane_pn_swap[i] = reg_buf[i];
 
@@ -1025,6 +1029,10 @@ static int handle_lcd_phy(struct lcd_v2_attr_s *p_attr)
 		ALOGD("%s, phy_lane_ctrl is (%s)\n", __func__, ini_value);
 	j += reg_cnt;
 	reg_cnt = transBufferData(ini_value, reg_buf + reg_cnt);
+	if (reg_cnt < 0) {
+		ALOGE("%s, transBufferData error!!!\n", __func__)
+		return -1;
+	}
 	for (i = 0; i < reg_cnt; i++) {
 		p_attr->phy.phy_lane_ctrl[i] = reg_buf[i + j];
 		ALOGD("%s, phy_lane_ctrl[%d] is (0x%x)\n", __func__,
@@ -3257,7 +3265,7 @@ int handle_panel_ini(void)
 	lcd_buf = (unsigned char *)malloc(CC_MAX_DATA_SIZE);
 	if (!lcd_buf) {
 		ALOGE("%s, malloc lcd buffer memory error!!!\n", __func__);
-		return -1;
+		goto handle_panel_ini_err0;
 	}
 
 	if (!lcd_ext_attr) {
@@ -3401,6 +3409,9 @@ handle_panel_ini_err2:
 	free(tcon_spi);
 	tcon_spi = NULL;
 handle_panel_ini_err1:
+	free(lcd_buf);
+	lcd_buf = NULL;
+handle_panel_ini_err0:
 	free(tmp_buf);
 	tmp_buf = NULL;
 

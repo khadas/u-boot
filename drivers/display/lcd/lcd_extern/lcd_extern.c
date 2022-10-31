@@ -333,7 +333,7 @@ int aml_lcd_extern_gpio_get(unsigned char index)
 	int gpio;
 	char *str;
 
-	if (lcd_ext_driver == NULL) {
+	if (!ext_common) {
 		EXTERR("no lcd_extern driver\n");
 		return LCD_GPIO_MAX;
 	}

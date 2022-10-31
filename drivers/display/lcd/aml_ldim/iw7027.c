@@ -88,12 +88,10 @@ static int iw7027_wreg(struct spi_slave *spi, unsigned char addr, unsigned char 
 
 //iw7027 register read 1 bytes
 static int iw7027_rreg(struct spi_slave *spi, unsigned char addr,
-		unsigned char *val)
+		unsigned char *val, int rlen)
 {
 	unsigned char tbuf[20], rbuf[20];
-	int ret;
-	int n;
-	int xlen, rlen = 1;  //for read 1 bytes
+	int ret, n, xlen;
 	unsigned char chip_id = 0x01;
 
 	/*set read flag*/
@@ -324,7 +322,7 @@ static int iw7027_hw_init_on(void)
 		reg = 0x00;
 		temp[0] = 0x06;
 		iw7027_wregs(bl_iw7027->spi, reg, temp, 1);
-		iw7027_rreg(bl_iw7027->spi, 0x00, &reg_chk);
+		iw7027_rreg(bl_iw7027->spi, 0x00, &reg_chk, 1);
 		if (reg_chk == 0x06)
 			break;
 		if (i == 10) {
@@ -354,7 +352,7 @@ static int iw7027_hw_init_on(void)
 	/* step 8: calibration done or not */
 	i = 0;
 	while (i++ < 1000) {
-		iw7027_rreg(bl_iw7027->spi, 0xb3, &reg_duty_chk);
+		iw7027_rreg(bl_iw7027->spi, 0xb3, &reg_duty_chk, 1);
 		/*VDAC statue reg :FB1=[0x5] FB2=[0x50]*/
 		/*The current platform using FB1*/
 		if ((reg_duty_chk & 0xf) == 0x05)
