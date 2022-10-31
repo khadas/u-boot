@@ -27804,6 +27804,120 @@
 // Closing file:  ./ge2d_regs.h
 //
 
+//------------------------------------------------------------------------------
+// OSD1 registers
+//------------------------------------------------------------------------------
+// Bit    31 Reserved
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
+//                                0=use gated clock for low power.
+// Bit    29 R, test_rd_dsr
+// Bit    28 R, osd_done
+// Bit 27:24 R, osd_blk_mode
+// Bit 23:22 R, osd_blk_ptr
+// Bit    21 R, osd_enable
+//
+// Bit 20:12 RW, global_alpha
+// Bit    11 RW, test_rd_en
+// Bit    10 RW, hl2_en
+// Bit     9 RW, hl1_en
+// Bit  8: 5 RW, ctrl_mtch_y
+// Bit     4 RW, ctrl_422to444
+// Bit  3: 0 RW, osd_blk_enable. Bit 0 to enable block 0: 1=enable, 0=disable;
+//                               Bit 1 to enable block 1, and so on.
+#define VIU2_OSD1_CTRL_STAT                        ((0x1e30  << 2) + 0xff900000)
+// Bit 31:26 Reserved
+// Bit 25:16 R, fifo_count
+// Bit 15: 6 Reserved
+// Bit  5: 4 RW, hold_fifo_lines[6:5]
+// Bit     3 RW, rgb2yuv_full_range
+// Bit     2 RW, alpha_9b_mode
+// Bit     1 RW, reserved
+// Bit     0 RW, color_expand_mode
+#define VIU2_OSD1_CTRL_STAT2                       ((0x1e4d  << 2) + 0xff900000)
+// Bit 31: 9 Reserved
+// Bit     8 RW, 0 = Write LUT, 1 = Read LUT
+// Bit  7: 0 RW, lut_addr
+#define VIU2_OSD1_COLOR_ADDR                       ((0x1e31  << 2) + 0xff900000)
+// Bit 31:24 RW, Y or R
+// Bit 23:16 RW, Cb or G
+// Bit 15: 8 RW, Cr or B
+// Bit  7: 0 RW, Alpha
+#define VIU2_OSD1_COLOR                            ((0x1e32  << 2) + 0xff900000)
+// Bit 31:24 RW, Y or R
+// Bit 23:16 RW, Cb or G
+// Bit 15: 8 RW, Cr or B
+// Bit  7: 0 RW, Alpha
+#define VIU2_OSD1_TCOLOR_AG0                       ((0x1e37  << 2) + 0xff900000)
+#define VIU2_OSD1_TCOLOR_AG1                       ((0x1e38  << 2) + 0xff900000)
+#define VIU2_OSD1_TCOLOR_AG2                       ((0x1e39  << 2) + 0xff900000)
+#define VIU2_OSD1_TCOLOR_AG3                       ((0x1e3a  << 2) + 0xff900000)
+// Bit 31:24 Reserved
+// Bit 23:16 RW, tbl_addr
+// Bit    15 RW, little_endian: 0=big endian, 1=little endian
+// Bit    14 RW, rpt_y
+// Bit 13:12 RW, interp_ctrl. 0x=No interpolation; 10=Interpolate with previous
+//                            pixel; 11=Interpolate with the average value
+//                            between previous and next pixel.
+// Bit 11: 8 RW, osd_blk_mode
+// Bit     7 RW, rgb_en
+// Bit     6 RW, tc_alpha_en
+// Bit  5: 2 RW, color_matrix
+// Bit     1 RW, interlace_en
+// Bit     0 RW, interlace_sel_odd
+#define VIU2_OSD1_BLK0_CFG_W0                      ((0x1e3b  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK1_CFG_W0                      ((0x1e3f  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK2_CFG_W0                      ((0x1e43  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK3_CFG_W0                      ((0x1e47  << 2) + 0xff900000)
+// Bit 31:29 Reserved
+// Bit 28:16 RW, x_end
+// Bit 15:13 Reserved
+// Bit 12: 0 RW, x_start
+#define VIU2_OSD1_BLK0_CFG_W1                      ((0x1e3c  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK1_CFG_W1                      ((0x1e40  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK2_CFG_W1                      ((0x1e44  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK3_CFG_W1                      ((0x1e48  << 2) + 0xff900000)
+// Bit 31:29 Reserved
+// Bit 28:16 RW, y_end
+// Bit 15:13 Reserved
+// Bit 12: 0 RW, y_start
+#define VIU2_OSD1_BLK0_CFG_W2                      ((0x1e3d  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK1_CFG_W2                      ((0x1e41  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK2_CFG_W2                      ((0x1e45  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK3_CFG_W2                      ((0x1e49  << 2) + 0xff900000)
+// Bit 31:28 Reserved
+// Bit 27:16 RW, h_end
+// Bit 15:12 Reserved
+// Bit 11: 0 RW, h_start
+#define VIU2_OSD1_BLK0_CFG_W3                      ((0x1e3e  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK1_CFG_W3                      ((0x1e42  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK2_CFG_W3                      ((0x1e46  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK3_CFG_W3                      ((0x1e4a  << 2) + 0xff900000)
+// Bit 31:28 Reserved
+// Bit 27:16 RW, v_end
+// Bit 15:12 Reserved
+// Bit 11: 0 RW, v_start
+#define VIU2_OSD1_BLK0_CFG_W4                      ((0x1e64  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK1_CFG_W4                      ((0x1e65  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK2_CFG_W4                      ((0x1e66  << 2) + 0xff900000)
+#define VIU2_OSD1_BLK3_CFG_W4                      ((0x1e67  << 2) + 0xff900000)
+// Bit    31 RW, burst_len_sel[2] of [2:0]
+// Bit    30 RW, byte_swap: In addition to endian control, further define
+//               whether to swap upper and lower byte within a 16-bit mem word.
+//               0=No swap; 1=Swap data[15:0] to be {data[7:0], data[15:8]}
+// Bit    29 RW, div_swap : swap the 2 64bits words in 128 bit word
+// Bit 28:24 RW, fifo_lim : when osd fifo is small than the fifo_lim*16, closed the rq port of osd_rd_mif
+// Bit 23:22 RW, fifo_ctrl: 00 : for 1 word in 1 burst , 01 : for  2words in 1burst, 10: for 4words in 1burst, 11: reserved
+// Bit 21:20 R,  fifo_st. 0=IDLE, 1=FILL, 2=ABORT
+// Bit    19 R,  fifo_overflow
+// Bit 18:12 RW, fifo_depth_val, max value=64: set actual fifo depth to fifo_depth_val*8.
+// Bit 11:10 RW, burst_len_sel[1:0] of [2:0]. 0=24(default), 1=32, 2=48, 3=64, 4=96, 5=128.
+// Bit  9: 5 RW, hold_fifo_lines[4:0]
+// Bit     4 RW, clear_err: one pulse to clear fifo_overflow
+// Bit     3 RW, fifo_sync_rst
+// Bit  2: 1 RW, endian
+// Bit     0 RW, urgent
+#define VIU2_OSD1_FIFO_CTRL_STAT                   ((0x1e4b  << 2) + 0xff900000)
+
 #include "secure_apb.h"
 //#include "no_enct.h"
 

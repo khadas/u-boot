@@ -21,6 +21,7 @@
 #endif
 #include <amlogic/fb.h>
 #include <video_fb.h>
+#include <asm/arch/register.h>
 
 /* Local Headers */
 #include "osd_canvas.h"
@@ -1195,7 +1196,8 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 		reg_offset = 8;
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W)
 		postbld_src3_sel = 4;
 
 	/* for s5_display, OSDx to din(x+1) */
@@ -4587,7 +4589,8 @@ void osd_init_hw(void)
 		osd_reg_write(VPP_POSTBLEND_H_SIZE, info->width);
 	osd_vpu_power_on();
 
-	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W)
 		osd_hw.path_ctrl_independ = 1;
 
 #ifdef AML_S5_DISPLAY
@@ -4818,7 +4821,8 @@ void osd_init_hw(void)
 		osd_hw.shift_line = 0;
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W)
 		osd_hw.mif_linear = 1;
 
 	return;
