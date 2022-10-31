@@ -131,7 +131,7 @@
 
 /* SD card */
 &sd_emmc_b {
-	status = "okay";
+	status = "disabled";
 	pinctrl-0 = <&sdcard_pins>;
 	pinctrl-1 = <&sdcard_pins &to_sduart_pins>;
 	pinctrl-names = "sd_all_pins", "sd_uart";
@@ -164,14 +164,13 @@
 
 	bus-width = <8>;
 	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
-	mmc-hs200-1_8v;
+	//mmc-ddr-1_8v;
+	//mmc-hs200-1_8v;
 	//mmc-hs400-1_8v;
 	max-frequency = <200000000>;
 	non-removable;
 	disable-wp;
 	card_type = <1>;
-	ignore_desc_busy;
 
 	init_co_phase = <2>;
 	init_tx_phase = <0>;
@@ -188,8 +187,8 @@
 	hw_reset = <&gpio GPIOB_9 GPIO_ACTIVE_HIGH>;
 
 	mmc-pwrseq = <&emmc_pwrseq>;
-	vmmc-supply = <&vcc_3v3>;
-	vqmmc-supply = <&vddio_boot>;
+	//vmmc-supply = <&vcc_3v3>;
+	//vqmmc-supply = <&vddio_boot>;
 };
 
 /* nand */

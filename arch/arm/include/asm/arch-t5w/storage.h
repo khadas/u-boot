@@ -32,8 +32,7 @@
 
 #define BOOTLOADER_MODE_EMMC		COMPACT_BOOTLOADER
 #define BOOTLOADER_MODE_NAND		ADVANCE_BOOTLOADER
-/* not support spinand */
-//#define BOOTLOADER_MODE_SNAND		ADVANCE_BOOTLOADER
+#define BOOTLOADER_MODE_SNAND		ADVANCE_BOOTLOADER
 #define BOOTLOADER_MODE_SNOR		ADVANCE_BOOTLOADER
 
 #ifdef ADVANCE_BOOTLOADER
@@ -41,13 +40,4 @@
 #else
 #define BOOTLOADER_MODE_ADVANCE_INIT		0
 #endif
-
-/*
- * TODO: This is the attribute of nand, it will be moved to the
- * plat file of nand in the future.
- */
-#ifdef BOOTLOADER_MODE_NAND
-#define NAND_ECC_ONLY_BCH8_1K
-#endif
-
 #endif /* _PLAT_STORAGE_H_ */
