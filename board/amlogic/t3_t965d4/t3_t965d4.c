@@ -201,8 +201,10 @@ int board_late_init(void)
 	 * 2.use bootup resource after setup
 	 * ****************************************************
 	 */
-	if (env_get("outputmode"))
-		strcpy(outputModePre, env_get("outputmode"));
+	char *outputmode_str = env_get("outputmode");
+
+	if (outputmode_str)
+		strlcpy(outputModePre, outputmode_str, 30);
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -234,13 +236,15 @@ int board_late_init(void)
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
 
-	if (env_get("outputmode")) {
-		strcpy(outputModeCur, env_get("outputmode"));
-	}
+	outputmode_str = env_get("outputmode");
 
-	if (strcmp(outputModeCur,outputModePre)) {
-		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
-		run_command("update_env_part -p outputmode", 0);
+	if (outputmode_str) {
+		strlcpy(outputModeCur, outputmode_str, 30);
+		if (strcmp(outputModeCur, outputModePre)) {
+			printf("uboot outputMode change saveenv old:%s - new:%s\n",
+				outputModePre, outputModeCur);
+			run_command("update_env_part -p outputmode", 0);
+		}
 	}
 
 	unsigned char chipid[16];
