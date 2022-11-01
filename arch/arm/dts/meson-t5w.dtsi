@@ -296,6 +296,18 @@
 	pm-id = <24>;
 };
 
+&pinctrl_aobus {
+	jtag_a_pins:jtag_a_pin {
+		mux {
+			groups = "jtag_a_clk",
+			"jtag_a_tms",
+			"jtag_a_tdi",
+			"jtag_a_tdo";
+			function = "jtag_a";
+		};
+	};
+};
+
 &pinctrl_periphs {
 	i2c0_z_pins:i2c0_z {
 		mux {
@@ -510,16 +522,6 @@
 			groups = "GPIOH_22", "GPIOH_23";
 			function = "gpio_periphs";
 			output-low;
-		};
-	};
-
-	jtag_a_pins:jtag_a_pin {
-		mux {
-			groups = "jtag_a_clk",
-			"jtag_a_tms",
-			"jtag_a_tdi",
-			"jtag_a_tdo";
-			function = "jtag_a";
 		};
 	};
 
