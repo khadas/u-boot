@@ -223,18 +223,19 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops, const char *partit
 	}
 	//printf("active_slot is %s\n", s1);
 	if (!memcmp(partition, "system", strlen("system"))) {
-		if (s1 && (strcmp(s1, "_a") == 0)) {
+		if (s1 && (strcmp(s1, "_a") == 0))
 			ret = get_partition_num_by_name("system_a");
-			sprintf(part_name, "/dev/mmcblk0p%d", (ret + 1));
-			strncpy(guid_buf, part_name, guid_buf_size);
-		} else if (s1 && (strcmp(s1, "_b") == 0)) {
+		else if (s1 && (strcmp(s1, "_b") == 0))
 			ret = get_partition_num_by_name("system_b");
-			sprintf(part_name, "/dev/mmcblk0p%d", (ret + 1));
+		else
+			ret = get_partition_num_by_name("system");
+
+		if (ret >= 0) {
+			sprintf(part_name, "/dev/mmcblk0p%d", ret + 1);
 			strncpy(guid_buf, part_name, guid_buf_size);
 		} else {
-			ret = get_partition_num_by_name("system");
-			sprintf(part_name, "/dev/mmcblk0p%d", (ret + 1));
-			strncpy(guid_buf, part_name, guid_buf_size);
+			printf("system part isn't exist\n");
+			return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
 		}
 	} else if (!memcmp(partition, "vbmeta", strlen("vbmeta"))) {
 		strncpy(guid_buf, "/dev/block/vbmeta", guid_buf_size);
