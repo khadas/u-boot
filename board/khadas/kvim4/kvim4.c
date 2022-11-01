@@ -316,6 +316,13 @@ phys_size_t get_effective_memsize(void)
 
 }
 
+phys_size_t get_ddr_info_size(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	return ddr_size;
+}
+
 ulong board_get_usable_ram_top(ulong total_size)
 {
 	unsigned long top = gd->ram_top;
@@ -519,43 +526,64 @@ phys_size_t get_ddr_memsize(void)
 
 int checkhw(char * name)
 {
+	cpu_id_t cpu_id;
+	cpu_id = get_cpu_id();
+	printf("hlm cpu_id.chip_rev=0x%x\n", cpu_id.chip_rev);
 #ifdef CONFIG_MULTI_DTB
 	char *p_aml_dt = env_get("aml_dt");
+	//cpu_id_t cpu_id;
 
 	printf("checkhw aml_dt:%s\n", p_aml_dt);
 	if (!p_aml_dt) {
 		char loc_name[64] = {0};
 		phys_size_t ddr_size = get_ddr_memsize();
-
+		//cpu_id = get_cpu_id();
+		printf("hlm 11 cpu_id.chip_rev=0x%x\n", cpu_id.chip_rev);
 		switch (ddr_size) {
-		case CONFIG_T7_3G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-3g\0");
-			break;
 		case CONFIG_T7_4G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400\0");
-			break;
-		case CONFIG_T7_6G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-6g\0");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				#ifdef CONFIG_HDMITX_ONLY
+				strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
+				#else
+				strcpy(loc_name, "t7_a311d2_an400\0");
+				#endif
+			} else if (cpu_id.chip_rev == 0xC) {
+				#ifdef CONFIG_HDMITX_ONLY
+				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only\0");
+				#else
+				strcpy(loc_name, "t7c_a311d2_an400\0");
+				#endif
+			}
 			break;
 		case CONFIG_T7_8G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-8g\0");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				strcpy(loc_name, "kvim4\0");
+			} else if (cpu_id.chip_rev == 0xC) {
+				strcpy(loc_name, "t7c_a311d2_an400\0");
+				//
+			}
 			break;
 		default:
 			printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
-			printf("set defalult t7_a311d2_an400\n");
-			strcpy(loc_name, "t7_a311d2_an400\0");
+			printf("set defalult kvim4\n");
+			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				strcpy(loc_name, "kvim4\0");
+			} else if (cpu_id.chip_rev == 0xC) {
+				strcpy(loc_name, "t7c_a311d2_an400\0");
+				//
+			}
 			break;
 		}
 		printf("init aml_dt to %s\n", loc_name);
-		strcpy(loc_name, "kvim4\0");
+		//strcpy(loc_name, "kvim4\0");
 		strcpy(name, loc_name);
 		env_set("aml_dt", loc_name);
 	} else {
-		env_set("aml_dt", "kvim4\0");
+		//env_set("aml_dt", "kvim4\0");
 		strcpy(name, env_get("aml_dt"));
 	}
 #else
-	env_set("aml_dt", "kvim4\0");
+	env_set("aml_dt", "t7c_a311d2_an400\0");
 #endif
 	return 0;
 }
