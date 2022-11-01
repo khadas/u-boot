@@ -553,6 +553,13 @@ static int do_GetValidSlot(
 	else
 		setenv("partition_mode", "normal");
 
+	if (vendor_boot_partition) {
+		setenv("vendor_boot_mode", "true");
+		printf("set vendor_boot_mode true\n");
+	} else {
+		setenv("vendor_boot_mode", "false");
+		printf("set vendor_boot_mode false\n");
+	}
 	if (slot == 0) {
 		if (bootable_a) {
 			if (has_boot_slot == 1) {
