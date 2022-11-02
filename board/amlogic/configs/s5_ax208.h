@@ -516,6 +516,8 @@
 #define CONFIG_FAT_WRITE 1
 #define CONFIG_AML_FACTORY_PROVISION 1
 
+#define CONFIG_AML_WATERMARK 1
+
 /* Cache Definitions */
 /* #define CONFIG_SYS_DCACHE_OFF */
 /* #define CONFIG_SYS_ICACHE_OFF */
