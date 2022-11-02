@@ -1051,12 +1051,12 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		char *pbootargs = env_get("bootargs");
 
 		if (pbootargs) {
-			int nlen = strlen(pbootargs) + 36;
+			int nlen = strlen(pbootargs) + 48;
 			char *pnewbootargs = malloc(nlen);
 
 			if (pnewbootargs) {
 				memset((void *)pnewbootargs, 0, nlen);
-				sprintf(pnewbootargs, "%s kvm-arm.mode=none\n",
+				sprintf(pnewbootargs, "%s kvm-arm.mode=none init_on_alloc=0\n",
 					pbootargs);
 				env_set("bootargs", pnewbootargs);
 				free(pnewbootargs);
