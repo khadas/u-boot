@@ -137,7 +137,7 @@ static int _get_chipid(char* buff)
 
     buff[0] = ':', buff[1]='\0';
     for (; i < 12; ++i) {
-        sprintf(buff, "%s%02x", buff, chipid[15-i]);
+	sprintf(buff + 1 + i, "%02x", chipid[15 - i]);
     }
     return 0;
 }
