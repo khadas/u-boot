@@ -355,6 +355,10 @@ static int send_adc_channel_power_key(void)
 	printf("adc_key: %s\n", env);
 
 	s = strdup(env);
+	/*
+	 * the env was tainted by getenv_f which is upstream code.
+	 */
+	/* coverity[tainted_data] */
 	channel = ustrtoul(strsep(&s, ","), &endp, 0);
 	value = ustrtoul(strsep(&s, ","), &endp, 0);
 	tolerance = ustrtoul(strsep(&s, ","), &endp, 0);

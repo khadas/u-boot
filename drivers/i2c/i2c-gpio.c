@@ -54,10 +54,7 @@ static void i2c_gpio_scl_set(unsigned scl, int bit)
 			gpio_direction_output(scl, bit);
 
 	} else {
-		if (bit)
-			gpio_direction_output(scl, bit);
-		else
-			gpio_direction_output(scl, bit);
+		gpio_direction_output(scl, bit);
 	}
 }
 
