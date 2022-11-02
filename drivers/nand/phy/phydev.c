@@ -1189,8 +1189,7 @@ int boot_dev_init(struct amlnand_chip *aml_chip)
 	phydev->oobavail = controller->oobavail;
 
 	PHYDEV_LINE
-	//fixme, phy name...
-	memcpy((char *)phydev->name, NAND_BOOT_NAME, strlen(NAND_BOOT_NAME));
+	strcpy((char *)phydev->name, NAND_BOOT_NAME);
 	PHYDEV_LINE
 	phydev->offset = 0;
 	phydev->size = (BOOT_COPY_NUM*BOOT_PAGES_PER_COPY);
