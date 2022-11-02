@@ -518,7 +518,7 @@
 	#define CONFIG_SPI_M95XXX
 	#define CONFIG_SPI_FLASH_ESMT
 	/* SPI nand flash support */
-	#define CONFIG_SPI_NAND
+//	#define CONFIG_SPI_NAND
 	#define CONFIG_BL2_SIZE (64 * 1024)
 #endif
 
