@@ -729,6 +729,9 @@
 #endif
 
 #define CONFIG_FIP_IMG_SUPPORT  1
+#define CONFIG_CMD_INI 1
+#define CONFIG_CMD_CEC 1
+#define CONFIG_CMD_HDMIRX 1
 //#define CONFIG_RX_RTERM		1
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_LIBAVB		1
