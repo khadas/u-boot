@@ -331,25 +331,25 @@
 			clock-names = "xtal";
 		};
 
-		spicc0: spi@fe050000 {
+		spicc0: spi@ffd13000 {
 			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe050000 0x0 0x44>;
+			reg = <0x0 0xffd13000 0x0 0x44>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
 		};
 
-		spicc1: spi@fe052000 {
+		spicc1: spi@ffd15000 {
 			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe052000 0x0 0x44>;
+			reg = <0x0 0xffd15000 0x0 0x44>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
 		};
 
-		spicc2: spi@fe054000 {
+		spicc2: spi@ffd16000 {
 			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe054000 0x0 0x44>;
+			reg = <0x0 0xffd16000 0x0 0x44>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";

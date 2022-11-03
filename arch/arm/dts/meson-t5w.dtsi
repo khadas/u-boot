@@ -272,8 +272,7 @@
 	assigned-clocks = <&clkc CLKID_SPICC_A_MUX>, <&clkc CLKID_SPICC_A_DIV>;
 	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
 	assigned-clock-rates = <0>, <200000000>;
-	/* =PM_SPICC0, must set to power on */
-	pm-id = <22>;
+	//pm-id = PM_SPICC0;
 };
 
 &spicc1 {
@@ -282,8 +281,7 @@
 	assigned-clocks = <&clkc CLKID_SPICC_B_MUX>, <&clkc CLKID_SPICC_B_DIV>;
 	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
 	assigned-clock-rates = <0>, <200000000>;
-	/* =PM_SPICC1, must set to power on */
-	pm-id = <23>;
+	//pm-id = PM_SPICC1;
 };
 
 &spicc2 {
@@ -292,8 +290,7 @@
 	assigned-clocks = <&clkc CLKID_SPICC_C_MUX>, <&clkc CLKID_SPICC_C_DIV>;
 	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
 	assigned-clock-rates = <0>, <200000000>;
-	/* =PM_SPICC2, must set to power on */
-	pm-id = <24>;
+	//pm-id = PM_SPICC2;
 };
 
 &pinctrl_aobus {
@@ -638,58 +635,62 @@
 			input-enable;
 		};
 	};
+
 	spicc0_pins_h: spicc0_pins_h {
 		mux {
-			groups = "spi_a_mosi_h10",
-				 "spi_a_miso_h9",
-				 //"spi_a_ss0_h8",used as GPIOH_8
-				 "spi_a_clk_h11";
-			function = "spi_a";
-			drive-strength = <2>;
+			groups = "spi0_mosi_h10",
+				 "spi0_miso_h9",
+				 "spi0_clk_h11";
+			function = "spi0";
+			drive-strength-microamp = <3>;
 		};
 	};
 
-	spicc0_pins_m: spicc0_pins_m {
+	spicc0_pins_cs_h: spicc0_pins_cs_h {
 		mux {
-			groups = "spi_a_mosi_m",
-				 "spi_a_miso_m",
-				 //"spi_a_ss0_m",used as GPIOM_22
-				 "spi_a_clk_m";
-			function = "spi_a";
-			drive-strength = <2>;
+			groups = "spi0_ss0_h8";
+			function = "spi0";
+			drive-strength-microamp = <3>;
 		};
 	};
 
 	spicc0_pins_z: spicc0_pins_z {
 		mux {
-			groups = "spi_a_mosi_z1",
-				 "spi_a_miso_z0",
-				 //"spi_a_ss0_z3",used as GPIOZ_3
-				 "spi_a_clk_z2";
-			function = "spi_a";
-			drive-strength = <2>;
+			groups = "spi0_mosi_z",
+				 "spi0_miso_z",
+				 "spi0_clk_z";
+			function = "spi0";
+			drive-strength-microamp = <3>;
+		};
+	};
+
+	spicc0_pins_m: spicc0_pins_m {
+		mux {
+			groups = "spi0_mosi_m",
+				 "spi0_miso_m",
+				 "spi0_clk_m";
+			function = "spi0";
+			drive-strength-microamp = <3>;
 		};
 	};
 
 	spicc1_pins: spicc1_pins {
 		mux {
-			groups = "spi_b_mosi_h",
-				 "spi_b_miso_h",
-				 //"spi_b_ss0_h",used as GPIOH_24
-				 "spi_b_clk_h";
-			function = "spi_b";
-			drive-strength = <2>;
+			groups = "spi1_mosi_h",
+				 "spi1_miso_h",
+				 "spi1_clk_h";
+			function = "spi1";
+			drive-strength-microamp = <3>;
 		};
 	};
 
 	spicc2_pins: spicc2_pins {
 		mux {
-			groups = "spi_c_mosi",
-				 "spi_c_miso",
-				 //"spi_c_ss0",used as GPIOC_3
-				 "spi_c_clk";
-			function = "spi_c";
-			drive-strength = <2>;
+			groups = "spi2_mosi_c",
+				 "spi2_miso_c",
+				 "spi2_clk_c";
+			function = "spi2";
+			drive-strength-microamp = <3>;
 		};
 	};
 
