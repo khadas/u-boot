@@ -467,7 +467,11 @@ char *strswab(const char *s)
  *
  * Do not use memset() to access IO space, use memset_io() instead.
  */
+#ifdef CONFIG_AML_UASAN
+void *__memset(void *s, int c, size_t count)
+#else
 void * memset(void * s,int c,size_t count)
+#endif
 {
 	unsigned long *sl = (unsigned long *) s;
 	char *s8;
@@ -506,7 +510,11 @@ void * memset(void * s,int c,size_t count)
  * You should not use this function to access IO space, use memcpy_toio()
  * or memcpy_fromio() instead.
  */
+#ifdef CONFIG_AML_UASAN
+void *__memcpy(void *dest, const void *src, size_t count)
+#else
 void * memcpy(void *dest, const void *src, size_t count)
+#endif
 {
 	unsigned long *dl = (unsigned long *)dest, *sl = (unsigned long *)src;
 	char *d8, *s8;
@@ -540,7 +548,11 @@ void * memcpy(void *dest, const void *src, size_t count)
  *
  * Unlike memcpy(), memmove() copes with overlapping areas.
  */
+#ifdef CONFIG_AML_UASAN
+void *__memmove(void *dest, const void *src, size_t count)
+#else
 void * memmove(void * dest,const void *src,size_t count)
+#endif
 {
 	char *tmp, *s;
 
