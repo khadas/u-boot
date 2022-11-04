@@ -329,12 +329,17 @@ static void parse_params(int argc, char * const argv[],
 			params->action = ACTION_QUERY;
 			params->keybox_name = argv[2];
 			load_addr_str = getenv("loadaddr");
-			if (load_addr_str != NULL)
+			if (load_addr_str) {
+/*
+ * load_addr_str is normal.
+ */
+/* coverity[tainted_data] */
 				params->ret_data_addr =
 					(uint32_t)simple_strtoul(
 							load_addr_str, NULL, 0);
-			else
+			} else {
 				params->ret_data_addr = CONFIG_SYS_LOAD_ADDR;
+			}
 		} else if (!memcmp(argv[1], "remove", strlen("remove"))) {
 			params->action = ACTION_REMOVE;
 			params->keybox_name = argv[2];
