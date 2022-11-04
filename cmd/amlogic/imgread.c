@@ -28,7 +28,7 @@ int __attribute__((weak)) store_logic_read(const char *name, loff_t off, size_t 
 { return store_read(name, off, size, buf);}
 
 #define debugP(fmt...) //printf("[Dbg imgread]L%d:", __LINE__),printf(fmt)
-#define errorP(fmt...) pr_err("Err imgread(L%d):", __LINE__); pr_err(fmt)
+#define errorP(fmt...) do {pr_err("Err imgread(L%d):", __LINE__); pr_err(fmt); } while (0)
 #define wrnP(fmt...)   pr_warning("wrn:" fmt)
 #define MsgP(fmt...)   pr_info("[imgread]" fmt)
 
