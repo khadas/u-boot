@@ -48,12 +48,18 @@ static unsigned first_bit_set(uint32_t data)
 
 uint32_t get(uint32_t data, uint32_t mask)
 {
-	return (data & mask) >> first_bit_set(mask);
+	if (first_bit_set(mask) < 32)
+		return (data & mask) >> first_bit_set(mask);
+	printf("Bad bit shift operation\n");
+	return 0;
 }
 
 uint32_t set(uint32_t data, uint32_t mask, uint32_t value)
 {
-	return ((value << first_bit_set(mask)) & mask) | (data & ~mask);
+	if (first_bit_set(mask) < 32)
+		return ((value << first_bit_set(mask)) & mask) | (data & ~mask);
+	printf("Bad bit shift operation\n");
+	return 0;
 }
 
 unsigned int rx_rd_reg(unsigned long reg_addr)
@@ -259,7 +265,7 @@ void rx_edid_fill_to_register(
 						unsigned char *pedid,
 						unsigned int brepeat,
 						unsigned int *pphy_addr,
-						unsigned char *pchecksum)
+						unsigned long *pchecksum)
 {
 	unsigned int i;
 	unsigned int checksum = 0;
@@ -314,7 +320,7 @@ void rx_edid_fill_to_register(
 void rx_edid_update_overlay(
 						unsigned int phy_addr_offset,
 						unsigned int *pphy_addr,
-						unsigned char *pchecksum)
+						unsigned long *pchecksum)
 {
 	/*unsigned int i;*/
 
@@ -419,7 +425,7 @@ int hdmirx_ctrl_edid_update(void)
 	unsigned int sts;
 	unsigned int phy_addr_offset;
 	unsigned int phy_addr[E_PORT_NUM] = {0, 0, 0, 0};
-	unsigned char checksum[E_PORT_NUM] = {0, 0, 0, 0};
+	unsigned long checksum[E_PORT_NUM] = {0, 0, 0, 0};
 
 	/* get edid from buffer, return buffer addr */
 	pedid_data = rx_get_edid();

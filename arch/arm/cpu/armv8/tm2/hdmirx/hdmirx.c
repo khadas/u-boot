@@ -48,12 +48,18 @@ static unsigned first_bit_set(uint32_t data)
 
 uint32_t get(uint32_t data, uint32_t mask)
 {
-	return (data & mask) >> first_bit_set(mask);
+	if (first_bit_set(mask) < 32)
+		return (data & mask) >> first_bit_set(mask);
+	printf("Bad bit shift operation\n");
+	return 0;
 }
 
 uint32_t set(uint32_t data, uint32_t mask, uint32_t value)
 {
-	return ((value << first_bit_set(mask)) & mask) | (data & ~mask);
+	if (first_bit_set(mask) < 32)
+		return ((value << first_bit_set(mask)) & mask) | (data & ~mask);
+	printf("Bad bit shift operation\n");
+	return 0;
 }
 
 unsigned int rx_rd_reg(unsigned long reg_addr)
