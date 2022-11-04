@@ -1402,7 +1402,7 @@ void vpp_pq_load(void)
 
 	if (cnt == 4) {
 		for (i = 0; i < 4; i++) {
-			val[i] = simple_strtol(tmp[i], NULL, 10);
+			val[i] = getenv_ulong(tmp[i], 10, 0);
 			/* VPP_PR("pq[%d]: %d\n", i, val[i]); */
 		}
 		vpp_pq_init(val[0], val[1], val[2], val[3]);
@@ -1641,15 +1641,10 @@ static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 
 void hdr_tx_pkt_cb(void)
 {
-	int hdr_policy = 0;
+	ulong hdr_policy = 0;
 	struct master_display_info_s hdr_data;
 	struct hdr_info *hdrinfo;
-	const char *hdr_policy_env = getenv("hdr_policy");
-
-	if (hdr_policy_env == NULL)
-		return;
-
-	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
+	hdr_policy = getenv_ulong("hdr_policy", 10, 0);
 	hdrinfo = hdmitx_get_rx_hdr_info();
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
@@ -1660,7 +1655,7 @@ void hdr_tx_pkt_cb(void)
 		hdmitx_set_drm_pkt(&hdr_data);
 	}
 
-	VPP_PR("hdr_policy = %d\n", hdr_policy);
+	VPP_PR("hdr_policy = %ld\n", hdr_policy);
 	if (hdrinfo)
 		VPP_PR("Rx hdr_info.hdr_sup_eotf_smpte_st_2084 = %d\n",
 			hdrinfo->hdr_sup_eotf_smpte_st_2084);
