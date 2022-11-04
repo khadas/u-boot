@@ -198,6 +198,10 @@ efuse_action:
 
 		return ret;
 	} else {
+		/*
+		 * This part of the code is necessary to prevent unknown errors
+		 */
+		/* coverity[dead_error_begin] */
 		printf("arg error\n");
 		return CMD_RET_USAGE;
 	}
