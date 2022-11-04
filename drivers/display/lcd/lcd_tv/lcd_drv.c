@@ -872,13 +872,7 @@ static void lcd_vbyone_control_set(struct lcd_config_s *pconf)
 	/* VBO_RGN_GEN clk always on */
 	lcd_vcbus_setb(VBO_GCLK_MAIN, 2, 2, 2);
 
-	/* PAD select: */
-	if ((lane_count == 1) || (lane_count == 2))
-		lcd_vcbus_setb(LCD_PORT_SWAP, 1, 9, 2);
-	else if (lane_count == 4)
-		lcd_vcbus_setb(LCD_PORT_SWAP, 2, 9, 2);
-	else
-		lcd_vcbus_setb(LCD_PORT_SWAP, 0, 9, 2);
+	lcd_vcbus_setb(LCD_PORT_SWAP, 0, 9, 2);
 	/* lcd_vcbus_setb(LCD_PORT_SWAP, 1, 8, 1);//reverse lane output order */
 
 	if (pconf->lcd_control.vbyone_config->vx1_sw_filter_en) {
