@@ -23,7 +23,7 @@
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
 	"loadaddr_rtos=0x00001000\0"\
-	"loadaddr_kernel=0x03080000\0"\
+	"loadaddr_kernel=0x03200000\0"\
 	"fb_addr=0x00300000\0" \
 	"dolby_status=0\0" \
 	"dolby_vision_on=0\0" \
@@ -188,7 +188,7 @@
 		"get_avb_mode;"\
 		"get_valid_slot;"\
 		"if test ${vendor_boot_mode} = true; then "\
-			"setenv loadaddr_kernel 0x3080000;"\
+			"setenv loadaddr_kernel 0x3200000;"\
 			"setenv dtb_mem_addr 0x1000000;"\
 		"fi;"\
 		"if test ${active_slot} != normal; then "\
