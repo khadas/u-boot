@@ -688,6 +688,37 @@ ddr_reg_t __ddr_reg[] = {
 	//.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x16,
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
 		cfg_ddr_training_delay_ps[0].dram_bit_vref[0], 0x16),
+	//20221106,skyworth;
+	//.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[0] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[1] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[2] = 0x000000 + 30,// 70
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[4] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[6] = 0x00000080 + 0x30,// 128
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[13] = 0x00000172 - 50,// 370
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[15] = 0x00000140 + 0,// 320
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[31] = 0x00000140 - 50,// 320
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_board_SI_setting_ps[0].clk_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_board_SI_setting_ps[0].ac_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[0], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[1], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[2], 30),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[4], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[6], 0x80 + 48),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[13], 0x172 - 50),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 0x140),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[31], 0x140 - 50),
 
 	//ak321,use ADC_CH1,DDR_ID=1;DDR_ID_DDR4_2PCS_2GB,default
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
@@ -701,6 +732,37 @@ ddr_reg_t __ddr_reg[] = {
 	//.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x16,
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
 		cfg_ddr_training_delay_ps[0].dram_bit_vref[0], 0x16),
+	//20221106,skyworth;
+	//.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[0] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[1] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[2] = 0x000000 + 30,// 70
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[4] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[6] = 0x00000080 + 0x30,// 128
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[13] = 0x00000172 - 50,// 370
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[15] = 0x00000140 + 0,// 320
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[31] = 0x00000140 - 50,// 320
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_board_SI_setting_ps[0].clk_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_board_SI_setting_ps[0].ac_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[0], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[1], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[2], 30),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[4], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[6], 0x80 + 48),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[13], 0x172 - 50),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 0x140),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE1,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[31], 0x140 - 50),
 
 	//ak321,use ADC_CH1,DDR_ID=2;DDR_ID_DDR4_2PCS_3GB
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
@@ -716,6 +778,37 @@ ddr_reg_t __ddr_reg[] = {
 	//.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x16,
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
 		cfg_ddr_training_delay_ps[0].dram_bit_vref[0], 0x16),
+	//20221106,skyworth;
+	//.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[0] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[1] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[2] = 0x000000 + 30,// 70
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[4] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[6] = 0x00000080 + 0x30,// 128
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[13] = 0x00000172 - 50,// 370
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[15] = 0x00000140 + 0,// 320
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[31] = 0x00000140 - 50,// 320
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_board_SI_setting_ps[0].clk_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_board_SI_setting_ps[0].ac_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[0], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[1], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[2], 30),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[4], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[6], 0x80 + 48),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[13], 0x172 - 50),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 0x140),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE2,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[31], 0x140 - 50),
 
 	//ak321,use ADC_CH1,DDR_ID=3;DDR_ID_DDR4_2PCS_1_5GB
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
@@ -731,6 +824,37 @@ ddr_reg_t __ddr_reg[] = {
 	//.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x16,
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
 		cfg_ddr_training_delay_ps[0].dram_bit_vref[0], 0x16),
+	//20221106,skyworth;
+	//.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[0] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[1] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[2] = 0x000000 + 30,// 70
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[4] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[6] = 0x00000080 + 0x30,// 128
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[13] = 0x00000172 - 50,// 370
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[15] = 0x00000140 + 0,// 320
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[31] = 0x00000140 - 50,// 320
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_board_SI_setting_ps[0].clk_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_board_SI_setting_ps[0].ac_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[0], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[1], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[2], 30),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[4], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[6], 0x80 + 48),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[13], 0x172 - 50),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 0x140),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE3,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[31], 0x140 - 50),
 
 	//ak321,use ADC_CH1,DDR_ID=4;DDR_ID_DDR4_2PCS_4GB
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
@@ -744,6 +868,37 @@ ddr_reg_t __ddr_reg[] = {
 	//.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x16,
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
 		cfg_ddr_training_delay_ps[0].dram_bit_vref[0], 0x16),
+	//20221106,skyworth;
+	//.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[0] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[1] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[2] = 0x000000 + 30,// 70
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[4] = 0x0000000,// 64
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[6] = 0x00000080 + 0x30,// 128
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[13] = 0x00000172 - 50,// 370
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[15] = 0x00000140 + 0,// 320
+	//.cfg_ddr_training_delay_ps[0].ac_trace_delay[31] = 0x00000140 - 50,// 320
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_board_SI_setting_ps[0].clk_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_board_SI_setting_ps[0].ac_drv_ohm, DDR_SOC_AC_DRV_80_OHM),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[0], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[1], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[2], 30),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[4], 0),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[6], 0x80 + 48),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[13], 0x172 - 50),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[15], 0x140),
+	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE4,
+		cfg_ddr_training_delay_ps[0].ac_trace_delay[31], 0x140 - 50),
 
 	{0, 0, 0, 0, 0, 0},
 };
