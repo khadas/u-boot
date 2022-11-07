@@ -14,6 +14,9 @@ extern void serial_initialize(void);
 extern void board_init_mem(void);
 extern int aml_v3_usbburning(unsigned timeout, unsigned pcToolWaitTime);
 
+void __board_init_mem(void) {}
+void board_init_mem(void) __attribute__((weak, alias("__board_init_mem")));
+
 unsigned _get_romcode_boot_id(void)
 {
 	const cpu_id_t cpuid = get_cpu_id();
@@ -21,7 +24,8 @@ unsigned _get_romcode_boot_id(void)
 
     unsigned boot_id = 0;
 #ifdef SYSCTRL_SEC_STATUS_REG2
-	if (MESON_CPU_MAJOR_ID_SC2 <= familyId && MESON_CPU_MAJOR_ID_C2 != familyId) {
+	if (MESON_CPU_MAJOR_ID_SC2 <= familyId && MESON_CPU_MAJOR_ID_C2 != familyId &&
+		familyId != MESON_CPU_MAJOR_ID_T5W) {
 		boot_id = readl(SYSCTRL_SEC_STATUS_REG2);
         FB_DBG("boot_id 0x%x\n", boot_id);
 		boot_id = (boot_id>>4) & 0xf;
@@ -30,8 +34,9 @@ unsigned _get_romcode_boot_id(void)
 #endif// #ifdef SYSCTRL_SEC_STATUS_REG2
 
 #if defined(P_AO_SEC_GP_CFG0)
-    if (MESON_CPU_MAJOR_ID_C2 >= familyId &&
-			MESON_CPU_MAJOR_ID_SC2 != familyId) {
+	if ((familyId <= MESON_CPU_MAJOR_ID_T5D &&
+		familyId != MESON_CPU_MAJOR_ID_SC2) ||
+		familyId == MESON_CPU_MAJOR_ID_T5W) {
 		FB_DBG("cfg0 0x%08x\n", readl(P_AO_SEC_GP_CFG0));
 		boot_id = readl(P_AO_SEC_GP_CFG0) & 0xf;
 	}
