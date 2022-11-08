@@ -211,7 +211,7 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         loadaddr = (unsigned char*)simple_strtoul(argv[2], NULL, 16);
     }
     else{
-        loadaddr = (unsigned char*)simple_strtoul(getenv("loadaddr"), NULL, 16);
+	loadaddr = (unsigned char *)getenv_hex("loadaddr", 0);
     }
 
     hdr_addr = (boot_img_hdr_t*)loadaddr;
@@ -398,7 +398,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         loadaddr = (unsigned char*)simple_strtoul(argv[2], NULL, 16);
     }
     else {
-        loadaddr = (unsigned char*)simple_strtoul(getenv("loadaddr"), NULL, 16);
+	loadaddr = (unsigned char *)getenv_hex("loadaddr", 0);
     }
 
 
@@ -473,6 +473,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     if (is_android_r_image((void *) hdr_addr)) {
 
         extern p_vendor_boot_img_t p_vender_boot_img;
+	p_boot_img_hdr_v3_t hdr_addr_v3 = NULL;
 
         /*free vendor buffer first*/
 		if (p_vender_boot_img)
@@ -497,7 +498,6 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
             }
         }
 
-        p_boot_img_hdr_v3_t hdr_addr_v3 = NULL;
         hdr_addr_v3 = (p_boot_img_hdr_v3_t)hdr_addr;
         kernel_size    = ALIGN(hdr_addr_v3->kernel_size,0x1000);
         ramdisk_size   = ALIGN(hdr_addr_v3->ramdisk_size,0x1000);
@@ -695,6 +695,8 @@ load_left_r:
         }
     } /*ANDROID R*/
     else {
+	unsigned int dtbSz = 0;
+
 #if defined(CONFIG_IMAGE_FORMAT_LEGACY)
         //check image format for rtos
         genFmt = genimg_get_format(loadaddr);
@@ -713,8 +715,6 @@ load_left_r:
                 return __LINE__;
             }
         }
-
-        unsigned dtbSz = 0;
 
         //Check if encrypted image
 #ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
@@ -830,7 +830,7 @@ static int do_image_read_res(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         loadaddr = (unsigned char*)simple_strtoul(argv[2], NULL, 16);
     }
     else{
-        loadaddr = (unsigned char*)simple_strtoul(getenv("loadaddr"), NULL, 16);
+	loadaddr = (unsigned char *)getenv_hex("loadaddr", 0);
     }
     pResImgHead = (AmlResImgHead_t*)loadaddr;
 
@@ -920,7 +920,10 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     char cmdBuf[256];
     const char* bootupOutmode[4] = {NULL, NULL, NULL, NULL};//${bootup_board}_720, ${bootup_board}, bootup_720, bootup
 
-    loadaddr = (unsigned char*)simple_strtoul(argc > 3 ? argv[3] : getenv("loadaddr_misc"), NULL, 16);
+	if (argc > 3)
+		loadaddr = (unsigned char *)simple_strtoul(argv[3], NULL, 16);
+	else
+		loadaddr = (unsigned char *)getenv_hex("loadaddr_misc", 0);
 
     pResImgHead = (AmlResImgHead_t*)loadaddr;
 
@@ -1102,7 +1105,11 @@ static int do_unpackimg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
     unsigned itemIndex = 0;
     const AmlResItemHead_t* pItem = NULL;
 
-    loadaddr = (unsigned char*)simple_strtoul(argc > 1 ? argv[1] : getenv("loadaddr_misc"), NULL, 16);
+    if (argc > 1) {
+	    loadaddr = (unsigned char *)simple_strtoul(argv[1], NULL, 16);
+    } else {
+	    loadaddr = (unsigned char *)getenv_hex("loadaddr_misc", 0);
+    }
 
     pResImgHead = (AmlResImgHead_t*)loadaddr;
     const int totalSz = pResImgHead->imgSz;

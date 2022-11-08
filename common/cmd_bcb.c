@@ -254,7 +254,7 @@ static int do_RunAmlBcbCommand(
     if (ret == 0) {
         const char *paddr =  getenv("loadaddr");
         if (paddr != NULL) {
-            cmdaddr = simple_strtoul(paddr, NULL, 16);
+		cmdaddr = getenv_hex("loadaddr", 0);
             char *command = (char *)map_sysmem(cmdaddr, 0);
             if (command && strstr(command, CMD_WIPE_DATA)) {
                 unmap_sysmem(command);

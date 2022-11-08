@@ -294,10 +294,9 @@ static int do_usr_efuse_api(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
         {
             dtbLoadAddr = getenv("dtb_mem_addr");
             if (!dtbLoadAddr) {
-                setenv("dtb_mem_addr", simple_itoa(CONFIG_SYS_SDRAM_BASE + (16U<<20)));
-                dtbLoadAddr = getenv("dtb_mem_addr");
+                setenv_hex("dtb_mem_addr", CONFIG_SYS_SDRAM_BASE + (16U<<20));
             }
-            dtbLoadAddr = (char*)simple_strtoul(dtbLoadAddr, NULL, 0);
+            dtbLoadAddr = (char *)getenv_hex("dtb_mem_addr", 0);
         }
         ret = efuse_usr_api_init_dtb(dtbLoadAddr);
     }

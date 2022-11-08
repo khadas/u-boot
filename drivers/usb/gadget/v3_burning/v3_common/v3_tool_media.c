@@ -210,12 +210,13 @@ int v3tool_storage_init(const int eraseFlash, unsigned dtbImgSz)
 			break;
 
 		case 4: {//force erase all
-					if (store_rsv_protect(NULL, false))
-						FBS_EXIT(_ACK, "Fail in disprotect all rsv\n");
-				}
-		case 2:
+				if (store_rsv_protect(NULL, false))
+					FBS_EXIT(_ACK, "Fail in disprotect all rsv\n");
 				initFlag = 4;
-				break;
+			} break;
+		case 2:
+			initFlag = 4;
+			break;
 
 		default:
 				FBS_EXIT(_ACK, "Unsupported erase flag %d\n", eraseFlash);

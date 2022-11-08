@@ -420,7 +420,7 @@ int v3tool_simg2img_verify_img(sha1_context* ctx, const char* partName, int64_t 
     for ( ; _iChunk < nChunk; ++_iChunk, ++backInf )
     {
         if (!_dataChunkLeft) sha1_update(ctx, (u8*)backInf, CHUNK_HEAD_SIZE);
-        const int64_t flashSpace = backInf->chunk_sz * _spPacketStates.sparseBlkSz;
+        const int64_t flashSpace = backInf->chunk_sz * (int64_t)_spPacketStates.sparseBlkSz;
         switch (backInf->chunk_type)
         {
             case CHUNK_TYPE_RAW:
