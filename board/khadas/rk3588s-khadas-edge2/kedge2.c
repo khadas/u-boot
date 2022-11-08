@@ -34,6 +34,9 @@ int board_usb_init(int index, enum usb_init_type init)
 
 int rk_board_late_init(void)
 {
+	// Set FAN test
+	run_command("i2c dev 2; i2c mw 18 96 1", 0);
+
 	// Set Green LED on
 	run_command("gpio set 138; gpio clear 139; gpio clear 140", 0);
 
