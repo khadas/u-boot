@@ -123,9 +123,7 @@ static void dump_regs(void)
 			reg_val = hdmitx_rd_reg(reg_adr);
 		}
 		if (reg_val) {
-			// excluse HDCP registers
-			if ((reg_adr < HDMITX_DWC_A_HDCPCFG0) || (reg_adr > HDMITX_DWC_CEC_CTRL))
-				printk("DWC[0x%x]: 0x%x\n", reg_adr, reg_val);
+			printf("DWC[0x%x]: 0x%x\n", reg_adr, reg_val);
 		}
 	}
 }
@@ -1364,13 +1362,11 @@ static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 	unsigned long hsync_pixels_venc = 0;
 
 	unsigned long de_h_begin = 0, de_h_end = 0;
-	unsigned long de_v_begin_even = 0, de_v_end_even = 0,
-		de_v_begin_odd = 0, de_v_end_odd = 0;
+	unsigned long de_v_begin_even = 0, de_v_end_even = 0;
 	unsigned long hs_begin = 0, hs_end = 0;
 	unsigned long vs_adjust = 0;
-	unsigned long vs_bline_evn = 0, vs_eline_evn = 0, vs_bline_odd = 0,
-		vs_eline_odd = 0;
-	unsigned long vso_begin_evn = 0, vso_begin_odd = 0;
+	unsigned long vs_bline_evn = 0, vs_eline_evn = 0;
+	unsigned long vso_begin_evn = 0;
 
 	switch (vic) {
 	case HDMI_3840x2160p30_16x9:
@@ -1492,16 +1488,6 @@ static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 	de_v_end_even  = modulo(de_v_begin_even + ACTIVE_LINES, TOTAL_LINES);
 	hd_write_reg(P_ENCP_DE_V_BEGIN_EVEN, de_v_begin_even);
 	hd_write_reg(P_ENCP_DE_V_END_EVEN,  de_v_end_even);
-	/* Program DE timing for odd field if needed */
-	if (INTERLACE_MODE) {
-		de_v_begin_odd = to_signed(
-			(hd_read_reg(P_ENCP_VIDEO_OFLD_VOAV_OFST) & 0xf0)>>4)
-			+ de_v_begin_even + (TOTAL_LINES-1)/2;
-		de_v_end_odd = modulo(de_v_begin_odd + ACTIVE_LINES,
-			TOTAL_LINES);
-		hd_write_reg(P_ENCP_DE_V_BEGIN_ODD, de_v_begin_odd);
-		hd_write_reg(P_ENCP_DE_V_END_ODD, de_v_end_odd);
-	}
 
 	/* Program Hsync timing */
 	if (de_h_end + front_porch_venc >= total_pixels_venc) {
@@ -1528,17 +1514,6 @@ static void hdmi_tvenc4k2k_set(enum hdmi_vic vic)
 	vso_begin_evn = hs_begin;
 	hd_write_reg(P_ENCP_DVI_VSO_BEGIN_EVN, vso_begin_evn);
 	hd_write_reg(P_ENCP_DVI_VSO_END_EVN, vso_begin_evn);
-	/* Program Vsync timing for odd field if needed */
-	if (INTERLACE_MODE) {
-		vs_bline_odd = de_v_begin_odd-1 - SOF_LINES - VSYNC_LINES;
-		vs_eline_odd = de_v_begin_odd-1 - SOF_LINES;
-		vso_begin_odd  = modulo(hs_begin + (total_pixels_venc>>1),
-			total_pixels_venc);
-		hd_write_reg(P_ENCP_DVI_VSO_BLINE_ODD, vs_bline_odd);
-		hd_write_reg(P_ENCP_DVI_VSO_ELINE_ODD, vs_eline_odd);
-		hd_write_reg(P_ENCP_DVI_VSO_BEGIN_ODD, vso_begin_odd);
-		hd_write_reg(P_ENCP_DVI_VSO_END_ODD, vso_begin_odd);
-	}
 	hd_write_reg(P_VPU_HDMI_SETTING, (0 << 0) |
 			(0 << 1) |
 			(HSYNC_POLARITY << 2) |
@@ -1735,13 +1710,11 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 	unsigned long hsync_pixels_venc = 0;
 
 	unsigned long de_h_begin = 0, de_h_end = 0;
-	unsigned long de_v_begin_even = 0, de_v_end_even = 0,
-		de_v_begin_odd = 0, de_v_end_odd = 0;
+	unsigned long de_v_begin_even = 0, de_v_end_even = 0;
 	unsigned long hs_begin = 0, hs_end = 0;
 	unsigned long vs_adjust = 0;
-	unsigned long vs_bline_evn = 0, vs_eline_evn = 0,
-		vs_bline_odd = 0, vs_eline_odd = 0;
-	unsigned long vso_begin_evn = 0, vso_begin_odd = 0;
+	unsigned long vs_bline_evn = 0, vs_eline_evn = 0;
+	unsigned long vso_begin_evn = 0;
         hdmitx_debug();
 	switch (vic) {
 	case HDMI_720x480p60_16x9:
@@ -1872,15 +1845,6 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 	de_v_end_even  = de_v_begin_even + ACTIVE_LINES;
 	hd_write_reg(P_ENCP_DE_V_BEGIN_EVEN, de_v_begin_even);
 	hd_write_reg(P_ENCP_DE_V_END_EVEN,  de_v_end_even);	/* 522 */
-	/* Program DE timing for odd field if needed */
-	if (INTERLACE_MODE) {
-		de_v_begin_odd = to_signed(
-			(hd_read_reg(P_ENCP_VIDEO_OFLD_VOAV_OFST)
-			& 0xf0)>>4) + de_v_begin_even + (TOTAL_LINES-1)/2;
-		de_v_end_odd = de_v_begin_odd + ACTIVE_LINES;
-		hd_write_reg(P_ENCP_DE_V_BEGIN_ODD, de_v_begin_odd);
-		hd_write_reg(P_ENCP_DE_V_END_ODD, de_v_end_odd);
-	}
 
 	/* Program Hsync timing */
 	if (de_h_end + front_porch_venc >= total_pixels_venc) {
@@ -1907,17 +1871,6 @@ static void hdmi_tvenc_set_def(enum hdmi_vic vic)
 	vso_begin_evn = hs_begin; /* 1692 */
 	hd_write_reg(P_ENCP_DVI_VSO_BEGIN_EVN, vso_begin_evn);  /* 1692 */
 	hd_write_reg(P_ENCP_DVI_VSO_END_EVN, vso_begin_evn);  /* 1692 */
-	/* Program Vsync timing for odd field if needed */
-	if (INTERLACE_MODE) {
-		vs_bline_odd = de_v_begin_odd-1 - SOF_LINES - VSYNC_LINES;
-		vs_eline_odd = de_v_begin_odd-1 - SOF_LINES;
-		vso_begin_odd  = modulo(hs_begin + (total_pixels_venc>>1),
-			total_pixels_venc);
-		hd_write_reg(P_ENCP_DVI_VSO_BLINE_ODD, vs_bline_odd);
-		hd_write_reg(P_ENCP_DVI_VSO_ELINE_ODD, vs_eline_odd);
-		hd_write_reg(P_ENCP_DVI_VSO_BEGIN_ODD, vso_begin_odd);
-		hd_write_reg(P_ENCP_DVI_VSO_END_ODD, vso_begin_odd);
-	}
 	switch (vic) {
 	case HDMI_720x480i60_16x9:
 	case HDMI_720x576i50_16x9:

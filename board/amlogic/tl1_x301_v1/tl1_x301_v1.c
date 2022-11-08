@@ -698,7 +698,6 @@ static int lcd_pgamma_spi_refresh(unsigned int reg, unsigned int offset,
 static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long reg, offset, len;
-	char *str, *buf;
 	int ret = 0;
 	unsigned long index;
 
@@ -707,45 +706,29 @@ static int do_lcd_pgamma(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		return -1;
 	}
 
-	str = getenv("lcd_spi_flash_pgamma_index");
-	if (str) {
-		buf = malloc(strlen(str) + 2);
-		strcpy(buf, str);
-		index = simple_strtoul(buf, NULL, 10);
-		free(buf);
+	if (getenv("lcd_spi_flash_pgamma_index")) {
+		index = getenv_hex("lcd_spi_flash_pgamma_index", 0);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_reg\n", __func__);
 		return -1;
 	}
 
-	str = getenv("lcd_spi_flash_pgamma_reg");
-	if (str) {
-		buf = malloc(strlen(str) + 2);
-		strcpy(buf, str);
-		reg = simple_strtoul(buf, NULL, 16);
-		free(buf);
+	if (getenv("lcd_spi_flash_pgamma_reg")) {
+		reg = getenv_hex("lcd_spi_flash_pgamma_reg", 0);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_reg\n", __func__);
 		return -1;
 	}
 
-	str = getenv("lcd_spi_flash_pgamma_offset");
-	if (str) {
-		buf = malloc(strlen(str) + 2);
-		strcpy(buf, str);
-		offset = simple_strtoul(buf, NULL, 16);
-		free(buf);
+	if (getenv("lcd_spi_flash_pgamma_offset")) {
+		offset = getenv_hex("lcd_spi_flash_pgamma_offset", 0);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_offset\n", __func__);
 		return -1;
 	}
 
-	str = getenv("lcd_spi_flash_pgamma_len");
-	if (str) {
-		buf = malloc(strlen(str) + 2);
-		strcpy(buf, str);
-		len = simple_strtoul(buf, NULL, 10);
-		free(buf);
+	if (getenv("lcd_spi_flash_pgamma_len")) {
+		len = getenv_hex("lcd_spi_flash_pgamma_len", 0);
 	} else {
 		printf("%s: no lcd_spi_flash_pgamma_len\n", __func__);
 		return -1;

@@ -469,7 +469,8 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
             usb_debug("Can't allocate memory (32)\n");
             return;
         }
-        os_memcpy(data->rom_patch_bin_file_name, "mt7662t_patch_e1_hdr.bin", 24);
+		os_memcpy(data->rom_patch_bin_file_name, "mt7662t_patch_e1_hdr.bin",
+				sizeof("mt7662t_patch_e1_hdr.bin"));
         data->rom_patch_offset = 0xBC000;
         data->rom_patch_len = 0;
 
@@ -482,7 +483,8 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
             usb_debug("Can't allocate memory (32)\n");
             return;
         }
-        os_memcpy(data->rom_patch_bin_file_name, "mt7662_patch_e3_hdr.bin", 23);
+		os_memcpy(data->rom_patch_bin_file_name, "mt7662_patch_e3_hdr.bin",
+				sizeof("mt7662_patch_e3_hdr.bin"));
         data->rom_patch_offset = 0x90000;
         data->rom_patch_len = 0;
 
@@ -499,10 +501,12 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
         btmtk_usb_io_read32_7668(data, 0x80000000, &chip_ver);
         if (chip_ver == 0x8A00) {
             usb_debug("btmtk:This is 7668 E1 chip\n");
-            os_memcpy(data->rom_patch_bin_file_name, "mt7668_patch_e1_hdr.bin", 23);
+			os_memcpy(data->rom_patch_bin_file_name, "mt7668_patch_e1_hdr.bin",
+					sizeof("mt7668_patch_e1_hdr.bin"));
         } else if (chip_ver == 0x8B10) {
             usb_debug("btmtk:This is 7668 E2 chip\n");
-            os_memcpy(data->rom_patch_bin_file_name, "mt7668_patch_e2_hdr.bin", 23);
+			os_memcpy(data->rom_patch_bin_file_name, "mt7668_patch_e2_hdr.bin",
+					sizeof("mt7668_patch_e2_hdr.bin"));
         } else {
             usb_debug("btmtk: Can't recognize version 0x%04X\n", chip_ver);
             if (data->rom_patch_bin_file_name) os_kfree(data->rom_patch_bin_file_name);

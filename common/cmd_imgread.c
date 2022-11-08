@@ -390,6 +390,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
     unsigned secureKernelImgSz = 0;
 	char *upgrade_step_s = NULL;
 	bool cache_flag = false;
+	unsigned int dtbSz = 0;
 #if defined(CONFIG_IMAGE_FORMAT_LEGACY)
     image_header_t *hdr;
 #endif
@@ -695,8 +696,6 @@ load_left_r:
         }
     } /*ANDROID R*/
     else {
-	unsigned int dtbSz = 0;
-
 #if defined(CONFIG_IMAGE_FORMAT_LEGACY)
         //check image format for rtos
         genFmt = genimg_get_format(loadaddr);

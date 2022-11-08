@@ -393,6 +393,10 @@ static int read_fdto_partition(void)
 			}
 		}
 	}
+	/*
+	 * malloc dtbo_mem_addr for ENV, need ignore.
+	 */
+	/* coverity[leaked_storage:SUPPRESS] */
 	return 0;
 }
 #endif
@@ -409,7 +413,7 @@ static int get_fdto_totalsize(u32 *tz)
 	if (ret != 0)
 		return ret;
 
-	dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);
+	dtbo_mem_addr = getenv_hex("dtbo_mem_addr", 0);
 	*tz = android_dt_get_totalsize(dtbo_mem_addr);
 
 	TE(__func__);
@@ -433,8 +437,7 @@ static int do_fdt_overlay(void)
 		printf("No valid dtbo image found\n");
 		return -1;
 	}
-
-	dtbo_mem_addr = simple_strtoul(getenv("dtbo_mem_addr"), NULL, 16);  //coverity error
+	dtbo_mem_addr = getenv_hex("dtbo_mem_addr", 0);
 	if (!android_dt_check_header(dtbo_mem_addr)) {
 		printf("Error: DTBO image header is incorrect\n");
 		return -1;
@@ -466,7 +469,7 @@ static int do_fdt_overlay(void)
 			sprintf(cmd, "dtimg start 0x%llx %d dtbo_start",
 				dtbo_mem_addr, i);
 			run_command(cmd, 0);
-			dtbo_start = simple_strtoul(getenv("dtbo_start"), NULL, 16);  //coverity error
+			dtbo_start = getenv_hex("dtbo_start", 0);
 
 			sprintf(cmd, "fdt apply 0x%llx", dtbo_start);
 			run_command(cmd, 0);
@@ -512,7 +515,7 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	//because if load dtb.img from cache/udisk maybe encrypted.
 	run_command("store dtb decrypt ${dtb_mem_addr}", 0);
 	if (getenv("dtb_mem_addr")) {
-		dtb_mem_addr = simple_strtoul(getenv("dtb_mem_addr"), NULL, 16);  //coverity error
+		dtb_mem_addr = getenv_hex("dtb_mem_addr", 0);
 	}
 	else
 		dtb_mem_addr = CONFIG_DTB_MEM_ADDR;

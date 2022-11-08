@@ -90,8 +90,8 @@ int cpu_sd_emmc_init(unsigned port)
 __weak int  sd_emmc_detect(unsigned port)
 {
 	int ret = 0;
-	unsigned pinmux_4;
-	unsigned pinmux_5;
+	//unsigned pinmux_4;
+	//unsigned pinmux_5;
     switch (port) {
 
 	case SDIO_PORT_A:
@@ -99,31 +99,6 @@ __weak int  sd_emmc_detect(unsigned port)
 	case SDIO_PORT_B:
 		/*tread port b as port c on t5*/
 		ret=1;
-		break;
-		pinmux_4 = readl(P_PERIPHS_PIN_MUX_4);
-		pinmux_5 = readl(P_PERIPHS_PIN_MUX_5);
-		clrbits_le32(P_PERIPHS_PIN_MUX_5, 0xF << 8);
-		setbits_le32(P_PREG_PAD_GPIO3_EN_N, 1 << 10);
-		setbits_le32(P_PAD_PULL_UP_EN_REG3, 1 << 10);
-		setbits_le32(P_PAD_PULL_UP_REG3, 1 << 10);
-
-		ret = readl(P_PREG_PAD_GPIO3_I) & (1 << 10);
-		printf("%s\n", ret ? "card out" : "card in");
-		if (!ret) {
-			clrbits_le32(P_PERIPHS_PIN_MUX_4, 0xF << 12);
-			setbits_le32(P_PREG_PAD_GPIO3_EN_N, 1 << 3);
-			setbits_le32(P_PAD_PULL_UP_EN_REG3, 1 << 3);
-			setbits_le32(P_PAD_PULL_UP_REG3, 1 << 3);
-			if (!(readl(P_PREG_PAD_GPIO3_I) & (1 << 3))) {
-				printf("error: debug board is not support in tl1\n");
-			} else {
-				//4bit card
-				writel(pinmux_4, P_PERIPHS_PIN_MUX_4);
-				writel(pinmux_5, P_PERIPHS_PIN_MUX_5);
-				sd_debug_board_1bit_flag = 0;
-			}
-
-		}
 		break;
 	default:
 		break;
