@@ -83,6 +83,7 @@ enum lcd_chip_e {
 	LCD_CHIP_T7,
 	LCD_CHIP_T3,
 	LCD_CHIP_C3,
+	LCD_CHIP_T5W,
 	LCD_CHIP_MAX,
 };
 

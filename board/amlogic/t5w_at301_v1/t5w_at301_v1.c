@@ -29,7 +29,7 @@
 #include <amlogic/aml_hdmirx.h>
 #endif
 #ifdef CONFIG_AML_LCD
-#include <amlogic/aml_lcd.h>
+#include <amlogic/media/vout/lcd/lcd_vout.h>
 #endif
 #include <asm/arch/eth_setup.h>
 #include <phy.h>

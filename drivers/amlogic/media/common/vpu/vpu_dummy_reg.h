@@ -215,4 +215,20 @@
 #define CLKCTRL_VPU_CLKB_CTRL 0
 #endif
 
+#ifndef HHI_VPU_CLK_CNTL
+#define HHI_VPU_CLK_CNTL 0
+#endif
+
+#ifndef HHI_VPU_CLKB_CTRL
+#define HHI_VPU_CLKB_CTRL 0
+#endif
+
+#ifndef HHI_VPU_CLK_CTRL
+#define HHI_VPU_CLK_CTRL 0
+#endif
+
+#ifndef HHI_VPU_CLKB_CNTL
+#define HHI_VPU_CLKB_CNTL                          (0xff63c000 + (0x083 << 2))
+#endif
+
 #endif

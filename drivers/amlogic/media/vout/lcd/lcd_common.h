@@ -33,7 +33,8 @@
 /* 20220809: fix tcon axi mem mistake for DLG tcon bin*/
 /* 20221111: modify edp transmit_unit_size to 48(temporary)*/
 /* 20221115: support force unfit mipi-dsi bit_rate_max*/
-#define LCD_DRV_VERSION    "20221115"
+/* 20221116: add T5W support*/
+#define LCD_DRV_VERSION    "20221116"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 

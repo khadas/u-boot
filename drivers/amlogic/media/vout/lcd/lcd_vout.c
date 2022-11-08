@@ -103,6 +103,17 @@ static struct aml_lcd_data_s lcd_data_t5d = {
 	.dft_conf = {NULL, NULL, NULL},
 };
 
+static struct aml_lcd_data_s lcd_data_t5w = {
+	.chip_type = LCD_CHIP_T5W,
+	.chip_name = "t5w",
+	.rev_type = 0,
+	.drv_max = 1,
+	.offset_venc = {0},
+	.offset_venc_if = {0},
+	.offset_venc_data = {0},
+	.dft_conf = {NULL, NULL, NULL},
+};
+
 static struct aml_lcd_data_s lcd_data_t7 = {
 	.chip_type = LCD_CHIP_T7,
 	.chip_name = "t7",
@@ -165,6 +176,9 @@ static void lcd_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_T5D:
 		lcd_data = &lcd_data_t5d;
+		break;
+	case MESON_CPU_MAJOR_ID_T5W:
+		lcd_data = &lcd_data_t5w;
 		break;
 	case MESON_CPU_MAJOR_ID_T7:
 		lcd_data = &lcd_data_t7;

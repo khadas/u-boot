@@ -78,4 +78,5 @@
 #define CONFIG_AML_VPU_REG_NEW 1
 #define PACKAGE_ID_MASK         0xFF
 
+#define MIPI_DSI_REGISTER 1
 #endif /* _CPU_H */

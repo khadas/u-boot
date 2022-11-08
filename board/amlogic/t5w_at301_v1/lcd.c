@@ -7,53 +7,43 @@
  */
 
 #include <common.h>
-#include <amlogic/aml_lcd.h>
-#ifdef CONFIG_AML_LOCAL_DIMMING
-#include <amlogic/aml_ldim.h>
-#endif
+#include <amlogic/media/vout/lcd/aml_lcd.h>
 
-static char lcd_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
-	"GPIOH_7",
+/***************************************************
+ * lcd_0
+ ***************************************************/
+static char lcd0_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOH_7", /* 12V */
+	"GPIOH_3", /* sel_lvds */
 	"invalid", /* ending flag */
 };
 
-static struct lcd_power_step_s lcd_power_on_step[] = {
-	{LCD_POWER_TYPE_CPU,   0,1,20,}, /* panel vcc */
-	{LCD_POWER_TYPE_SIGNAL,0,0,0,},
-	{LCD_POWER_TYPE_MAX,   0,0,0,},  /* ending flag */
-};
-static struct lcd_power_step_s lcd_power_off_step[] = {
-	{LCD_POWER_TYPE_SIGNAL,0,0,0,},
-	{LCD_POWER_TYPE_CPU,   0,0,200,}, /* panel vcc */
-	{LCD_POWER_TYPE_MAX,   0,0,0,},   /* ending flag */
-};
-
-static struct lcd_power_step_s lcd_power_on_step_p2p[] = {
-	{LCD_POWER_TYPE_CPU,   0,1,20,}, /* panel vcc */
-	{LCD_POWER_TYPE_EXTERN,0,0,100,}, /* init external voltage */
-	{LCD_POWER_TYPE_SIGNAL,0,0,0,},
-	{LCD_POWER_TYPE_MAX,   0,0,0,},  /* ending flag */
-};
-static struct lcd_power_step_s lcd_power_off_step_p2p[] = {
-	{LCD_POWER_TYPE_SIGNAL,0,0,0,},
-	{LCD_POWER_TYPE_CPU,   0,0,200,}, /* panel vcc */
-	{LCD_POWER_TYPE_MAX,   0,0,0,},   /* ending flag */
-};
-
-static char lcd_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+static char lcd0_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOH_13", /* enable */
+	"GPIOH_12",  /* pwm_d */
 	"invalid", /* ending flag */
 };
 
-#ifdef CONFIG_AML_LOCAL_DIMMING
-static char lcd_bl_ldim_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
-	"GPIOH_13", /* LD_EN */
-	"GPIOH_12",  /* DIMMING_PWM */
-	"GPIOH_13",  /* LD_EN2 */
-	"invalid",  /* ending flag */
+static struct lcd_power_step_s lcd0_power_on_step[] = {
+	{LCD_POWER_TYPE_CPU,    0, 1, 50,}, /* panel vcc */
+	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
+	{LCD_POWER_TYPE_MAX,   0, 0, 0,},  /* ending flag */
 };
-#endif
 
-struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
+static struct lcd_power_step_s lcd0_power_off_step[] = {
+	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
+	{LCD_POWER_TYPE_CPU,   0, 0, 500,}, /* panel vcc */
+	{LCD_POWER_TYPE_MAX,   0, 0, 0,},   /* ending flag */
+};
+
+static struct lcd_power_step_s lcd0_power_on_step_p2p[] = {
+	{LCD_POWER_TYPE_CPU,    0, 1, 300,}, /* panel vcc */
+	{LCD_POWER_TYPE_EXTERN, 0, 0, 50,}, /* pmu i2c init */
+	{LCD_POWER_TYPE_SIGNAL, 0, 0, 0,},
+	{LCD_POWER_TYPE_MAX,   0, 0, 0,},  /* ending flag */
+};
+
+struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	{/* normal*/
 	"lvds_0",LCD_LVDS,8,
 	/* basic timing */
@@ -61,9 +51,10 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	/* clk_attr */
 	0,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* lvds_attr */
-	1,1,0,0,0,0xf,0x0,Rsv_val,Rsv_val,Rsv_val,
+	1,1,0,0,0,0x3,0x0,Rsv_val,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
+	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_PWM,0,1,0,200,200,
@@ -80,8 +71,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	1,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* lvds_attr */
 	1,1,0,0,0,0xf,0x0,Rsv_val,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
+	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_MAX,0,1,0,200,200,
@@ -98,8 +90,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* vbyone_attr */
 	8,2,4,4,0xf,0x1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
+	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_PWM,0,1,0,200,200,
@@ -116,8 +109,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* vbyone_attr */
 	8,1,4,4,0xf,0x1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
+	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_PWM,0,1,0,200,200,
@@ -134,8 +128,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* p2p attr */
 	0x0,12,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
+	lcd0_power_on_step_p2p, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_MAX,0,1,0,200,200,
@@ -147,49 +142,14 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	{/*public p2p ceds : 3840x2160@60hz 6lane */
 	"p2p_1",LCD_P2P,8,
 	/* basic timing */
-	3840,2160,5000,2250,16,29,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* p2p attr */
-	0x0,6,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public p2p chpi : 3840x2160@60hz 6lane */
-	"p2p_2",LCD_P2P,8,
-	/* basic timing */
 	3840,2160,4400,2250,16,29,0,6,81,0,
 	/* clk_attr */
 	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* p2p attr */
-	0x10,6,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
+	0x11,12,0x76543210,0xba98,0,0,0x5,0x1,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/*public p2p chpi : 3840x2160@60hz 12lane */
-	"p2p_3",LCD_P2P,8,
-	/* basic timing */
-	3840,2160,4400,2250,16,29,0,6,81,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* p2p attr */
-	0x10,12,0x76543210,0xba98,0,0,0xf,0x1,Rsv_val,Rsv_val,
-	/* power step */
-	lcd_power_on_step_p2p, lcd_power_off_step_p2p,
+	lcd0_power_on_step_p2p, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_MAX,0,1,0,200,200,
@@ -206,8 +166,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* minilvds_attr */
 	6,0x76543210,0xba98,0x660,0,0,0xf,0x0,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
+	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_MAX,0,1,0,200,200,
@@ -224,8 +185,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	/* minilvds_attr */
 	6,0x76543210,0xba98,0x660,0,0,0xf,0x0,Rsv_val,Rsv_val,
+	NULL, NULL,
 	/* power step */
-	lcd_power_on_step, lcd_power_off_step,
+	lcd0_power_on_step, lcd0_power_off_step,
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_MAX,0,1,0,200,200,
@@ -237,7 +199,7 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 	{.panel_type = "invalid"},
 };
 
-static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
+static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 	{
 		.name = "lcd_vbyone_pin", //GPIOH_0/8
 		.pinmux_set = {{5, 0x00000004}, {6, 0x00000004}, {LCD_PINMUX_END, 0x0}},
@@ -273,7 +235,7 @@ static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMX_MAX] = {
 	},
 };
 
-static struct lcd_pinmux_ctrl_s bl_pinmux_ctrl[BL_PINMUX_MAX] = {
+static struct lcd_pinmux_ctrl_s lcd0_bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 	{
 		.name = "bl_pwm_on_pin", /*GPIOH_12*/
 		.pinmux_set = {{6, 0x00040000}, {LCD_PINMUX_END, 0x0} },
@@ -309,8 +271,8 @@ static struct lcd_pinmux_ctrl_s bl_pinmux_ctrl[BL_PINMUX_MAX] = {
 	},
 };
 
-#ifdef CONFIG_AML_LOCAL_DIMMING
-static struct lcd_pinmux_ctrl_s ldim_pinmux_ctrl[] = {
+#ifdef CONFIG_AML_LCD_BL_LDIM
+static struct lcd_pinmux_ctrl_s lcd0_ldim_pinmux_ctrl[BL_PINMUX_MAX] = {
 	{
 		.name = "ldim_pwm_pin", /*GPIOH_12*/
 		.pinmux_set = {{6, 0x00030000}, {LCD_PINMUX_END, 0x0} },
@@ -334,99 +296,15 @@ static struct lcd_pinmux_ctrl_s ldim_pinmux_ctrl[] = {
 };
 #endif
 
-static struct vbyone_config_s lcd_vbyone_config = {
-	.lane_count   = 8,
-	.byte_mode    = 4,
-	.region_num   = 2,
-	.color_fmt    = 4,
-};
-
-static struct lvds_config_s lcd_lvds_config = {
-	.lvds_repack  = 1, //0=JEDIA mode,  1=VESA mode
-	.dual_port    = 1, //0=single port, 1=double port
-	.pn_swap      = 0, //0=normal,      1=swap
-	.port_swap    = 0, //0=normal,      1=swap
-	.lane_reverse = 0, //0=normal,      1=swap
-};
-
-static struct mlvds_config_s lcd_mlvds_config = {
-	.channel_num  = 6,
-	.channel_sel0 = 0x45603012,
-	.channel_sel1 = 0x0,
-	.clk_phase = 0x0,
-	.pn_swap  = 0, //0=normal, 1=swap
-	.bit_swap = 0, //0=normal, 1=swap
-};
-
-static struct p2p_config_s lcd_p2p_config = {
-	.p2p_type  = 0,
-	.lane_num  = 12,
-	.channel_sel0 = 0x76543210,
-	.channel_sel1 = 0xba98,
-	.pn_swap  = 0, //0=normal, 1=swap
-	.bit_swap = 0, //0=normal, 1=swap
-};
-
-static struct lcd_power_ctrl_s lcd_power_ctrl = {
-	.power_on_step = {
-		{
-			.type = LCD_POWER_TYPE_MAX, /* ending flag */
-		},
-	},
-	.power_off_step = {
-		{
-			.type = LCD_POWER_TYPE_MAX, /* ending flag */
-		},
-	},
-};
-
-struct lcd_config_s lcd_config_dft = {
-	.lcd_mode = LCD_MODE_TV,
-	.lcd_key_valid = 0,
-	.lcd_basic = {
-		.model_name = "default",
-		.lcd_type = LCD_TYPE_MAX,
-		.lcd_bits = 8,
-		.h_active = 1920,
-		.v_active = 1080,
-		.h_period = 2200,
-		.v_period = 1125,
-
-		.screen_width   = 16,
-		.screen_height  = 9,
-	},
-
-	.lcd_timing = {
-		.clk_auto = 1,
-		.lcd_clk = 60,
-		.ss_level = 0,
-		.fr_adjust_type = 0,
-
-		.hsync_width = 44,
-		.hsync_bp    = 148,
-		.hsync_pol   = 0,
-		.vsync_width = 5,
-		.vsync_bp    = 36,
-		.vsync_pol   = 0,
-	},
-
-	.lcd_control = {
-		.lvds_config   = &lcd_lvds_config,
-		.vbyone_config = &lcd_vbyone_config,
-		.mlvds_config = &lcd_mlvds_config,
-		.p2p_config    = &lcd_p2p_config,
-	},
-	.lcd_power = &lcd_power_ctrl,
-
-	.pinctrl_ver = 2,
-	.lcd_pinmux = lcd_pinmux_ctrl,
-	.pinmux_set = {{LCD_PINMUX_END, 0x0}},
-	.pinmux_clr = {{LCD_PINMUX_END, 0x0}},
-};
-
 #ifdef CONFIG_AML_LCD_EXTERN
-static char lcd_ext_gpio[LCD_EXTERN_GPIO_NUM_MAX][LCD_EXTERN_GPIO_LEN_MAX] = {
+static char lcd0_ext_gpio[LCD_EXTERN_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 	"invalid", /* ending flag */
+};
+
+static struct lcd_pinmux_ctrl_s lcd0_ext_pinmux_ctrl[LCD_PINMUX_NUM] = {
+	{
+		.name = "invalid",
+	},
 };
 
 static unsigned char init_on_table[LCD_EXTERN_INIT_ON_MAX] = {
@@ -473,13 +351,20 @@ static unsigned char init_off_table[LCD_EXTERN_INIT_OFF_MAX] = {
 	0xff, 0,  /* ending */
 };
 
-struct lcd_extern_common_s ext_common_dft = {
-	.lcd_ext_key_valid = 0,
-	.lcd_ext_num = 1,
-	.pinmux_set = {{LCD_PINMUX_END, 0x0}},
-	.pinmux_clr = {{LCD_PINMUX_END, 0x0}},
+static struct lcd_extern_common_s ext_common_dft = {
+	.key_valid = 0,
+	.ext_num = 1,
+	.ext_gpio = lcd0_ext_gpio,
+
+	.i2c_bus = LCD_EXTERN_I2C_BUS_2,
+	.i2c_sck_gpio = 0xff,
+	.i2c_sck_gpio_off = 0,
+	.i2c_sda_gpio = 0xff,
+	.i2c_sda_gpio_off = 0,
+	.ext_pinmux = lcd0_ext_pinmux_ctrl,
 };
-struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX] = {
+
+static struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_DEV_MAX] = {
 	{
 		.index = 0,
 		.name = "i2c_ANX6862_7911",
@@ -487,7 +372,9 @@ struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX] = {
 		.status = 1, /* 0=disable, 1=enable */
 		.i2c_addr = 0x20, /* 7bit i2c address */
 		.i2c_addr2 = 0x74, /* 7bit i2c address, 0xff for none */
-		.i2c_bus = LCD_EXTERN_I2C_BUS_1, /* LCD_EXTERN_I2C_BUS_0/1/2/3/4 */
+		.i2c_addr3 = LCD_EXTERN_I2C_BUS_1, /* LCD_EXTERN_I2C_BUS_0/1/2/3/4 */
+		.i2c_addr4 = 0xff,
+
 		.cmd_size = 0xff,
 		.table_init_on = init_on_table,
 		.table_init_off = init_off_table,
@@ -498,123 +385,34 @@ struct lcd_extern_config_s ext_config_dtf[LCD_EXTERN_NUM_MAX] = {
 };
 #endif
 
-struct bl_config_s bl_config_dft = {
-	.name = "default",
-	.bl_key_valid = 0,
+/***************************************************
+ * lcd default config
+ ***************************************************/
+static struct lcd_dft_config_s lcd_dft_conf[] = {
+	{//index 0
+		.lcd_gpio = lcd0_cpu_gpio,
+		.key_valid = 0,
+		.clk_path = 0,
+		.mode = LCD_MODE_TV,
+		.ext_lcd = ext_lcd0_config,
+		.lcd_pinmux = lcd0_pinmux_ctrl,
 
-	.level_default = 100,
-	.level_min = 10,
-	.level_max = 255,
-	.level_mid = 128,
-	.level_mid_mapping = 128,
-	.level = 0,
-
-	.method = BL_CTRL_MAX,
-	.power_on_delay = 200,
-	.power_off_delay = 200,
-
-	.en_gpio = 0xff,
-	.en_gpio_on = 1,
-	.en_gpio_off = 0,
-
-	.bl_pwm = NULL,
-	.bl_pwm_combo0 = NULL,
-	.bl_pwm_combo1 = NULL,
-	.pwm_on_delay = 10,
-	.pwm_off_delay = 10,
-
-	.bl_extern_index = 0xff,
-
-	.pinctrl_ver = 2,
-	.bl_pinmux = bl_pinmux_ctrl,
-	.pinmux_set = {{LCD_PINMUX_END, 0x0}},
-	.pinmux_clr = {{LCD_PINMUX_END, 0x0}},
-};
-
-#ifdef CONFIG_AML_LOCAL_DIMMING
-static unsigned char ldim_init_on[LDIM_INIT_ON_MAX];
-static unsigned char ldim_init_off[LDIM_INIT_OFF_MAX];
-struct ldim_dev_config_s ldim_config_dft = {
-	.type = LDIM_DEV_TYPE_SPI,
-	.cs_hold_delay = 0,
-	.cs_clk_delay = 0,
-	.en_gpio = 0xff,
-	.en_gpio_on = 1,
-	.en_gpio_off = 0,
-	.lamp_err_gpio = 0xff,
-	.fault_check = 0,
-	.write_check = 0,
-	.dim_min = 0x7f, /* min 3% duty */
-	.dim_max = 0xfff,
-	.init_loaded = 0,
-	.cmd_size = 0xff,
-	.init_on = ldim_init_on,
-	.init_off = ldim_init_off,
-	.init_on_cnt = sizeof(ldim_init_on),
-	.init_off_cnt = sizeof(ldim_init_off),
-	.ldim_pwm_config = {
-		.index = 0,
-		.pwm_method = BL_PWM_POSITIVE,
-		.pwm_port = BL_PWM_MAX,
-		.pwm_duty_max = 4095,
-		.pwm_duty_min = 0,
-	},
-	.analog_pwm_config = {
-		.index = 1,
-		.pwm_method = BL_PWM_POSITIVE,
-		.pwm_port = BL_PWM_MAX,
-		.pwm_duty_max = 4095,
-		.pwm_duty_min = 20,
-	},
-	.pinctrl_ver = 1,
-	.ldim_pinmux = ldim_pinmux_ctrl,
-};
+#ifdef CONFIG_AML_LCD_EXTERN
+		.ext_common = &ext_common_dft,
+		.ext_conf = ext_config_dtf,
 #endif
+		.bl_gpio = lcd0_bl_gpio,
+		.bl_pinmux = lcd0_bl_pinmux_ctrl,
+#ifdef CONFIG_AML_LCD_BL_LDIM
+		.ldim_pinmux = lcd0_ldim_pinmux_ctrl,
+#endif
+	},
+};
 
 void lcd_config_bsp_init(void)
 {
-	int i, j;
+	struct aml_lcd_data_s *pdata = aml_lcd_get_data();
 
-	for (i = 0; i < LCD_CPU_GPIO_NUM_MAX; i++) {
-		if (strcmp(lcd_cpu_gpio[i], "invalid") == 0)
-			break;
-		strcpy(lcd_power_ctrl.cpu_gpio[i], lcd_cpu_gpio[i]);
-	}
-	for (j = i; j < LCD_CPU_GPIO_NUM_MAX; j++)
-		strcpy(lcd_power_ctrl.cpu_gpio[j], "invalid");
-	for (i = 0; i < BL_GPIO_NUM_MAX; i++) {
-		if (strcmp(lcd_bl_gpio[i], "invalid") == 0)
-			break;
-		strcpy(bl_config_dft.gpio_name[i], lcd_bl_gpio[i]);
-	}
-	for (j = i; j < BL_GPIO_NUM_MAX; j++)
-		strcpy(bl_config_dft.gpio_name[j], "invalid");
-
-#ifdef CONFIG_AML_LCD_EXTERN
-	for (i = 0; i < LCD_EXTERN_NUM_MAX; i++) {
-		if (ext_config_dtf[i].index == LCD_EXTERN_INDEX_INVALID)
-			break;
-	}
-	ext_common_dft.lcd_ext_num = i;
-
-	for (i = 0; i < LCD_EXTERN_GPIO_NUM_MAX; i++) {
-		if (strcmp(lcd_ext_gpio[i], "invalid") == 0)
-			break;
-		strcpy(ext_common_dft.gpio_name[i], lcd_ext_gpio[i]);
-	}
-	for (j = i; j < LCD_EXTERN_GPIO_NUM_MAX; j++)
-		strcpy(ext_common_dft.gpio_name[j], "invalid");
-
-#endif
-#ifdef CONFIG_AML_LOCAL_DIMMING
-		strcpy(ldim_config_dft.name, "invalid");
-		strcpy(ldim_config_dft.pinmux_name, "invalid");
-		for (i = 0; i < BL_GPIO_NUM_MAX; i++) {
-			if (strcmp(lcd_bl_ldim_gpio[i], "invalid") == 0)
-				break;
-			strcpy(ldim_config_dft.gpio_name[i], lcd_bl_ldim_gpio[i]);
-		}
-		for (j = i; j < BL_GPIO_NUM_MAX; j++)
-			strcpy(ldim_config_dft.gpio_name[j], "invalid");
-#endif
+	if (pdata)
+		pdata->dft_conf[0] = &lcd_dft_conf[0];
 }
