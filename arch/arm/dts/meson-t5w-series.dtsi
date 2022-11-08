@@ -395,12 +395,12 @@
 			status = "disabled";
 		};
 
-		spifc: spi@fe056000 {
+		spifc: spi@ffd14000 {
 			compatible = "amlogic,spifc";
 			status = "disabled";
-			reg = <0x0 0xfe056000 0x0 0x80>;
-			/* clocks = <&clkc CLKID_CLK81>; */
-			/* clock-names = "core"; */
+			reg = <0x0 0xffd14000 0x0 0x80>;
+			clocks = <&clkc CLKID_SYS_CLK>;
+			clock-names = "core";
 			pinctrl-names = "default";
 			pinctrl-0 = <&spifc_pins>;
 			#address-cells = <1>;
