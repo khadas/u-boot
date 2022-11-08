@@ -1962,8 +1962,8 @@ void reset_all_reg(struct mmc *mmc)
 
 	if (aml_priv->sd_emmc_port != 2)
 		return;
-	sd_emmc_regs->gcfg = 0x4791;
 	sd_emmc_regs->gclock = 0x1000204;
+	sd_emmc_regs->gcfg = 0x4791;
 	sd_emmc_regs->gadjust = 0;
 	sd_emmc_regs->gdelay = 0;
 	sd_emmc_regs->gdelay1 = 0;
