@@ -187,6 +187,10 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 	eth_get_efuse_mac(dev);
 
 	if (is_valid_ethaddr(dev->enetaddr)) {
+		sprintf((char *)env_str, "%02x:%02x:%02x:%02x:%02x:%02x", dev->enetaddr[0],
+					dev->enetaddr[1], dev->enetaddr[2], dev->enetaddr[3],
+					dev->enetaddr[4], dev->enetaddr[5]);
+		env_set("ethaddr", (const char *)env_str);
 		eth_env_set_enetaddr_by_index(base_name, eth_number,
 					      dev->enetaddr);
 	} else {
