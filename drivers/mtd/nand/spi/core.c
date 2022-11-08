@@ -822,6 +822,28 @@ static bool spinand_isbad(struct nand_device *nand, const struct nand_pos *pos)
 	return false;
 }
 
+static int spinand_block_checkbad(struct nand_device *nand, struct nand_pos *pos)
+{
+	struct spinand_device *spinand = nand_to_spinand(nand);
+	unsigned int offs = nanddev_pos_to_offs(nand, pos);
+	int status;
+
+	if (spinand->bbt && !spinand->bbt_scan) {
+		status = spinand->bbt[pos->eraseblock];
+		if (status != NAND_BLOCK_GOOD &&
+		   status != NAND_BLOCK_BAD &&
+		   status != NAND_FACTORY_BAD) {
+			pr_err("bad block table is mixed\n");
+			return NAND_BLOCK_BAD;
+		}
+		if (status != NAND_BLOCK_GOOD)
+			pr_info("bad block at 0x%x\n", (u32)offs);
+		return status;
+	}
+	pr_info("bbt table is not initial\n");
+	return spinand_isbad(nand, pos) ? NAND_FACTORY_BAD : NAND_BLOCK_GOOD;
+}
+
 static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
 {
 	struct nand_device *nand = mtd_to_nanddev(mtd);
@@ -835,7 +857,7 @@ static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
 #ifndef __UBOOT__
 	mutex_lock(&spinand->lock);
 #endif
-	ret = nanddev_isbad(nand, &pos);
+	ret = spinand_block_checkbad(nand, &pos);
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -1390,7 +1412,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		loff_t offset = off, end = off + parts[i].size;
 
 		do {
-			if (mtd->_block_isbad(mtd, offset)) {
+			if (mtd->_block_isbad(mtd, offset) == NAND_FACTORY_BAD) {
 				pr_err("%s %d found bad block in 0x%llx\n",
 					__func__, __LINE__, offset);
 				end += mtd->erasesize;
