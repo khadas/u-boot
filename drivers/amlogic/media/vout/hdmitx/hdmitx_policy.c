@@ -819,9 +819,11 @@ static void get_best_color_attr(struct input_hdmi_data *hdmi_data,
 	}
 
 	for (i = 0; i < length; i++) {
-		strcpy(temp_mode, outputmode);
-		strcat(temp_mode, color_list[i]);
-		 if (is_supported_mode_attr(hdmi_data, temp_mode)) {
+		memset(temp_mode, 0, sizeof(temp_mode));
+		strncpy(temp_mode, outputmode, MODE_LEN - 1);
+		if ((strlen(temp_mode) + strlen(color_list[i])) < MODE_LEN)
+			strcat(temp_mode, color_list[i]);
+		if (is_supported_mode_attr(hdmi_data, temp_mode)) {
 			printf("support current mode:[%s], deep color:[%s]\n",
 			       outputmode, color_list[i]);
 			strcpy(colorattribute, color_list[i]);

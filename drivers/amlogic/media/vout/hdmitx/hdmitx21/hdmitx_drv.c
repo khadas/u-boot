@@ -1514,7 +1514,7 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 	struct hdr10plus_para *data)
 {
 	unsigned char VEN_HB[3] = {0x81, 0x01, 0x1b};
-	unsigned char VEN_DB[27] = {0x00};
+	unsigned char VEN_DB[28] = {0x00};
 
 	if (!data || !flag) {
 		pr_info("%s: null vsif\n", __func__);
