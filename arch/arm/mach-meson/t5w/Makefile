@@ -1,4 +1,4 @@
-obj-y	:= sdio.o gpio.o
+obj-y	:= sdio.o
 obj-y   += bl31_apis.o
 obj-y	+= watchdog.o
 obj-$(CONFIG_AML_HDMITX20) += hdmitx20/

@@ -452,7 +452,7 @@
 //#define CONFIG_BOOTCOMMAND "echo bootcomand"
 #endif //CONFIG_PXP_EMULATOR
 
-#define CONFIG_ENV_IS_NOWHERE  1
+//#define CONFIG_ENV_IS_NOWHERE  1
 
 #ifndef CONFIG_PXP_EMULATOR
 //#define CONFIG_ENV_IS_NOWHERE  1
@@ -674,6 +674,7 @@
 
 #define CONFIG_SHA1 1
 #define CONFIG_MD5 1
+#define CONFIG_AML_HW_SHA2
 
 /* commands */
 #if 0
