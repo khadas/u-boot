@@ -4055,7 +4055,11 @@ static void viu2_osd1_update_disp_3d_mode(void)
 void osd_hist_enable(u32 osd_index)
 {
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
+#ifndef AML_S5_DISPLAY
 		VSYNCOSD_WR_MPEG_REG(VI_HIST_CTRL, 0x1801);
+#else
+		VSYNCOSD_WR_MPEG_REG(VI_HIST_CTRL, 0x3001);
+#endif
 	} else {
 		if (OSD1 == osd_index) {
 			VSYNCOSD_WR_MPEG_REG(VI_HIST_CTRL, 0x1801);
