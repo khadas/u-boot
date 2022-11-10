@@ -100,7 +100,7 @@ const char * adnl_get_usid_string(void)
 	buff[0] = buff[24] = '\0';
 	int i = 0;
 	for (; i < 12; ++i) {
-		sprintf(buff + i, "%02x", chipid[15 - i]);
+		sprintf(buff + i * 2, "%02x", chipid[15 - i]);
 	}
 	return buff;
 }
