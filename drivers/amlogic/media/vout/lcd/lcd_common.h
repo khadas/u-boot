@@ -31,7 +31,8 @@
 /* 20220701: add c3 support*/
 /* 20220718: support t5,t5w,t3 set vswing in low common type*/
 /* 20220809: fix tcon axi mem mistake for DLG tcon bin*/
-#define LCD_DRV_VERSION    "20220809"
+/* 20221111: modify edp transmit_unit_size to 48(temporary)*/
+#define LCD_DRV_VERSION    "20221111"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
