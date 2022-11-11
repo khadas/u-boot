@@ -216,11 +216,11 @@ static void set_wol(bool is_shutdown, int enable)
 		}
 	}
 	run_command("phyreg w 31 0xd8c", 0);
-	sprintf(cmd, "phyreg w 16 0x%x%x", mac_addr[1], mac_addr[0]);
+	sprintf(cmd, "phyreg w 16 0x%2x%2x", mac_addr[1], mac_addr[0]);
 	run_command(cmd, 0);
-	sprintf(cmd, "phyreg w 17 0x%x%x", mac_addr[3], mac_addr[2]);
+	sprintf(cmd, "phyreg w 17 0x%2x%2x", mac_addr[3], mac_addr[2]);
 	run_command(cmd, 0);
-	sprintf(cmd, "phyreg w 18 0x%x%x", mac_addr[5], mac_addr[4]);
+	sprintf(cmd, "phyreg w 18 0x%2x%2x", mac_addr[5], mac_addr[4]);
 	run_command(cmd, 0);
 	run_command("phyreg w 31 0", 0);
 
