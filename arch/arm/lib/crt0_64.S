@@ -78,6 +78,12 @@ ENTRY(_main)
 #else
 	ldr	x0, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif
+#ifdef CONFIG_AML_UASAN
+	/* add 4mb more to avoid stack overlap with uboot code sice uasan
+	 * code will larger than normal build
+	 */
+	add	x0, x0, #0x400000
+#endif
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */
 	mov	x0, sp
 	bl	board_init_f_alloc_reserve

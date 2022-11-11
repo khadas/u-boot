@@ -587,4 +587,8 @@ int cpu_release(u32 nr, int argc, char * const argv[]);
 # include <environment.h>
 #endif
 
+#ifdef CONFIG_AML_UASAN
+#include <amlogic/uasan.h>
+#endif
+
 #endif	/* __COMMON_H_ */

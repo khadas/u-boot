@@ -20,6 +20,8 @@ ifdef CONFIG_BOOT_RETRY_TIME
 obj-y += bootretry.o
 endif
 
+UASAN_SANITIZE_board_f.o := n
+
 # # boards
 obj-y += board_f.o
 obj-y += board_r.o

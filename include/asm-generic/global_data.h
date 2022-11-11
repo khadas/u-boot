@@ -23,6 +23,10 @@
 #include <membuff.h>
 #include <linux/list.h>
 
+#ifdef CONFIG_AML_UASAN
+#include <amlogic/uasan.h>
+#endif
+
 typedef struct global_data {
 	bd_t *bd;
 	unsigned long flags;
@@ -132,6 +136,17 @@ typedef struct global_data {
 # ifdef CONFIG_SPL
 	struct spl_handoff *spl_handoff;
 # endif
+#endif
+#ifdef CONFIG_AML_UASAN
+	int	      uasan_enabled;
+	int	      in_asan_report;
+	unsigned long use_mem_end;
+	unsigned long use_mem_size;
+	unsigned long phy_mem_low;
+	unsigned long phy_mem_high;
+	unsigned long shadow_addr;
+	unsigned long shadow_size;
+	unsigned long section_red_zones[SECTION_RED_ZONE_NUM];
 #endif
 } gd_t;
 #endif

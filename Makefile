@@ -385,16 +385,21 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__
 
 ifeq ("$(CONFIG_AML_UASAN)", "1")
 KBUILD_CFLAGS += -DCONFIG_AML_UASAN
+KBUILD_AFLAGS += -DCONFIG_AML_UASAN
 endif
 ifdef CONFIG_AML_UASAN
 cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
 
-CFLAGS_UASAN := -fsanitize=kernel-address
+# UASAN_SHADOW_OFFSET = (UASAN_DDR_SIZE * 7 / 8 - 256) <<  20
+# use 256 MB space for uboot and malloc/stack
+UASAN_SHADOW_OFFSET=$(shell printf "0x%08x\n" $$(( (((($(UASAN_DDR_SIZE) * 7) >> 3) - 256) << 20) )) )
 CFLAGS_UASAN += -fsanitize=kernel-address
 CFLAGS_UASAN += $(call cc-param,asan-globals=1)
 CFLAGS_UASAN += $(call cc-param,asan-stack=1)
 CFLAGS_UASAN += $(call cc-param,asan-use-after-scope=1)
 CFLAGS_UASAN += $(call cc-param,asan-instrument-allocas=1)
+CFLAGS_UASAN += -fasan-shadow-offset=${UASAN_SHADOW_OFFSET}
+CFLAGS_UASAN += -DCONFIG_UASAN_SHADOW_OFFSET=${UASAN_SHADOW_OFFSET}
 
 export CFLAGS_UASAN
 
