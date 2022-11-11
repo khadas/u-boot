@@ -54,36 +54,36 @@ struct ddr_base_address_table {
 };
 typedef struct  ddr_base_address_table ddr_base_address_table_t;
 
-#define MESON_CPU_MAJOR_ID_GXBB         0x1F
-#define MESON_CPU_MAJOR_ID_GXTVBB       0x20
-#define MESON_CPU_MAJOR_ID_GXLBB        0x21
-#define MESON_CPU_MAJOR_ID_GXM          0x22
-#define MESON_CPU_MAJOR_ID_TXL          0x23
-#define MESON_CPU_MAJOR_ID_TXLX         0x24
-#define MESON_CPU_MAJOR_ID_AXG          0x25
-#define MESON_CPU_MAJOR_ID_GXLX         0x26
-#define MESON_CPU_MAJOR_ID_TXHD         0x27
-#define MESON_CPU_MAJOR_ID_G12A         0x28
-#define MESON_CPU_MAJOR_ID_G12B         0x29
+#define DDR_MESON_CPU_MAJOR_ID_GXBB         0x1F
+#define DDR_MESON_CPU_MAJOR_ID_GXTVBB       0x20
+#define DDR_MESON_CPU_MAJOR_ID_GXLBB        0x21
+#define DDR_MESON_CPU_MAJOR_ID_GXM          0x22
+#define DDR_MESON_CPU_MAJOR_ID_TXL          0x23
+#define DDR_MESON_CPU_MAJOR_ID_TXLX         0x24
+#define DDR_MESON_CPU_MAJOR_ID_AXG          0x25
+#define DDR_MESON_CPU_MAJOR_ID_GXLX         0x26
+#define DDR_MESON_CPU_MAJOR_ID_TXHD         0x27
+#define DDR_MESON_CPU_MAJOR_ID_G12A         0x28
+#define DDR_MESON_CPU_MAJOR_ID_G12B         0x29
 
-#define MESON_CPU_MAJOR_ID_SM1          0x2B
+#define DDR_MESON_CPU_MAJOR_ID_SM1          0x2B
 
-#define MESON_CPU_MAJOR_ID_A1           0x2C
+#define DDR_MESON_CPU_MAJOR_ID_A1           0x2C
 
-#define MESON_CPU_MAJOR_ID_TL1          0x2E
-#define MESON_CPU_MAJOR_ID_TM2          0x2F
-#define MESON_CPU_MAJOR_ID_C1           0x30
-#define MESON_CPU_MAJOR_ID_SC2          0x32
-#define MESON_CPU_MAJOR_ID_C2           0x33
-#define MESON_CPU_MAJOR_ID_T5           0x34
-#define MESON_CPU_MAJOR_ID_T5D          0x35
-#define MESON_CPU_MAJOR_ID_T7                   0x36
-#define MESON_CPU_MAJOR_ID_S4                   0x37
-#define MESON_CPU_MAJOR_ID_T3                   0x38
-#define MESON_CPU_MAJOR_ID_P1                   0x39
-#undef  MESON_CPU_MAJOR_ID_S4D
-#define MESON_CPU_MAJOR_ID_S4D                  0x3a
-#define MESON_CPU_MAJOR_ID_A5                   0x3c
+#define DDR_MESON_CPU_MAJOR_ID_TL1          0x2E
+#define DDR_MESON_CPU_MAJOR_ID_TM2          0x2F
+#define DDR_MESON_CPU_MAJOR_ID_C1           0x30
+#define DDR_MESON_CPU_MAJOR_ID_SC2          0x32
+#define DDR_MESON_CPU_MAJOR_ID_C2           0x33
+#define DDR_MESON_CPU_MAJOR_ID_T5           0x34
+#define DDR_MESON_CPU_MAJOR_ID_T5D          0x35
+#define DDR_MESON_CPU_MAJOR_ID_T7                   0x36
+#define DDR_MESON_CPU_MAJOR_ID_S4                   0x37
+#define DDR_MESON_CPU_MAJOR_ID_T3                   0x38
+#define DDR_MESON_CPU_MAJOR_ID_P1                   0x39
+#define DDR_MESON_CPU_MAJOR_ID_S4D                  0x3a
+#define DDR_MESON_CPU_MAJOR_ID_A5                   0x3c
+#define DDR_MESON_CPU_MAJOR_ID_T5W                  0x3b
 #define DDR_MESON_CPU_MAJOR_ID_C3                   0x3d
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
@@ -121,7 +121,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//g12a
 	{
 		.soc_family_name = "G12A",
-		.chip_id = MESON_CPU_MAJOR_ID_G12A,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_G12A,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
@@ -139,7 +139,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//g12b
 	{
 		.soc_family_name = "G12B",
-		.chip_id = MESON_CPU_MAJOR_ID_G12B,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_G12B,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
@@ -157,7 +157,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//tl1
 	{
 		.soc_family_name = "TL1",
-		.chip_id = MESON_CPU_MAJOR_ID_TL1,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_TL1,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
@@ -175,7 +175,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//sm1
 	{
 		.soc_family_name = "SM1",
-		.chip_id = MESON_CPU_MAJOR_ID_SM1,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_SM1,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
@@ -193,7 +193,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//tm2
 	{
 		.soc_family_name = "TM2",
-		.chip_id = MESON_CPU_MAJOR_ID_TM2,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_TM2,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
@@ -211,7 +211,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//a1
 	{
 		.soc_family_name = "A1",
-		.chip_id = MESON_CPU_MAJOR_ID_A1,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_A1,
 		.preg_sticky_reg0 = 0xfffff400, //use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfc000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfd020400),
@@ -227,7 +227,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//c1
 	{
 		.soc_family_name = "C1",
-		.chip_id = MESON_CPU_MAJOR_ID_C1,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_C1,
 		.preg_sticky_reg0 = 0xfffff400, //use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfd000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe024400),
@@ -244,7 +244,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//c2
 	{
 		.soc_family_name = "C2",
-		.chip_id = MESON_CPU_MAJOR_ID_C2,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_C2,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe024800), //use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfd000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe024400),
@@ -263,7 +263,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//sc2
 	{
 		.soc_family_name = "SC2",
-		.chip_id = MESON_CPU_MAJOR_ID_SC2,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_SC2,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800), //
 		.ddr_phy_base_address = 0xfc000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
@@ -275,54 +275,65 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
-		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
 	},
 	//T5
 	{
 		.soc_family_name = "T5",
-		.chip_id = MESON_CPU_MAJOR_ID_T5,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_T5,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
-		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),           //AM_DDR_PLL_CNTL0
-		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),         //#define SEC_AO_RTI_STATUS_REG3
+		//AM_DDR_PLL_CNTL0
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
+		//#define SEC_AO_RTI_STATUS_REG3
+		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
-		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
-		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
+		//#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
+		.ee_timer_base_address = 0xffd0f188,
+		//AO_PWM_PWM_B
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
-		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400), // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+		//DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400),
 	},
 	//T5D
 	{
 		.soc_family_name = "T5D",
-		.chip_id = MESON_CPU_MAJOR_ID_T5D,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_T5D,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
-		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),           //AM_DDR_PLL_CNTL0
-		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),         //#define SEC_AO_RTI_STATUS_REG3
+		//AM_DDR_PLL_CNTL0
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
+		//#define SEC_AO_RTI_STATUS_REG3
+		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
-		.ee_timer_base_address = 0xffd0f188,                            //#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
-		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
+		//#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
+		.ee_timer_base_address = 0xffd0f188,
+		//AO_PWM_PWM_B
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
-		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400), // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+		//DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400),
 	},
 	//T7
 	{
 		.soc_family_name = "T7",
-		.chip_id = MESON_CPU_MAJOR_ID_T7,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_T7,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800), //
 		.ddr_phy_base_address = 0xfc000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
@@ -334,7 +345,8 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ee_pwm_base_address = ((0x0001 << 2) + 0xfe05e000),            //PWMGH_PWM_B
 		.ddr_dmc_apd_address = ((0x018c << 2) + 0xfe036000),
 		.ddr_dmc_asr_address = ((0x018d << 2) + 0xfe036000),
-		//.ddr_boot_reason_address = ((0x00c1 << 2) + 0xfe010000), //SYSCTRL_SEC_STATUS_REG1,20210204,0xfe010304, confirm
+		//.ddr_boot_reason_address = ((0x00c1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STATUS_REG1,20210204,0xfe010304,zhiguang confirm
 
 		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0192 << 2) + 0xfe036000),
@@ -352,14 +364,15 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//S4
 	{
 		.soc_family_name = "S4",
-		.chip_id = MESON_CPU_MAJOR_ID_S4,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_S4,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),           //AM_DDR_PLL_CNTL0//
-		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
@@ -373,14 +386,15 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	//T3
 	{
 		.soc_family_name = "T3",
-		.chip_id = MESON_CPU_MAJOR_ID_T3,
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_T3,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe0a0000),           //AM_DDR_PLL_CNTL0//
-		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000), //SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
 		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
@@ -435,7 +449,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 	// force id use id mask
 	{
 		.soc_family_name = "UKNOWN",
-		.chip_id = CHIP_ID_MASK,                                //MESON_CPU_MAJOR_ID_G12A,
+		.chip_id = CHIP_ID_MASK,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)),        //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
@@ -733,11 +747,13 @@ typedef struct ddr_set {
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
 	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3
+	//only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
 	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8
+	//only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
 
 	/* rsv_char0. update for diagnose type define */
 	unsigned char	diagnose;
@@ -771,17 +787,17 @@ typedef struct ddr_set {
 	// [0]Odt pattern for accesses targeting rank 0. [3:0] is used for write ODT [7:4] is used for read ODT
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned int	dfi_odt_config;
-	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
-	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
-	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
-	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
-	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
-	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
-	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
-	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
-	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
+//normal go status od config,use for normal status
+//bit 12.  rank1 ODT default. default value for ODT[1] pins if there's no read/write activity.
+//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occurred in rank1.
+//bit 10.  rank1 ODT write nsel. enable ODT[1] if there's write occurred in rank0.
+//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occurred in rank1.
+//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occurred in rank0.
+//bit 4.   rank0 ODT default. default value for ODT[0] pins if there's no read/write activity.
+//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occurred in rank0.
+//bit 2.   rank0 ODT write nsel. enable ODT[0] if there's write occurred in rank1.
+//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occurred in rank0.
+//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occurred in rank1.
 	unsigned short	DRAMFreq[4];
 	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned char	PllBypassEn;
@@ -926,11 +942,17 @@ typedef struct ddr_set_t7 {
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
 	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
-	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
-	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
-	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
+	//only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3
+	//dram total bus width 32bit only use cs0,but high address use 16bit mode
+	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5
+	//dram total bus width 32bit  use cs0 cs1,
+	//but cs1 use 16bit mode ,current phy not support reserve
+	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6
+	//dram total bus width 32bit  use cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7
+	//only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8
 
 	/* rsv_char0. update for diagnose type define */
 	//unsigned	char	diagnose;
@@ -965,24 +987,24 @@ typedef struct ddr_set_t7 {
 	unsigned short	training_SequenceCtrl[2];
 	//system reserve,do not modify
 	unsigned char	phy_odt_config_rank[2];
-	//unsigned	char	 rever1;
-	//unsigned	char	 rever2;
+	//unsigned	char	 reserve1;
+	//unsigned	char	 reserve2;
 	unsigned short	rank1_ca_vref_permil;
 	//training odt config ,only use for training
 	// [0]Odt pattern for accesses targeting rank 0. [3:0] is used for write ODT [7:4] is used for read ODT
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned int	dfi_odt_config;
-	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
-	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
-	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
-	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
-	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
-	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
-	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
-	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
-	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
+//normal go status od config,use for normal status
+//bit 12.  rank1 ODT default. default value for ODT[1] pins if there's no read/write activity.
+//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occurred in rank1.
+//bit 10.  rank1 ODT write nsel. enable ODT[1] if there's write occurred in rank0.
+//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occurred in rank1.
+//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occurred in rank0.
+//bit 4.   rank0 ODT default. default value for ODT[0] pins if there's no read/write activity.
+//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occurred in rank0.
+//bit 2.   rank0 ODT write nsel. enable ODT[0] if there's write occurred in rank1.
+//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occurred in rank0.
+//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occurred in rank1.
 	unsigned short	DRAMFreq[4];
 	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned char	PllBypassEn;
@@ -1400,9 +1422,10 @@ int check_base_address(void)
 	if (chip_id == 0)
 		chip_id = CHIP_ID_MASK;
 	if (chip_id) {
-		if (chip_id == MESON_CPU_MAJOR_ID_S4D || chip_id == MESON_CPU_MAJOR_ID_A5 ||
+		if (chip_id == DDR_MESON_CPU_MAJOR_ID_S4D ||
+			chip_id == DDR_MESON_CPU_MAJOR_ID_A5 ||
 			chip_id == DDR_MESON_CPU_MAJOR_ID_C3)
-			chip_id = MESON_CPU_MAJOR_ID_S4;
+			chip_id = DDR_MESON_CPU_MAJOR_ID_S4;
 		for (table_index = 0; table_index < table_max; table_index++) {
 			printf("\ntable_index=%08x,p_ddr_base_add=%08x,(p_ddr_base->chip_id==%08x",
 			       table_index, (unsigned int)(unsigned long)p_ddr_base, (p_ddr_base->chip_id));
@@ -1420,8 +1443,8 @@ int check_base_address(void)
 	for (count = 0; count < 12; count++)
 		ddr_sha.sha_chip_id[count] = global_chip_id[count];
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)
-	|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3) {
 		phy_base_add[0] = p_ddr_base->ddr_phy_base_address;
 		phy_base_add[1] = p_ddr_base->ddr_phy_base_address_1;
 		ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
@@ -5759,23 +5782,27 @@ int get_ddr_clk(void)
 	unsigned int ddr_clk = 10;
 	unsigned int ddr_pll = 0;
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_G12A)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_G12B)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_TL1)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SM1)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_TM2)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
-		|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_G12A ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_G12B ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_TL1 ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_SM1 ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_TM2 ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_C1 ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_SC2 ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7) {
 		ddr_pll = rd_reg(p_ddr_base->ddr_pll_base_address);
 		ddr_pll = ddr_pll & 0xfffff;
 		ddr_clk = pll_convert_to_ddr_clk_g12a(ddr_pll);
-	} else if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) {
+	} else if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_A1) {
 		ddr_clk = 768;
-	} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-		   || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
-		uint32_t stick_store_sticky_f0_reg_base_t = (p_ddr_base->ddr_phy_base_address + 0x0128);
+	} else if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_C2 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5D ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3) {
+		uint32_t stick_store_sticky_f0_reg_base_t =
+		(p_ddr_base->ddr_phy_base_address + 0x0128);
 		ddr_clk = rd_reg(stick_store_sticky_f0_reg_base_t);
 	} else {
 		ddr_clk = 10;
@@ -6165,7 +6192,7 @@ void set_ee_voltage(uint32_t ee_over_ride_voltage)
 		to = (ARRAY_SIZE(pwm_voltage_table_ee) - 1);
 	if (ee_over_ride_voltage) {
 		writel(pwm_voltage_table_ee[to][0], (p_ddr_base->ee_pwm_base_address));
-		printf("\nDDR_overide_EE_voltage ==%d mv /n", pwm_voltage_table_ee[to][1]);
+		printf("\nDDR_override_EE_voltage ==%d mv /n", pwm_voltage_table_ee[to][1]);
 	}
 }
 
@@ -6183,8 +6210,11 @@ uint32_t get_bdlr_100step(uint32_t ddr_frequency)
 {
 	uint32_t bdlr_100step = 0;
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+	if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+	p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
 		bdlr_100step = do_read_c2_ddr_bdlr_steps();
 	} else {
 		dwc_ddrphy_apb_wr(((((0 << 20) | (2 << 16) | (0 << 12) | (0xe3)))), 0xc00);
@@ -6642,7 +6672,8 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.board_id=0x%08x,// %d,0x%08x", ddr_set_t_p->board_id, ddr_set_t_p->board_id, DDR_TIMMING_OFFSET_DDR_SET(board_id));
 		printf("\n.version=0x%08x,// %d,0x%08x", ddr_set_t_p->version, ddr_set_t_p->version, DDR_TIMMING_OFFSET_DDR_SET(version));
 		printf("\n.DramType=0x%08x,// %d,0x%08x", ddr_set_t_p->DramType, ddr_set_t_p->DramType, DDR_TIMMING_OFFSET_DDR_SET(DramType));
-		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
+		if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7 ||
+			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_P1) {
 			printf("\n.DisabledDbyte[0]=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->DisabledDbyte[0], ddr_set_t_p_t7->DisabledDbyte[0], DDR_TIMMING_OFFSET_DDR_SET_T7(DisabledDbyte[0]));
 			printf("\n.DisabledDbyte[1]=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->DisabledDbyte[1], ddr_set_t_p_t7->DisabledDbyte[1], DDR_TIMMING_OFFSET_DDR_SET_T7(DisabledDbyte[1]));
 			printf("\n.Is2Ttiming=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->Is2Ttiming, ddr_set_t_p_t7->Is2Ttiming, DDR_TIMMING_OFFSET_DDR_SET_T7(Is2Ttiming));
@@ -6660,7 +6691,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.soc_data_odt_ohm_ps1=0x%08x,// %d,0x%08x", ddr_set_t_p->soc_data_odt_ohm_ps1, ddr_set_t_p->soc_data_odt_ohm_ps1, DDR_TIMMING_OFFSET_DDR_SET(soc_data_odt_ohm_ps1));
 		printf("\n.dram_data_odt_ohm_ps1=0x%08x,// %d,0x%08x", ddr_set_t_p->dram_data_odt_ohm_ps1, ddr_set_t_p->dram_data_odt_ohm_ps1, DDR_TIMMING_OFFSET_DDR_SET(dram_data_odt_ohm_ps1));
 		printf("\n.dram_data_wr_odt_ohm_ps1=0x%08x,// %d,0x%08x", ddr_set_t_p->dram_data_wr_odt_ohm_ps1, ddr_set_t_p->dram_data_wr_odt_ohm_ps1, DDR_TIMMING_OFFSET_DDR_SET(dram_data_wr_odt_ohm_ps1));
-		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)) {
+		if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7) {
 			printf("\n.soc_data_drv_ohm_ffe=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->soc_data_drv_ohm_ffe, ddr_set_t_p_t7->soc_data_drv_ohm_ffe, DDR_TIMMING_OFFSET_DDR_SET_T7(soc_data_drv_ohm_ffe));
 			printf("\n.ddr_base_addr=0x%08x,// %d,0x%08x", ddr_set_t_p->ddr_base_addr, ddr_set_t_p->ddr_base_addr, DDR_TIMMING_OFFSET_DDR_SET_T7(ddr_base_addr));
 			printf("\n.ddr_start_offset=0x%08x,// %d,0x%08x", ddr_set_t_p->ddr_start_offset, ddr_set_t_p->ddr_start_offset, DDR_TIMMING_OFFSET_DDR_SET_T7(ddr_start_offset));
@@ -6721,7 +6752,8 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		printf("\n.tdqs2dq=0x%08x,// %d,0x%08x", ddr_set_t_p->tdqs2dq, ddr_set_t_p->tdqs2dq, DDR_TIMMING_OFFSET_DDR_SET(tdqs2dq));
 		printf("\n.dram_data_wr_odt_ohm=0x%08x,// %d,0x%08x", ddr_set_t_p->dram_data_wr_odt_ohm, ddr_set_t_p->dram_data_wr_odt_ohm, DDR_TIMMING_OFFSET_DDR_SET(dram_data_wr_odt_ohm));
 		printf("\n.bitTimeControl_2d=0x%08x,// %d,0x%08x", ddr_set_t_p->bitTimeControl_2d, ddr_set_t_p->bitTimeControl_2d, DDR_TIMMING_OFFSET_DDR_SET(bitTimeControl_2d));
-		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1))
+		if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7 ||
+			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_P1)
 			printf("\n.training_offset=0x%08x,// %d,0x%08x", ddr_set_t_p_t7->training_offset, ddr_set_t_p_t7->training_offset, DDR_TIMMING_OFFSET_DDR_SET_T7(training_offset));
 		for (temp_count = 0; temp_count < 5; temp_count++)
 			printf("\n.ddr_dmc_remap[%d]=0x%08x,// %d,0x%08x", temp_count, ddr_set_t_p->ddr_dmc_remap[temp_count], ddr_set_t_p->ddr_dmc_remap[temp_count], DDR_TIMMING_OFFSET_DDR_SET(ddr_dmc_remap[temp_count]));
@@ -7275,7 +7307,7 @@ void ddr_read_write_training_value(ddr_set_t_c2 *p_ddrs, char over_ride_index,
 
 			if (print == DDR_PRINT_ENABLE) {
 				printf("training_index	%d	sub_index	%d	phase	%d\n", over_ride_index, t_count, t_count_value);
-			} else {            //maybe funciton will  be optimize not use the  variable
+			} else {            //maybe function will  be optimize not use the  variable
 			}
 			//printf("training_index	%d	sub_index	%d	phase	%d\n", over_ride_index, t_count, t_count_value);
 		}
@@ -7490,7 +7522,7 @@ int do_ddr_display_c2_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 		printf("\n.cfg_board_common_setting.DisabledDbyte=0x%08x,// %d", ddr_set_t_p->cfg_board_common_setting.DisabledDbyte, ddr_set_t_p->cfg_board_common_setting.DisabledDbyte);
 		printf("\n.cfg_board_common_setting.dram_cs0_base_add=0x%08x,// %d", ddr_set_t_p->cfg_board_common_setting.dram_cs0_base_add, ddr_set_t_p->cfg_board_common_setting.dram_cs0_base_add);
 		printf("\n.cfg_board_common_setting.dram_cs1_base_add=0x%08x,// %d", ddr_set_t_p->cfg_board_common_setting.dram_cs1_base_add, ddr_set_t_p->cfg_board_common_setting.dram_cs1_base_add);
-		if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+		if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3) {
 			printf("\n.cfg_board_common_setting.dram_ch0_size_MB=0x%08x,// %d", ddr_set_t_p->cfg_board_common_setting.dram_cs0_size_MB, ddr_set_t_p->cfg_board_common_setting.dram_cs0_size_MB);
 			printf("\n.cfg_board_common_setting.dram_ch1_size_MB=0x%08x,// %d", ddr_set_t_p->cfg_board_common_setting.dram_cs1_size_MB, ddr_set_t_p->cfg_board_common_setting.dram_cs1_size_MB);
 		} else {
@@ -7536,9 +7568,9 @@ int do_ddr_display_c2_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 			printf("\n.cfg_board_SI_setting_ps[%d].dram_ac_odt_ohm=0x%08x,// %d", ps, ddr_set_t_p->cfg_board_SI_setting_ps[ps].dram_ac_odt_ohm, ddr_set_t_p->cfg_board_SI_setting_ps[ps].dram_ac_odt_ohm);
 			printf("\n.cfg_board_SI_setting_ps[%d].dram_data_drv_pull_up_calibration_ohm=0x%08x,// %d", ps, ddr_set_t_p->cfg_board_SI_setting_ps[ps].dram_data_drv_pull_up_calibration_ohm, ddr_set_t_p->cfg_board_SI_setting_ps[ps].dram_data_drv_pull_up_calibration_ohm);
 			printf("\n.cfg_board_SI_setting_ps[%d].lpddr4_dram_vout_voltage_range_setting=0x%08x,// %d", ps, ddr_set_t_p->cfg_board_SI_setting_ps[ps].lpddr4_dram_vout_voltage_range_setting, ddr_set_t_p->cfg_board_SI_setting_ps[ps].lpddr4_dram_vout_voltage_range_setting);
-			if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S4) {
+			if (p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_S4)
 				printf("\n.cfg_board_SI_setting_ps[%d].dfe_offset=0x%08x,// %d", ps, ddr_set_t_p->cfg_board_SI_setting_ps[ps].dfe_offset, ddr_set_t_p->cfg_board_SI_setting_ps[ps].dfe_offset);
-			}
+
 			printf("\n.cfg_board_SI_setting_ps[%d].vref_ac_permil =0x%08x,// %d", ps, ddr_set_t_p->cfg_board_SI_setting_ps[ps].vref_ac_permil, ddr_set_t_p->cfg_board_SI_setting_ps[ps].vref_ac_permil);
 			printf("\n.cfg_board_SI_setting_ps[%d].vref_soc_data_permil =0x%08x,// %d", ps, ddr_set_t_p->cfg_board_SI_setting_ps[ps].vref_soc_data_permil, ddr_set_t_p->cfg_board_SI_setting_ps[ps].vref_soc_data_permil);
 			printf("\n.cfg_board_SI_setting_ps[%d].vref_dram_data_permil=0x%08x,// %d", ps, ddr_set_t_p->cfg_board_SI_setting_ps[ps].vref_dram_data_permil, ddr_set_t_p->cfg_board_SI_setting_ps[ps].vref_dram_data_permil);
@@ -7566,7 +7598,7 @@ int do_ddr_display_c2_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 				printf("\n.cfg_ddr_training_delay_ps[%d].dram_bit_vref[%d]=0x%08x,// %d", ps, temp_count, ddr_set_t_p->cfg_ddr_training_delay_ps[ps].dram_bit_vref[temp_count], ddr_set_t_p->cfg_ddr_training_delay_ps[ps].dram_bit_vref[temp_count]);
 			for (temp_count = 0; temp_count < 16; temp_count++)
 				printf("\n.cfg_ddr_training_delay_ps[%d].reserve_training_parameter[%d]=0x%08x,// %d", ps, temp_count, ddr_set_t_p->cfg_ddr_training_delay_ps[ps].reserve_training_parameter[temp_count], ddr_set_t_p->cfg_ddr_training_delay_ps[ps].reserve_training_parameter[temp_count]);
-			if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S4) {
+			if (p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_S4) {
 				for (temp_count = 0; temp_count < 44; temp_count++)
 					printf("\n.cfg_ddr_training_delay_ps[%d].soc_bit_vref_dac1[%d]=0x%08x,// %d", ps, temp_count, ddr_set_t_p->cfg_ddr_training_delay_ps[ps].soc_bit_vref_dac1[temp_count], ddr_set_t_p->cfg_ddr_training_delay_ps[ps].soc_bit_vref_dac1[temp_count]);
 			}
@@ -7650,8 +7682,11 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 
 	uint32_t write_size = 0;
 
-	if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+	if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+	p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
 		ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p_c2);
 		ddr_set_size = sizeof(ddr_set_t_c2);
 		out_sha2 = (char *)ddr_sha_c2.sha2;
@@ -7659,11 +7694,15 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		uint32_t loop = 0;
 		#if 1
 		//for C2 T5/T5D ddr window fast boot no support dfe vref1
-		if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D))) {
-			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2); //sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
+		if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+		p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+			//sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
+			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
 			unsigned char *sha_t_chip_id;
 			sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
-			for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)   //update chip id
+			//update chip id
+			for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)
 				sha_t_chip_id[loop] = global_chip_id[loop];
 		}
 		#endif
@@ -7676,7 +7715,8 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	}
 
 	//do_read_ddr_training_data(1, ddr_set_t_p);
-	if ((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_G12A) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_SC2)) {
+	if (p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_G12A &&
+	p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_SC2) {
 		ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
 		ddr_set_size = sizeof(ddr_set_t);
 		out_sha2 = (char *)ddr_sha.sha2;
@@ -7702,7 +7742,8 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		if (enable_ddr_fast_boot == 2)
 			ddr_set_t_p->fast_boot[0] = 0;
 	}
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_P1) {
 		ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
 		ddr_set_size = sizeof(ddr_set_t);
 		out_sha2 = (char *)ddr_sha.sha2;
@@ -9118,8 +9159,11 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	unsigned int pll;
 	unsigned int window_test_stick_cmd_value = 0;
 	/* need at least two arguments */
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3))
+	if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+		p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3 ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W)
 		do_read_c2_ddr_bdlr_steps();
 	if (argc < 2)
 		//goto usage;
@@ -9167,15 +9211,21 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		argc_count++;
 	}
 	dcache_disable();
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_SC2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)
-	    //|| (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_A1 ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_C1 ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_C2 ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_SC2 ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+	    p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3
+//|| (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5)
+//|| (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5D)
 	    ) {
 		printf("reset...\n");
 		run_command("reset", 0);
 		run_command("reboot", 0);
-	} else {                        //G12A/G12B/SM1/TL1/TM2 //(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
+	} else {
+		//G12A/G12B/SM1/TL1/TM2
+		//p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7
 		printf("reboot...\n");  //reset will enter bl2 panic path,so change to "reboot"
 		run_command("reboot", 0);
 		run_command("reset", 0);
@@ -9208,7 +9258,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	unsigned int ddr_dmc_apd_temp_save, ddr_dmc_asr_temp_save;
 	ddr_dmc_apd_temp_save = readl((p_ddr_base->ddr_dmc_apd_address));
 	ddr_dmc_asr_temp_save = readl((p_ddr_base->ddr_dmc_asr_address));
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
@@ -9362,7 +9412,7 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	int i = 0;
 
 	printf("\nargc== 0x%08x\n", argc);
@@ -9429,7 +9479,7 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		return 1;
 	}
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3) {
 		writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
 		writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
@@ -9515,7 +9565,7 @@ int do_ddr_c2_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3) {
 		dmc_ddr_config_channel_id = 0;
 		dmc_change_channel(dmc_ddr_config_channel_id);
 	}
@@ -9527,11 +9577,11 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	//ddr_g12_offset_data  1 0  0 0  1 3
 	check_base_address();
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+	if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+	p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
 		do_ddr_c2_offset_data(cmdtp, flag, argc, argv);
 		return 1;
 	}
@@ -9544,7 +9594,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	ddr_dmc_asr_temp_save = readl(p_ddr_base->ddr_dmc_asr_address);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 
 	int i = 0;
 	printf("\nargc== 0x%08x\n", argc);
@@ -9612,7 +9662,8 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 		return 1;
 	}
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7 ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_P1) {
 		writel(ddr_dmc_apd_temp_save, p_ddr_base->ddr_dmc_apd_address);
 		writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
@@ -9698,7 +9749,8 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	writel(ddr_dmc_asr_temp_save, p_ddr_base->ddr_dmc_asr_address);
 	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 
-	if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
+	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7 ||
+		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_P1) {
 		dmc_ddr_config_channel_id = 0;
 		dmc_change_channel(dmc_ddr_config_channel_id);
 	}
@@ -9736,7 +9788,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if ((strcmp(argv[1], "h") == 0))
 		//goto usage;
 		return 1;
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 
 	global_ddr_clk = get_ddr_clk();
 	printf("\nddr_clk== %dMHz\n", global_ddr_clk);
@@ -9913,9 +9965,12 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case (DDR_TEST_CMD__DISPLAY_G12_DDR_INFORMATION):
 		{
 			printf("\nshow g12 ddr information\n");
-			if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-			    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
-				if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+			if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+			p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3 ||
+			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+				if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3) {
 					dmc_ddr_config_channel_id = 0;
 					dmc_change_channel(dmc_ddr_config_channel_id);
 					do_ddr_display_c2_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
@@ -9927,7 +9982,8 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				} else {
 					do_ddr_display_c2_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
 				}
-			} else if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_P1)) {
+			} else if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T7 ||
+				p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_P1) {
 				dmc_ddr_config_channel_id = 0;
 				dmc_change_channel(dmc_ddr_config_channel_id);
 				do_ddr_display_g12_ddr_information((cmd_tbl_t *)cmdtp, (int)flag, (int)argc2, (argv2));
@@ -10184,7 +10240,8 @@ int do_ddr_auto_scan_drv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 
 	unsigned int max_counter_total = (max_counter_loop_w1 * max_counter_loop_w2 + max_counter_loop_r1 * max_counter_loop_r2 + 2) * max_counter_loop_wr1;
 	//add 2 times recover
-	//each array test 2 times ,for maybe 1times will fail,then next time will recovery //jiaxing 20181114
+	//each array test 2 times ,for maybe 1times will fail,then next time will recovery
+	//jiaxing 20181114
 	counter_loop = (((global_boot_times - 1) / 2) % max_counter_total);
 	dram_data_wr_odt_ohm = 0;
 	if (max_counter_loop_wr1 > 1)
@@ -10279,15 +10336,20 @@ int do_verify_flash_ddr_parameter(char log_level)
 	unsigned error = 0;
 	unsigned ret = 0;
 
-	if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
+	if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+	p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
 		char temp_buf[((sizeof(ddr_sha_t_c2) + 511) / 512) * 512] = { 0 };
 		unsigned ddr_set_size = 0;
 		ddr_set_size = sizeof(ddr_sha_t_c2);
 		#if 1
 		uint32_t loop = 0;
 		//for C2 T5/T5D ddr window fast boot no support dfe vref1
-		if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D))) {
+		if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+			p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
 			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2); //sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
 			unsigned char *sha_t_chip_id;
 			sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
@@ -10398,7 +10460,11 @@ uint32_t boot_reason = 0;
 #define HOT_BOOT_MAGIC         0x99887766
 #define HOT_BOOT_STICKY_ADD    (p_ddr_base->preg_sticky_reg0 + (6 << 2))
 #define AMLOGIC_COLD_BOOT      0
-int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item, uint32_t auto_window_test_dq_size, char pattern_dis_scramble, uint32_t stick_dmc_ddr_window_test_read_vref_offset_value, uint32_t skip_window_test_enable)
+int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item,
+	uint32_t auto_window_test_dq_size,
+	char pattern_dis_scramble,
+	uint32_t stick_dmc_ddr_window_test_read_vref_offset_value,
+	uint32_t skip_window_test_enable)
 {
 	uint32_t ddr_set_size = 0;
 	uint32_t need_ddr_window_test = 0;
@@ -10427,34 +10493,41 @@ int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item, uint32_t au
 
 	uint32_t dmc_retraining_ctrl = 0;
 	dmc_retraining_ctrl = rd_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address));
-	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl & (~(1 << 31)));
+	wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address),
+	dmc_retraining_ctrl & (~(1 << 31)));
 	uint32_t write_size = 0;
 
 	do_read_c2_ddr_training_data(1, ddr_set_t_p);
 	#if 1
 	uint32_t loop = 0;
 	//for C2 T5/T5D ddr window fast boot no support dfe vref1
-	if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D))) {
-		ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);    //sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
+	if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+	p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+		//sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
+		ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
 		unsigned char *sha_t_chip_id;
 		sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
 		for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)           //update chip id
 			sha_t_chip_id[loop] = global_chip_id[loop];
 	}
 	#endif
-	write_size = ((ddr_set_size + SHA256_SUM_LEN + MESON_CPU_CHIP_ID_SIZE + 511) / 512) * 512;
+	write_size = ((ddr_set_size + SHA256_SUM_LEN +
+	MESON_CPU_CHIP_ID_SIZE + 511) / 512) * 512;
 
-	if (((ddr_set_t_p->cfg_board_common_setting.fast_boot[3]) & 0xc0) && ((ddr_set_t_p->cfg_board_common_setting.fast_boot[3]) & 0x3f)) {
+	if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[3] & 0xc0) &&
+	(ddr_set_t_p->cfg_board_common_setting.fast_boot[3] & 0x3f)) {
 		enable_ddr_check_boot_reason = 0;
 
-		if (((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) > 0) && ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) < 0xff)) {
+		if (ddr_set_t_p->cfg_board_common_setting.fast_boot[0] > 0 &&
+		ddr_set_t_p->cfg_board_common_setting.fast_boot[0] < 0xff) {
 			(ddr_set_t_p->cfg_board_common_setting.fast_boot[0]) = 0xfe;
 			(verify_error) = 0;
 		}
 	}
 
 	if ((ddr_set_t_p->cfg_board_common_setting.fast_boot[0])) {
-		printf("\nuboot enable auto fast boot funciton \n");
+		printf("\nuboot enable auto fast boot function\n");
 
 		if ((verify_error)) {
 			printf("\nuboot  auto fast boot check verify data happen wrong \n");
@@ -10643,9 +10716,16 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 		if (*argv[5] == 0 || *endp != 0)
 			skip_window_test_enable = 0;
 	}
-	if (((p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_C2) && (p_ddr_base->chip_id <= MESON_CPU_MAJOR_ID_T5D)) || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
-	    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
-		do_ddr_auto_fastboot_check_c2(auto_window_test_enable_item, auto_window_test_dq_size, pattern_dis_scramble, stick_dmc_ddr_window_test_read_vref_offset_value, skip_window_test_enable);
+	if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
+	p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_S4 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T3 ||
+	p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+		do_ddr_auto_fastboot_check_c2(auto_window_test_enable_item,
+		auto_window_test_dq_size,
+		pattern_dis_scramble,
+		stick_dmc_ddr_window_test_read_vref_offset_value,
+		skip_window_test_enable);
 		return 1;
 	}
 	char str[1024] = "";
@@ -10682,10 +10762,10 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 			(verify_error) = 0;
 		}
 	}
-	if ((ddr_set_t_p->fast_boot[0])) {
-		printf("\nuboot enable auto fast boot funciton \n");
-		if ((verify_error)) {
-			printf("\nuboot  auto fast boot check verify data happen wrong \n");
+	if (ddr_set_t_p->fast_boot[0]) {
+		printf("\nuboot enable auto fast boot function\n");
+		if (verify_error) {
+			printf("\nuboot  auto fast boot check verify data happen wrong\n");
 			(ddr_set_t_p->fast_boot[0]) = 1;
 		}
 	} else {
