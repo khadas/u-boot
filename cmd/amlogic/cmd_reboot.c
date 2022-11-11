@@ -21,7 +21,7 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 {
 	uint32_t reboot_mode_val;
 
-	reboot_mode_val = ((readl(AO_SEC_SD_CFG15) >> 12) & 0xf);
+	reboot_mode_val = ((readl(AO_SEC_SD_CFG15) >> 12) & 0x7f);
 	//this step prevent the reboot mode val stored in sticky register lost
 	//during the reset
 	if (reboot_mode_val == 0)
