@@ -90,6 +90,7 @@
 #define HW_VERSION_ADC_VAL_VIM2_V14      0x28A
 #define HW_VERSION_ADC_VAL_VIM3_V11      0x200
 #define HW_VERSION_ADC_VAL_VIM3_V12      0x288
+#define HW_VERSION_ADC_VAL_VIM3_V14      0x348
 #define HW_VERSION_UNKNOW                0x00
 #define HW_VERSION_VIM1_V12              0x12
 #define HW_VERSION_VIM1_V14              0x14
@@ -97,6 +98,7 @@
 #define HW_VERSION_VIM2_V14              0x24
 #define HW_VERSION_VIM3_V11              0x31
 #define HW_VERSION_VIM3_V12              0x32
+#define HW_VERSION_VIM3_V14              0x34
 
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
@@ -334,6 +336,8 @@ static const char *hw_version_str(int hw_ver)
 			return "VIM3.V11";
 		case HW_VERSION_VIM3_V12:
 			return "VIM3.V12";
+		case HW_VERSION_VIM3_V14:
+			return "VIM3.V14";
 		default:
 			return "Unknow";
 	}
@@ -369,8 +373,11 @@ static int get_hw_version(void)
 			hw_ver = HW_VERSION_VIM3_V11;
 		} else if ((val >= HW_VERSION_ADC_VAL_VIM3_V12 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM3_V12 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
 			hw_ver = HW_VERSION_VIM3_V12;
+		} else if ((val >= HW_VERSION_ADC_VAL_VIM3_V14 - HW_VERSION_ADC_VALUE_TOLERANCE) && (val <= HW_VERSION_ADC_VAL_VIM3_V14 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
+			hw_ver = HW_VERSION_VIM3_V14;
 		} else {
-			hw_ver = HW_VERSION_UNKNOW;
+			// Force set to V14
+			hw_ver = HW_VERSION_VIM3_V14;
 		}
 	}
 	printf("saradc: 0x%x, hw_ver: 0x%x (%s)\n", val, hw_ver, hw_version_str(hw_ver));
