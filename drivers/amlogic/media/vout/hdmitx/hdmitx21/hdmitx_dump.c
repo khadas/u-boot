@@ -13,8 +13,7 @@ static void dump32(u32 start, u32 end)
 
 	for (; start <= end; start += 4) {
 		value = hd21_read_reg(start);
-		if (value)
-			pr_info("[0x%08x] 0x%08x\n", TO21_PHY_ADDR(start), value);
+		pr_info("[0x%08x] 0x%08x\n", TO21_PHY_ADDR(start), value);
 	}
 }
 
@@ -26,8 +25,7 @@ static void dumptop(u32 start, u32 end)
 	end = (((end) & 0xffff) | TOP_OFFSET_MASK);
 	for (; start <= end; start += 4) {
 		value = hdmitx21_rd_reg(start);
-		if (value)
-			pr_info("[0x%08x] 0x%02x\n", start, value);
+		pr_info("[0x%08x] 0x%02x\n", start, value);
 	}
 }
 
@@ -37,8 +35,7 @@ static void dumpcor(u32 start, u32 end)
 
 	for (; start <= end; start++) {
 		value = hdmitx21_rd_reg(start);
-		if (value)
-			pr_info("[0x%08x] 0x%02x\n", start, value);
+		pr_info("[0x%08x] 0x%02x\n", start, value);
 	}
 }
 
@@ -75,9 +72,29 @@ static int dump_hdmivpfdet_show(void)
 
 	reg = VP_FDET_FRAME_RATE_IVCTX;
 	val = CONNECT3REG(reg);
-	if (val)
-		pr_info("frame_rate [%x] 0x%x 200000000/%d Hz\n",
-			reg, val, val);
+	if (val) {
+		u32 integer;
+		u32 i;
+		u32 reminder;
+		u32 quotient;
+		u32 result = 0;
+
+		/* due to the vframe rate are always with decimals,
+		 * manually calculate the decimal parts
+		 */
+		val--;
+		integer = 200000000 / val;
+		reminder = 200000000 - integer * val;
+		for (i = 0, result = 0; i < 3; i++) {
+			reminder = reminder * 10;
+			result = result * 10;
+			quotient = reminder / val;
+			reminder = reminder - quotient * val;
+			result += quotient;
+		}
+		pr_info("frame_rate [%x] 0x%x %d %d.%03d Hz\n",
+			reg, val, val, integer, result);
+	}
 
 	reg = VP_FDET_PIXEL_COUNT_IVCTX;
 	val = CONNECT2REG(reg);
@@ -302,12 +319,126 @@ static int dump_hdmivpfdet_show(void)
 	return 0;
 }
 
+static void dump_clkctrl_regs(const u32 *val)
+{
+	pr_info("VID_CLK0_CTRL[0x%x]=0x%x\n",
+		TO21_PHY_ADDR(CLKCTRL_VID_CLK0_CTRL), val[0]);
+	pr_info("VIID_CLK0_CTRL[0x%x]=0x%x\n",
+		TO21_PHY_ADDR(CLKCTRL_VIID_CLK0_CTRL), val[1]);
+	pr_info("ENC0_HDMI_CLK_CTRL[0x%x]=0x%x\n",
+		TO21_PHY_ADDR(CLKCTRL_ENC0_HDMI_CLK_CTRL), val[2]);
+	pr_info("VID_CLK0_CTRL2[0x%x]=0x%x\n",
+		TO21_PHY_ADDR(CLKCTRL_VID_CLK0_CTRL2), val[3]);
+	pr_info("VIID_CLK0_DIV[0x%x]=0x%x\n",
+		TO21_PHY_ADDR(CLKCTRL_VIID_CLK0_DIV), val[4]);
+}
+
+static int hdmitx_dump_cts_enc_clk_status(void)
+{
+	u32 val[7];
+	u32 div;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	const char *crt_video_src_des[8] = {
+		[0] = "[16]vid_pll0_clk",
+		[1] = "[27]gp2_pll_clk",
+		[2] = "[19]hifi_pll_clk",
+		[3] = "[45]nna_pll_clk",
+		[4] = "[8]fpll_pixel_clk",
+		[5] = "fclk_div4",
+		[6] = "fclk_div5",
+		[7] = "fclk_div7",
+	};
+
+	if (hdev->chip_type <= MESON_CPU_ID_T7)
+		return 0;
+
+	val[0] = hd21_read_reg(CLKCTRL_VID_CLK0_CTRL);
+	val[1] = hd21_read_reg(CLKCTRL_VIID_CLK0_CTRL);
+	val[2] = hd21_read_reg(CLKCTRL_ENC0_HDMI_CLK_CTRL);
+	val[3] = hd21_read_reg(CLKCTRL_VID_CLK0_CTRL2);
+	val[4] = hd21_read_reg(CLKCTRL_VIID_CLK0_DIV);
+	val[5] = hd21_read_reg(CLKCTRL_ENC_HDMI_CLK_CTRL);
+	val[6] = hd21_read_reg(CLKCTRL_VID_CLK0_DIV);
+
+	pr_info("cts_enc_clk: ");
+	if ((val[3] & BIT(3)) == 0) {
+		pr_info("\nCLKCTRL_VID_CLK0_CTRL2[3] gate is 0\n");
+		dump_clkctrl_regs(val);
+	}
+
+	div = (val[4] >> 12) & 0xf;
+	if (div < 8) {
+		pr_info("master_clk ");
+		if ((val[0] & BIT(19)) == 0) {
+			pr_info("\nCLKCTRL_VID_CLK0_CTRL[19] gate is 0\n");
+			dump_clkctrl_regs(val);
+		}
+		pr_info("%s clk_div%d ", crt_video_src_des[(val[0] >> 16) & 0x7],
+			(val[6] & 0xff) + 1);
+	} else {
+		pr_info("v2_master_clk ");
+		if ((val[1] & BIT(19)) == 0) {
+			pr_info("\nCLKCTRL_VIID_CLK0_CTRL[19] gate is 0\n");
+			dump_clkctrl_regs(val);
+		}
+		pr_info("%s clk_div%d ", crt_video_src_des[(val[1] >> 16) & 0x7],
+			(val[4] & 0xff) + 1);
+	}
+	switch (div) {
+	case 0:
+		if (val[0] & (1 << 0))
+			pr_info("div1\n");
+		break;
+	case 1:
+		if (val[0] & (1 << 1))
+			pr_info("div2\n");
+		break;
+	case 2:
+		if (val[0] & (1 << 2))
+			pr_info("div4\n");
+		break;
+	case 3:
+		if (val[0] & (1 << 3))
+			pr_info("div6\n");
+		break;
+	case 4:
+		if (val[0] & (1 << 4))
+			pr_info("div12\n");
+		break;
+	case 8:
+		if (val[1] & (1 << 0))
+			pr_info("div1\n");
+		break;
+	case 9:
+		if (val[1] & (1 << 1))
+			pr_info("div2\n");
+		break;
+	case 10:
+		if (val[1] & (1 << 2))
+			pr_info("div4\n");
+		break;
+	case 11:
+		if (val[1] & (1 << 3))
+			pr_info("div6\n");
+		break;
+	case 12:
+		if (val[1] & (1 << 4))
+			pr_info("div12\n");
+		break;
+	default:
+		pr_info("invalid div\n");
+		break;
+	}
+
+	return 0;
+}
+
 void hdmitx21_dump_regs(void)
 {
 	// ((0x0000 << 2) + 0xfe008000) ~ ((0x00f3 << 2) + 0xfe008000)
 	dump32(ANACTRL_SYS0PLL_CTRL0, ANACTRL_DIF_PHY_STS);
 	// ((0x0001 << 2) + 0xfe000000) ~ ((0x0128 << 2) + 0xfe000000)
-	dump32(CLKCTRL_OSCIN_CTRL, CLKCTRL_EFUSE_A73_CFG2);
+	dump32(CLKCTRL_OSCIN_CTRL, CLKCTRL_FPLL_SYS);
 	// ((0x0000 << 2) + 0xfe00c000) ~ ((0x027f << 2) + 0xfe00c000)
 	dump32(PWRCTRL_PWR_ACK0, PWRCTRL_A73TOP_FSM_JUMP);
 	// ((0x1b00 << 2) + 0xff000000) ~ ((0x1bea << 2) + 0xff000000)
@@ -336,6 +467,8 @@ void hdmitx21_dump_regs(void)
 	dumpcor(BIST_RST_IVCTX, CR_BLACK_HIGH_IVCTX);
 	// 0x00000607 - 0x000006ff
 	dumpcor(TPI_MISC_IVCTX, RSVD11_HW_TPI_IVCTX);
+	// 0x00000700 - 0x00000777
+	dumpcor(HT_TOP_CTL_PHY_IVCTX, HT_LTP_ST_PHY_IVCTX);
 	// 0x00000800 - 0x00000876
 	dumpcor(CP2TX_CTRL_0_IVCTX, CP2TX_GP1_IVCTX);
 	// 0x000008a0 - 0x000008d0
@@ -356,4 +489,5 @@ void hdmitx21_dump_regs(void)
 	dumpcor(DSC_PKT_GEN_CTL_IVCTX, DSC_PKT_SPARE_9_IVCTX);
 	dump_infoframe_packets();
 	dump_hdmivpfdet_show();
+	hdmitx_dump_cts_enc_clk_status();
 }

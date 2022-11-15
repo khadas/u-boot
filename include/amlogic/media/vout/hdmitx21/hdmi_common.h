@@ -204,6 +204,8 @@ enum hdmi_vic {
 	HDMI_VIC_END,
 };
 
+#define HDMI_0_UNKNOWN HDMI_UNKNOWN
+
 enum hdmi_phy_para {
 	HDMI_PHYPARA_6G = 1, /* 2160p60hz 444 8bit */
 	HDMI_PHYPARA_4p5G, /* 2160p50hz 420 12bit */
@@ -212,6 +214,16 @@ enum hdmi_phy_para {
 	HDMI_PHYPARA_LT3G, /* 1080p60hz 444 12bit */
 	HDMI_PHYPARA_DEF = HDMI_PHYPARA_LT3G,
 	HDMI_PHYPARA_270M, /* 480p60hz 444 8bit */
+};
+
+enum frl_rate_enum {
+	FRL_NONE = 0,
+	FRL_3G3L = 1,
+	FRL_6G3L = 2,
+	FRL_6G4L = 3,
+	FRL_8G4L = 4,
+	FRL_10G4L = 5,
+	FRL_12G4L = 6,
 };
 
 /* CEA TIMING STRUCT DEFINITION */
@@ -459,6 +471,7 @@ struct rx_cap {
 	unsigned int dc_30bit_420:1;
 	unsigned int dc_36bit_420:1;
 	unsigned int dc_48bit_420:1;
+	enum frl_rate_enum max_frl_rate;
 	unsigned char edid_version;
 	unsigned char edid_revision;
 	unsigned int ColorDeepSupport;
