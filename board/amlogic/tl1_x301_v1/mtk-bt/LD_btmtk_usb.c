@@ -471,7 +471,8 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
             usb_debug("Can't allocate memory (32)\n");
             return;
         }
-        os_memcpy(data->rom_patch_bin_file_name, "mt7662t_patch_e1_hdr.bin", 24);
+		os_memcpy(data->rom_patch_bin_file_name, "mt7662t_patch_e1_hdr.bin",
+				sizeof("mt7662t_patch_e1_hdr.bin"));
         data->rom_patch_offset = 0xBC000;
         data->rom_patch_len = 0;
 
@@ -484,7 +485,8 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
             usb_debug("Can't allocate memory (32)\n");
             return;
         }
-        os_memcpy(data->rom_patch_bin_file_name, "mt7662_patch_e3_hdr.bin", 23);
+		 os_memcpy(data->rom_patch_bin_file_name, "mt7662_patch_e3_hdr.bin",
+				 sizeof("mt7662_patch_e3_hdr.bin"));
         data->rom_patch_offset = 0x90000;
         data->rom_patch_len = 0;
     } else /*if (is_mt7668(data))*/ {
