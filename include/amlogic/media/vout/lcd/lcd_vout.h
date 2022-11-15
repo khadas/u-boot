@@ -557,7 +557,10 @@ struct aml_lcd_drv_s {
 	unsigned char mode;
 	unsigned char key_valid;
 	unsigned char clk_path; /* 0=hpll, 1=gp0_pll */
+	char init_mode[64];
+	int init_frac;
 	unsigned int output_vmode;
+	unsigned int power_on_suspend;
 
 	struct lcd_config_s config;
 	struct aml_lcd_data_s *data;
@@ -589,7 +592,7 @@ struct aml_lcd_drv_s {
 	void *debug_info_reg;
 	void *debug_info_if;
 	void (*phy_set)(struct aml_lcd_drv_s *pdrv, int status);
-
+	struct dev_pm_ops *dev_pm_ops;
 	/* for factory test */
 	struct lcd_power_step_s *factory_lcd_power_on_step;
 };
@@ -632,4 +635,8 @@ void aml_lcd_driver_set_bl_level(int index, int level);
 unsigned int  aml_lcd_driver_get_bl_level(int index);
 void aml_lcd_driver_bl_config_print(int index);
 
+int aml_lcd_driver_suspend(void *pm_ops);
+int aml_lcd_driver_resume(void *pm_ops);
+int aml_lcd_driver_poweroff(void *pm_ops);
+void aml_lcd_set_poweron_suspend_sta(int state);
 #endif /* INC_AML_LCD_VOUT_H */

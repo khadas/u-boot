@@ -234,6 +234,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 {
 	char *mode;
 	unsigned int frac;
+
 #if defined(CONFIG_AML_CVBS) || defined(CONFIG_AML_HDMITX) || defined(CONFIG_AML_LCD)
 	unsigned int mux_sel = VIU_MUX_MAX, venc_sel = VIU_MUX_MAX;
 #endif
