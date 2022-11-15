@@ -248,6 +248,9 @@
                 "fi;"\
             "fi;"\
             "\0" \
+        "enter_fastboot="\
+            "fastboot 0;"\
+            "\0"\
         "storeboot="\
             "if test ${reboot_mode} = normal; then "\
             "else if test ${reboot_mode} = cold_boot; then "\
@@ -409,8 +412,8 @@
             "get_rebootmode;"\
             "get_valid_slot;"\
             "if test ${vendor_boot_mode} = true; then "\
-                "setenv loadaddr 2080000;"\
-                "setenv dtb_mem_addr 0x1f00000;"\
+		"setenv loadaddr 2080000;"\
+		"setenv dtb_mem_addr 0x1000000;"\
             "fi;"\
             "\0"\
         "upgrade_key="\
@@ -646,10 +649,8 @@
 #define CONFIG_SD_BURNING_SUPPORT_UI            1       //Displaying upgrading progress bar when sdcard/udisk burning
 #endif
 
-#if 0
 #define CONFIG_AML_SECURITY_KEY                 1
 #define CONFIG_UNIFY_KEY_MANAGE                 1
-#endif //CONFIG_PXP_EMULATOR
 
 /* net */
 /* #define CONFIG_CMD_NET   1 */
@@ -762,9 +763,8 @@
 
 #endif //CONFIG_AML_SECURE_UBOOT
 
-#if 0
 #define CONFIG_SECURE_STORAGE 1
-#endif
+
 /* USB port for MT7668. */
 
 //build with uboot auto test
