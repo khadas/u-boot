@@ -2578,11 +2578,10 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 	 *hdr_transfer_feature: bit 15-8: transfer_characteristic
 	 *	1:bt709 0xe:bt2020-10 0x10:smpte-st-2084 0x12:hlg(todo)
 	 */
-	if (data) {
-		hdr_transfer_feature = (data->features >> 8) & 0xff;
-		hdr_color_feature = (data->features >> 16) & 0xff;
-	}
-
+	if (!data)
+		return;
+	hdr_transfer_feature = (data->features >> 8) & 0xff;
+	hdr_color_feature = (data->features >> 16) & 0xff;
 	DRM_DB[1] = 0x0;
 	DRM_DB[2] = GET_LOW8BIT(data->primaries[0][0]);
 	DRM_DB[3] = GET_HIGH8BIT(data->primaries[0][0]);
