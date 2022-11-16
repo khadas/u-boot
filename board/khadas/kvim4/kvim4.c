@@ -545,31 +545,31 @@ int checkhw(char * name)
 				#ifdef CONFIG_HDMITX_ONLY
 				strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
 				#else
-				strcpy(loc_name, "t7_a311d2_an400\0");
+				strcpy(loc_name, "t7_a311d2_vim4\0");
 				#endif
 			} else if (cpu_id.chip_rev == 0xC) {
 				#ifdef CONFIG_HDMITX_ONLY
 				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only\0");
 				#else
-				strcpy(loc_name, "t7c_a311d2_an400\0");
+				strcpy(loc_name, "t7c_a311d2_vim4\0");
 				#endif
 			}
 			break;
 		case CONFIG_T7_8G_SIZE:
 			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "kvim4\0");
+				strcpy(loc_name, "t7_a311d2_vim4\0");
 			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400\0");
+				strcpy(loc_name, "t7c_a311d2_vim4\0");
 				//
 			}
 			break;
 		default:
 			printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
-			printf("set defalult kvim4\n");
+			printf("set defalult kvim4/kvim4c\n");
 			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "kvim4\0");
+				strcpy(loc_name, "t7_a311d2_vim4\0");
 			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400\0");
+				strcpy(loc_name, "t7c_a311d2_vim4\0");
 				//
 			}
 			break;

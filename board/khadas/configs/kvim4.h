@@ -983,7 +983,7 @@
 //use hardware sha2
 #define CONFIG_AML_HW_SHA2
 
-#define CONFIG_MULTI_DTB    0
+#define CONFIG_MULTI_DTB    1
 // use auto select DTB table
 #ifdef CONFIG_MULTI_DTB
     #define CONFIG_T7_3G_SIZE   0xC0000000
