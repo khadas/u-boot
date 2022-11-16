@@ -262,28 +262,6 @@ static void get_usid(void)
 	env_set("usid", serial);
 }
 
-static void set_bootmode(int mode)
-{
-	char cmd[64];
-	sprintf(cmd, "i2c mw %x %x %d 1",CHIP_ADDR, REG_BOOT_MODE, mode);
-	run_command(cmd, 0);
-
-}
-
-static void get_bootmode(void)
-{
-	int mode;
-	mode = kbi_i2c_read(REG_BOOT_MODE);
-
-	if (mode == BOOT_MODE_EMMC) {
-		printf("bootmode: emmc\n");
-	} else if (mode == BOOT_MODE_SPI) {
-		printf("bootmode: spi\n");
-	} else {
-		printf("bootmode err: %d\n",mode);
-	}
-}
-
 static void get_rtc(void)
 {
 	int enable;
@@ -660,37 +638,12 @@ static int do_kbi_trigger(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 }
 
 
-static int do_kbi_bootmode(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
-{
-	if (argc < 2)
-		return CMD_RET_USAGE;
-	if (strcmp(argv[1], "w") == 0) {
-		if (argc < 3)
-			return CMD_RET_USAGE;
-		if (strcmp(argv[2], "emmc") == 0) {
-			set_bootmode(BOOT_MODE_EMMC);
-		} else if (strcmp(argv[2], "spi") == 0) {
-			set_bootmode(BOOT_MODE_SPI);
-		} else {
-			return CMD_RET_USAGE;
-		}
-	} else if (strcmp(argv[1], "r") == 0) {
-
-		get_bootmode();
-
-	} else {
-		return CMD_RET_USAGE;
-	}
-
-	return 0;
-}
 static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(init, 1, 1, do_kbi_init, "", ""),
 	U_BOOT_CMD_MKENT(usid, 1, 1, do_kbi_usid, "", ""),
 	U_BOOT_CMD_MKENT(version, 1, 1, do_kbi_version, "", ""),
 	U_BOOT_CMD_MKENT(led, 4, 1, do_kbi_led, "", ""),
 	U_BOOT_CMD_MKENT(trigger, 4, 1, do_kbi_trigger, "", ""),
-	U_BOOT_CMD_MKENT(bootmode, 3, 1, do_kbi_bootmode, "", ""),
 };
 
 static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -720,9 +673,6 @@ static char kbi_help_text[] =
 		"\n"
 		"kbi led [systemoff|systemon] w [r|g|b|rg|rb|gb|rgb] <off|on|breathe|heartbeat> - set rgb led mode\n"
 		"kbi led [systemoff|systemon] r [r|g|b|rg|rb|gb|rgb] - read rgb led mode\n"
-		"\n"
-		"kbi bootmode w <emmc|spi> - set bootmode to emmc or spi\n"
-		"kbi bootmode r - read current bootmode\n"
 		"\n"
 		"kbi trigger [rtc|dcin] w <0|1> - disable/enable boot trigger\n"
 		"kbi trigger [rtc|dcin] r - read mode of a boot trigger";
