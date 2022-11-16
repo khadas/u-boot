@@ -32,6 +32,7 @@
 #define EXTENSION_Y420_VDB_TAG	0xe
 #define EXTENSION_Y420_CMDB_TAG	0xf
 #define EXTENSION_SCDB_EXT_TAG	0x79
+#define EXTENSION_IFDB_TAG	0x20
 
 #define EDID_DETAILED_TIMING_DES_BLOCK0_POS 0x36
 #define EDID_DETAILED_TIMING_DES_BLOCK1_POS 0x48
@@ -284,11 +285,34 @@ static void edid_parsingvendspec(struct rx_cap *prxcap,
 	/* future: other new VSVDB add here: */
 }
 
+static void store_cea_idx(struct rx_cap *prxcap, enum hdmi_vic vic)
+{
+	int i;
+	int already = 0;
+
+	if (!prxcap || !vic)
+		return;
+
+	for (i = 0; (i < VIC_MAX_NUM) && (i < prxcap->VIC_count); i++) {
+		if (vic == prxcap->VIC[i]) {
+			already = 1;
+			break;
+		}
+	}
+	if (!already && prxcap->VIC_count < VIC_MAX_NUM - 1) {
+		prxcap->VIC[prxcap->VIC_count] = vic;
+		prxcap->VIC_count++;
+	}
+}
+
 static void edid_dtd_parsing(struct rx_cap *prxcap, unsigned char *data)
 {
-	struct hdmi_format_para *para = NULL;
+	const struct hdmi_timing *dtd_timing = NULL;
 	struct dtd *t = &prxcap->dtd[prxcap->dtd_idx];
 
+	/* if data[0-2] are zeroes, no need parse, and skip*/
+	if (data[0] == 0 && data[1] == 0 && data[2] == 0)
+		return;
 	memset(t, 0, sizeof(struct dtd));
 	t->pixel_clock = data[0] + (data[1] << 8);
 	t->h_active = (((data[4] >> 4) & 0xf) << 8) + data[2];
@@ -300,6 +324,9 @@ static void edid_dtd_parsing(struct rx_cap *prxcap, unsigned char *data)
 	t->v_sync_offset = (((data[11] >> 2) & 0x3) << 4) +
 		((data[10] >> 4) & 0xf);
 	t->v_sync = (((data[11] >> 0) & 0x3) << 4) + ((data[10] >> 0) & 0xf);
+	t->h_image_size = (((data[14] >> 4) & 0xf) << 8) + data[12];
+	t->v_image_size = ((data[14] & 0xf) << 8) + data[13];
+	t->flags = data[17];
 /*
  * Special handling of 1080i60hz, 1080i50hz
  */
@@ -320,17 +347,31 @@ next:
 		t->v_active = t->v_active / 2;
 		t->v_blank = t->v_blank / 2;
 	}
+
 /*
- * call hdmitx21_match_dtd_paras() to check t is matched with VIC
+ * call hdmitx21_match_dtd_timing() to check t is matched with VIC
  */
-	para = hdmitx21_match_dtd_paras(t);
-	if (para) {
-		t->vic = para->timing.vic;
+	dtd_timing = hdmitx21_match_dtd_timing(t);
+	if (dtd_timing) {
+		/* diff 4x3 and 16x9 mode */
+		if (dtd_timing->vic == HDMI_6_720x480i60_4x3 ||
+			dtd_timing->vic == HDMI_2_720x480p60_4x3 ||
+			dtd_timing->vic == HDMI_21_720x576i50_4x3 ||
+			dtd_timing->vic == HDMI_17_720x576p50_4x3) {
+			if (abs(t->v_image_size * 100 / t->h_image_size - 3 * 100 / 4) <= 2)
+				t->vic = dtd_timing->vic;
+			else
+				t->vic = dtd_timing->vic + 1;
+		} else {
+			t->vic = dtd_timing->vic;
+		}
 		prxcap->preferred_mode = prxcap->dtd[0].vic; /* Select dtd0 */
 		if (0) /* debug only */
 			pr_info("hdmitx: get dtd%d vic: %d\n",
-				prxcap->dtd_idx, para->timing.vic);
+				prxcap->dtd_idx, t->vic);
 		prxcap->dtd_idx++;
+		if (t->vic < HDMITX_VESA_OFFSET)
+			store_cea_idx(prxcap, t->vic);
 	}
 }
 
@@ -607,6 +648,56 @@ static void hdmitx_parse_sink_capability(struct rx_cap *prxcap,
 	set_vsdb_dc_420_cap(prxcap, &blockbuf[offset]);
 }
 
+static void hdmitx_parse_ifdb(struct rx_cap *prxcap, u8 *blockbuf)
+{
+	u8 payload_len;
+	u8 len;
+	u8 sum_len = 0;
+
+	if (!prxcap || !blockbuf)
+		return;
+
+	payload_len = blockbuf[0] & 0x1f;
+	/* no additional bytes after extended tag code */
+	if (payload_len <= 1)
+		return;
+
+	/* begin with an InfoFrame Processing Descriptor */
+	if ((blockbuf[2] & 0x1f) != 0)
+		pr_info("ERR: IFDB not begin with InfoFrame Processing Descriptor\n");
+	sum_len = 1; /* Extended Tag Code len */
+
+	len = (blockbuf[2] >> 5) & 0x7;
+	sum_len += (len + 2);
+	if (payload_len < sum_len) {
+		pr_info("ERR: IFDB length abnormal: %d exceed playload len %d\n",
+			sum_len, payload_len);
+		return;
+	}
+	prxcap->additional_vsif_num = blockbuf[3];
+
+	if (payload_len == sum_len)
+		return;
+
+	while (sum_len < payload_len) {
+		if ((blockbuf[sum_len + 1] & 0x1f) == 1) {
+			/* Short Vendor-Specific InfoFrame Descriptor */
+			/* pr_info(EDID "InfoFrame Type Code: 0x1, len: %d, IEEE: %x\n", */
+				/* len, blockbuf[sum_len + 4] << 16 | */
+				/* blockbuf[sum_len + 3] << 8 | blockbuf[sum_len + 2]); */
+			/* number of additional bytes following the 3-byte OUI */
+			len = (blockbuf[sum_len + 1] >> 5) & 0x7;
+			sum_len += (len + 1 + 3);
+		} else {
+			/* Short InfoFrame Descriptor */
+			/* pr_info(EDID "InfoFrame Type Code: %x, len: %d\n", */
+				/* blockbuf[sum_len + 1] & 0x1f, len); */
+			len = (blockbuf[sum_len + 1] >> 5) & 0x7;
+			sum_len += (len + 1);
+		}
+	}
+}
+
 static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 	unsigned char *blockbuf)
 {
@@ -637,7 +728,8 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 	prxcap->pref_colorspace = blockbuf[3] & 0x30;
 
 	prxcap->native_VIC = 0xff;
-
+	if (end > 127)
+		return 0;
 	for (offset = 4 ; offset < end ; ) {
 		tag = blockbuf[offset] >> 5;
 		count = blockbuf[offset] & 0x1f;
@@ -723,6 +815,10 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 				case EXTENSION_SCDB_EXT_TAG:
 					hdmitx_parse_sink_capability(prxcap, offset + 1,
 						blockbuf, count);
+					break;
+				case EXTENSION_IFDB_TAG:
+					prxcap->ifdb_present = true;
+					hdmitx_parse_ifdb(prxcap, &blockbuf[offset]);
 					break;
 				default:
 					break;
@@ -950,8 +1046,8 @@ const char *hdmitx_edid_vic_tab_map_string(enum hdmi_vic vic)
 {
 	int i;
 	const char *disp_str = NULL;
-	int size = get_hdmitx_timing_size();
-	const struct hdmi_timing *t = get_hdmitx_timing_para0();
+	int size = hdmitx21_timing_size();
+	const struct hdmi_timing *t = hdmitx21_get_timing_para0();
 
 	for (i = 0; i < size; i++) {
 		if (vic == t->vic) {

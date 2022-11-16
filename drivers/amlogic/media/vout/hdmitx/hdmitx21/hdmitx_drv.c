@@ -529,7 +529,7 @@ static void hdmi_set_vend_spec_infofram(struct hdmitx_dev *hdev,
 	memset(db, 0, sizeof(db));
 
 	if (videocode == 0) {      /* For non-4kx2k mode setting */
-		hdmi_vend_infoframe_set(NULL);
+		hdmi_vend_infoframe_rawset(NULL, NULL);
 		return;
 	}
 
@@ -1063,7 +1063,7 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	//config video
 	//-------------
 	hdmi_drm_infoframe_set(NULL);
-	hdmi_vend_infoframe_set(NULL);
+	hdmi_vend_infoframe_rawset(NULL, NULL);
 
 	data8 = 0;
 	data8 |= (dp_color_depth & 0x03); // [1:0]color depth. 00:8bpp;01:10bpp;10:12bpp;11:16bpp
@@ -1426,7 +1426,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			if (hdmi_vic_4k_flag)
 				hdmi_vend_infoframe_rawset(VEN_HB, db1);
 			else
-				hdmi_vend_infoframe_set(NULL);
+				hdmi_vend_infoframe_rawset(NULL, NULL);
 			hdmi_avi_infoframe_config(CONF_AVI_CS, hdev->para->cs);
 			hdmi_avi_infoframe_config(CONF_AVI_Q01, RGB_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
@@ -1519,7 +1519,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				VEN_DB1[2] = 0x00;
 				hdmi_vend_infoframe_rawset(VEN_HB, db1);
 			} else {
-				hdmi_vend_infoframe_set(NULL);
+				hdmi_vend_infoframe_rawset(NULL, NULL);
 			}
 			hdmi_avi_infoframe_config(CONF_AVI_CS, hdev->para->cs);
 			hdmi_avi_infoframe_config(CONF_AVI_Q01, RGB_RANGE_LIM);
@@ -1540,7 +1540,7 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 
 	if (!data || !flag) {
 		pr_info("%s: null vsif\n", __func__);
-		hdmi_vend_infoframe_set(NULL);
+		hdmi_vend_infoframe_rawset(NULL, NULL);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);
 		return;
 	}

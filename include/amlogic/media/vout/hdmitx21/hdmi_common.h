@@ -15,6 +15,7 @@
 
 #define HDMI_PACKET_TYPE_GCP 0x3
 
+#define HDMITX_VESA_OFFSET 0x300
 /* Little-Endian format */
 enum scdc_addr {
 	SINK_VER = 0x01,
@@ -502,6 +503,10 @@ struct rx_cap {
 	unsigned char bitmap_length;
 	unsigned char y420_all_vic;
 	unsigned char y420cmdb_bitmap[Y420CMDB_MAX];
+	/* for DV cts */
+	bool ifdb_present;
+	/* IFDB, currently only use below node */
+	u8 additional_vsif_num;
 };
 
 enum color_attr_type {

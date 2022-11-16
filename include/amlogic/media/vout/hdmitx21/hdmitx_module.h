@@ -80,7 +80,7 @@ struct hdmi_format_para *hdmitx21_match_dtd_paras(struct dtd *t);
 
 void hdmitx21_set(struct hdmitx_dev *hdev);
 void hdmitx21_dump_regs(void);
-void hdmitx21_infoframe_send(u8 info_type, u8 *body);
+void hdmitx21_infoframe_send(u16 info_type, u8 *body);
 int hdmitx21_infoframe_rawget(u8 info_type, u8 *body);
 
 /* there are 2 ways to send out infoframes
@@ -90,6 +90,7 @@ int hdmitx21_infoframe_rawget(u8 info_type, u8 *body);
  */
 void hdmi_vend_infoframe_set(struct hdmi_vendor_infoframe *info);
 void hdmi_vend_infoframe_rawset(u8 *hb, u8 *pb);
+void hdmi_vend_infoframe2_rawset(u8 *hb, u8 *pb);
 void hdmi_avi_infoframe_set(struct hdmi_avi_infoframe *info);
 void hdmi_avi_infoframe_rawset(u8 *hb, u8 *pb);
 void hdmi_spd_infoframe_set(struct hdmi_spd_infoframe *info);
@@ -129,6 +130,8 @@ void hdmitx_test_prbs(void);
 struct hdr_info *hdmitx_get_rx_hdr_info(void);
 enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 	const char *disp_mode, char force_flag);
+const char *hdmitx_edid_vic_to_string(enum hdmi_vic vic);
+enum hdmi_vic hdmitx_edid_vic_tab_map_vic(const char *disp_mode);
 bool is_supported_mode_attr(struct input_hdmi_data *hdmi_data, char *mode_attr);
 void hdmitx_set_drm_pkt(struct master_display_info_s *data);
 void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
@@ -137,7 +140,7 @@ bool is_hdmi_mode(char *mode);
 
 /* the hdmitx output limits to 1080p */
 bool is_hdmitx_limited_1080p(void);
-
+const struct hdmi_timing *hdmitx21_match_dtd_timing(struct dtd *t);
 #undef printk
 #define printk printf
 #undef pr_info
