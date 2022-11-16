@@ -4,6 +4,7 @@ obj-y	+= watchdog.o
 obj-$(CONFIG_AML_HDMITX20) += hdmitx20/
 obj-y	+= timer.o
 obj-y	+= mailbox.o
+obj-y	+= stick_mem.o
 #obj-y   += gate_init.o
 #obj-y   += power_cal.o
 #obj-y   += power_domain.o
