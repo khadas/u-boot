@@ -274,6 +274,8 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			       nIndex, name, offPayload, szPayload);
 		}
 		boot_entry[BOOT_AREA_BB1ST].size = ssp->boot_entry[BOOT_AREA_BB1ST].size;
+		/* todo: DDRFIP SIZE need get from acs, will be modified later */
+		ssp->boot_entry[BOOT_AREA_DDRFIP].size = BOOTLOADER_MODE_ADVANCE_DDRFIP_SIZE;
 		boot_entry[BOOT_AREA_DDRFIP].size = ssp->boot_entry[BOOT_AREA_DDRFIP].size;
 		boot_entry[BOOT_AREA_DEVFIP].size = ssp->boot_entry[BOOT_AREA_DEVFIP].size;
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);

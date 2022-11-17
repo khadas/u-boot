@@ -493,7 +493,7 @@ __attribute__ ((section(".misc_param"))) = {
 };
 
 #define DEV_FIP_SIZE 0x300000
-#define DDR_FIP_SIZE 0x40000
+#define DDR_FIP_SIZE 0x1c0000
 /* for all the storage parameter */
 #ifdef CONFIG_MTD_SPI_NAND
 /* for spinand storage parameter */
