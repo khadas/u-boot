@@ -636,7 +636,6 @@
 
 //#define CONFIG_AML_HDMITX20 1
 //#define CONFIG_AML_CVBS 1
-
 #define CONFIG_AML_LCD    1
 #define CONFIG_AML_LCD_TABLET 1
 #define CONFIG_AML_LCD_TV 1
@@ -648,6 +647,10 @@
 #define CONFIG_AML_LOCAL_DIMMING_BLMCU
 #define CONFIG_AML_LOCAL_DIMMING_GLOBAL
 #endif
+
+/* tee add protect interface */
+#define CONFIG_AML_TEE_PROTEECT 1
+#define CONFIG_AMLOGIC_TEE 1
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

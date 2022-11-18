@@ -75,6 +75,12 @@ void vpu_module_init_config(void)
 		break;
 	}
 
+#ifdef CONFIG_AMLOGIC_TEE
+	if (vpu_conf.data->chip_type == VPU_CHIP_T5W) {
+		VPUPR("%s viu_init_psci_smc enter\n", __func__);
+		viu_init_psci_smc();
+	}
+#endif
 	VPUPR("%s\n", __func__);
 }
 

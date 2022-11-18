@@ -1035,8 +1035,10 @@ static int handle_lcd_phy(struct lcd_v2_attr_s *p_attr)
 	}
 	for (i = 0; i < reg_cnt; i++) {
 		p_attr->phy.phy_lane_ctrl[i] = reg_buf[i + j];
-		ALOGD("%s, phy_lane_ctrl[%d] is (0x%x)\n", __func__,
-		      i, p_attr->phy.phy_lane_ctrl[i]);
+		if (model_debug_flag & DEBUG_LCD) {
+			ALOGD("%s, phy_lane_ctrl[%d] is (0x%x)\n",
+			      __func__, i, p_attr->phy.phy_lane_ctrl[i]);
+		}
 	}
 
 	ini_value = IniGetString("lcd_Attr", "phy_lane_swap", "0");
