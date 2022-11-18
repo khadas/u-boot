@@ -37,6 +37,7 @@ static int do_bootloader_version(cmd_tbl_t *cmdtp, int flag, int argc, char * co
 	strcat(s_version, U_BOOT_DATE_TIME);
 	printf("s_version: %s\n", s_version);
 	setenv("bootloader_version", s_version);
+	printf("%s\n", version_string);
 	return 0;
 }
 
