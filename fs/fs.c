@@ -316,6 +316,71 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 	return -1;
 }
 
+/* size and offset should by in bytes, eg:
+ * fs_set_blk_dev_by_off("mmc", "1:2", FS_TYPE_EXT, 0x04000000, 0x20000000);
+ */
+int fs_set_blk_dev_by_off(const char *ifname,
+			  const char *dev_part_str,
+			  int fstype,
+			  unsigned long offset,
+			  unsigned long size)
+{
+	struct fstype_info *info;
+	int part, i;
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	static int relocated;
+
+	if (!relocated) {
+		for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes);
+				i++, info++) {
+			info->probe += gd->reloc_off;
+			info->close += gd->reloc_off;
+			info->ls += gd->reloc_off;
+			info->read += gd->reloc_off;
+			info->write += gd->reloc_off;
+		}
+		relocated = 1;
+	}
+#endif
+
+	part = get_device_and_partition(ifname, dev_part_str, &fs_dev_desc,
+					&fs_partition, 1);
+	if (part < 0) {
+		if (fs_dev_desc) { /* manual initialized */
+			printf("%s, %d\n", __func__, __LINE__);
+			fs_partition.start = offset / fs_dev_desc->blksz;
+			fs_partition.size  = size / fs_dev_desc->blksz;
+			fs_partition.blksz = fs_dev_desc->blksz;
+			/*  strcpy((char *)info->name, get_part_name(part, num)); */
+		} else {
+			printf("%s, %d\n", __func__, __LINE__);
+			return -1;
+		}
+	} else {
+		printf("%s, %d\n", __func__, __LINE__);
+		fs_partition.start = offset / fs_dev_desc->blksz;
+		fs_partition.size  = size / fs_dev_desc->blksz;
+		fs_partition.blksz = fs_dev_desc->blksz;
+	}
+
+	for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes); i++, info++) {
+		if (fstype != FS_TYPE_ANY && info->fstype != FS_TYPE_ANY &&
+				fstype != info->fstype)
+			continue;
+
+		if (!fs_dev_desc && !info->null_dev_desc_ok)
+			continue;
+
+		if (!info->probe(fs_dev_desc, &fs_partition)) {
+			fs_type = info->fstype;
+			fs_dev_part = part;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
 /* set current blk device w/ blk_desc + partition # */
 int fs_set_blk_dev_with_part(block_dev_desc_t *desc, int part)
 {

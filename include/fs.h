@@ -37,6 +37,11 @@
  */
 int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
 
+int fs_set_blk_dev_by_off(const char *ifname,
+			  const char *dev_part_str,
+			  int fstype,
+			  unsigned long offset,
+			  unsigned long size);
 
 /**
  * fs_get_type_name() - Get type of current filesystem
