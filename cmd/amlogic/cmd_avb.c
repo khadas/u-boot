@@ -293,7 +293,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 	} else {
 		printf("AVB2 verify with production kpub:%d, vbmeta kpub:%ld\n",
 				avb2_kpub_production_len, public_key_length);
-		if (avb2_kpub_default_len == public_key_length &&
+		if (avb2_kpub_production_len == public_key_length &&
 				!avb_safe_memcmp(public_key_data,
 					avb2_kpub_production, public_key_length)) {
 			*out_is_trusted = true;
