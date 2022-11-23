@@ -80,7 +80,7 @@
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
         "vout_init=disable\0" \
-	"model_name=UHD_2RG\0" \
+        "model_name=FHD2HDMI\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
