@@ -56,6 +56,7 @@ struct spifc_priv {
 #define SPIFC_DEFAULT_SPEED		24000000
 #define SPIFC_CACHE_SIZE_IN_WORD 128
 #define SPIFC_CACHE_SIZE_IN_BYTE SPIFC_CACHE_SIZE_IN_WORD << 2
+#define SPI_ADDR_BASE           0xf1000000
 
 static void spifc_set_rx_op_mode(struct spifc_priv *priv,
 				 unsigned int slave_mode, unsigned char cmd)
@@ -95,6 +96,48 @@ static void spifc_init(void)
 {
 	/* disable ahb */
 	writel((readl(SPIFC_AHB_REQ_CTRL) & ~(1 << 31)), SPIFC_AHB_REQ_CTRL);
+	writel((readl(SPIFC_AHB_CTRL) & ~(1 << 31)), SPIFC_AHB_CTRL);
+}
+
+static int spifc_enable_ahb(struct spifc_priv *priv, unsigned int slave_mode)
+{
+	unsigned int val0, val1;
+	unsigned char cmd;
+	u16 bits;
+
+	cmd = priv->save_cmd;
+	bits = priv->save_addr_len ? (priv->save_addr_len - 2) : 0;
+
+	val0 = (1 << 30) | (1 << 19) | (cmd << 20) | (bits << 15);
+	val1 = (1 << 31) |  (8 << 23);
+
+	if (slave_mode & SPI_RX_DUAL) {
+		if (cmd == FCMD_READ_DUAL_OUT)
+			val0 |= ((1 << 8));
+	}
+	if (slave_mode & SPI_RX_QUAD) {
+		if (cmd == FCMD_READ_QUAD_OUT)
+			val0 |= ((2 << 8));
+	}
+
+	writel(val0, SPIFC_AHB_REQ_CTRL);
+	writel(val1, SPIFC_AHB_REQ_CTRL1);
+	writel(0, SPIFC_AHB_REQ_CTRL2);
+	writel(0, SPIFC_USER_DBUF_ADDR);
+	writel((1 << 31), SPIFC_AHB_CTRL);
+
+	/* clean the HRDATA buffer */
+	writel(readl(SPIFC_AHB_CTRL) | (7 << 12), SPIFC_AHB_CTRL);
+
+	return 0;
+}
+
+static void spifc_disable_ahb(void)
+{
+	/* disable ahb */
+	writel(0, SPIFC_AHB_REQ_CTRL);
+	writel(0, SPIFC_AHB_REQ_CTRL1);
+	writel(0, SPIFC_AHB_REQ_CTRL2);
 	writel((readl(SPIFC_AHB_CTRL) & ~(1 << 31)), SPIFC_AHB_CTRL);
 }
 
@@ -160,6 +203,29 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 	writel(priv->save_addr, SPIFC_USER_ADDR);
 	writel(1 << 31, SPIFC_USER_CTRL0);
 	while (!(readl(SPIFC_USER_CTRL0) & 0x40000000));
+
+	return 0;
+}
+
+static int spifc_user_ahb_cmd_din(struct spifc_priv *priv,
+			      u8 *buf, int len)
+{
+	u64 *p;
+	int len64, i;
+	u64 *spifc_ahb_addr;
+
+	priv->save_addr = priv->save_addr >> 8;
+	spifc_ahb_addr = (u64 *)(SPI_ADDR_BASE + (u64)priv->save_addr);
+	writel(readl(SPIFC_AHB_REQ_CTRL) | (1 << 31), SPIFC_AHB_REQ_CTRL);
+
+	p = (u64 *)buf;
+	if (!(len % 8)) {
+		len64 = (len / 8);
+		for (i = 0; i < len64; i++)
+			*p++ = *spifc_ahb_addr++;
+	} else {
+		memcpy((void *)p, (void *)spifc_ahb_addr, len);
+	}
 
 	return 0;
 }
@@ -331,17 +397,29 @@ static int spifc_xfer(struct udevice *dev,
 		}
 	} else if (din && priv->cmd) {
 		buf = (u8 *)din;
-		spifc_set_rx_op_mode(priv, slave->mode, priv->cmd);
-		while (len > 0) {
-			lening = min_t(size_t, 512, len);
-			ret = spifc_user_cmd_din(priv, buf, lening, flags);
-			if (ret)
-				break;
-			buf += lening;
-			len -= lening;
-			priv->save_addr = priv->save_addr >> 8;
-			priv->save_addr += lening;
-			priv->save_addr = priv->save_addr << 8;
+		if (priv->cmd == FCMD_READ ||
+			priv->cmd == FCMD_READ_FAST ||
+			priv->cmd == FCMD_READ_DUAL_OUT ||
+			priv->cmd == FCMD_READ_QUAD_OUT ||
+			priv->cmd == FCMD_READ_DUAL_IO ||
+			priv->cmd == FCMD_READ_QUAD_IO
+		) {
+			spifc_enable_ahb(priv, slave->mode);
+			spifc_user_ahb_cmd_din(priv, buf, len);
+			spifc_disable_ahb();
+		} else {
+			spifc_set_rx_op_mode(priv, slave->mode, priv->cmd);
+			while (len > 0) {
+				lening = min_t(size_t, 512, len);
+				ret = spifc_user_cmd_din(priv, buf, lening, flags);
+				if (ret)
+					break;
+				buf += lening;
+				len -= lening;
+				priv->save_addr = priv->save_addr >> 8;
+				priv->save_addr += lening;
+				priv->save_addr = priv->save_addr << 8;
+			}
 		}
 	}
 	if (ret || flags & SPI_XFER_END) {
