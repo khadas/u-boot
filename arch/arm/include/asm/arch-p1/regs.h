@@ -26,20 +26,20 @@
  * SEC_AO_SEC_GP_CFG0 use SYSCTRL_SEC_STATUS_REG4
  * AO_SEC_GP_CFG0 use SYSCTRL_SEC_STATUS_REG4
  * AO_RTI_STATUS_REG3 use SYSCTRL_SEC_STICKY_REG1
- * AO_SEC_SD_CFG15 use SYSCTRL_SEC_STATUS_REG2
+ * REG_MDUMP_REBOOT_MODE use SYSCTRL_SEC_STATUS_REG2
  */
 //#define SEC_AO_SEC_GP_CFG0          ((0x00c4  << 2) + 0xfe010000)
 #define AO_SEC_GP_CFG0			    ((0x00c4  << 2) + 0xfe010000) /* DDR total */
 #define AO_RTI_STATUS_REG3		    ((0x00e1  << 2) + 0xfe010000) /* reboot mode */
-//#define AO_SEC_SD_CFG15             ((0x00df  << 2) + 0xfe010000) /* get_rebootmode */
+//#define REG_MDUMP_REBOOT_MODE             ((0x00df  << 2) + 0xfe010000) /* get_rebootmode */
 
-/* PREG_STICKY_REG8  use SYSCTRL_STICKY_REG6
- * P_AO_SEC_GP_CFG12 use SYSCTRL_DEBUG_REG6
- * P_AO_SEC_GP_CFG13 use SYSCTRL_DEBUG_REG7
+/* REG_MDUMP_CPUBOOT_STATUS  use SYSCTRL_STICKY_REG6
+ * REG_MDUMP_COMPRESS_BASE use SYSCTRL_DEBUG_REG6
+ * REG_MDUMP_COMPRESS_SIZE use SYSCTRL_DEBUG_REG7
  */
-#define PREG_STICKY_REG8		    ((0x00b6  << 2) + 0xfe010000) /* boot status*/
-#define P_AO_SEC_GP_CFG12		    ((0x0096  << 2) + 0xfe010000) /* ram compress size */
-#define P_AO_SEC_GP_CFG13		    ((0x0097  << 2) + 0xfe010000) /* mdump start addrs */
+#define REG_MDUMP_CPUBOOT_STATUS		    ((0x00b6  << 2) + 0xfe010000) /* boot status*/
+#define REG_MDUMP_COMPRESS_BASE		    ((0x0096  << 2) + 0xfe010000) /* ram compress size */
+#define REG_MDUMP_COMPRESS_SIZE		    ((0x0097  << 2) + 0xfe010000) /* mdump start addrs */
 
 /*
  * P_AO_RTI_PINMUX_REG0 use PADCTRL_PIN_MUX_REG0

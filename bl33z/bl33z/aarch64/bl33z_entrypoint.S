@@ -38,7 +38,7 @@ bl33z_entrypoint:
 	b	bl33z_entry
 
 bl33z_label:
-	.quad 0x504D55444D454D40
+	.quad 0x504D55444C4D4140
 
 bl33z_entry:
 

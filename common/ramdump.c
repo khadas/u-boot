@@ -15,21 +15,36 @@
 #define AMLOGIC_KERNEL_PANIC		0x0c
 #define AMLOGIC_WATCHDOG_REBOOT		0x0d
 
+#ifdef CONFIG_DUMP_COMPRESS_HEAD
+static void dump_info(unsigned int addr, unsigned int size, const char *info)
+{
+	int i = 0;
+
+	printf("\nDUMP %s 0X%08x :", info, addr);
+	for (i = 0; i < size; i += 4) {
+		if (0 == (i % 32))
+			printf("\n[0x%08x] ", addr + i);
+		printf("%08x ", readl(addr + i));
+	}
+	printf("\n\n");
+}
+#endif
 
 unsigned long ramdump_base = 0;
 unsigned long ramdump_size = 0;
 unsigned int get_reboot_mode(void)
 {
-	uint32_t reboot_mode_val = ((readl(AO_SEC_SD_CFG15) >> 12) & 0xf);
+	uint32_t reboot_mode_val = ((readl(REG_MDUMP_REBOOT_MODE) >> 12) & 0xf);
 	return reboot_mode_val;
 }
 
 void ramdump_init(void)
 {
 	unsigned int data;
-
-	ramdump_base = readl(P_AO_SEC_GP_CFG12);
-	ramdump_size = readl(P_AO_SEC_GP_CFG13);
+	printf("%s, base reg:0x%08x, size reg:0x%08x\n", __func__,
+				REG_MDUMP_COMPRESS_BASE, REG_MDUMP_COMPRESS_SIZE);
+	ramdump_base = readl(REG_MDUMP_COMPRESS_BASE);
+	ramdump_size = readl(REG_MDUMP_COMPRESS_SIZE);
 	if (ramdump_base & 0x80) {
 		/* 0x80: The flag indicates that the addr exceeds 4G. */
 		/* real size = size[31:0] + addr[6:0]<<32 */
@@ -38,10 +53,13 @@ void ramdump_init(void)
 		ramdump_base = (ramdump_base & 0xffffff00) << 8;
 	}
 
-	data = readl(PREG_STICKY_REG8);
-	writel(data & ~RAMDUMP_STICKY_DATA_MASK, PREG_STICKY_REG8);
+	data = readl(PREG_STICKY_REG6);
+	writel(data & ~RAMDUMP_STICKY_DATA_MASK, PREG_STICKY_REG6);
 	printf("%s, add:%lx, size:%lx\n", __func__, ramdump_base, ramdump_size);
 
+#ifdef CONFIG_DUMP_COMPRESS_HEAD
+	dump_info((unsigned int)ramdump_base, 0x80, "bl33 check COMPRESS DATA 1");
+#endif
 }
 
 static void wait_usb_dev(void)
@@ -61,6 +79,7 @@ static void wait_usb_dev(void)
 			mdelay(10000);
 			continue;
 		} else {
+			run_command("usb dev", 1);
 			break;
 		}
 	}
@@ -81,6 +100,7 @@ __weak int ramdump_save_compress_data(void)
 {
 	char cmd[128] = {0};
 	char *env;
+	int ret = 0;
 
 	env = env_get("ramdump_location");
 	if (!env)
@@ -98,8 +118,11 @@ __weak int ramdump_save_compress_data(void)
 	sprintf(cmd, "fatwrite usb 0 %lx crashdump-1.bin %lx\n",
 		ramdump_base, ramdump_size);
 	printf("CMD:%s\n", cmd);
-	run_command(cmd, 1);
-	printf("run fatwrite usb ok, reboot!\n");
+	ret = run_command(cmd, 0);
+	if (ret != 0)
+		printf("run fatwrite usb ERROR, reboot!\n");
+	else
+		printf("run fatwrite usb OK, reboot!\n");
 	mdelay(10000);
 	run_command("reset", 1);
 	return 0;
@@ -186,17 +209,19 @@ void check_ramdump(void)
 					__func__, addr, size);
 				if (addr && size) {
 					ramdump_env_setup(addr, size);
+#ifdef CONFIG_DUMP_COMPRESS_HEAD
+					dump_info((unsigned int)ramdump_base, 0x80, "bl33 check COMPRESS DATA 2");
+#endif
 					ramdump_save_compress_data();
 				}
 			} else {
 				ramdump_env_setup(0, 0);
 			}
 			ramdump_env_setup(addr, size);
+#ifdef CONFIG_SUPPORT_BL33Z
+			printf("%s, fdt: rsvmem ramdump_bl33z enable.\n", __func__);
+			run_command("fdt set /reserved-memory/ramdump_bl33z status okay", 0);
+#endif
 		}
 	}
-#ifdef CONFIG_SUPPORT_BL33Z
-	printf("%s, fdt: rsvmem ramdump_bl33z enable.\n", __func__);
-	//run_command("fdt rm /reserved-memory/ramdump_bl33z no-map", 0);
-	run_command("fdt set /reserved-memory/ramdump_bl33z status okay", 0);
-#endif
 }

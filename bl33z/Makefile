@@ -90,11 +90,8 @@ endif
 ifeq ($(SOC),t5d)
 SOC		=	t5
 endif
-ifeq ($(SOC),t5w)
-SOC		=	t5
-endif
 
-list="sc2 s4 t3 t7 p1 a1 a5"
+list="sc2 s4 t3 t7 p1 a1 a5 t5w"
 ifeq ($(findstring $(SOC), $(list)), $(SOC))
 $(info support the soc: $(SOC))
 else

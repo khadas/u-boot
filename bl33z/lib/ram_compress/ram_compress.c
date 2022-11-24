@@ -22,7 +22,6 @@
 typedef void (*cb)(unsigned long processed, unsigned long total);
 
 extern unsigned char debug_enable;
-//unsigned char debug_enable = 0;
 typedef unsigned int  u32;
 typedef unsigned long u64;
 static inline u64 readq(void *reg)
@@ -408,10 +407,13 @@ static void dump_info(unsigned long addr, unsigned long size, const char *info)
 	serial_puts(info);
 	serial_puts(" [0x");
 	serial_put_hex(addr, 32);
-	serial_puts("]:\n");
+	serial_puts("]:");
 	for (unsigned long i = 0; i < size; i += 4) {
-		if ((0 == (i % 32)) && (i != 0))
-			serial_puts("\n");
+		if (0 == (i % 32)) {
+			serial_puts("\n[0x");
+			serial_put_hex(addr + i, 32);
+			serial_puts("] ");
+		}
 		serial_puts("0x");
 		serial_put_hex(readl(addr + i), 32);
 		serial_puts(" ");
@@ -514,6 +516,9 @@ void save_ramp_dump(unsigned long addr, long size)
 
 	writel(addr_tmp, P_AO_SEC_GP_CFG12);
 	writel(size_tmp, P_AO_SEC_GP_CFG13);
+#ifdef CONFIG_ENABLE_DUMP
+	dump_info(addr_tmp, 0x80, "bl31 check COMPRESS DATA");
+#endif
 }
 
 static struct ram_compress_work_info rcwi = {
@@ -638,15 +643,15 @@ unsigned long ramdump_compress_all(struct ram_compress_full *rcf,
 		serial_put_hex(size, 64);
 		serial_puts("\n");
 	}
-	/* these parameters are not configured by bl33 */
-	serial_puts("rcf->full_memsize: 0x");
-	serial_put_hex((unsigned long)(rcf->full_memsize), 64);
-	serial_puts("\n");
 	/* update rcf with size */
 	if (size && size != rcf->full_memsize) {
 		serial_puts("fix_up_ddr_size.\n");
 		fix_up_ddr_size(rcf, size);
 	}
+	/* these parameters are not configured by bl33 */
+	serial_puts("rcf->full_memsize: 0x");
+	serial_put_hex((unsigned long)(rcf->full_memsize), 64);
+	serial_puts("\n");
 	serial_puts("find_adj.\n");
 	find_adj(rcf, &adj_sec, &first_sec);
 	while (retry < MAX_RETRY) {

@@ -22,9 +22,9 @@ static bool _read_in_bootconfig(struct vendor_boot_img_hdr *boot_info, uint32_t 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
 
 #ifdef CONFIG_SUPPORT_BL33Z
-#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x2880000
+#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x2800000
 #else
-#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x1200000
+#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x1800000
 #endif
 
 static const unsigned char gzip_magic[] = {
