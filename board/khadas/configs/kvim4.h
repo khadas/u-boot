@@ -656,10 +656,15 @@
                "fi;"\
             "\0"\
         "check_panel="\
+				"fdt addr ${dtb_mem_addr}; "\
 				"if test ${khadas_mipi_id} = 1; then "\
 					"echo check T050 panel; outputmode=$ts050_output; setenv outputmode ${ts050_output};"\
+					"fdt set /soc/apb4@fe000000/i2c@6c000/gt9xx@14 status disable;"\
+					"fdt set /soc/apb4@fe000000/i2c@6c000/ft5336@38 status okay;"\
 				"else if test ${khadas_mipi_id} = 2; then "\
 					"echo check T101 panel; outputmode=$ts101_output; setenv outputmode ${ts101_output};"\
+					"fdt set /soc/apb4@fe000000/i2c@6c000/gt9xx@14 status okay;"\
+					"fdt set /soc/apb4@fe000000/i2c@6c000/ft5336@38 status disable;"\
 				"else "\
 					"echo no check dsi panel; outputmode=$vbo_output; setenv outputmode ${vbo_output};"\
 				"fi;fi;"\
