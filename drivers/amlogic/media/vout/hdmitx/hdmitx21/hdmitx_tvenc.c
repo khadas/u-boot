@@ -384,6 +384,10 @@ void set_tv_encp_new(struct hdmitx_dev *hdev, u32 enc_index,
 		config_tv_enc_calc(hdev, vic);
 		break;
 	}
+	if (hdev->frl_rate && hdev->para->cs != HDMI_COLORSPACE_YUV420)
+		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 1, 0, 3);
+	else
+		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 0, 3);
 } /* set_tv_encp_new */
 
 static void config_tv_enci(enum hdmi_vic vic)
