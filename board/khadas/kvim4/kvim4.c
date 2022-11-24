@@ -585,6 +585,7 @@ int checkhw(char * name)
 #else
 	env_set("aml_dt", "t7c_a311d2_an400\0");
 #endif
+	run_command("kbi check_panel", 0);
 	return 0;
 }
 

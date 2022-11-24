@@ -1084,6 +1084,117 @@ static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 	return ret;
 }
 
+#ifdef CONFIG_DM_I2C
+#define TP_I2C_BUS_NUM 3
+#define TP05_CHIP_ADDR "0x38"
+#define TP10_CHIP_ADDR "0x14"
+static struct udevice *i2c_cur_bus;
+int khadas_mipi_id = 0;//NULL
+
+static int tp_i2c_set_bus_num(unsigned int busnum)
+{
+    struct udevice *bus;
+    int ret;
+
+    ret = uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus);
+    if (ret) {
+        printf("%s: No bus %d\n", __func__, busnum);
+        return ret;
+    }
+    i2c_cur_bus = bus;
+
+    return 0;
+}
+
+static int tp_i2c_get_cur_bus(struct udevice **busp)
+{
+       if (!i2c_cur_bus) {
+               if (tp_i2c_set_bus_num(TP_I2C_BUS_NUM)) {
+                   printf("Default I2C bus %d not found\n",
+                          TP_I2C_BUS_NUM);
+                   return -ENODEV;
+               }
+       }
+
+    if (!i2c_cur_bus) {
+        puts("No I2C bus selected\n");
+        return -ENODEV;
+    }
+    *busp = i2c_cur_bus;
+
+    return 0;
+}
+
+static int tp_i2c_get_cur_bus_chip(uint chip_addr, struct udevice **devp)
+{
+    struct udevice *bus;
+    int ret;
+
+    ret = tp_i2c_get_cur_bus(&bus);
+    if (ret)
+        return ret;
+
+    return i2c_get_chip(bus, chip_addr, 1, devp);
+}
+#endif
+
+static int tp_i2c_read(uint reg, const char *cp)
+{
+       int ret;
+       char val[64];
+       uchar   linebuf[1];
+       uchar chip;
+#ifdef CONFIG_DM_I2C
+       struct udevice *dev;
+#endif
+
+
+       chip = simple_strtoul(cp, NULL, 16);
+
+#ifdef CONFIG_DM_I2C
+       ret = tp_i2c_get_cur_bus_chip(chip, &dev);
+       if (!ret)
+               ret = dm_i2c_read(dev, reg, (uint8_t *)linebuf, 1);
+#else
+       ret = i2c_read(chip, reg, 1, linebuf, 1);
+#endif
+
+       if (ret)
+               printf("Error reading the chip: %d\n",ret);
+       else {
+               sprintf(val, "%d", linebuf[0]);
+               ret = simple_strtoul(val, NULL, 10);
+
+       }
+       return ret;
+}
+
+static int do_check_panel(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	khadas_mipi_id = tp_i2c_read(0xfe,TP05_CHIP_ADDR);
+	printf("TP05 id=0x%x\n",khadas_mipi_id);
+	if(khadas_mipi_id > 0x10){//TS050 = 0x1f
+			khadas_mipi_id = 1;
+			setenv("khadas_mipi_id", "1");
+			setenv("panel_type", "mipi_0");
+	}else{
+			khadas_mipi_id = tp_i2c_read(0x9e,TP10_CHIP_ADDR);
+			printf("TP10 id=0x%x\n",khadas_mipi_id);
+			if(khadas_mipi_id == 0x00){//TS101
+					khadas_mipi_id = 2;
+					setenv("khadas_mipi_id", "2");
+					setenv("panel_type", "mipi_1");
+			}else {
+					khadas_mipi_id = 0;
+					setenv("khadas_mipi_id", "0");//VBO
+					setenv("panel_type", "mipi_0");
+			}
+	}
+	printf("hlm khadas_mipi_id=%d\n",khadas_mipi_id);
+	printf("hlm panel_type=%s\n", getenv("panel_type"));
+	return 0;
+}
+
 static int get_ircode(char reg)
 {
 	int ircode[4] = {0};
@@ -1357,6 +1468,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(wolreset, 1, 1, do_kbi_wolreset, "", ""),
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 	U_BOOT_CMD_MKENT(factorytest, 1, 1, do_kbi_factorytest, "", ""),
+	U_BOOT_CMD_MKENT(check_panel, 1, 1, do_check_panel, "", ""),
 };
 
 static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -1412,6 +1524,7 @@ static char kbi_help_text[] =
 		"kbi adc - read adc value\n"
 #endif
 		"kbi powerstate - read power on state\n"
+		"kbi check_panel - check TS050 or TS101\n"
 		"kbi poweroff - power off device\n"
 		"kbi ethmac - read ethernet mac address\n"
 		"kbi hwver - read board hardware version\n"

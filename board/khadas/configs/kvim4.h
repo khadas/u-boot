@@ -390,14 +390,14 @@
         "loadaddr_kernel=0x01080000\0"\
 		"dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
-        "panel_type=mipi_0\0" \
         "panel1_type=vbyone_1\0" \
         "panel2_type=lvds_1\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd1_ctrl=0x00000000\0" \
         "lcd2_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-        "dsi_output=panel\0" \
+        "ts050_output=panel\0" \
+        "ts101_output=panel\0" \
         "vbo_output=panel1\0" \
         "outputmode2=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
@@ -655,6 +655,16 @@
                    "kbi wolreset;"\
                "fi;"\
             "\0"\
+        "check_panel="\
+				"if test ${khadas_mipi_id} = 1; then "\
+					"echo check T050 panel; outputmode=$ts050_output; setenv outputmode ${ts050_output};"\
+				"else if test ${khadas_mipi_id} = 2; then "\
+					"echo check T101 panel; outputmode=$ts101_output; setenv outputmode ${ts101_output};"\
+				"else "\
+					"echo no check dsi panel; outputmode=$vbo_output; setenv outputmode ${vbo_output};"\
+				"fi;fi;"\
+				"echo $outputmode;"\
+			"\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
@@ -673,21 +683,15 @@
             "\0"\
         "init_display="\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-			"if gpio input GPIOY_9; then "\
-			"else "\
+			"if test ${khadas_mipi_id} = 1; then "\
 				"osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
-			"fi;"\
+			"else if test ${khadas_mipi_id} = 2; then "\
+				"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+			"else "\
+			"fi;fi;"\
             "setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
-            "\0"\
-        "switch_panel="\
-            "if gpio input GPIOY_9; then "\
-				"echo no check dsi panel; outputmode=$vbo_output; setenv outputmode ${vbo_output};"\
-			"else "\
-				"echo check dsi panel; outputmode=$dsi_output; setenv outputmode ${dsi_output};"\
-            "fi;"\
-			"echo $outputmode;"\
             "\0"\
         "check_display="\
             "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
@@ -716,6 +720,7 @@
             "kbi ethmac noprint;"\
 				"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+			"setenv bootargs ${bootargs} khadas_mipi_id=${khadas_mipi_id};"\
             "factory_provision init;"\
             "\0"\
         "upgrade_key="\
@@ -738,8 +743,8 @@
 #endif
 
 #define CONFIG_PREBOOT  \
-            "run switch_panel; "\
             "run bcb_cmd; "\
+            "run check_panel;"\
             "run upgrade_check;"\
             "run check_display;"\
             "run wol_init;"\
@@ -758,13 +763,17 @@
     "setenv outputmode2 ${hdmimode};"\
     "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
     "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-    "if gpio input GPIOY_9; then "\
-        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "else "\
+	"if test ${khadas_mipi_id} = 1; then "\
         "setenv fb_width 1080;setenv fb_height 1920;"\
         "setenv display_width 1080;setenv display_height 1920;"\
         "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
-    "fi;"\
+	"else if test ${khadas_mipi_id} = 2; then "\
+        "setenv fb_width 1920;setenv fb_height 1200;"\
+        "setenv display_width 1920;setenv display_height 1200;"\
+		"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"else "\
+        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"fi;fi;"\
     "\0"\
 
 /* dual logo, factory_reset boot, recovery always displays on panel */
@@ -772,24 +781,32 @@
     "setenv outputmode2 ${hdmimode};"\
     "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
     "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-    "if gpio input GPIOY_9; then "\
-        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "else "\
+	"if test ${khadas_mipi_id} = 1; then "\
         "setenv fb_width 1080;setenv fb_height 1920;"\
         "setenv display_width 1080;setenv display_height 1920;"\
         "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
-    "fi;"\
+	"else if test ${khadas_mipi_id} = 2; then "\
+        "setenv fb_width 1920;setenv fb_height 1200;"\
+        "setenv display_width 1920;setenv display_height 1200;"\
+		"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"else "\
+        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"fi;fi;"\
     "\0"\
 
 /* single logo */
 #define CONFIG_SINGLE_LOGO \
-    "if gpio input GPIOY_9; then "\
-        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "else "\
+	"if test ${khadas_mipi_id} = 1; then "\
         "setenv fb_width 1080;setenv fb_height 1920;"\
         "setenv display_width 1080;setenv display_height 1920;"\
         "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
-    "fi;"\
+	"else if test ${khadas_mipi_id} = 2; then "\
+        "setenv fb_width 1920;setenv fb_height 1200;"\
+        "setenv display_width 1920;setenv display_height 1200;"\
+		"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"else "\
+        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"fi;fi;"\
     "\0"
 #endif
 
