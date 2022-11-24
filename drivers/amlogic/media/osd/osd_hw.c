@@ -60,9 +60,6 @@ extern GraphicDevice fb_gdev;
 static void independ_path_default_regs(void);
 static void fix_vpu_clk2_default_regs(void);
 static int pi_enable;
-#ifdef AML_S5_DISPLAY
-#define SLICE_NUM 4
-#endif
 
 struct fb_layout_s fb_layout[OSD_MAX];
 
