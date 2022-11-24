@@ -1619,6 +1619,9 @@ ifneq ($(KBUILD_SRC),)
 		/bin/false; \
 	fi;
 endif
+ifdef CONFIG_AML_UASAN
+	echo "#define CONFIG_AML_UASAN 1"  >> $(config_h)
+endif
 
 # prepare2 creates a makefile if using a separate output directory
 prepare2: prepare3 outputmakefile
@@ -1721,10 +1724,6 @@ endif
 
 ifeq ("$(CONFIG_SUPPORT_BL33Z)", "1")
 	echo "#define CONFIG_SUPPORT_BL33Z" $(CONFIG_SUPPORT_BL33Z) >> $(version_h)
-endif
-
-ifeq ("$(CONFIG_AML_UASAN)", "1")
-	echo "#define CONFIG_AML_UASAN" $(CONFIG_AML_UASAN) >> $(config_h)
 endif
 
 ifeq ("$(CONFIG_NASC_NAGRA_TIER_1)", "1")

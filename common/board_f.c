@@ -404,6 +404,17 @@ static void record_section_red_zone(unsigned long addr)
 	printf("[UASAN] red zone section full, ignore addr:%lx\n", addr);
 }
 
+static void uasan_global_init(void)
+{
+	ctor_fn_t *fn = (ctor_fn_t *)__init_array_start;
+
+	for (; fn < (ctor_fn_t *)__init_array_end; fn++) {
+		debug("%s, fn:%lx, func:%lx\n",
+		      __func__, (unsigned long)fn, (unsigned long)*fn);
+		(*fn)();
+	}
+}
+
 static int reserve_uasan(void)
 {
 	int i;
@@ -470,6 +481,10 @@ static int reserve_uasan(void)
 			}
 		}
 	}
+
+	/* 4, create shadow for globals */
+	uasan_global_init();
+
 	gd->uasan_enabled = 1;
 	printf("[UASAN] Enable UASAN\n");
 	return 0;

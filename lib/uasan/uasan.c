@@ -47,6 +47,30 @@ void uasan_poison_object(unsigned long addr, unsigned long size, unsigned tag)
 	__memset((void *)addr, size, tag);
 }
 
+/*
+ * Poisons the shadow memory for 'size' bytes starting from 'addr'.
+ * Memory addresses should be aligned to UASAN_SHADOW_SCALE_SIZE.
+ */
+static void uasan_poison_shadow(const void *address, size_t size, u8 value)
+{
+	void *shadow_start, *shadow_end;
+
+	shadow_start = (void *)mem_to_shadow(address);
+	shadow_end = (void *)mem_to_shadow(address + size);
+
+	memset(shadow_start, value, shadow_end - shadow_start);
+}
+
+void uasan_unpoison_shadow(const void *address, size_t size)
+{
+	uasan_poison_shadow(address, size, 0);
+
+	if (size & UASAN_SHADOW_MASK) {
+		u8 *shadow = (u8 *)mem_to_shadow(address + size);
+		*shadow = size & UASAN_SHADOW_MASK;
+	}
+}
+
 __weak int is_register(unsigned long addr)
 {
 	if (addr > gd->phy_mem_high)
@@ -83,7 +107,7 @@ static const char *get_shadow_bug_type(struct uasan_report_info *info)
 	shadow_addr = (u8 *)mem_to_shadow(info->first_bad_addr);
 
 	/*
-	 * If shadow byte value is in [0, KASAN_SHADOW_SCALE_SIZE) we can look
+	 * If shadow byte value is in [0, UASAN_SHADOW_SCALE_SIZE) we can look
 	 * at the next shadow byte to determine the type of the bad access.
 	 */
 	if (*shadow_addr > 0 && *shadow_addr <= UASAN_SHADOW_SCALE_SIZE - 1)
@@ -255,7 +279,7 @@ static __always_inline bool memory_is_poisoned_1(unsigned long addr)
 	s8 *shadow_addr = (s8 *)mem_to_shadow((void *)addr);
 	s8 shadow_value;
 
-	if (!shadow_addr) /* ignore access for memory not in kasan range */
+	if (!shadow_addr) /* ignore access for memory not in uasan range */
 		return false;
 
 	shadow_value = *shadow_addr;
@@ -548,6 +572,30 @@ void *memcpy(void *dest, const void *src, size_t len)
 	check_memory_region((unsigned long)dest, len, true, _RET_IP_);
 
 	return __memcpy(dest, src, len);
+}
+
+static void register_global(struct uasan_global *global)
+{
+	size_t aligned_size = round_up(global->size, UASAN_SHADOW_SCALE_SIZE);
+	const void *rel_beg = global->beg + gd->relocaddr;
+
+	debug("  global beg:%p, size:%ld, rsize:%ld, asize:%ld, rel_beg:%p\n",
+		global->beg, global->size, global->size_with_redzone,
+		aligned_size, rel_beg);
+	uasan_unpoison_shadow(rel_beg, global->size);
+
+	uasan_poison_shadow(rel_beg + aligned_size,
+		global->size_with_redzone - aligned_size,
+		UASAN_GLOBAL_REDZONE);
+}
+
+void __asan_register_globals(struct uasan_global *globals, size_t size)
+{
+	int i;
+
+	debug("  global:%p, size:%ld\n", globals, size);
+	for (i = 0; i < size; i++)
+		register_global(&globals[i]);
 }
 
 /* TODO: add malloc / free asan check */

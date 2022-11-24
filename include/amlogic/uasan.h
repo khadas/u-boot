@@ -54,8 +54,41 @@ struct uasan_report_info {
 	unsigned long ip;
 };
 
+/* The layout of struct dictated by compiler */
+struct uasan_source_location {
+	const char *filename;
+	int line_no;
+	int column_no;
+};
+
+/* The layout of struct dictated by compiler */
+struct uasan_global {
+	/* Address of the beginning of the global variable. */
+	const void *beg;
+	/* Size of the global variable. */
+	size_t size;
+	/* Size of the variable + size of the red zone. 32 bytes aligned */
+	size_t size_with_redzone;
+	const void *name;
+	/* Name of the module where the global variable is declared. */
+	const void *module_name;
+	unsigned long has_dynamic_init;	/* This needed for C++ */
+#if KASAN_ABI_VERSION >= 4
+	struct uasan_source_location *location;
+#endif
+#if KASAN_ABI_VERSION >= 5
+	char *odr_indicator;
+#endif
+};
+
+/* Used for constructor calls. */
+typedef void (*ctor_fn_t)(void);
+
 unsigned long mem_to_shadow(const void *mem_addr);
 void uasan_poison_object(unsigned long addr, unsigned long size, unsigned tag);
+
+extern const char __init_array_start[];
+extern const char __init_array_end[];
 
 #endif
 
