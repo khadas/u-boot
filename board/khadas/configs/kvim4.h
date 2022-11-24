@@ -648,7 +648,6 @@
                "if test ${wol_enable} = 1; then "\
                "kbi trigger wol w 1;"\
                "fi;"\
-               "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
                "if test ${power_state} = 1; then "\
                    "kbi poweroff;"\
                "else "\
@@ -729,6 +728,7 @@
 				"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
 			"setenv bootargs ${bootargs} khadas_mipi_id=${khadas_mipi_id};"\
+			"setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
             "factory_provision init;"\
             "\0"\
         "upgrade_key="\
