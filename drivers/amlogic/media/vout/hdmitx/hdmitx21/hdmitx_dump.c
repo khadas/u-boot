@@ -433,6 +433,44 @@ static int hdmitx_dump_cts_enc_clk_status(void)
 	return 0;
 }
 
+static void hdmitx_dump_frl_status(void)
+{
+	enum scdc_addr scdc_reg;
+	u8 val;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	static const char * const rate_string[] = {
+		[FRL_NONE] = "TMDS",
+		[FRL_3G3L] = "FRL_3G3L",
+		[FRL_6G3L] = "FRL_6G3L",
+		[FRL_6G4L] = "FRL_6G4L",
+		[FRL_8G4L] = "FRL_8G4L",
+		[FRL_10G4L] = "FRL_10G4L",
+		[FRL_12G4L] = "FRL_12G4L",
+		[FRL_INVALID] = "FRL_INVALID",
+	};
+
+	pr_info("\n--------frl status--------\n");
+	pr_info("FRL rate: %s\n", hdev->frl_rate < FRL_INVALID ?
+		rate_string[hdev->frl_rate] : rate_string[FRL_INVALID]);
+	val = hdmitx21_rd_reg(INTR5_SW_TPI_IVCTX);
+	pr_info("INTR5_SW_TPI[0x%x] 0x%x\n", INTR5_SW_TPI_IVCTX, val);
+	hdmitx21_wr_reg(INTR5_SW_TPI_IVCTX, val);
+	val = hdmitx21_rd_reg(INTR5_SW_TPI_IVCTX);
+	pr_info("INTR5_SW_TPI[0x%x] 0x%x\n", INTR5_SW_TPI_IVCTX, val);
+	hdmitx21_wr_reg(INTR5_SW_TPI_IVCTX, val);
+	val = hdmitx21_rd_reg(INTR5_SW_TPI_IVCTX);
+	pr_info("INTR5_SW_TPI[0x%x] 0x%x\n", INTR5_SW_TPI_IVCTX, val);
+	hdmitx21_wr_reg(INTR5_SW_TPI_IVCTX, val);
+
+	/* clear UPDATE_0 firstly */
+	scdc21_rd_sink(UPDATE_0, &val);
+	scdc21_wr_sink(UPDATE_0, val);
+	for (scdc_reg = SINK_VER; scdc_reg < 0x100; scdc_reg++) {
+		scdc21_rd_sink(scdc_reg, &val);
+		pr_info("SCDC[0x%02x] 0x%02x\n", scdc_reg, val);
+	}
+}
+
 void hdmitx21_dump_regs(void)
 {
 	// ((0x0000 << 2) + 0xfe008000) ~ ((0x00f3 << 2) + 0xfe008000)
@@ -490,4 +528,5 @@ void hdmitx21_dump_regs(void)
 	dump_infoframe_packets();
 	dump_hdmivpfdet_show();
 	hdmitx_dump_cts_enc_clk_status();
+	hdmitx_dump_frl_status();
 }

@@ -225,6 +225,7 @@ enum frl_rate_enum {
 	FRL_8G4L = 4,
 	FRL_10G4L = 5,
 	FRL_12G4L = 6,
+	FRL_INVALID = 7,
 };
 
 /* CEA TIMING STRUCT DEFINITION */
