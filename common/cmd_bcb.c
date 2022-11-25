@@ -217,15 +217,17 @@ static int do_RunAmlBcbCommand(
     }
 
     static int status = 0;
+	static int f_init;
     char *partition = "misc";
     char recovery[RECOVERYBUF_SIZE] = {0};
     char miscbuf[MISCBUF_SIZE] = {0};
     unsigned long long cmdaddr;
 
-    if (status == 1) {
-        setenv("reboot_mode","update");
-        return 0;
-    }
+	if (f_init == 1) {
+		if (status == 1)
+			setenv("reboot_mode", "update");
+	return 0;
+	}
 
     printf("Start read %s partition datas!\n", partition);
     if (store_read_ops((unsigned char *)partition,
@@ -242,6 +244,7 @@ static int do_RunAmlBcbCommand(
     } else {
         memcpy(recovery, miscbuf+COMMANDBUF_SIZE+STATUSBUF_SIZE, sizeof(recovery));
         if (strstr(recovery, CMD_WIPE_DATA)) {
+		f_init = 1;
             return 0;
         }
     }
@@ -258,6 +261,7 @@ static int do_RunAmlBcbCommand(
             char *command = (char *)map_sysmem(cmdaddr, 0);
             if (command && strstr(command, CMD_WIPE_DATA)) {
                 unmap_sysmem(command);
+			f_init = 1;
                 return 0;
             }
             unmap_sysmem(command);
@@ -266,6 +270,7 @@ static int do_RunAmlBcbCommand(
 
     printf("run recovery, but not factory reset.\n");
     setenv("reboot_mode","update");
+	f_init = 1;
     status = 1;
     // Do-Nothing!
     return 0;
