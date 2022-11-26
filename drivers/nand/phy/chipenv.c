@@ -1980,7 +1980,7 @@ get_free_blk:
 		}
 		/*
 		add 'flash->blocksize > 0x40000' here,nand flash which blocksize
-		is smaller than 256KB(slc flash) shoudn't write again.
+		is smaller than 256KB(slc flash) shouldn't write again.
 		*/
 		if ((arg_info->arg_type == FULL_PAGE) && (flash->blocksize > 0x40000)) {
 			if (write_page_cnt == 0) {

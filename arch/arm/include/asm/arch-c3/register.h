@@ -246,7 +246,7 @@
 #define DMC_MON_ALL16_BW                           ((0x0024  << 2) + 0xfe036000)
   // at the test period,  the whole MMC granted data cycles which goes to 16bits ddr. unit:64bits
 #define DMC_MON0_CTRL                              ((0x0025  << 2) + 0xfe036000)
-  //BW MONTIOR 0 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW MONITOR 0 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON0_CTRL1                             ((0x0026  << 2) + 0xfe036000)
@@ -257,7 +257,7 @@
 #define DMC_MON0_BW                                ((0x0028  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON1_CTRL                              ((0x0029  << 2) + 0xfe036000)
-  //BW monitor 1 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 1 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON1_CTRL1                             ((0x002a  << 2) + 0xfe036000)
@@ -268,7 +268,7 @@
 #define DMC_MON1_BW                                ((0x002c  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON2_CTRL                              ((0x002d  << 2) + 0xfe036000)
-  //BW monitor 2 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 2 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON2_CTRL1                             ((0x002e  << 2) + 0xfe036000)
@@ -279,7 +279,7 @@
 #define DMC_MON2_BW                                ((0x0030  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON3_CTRL                              ((0x0031  << 2) + 0xfe036000)
-  //BW monitor 3 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 3 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON3_CTRL1                             ((0x0032  << 2) + 0xfe036000)
@@ -290,7 +290,7 @@
 #define DMC_MON3_BW                                ((0x0034  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON4_CTRL                              ((0x0035  << 2) + 0xfe036000)
-  //BW monitor 4 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 4 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON4_CTRL1                             ((0x0036  << 2) + 0xfe036000)
@@ -301,7 +301,7 @@
 #define DMC_MON4_BW                                ((0x0038  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON5_CTRL                              ((0x0039  << 2) + 0xfe036000)
-  //BW monitor 5 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 5 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON5_CTRL1                             ((0x003a  << 2) + 0xfe036000)
@@ -312,7 +312,7 @@
 #define DMC_MON5_BW                                ((0x003c  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON6_CTRL                              ((0x003d  << 2) + 0xfe036000)
-  //BW monitor 6 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 6 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON6_CTRL1                             ((0x003e  << 2) + 0xfe036000)
@@ -323,7 +323,7 @@
 #define DMC_MON6_BW                                ((0x0040  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON7_CTRL                              ((0x0041  << 2) + 0xfe036000)
-  //BW monitor 7 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 7 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON7_CTRL1                             ((0x0042  << 2) + 0xfe036000)
@@ -7221,7 +7221,7 @@
 //Bit 7:0,    reg_premable_Z_value    ,default = 0
 #define EARCTX_SPDIFOUT_SWAP                       ((0x0007  << 2) + 0xfe333400)
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after intial done from frddr set
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after initial done from frddr set
 //Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define EARCTX_ERR_CORRT_CTRL0                     ((0x0008  << 2) + 0xfe333400)
 //Bit 31:24,  reserved
@@ -16218,7 +16218,7 @@
 //Bit 11:10        reserved
 //Bit  9: 8        reg_dpc_xphs_ofst         // unsigned ,    RW, default = 1
 //Bit  7: 5        reserved
-//Bit  4           reg_dpc_det_en            // unsigned ,    RW, default = 1  1 = enable defect pixel detection, 0 = diable
+//Bit  4           reg_dpc_det_en            // unsigned ,    RW, default = 1  1 = enable defect pixel detection, 0 = disable
 //Bit  3: 1        reserved
 //Bit  0           reg_dpc_cor_en            // unsigned ,    RW, default = 1  1 = enable defect pixel correction, 0 = disable
 #define ISP_DPC0_AVG_GAIN0                         ((0x0261  << 2) + 0xff000000)
@@ -16760,7 +16760,7 @@
 //Bit 11:10        reserved
 //Bit  9: 8        reg_dpc_xphs_ofst         // unsigned ,    RW, default = 1
 //Bit  7: 5        reserved
-//Bit  4           reg_dpc_det_en            // unsigned ,    RW, default = 1  1 = enable defect pixeldetection, 0 = diable
+//Bit  4           reg_dpc_det_en            // unsigned ,    RW, default = 1  1 = enable defect pixeldetection, 0 = disable
 //Bit  3: 1        reserved
 //Bit  0           reg_dpc_cor_en            // unsigned ,    RW, default = 1  1 = enable defect pixel correction, 0 = disable
 #define ISP_DPC1_AVG_GAIN0                         ((0x0361  << 2) + 0xff000000)
@@ -20141,8 +20141,8 @@
 #define ISP_DMS_CT_PARAM0                          ((0x1406  << 2) + 0xff000000)
 //Bit 31:16        reserved
 //Bit 15: 8        reg_ctran_coring          // unsigned ,    RW, default = 30  coring to the color transition_level, ignore small color transition
-//Bit  7: 6        reg_ctran_h_dial_win      // unsigned ,    RW, default = 2  horizontal dialation window size for ctran_h, 0: no dialation  else (x+1)
-//Bit  5: 4        reg_ctran_v_dial_win      // unsigned ,    RW, default = 2  horizontal dialation window size for ctran_v, 0: no dialation, else (x+1)
+//Bit  7: 6        reg_ctran_h_dial_win      // unsigned ,    RW, default = 2  horizontal dilation window size for ctran_h, 0: no dilation  else (x+1)
+//Bit  5: 4        reg_ctran_v_dial_win      // unsigned ,    RW, default = 2  horizontal dilation window size for ctran_v, 0: no dilation, else (x+1)
 //Bit  3           reg_ctran_powersaving     // unsigned ,    RW, default = 0  enable bit gate the ctran clock for power saving, just output cdf_l
 //Bit  2           reg_ctrs_csat_max_en      // unsigned ,    RW, default = 1  enable bit to do ctrs and csat max to get ctrans, default = 1
 //Bit  1           reg_ctran_h_lpf_en        // unsigned ,    RW, default = 1  enable bit to do horizontal [12221] lpf for lbuf_ctran_h_lpf, default = 1

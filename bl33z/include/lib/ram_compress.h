@@ -64,7 +64,7 @@ enum {
 
 enum {
 	SECTION_ADDR_NORMAL = 1,	/* 0GB ~ 3.5GB */
-	RECTION_ADDR_IS_REG	= 2,	/* 3.5GB ~ 4.0GB */
+	SECTION_ADDR_IS_REG	= 2,	/* 3.5GB ~ 4.0GB */
 	SECTION_ADDR_EXTEND	= 3		/* 4.0GB ~ endGB */
 };
 

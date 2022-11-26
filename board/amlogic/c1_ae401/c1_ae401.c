@@ -246,7 +246,7 @@ const struct mtd_partition *get_spiflash_partition_table(int *partitions)
 #ifdef CONFIG_MESON_NFC
 static struct mtd_partition normal_partition_info[] = {
 /* MUST NOT CHANGE this part unless u know what you are doing!
-* inherent parition for discrete bootloader to store fip
+* inherent partition for discrete bootloader to store fip
 * size is determind by TPL_SIZE_PER_COPY*TPL_COPY_NUM
 * name must be same with TPL_PART_NAME
 */

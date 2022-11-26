@@ -6468,7 +6468,7 @@
 //Bit 7:0,    reg_premable_Z_value    ,default = 0
 #define EARCTX_SPDIFOUT_SWAP                       ((0x0007  << 2) + 0xfe333400)
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after intial done from frddr set
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after initial done from frddr set
 //Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define EARCTX_ERR_CORRT_CTRL0                     ((0x0008  << 2) + 0xfe333400)
 //Bit 31:24,  reserved
@@ -16088,7 +16088,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE1                         ((0x27a6  << 2) + 0xff000000)
@@ -16101,7 +16101,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE2                         ((0x27a7  << 2) + 0xff000000)
@@ -16114,7 +16114,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE3                         ((0x27a8  << 2) + 0xff000000)
@@ -16127,7 +16127,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE4                         ((0x27a9  << 2) + 0xff000000)
@@ -16140,7 +16140,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_WR_MODE0                         ((0x27aa  << 2) + 0xff000000)
@@ -16153,7 +16153,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_WR_MODE1                         ((0x27ab  << 2) + 0xff000000)
@@ -16166,7 +16166,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_WR_MODE2                         ((0x27ac  << 2) + 0xff000000)
@@ -16179,7 +16179,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_STAT                             ((0x27ad  << 2) + 0xff000000)

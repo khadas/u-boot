@@ -8919,7 +8919,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 
 	ddr_dmc_apd_temp_save = readl((p_ddr_base->ddr_dmc_apd_address));
 	ddr_dmc_asr_temp_save = readl((p_ddr_base->ddr_dmc_asr_address));
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
@@ -9016,7 +9016,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F + 7 * 32)
-	printf("\n12nm phy read write register should closed apd and asr funciton\n");
+	printf("\n12nm phy read write register should closed apd and asr function\n");
 
 	int i = 0;
 

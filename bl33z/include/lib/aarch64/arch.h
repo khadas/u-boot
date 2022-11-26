@@ -201,7 +201,7 @@
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
 
 /*
- * TCR defintions
+ * TCR definitions
  */
 #define TCR_EL3_RES1		((1UL << 31) | (1UL << 23))
 

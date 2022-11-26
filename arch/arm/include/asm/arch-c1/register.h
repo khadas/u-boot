@@ -1463,7 +1463,7 @@
 #define DMC_SEC_RANGE14_EDA                        ((0x001d  << 2) + 0xfe025000)
   //bit 31:12   : range 0 end address.
   //bit 11:0    : reserved to be 0.
-//there's total 36 bit sid_en policies for each region read/write seperately.
+//there's total 36 bit sid_en policies for each region read/write separately.
 //*_sid_en[35:0]
 //bit 35: dmc_test access enable bit. 1: enable : 0 disable.
 //bit 34: i2c  access enable bit. 1: enable : 0 disable.
@@ -4689,7 +4689,7 @@
 #define HCODEC_MFDIN_REG6_DCFG                     ((0x000e  << 2) + 0xfe064000)
 //cfg_soft_cmd = mfdin_reg7_scmd; // Soft Command [28]selfcleared start,[27:14]dmb_x,[13:0]dmb_y
 #define HCODEC_MFDIN_REG7_SCMD                     ((0x000f  << 2) + 0xfe064000)
-//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the begining of last dmb in the picture, picture x size
+//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the beginning of last dmb in the picture, picture x size
 //cfg_pic_ysize = mfdin_reg8_dmbl[11:0];  //picture y size
 #define HCODEC_MFDIN_REG8_DMBL                     ((0x0010  << 2) + 0xfe064000)
 //cfg_endian = mfdin_reg9_endn; //Endian Control

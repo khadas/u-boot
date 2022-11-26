@@ -340,7 +340,7 @@ U_BOOT_CMD(
     "Command format:\n"
     "  bcb bcb_mark\n"
     "Example:\n"
-    "  /dev/block/misc partiton is saved some contents:\n"
+    "  /dev/block/misc partition is saved some contents:\n"
     "  uboot-command\n" // command mark
     "  N/A\n"
     "  setenv aa 11;setenv bb 22;setenv cc 33;saveenv;\n"   // command

@@ -138,7 +138,7 @@ struct pinctrl_ops {
 	 *
 	 * This is useful for setting the mux value before a pin used as GPIO.
 	 * such as with the 'gpio' command. This function is internal to the GPIO
-	 * subsystem and shoud not be used by generic code. Typically it is used
+	 * subsystem and should not be used by generic code. Typically it is used
 	 * by a GPIO driver with knowledge of the SoC pinctrl setup.
 	 *
 	 * @dev:	Pinctrl device to use
@@ -401,7 +401,7 @@ int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index);
  *
  * This is useful for setting the mux value before a pin used as GPIO.
  * such as with the 'gpio' command. This function is internal to the GPIO
- * subsystem and shoud not be used by generic code. Typically it is used
+ * subsystem and should not be used by generic code. Typically it is used
  * by a GPIO driver with knowledge of the SoC pinctrl setup.
  *
  * @dev:	Pinctrl device to use

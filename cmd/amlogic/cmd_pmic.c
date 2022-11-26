@@ -48,10 +48,10 @@ static int do_i2c_write_bd71888(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 {
 	int ret = 100;
 
-	uint8_t write_adress = simple_strtoul(argv[1], NULL, 16);
+	uint8_t write_address = simple_strtoul(argv[1], NULL, 16);
 	uint8_t write_val = simple_strtoul(argv[2], NULL, 16);
 
-	ret = common_write(BD71888_CHIP_DEV,write_adress,write_val);
+	ret = common_write(BD71888_CHIP_DEV,write_address,write_val);
 	if (ret < 0) {
         printf("%s: bd71888 pmic write fault, ret:%d\n", __FUNCTION__, ret);
         return ret;
@@ -75,9 +75,9 @@ static int do_i2c_read_bd71888(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	int ret = 100;
 	uint8_t read_val = 0x33;
 
-	uint8_t read_adress = simple_strtoul(argv[1], NULL, 16);
+	uint8_t read_address = simple_strtoul(argv[1], NULL, 16);
 
-	ret = common_read(BD71888_CHIP_DEV,read_adress,&read_val);
+	ret = common_read(BD71888_CHIP_DEV,read_address,&read_val);
 	if (ret < 0) {
         printf("%s: bd71888 aml_pmic read fault, ret:%d\n", __FUNCTION__, ret);
         return ret;
@@ -101,10 +101,10 @@ static int do_i2c_write_bd2657(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 {
 	int ret = 100;
 
-	uint8_t write_adress = simple_strtoul(argv[1], NULL, 16);
+	uint8_t write_address = simple_strtoul(argv[1], NULL, 16);
 	uint8_t write_val = simple_strtoul(argv[2], NULL, 16);
 
-	ret = common_write(BD2657_CHIP_DEV,write_adress,write_val);
+	ret = common_write(BD2657_CHIP_DEV,write_address,write_val);
 	if (ret < 0) {
         printf("%s: bd71888 pmic write fault, ret:%d\n", __FUNCTION__, ret);
         return ret;
@@ -128,9 +128,9 @@ static int do_i2c_read_bd2657(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	int ret = 100;
 	uint8_t read_val = 0x33;
 
-	uint8_t read_adress = simple_strtoul(argv[1], NULL, 16);
+	uint8_t read_address = simple_strtoul(argv[1], NULL, 16);
 
-	ret = common_read(BD2657_CHIP_DEV,read_adress,&read_val);
+	ret = common_read(BD2657_CHIP_DEV,read_address,&read_val);
 	if (ret < 0) {
         printf("%s: bd71888 aml_pmic read fault, ret:%d\n", __FUNCTION__, ret);
         return ret;

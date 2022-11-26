@@ -67,7 +67,7 @@ static void snapshot_update_cmd(char *, char *);
 #endif
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
-extern int is_partition_logical(char* parition_name);
+extern int is_partition_logical(char* partition_name);
 #endif
 
 static const struct {
@@ -502,7 +502,7 @@ static void flash(char *cmd_parameter, char *response)
 		if (is_valid_gpt_buf(dev_desc, fastboot_buf_addr + 0x3DFE00)) {
 			printf("printf normal bootloader.img, no gpt partition table\n");
 		} else {
-			printf("find gpt parition table, update it\n"
+			printf("find gpt partition table, update it\n"
 				"and write bootloader to boot0/boot1\n");
 
 			erase_flag = check_gpt_part(dev_desc, fastboot_buf_addr + 0x3DFE00);

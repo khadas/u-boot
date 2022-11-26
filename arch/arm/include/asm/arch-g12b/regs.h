@@ -390,7 +390,7 @@
 //cfg_soft_cmd = mfdin_reg7_scmd; // Soft Command [28]selfcleared start,[27:14]dmb_x,[13:0]dmb_y
 #define   HCODEC_MFDIN_REG7_SCMD                   (0x100f)
 #define P_HCODEC_MFDIN_REG7_SCMD                   (volatile unsigned int *)((0x100f  << 2) + 0xff620000)
-//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the begining of last dmb in the picture, picture x size
+//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the beginning of last dmb in the picture, picture x size
 //cfg_pic_ysize = mfdin_reg8_dmbl[11:0];  //picture y size
 #define   HCODEC_MFDIN_REG8_DMBL                   (0x1010)
 #define P_HCODEC_MFDIN_REG8_DMBL                   (volatile unsigned int *)((0x1010  << 2) + 0xff620000)
@@ -4805,13 +4805,13 @@
 //
 #define   HEVC_PARSER_MANUAL_CMD                   (0x312b)
 #define P_HEVC_PARSER_MANUAL_CMD                   (volatile unsigned int *)((0x312b  << 2) + 0xff620000)
-// bit [9:0] - Read adress :
+// bit [9:0] - Read address :
 //          address 0-255 stream_fifo (128x64)
 //          address 256-319 context_mem (256x7)
 //          address 320-448 parser_cmd_mem (256x16)
 #define   HEVC_PARSER_MEM_RD_ADDR                  (0x312c)
 #define P_HEVC_PARSER_MEM_RD_ADDR                  (volatile unsigned int *)((0x312c  << 2) + 0xff620000)
-// bit [9:0] - Write adress :
+// bit [9:0] - Write address :
 //          address 0-255 stream_fifo (128x64)
 //          address 256-319 context_mem (256x7)
 //          address 512-640 parser_cmd_mem (256x16)
@@ -24925,7 +24925,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define   VPU_ASYNC_RD_MODE1                       (0x27a6)
@@ -24939,7 +24939,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define   VPU_ASYNC_RD_MODE2                       (0x27a7)
@@ -24953,7 +24953,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define   VPU_ASYNC_RD_MODE3                       (0x27a8)
@@ -24967,7 +24967,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define   VPU_ASYNC_RD_MODE4                       (0x27a9)
@@ -24981,7 +24981,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define   VPU_ASYNC_WR_MODE0                       (0x27aa)
@@ -24995,7 +24995,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define   VPU_ASYNC_WR_MODE1                       (0x27ab)
@@ -25009,7 +25009,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define   VPU_ASYNC_WR_MODE2                       (0x27ac)
@@ -25023,7 +25023,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define   VPU_ASYNC_STAT                           (0x27ad)
@@ -27426,7 +27426,7 @@
 //Bit 14:12, reg_mcdi_lmvvalidmode                        valid mode for lmv calc., 100b: use char det, 010b: use flt, 001b: use hori flg
 //Bit 11:10, reg_mcdi_lmvgainmvmode                       four modes of mv selection for lmv weight calculation, default = 1
 //                                                        0: cur(x-3), lst(x-1,x,x+1); 1: cur(x-4,x-3), lst(x,x+1); 2: cur(x-5,x-4,x-3), lst(x-1,x,x+1,x+2,x+3); 3: cur(x-6,x-5,x-4,x-3), lst(x-1,x,x+1,x+2);
-//Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: intial value = 0; 1: inital = 32 (invalid), default = 0
+//Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: initial value = 0; 1: inital = 32 (invalid), default = 0
 //Bit  8,    reserved
 //Bit  7: 4, reg_mcdi_lmvrt0                              ratio of max mv, default = 5
 //Bit  3: 0, reg_mcdi_lmvrt1                              ratio of second max mv, default = 5

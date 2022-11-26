@@ -581,7 +581,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 					if (is_valid_gpt_buf(dev_desc, buffer + 0x3DFE00)) {
 						printf("no gpt partition table\n");
 					} else {
-						printf("find gpt parition table, update it\n"
+						printf("find gpt partition table, update it\n"
 							"and write bootloader to boot0/boot1\n");
 						ret = write_mbr_and_gpt_partitions(dev_desc,
 								buffer + 0x3DFE00);

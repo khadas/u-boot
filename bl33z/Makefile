@@ -72,9 +72,9 @@ LDFLAGS			+=	--gc-sections
 
 ARMCC_$(CONFIG_ENABLE_ARMCC_DEBUGROM)=$(shell echo __CC_ARM | armcc -E -  | tail -n 1)
 ifneq ($(ARMCC_y),)
-targetComplier=arm
+targetCompiler=arm
 else
-targetComplier=gcc
+targetCompiler=gcc
 endif
 
 MAKEFLAGS += --no-print-directory
@@ -103,7 +103,7 @@ $(error soc($(SOC)) is not support, exit!!!)
 endif
 
 all:
-	$(Q)$(MAKE) -f Makefile.$(targetComplier) PLAT=${SOC}
+	$(Q)$(MAKE) -f Makefile.$(targetCompiler) PLAT=${SOC}
 
 realclean distclean:
-	$(Q)$(MAKE) -f Makefile.$(targetComplier) PLAT=${PLAT} distclean
+	$(Q)$(MAKE) -f Makefile.$(targetCompiler) PLAT=${PLAT} distclean

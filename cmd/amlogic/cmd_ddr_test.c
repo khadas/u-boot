@@ -22655,7 +22655,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 			printf("\n reg_add_offset: %08x %08x %08x",reg_add_offset,reg_value,((((0x54000+(count>>1))) << 1)+0xfe000000));
 			count=count+1;
 		}
-		//ddr_log_serial_puts("\ntiming.c:\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
+		//ddr_log_serial_puts("\ntiming.c:\n",p_dev->ddr_global_message.stick_ddr_log_level);
 
 
 		printf("\n sticky register: ");
@@ -34775,7 +34775,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 
 	//ddr_test_cmd 0x25 1 1  10 10 10 10 10 10 10 10 10 10
 
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
@@ -34887,7 +34887,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F+7*32)
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #if 1
@@ -35101,7 +35101,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto usage;
 
 #if ( CONFIG_DDR_PHY >= P_DDR_PHY_G12)
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #else

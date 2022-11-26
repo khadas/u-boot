@@ -941,7 +941,7 @@
 #define DMC_MON_ALL16_BW                           ((0x0024  << 2) + 0xfe036000)
   // at the test period,  the whole MMC granted data cycles which goes to 16bits ddr. unit:64bits
 #define DMC_MON0_CTRL                              ((0x0025  << 2) + 0xfe036000)
-  //BW MONTIOR 0 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW MONITOR 0 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON0_CTRL1                             ((0x0026  << 2) + 0xfe036000)
@@ -952,7 +952,7 @@
 #define DMC_MON0_BW                                ((0x0028  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON1_CTRL                              ((0x0029  << 2) + 0xfe036000)
-  //BW monitor 1 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 1 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON1_CTRL1                             ((0x002a  << 2) + 0xfe036000)
@@ -963,7 +963,7 @@
 #define DMC_MON1_BW                                ((0x002c  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON2_CTRL                              ((0x002d  << 2) + 0xfe036000)
-  //BW monitor 2 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 2 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON2_CTRL1                             ((0x002e  << 2) + 0xfe036000)
@@ -974,7 +974,7 @@
 #define DMC_MON2_BW                                ((0x0030  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON3_CTRL                              ((0x0031  << 2) + 0xfe036000)
-  //BW monitor 3 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 3 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON3_CTRL1                             ((0x0032  << 2) + 0xfe036000)
@@ -985,7 +985,7 @@
 #define DMC_MON3_BW                                ((0x0034  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON4_CTRL                              ((0x0035  << 2) + 0xfe036000)
-  //BW monitor 4 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 4 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON4_CTRL1                             ((0x0036  << 2) + 0xfe036000)
@@ -996,7 +996,7 @@
 #define DMC_MON4_BW                                ((0x0038  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON5_CTRL                              ((0x0039  << 2) + 0xfe036000)
-  //BW monitor 5 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 5 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON5_CTRL1                             ((0x003a  << 2) + 0xfe036000)
@@ -1007,7 +1007,7 @@
 #define DMC_MON5_BW                                ((0x003c  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON6_CTRL                              ((0x003d  << 2) + 0xfe036000)
-  //BW monitor 6 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 6 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON6_CTRL1                             ((0x003e  << 2) + 0xfe036000)
@@ -1018,7 +1018,7 @@
 #define DMC_MON6_BW                                ((0x0040  << 2) + 0xfe036000)
   // at the test period, this range granted data cycles for the select channel and ports.
 #define DMC_MON7_CTRL                              ((0x0041  << 2) + 0xfe036000)
-  //BW monitor 7 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 7 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON7_CTRL1                             ((0x0042  << 2) + 0xfe036000)
@@ -6596,7 +6596,7 @@
 //Bit 7:0,    reg_premable_Z_value    ,default = 0
 #define EARCTX_SPDIFOUT_SWAP                       ((0x0007  << 2) + 0xfe333400)
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after intial done from frddr set
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after initial done from frddr set
 //Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define EARCTX_ERR_CORRT_CTRL0                     ((0x0008  << 2) + 0xfe333400)
 //Bit 31:24,  reserved
@@ -18539,7 +18539,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE1                         ((0x27a6  << 2) + 0xff000000)
@@ -18552,7 +18552,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE2                         ((0x27a7  << 2) + 0xff000000)
@@ -18565,7 +18565,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE3                         ((0x27a8  << 2) + 0xff000000)
@@ -18578,7 +18578,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE4                         ((0x27a9  << 2) + 0xff000000)
@@ -18591,7 +18591,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_WR_MODE0                         ((0x27aa  << 2) + 0xff000000)
@@ -18604,7 +18604,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_WR_MODE1                         ((0x27ab  << 2) + 0xff000000)
@@ -18617,7 +18617,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_WR_MODE2                         ((0x27ac  << 2) + 0xff000000)
@@ -18630,7 +18630,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_STAT                             ((0x27ad  << 2) + 0xff000000)

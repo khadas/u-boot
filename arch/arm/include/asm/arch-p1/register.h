@@ -5627,7 +5627,7 @@
 //Bit 7:0,    reg_premable_Z_value    ,default = 0
 #define EARCTX_SPDIFOUT_SWAP                       ((0x0007  << 2) + 0xfe333400)
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after intial done from frddr set
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after initial done from frddr set
 //Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define EARCTX_ERR_CORRT_CTRL0                     ((0x0008  << 2) + 0xfe333400)
 //Bit 31:24,  reserved
@@ -13310,7 +13310,7 @@
 //Bit 26    reg_ldc_prt_func_en                     //unsigned , RW, default = 0   1: enable LDC output protect function 0:disable LDC output protect function
 //Bit 25    reg_ldc_bl_input_sft_ctr_en             //unsigned , RW, default = 0   1: software control backlight info write index enable
 //Bit 24:23 reg_ldc_bl_input_sft_wr_idx             //unsigned , RW, default = 0   backlight info write index, for debug only
-//Bit 22    reg_ldc_vsync_get_bl_info_en            //unsigned , RW, default = 1   0:get backlight info every block line  (no vsync interrupt) 1:get  backlight info  accroding to vsync
+//Bit 22    reg_ldc_vsync_get_bl_info_en            //unsigned , RW, default = 1   0:get backlight info every block line  (no vsync interrupt) 1:get  backlight info  according to vsync
 //Bit 21:20 reg_ldc_hist_burst_len                  //unsigned , RW, default = 0   0:2 times 128bit 1:4 times 128bit 2,3:6 times      128bit
 //Bit 19:18 reg_ldc_blk_intsty_burst_len            //unsigned , RW, default = 0   0:2 times 128bit 1:4 times 128bit 2:6   times      128bit 3:8        times 128bit
 //Bit 17    reg_ldc_vs_edge_sel                     //unsigned , RW, default = 1   1:posedge vs sync   0:negedge vs sync
@@ -21870,7 +21870,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold 
 #define VPU_ASYNC_RD_MODE1                         ((0x27a6  << 2) + 0xff000000)
@@ -21883,7 +21883,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold 
 #define VPU_ASYNC_RD_MODE2                         ((0x27a7  << 2) + 0xff000000)
@@ -21896,7 +21896,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold 
 #define VPU_ASYNC_RD_MODE3                         ((0x27a8  << 2) + 0xff000000)
@@ -21909,7 +21909,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold 
 #define VPU_ASYNC_RD_MODE4                         ((0x27a9  << 2) + 0xff000000)
@@ -21922,7 +21922,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold 
 #define VPU_ASYNC_WR_MODE0                         ((0x27aa  << 2) + 0xff000000)
@@ -21935,7 +21935,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold 
 #define VPU_ASYNC_WR_MODE1                         ((0x27ab  << 2) + 0xff000000)
@@ -21948,7 +21948,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold 
 #define VPU_ASYNC_WR_MODE2                         ((0x27ac  << 2) + 0xff000000)
@@ -21961,7 +21961,7 @@
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
 //                                  00 : use the input argument
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register argument control bit
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold  
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold 
 #define VPU_ASYNC_STAT                             ((0x27ad  << 2) + 0xff000000)
@@ -37227,8 +37227,8 @@
 #define ISP_DMS_CT_PARAM0                          ((0x1413  << 2) + 0xff900000)
 //Bit 31:16        reserved                           
 //Bit 15: 8        reg_ctran_coring          // unsigned ,    RW, default = 30  coring to the color transition_level, ignore small color transition
-//Bit  7: 6        reg_ctran_h_dial_win      // unsigned ,    RW, default = 2  horizontal dialation window size for ctran_h, 0: no dialation  else (x+1)
-//Bit  5: 4        reg_ctran_v_dial_win      // unsigned ,    RW, default = 2  horizontal dialation window size for ctran_v, 0: no dialation, else (x+1)
+//Bit  7: 6        reg_ctran_h_dial_win      // unsigned ,    RW, default = 2  horizontal dilation window size for ctran_h, 0: no dilation  else (x+1)
+//Bit  5: 4        reg_ctran_v_dial_win      // unsigned ,    RW, default = 2  horizontal dilation window size for ctran_v, 0: no dilation, else (x+1)
 //Bit  3           reg_ctran_powersaving     // unsigned ,    RW, default = 0  enable bit gate the ctran clock for power saving, just output cdf_l
 //Bit  2           reg_ctrs_csat_max_en      // unsigned ,    RW, default = 1  enable bit to do ctrs and csat max to get ctrans, default = 1
 //Bit  1           reg_ctran_h_lpf_en        // unsigned ,    RW, default = 1  enable bit to do horizontal [12221] lpf for lbuf_ctran_h_lpf, default = 1

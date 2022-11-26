@@ -699,13 +699,13 @@ ERR:
 
 }
 
-int is_partition_logical(char* parition_name) {
+int is_partition_logical(char* partition_name) {
     run_command("readMetadata", 0);
     PartitionList* node = part_list;
     while (NULL != node)
     {
         //printf("name: %s\n",node->name);
-        if (strcmp(node->name, parition_name) == 0)
+        if (strcmp(node->name, partition_name) == 0)
             return 0;
         node = node->next;
     }
