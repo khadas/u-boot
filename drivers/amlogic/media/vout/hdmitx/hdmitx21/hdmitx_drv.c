@@ -724,8 +724,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		videocode == HDMI_98_4096x2160p24_256x135)
 		hdmi_set_vend_spec_infofram(hdev, videocode);
 
-	// [    0] src_sel_enci
-	// [    1] src_sel_encp
+	// [1   0] enc_idx, only for t7, s5 is differnet
 	// [    2] inv_hsync. 1=Invert Hsync polarity.
 	// [    3] inv_vsync. 1=Invert Vsync polarity.
 	// [    4] inv_dvi_clk. 1=Invert clock to external DVI,
@@ -760,43 +759,34 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	//                       15=A write every 16 clk1.
 	// [27:24] rd_rate_post. 0=A read every clk2; 1=A read every 2 clk2; ...;
 	//                       15=A read every 16 clk2.
+	//TODO: add other bit information
 	data32 = 0;
-	data32 = (0 << 0) |
-		 (0 << 1) |
-		 (para->timing.h_pol << 2) |
-		 (para->timing.v_pol << 3) |
-		 (0 << 4) |
-		 (((para->cs == HDMI_COLORSPACE_YUV420) ? 4 : 0) << 5) |
-		 (0 << 8) |
-		 (0 << 12) |
-		 (((TX_INPUT_COLOR_FORMAT == HDMI_COLORSPACE_RGB) ? 0 : 3) << 16) |
-		 (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 20) |
-		 (0 << 24);
-	if (hdev->frl_rate) {
-		if (para->cs == HDMI_COLORSPACE_YUV420)
-			data32 |= 2 << 28;
-		else
-			data32 |= 1 << 28;
-	}
-	hd21_write_reg(VPU_HDMI_SETTING, data32);
-	if (hdev->para->cs == HDMI_COLORSPACE_RGB)
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 4, 16, 3);
-	// [    1] src_sel_encp: Enable ENCI or ENCP output to HDMI
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, (hdev->enc_idx == 0) ? 0 : 1, 1);
-	if (hdev->chip_type >= MESON_CPU_ID_S5) {
-		if (hdev->frl_rate) {
-			hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 20, 4);
-			hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 24, 4);
-			if (hdev->para->cs != HDMI_COLORSPACE_YUV420)
-				hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 1, 1);
-		}
+	switch (hdev->chip_type) {
+	case MESON_CPU_ID_S5:
+		data32 |= (((para->cs != HDMI_COLORSPACE_YUV420 &&
+					hdev->frl_rate) ? 1 : 0) << 1);
+		data32 |= (para->timing.h_pol << 2);
+		data32 |= (para->timing.v_pol << 3);
+		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 4 : 0) << 5);
+		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420 &&
+					!hdev->frl_rate) ? 1 : 0) << 8);
+		data32 |= (((para->cs != HDMI_COLORSPACE_YUV420 &&	//bit[29:28],420
+					hdev->frl_rate) ? 1 : 2) << 28);
+		break;
+	case MESON_CPU_ID_T7:
+	default:
+		data32 |= ((hdev->enc_idx == 0) ? 1 : 2);
+		data32 |= (para->timing.h_pol << 2);
+		data32 |= (para->timing.v_pol << 3);
+		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 4 : 0) << 5);
+		data32 |= ((TX_INPUT_COLOR_FORMAT ==
+					HDMI_COLORSPACE_RGB ? 0 : 3) << 16);
+		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 20);
+		break;
 	}
 
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 16, 3);  //hard code
-	if (!hdev->frl_rate && hdev->para->cs == HDMI_COLORSPACE_YUV420) {
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 20, 8);
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 8, 8);
-	}
+	hd21_write_reg(VPU_HDMI_SETTING, data32);
+
 #ifdef CONFIG_AML_VOUT
 	info->cur_enc_ppc = 1;
 	if (info && hdev->chip_type >= MESON_CPU_ID_S5) {
