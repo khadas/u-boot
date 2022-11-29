@@ -6,9 +6,6 @@
 #include <common.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include "hdmitx_drv.h"
-#ifdef CONFIG_AML_VOUT
-#include <amlogic/media/vout/aml_vout.h>
-#endif
 
 /* ENCP_VIDEO_H/V are used for fetching video data from VPP
  * and send data to ENCP_DVI/DE_H/V* via a fifo (pixel delay)
@@ -16,9 +13,6 @@
  */
 static void config_tv_enc_calc(struct hdmitx_dev *hdev, enum hdmi_vic vic)
 {
-#ifdef CONFIG_AML_VOUT
-	struct vinfo_s *info = vout_get_current_vinfo();
-#endif
 	const struct hdmi_timing *tp = NULL;
 	struct hdmi_timing timing = {0};
 	u32 hsync_st = 4; // hsync start pixel count
@@ -56,13 +50,6 @@ static void config_tv_enc_calc(struct hdmitx_dev *hdev, enum hdmi_vic vic)
 	timing.h_sync /= hpara_div;
 	timing.h_back /= hpara_div;
 	timing.h_active /= hpara_div;
-
-#ifdef CONFIG_AML_VOUT
-	if (info)
-		info->cur_enc_ppc = hpara_div;
-	if (vic == HDMI_117_3840x2160p100_16x9 || vic == HDMI_118_3840x2160p120_16x9)
-		info->cur_enc_ppc = 4; /* hard code */
-#endif
 
 	if (hdev->dsc_en) {
 		hsync_st = tp->h_front - 1;
@@ -366,13 +353,6 @@ static void hdmi_tvenc1080i_set(enum hdmi_vic vic)
 void set_tv_encp_new(struct hdmitx_dev *hdev, u32 enc_index,
 	enum hdmi_vic vic, u32 enable)
 {
-#ifdef CONFIG_AML_VOUT
-	struct vinfo_s *info = vout_get_current_vinfo();
-#endif
-
-	if (info)
-		info->cur_enc_ppc = 1;
-
 	switch (vic) {
 	case HDMI_5_1920x1080i60_16x9:
 	case HDMI_46_1920x1080i120_16x9:

@@ -12,6 +12,10 @@
 #include <linux/arm-smccc.h>
 #include "hdmitx_drv.h"
 
+#ifdef CONFIG_AML_VOUT
+#include <amlogic/media/vout/aml_vout.h>
+#endif
+
 static struct hdmitx_dev hdmitx_device;
 
 static void hdmitx_set_phy(struct hdmitx_dev *hdev);
@@ -573,6 +577,9 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	enum hdmi_vic vic = para->timing.vic;
 	unsigned char checksum[11];
 	enum hdmi_vic videocode;
+#ifdef CONFIG_AML_VOUT
+	struct vinfo_s *info = vout_get_current_vinfo();
+#endif
 
 	hdmi_hwp_init();
 	if (!hdev->pxp_mode) {
@@ -790,6 +797,13 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 20, 8);
 		hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 8, 8);
 	}
+#ifdef CONFIG_AML_VOUT
+	info->cur_enc_ppc = 1;
+	if (info && hdev->chip_type >= MESON_CPU_ID_S5) {
+		if (hdmitx21_rd_reg(HDMITX_TOP_BIST_CNTL) & (1 << 19))
+			info->cur_enc_ppc = 4;
+	}
+#endif
 
 	hdmitx_set_phy(hdev);
 	if (!hdev->frl_rate)
