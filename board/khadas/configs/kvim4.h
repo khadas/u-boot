@@ -672,6 +672,24 @@
 				"fi;fi;"\
 				"echo $outputmode;"\
 			"\0"\
+        "check_vbo="\
+				"fdt addr ${dtb_mem_addr}; "\
+				"if gpio input GPIOY_11; then "\
+					"echo check has vbo panel;"\
+					"fdt set /backlight1 status okay;"\
+					"fdt set /soc/apb4@fe000000/pwm@5c000 status okay;"\
+				"else "\
+					"echo check no vbo panel;"\
+					"if test ${khadas_mipi_id} = 1; then "\
+						"echo check T050 panel;"\
+					"else if test ${khadas_mipi_id} = 2; then "\
+						"echo check T101 panel;"\
+					"else "\
+						"fdt set /backlight1 status disable;"\
+						"fdt set /soc/apb4@fe000000/pwm@5c000 status disable;"\
+					"fi;fi;"\
+				"fi;"\
+			"\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
@@ -756,6 +774,7 @@
             "run upgrade_check;"\
             "run check_display;"\
             "run wol_init;"\
+            "run check_vbo;"\
             "run storeargs;"\
             "run upgrade_key;" \
             "bcb uboot-command;" \
