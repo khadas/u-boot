@@ -249,7 +249,12 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
+ifdef CONFIG_AML_UASAN
+#use gcc version above 9.0 to support asan-instrument-allocas option
+CROSS_COMPILE ?=/opt/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
+else
 CROSS_COMPILE ?=/opt/gcc-linaro-7.3.1-2018.05-i686_aarch64-elf/bin/aarch64-elf-
+endif
 export CROSS_COMPILE
 
 KCONFIG_CONFIG	?= .config
@@ -393,7 +398,9 @@ cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
 # UASAN_SHADOW_OFFSET = (UASAN_DDR_SIZE * 7 / 8 - 256) <<  20
 # use 256 MB space for uboot and malloc/stack
 UASAN_SHADOW_OFFSET=$(shell printf "0x%08x\n" $$(( (((($(UASAN_DDR_SIZE) * 7) >> 3) - 256) << 20) )) )
-CFLAGS_UASAN += -fsanitize=kernel-address
+CFLAGS_UASAN += -fsanitize=kernel-address \
+		-fsanitize-address-use-after-scope
+
 CFLAGS_UASAN += $(call cc-param,asan-globals=1)
 CFLAGS_UASAN += $(call cc-param,asan-stack=1)
 CFLAGS_UASAN += $(call cc-param,asan-use-after-scope=1)

@@ -614,7 +614,7 @@ void uasan_alloc(void *ptr, unsigned long size)
 	/* left redzone */
 	addr += 2 * sizeof(void *);
 	uasan_poison_shadow(addr, UASAN_ALLOCA_REDZONE_SIZE,
-			    UASAN_ALLOCA_LEFT);
+			    UASAN_MALLOC_REDZONE);
 
 	/* object */
 	addr += UASAN_ALLOCA_REDZONE_SIZE;
@@ -624,7 +624,7 @@ void uasan_alloc(void *ptr, unsigned long size)
 	addr += size;
 	addr = (void  *)round_up((unsigned long)addr, UASAN_SHADOW_SCALE_SIZE);
 	uasan_poison_shadow(addr, UASAN_ALLOCA_REDZONE_SIZE,
-			    UASAN_ALLOCA_RIGHT);
+			    UASAN_MALLOC_REDZONE);
 }
 
 void uasan_free(void *ptr, unsigned long size)
@@ -639,4 +639,45 @@ void uasan_free(void *ptr, unsigned long size)
 	uasan_poison_shadow(ptr + 4 * sizeof(void *),
 			    size - 4 * sizeof(void *),
 			    UASAN_MALLOC_FREE);
+}
+
+void __asan_unpoison_stack_memory(const void *addr, size_t size)
+{
+	uasan_unpoison_shadow(addr, size);
+}
+
+void __asan_poison_stack_memory(const void *addr, size_t size)
+{
+	uasan_poison_shadow(addr, round_up(size, UASAN_SHADOW_SCALE_SIZE),
+			    UASAN_USE_AFTER_SCOPE);
+}
+
+/* Emitted by compiler to poison alloca()ed objects. */
+void __asan_alloca_poison(unsigned long addr, size_t size)
+{
+	size_t rounded_up_size = round_up(size, UASAN_SHADOW_SCALE_SIZE);
+	size_t padding_size = round_up(size, UASAN_ALLOCA_REDZONE_SIZE) -
+			rounded_up_size;
+	size_t rounded_down_size = round_down(size, UASAN_SHADOW_SCALE_SIZE);
+
+	const void *left_redzone = (const void *)(addr -
+			UASAN_ALLOCA_REDZONE_SIZE);
+	const void *right_redzone = (const void *)(addr + rounded_up_size);
+
+	uasan_unpoison_shadow((const void *)(addr + rounded_down_size),
+			      size - rounded_down_size);
+	uasan_poison_shadow(left_redzone, UASAN_ALLOCA_REDZONE_SIZE,
+			UASAN_ALLOCA_LEFT);
+	uasan_poison_shadow(right_redzone,
+			padding_size + UASAN_ALLOCA_REDZONE_SIZE,
+			UASAN_ALLOCA_RIGHT);
+}
+
+/* Emitted by compiler to unpoison alloca()ed areas when the stack unwinds. */
+void __asan_allocas_unpoison(const void *stack_top, const void *stack_bottom)
+{
+	if (unlikely(!stack_top || stack_top > stack_bottom))
+		return;
+
+	uasan_unpoison_shadow(stack_top, stack_bottom - stack_top);
 }
