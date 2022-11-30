@@ -159,6 +159,7 @@
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
+		"ddr_auto_fast_boot_check 6;"\
 		"run get_os_type;"\
 		"run storage_param;"\
 		"if test ${os_type} = rtos; then "\

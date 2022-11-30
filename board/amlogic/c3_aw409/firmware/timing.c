@@ -130,7 +130,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.timming_struct_version = 0,
 	.cfg_board_common_setting.timming_struct_org_size = sizeof(ddr_set_ps0_only_t),
 	.cfg_board_common_setting.timming_struct_real_size = 0,
-	.cfg_board_common_setting.fast_boot = { 0, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
+	.cfg_board_common_setting.fast_boot = { 0x1, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
 	.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID |
 		DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
