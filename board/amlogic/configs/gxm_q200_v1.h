@@ -53,7 +53,7 @@
 /*#define CONFIG_CMD_BOOTCTOL_DEFAULT 1*/
 #define CONFIG_CMD_BOOTCTOL_AVB
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */

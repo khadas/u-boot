@@ -35,7 +35,7 @@
 
 #define CONFIG_INSTABOOT
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* support ext4*/

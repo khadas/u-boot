@@ -30,7 +30,7 @@
 /* Clock rnage : 600~1800MHz, should be multiple of 24 */
 #define CONFIG_CPU_CLK			1536
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* DDR */

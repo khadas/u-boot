@@ -35,7 +35,7 @@
   */
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */

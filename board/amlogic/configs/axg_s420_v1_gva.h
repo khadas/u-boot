@@ -25,7 +25,7 @@
 #define CONFIG_VDDEE_INIT_VOLTAGE	950		// voltage for power up
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	 810		// voltage for suspend
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* config saradc*/

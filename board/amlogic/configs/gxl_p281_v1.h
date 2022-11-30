@@ -38,7 +38,7 @@
 /* configs for dtb in boot.img */
 //#define DTB_BIND_KERNEL
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* config saradc*/

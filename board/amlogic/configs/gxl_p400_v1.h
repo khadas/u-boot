@@ -81,7 +81,7 @@
 #endif
 #define CONFIG_SARADC_CH  0
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */

@@ -29362,7 +29362,7 @@
 #define DMC_VPU_EF2_WRITE                          ((0x0031  << 2) + 0xff638800)
   //EF2 controlled DMC_VPU_SEC_WRITE_CTRL.
 
- //GE2D is seperated port in GX.
+ //GE2D is separated port in GX.
 #define DMC_GE2D_SEC_CTRL                          ((0x0034  << 2) + 0xff638800)
   //bit 31:22 NOT USED.
   //bit 21:16.  GE2D secure control after EF triggered.

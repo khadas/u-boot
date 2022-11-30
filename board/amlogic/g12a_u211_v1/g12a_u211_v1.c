@@ -554,7 +554,7 @@ U_BOOT_DEVICES(meson_i2cs) = {
 /*
  *GPIOAO_10//I2C_SDA_AO
  *GPIOAO_11//I2C_SCK_AO
- *pinmux configuration seperated with i2c controller configuration
+ *pinmux configuration separated with i2c controller configuration
  * config it when you use
  */
 void set_i2c_ao_pinmux(void)

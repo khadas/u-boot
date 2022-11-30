@@ -370,7 +370,7 @@ U_BOOT_DEVICES(meson_i2cs) = {
 /*
  *GPIODV_0//I2C_SDA_B
  *GPIODV_1//I2C_SCK_B
- *pinmux configuration seperated with i2c controller configuration
+ *pinmux configuration separated with i2c controller configuration
  * config it when you use
  */
 void set_i2c1_pinmux(void)

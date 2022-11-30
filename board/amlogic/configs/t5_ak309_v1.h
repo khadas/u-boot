@@ -33,7 +33,7 @@
 #define CONFIG_BT_WAKEUP
 /*if use wifi-wakeup,open it*/
 //#define CONFIG_WIFI_WAKEUP
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* config saradc*/
