@@ -27805,6 +27805,7 @@
 //
 
 #include "secure_apb.h"
+#include "extra_register.h"
 //#include "no_enct.h"
 
 #endif // REGISTER_H

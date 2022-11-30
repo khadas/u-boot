@@ -871,6 +871,10 @@
 //to support TLV which can support to transfer info from BL2 to BL3X
 //#define CONFIG_AML_SUPPORT_TLV
 
+#ifdef CONFIG_AB_UPDATE
+#define CONFIG_AML_SIGNED_UBOOT   1
+#endif
+
 //DDR address to contain info from BL2 to BL3X
 //#define  AML_BL2_TMASTER_DDR_ADDR  (0x3000000)
 #define CONFIG_HIGH_TEMP_COOL  100

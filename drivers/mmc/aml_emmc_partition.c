@@ -108,6 +108,10 @@ struct partitions emmc_partition_table[] = {
 	/* partition size will be override by dts*/
 	PARTITION_ELEMENT(MMC_CACHE_NAME, 0, 0),
 	PARTITION_ELEMENT(MMC_ENV_NAME, MMC_ENV_SIZE, 0),
+#ifdef CONFIG_AB_UPDATE
+	PARTITION_ELEMENT(FIP_A_NAME, FIP_SIZE, 0),
+	PARTITION_ELEMENT(FIP_B_NAME, FIP_SIZE, 0),
+#endif
 };
 
 struct virtual_partition virtual_partition_table[] = {

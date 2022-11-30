@@ -876,6 +876,10 @@
 #endif
 #endif
 
+#ifdef CONFIG_AB_UPDATE
+#define CONFIG_AML_SIGNED_UBOOT   1
+#endif
+
 //to support TLV which can support to transfer info from BL2 to BL3X
 //#define CONFIG_AML_SUPPORT_TLV
 
