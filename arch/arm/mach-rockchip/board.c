@@ -62,6 +62,7 @@ static ulong orig_images_ep;
 
 __weak int rk_board_late_init(void)
 {
+	run_command("gpio clear 138; gpio set 139; gpio clear 140;", 0);
 	return 0;
 }
 
