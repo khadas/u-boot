@@ -21,6 +21,7 @@ obj-y += bootretry.o
 endif
 
 UASAN_SANITIZE_board_f.o := n
+UASAN_SANITIZE_dlmalloc.o := n
 
 # # boards
 obj-y += board_f.o

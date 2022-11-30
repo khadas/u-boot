@@ -18,8 +18,8 @@
 
 #define UASAN_FREE_PAGE			0xFF  /* page was freed */
 #define UASAN_PAGE_REDZONE		0xFE  /* redzone for kmalloc_large allocations */
-#define UASAN_KMALLOC_REDZONE		0xFC  /* redzone inside slub object */
-#define UASAN_KMALLOC_FREE		0xFB  /* object was freed (kmem_cache_free/kfree) */
+#define UASAN_MALLOC_REDZONE		0xFC  /* redzone inside slub object */
+#define UASAN_MALLOC_FREE		0xFB  /* object was freed (kmem_cache_free/kfree) */
 #define UASAN_GLOBAL_REDZONE		0xFA  /* redzone for global variable */
 
 /*
@@ -89,6 +89,8 @@ void uasan_poison_object(unsigned long addr, unsigned long size, unsigned tag);
 
 extern const char __init_array_start[];
 extern const char __init_array_end[];
+void uasan_alloc(void *ptr, unsigned long size);
+void uasan_free(void *ptr, unsigned long size);
 
 #endif
 

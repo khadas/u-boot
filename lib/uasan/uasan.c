@@ -122,7 +122,7 @@ static const char *get_shadow_bug_type(struct uasan_report_info *info)
 		bug_type = "out-of-bounds";
 		break;
 	case UASAN_PAGE_REDZONE:
-	case UASAN_KMALLOC_REDZONE:
+	case UASAN_MALLOC_REDZONE:
 		bug_type = "malloc-out-of-bounds";
 		break;
 	case UASAN_GLOBAL_REDZONE:
@@ -135,7 +135,7 @@ static const char *get_shadow_bug_type(struct uasan_report_info *info)
 		bug_type = "stack-out-of-bounds";
 		break;
 	case UASAN_FREE_PAGE:
-	case UASAN_KMALLOC_FREE:
+	case UASAN_MALLOC_FREE:
 		bug_type = "use-after-free";
 		break;
 	case UASAN_USE_AFTER_SCOPE:
@@ -600,3 +600,43 @@ void __asan_register_globals(struct uasan_global *globals, size_t size)
 
 /* TODO: add malloc / free asan check */
 
+void uasan_alloc(void *ptr, unsigned long size)
+{
+	const void *addr;
+
+	if (!ptr || !size)
+		return;
+
+	/* chunk  head */
+	addr = ptr;
+	uasan_unpoison_shadow(addr, 2 * sizeof(void *));
+
+	/* left redzone */
+	addr += 2 * sizeof(void *);
+	uasan_poison_shadow(addr, UASAN_ALLOCA_REDZONE_SIZE,
+			    UASAN_ALLOCA_LEFT);
+
+	/* object */
+	addr += UASAN_ALLOCA_REDZONE_SIZE;
+	uasan_unpoison_shadow(addr, size);
+
+	/* right redzone */
+	addr += size;
+	addr = (void  *)round_up((unsigned long)addr, UASAN_SHADOW_SCALE_SIZE);
+	uasan_poison_shadow(addr, UASAN_ALLOCA_REDZONE_SIZE,
+			    UASAN_ALLOCA_RIGHT);
+}
+
+void uasan_free(void *ptr, unsigned long size)
+{
+	if (!ptr || !size)
+		return;
+
+	/* chunk header + fp/bk prt */
+	uasan_unpoison_shadow(ptr, 4 * sizeof(void *));
+
+	/* end of this object */
+	uasan_poison_shadow(ptr + 4 * sizeof(void *),
+			    size - 4 * sizeof(void *),
+			    UASAN_MALLOC_FREE);
+}
