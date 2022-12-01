@@ -367,6 +367,16 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 	/* parse edid data */
 	hdmi_edid_parsing(hdev->rawedid, &hdev->RXCap);
 
+	if (!hdr_priority)
+		return;
+	/* if hdr_priority is 2, then mark both dv_info and hdr_info */
+	if (strcmp(hdr_priority, "2") == 0) {
+		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
+		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
+		memset(&hdev->RXCap.hdr10plus_info, 0, sizeof(struct hdr10_plus_info));
+		pr_info("hdr_priority: %s and clear dv/hdr_info\n", hdr_priority);
+		return;
+	}
 	/* if hdr_priority is 1, then mark dv_info */
 	if (hdr_priority && (strcmp(hdr_priority, "1") == 0)) {
 		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
