@@ -29,7 +29,6 @@
 #define AML_VDD_CPUA_INIT_VOLTAGE		999		// VCCK A power up voltage
 #define AML_VDD_CPUB_INIT_VOLTAGE		999		// VCCK B power up voltage
 #define AML_VDDGPU_INIT_VOLTAGE			840		// VDDGPU power up voltage
-#define AML_VDDNPU_INIT_VOLTAGE			840		// VDDNPU power up voltage
 
 /* SMP Definitinos */
 #define CPU_RELEASE_ADDR		secondary_boot_func

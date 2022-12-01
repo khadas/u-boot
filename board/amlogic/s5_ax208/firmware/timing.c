@@ -3341,7 +3341,6 @@ __attribute__ ((section(".clk_param"))) = {
 #define VCCK_A_VAL                              AML_VDD_CPUA_INIT_VOLTAGE
 #define VCCK_B_VAL                              AML_VDD_CPUB_INIT_VOLTAGE
 #define VDD_GPU_VAL                             AML_VDDGPU_INIT_VOLTAGE
-#define VDD_NPU_VAL                             AML_VDDNPU_INIT_VOLTAGE
 
 /* VDDEE_VAL_REG ax208 board by  mesured  value */
 #if   (VDDEE_VAL == 680)
@@ -3579,49 +3578,6 @@ __attribute__ ((section(".clk_param"))) = {
 #error "VDD_GPU val out of range\n"
 #endif
 
-/* VDD_NPU PWM table */
-#if   (VDD_NPU_VAL == 720)
-#define VDD_NPU_VAL_REG 0x120000
-#elif (VDD_NPU_VAL == 730)
-#define VDD_NPU_VAL_REG 0x110001
-#elif (VDD_NPU_VAL == 740)
-#define VDD_NPU_VAL_REG 0x100002
-#elif (VDD_NPU_VAL == 750)
-#define VDD_NPU_VAL_REG 0xf0003
-#elif (VDD_NPU_VAL == 760)
-#define VDD_NPU_VAL_REG 0xe0004
-#elif (VDD_NPU_VAL == 770)
-#define VDD_NPU_VAL_REG 0xd0005
-#elif (VDD_NPU_VAL == 780)
-#define VDD_NPU_VAL_REG 0xc0006
-#elif (VDD_NPU_VAL == 790)
-#define VDD_NPU_VAL_REG 0xb0007
-#elif (VDD_NPU_VAL == 800)
-#define VDD_NPU_VAL_REG 0xa0008
-#elif (VDD_NPU_VAL == 810)
-#define VDD_NPU_VAL_REG 0x90009
-#elif (VDD_NPU_VAL == 820)
-#define VDD_NPU_VAL_REG 0x8000a
-#elif (VDD_NPU_VAL == 830)
-#define VDD_NPU_VAL_REG 0x7000b
-#elif (VDD_NPU_VAL == 840)
-#define VDD_NPU_VAL_REG 0x6000c
-#elif (VDD_NPU_VAL == 850)
-#define VDD_NPU_VAL_REG 0x5000d
-#elif (VDD_NPU_VAL == 860)
-#define VDD_NPU_VAL_REG 0x4000e
-#elif (VDD_NPU_VAL == 870)
-#define VDD_NPU_VAL_REG 0x3000f
-#elif (VDD_NPU_VAL == 880)
-#define VDD_NPU_VAL_REG 0x20010
-#elif (VDD_NPU_VAL == 890)
-#define VDD_NPU_VAL_REG 0x10011
-#elif (VDD_NPU_VAL == 900)
-#define VDD_NPU_VAL_REG 0x12
-#else
-#error "VDD_NPU val out of range\n"
-#endif
-
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
@@ -3642,7 +3598,6 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PWMAB_PWM_A,		   VCCK_B_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_A,		   VDD_GPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_B,		   VCCK_A_VAL_REG,  0xffffffff, 0, 0, 0 },
-	{ PWMEF_PWM_A,		   VDD_NPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMAB_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
 				(0x3 << 0) | (0x1 << 15) | (0x1 << 23), 0, 0, 0 },
 	{ PWMCD_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
