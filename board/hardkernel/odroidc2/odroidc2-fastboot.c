@@ -122,8 +122,8 @@ lbaint_t board_dos_partition_next(int *part, u8 *type)
 }
 
 /*
- * Return the partition name of given partiton number. Since DOS partition
- * does not support name on its parition table, the partition names are
+ * Return the partition name of given partition number. Since DOS partition
+ * does not support name on its partition table, the partition names are
  * predefined upon each partition number.
  */
 char *board_dos_partition_name(int part, char* name)
