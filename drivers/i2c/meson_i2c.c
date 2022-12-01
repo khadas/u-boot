@@ -230,7 +230,7 @@ static int meson_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 /*
  * Count = clk/freq  = H + L
  * Duty  = H/(H + L) = 1/2	-- duty 50%
- * 1. register desription
+ * 1. register description
  * in I2C_CONTROL_REG , n = [28:29][21:12], control the high level time
  *			n consists of 12bit, [21:12] is the low 10bit,
  *			[28:29] is the bit 11 and 12.
