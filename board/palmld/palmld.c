@@ -28,7 +28,7 @@ int board_init(void)
 	/* arch number of PalmLD */
 	gd->bd->bi_arch_number = MACH_TYPE_PALMLD;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
 
 	/* Set PWM for LCD */

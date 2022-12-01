@@ -499,7 +499,7 @@ void aocec_wr_reg(unsigned long addr, unsigned long data);
 /* [  2] gcp_auto: insert on Vsync */
 /* [  1] audi_auto: insert on Vsync */
 /* [  0] acr_auto: insert on CTS update. Assert this bit later to avoid
- * inital packets with false CTS value
+ * initial packets with false CTS value
  */
 #define HDMITX_DWC_FC_DATAUTO3                  (DWC_OFFSET_MASK + 0x10B7)
 #define HDMITX_DWC_FC_RDRB0                     (DWC_OFFSET_MASK + 0x10B8)

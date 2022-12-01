@@ -87,7 +87,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	mtspr( SPRN_TSR, 0x08000000 );	/* clear DEC status */
 	val = gd->bd->bi_intfreq/1000;	/* 1 msec */
 	mtspr( SPRN_DECAR, val );		/* Set auto-reload value */
-	mtspr( SPRN_DEC, val );		/* Set inital val */
+	mtspr( SPRN_DEC, val );		/* Set initial val */
 #else
 	set_pit(gd->bd->bi_intfreq / 1000);
 #endif

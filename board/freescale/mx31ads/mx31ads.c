@@ -91,7 +91,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = 0x80000100;	/* adress of boot parameters */
+	gd->bd->bi_boot_params = 0x80000100;	/* address of boot parameters */
 
 	return 0;
 }

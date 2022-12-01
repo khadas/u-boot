@@ -132,11 +132,11 @@ ulong flash_get_size (ulong baseaddr, flash_info_t * info)
 	}
 
 	if ((long)flashtest == AMD_ID_LV640U) {
-		/* set up sector start adress table (uniform sector type) */
+		/* set up sector start address table (uniform sector type) */
 		for (i = 0; i < info->sector_count; i++)
 			info->start[i] = baseaddr + (i * 0x00040000);
 	} else if (info->flash_id & FLASH_BTYPE) {
-		/* set up sector start adress table (bottom sector type) */
+		/* set up sector start address table (bottom sector type) */
 		info->start[0] = baseaddr + 0x00000000;
 		info->start[1] = baseaddr + 0x00010000;
 		info->start[2] = baseaddr + 0x00018000;
@@ -145,7 +145,7 @@ ulong flash_get_size (ulong baseaddr, flash_info_t * info)
 			info->start[i] = baseaddr + (i * 0x00040000) - 0x000C0000;
 		}
 	} else {
-		/* set up sector start adress table (top sector type) */
+		/* set up sector start address table (top sector type) */
 		i = info->sector_count - 1;
 		info->start[i--] = baseaddr + info->size - 0x00010000;
 		info->start[i--] = baseaddr + info->size - 0x00018000;

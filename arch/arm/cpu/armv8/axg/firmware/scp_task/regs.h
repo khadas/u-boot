@@ -15712,7 +15712,7 @@
 //Bit 14:12, reg_mcdi_lmvvalidmode                        valid mode for lmv calc., 100b: use char det, 010b: use flt, 001b: use hori flg
 //Bit 11:10, reg_mcdi_lmvgainmvmode                       four modes of mv selection for lmv weight calculation, default = 1
 //                                                        0: cur(x-3), lst(x-1,x,x+1); 1: cur(x-4,x-3), lst(x,x+1); 2: cur(x-5,x-4,x-3), lst(x-1,x,x+1,x+2,x+3); 3: cur(x-6,x-5,x-4,x-3), lst(x-1,x,x+1,x+2);
-//Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: intial value = 0; 1: inital = 32 (invalid), default = 0
+//Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: initial value = 0; 1: initial = 32 (invalid), default = 0
 //Bit  8,    reserved
 //Bit  7: 4, reg_mcdi_lmvrt0                              ratio of max mv, default = 5
 //Bit  3: 0, reg_mcdi_lmvrt1                              ratio of second max mv, default = 5

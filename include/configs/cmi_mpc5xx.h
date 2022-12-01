@@ -106,15 +106,15 @@
 /*
  * Internal Memory Mapped (This is not the IMMR content)
  */
-#define CONFIG_SYS_IMMR		0x01000000		/* Physical start adress of internal memory map */
+#define CONFIG_SYS_IMMR		0x01000000		/* Physical start address of internal memory map */
 
 /*
  * Definitions for initial stack pointer and data area
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_IMMR + 0x003f9800)	/* Physical start adress of internal MPC555 writable RAM */
-#define	CONFIG_SYS_INIT_RAM_SIZE	(CONFIG_SYS_IMMR + 0x003fffff)	/* Physical end adress of internal MPC555 used RAM area	*/
+#define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_IMMR + 0x003f9800)	/* Physical start address of internal MPC555 writable RAM */
+#define	CONFIG_SYS_INIT_RAM_SIZE	(CONFIG_SYS_IMMR + 0x003fffff)	/* Physical end address of internal MPC555 used RAM area	*/
 #define CONFIG_SYS_GBL_DATA_OFFSET	((CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_INIT_RAM_ADDR) - GENERATED_GBL_DATA_SIZE) /* Offset from the beginning of ram */
-#define	CONFIG_SYS_INIT_SP_ADDR	0x013fa000		/* Physical start adress of inital stack */
+#define	CONFIG_SYS_INIT_SP_ADDR	0x013fa000		/* Physical start address of initial stack */
 
 /*
  * Start addresses for the final memory configuration
@@ -127,8 +127,8 @@
 
 #define CONFIG_SYS_RESET_ADRESS	0x01000000	/* Adress which causes reset */
 #define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE	/* CONFIG_SYS_TEXT_BASE is defined in the board config.mk file.	*/
-						/* This adress is given to the linker with -Ttext to	*/
-						/* locate the text section at this adress.		*/
+						/* This address is given to the linker with -Ttext to	*/
+						/* locate the text section at this address.		*/
 #define	CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor				*/
 #define	CONFIG_SYS_MALLOC_LEN		(64 << 10)	/* Reserve 128 kB for malloc()				*/
 
@@ -155,7 +155,7 @@
 #define	CONFIG_ENV_IS_IN_FLASH	1
 
 #ifdef	CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_OFFSET		0x00020000	/* Environment starts at this adress	*/
+#define CONFIG_ENV_OFFSET		0x00020000	/* Environment starts at this address	*/
 #define	CONFIG_ENV_SIZE		0x00010000	/* Set whole sector as env		*/
 #define	CONFIG_SYS_USE_PPCENV				/* Environment embedded in sect .ppcenv */
 #endif

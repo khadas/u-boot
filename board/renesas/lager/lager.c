@@ -75,7 +75,7 @@ int board_early_init_f(void)
 DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */

@@ -192,7 +192,7 @@
 #endif
 
 /*
- * Our platforms make use of SPL to initalize the hardware (primarily
+ * Our platforms make use of SPL to initialize the hardware (primarily
  * memory) enough for full U-Boot to be loaded.  We also support Falcon
  * Mode so that the Linux kernel can be booted directly from SPL
  * instead, if desired.  We make use of the general SPL framework found
@@ -207,7 +207,7 @@
 /*
  * Place the image at the start of the ROM defined image space (per
  * CONFIG_SPL_TEXT_BASE and we limit our size to the ROM-defined
- * downloaded image area.  We initalize DRAM as soon as we can so that
+ * downloaded image area.  We initialize DRAM as soon as we can so that
  * we can place stack, malloc and BSS there.  We load U-Boot itself into
  * memory at 0x80800000 for legacy reasons (to not conflict with older
  * SPLs).  We have our BSS be placed 2MiB after this, to allow for the

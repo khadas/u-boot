@@ -131,7 +131,7 @@ int board_init(void)
 {
 	/* arch number of AT91SAM9M10G45EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_PM9G45;
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #ifdef CONFIG_CMD_NAND

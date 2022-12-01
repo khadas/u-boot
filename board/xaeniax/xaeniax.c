@@ -31,7 +31,7 @@ int board_init (void)
 	/* arch number of xaeniax */
 	gd->bd->bi_arch_number = 585;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
 
 	return 0;

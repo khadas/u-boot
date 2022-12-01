@@ -139,7 +139,7 @@ int board_init(void)
 
 	/* board id for linux */
 	gd->bd->bi_arch_number = MACH_TYPE_QONG;
-	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
+	gd->bd->bi_boot_params = (0x80000100);	/* address of boot parameters */
 
 	qong_fpga_init();
 

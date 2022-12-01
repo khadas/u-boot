@@ -106,7 +106,7 @@ unsigned long flash_init (void)
 }
 
 /*
- * Compute start adress of each sector (block)
+ * Compute start address of each sector (block)
  */
 
 static void flash_get_offsets (ulong base, flash_info_t *info)

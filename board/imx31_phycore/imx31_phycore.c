@@ -27,7 +27,7 @@ int board_init(void)
 {
 
 	gd->bd->bi_arch_number = MACH_TYPE_PCM037;	/* board id for linux */
-	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
+	gd->bd->bi_boot_params = (0x80000100);	/* address of boot parameters */
 
 	return 0;
 }

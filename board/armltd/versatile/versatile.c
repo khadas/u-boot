@@ -58,7 +58,7 @@ int board_init (void)
 	gd->bd->bi_arch_number = MACH_TYPE_VERSATILE_PB;
 #endif
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
 	gd->flags = 0;

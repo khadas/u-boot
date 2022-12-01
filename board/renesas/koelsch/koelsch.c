@@ -67,7 +67,7 @@ int board_early_init_f(void)
 #define PUPR5_ETH_MAGIC	(1 << 27)
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */

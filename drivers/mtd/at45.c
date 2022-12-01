@@ -412,7 +412,7 @@ AT91S_DataFlashStatus AT91F_PartialPageWrite(AT91PS_DataFlash pDataFlash,
 /* Function Name       : AT91F_DataFlashWrite				     */
 /* Object              :						     */
 /* Input Parameters    : <*src> = Source buffer				     */
-/*                     : <dest> = dataflash adress			     */
+/*                     : <dest> = dataflash address			     */
 /*                     : <size> = data buffer size			     */
 /*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_DataFlashWrite(AT91PS_DataFlash pDataFlash,

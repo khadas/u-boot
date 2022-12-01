@@ -40,7 +40,7 @@ Memory Map after relocation:
     0x000F 9FFF
 	  :
 	  :
-    0x0100 0000		CONFIG_SYS_IMMR (Internal memory map base adress)
+    0x0100 0000		CONFIG_SYS_IMMR (Internal memory map base address)
 	  :
     0x0130 7FFF
 	  :

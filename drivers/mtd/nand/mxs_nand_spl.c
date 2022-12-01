@@ -141,7 +141,7 @@ static int is_badblock(struct mtd_info *mtd, loff_t offs, int allowbbt)
 /* setup mtd and nand structs and init mxs_nand driver */
 static int mxs_nand_init(void)
 {
-	/* return if already initalized */
+	/* return if already initialized */
 	if (nand_chip.numchips)
 		return 0;
 

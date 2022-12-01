@@ -220,7 +220,7 @@ static int simg2img_fill_chunk_write(const char* partName, int fillLen, const un
             default: FBS_EXIT(_ACK, "unsupported boot dev %d\n", store_get_type());
         }
     } else {/* always need fill when flash NOT erased */}
-   //for, emmc, if fillVal is 0, then needFill = false if "disk_inital > 0"
+   //for, emmc, if fillVal is 0, then needFill = false if "disk_initial > 0"
     if (!needFill) return 0;
 
     int LeftDataLen = fillLen;

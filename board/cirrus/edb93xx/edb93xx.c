@@ -89,7 +89,7 @@ int board_init(void)
 	/* Machine number, as defined in linux/arch/arm/tools/mach-types */
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 
 	/* We have a console */

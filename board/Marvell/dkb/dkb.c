@@ -54,7 +54,7 @@ int board_init(void)
 {
 	/* arch number of Board */
 	gd->bd->bi_arch_number = MACH_TYPE_TTC_DKB;
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = panth_sdram_base(0) + 0x100;
 	return 0;
 }

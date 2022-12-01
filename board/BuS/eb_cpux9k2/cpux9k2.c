@@ -48,7 +48,7 @@ int board_init(void)
 	writel(ATMEL_PMX_AA_TXD2, &pio->pioa.oer);
 
 	gd->bd->bi_arch_number = MACH_TYPE_EB_CPUX9K2;
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_STATUS_LED

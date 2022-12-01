@@ -34,9 +34,9 @@ DECLARE_GLOBAL_DATA_PTR;
  * ... |<------------------- pram ------------------->|
  * ... ------------------------------------------------
  * @END_OF_RAM: denotes the RAM size
- * @pnvramaddr: Startadress of pseudo non volatile RAM in hex
+ * @pnvramaddr: Startaddress of pseudo non volatile RAM in hex
  * @pram      : preserved ram size in k
- * @varaddr   : startadress for /var mounted into RAM
+ * @varaddr   : startaddress for /var mounted into RAM
  */
 int set_km_env(void)
 {

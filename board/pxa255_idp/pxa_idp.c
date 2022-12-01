@@ -36,7 +36,7 @@ int board_init (void)
 	/* arch number of Lubbock-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_PXA_IDP;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
 
 	/* turn on serial ports */

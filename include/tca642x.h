@@ -64,6 +64,6 @@ int tca642x_set_pol(uchar chip, uint8_t gpio_bank,
 int tca642x_set_dir(uchar chip, uint8_t gpio_bank,
 			uint8_t reg_bit, uint8_t data);
 int tca642x_get_val(uchar chip, uint8_t gpio_bank);
-int tca642x_set_inital_state(uchar chip, struct tca642x_bank_info init_data[]);
+int tca642x_set_initial_state(uchar chip, struct tca642x_bank_info init_data[]);
 
 #endif /* __TCA642X_H_ */

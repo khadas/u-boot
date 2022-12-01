@@ -67,8 +67,8 @@
 #define SIUMCR_DLK	0x00010000	/* Debug Register Lock			*/
 #define SIUMCR_SC00	0x00000000	/* Multi Chip 32 bit			*/
 #define SIUMCR_SC01	0x00004000	/* Muilt Chip 16 bit			*/
-#define SIUMCR_SC10	0x00004000	/* Single adress show			*/
-#define SIUMCR_SC11	0x00006000	/* Single adress			*/
+#define SIUMCR_SC10	0x00004000	/* Single address show			*/
+#define SIUMCR_SC11	0x00006000	/* Single address			*/
 #define SIUMCR_RCTX	0x00001000	/* Data Parity pins Config.		*/
 #define SIUMCR_MLRC00	0x00000000	/* Multi Level Reserva. Ctrl		*/
 #define SIUMCR_MLRC01	0x00000400	/* - " -				*/

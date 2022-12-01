@@ -77,7 +77,7 @@ int board_init(void)
 
 	/* arch number of Board */
 	gd->bd->bi_arch_number = MACH_TYPE_SHEEVAD;
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = armd1_sdram_base(0) + 0x100;
 	/* Assert PHY_RST# */
 	gpio_direction_output(CONFIG_SYS_GPIO_PHY_RST, GPIO_LOW);

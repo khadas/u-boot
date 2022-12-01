@@ -67,7 +67,7 @@ static void tny_a9260_nand_hw_init(void)
 
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	at91_seriald_hw_init();

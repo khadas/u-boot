@@ -37,7 +37,7 @@ int board_init (void)
 	/* arch number of Z2 */
 	gd->bd->bi_arch_number = MACH_TYPE_ZIPIT2;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
 
 	/* Enable LCD */

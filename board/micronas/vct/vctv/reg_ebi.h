@@ -11,7 +11,7 @@
 
 #define EBI_BASE			0x00014000
 
-/*  Relative offsets of the register adresses */
+/*  Relative offsets of the register addresses */
 
 #define EBI_CPU_IO_ACCS_OFFS		0x00000000
 #define EBI_CPU_IO_ACCS(base)		((base) + EBI_CPU_IO_ACCS_OFFS)

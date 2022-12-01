@@ -15,7 +15,7 @@ The file has the following structure:
   have two columns in the file:
     reg  : contains the register address
     value: contains a 8 bit register value
-  This 2 columns are seperated through space or tab.
+  This 2 columns are separated through space or tab.
 
 example (minimal configuration on the enbw_cmc board):
 

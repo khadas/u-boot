@@ -33,7 +33,7 @@ int board_init(void)
 
 	/* arch number of AT91RM9200EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91RM9200EK;
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;

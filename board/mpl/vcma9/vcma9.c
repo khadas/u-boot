@@ -56,7 +56,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0x30000100;
 
 	icache_enable();

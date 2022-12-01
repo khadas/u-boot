@@ -16,7 +16,7 @@
 
 #define FWSRAM_BASE			0x00030000
 
-/*  Relative offsets of the register adresses */
+/*  Relative offsets of the register addresses */
 
 #define FWSRAM_SR_ADDR_OFFSET_OFFS	0x00002000
 #define FWSRAM_SR_ADDR_OFFSET(base)	((base) + FWSRAM_SR_ADDR_OFFSET_OFFS)

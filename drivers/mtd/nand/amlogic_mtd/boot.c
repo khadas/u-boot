@@ -33,7 +33,7 @@ int get_boot_num(struct mtd_info *mtd, size_t rwsize)
 	size_t block_len, block_off;
 	loff_t block_start;
 	loff_t offset = 0;
-	int ret = 1; /*inital for only one copy*/
+	int ret = 1; /*initial for only one copy*/
 
 	if (!rwsize) { /*not need to policy call, only one */
 		ret = 1;

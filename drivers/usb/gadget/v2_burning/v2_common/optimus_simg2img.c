@@ -228,8 +228,8 @@ int optimus_simg_to_media(char* simgPktHead, const u32 pktLen, u32* unParsedData
                                     _NeedFillAsNotErasedYet = 1;
                                     break;
                     }
-                    //for, emmc, if fillVal is 0, then _NeedFillAsNotErasedYet = false if "disk_inital > 0"
-                    if (!_NeedFillAsNotErasedYet)_NeedFillAsNotErasedYet = (is_optimus_storage_inited()>>16) == 0;// == 0 means 'disk_inital 0'
+                    //for, emmc, if fillVal is 0, then _NeedFillAsNotErasedYet = false if "disk_initial > 0"
+                    if (!_NeedFillAsNotErasedYet)_NeedFillAsNotErasedYet = (is_optimus_storage_inited()>>16) == 0;// == 0 means 'disk_initial 0'
 
                     if (_NeedFillAsNotErasedYet)
                     {

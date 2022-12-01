@@ -27,7 +27,7 @@
 #if defined(CONFIG_SPI)
 
 /* Warning:
- * You cannot enable DEBUG for early system initalization, i. e. when
+ * You cannot enable DEBUG for early system initialization, i. e. when
  * this driver is used to read environment parameters like "baudrate"
  * from EEPROM which are used to initialize the serial port which is
  * needed to print the debug messages...

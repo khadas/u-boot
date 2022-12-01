@@ -209,7 +209,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_CMD_NAND

@@ -415,7 +415,7 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	 *  FDE = Full Duplex Enable
 	 *  LPB = Loopback Enable (Needed when FDE is set)
 	 *  BRO = Reject broadcast packets
-	 *  PROMISCOUS = Catch all packets regardless of dest. MAC adress
+	 *  PROMISCOUS = Catch all packets regardless of dest. MAC address
 	 */
 	immr->im_cpm.cp_scc[SCC_ENET].scc_psmr = SCC_PSMR_ENCRC |
 		SCC_PSMR_NIB22 |

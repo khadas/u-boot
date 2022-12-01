@@ -6,7 +6,7 @@
 
 #define DCGU_BASE		0x00084000
 
-/* Relative offsets of the register adresses */
+/* Relative offsets of the register addresses */
 
 #define DCGU_CLK_EN1_OFFS	0x00000010
 #define DCGU_CLK_EN1(base)	((base) + DCGU_CLK_EN1_OFFS)

@@ -613,7 +613,7 @@ void fsl_serdes_init(void)
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
 	/*
-	 * The work-aroud for erratum SERDES-A001 is needed only if bank two
+	 * The work-around for erratum SERDES-A001 is needed only if bank two
 	 * is disabled and bank three is enabled.  The converse is also true,
 	 * but SERDES8 ensures that bank 3 is always enabled if bank 2 is
 	 * enabled, so there's no point in complicating the code to handle

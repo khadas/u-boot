@@ -385,7 +385,7 @@ static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 {
 	int status;
 
-	/* begin i2c write to send the eeprom adress bytes then data bytes */
+	/* begin i2c write to send the eeprom address bytes then data bytes */
 	status = i2c_begin(MVTWSI_STATUS_START, (chip << 1));
 	/* send addr bytes */
 	while ((status == 0) && alen--)

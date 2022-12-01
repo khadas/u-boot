@@ -91,7 +91,7 @@ int board_init(void)
 	 */
 	gd->bd->bi_arch_number = MACH_TYPE_GURUPLUG;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;

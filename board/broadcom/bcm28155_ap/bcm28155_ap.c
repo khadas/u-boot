@@ -27,7 +27,7 @@ int board_init(void)
 {
 	printf("Relocation Offset is: %08lx\n", gd->reloc_off);
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	clk_init();

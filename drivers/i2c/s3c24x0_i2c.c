@@ -667,7 +667,7 @@ static int hsi2c_read(struct exynos5_hsi2c *i2c,
 	}
 
 	if (alen) {
-		/* Internal register adress needs to be written first. */
+		/* Internal register address needs to be written first. */
 		rv = hsi2c_write(i2c, chip, addr, alen, NULL, 0, false);
 		if (rv != I2C_OK)
 			return rv;

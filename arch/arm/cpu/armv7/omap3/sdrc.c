@@ -96,7 +96,7 @@ u32 get_sdr_cs_offset(u32 cs)
 
 /*
  * write_sdrc_timings -
- *  - Takes CS and associated timings and initalize SDRAM
+ *  - Takes CS and associated timings and initialize SDRAM
  *  - Test CS to make sure it's OK for use
  */
 static void write_sdrc_timings(u32 cs, struct sdrc_actim *sdrc_actim_base,

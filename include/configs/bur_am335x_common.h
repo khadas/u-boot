@@ -156,7 +156,7 @@
 #define CONFIG_CMD_SOURCE
 
 /*
- * Our platforms make use of SPL to initalize the hardware (primarily
+ * Our platforms make use of SPL to initialize the hardware (primarily
  * memory) enough for full U-Boot to be loaded.  We also support Falcon
  * Mode so that the Linux kernel can be booted directly from SPL
  * instead, if desired.  We make use of the general SPL framework found

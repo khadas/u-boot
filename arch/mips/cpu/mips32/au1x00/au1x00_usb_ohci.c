@@ -1445,7 +1445,7 @@ static void hc_release_ohci (ohci_t *ohci)
 #define read_c0_prid()		__read_32bit_c0_register($15, 0)
 
 /*
- * low level initalisation routine, called from usb.c
+ * low level initialisation routine, called from usb.c
  */
 static char ohci_inited = 0;
 

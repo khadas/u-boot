@@ -123,7 +123,7 @@ static int bcm5482_config(struct phy_device *phydev)
 	/* Initial config/enable of secondary SerDes interface */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_SHD,
 			MIIM_BCM54XX_SHD_WR_ENCODE(0x14, 0xf));
-	/* Write intial value to secondary SerDes Contol */
+	/* Write initial value to secondary SerDes Contol */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL,
 			MIIM_BCM54XX_EXP_SEL_SSD | 0);
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA,

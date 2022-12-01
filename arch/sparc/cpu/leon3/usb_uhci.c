@@ -10,7 +10,7 @@
  *               from usb-ohci.c by Adam Richter, adam@yggdrasil.com).
  * (C) 2000      David Brownell, david-b@pacbell.net (usb-ohci.c)
  *
- * HW-initalization based on material of
+ * HW-initialization based on material of
  *
  * (C) Copyright 1999 Linus Torvalds
  * (C) Copyright 1999 Johannes Erdfelt

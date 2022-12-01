@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 AT91S_DATAFLASH_INFO dataflash_info[CONFIG_SYS_MAX_DATAFLASH_BANKS];
 
 struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS] = {
-	{CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
+	{CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical address, CS */
 };
 
 /*define the area offsets*/
@@ -112,7 +112,7 @@ static void usb_a9263_macb_hw_init(void)
 
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_CMD_NAND

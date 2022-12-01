@@ -139,9 +139,9 @@ int tca642x_get_val(uchar chip, uint8_t gpio_bank)
 }
 
 /*
- * Set the inital register states for the tca642x gpio expander
+ * Set the initial register states for the tca642x gpio expander
  */
-int tca642x_set_inital_state(uchar chip, struct tca642x_bank_info init_data[])
+int tca642x_set_initial_state(uchar chip, struct tca642x_bank_info init_data[])
 {
 	int i, ret;
 	uint8_t config_reg;

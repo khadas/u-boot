@@ -10,7 +10,7 @@
 /* Instances */
 #define GPIO_INSTANCES		2
 
-/*  Relative offsets of the register adresses */
+/*  Relative offsets of the register addresses */
 #define GPIO_SWPORTA_DR_OFFS	0x00000000
 #define GPIO_SWPORTA_DR(base)	((base) + GPIO_SWPORTA_DR_OFFS)
 #define GPIO_SWPORTA_DDR_OFFS	0x00000004

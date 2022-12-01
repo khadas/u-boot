@@ -28,4 +28,4 @@ nand read 0x82000000 0x280000 0x400000 	/* Read kernel image from NAND*/
 tftpboot 0x80000100 devkit8000.dtb /* Read fdt */
 spl export fdt 0x82000000 - 0x80000100	/* export FDT */
 nand erase 0x680000 0x20000		/* erase - one page */
-nand write <adress shown by spl export> 0x680000 0x20000
+nand write <address shown by spl export> 0x680000 0x20000

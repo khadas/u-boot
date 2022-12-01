@@ -157,7 +157,7 @@ int board_init(void)
 	writel((1 << ATMEL_ID_PIOA) | (1 << ATMEL_ID_PIOB) |
 		(1 << ATMEL_ID_PIOC),
 		&pmc->pcer);
-	/* Set adress of boot parameters. */
+	/* Set address of boot parameters. */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 	/* Initialize UARTs and power management. */
 	at91_seriald_hw_init();

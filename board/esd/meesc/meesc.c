@@ -249,7 +249,7 @@ int board_init(void)
 	/* initialize ET1100 Controller */
 	meesc_ethercat_hw_init();
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_CMD_NAND

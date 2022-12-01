@@ -69,7 +69,7 @@ int board_init (void)
 	/* arch number of CM41xx */
 	gd->bd->bi_arch_number = 672;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
 	/* power down all but port 0 on the switch */

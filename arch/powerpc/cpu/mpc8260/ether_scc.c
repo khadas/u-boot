@@ -309,7 +309,7 @@ static int sec_init(struct eth_device *dev, bd_t *bis)
      *	NIB = Begin searching for SFD 22 bits after RENA
      *	FDE = Full Duplex Enable
      *	BRO = Reject broadcast packets
-     *	PROMISCOUS = Catch all packets regardless of dest. MAC adress
+     *	PROMISCOUS = Catch all packets regardless of dest. MAC address
      */
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_psmr   =	SCC_PSMR_ENCRC	|
 							SCC_PSMR_NIB22	|

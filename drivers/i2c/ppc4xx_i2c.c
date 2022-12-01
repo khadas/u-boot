@@ -222,7 +222,7 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 
 	/* need to wait 4 OPB clocks? code below should take that long */
 
-	/* 7-bit adressing */
+	/* 7-bit addressing */
 	out_8(&i2c->hmadr, 0);
 	out_8(&i2c->lmadr, chip);
 
@@ -235,7 +235,7 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 
 		/*
 		 * Control register =
-		 * Normal transfer, 7-bits adressing, Transfer up to
+		 * Normal transfer, 7-bits addressing, Transfer up to
 		 * bc bytes, Normal start, Transfer is a sequence of transfers
 		 */
 		creg |= IIC_CNTL_PT;

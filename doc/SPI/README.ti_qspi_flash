@@ -43,5 +43,5 @@ drivers/qspi/ti_qspi.c
 
 Testing
 -------
-A seperated file named README.dra_qspi_test has been created which gives all the
+A separated file named README.dra_qspi_test has been created which gives all the
 details about the commands required to test qspi at u-boot level.

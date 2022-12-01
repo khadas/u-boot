@@ -216,7 +216,7 @@ int board_init(void)
 	writel(pin, &pio->piod.owdr);
 
 	gd->bd->bi_arch_number = MACH_TYPE_VL_MA2SC;
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	writel(CONFIG_SYS_SMC0_MODE0_VAL, &smc->cs[0].setup);

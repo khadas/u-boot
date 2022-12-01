@@ -37,7 +37,7 @@ static int display_banner(void)
  * mess of board dependend #ifdef'ed code we now make the whole
  * initialization sequence configurable to the user.
  *
- * The requirements for any new initalization function is simple: it
+ * The requirements for any new initialization function is simple: it
  * receives a pointer to the "global data" structure as it's only
  * argument, and returns an integer return code, where 0 means
  * "continue" and != 0 means "fatal error, hang the system".

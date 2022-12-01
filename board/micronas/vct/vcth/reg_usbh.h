@@ -6,7 +6,7 @@
 
 #define USBH_BASE		0x00080000
 
-/* Relative offsets of the register adresses */
+/* Relative offsets of the register addresses */
 
 #define USBH_CAPLENGTH_OFFS	0x00000100
 #define USBH_CAPLENGTH(base)	((base) + USBH_CAPLENGTH_OFFS)

@@ -1744,7 +1744,7 @@ static void hc_release_ohci(ohci_t *ohci)
 /*-------------------------------------------------------------------------*/
 
 /*
- * low level initalisation routine, called from usb.c
+ * low level initialisation routine, called from usb.c
  */
 static char ohci_inited = 0;
 

@@ -431,7 +431,7 @@ static int configure_aif_clock(struct wm8994_priv *wm8994, int aif)
 	int offset;
 	int ret;
 
-	/* AIF(1/0) register adress offset calculated */
+	/* AIF(1/0) register address offset calculated */
 	if (aif-1)
 		offset = 4;
 	else

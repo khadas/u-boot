@@ -32,7 +32,7 @@ int board_init(void)
 	/* Arch number of vpac270 */
 	gd->bd->bi_arch_number = MACH_TYPE_VPAC270;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0xa0000100;
 
 	return 0;

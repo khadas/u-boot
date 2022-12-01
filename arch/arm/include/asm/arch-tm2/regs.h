@@ -4809,13 +4809,13 @@
 //
 #define   HEVC_PARSER_MANUAL_CMD                   (0x312b)
 #define P_HEVC_PARSER_MANUAL_CMD                   (volatile unsigned int *)((0x312b  << 2) + 0xff620000)
-// bit [9:0] - Read adress :
+// bit [9:0] - Read address :
 //          address 0-255 stream_fifo (128x64)
 //          address 256-319 context_mem (256x7)
 //          address 320-448 parser_cmd_mem (256x16)
 #define   HEVC_PARSER_MEM_RD_ADDR                  (0x312c)
 #define P_HEVC_PARSER_MEM_RD_ADDR                  (volatile unsigned int *)((0x312c  << 2) + 0xff620000)
-// bit [9:0] - Write adress :
+// bit [9:0] - Write address :
 //          address 0-255 stream_fifo (128x64)
 //          address 256-319 context_mem (256x7)
 //          address 512-640 parser_cmd_mem (256x16)
@@ -27525,7 +27525,7 @@
 //Bit 14:12, reg_mcdi_lmvvalidmode                        valid mode for lmv calc., 100b: use char det, 010b: use flt, 001b: use hori flg
 //Bit 11:10, reg_mcdi_lmvgainmvmode                       four modes of mv selection for lmv weight calculation, default = 1
 //                                                        0: cur(x-3), lst(x-1,x,x+1); 1: cur(x-4,x-3), lst(x,x+1); 2: cur(x-5,x-4,x-3), lst(x-1,x,x+1,x+2,x+3); 3: cur(x-6,x-5,x-4,x-3), lst(x-1,x,x+1,x+2);
-//Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: intial value = 0; 1: inital = 32 (invalid), default = 0
+//Bit  9,    reg_mcdi_lmvinitmode                         initial lmvs at first row of input field, 0: initial value = 0; 1: initial = 32 (invalid), default = 0
 //Bit  8,    reserved
 //Bit  7: 4, reg_mcdi_lmvrt0                              ratio of max mv, default = 5
 //Bit  3: 0, reg_mcdi_lmvrt1                              ratio of second max mv, default = 5

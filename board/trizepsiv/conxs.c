@@ -98,7 +98,7 @@ int board_init (void)
 	/* arch number of ConXS Board */
 	gd->bd->bi_arch_number = 776;
 
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = 0xa000003c;
 
 	return 0;
