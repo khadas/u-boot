@@ -3645,7 +3645,7 @@ int do_emmc_key_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret = 0;
 	void *addr = NULL;
 	u64 size;
-	uint32_t actual_lenth = 0;
+	uint32_t actual_length = 0;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -3654,7 +3654,7 @@ int do_emmc_key_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	size = simple_strtoull(argv[3], NULL, 16);
 	printf("enter emmc key read !!\n");
 	printf("addr:%p   size:%llx\n",addr,size);
-	ret = mmc_key_read(addr, size,&actual_lenth);
+	ret = mmc_key_read(addr, size, &actual_length);
 	printf("ret:%d\n",ret);
 	return ret;
 }
