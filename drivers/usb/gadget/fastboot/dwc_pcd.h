@@ -1121,7 +1121,7 @@ typedef union glpmctl_data {
 		 * configures to drive the HSIC Idle state on the bus.
 		 * It then waits for the  device to initiate the Connect sequence.
 		 * In device mode once this bit is set, the device waits for
-		 * the HSIC Idle line state on the bus. Upon receving the Idle
+		 * the HSIC Idle line state on the bus. Upon receiving the Idle
 		 * line state, it initiates the HSIC Connect sequence.
 		 */
 		unsigned hsic_connect:1;
@@ -1490,7 +1490,7 @@ typedef union doepint_data {
 		unsigned epdisabled:1;
 		/** AHB Error */
 		unsigned ahberr:1;
-		/** Setup Phase Done (contorl EPs) */
+		/** Setup Phase Done (control EPs) */
 		unsigned setup:1;
 		/** OUT Token Received when Endpoint Disabled */
 		unsigned outtknepdis:1;

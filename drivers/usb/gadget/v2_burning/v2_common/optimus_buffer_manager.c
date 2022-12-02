@@ -25,7 +25,7 @@ typedef struct bufManager{
     u32             totalSlotNum;//total slot number that already transferred
     u32             mediaAlignSz;//nand write align size, 16K/32k
 
-    u32             nextWriteBackSlot;//when reach n* (writeBackUnitSz/transferUnitSz), then write back the recevied data to media
+    u32             nextWriteBackSlot;//when reach n* (writeBackUnitSz/transferUnitSz), then write back the received data to media
     u32             leftDataSz;//left data size, Assert that 'leftDataInBackBuf + leftDataSz == transferBuf'
 
     s16             isUpload;
@@ -49,7 +49,7 @@ static BufManager _bufManager =
 //must create/destroy for a command
     .writeBackUnitSz    = OPTIMUS_DOWNLOAD_SLOT_SZ,
 
-    .totalSlotNum      = 0,//not slot data recevied yet!
+    .totalSlotNum      = 0,//not slot data received yet!
 
     .leftDataSz         = 0,
     .tplcmdTotalSz      = 0,
@@ -231,7 +231,7 @@ int optimus_buf_manager_report_transfer_complete(const u32 transferSz, char* err
                         (u8*)(u64)_bufManager.partBaseOffset ;
 
     DWN_DBG("[%d]transferSz=0x%x\n", _bufManager.totalSlotNum, transferSz);
-    //state fileds to update
+    //state fields to update
     _bufManager.totalSlotNum += 1;
     if (_bufManager.totalSlotNum == _bufManager.nextWriteBackSlot)
     {

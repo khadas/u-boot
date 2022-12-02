@@ -549,7 +549,7 @@ void do_vendor_request( pcd_struct_t *_pcd, struct usb_ctrlrequest * ctrl)
 	        case AM_REQ_UPLOAD:
 	                {
 	                        _pcd->buf       = _resultInfo;
-	                        _pcd->length    = w_length;//assert that lenght == 16 ????
+	                        _pcd->length    = w_length;//assert that length == 16 ????
 
 	                        optimus_buf_manager_get_command_data_for_upload_transfer((u8*)_resultInfo, w_length);
 	                }
@@ -1095,13 +1095,13 @@ static int cb_usb_bulk_in_reply_busy(void)
     return 0;
 }
 
-//1, add @_timeElaspedBeforeLastReport to remember elapsed time, to avoid depend on long period timer,
+//1, add @_timeElapsedBeforeLastReport to remember elapsed time, to avoid depend on long period timer,
 //  i.e, assume that timer is short cycle, such as only 5 seconds a cycle
 //2,
 int platform_busy_increase_un_reported_size(const unsigned nBytes)
 {
     static unsigned long _lastReportTick    = 0;
-    static unsigned      _timeElaspedBeforeLastReport = 0;
+    static unsigned      _timeElapsedBeforeLastReport = 0;
     const int            ReportTimePeriod   = 16 * 1000;//16 seconds
     //Add @ReportMinLen to 'avoid report busy when data ended', or it blocked in dwc_irq_pcd.c
     const int            ReportMinLen       = OPTIMUS_SHA1SUM_BUFFER_LEN;//8M
@@ -1110,20 +1110,20 @@ int platform_busy_increase_un_reported_size(const unsigned nBytes)
 
     if (!_cbUnReportedSz) {
         _lastReportTick = get_timer(0);//start time re-init
-        _timeElaspedBeforeLastReport = 0;
+        _timeElapsedBeforeLastReport = 0;
     }
     unsigned long timePeriod = get_timer(_lastReportTick);
 
     _cbUnReportedSz                  += nBytes;
     //Maybe timer is not long enough cycle, so add another variable to remember the elapsed period
     if (timePeriod > 2000) {
-        _timeElaspedBeforeLastReport += timePeriod;
+        _timeElapsedBeforeLastReport += timePeriod;
         _lastReportTick              += timePeriod;
     }
-    DWN_DBG("_timeElaspedBeforeLastReport=%u, _unReportedLen=%u\n", _timeElaspedBeforeLastReport, _cbUnReportedSz);
-    if (_timeElaspedBeforeLastReport  < ReportTimePeriod || _cbUnReportedSz < ReportMinLen) return 0;
+    DWN_DBG("_timeElapsedBeforeLastReport=%u, _unReportedLen=%u\n", _timeElapsedBeforeLastReport, _cbUnReportedSz);
+    if (_timeElapsedBeforeLastReport  < ReportTimePeriod || _cbUnReportedSz < ReportMinLen) return 0;
 
-    _timeElaspedBeforeLastReport = 0;
+    _timeElapsedBeforeLastReport = 0;
     _cbUnReportedSz              = 0;
     DWN_DBG("_lastReportTick=%lu\n", _lastReportTick);
     return cb_usb_bulk_in_reply_busy();

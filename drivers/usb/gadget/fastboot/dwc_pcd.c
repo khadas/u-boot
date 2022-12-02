@@ -150,7 +150,7 @@ int f_dwc_core_init()
     dwc_modify_reg32(DWC_REG_DCTL, 2, 0);
 
 	/*
-	* Do device or host intialization based on mode during PCD and HCD
+	* Do device or host initialization based on mode during PCD and HCD
 	* initialization
 	*/
     if (dwc_read_reg32(DWC_REG_GINTSTS) & 0x1) {
