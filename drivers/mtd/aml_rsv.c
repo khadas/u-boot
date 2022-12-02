@@ -802,7 +802,7 @@ int meson_rsv_bbt_read(u_char *dest, size_t size)
 		pr_info("%s, %d, %s invalid!, read exit!\n",
 			__func__, __LINE__,
 			rsv_handler->bbt->name);
-		return RSV_UNVAIL;
+		return RSV_INVALID;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
@@ -842,7 +842,7 @@ int meson_rsv_key_read(u_char *dest, size_t size)
 		pr_info("%s, %d, %s invalid!, read exit!\n",
 			__func__, __LINE__,
 			rsv_handler->key->name);
-		return RSV_UNVAIL;
+		return RSV_INVALID;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
@@ -882,7 +882,7 @@ int meson_rsv_ddr_para_read(u_char *dest, size_t size)
 		pr_info("%s, %d, %s invalid!, read exit!\n",
 			__func__, __LINE__,
 			rsv_handler->ddr_para->name);
-		return RSV_UNVAIL;
+		return RSV_INVALID;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
@@ -921,7 +921,7 @@ int meson_rsv_env_read(u_char *dest, size_t size)
 		pr_info("%s, %d, %s invalid!, read exit!\n",
 			__func__, __LINE__,
 			rsv_handler->env->name);
-		return RSV_UNVAIL;
+		return RSV_INVALID;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",
@@ -960,7 +960,7 @@ int meson_rsv_dtb_read(u_char *dest, size_t size)
 		pr_info("%s, %d, %s invalid!, read exit!\n",
 			__func__, __LINE__,
 			rsv_handler->dtb->name);
-		return RSV_UNVAIL;
+		return RSV_INVALID;
 	}
 	if (!dest || size == 0) {
 		pr_info("%s %d parameter error %p %ld\n",

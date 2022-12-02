@@ -78,7 +78,7 @@ static int32_t _amlkey_init(uint8_t *seed, uint32_t len, int encrypt_type)
 	storagekey_info.size = min_t(uint32_t, actual_size, buffer_size);
 	ret = store_rsv_read("key", storagekey_info.size, storagekey_info.buffer);
 	/* When the key is invalid at the first burn, it should be initialized again. */
-	if (ret == RSV_UNVAIL)
+	if (ret == RSV_INVALID)
 		ret = 0;
 	if (ret) {
 		pr_info("amlkey init rsv read key fail\n");
@@ -304,7 +304,7 @@ static uint32_t normal_blksz = DEF_NORMAL_BLOCK_SIZE;
 static uint32_t normal_flashsize = DEF_NORMAL_BLOCK_SIZE;
 static uint8_t *normal_block;
 
-static int _store_key_read(uint8_t * buffer, uint32_t length, uint32_t *actual_lenth)
+static int _store_key_read(uint8_t *buffer, uint32_t length, uint32_t *actual_length)
 {
 	int ret;
 	uint32_t actual_size;
@@ -315,22 +315,23 @@ static int _store_key_read(uint8_t * buffer, uint32_t length, uint32_t *actual_l
 	length = min_t(uint32_t, actual_size, length);
 	ret = store_rsv_read("key", length, buffer);
 	/* When the key is invalid at the first burn, it should be initialized again. */
-	if (ret && ret != RSV_UNVAIL) {
+	if (ret && ret != RSV_INVALID) {
 		printf("amlkey init rsv read key faill\n");
 		return -1;
 	}
-	if (actual_lenth)
-		*actual_lenth = length;
+	if (actual_length)
+		*actual_length = length;
 	return 0;
 }
-static int _store_key_write(uint8_t * buffer, uint32_t length, uint32_t *actual_lenth)
+
+static int _store_key_write(uint8_t *buffer, uint32_t length, uint32_t *actual_length)
 {
 	int32_t ret;
 	ret = store_rsv_write("key", length, buffer);
 	if (ret)
 		return -1;
-	if (actual_lenth)
-		*actual_lenth = length;
+	if (actual_length)
+		*actual_length = length;
 	return 0;
 }
 

@@ -16,7 +16,7 @@
 /* storage plat data */
 #include <asm/arch/storage.h>
 
-#define RSV_UNVAIL	140	/* rsv unvail error */
+#define RSV_INVALID	140	/* rsv invalid error */
 
 #define DISPROTECT_KEY			BIT(0)
 #define DISPROTECT_SECURE		BIT(1)
