@@ -79,7 +79,7 @@ void aml_set_voltage(unsigned int id, unsigned int voltage, int delt)
 		}
 		/*vcck volt set by dvfs and avs*/
 		/*
-		writel(pwm_voltage_table[to][0], PWM_PWM_A_ADRESS);
+		writel(pwm_voltage_table[to][0], PWM_PWM_A_ADDRESS);
 		*_udelay_(200);
 		*/
 		break;
