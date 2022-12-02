@@ -2950,7 +2950,7 @@ _out:
 #endif
 
 int mmc_key_write(unsigned char *buf,
-		  unsigned int size, uint32_t *actual_lenth)
+		  unsigned int size, uint32_t *actual_length)
 {
 	int ret;
 
@@ -2966,7 +2966,7 @@ int mmc_key_write(unsigned char *buf,
 }
 
 int mmc_key_read(unsigned char *buf,
-		 unsigned int size, uint32_t *actual_lenth)
+		 unsigned int size, uint32_t *actual_length)
 {
 	int ret;
 
@@ -2979,7 +2979,7 @@ int mmc_key_read(unsigned char *buf,
 	info_disprotect &= ~DISPROTECT_KEY;
 
 	/*key size is 256KB*/
-	*actual_lenth =  0x40000;
+	*actual_length =  0x40000;
 
 	return ret;
 }
