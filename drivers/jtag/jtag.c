@@ -41,7 +41,7 @@ static int meson_jtag_ioctl(struct udevice *dev, unsigned long cmd, void *buf)
 		case JTAG_CLRPINMUX:
 			/* nothing to do now */
 			break;
-		case JTAG_EANBLE:
+		case JTAG_ENABLE:
 			aml_set_jtag_state(JTAG_STATE_ON, jtag_id);
 			break;
 		case JTAG_DISABLE:

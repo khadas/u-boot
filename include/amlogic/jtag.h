@@ -11,7 +11,7 @@
 /* ioctl command */
 #define JTAG_CLRPINMUX		0
 #define JTAG_SETPINMUX		1
-#define JTAG_EANBLE		2
+#define JTAG_ENABLE		2
 #define JTAG_DISABLE		3
 
 /* jtag type */
