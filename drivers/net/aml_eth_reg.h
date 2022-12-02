@@ -196,7 +196,7 @@
 
 /*
  * ****************************************************************************
- *  A description of the NIKE Enthernet registers bit defination
+ *  A description of the NIKE Ethernet registers bit defination
  * ****************************************************************************
  */
 /* ETH_DMA_0_Bus_Mode */
@@ -538,7 +538,7 @@ struct _gStruct{
 
 /*
  * ********************************************************
- *	A description of the Enthernet DMA Dtion
+ *	A description of the Ethernet DMA Dtion
  * ********************************************************
  */
 /* Receive Descriptor 0 */
