@@ -68,7 +68,7 @@ const char* avb_property_lookup(const uint8_t* image_data,
                                 size_t* out_value_size)
     AVB_ATTR_WARN_UNUSED_RESULT;
 
-/* Like avb_property_lookup() but parses the intial portions of the
+/* Like avb_property_lookup() but parses the initial portions of the
  * value as an unsigned 64-bit integer. Both decimal and hexadecimal
  * representations (e.g. "0x2a") are supported. Returns false on
  * failure and true on success. On success, the parsed value is
