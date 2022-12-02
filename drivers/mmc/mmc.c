@@ -3614,7 +3614,7 @@ _out:
 }
 #endif
 
-int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
+int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_length)
 {
 	ulong blkcnt, ret;
 	unsigned char * temp_buf = buf;
@@ -3656,7 +3656,7 @@ int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
 	return 0;
 }
 
-int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
+int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_length)
 {
 	ulong blkcnt, ret;
 	unsigned char *temp_buf = buf;
@@ -3674,7 +3674,7 @@ int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_lenth)
 	start_blk = (start / MMC_BLOCK_SIZE);
 #endif
 
-	*actual_lenth =  0x40000;/*key size is 256KB*/
+	*actual_length =  0x40000;/*key size is 256KB*/
 	blkcnt = (size / MMC_BLOCK_SIZE);
 	info_disprotect |= DISPROTECT_KEY;
 #ifdef KEY_BACKUP
