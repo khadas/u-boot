@@ -8,19 +8,6 @@
 
 #include "aml_nftl.h"
 
-extern int nand_read_page(struct aml_nftl_part_t *part,_physic_op_par *p);
-extern int nand_write_page(struct aml_nftl_part_t *part,_physic_op_par *p);
-
-int nand_copy_page(struct aml_nftl_part_t *part,_physic_op_par* a, _physic_op_par* b,uchar *buf,uint32 block_used_count,uint16 erase_times,uint32 logic_no);
-void set_oob_special_page(struct aml_nftl_part_t *part,uchar* buf,uint32 special_data,uint32 block_used_count,uint16 erase_times,uchar type);
-uint32 get_logic_page_from_oob(uchar* buf);
-uint16 get_erase_count_from_oob(uchar* buf);
-void set_oob_logic_page(struct aml_nftl_part_t *part,uchar* buf,uint32 logic_page,uint32 block_used_count,uint16 erase_times);
-uint32 get_special_data_from_oob(uchar* buf);
-_nand_page* get_logic_page_map(struct aml_nftl_part_t *part,uint32 logic_page);
-int init_logic_page_map(struct aml_nftl_part_t *part,uint32 total_pages);
-int check_logic_page_map(struct aml_nftl_part_t *part);
-
 int nand_copy_page(struct aml_nftl_part_t *part,_physic_op_par* a, _physic_op_par* b,uchar *buf,uint32 block_used_count,uint16 erase_times,uint32 logic_no)
 {
 	int ret;

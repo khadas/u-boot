@@ -8,45 +8,10 @@
 
 #include "aml_nftl.h"
 
-extern uint32 get_logic_page_from_oob(uchar* buf);
-extern uint32 get_special_data_from_oob(uchar* buf);
-extern uint16 get_erase_count_from_oob(uchar* buf);
-extern _phy_block_info* del_block_invalid_list(struct aml_nftl_part_t* part);
-extern _phy_block_info* del_block_invalid_list_by_block(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-extern void print_block_invalid_list(struct aml_nftl_part_t* part);
-extern void print_block_count_list(struct aml_nftl_part_t* part);
-extern int put_phy_block_to_free_list(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-extern _phy_block_info* out_phy_block_from_free_list(struct aml_nftl_part_t* part);
-extern int put_phy_block_to_invalid_page_list(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-extern _phy_block_info* out_phy_block_from_invalid_page_list(struct aml_nftl_part_t* part);
-extern uint32 get_block_used_count_from_oob(uchar* buf);
-extern int add_block_count_list(struct aml_nftl_part_t* part, _phy_block_info* phy_block_ptr);
-extern int adjust_invaild_list(struct aml_nftl_part_t* part);
-extern uint32 garbage_collect_first(struct aml_nftl_part_t* part,_phy_block_info* block,uint16 page_num);;
-extern void print_free_list(struct aml_nftl_part_t* part);
-extern _phy_block_info* del_block_count_list(struct aml_nftl_part_t* part);
-extern uint32 gc_all(struct aml_nftl_part_t* part);
-extern void set_spare_data(uchar* buf,uint32 data,uchar offset,uchar num);
-extern uint32 get_spare_data(uchar* buf,uchar offset,uchar num);
-extern int init_logic_page_map(struct aml_nftl_part_t *part,uint32 total_pages);
-extern _nand_page* get_logic_page_map(struct aml_nftl_part_t *part,uint32 logic_page);
-extern void add_prio_gc(struct aml_nftl_part_t* part,_phy_block_info* block,uint16 type);
-
-_phy_block_info* get_phy_block_addr(struct aml_nftl_part_t *part,uint16 block);
-uint32 is_phy_block_valid(_phy_block_info* p_phy_block_info,struct aml_nftl_part_t * part);
-uint32 is_last_phy_block(_phy_block_info* p_phy_block_info,struct aml_nftl_part_t * part);
-uint32 recover_current_block_mapping(struct aml_nftl_part_t * part,_phy_block_info* phy_block_ptr);
-void recover_block_log2pyh_mapping(struct aml_nftl_part_t * part,_phy_block_info* phy_block_ptr);
-uint32 do_write_error_in_create_list(struct aml_nftl_part_t* part,_phy_block_info* block1, _phy_block_info* block2,uint16 page_num);
-uint32 get_used_page_num(struct aml_nftl_part_t * part,_phy_block_info* phy_block_ptr);
-uint32 get_used_block_count(struct aml_nftl_part_t * part,_phy_block_info* phy_block_ptr);
-void print_nftl_part(struct aml_nftl_part_t * part);
-int part_param_exit(struct aml_nftl_part_t *part);
-uint32 get_vaild_blocks(struct aml_nftl_part_t * part,uint32 start_block,uint32 blocks);
-uint32 do_write_error_in_create_list(struct aml_nftl_part_t* part,_phy_block_info* block1, _phy_block_info* block2,uint16 page_num);
 #define DBG_SCAN_SKIP_PAGE	(0)
 
-int part_param_init(struct aml_nftl_part_t *part,uint16 start_block,uint32_t logic_sects,uint32_t backup_cap_in_sects)
+int part_param_init(struct aml_nftl_part_t *part, uint16 start_block,
+	uint32 logic_sects, uint32 backup_cap_in_sects)
 {
 	uint32_t i,total_pages;
 
@@ -192,7 +157,7 @@ uint32 is_no_use_device(struct aml_nftl_part_t * part,uint32 size)
 	return 1;
 }
 
-uint32 get_vaild_blocks(struct aml_nftl_part_t * part, uint32 start_block, uint32 blocks)
+uint32 get_valid_blocks(struct aml_nftl_part_t *part, uint32 start_block, uint32 blocks)
 {
 	uint32 total_blocks,i,num;
 	_physic_op_par phy_op_par;
@@ -351,7 +316,7 @@ uint32 create_part_list_first(struct aml_nftl_part_t * part,uint32 size)
 	return 0;
 }
 
-uint32 check_block_accroding_p2l(_phy_block_info* p_phy_block_info, struct aml_nftl_part_t * part)
+uint32 check_block_according_p2l(_phy_block_info *p_phy_block_info, struct aml_nftl_part_t *part)
 {
 	uint32 ret = 0;
 	uint32 page;
@@ -361,7 +326,7 @@ uint32 check_block_accroding_p2l(_phy_block_info* p_phy_block_info, struct aml_n
 	return ret;
 }
 
-uint32 create_part_list_last(struct aml_nftl_part_t * part)
+uint32 create_part_list_last(struct aml_nftl_part_t *part)
 {
 	uint32 total_blocks;
 	_physic_op_par phy_op_par;
@@ -440,7 +405,7 @@ uint32 create_part_list_last(struct aml_nftl_part_t * part)
 			put_phy_block_to_invalid_page_list(part,p_phy_block_info);
 	}
 
-	adjust_invaild_list(part);
+	adjust_invalid_list(part);
 
 	return 0;
 }
@@ -573,7 +538,7 @@ uint32 create_part_list(struct aml_nftl_part_t * part)
 			put_phy_block_to_invalid_page_list(part,p_phy_block_info);
 	}
 
-	adjust_invaild_list(part);
+	adjust_invalid_list(part);
 
 	create_part_list_last(part);
 

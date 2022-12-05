@@ -8,26 +8,6 @@
 
 #include "aml_nftl.h"
 
-extern int adjust_invaild_list(struct aml_nftl_part_t* part);
-extern int put_phy_block_to_invalid_page_list(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-extern void print_block_invalid_list(struct aml_nftl_part_t* part);
-extern uint32 get_special_data_from_oob(uchar* buf);
-extern uint32 nand_write_logic_page_no_gc(struct aml_nftl_part_t *part,uint32 page_no,uchar *buf);
-extern _phy_block_info* out_phy_block_from_invalid_page_list_by_block(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-extern _phy_block_info* out_phy_block_from_invalid_page_list(struct aml_nftl_part_t* part);
-extern _nand_page* get_logic_page_map(struct aml_nftl_part_t *part,uint32 logic_page);
-extern int put_phy_block_to_free_list(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-extern uint32 get_logic_page_from_oob(uchar* buf);
-
-uint32 garbage_collect_first(struct aml_nftl_part_t* part,_phy_block_info* block,uint16 page_num);
-void add_prio_gc(struct aml_nftl_part_t* part,_phy_block_info* block,uint16 type);
-uint32 prio_gc_all(struct aml_nftl_part_t* part);
-uint32 do_prio_gc(struct aml_nftl_part_t* part);
-uint32 gc_all(struct aml_nftl_part_t* part);
-uint32 gc_one(struct aml_nftl_part_t* part);
-uint32 garbage_collect(struct aml_nftl_part_t* part);
-uint32 do_static_wear_leveling(struct aml_nftl_part_t* part);
-
 uint32 garbage_collect(struct aml_nftl_part_t* part)
 {
 	uint16 page_num;
@@ -145,7 +125,8 @@ uint32 prio_garbage_collect(struct aml_nftl_part_t* part,_phy_block_info* block,
 		/* empty  */
 	}
 	if(invalid_page_count != p_phy_block->invalid_page_count) {
-		NPRINT("prio_garbage_collect  invaild_page num error:[%d] [%d]!!\n",invalid_page_count,p_phy_block->invalid_page_count);
+		NPRINT("%s invalid_page num error:[%d] [%d]!!\n", __func__,
+				invalid_page_count, p_phy_block->invalid_page_count);
 		print_block_invalid_list(part);
 	}
 	
@@ -201,8 +182,8 @@ uint32 garbage_collect_first(struct aml_nftl_part_t* part,_phy_block_info* block
 	invalid_page_count = 1;
 
 	if(invalid_page_count != p_phy_block->invalid_page_count) {
-		NPRINT("garbage_collect_first invaild_page num error:[%d] [%d]!!\n",
-		       invalid_page_count,p_phy_block->invalid_page_count);
+		NPRINT("%s invalid_page num error:[%d] [%d]!!\n",
+		__func__, invalid_page_count, p_phy_block->invalid_page_count);
 		print_block_invalid_list(part);
 	}
 
@@ -210,7 +191,7 @@ uint32 garbage_collect_first(struct aml_nftl_part_t* part,_phy_block_info* block
 		part->gc_strategy.flag_gc_block = 0;
 	}
 	put_phy_block_to_invalid_page_list(part,p_phy_block);
-	adjust_invaild_list(part);
+	adjust_invalid_list(part);
 
 	return 0;
 }
@@ -254,9 +235,7 @@ int add_to_gc_list_tail(_prio_gc *prio_gc,_prio_gc_node* gc_node)
 	_prio_gc_node * p = &prio_gc->prio_gc_head;
 
 	while(p->prio_gc_next != NULL)
-	{
 		p = p->prio_gc_next;
-	}
 
 	p->prio_gc_next = gc_node;
 	gc_node->prio_gc_next = NULL;
@@ -346,7 +325,7 @@ uint32 do_static_wear_leveling(struct aml_nftl_part_t* part)
 {
 	_phy_block_info* block_ptr = NULL;
 	_phy_block_info* p;
-	uint16 earse_max,earse_min;
+	uint16 erase_max, erase_min;
 
 	if(part->s_wl.s_wl_status != WL_ON)
 		return 0;
@@ -354,23 +333,22 @@ uint32 do_static_wear_leveling(struct aml_nftl_part_t* part)
 	if(part->invalid_page_head.invalid_page_next == NULL)
 		return 0;
 
-	earse_max = part->invalid_page_head.invalid_page_next->erase_count;
-	earse_min = earse_max;
+	erase_max = part->invalid_page_head.invalid_page_next->erase_count;
+	erase_min = erase_max;
 
-	for(p=&part->invalid_page_head;p->invalid_page_next;p=p->invalid_page_next) {
-		if(p->invalid_page_next->erase_count > earse_max) {
-			earse_max = p->invalid_page_next->erase_count;
-		} else if(p->invalid_page_next->erase_count < earse_min) {
-			earse_min = p->invalid_page_next->erase_count;
+	for (p = &part->invalid_page_head; p->invalid_page_next; p = p->invalid_page_next) {
+		if (p->invalid_page_next->erase_count > erase_max) {
+			erase_max = p->invalid_page_next->erase_count;
+		} else if (p->invalid_page_next->erase_count < erase_min) {
+			erase_min = p->invalid_page_next->erase_count;
 			block_ptr = p->invalid_page_next;
 		} else {
 			continue;
 		}
 	}
 
-	if((earse_max - earse_min) >= part->s_wl.erase_span) {
+	if ((erase_max - erase_min) >= part->s_wl.erase_span)
 		add_prio_gc(part,block_ptr,GC_WEAR_LEVELING);
-	}
 
 	return 0;
 }

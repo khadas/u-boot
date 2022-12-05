@@ -8,13 +8,6 @@
 
 #include "aml_nftl.h"
 
-int adjust_invaild_list(struct aml_nftl_part_t* part);
-int put_phy_block_to_invalid_page_list(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-_phy_block_info* out_phy_block_from_invalid_page_list_by_block(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-_phy_block_info* out_phy_block_from_free_list(struct aml_nftl_part_t* part);
-int phy_block_from_invalid_page_incr(struct aml_nftl_part_t* part,_phy_block_info* block);
-_phy_block_info* out_phy_block_from_invalid_page_list(struct aml_nftl_part_t* part);
-
 static inline void print_p2l_tbl(struct aml_nftl_part_t* part, _phy_block_info* p_phy_block)
 {
 	int i;
@@ -291,7 +284,7 @@ int phy_block_from_invalid_page_incr(struct aml_nftl_part_t* part,_phy_block_inf
 	return 0;
 }
 
-int adjust_invaild_list(struct aml_nftl_part_t* part)
+int adjust_invalid_list(struct aml_nftl_part_t *part)
 {
 	_phy_block_info* phy_block = NULL;
 

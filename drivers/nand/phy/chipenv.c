@@ -270,7 +270,7 @@ void reset_amlchip_member(struct amlnand_chip *aml_chip)
 }
 #endif /* AML_NAND_UBOOT */
 
-u32 aml_info_checksum(u8 *data, int lenth)
+u32 aml_info_checksum(u8 *data, int length)
 {
 	u32 checksum;
 	u8 *pdata;
@@ -279,7 +279,7 @@ u32 aml_info_checksum(u8 *data, int lenth)
 	checksum = 0;
 	pdata = (u8 *)data;
 
-	for (i = 0; i < lenth; i++)
+	for (i = 0; i < length; i++)
 		checksum += pdata[i];
 
 	return checksum;
@@ -3641,12 +3641,12 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 		*/
 		if (flash->id[0] == NAND_MFR_SANDISK) {
 			/*
-			set info_disprotect variant wich DISPROTECT_FBBT
+			set info_disprotect variant with DISPROTECT_FBBT
 			to skip env_protect erea.
 			*/
 			info_disprotect |= DISPROTECT_FBBT;
 			amlnf_get_chip_size(&chipsize);
-			/*background for carring out, bbt table is all zero*/
+			/*background for carrying out, bbt table is all zero*/
 			/*make all blocks are erased*/
 			amlnf_erase_ops(0, chipsize, 1);
 			pre_erase = 1;

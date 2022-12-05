@@ -98,7 +98,6 @@ typedef struct{
 	uchar (*nand_copy_page)(_physic_op_par* a, _physic_op_par* b,uchar *buf);
 }_nand_safe_property;
 
-
 struct  nand_chip_t{
     uchar           nand_id[8];
     uchar           sector_per_page;
@@ -289,6 +288,85 @@ extern void aml_nftl_add_part_total_write(void * _part);
 extern uint32 aml_nftl_get_part_cap(void * _part);
 extern int aml_nftl_start(void* priv,void* cfg,void ** ppart,uint64_t size,unsigned erasesize,\
 			unsigned writesize,unsigned oobavail,char* name,int no,char type);
+
+int adjust_invalid_list(struct aml_nftl_part_t *part);
+int put_phy_block_to_invalid_page_list(struct aml_nftl_part_t *part,
+	_phy_block_info *phy_block_ptr);
+_phy_block_info *out_phy_block_from_invalid_page_list_by_block(struct aml_nftl_part_t *part,
+	_phy_block_info *phy_block_ptr);
+_phy_block_info *out_phy_block_from_free_list(struct aml_nftl_part_t *part);
+int phy_block_from_invalid_page_incr(struct aml_nftl_part_t *part, _phy_block_info *block);
+_phy_block_info *out_phy_block_from_invalid_page_list(struct aml_nftl_part_t *part);
+int put_phy_block_to_free_list(struct aml_nftl_part_t *part, _phy_block_info *phy_block_ptr);
+void print_block_invalid_list(struct aml_nftl_part_t *part);
+_phy_block_info *del_block_invalid_list(struct aml_nftl_part_t *part);
+_phy_block_info *del_block_invalid_list_by_block(struct aml_nftl_part_t *part,
+	_phy_block_info *phy_block_ptr);
+void print_block_count_list(struct aml_nftl_part_t *part);
+int add_block_count_list(struct aml_nftl_part_t *part, _phy_block_info *phy_block_ptr);
+void print_free_list(struct aml_nftl_part_t *part);
+	_phy_block_info *del_block_count_list(struct aml_nftl_part_t *part);
+int set_new_current_block(struct aml_nftl_part_t *part);
+uint32 nand_write_logic_page(struct aml_nftl_part_t *part, uint32 page_no, uchar *buf);
+uint32 nand_read_logic_page(struct aml_nftl_part_t *part, uint32 page_no, uchar *buf);
+
+int nand_copy_page(struct aml_nftl_part_t *part, _physic_op_par *a, _physic_op_par *b,
+	uchar *buf, uint32 block_used_count, uint16 erase_times, uint32 logic_no);
+void set_oob_special_page(struct aml_nftl_part_t *part, uchar *buf,
+	uint32 special_data, uint32 block_used_count, uint16 erase_times, uchar type);
+uint32 get_logic_page_from_oob(uchar *buf);
+uint16 get_erase_count_from_oob(uchar *buf);
+void set_oob_logic_page(struct aml_nftl_part_t *part, uchar *buf,
+	uint32 logic_page, uint32 block_used_count, uint16 erase_times);
+uint32 get_special_data_from_oob(uchar *buf);
+_nand_page *get_logic_page_map(struct aml_nftl_part_t *part, uint32 logic_page);
+int init_logic_page_map(struct aml_nftl_part_t *part, uint32 total_pages);
+int check_logic_page_map(struct aml_nftl_part_t *part);
+uint32 get_block_used_count_from_oob(uchar *buf);
+void set_spare_data(uchar *buf, uint32 data, uchar offset, uchar num);
+uint32 get_spare_data(uchar *buf, uchar offset, uchar num);
+
+_phy_block_info *get_phy_block_addr(struct aml_nftl_part_t *part, uint16 block);
+uint32 is_phy_block_valid(_phy_block_info *p_phy_block_info, struct aml_nftl_part_t *part);
+uint32 is_last_phy_block(_phy_block_info *p_phy_block_info, struct aml_nftl_part_t *part);
+uint32 recover_current_block_mapping(struct aml_nftl_part_t *part, _phy_block_info *phy_block_ptr);
+void recover_block_log2pyh_mapping(struct aml_nftl_part_t *part, _phy_block_info *phy_block_ptr);
+uint32 do_write_error_in_create_list(struct aml_nftl_part_t *part, _phy_block_info *block1,
+	_phy_block_info *block2, uint16 page_num);
+uint32 get_used_page_num(struct aml_nftl_part_t *part, _phy_block_info *phy_block_ptr);
+uint32 get_used_block_count(struct aml_nftl_part_t *part, _phy_block_info *phy_block_ptr);
+void print_nftl_part(struct aml_nftl_part_t *part);
+int part_param_exit(struct aml_nftl_part_t *part);
+uint32 get_valid_blocks(struct aml_nftl_part_t *part, uint32 start_block, uint32 blocks);
+uint32 do_write_error_in_create_list_for_discard(struct aml_nftl_part_t *part,
+	_phy_block_info *block1, _phy_block_info *block2, uint16 page_num);
+uint32 garbage_collect_first(struct aml_nftl_part_t *part, _phy_block_info *block, uint16 page_num);
+void add_prio_gc(struct aml_nftl_part_t *part, _phy_block_info *block, uint16 type);
+uint32 prio_gc_all(struct aml_nftl_part_t *part);
+uint32 do_prio_gc(struct aml_nftl_part_t *part);
+uint32 gc_all(struct aml_nftl_part_t *part);
+uint32 gc_one(struct aml_nftl_part_t *part);
+uint32 garbage_collect(struct aml_nftl_part_t *part);
+uint32 do_static_wear_leveling(struct aml_nftl_part_t *part);
+
+int nand_write_logic_page_no_gc(struct aml_nftl_part_t *part, uint32 page_no, uchar *buf);
+int write_phy_page_map(struct aml_nftl_part_t *part);
+int set_new_current_block(struct aml_nftl_part_t *part);
+
+int nand_read_page(struct aml_nftl_part_t *part, _physic_op_par *p);
+int  nand_erase_superblk(struct aml_nftl_part_t *part, _physic_op_par *p);
+int nand_write_page(struct aml_nftl_part_t *part, _physic_op_par *p);
+int nand_mark_bad_blk(struct aml_nftl_part_t *part, _physic_op_par *p);
+int nand_is_blk_good(struct aml_nftl_part_t *part, _physic_op_par *p);
+
+void aml_nftl_ops_init(struct aml_nftl_part_t *part);
+uint32 create_part_list(struct aml_nftl_part_t *part);
+uint32 create_part_list_first(struct aml_nftl_part_t *part, uint32 size);
+uint32 is_no_use_device(struct aml_nftl_part_t *part, uint32 size);
+int part_param_init(struct aml_nftl_part_t *part, uint16 start_block,
+	uint32 logic_sects, uint32 backup_cap_in_sects);
+int nftl_cache_init(struct aml_nftl_part_t *part);
+int nftl_cache_exit(struct aml_nftl_part_t *part);
 #endif
 
 

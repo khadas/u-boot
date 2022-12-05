@@ -65,9 +65,9 @@ int store_dtb_rw(void* buf, unsigned dtbSz, int rwFlag);
 
 //key read/write
 int store_key_read(uint8_t * buffer,
-			uint32_t length, uint32_t *actual_lenth);
+			uint32_t length, uint32_t *actual_length);
 int store_key_write(uint8_t * buffer,
-			uint32_t length, uint32_t *actual_lenth);
+			uint32_t length, uint32_t *actual_length);
 
 extern int check_valid_dts(unsigned char *buffer, unsigned char **dts);
 

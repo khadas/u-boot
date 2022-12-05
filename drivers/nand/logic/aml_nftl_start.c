@@ -8,16 +8,6 @@
 
 #include "aml_nftl.h"
 
-extern int nftl_cache_init(struct aml_nftl_part_t * part);
-extern int nftl_cache_exit(struct aml_nftl_part_t * part);
-extern uint32 get_vaild_blocks(struct aml_nftl_part_t * part,uint32 start_block,uint32 blocks);
-extern int part_param_init(struct aml_nftl_part_t *part,uint16 start_block,uint32_t logic_sects,uint32_t backup_cap_in_sects);
-extern uint32 is_no_use_device(struct aml_nftl_part_t * part,uint32 size);
-extern uint32 create_part_list_first(struct aml_nftl_part_t * part,uint32 size);
-extern uint32 create_part_list(struct aml_nftl_part_t * part);
-extern int part_param_exit(struct aml_nftl_part_t *part);
-extern void aml_nftl_ops_init(struct aml_nftl_part_t *part);
-
 unsigned int  get_reserved_block_num(uint64_t physize,uint32_t phys_erase_shift,struct aml_nftl_part_t* part)
 {
 	unsigned int block_num=0,size_in_blk=0;
@@ -91,9 +81,9 @@ int aml_nftl_start(void* priv,void* cfg, void ** ppart,uint64_t size,unsigned er
 
 	aml_nftl_ops_init(*ppart);
 
-	total_block = get_vaild_blocks(*ppart,0,size_in_blk);
+	total_block = get_valid_blocks(*ppart, 0, size_in_blk);
 	if(total_block == 0)
-	    NPRINT("get_vaild_blocks fail\n");
+		NPRINT("get_valid_blocks fail\n");
 
 	if(total_block != size_in_blk)
 		NPRINT("size_in_blk %d; total_block %d; \n",size_in_blk,total_block);

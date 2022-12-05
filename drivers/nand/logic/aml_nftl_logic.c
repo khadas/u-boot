@@ -8,29 +8,6 @@
 
 #include "aml_nftl.h"
 
-extern int adjust_invaild_list(struct aml_nftl_part_t* part);
-extern int put_phy_block_to_invalid_page_list(struct aml_nftl_part_t* part,_phy_block_info* phy_block_ptr);
-extern void set_oob_special_page(struct aml_nftl_part_t *part,uchar* buf,uint32 special_data,uint32 block_used_count,uint16 erase_times,uchar type);
-extern _phy_block_info* out_phy_block_from_free_list(struct aml_nftl_part_t* part);
-extern _phy_block_info* get_phy_block_addr(struct aml_nftl_part_t * part,uint16 block);
-extern void add_prio_gc(struct aml_nftl_part_t* part,_phy_block_info* block,uint16 type);
-extern uint32 do_prio_gc(struct aml_nftl_part_t* part);
-extern uint32 gc_all(struct aml_nftl_part_t* part);
-extern uint32 get_logic_page_from_oob(uchar* buf);
-extern void set_oob_logic_page(struct aml_nftl_part_t *part,uchar* buf,uint32 logic_page,uint32 block_used_count,uint16 erase_times);
-extern int nand_read_page(struct aml_nftl_part_t *part,_physic_op_par *p);
-extern int nand_write_page(struct aml_nftl_part_t *part,_physic_op_par *p);
-extern int  nand_erase_superblk(struct aml_nftl_part_t *part,_physic_op_par *p);
-extern int nand_copy_page(struct aml_nftl_part_t *part,_physic_op_par* a, _physic_op_par* b,uchar *buf,uint32 block_used_count,uint16 erase_times,uint32 logic_no);
-extern int nand_mark_bad_blk(struct aml_nftl_part_t *part,_physic_op_par *p);
-extern int nand_is_blk_good(struct aml_nftl_part_t *part,_physic_op_par *p);
-extern uint32 garbage_collect(struct aml_nftl_part_t* part);
-extern int phy_block_from_invalid_page_incr(struct aml_nftl_part_t* part,_phy_block_info* block);
-extern _nand_page* get_logic_page_map(struct aml_nftl_part_t *part,uint32 logic_page);
-int nand_write_logic_page_no_gc(struct aml_nftl_part_t *part,uint32 page_no,uchar *buf);
-int write_phy_page_map(struct aml_nftl_part_t* part);
-int set_new_current_block(struct aml_nftl_part_t* part);
-
 /*****************************************************************************
 *Name         :
 *Description  :
@@ -223,7 +200,7 @@ write_data1:
 			return 1;
 		}
 	}
-	adjust_invaild_list(part);
+	adjust_invalid_list(part);
 	return 0;
 }
 

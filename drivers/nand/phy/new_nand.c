@@ -3233,7 +3233,7 @@ int amlnand_set_readretry_slc_para(struct amlnand_chip *aml_chip)
 			setting_val[1] = 0x00;
 			slc_info->pagelist = pagelist_micron_20nm256;	/* default 8GB L84A eMLC+ L0L3 */
 		} else {
-			/* unknow device */
+			/* unknown device */
 			retry_info->retry_cnt_lp = 0x8;
 			setting_val[0] = 0xFF;
 			setting_val[1] = 0x00;

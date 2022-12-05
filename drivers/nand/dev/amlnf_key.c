@@ -63,7 +63,7 @@ exit:
 /*
  * This funcion write the keys.
  */
-int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
+int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length)
 {
 	struct amlnand_chip * aml_chip = aml_chip_key;
 	struct nand_menson_key *key_ptr = NULL;

@@ -1708,7 +1708,7 @@ static int set_register_to_pwr(struct mmc *mmc, u8 *ext_csd)
 
 	err = mmc_set_us_perm_wp_dis(mmc, ext_csd);
 	if (err) {
-		printf("Failed: set permanent protection diable failed\n");
+		printf("Failed: set permanent protection disable failed\n");
 		return 1;
 	}
 
@@ -1824,7 +1824,7 @@ static int compute_write_protect_range(struct mmc *mmc, char *name,
 	if (partition_end != *end) {
 		printf("Caution! The boundary of partition isn't aligned with write "
 				"protected group,\n"
-				"so the write protected boundry of the "
+				"so the write protected boundary of the "
 				"partition is 0x%llx, rather than 0x%llx\n",
 				*end, partition_end);
 	}
@@ -3421,7 +3421,7 @@ U_BOOT_CMD(
 	"amlmmc erase <partition_name> addr_byte# cnt_byte\n"
 	"amlmmc erase <partition_name>/<device num>\n"
 	"amlmmc rescan <device_num>\n"
-	"amlmmc part <device_num> - show partition infomation of mmc\n"
+	"amlmmc part <device_num> - show partition information of mmc\n"
 	"amlmmc list - lists available devices\n"
 	"amlmmc env -  display env partition offset\n"
 	"amlmmc switch <device_num> <part name> - part name : boot0, boot1, user\n"

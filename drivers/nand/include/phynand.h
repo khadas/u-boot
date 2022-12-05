@@ -940,7 +940,7 @@ extern void nand_release_chip(void *aml_chip);
 extern int aml_key_init(struct amlnand_chip *aml_chip);
 extern int aml_ddr_parameter_init(struct amlnand_chip *aml_chip);
 extern int aml_secure_init(struct amlnand_chip *aml_chip);
-extern unsigned int aml_info_checksum(unsigned char *data, int lenth);
+unsigned int aml_info_checksum(unsigned char *data, int length);
 extern int amlnand_info_init(struct amlnand_chip *aml_chip,
 	u8 *info,
 	u8 *buf,

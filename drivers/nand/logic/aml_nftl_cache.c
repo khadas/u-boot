@@ -10,11 +10,11 @@
 
 #include "aml_nftl.h"
 
-extern uint32 nand_write_logic_page(struct aml_nftl_part_t* part,uint32 page_no,uchar *buf);
-extern uint32 nand_read_logic_page(struct aml_nftl_part_t* part,uint32 page_no,uchar *buf);
-extern uint32 prio_gc_all(struct aml_nftl_part_t* part);
-extern int write_phy_page_map(struct aml_nftl_part_t* part);
-extern int set_new_current_block(struct aml_nftl_part_t* part);
+// extern uint32 nand_write_logic_page(struct aml_nftl_part_t* part,uint32 page_no,uchar *buf);
+// extern uint32 nand_read_logic_page(struct aml_nftl_part_t* part,uint32 page_no,uchar *buf);
+// extern uint32 prio_gc_all(struct aml_nftl_part_t* part);
+// extern int write_phy_page_map(struct aml_nftl_part_t* part);
+// extern int set_new_current_block(struct aml_nftl_part_t* part);
 
 uint32 nand_cache_read(struct aml_nftl_part_t* part,uint32 page_no,uint16 bitmap,uchar *buf);
 uint32 nand_cache_write(struct aml_nftl_part_t* part,uint32 page_no,uint16 bitmap,uchar *buf);
@@ -28,8 +28,6 @@ int add_to_cache_read_list_tail(_cache *cache,_cache_node* cache_node);
 int add_to_cache_write_list_tail(_cache *cache,_cache_node* cache_node);
 _cache_node* del_from_cache_read_list(_cache *cache,_cache_node* cache_node);
 _cache_node* del_from_cache_write_list(_cache *cache,_cache_node* cache_node);
-int nftl_cache_init(struct aml_nftl_part_t* part);
-int nftl_cache_exit(struct aml_nftl_part_t* part);
 
 int nftl_cache_init(struct aml_nftl_part_t* part)
 {
