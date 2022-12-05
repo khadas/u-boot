@@ -57,6 +57,8 @@
 #define CONFIG_CMD_UNZIP    1
 #define CONFIG_LZMA         1
 
+#define CONFIG_PHY_REALTEK 1
+
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"KVIM3"
 #define CONFIG_CEC_WAKEUP
