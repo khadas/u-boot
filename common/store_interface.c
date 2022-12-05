@@ -1024,6 +1024,10 @@ static int do_store_erase(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 				store_msg("nand cmd failed ");
 				return -1;
 			}
+			/*
+			 * Need consider that CONFIG_AML_NAND was not defined.
+			 */
+			/* coverity[dead_error_line] */
 			return ret;
 		} else if ((device_boot_flag == SPI_EMMC_FLAG) ||
 				(device_boot_flag == SPI_NAND_FLAG)) {
@@ -1490,6 +1494,10 @@ static int do_store_rom_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 			store_msg("nand cmd failed");
 			return -1;
 		}
+		/*
+		 * Need consider that CONFIG_AML_NAND was not defined.
+		 */
+		 /* coverity[dead_error_line] */
 		return ret;
 	} else if ((device_boot_flag == SPI_EMMC_FLAG) ||
 			(device_boot_flag == SPI_NAND_FLAG)) {
@@ -1696,6 +1704,10 @@ static int do_store_rom_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 			store_msg("nand cmd failed");
 			return -1;
 		}
+		/*
+		 * Need consider that CONFIG_AML_NAND was not defined.
+		 */
+		/* coverity[dead_error_line] */
 		return ret;
 	} else if ((device_boot_flag == SPI_EMMC_FLAG) ||
 			(device_boot_flag == SPI_NAND_FLAG)) {

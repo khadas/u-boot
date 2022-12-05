@@ -385,7 +385,7 @@ static int send_adc_channel_power_key(void)
 static int send_ir_power_key(void)
 {
 	char *env;
-	unsigned long env_val;
+	unsigned int env_val;
 
 	env = getenv("ir_power_key");
 	if (!env) {
@@ -393,7 +393,7 @@ static int send_ir_power_key(void)
 		return -1;
 	}
 	env_val = getenv_hex("ir_power_key", 0);
-	printf("env ir_power_key = %lu\n", env_val);
+	printf("env ir_power_key = %ud\n", env_val);
 
 	if (send_usr_data(SCPI_CL_IR_POWER_KEY, (unsigned int *)&env_val,sizeof(env_val))) {
 		printf("send ir_power_key send error!...\n");
