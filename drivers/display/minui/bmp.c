@@ -183,7 +183,7 @@ static int BMP1_to_ARGB8(const gfxbitmap *getmap, unsigned char *out_buffer)
 	height = getmap->wheight;
 	rowsize = 4 * (int)((getmap->wwidth + 31) / 32);
 	pbmpbuf = getmap->pstart + rowsize * (getmap->wheight - 1);
-	ui_logd("width=%d,heigth=%d, rowsize=%d\n",width, height, rowsize);
+	ui_logd("width=%d,height=%d, rowsize=%d\n", width, height, rowsize);
 	pget += getmap->wwidth * getmap->wheight;
 	for (i = 0; i < height; i ++) {
 		for (j = 0; j < width; j++) {
