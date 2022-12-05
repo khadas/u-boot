@@ -690,7 +690,9 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 	struct spinand_device *spinand = mtd_to_spinand(mtd);
 	struct boot_info *boot_info = (struct boot_info *)buf;
 	u32 page_per_bbt, i;
-
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+	unsigned int pages_shift, ddr_param_page;
+#endif
 	memcpy(boot_info->magic, SPINAND_MAGIC, strlen(SPINAND_MAGIC));
 	boot_info->version = SPINAND_INFO_VER;
 	page_per_bbt = (mtd->size >> (mtd->erasesize_shift + mtd->writesize_shift));
@@ -711,6 +713,17 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 			boot_info->dev_cfg.bus_width = 1;
 	}
 
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+	pages_shift = mtd->erasesize_shift - mtd->writesize_shift;
+	if (spinand->rsv->ddr_para->valid) {
+		ddr_param_page = spinand->rsv->ddr_para->nvalid->page_addr +
+			(spinand->rsv->ddr_para->nvalid->blk_addr << pages_shift);
+		boot_info->ddr_param_page = ddr_param_page;
+		printf("save ddr param page: 0x%x to info page!\n", ddr_param_page);
+	} else {
+		printf("ddr param is invalid!\n");
+	}
+#endif
 	boot_info->checksum = 0;
 	for (i = 0; i < BOOTINFO_FIX_BYTES - 4; i++)
 		boot_info->checksum += *((u8 *)buf + i);
