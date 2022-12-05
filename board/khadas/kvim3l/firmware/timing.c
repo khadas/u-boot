@@ -598,7 +598,7 @@ ddr_reg_t __ddr_reg[] = {
 	#define VDDEE_VAL_REG0	0x00090013
 	#define VDDEE_VAL_REG1	0x00010011
 #elif (VDDEE_VAL == 880)
-	#define VDDEE_VAL_REG0	0x00080014
+	#define VDDEE_VAL_REG0	0x00080012
 	#define VDDEE_VAL_REG1	0x00000012
 #else
 	#error "VDDEE val out of range\n"
