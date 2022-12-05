@@ -508,7 +508,7 @@ static unsigned int osd_filter_coefs_bilinear[] = { /* 2 point bilinear	coef1 */
 	0x00443c00, 0x00423e00, 0x00404000
 };
 
-static unsigned int osd_filter_coefs_2point_binilear[] = {
+static unsigned int osd_filter_coefs_2point_bilinear[] = {
 	/* 2 point bilinear, bank_length == 2	coef2 */
 	0x80000000, 0x7e020000, 0x7c040000, 0x7a060000, 0x78080000, 0x760a0000,
 	0x740c0000, 0x720e0000, 0x70100000, 0x6e120000, 0x6c140000, 0x6a160000,
@@ -586,7 +586,7 @@ static unsigned int *filter_table[] = {
 	osd_filter_coefs_bicubic_sharp,
 	osd_filter_coefs_bicubic,
 	osd_filter_coefs_bilinear,
-	osd_filter_coefs_2point_binilear,
+	osd_filter_coefs_2point_bilinear,
 	osd_filter_coefs_3point_triangle_sharp,
 	osd_filter_coefs_3point_triangle,
 	osd_filter_coefs_4point_triangle,
@@ -1608,7 +1608,7 @@ void osd_setup_hw(u32 index,
 		osd_logd("osd[%d] canvas.height=%d\n",
 			 index, osd_hw.fb_gem[index].height);
 	}
-	/* osd blank only control by /sys/class/graphcis/fbx/blank */
+	/* osd blank only control by /sys/class/graphics/fbx/blank */
 #if 0
 	if (osd_hw.enable[index] == DISABLE) {
 		osd_hw.enable[index] = ENABLE;
@@ -2138,7 +2138,7 @@ void osd_enable_3d_mode_hw(u32 index, u32 enable)
 {
 	osd_hw.mode_3d[index].enable = enable;
 	if (enable) {
-		/* when disable 3d mode ,we should return to stardard state. */
+		/* when disable 3d mode ,we should return to standard state. */
 		osd_hw.mode_3d[index].left_right = OSD_LEFT;
 		osd_hw.mode_3d[index].l_start = osd_hw.pandata[index].x_start;
 		osd_hw.mode_3d[index].l_end = (osd_hw.pandata[index].x_end +
