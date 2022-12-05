@@ -15,7 +15,7 @@ static int do_load_send_bl40(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 	unsigned long addr, length;
 
 	if (argc <= 1) {
-		printf("plese input bl40 args: addrss and size !\n");
+		printf("plese input bl40 args: address and size !\n");
 		return CMD_RET_USAGE;
 	}
 
