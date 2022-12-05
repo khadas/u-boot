@@ -510,7 +510,7 @@ static bool is_attr_match(void)
 	char *attr = env_get("colorattribute");
 
 	/*two case use std mode: */
-	/*1.user not requeset LL mode*/
+	/*1.user not request LL mode*/
 	/*2.user request LL mode but sink not support LL mode*/
 	if (dovi_mode.dv_rgb_444_8bit &&
 		(!request_ll_mode() || dovi_mode.ll_ycbcr_422_12bit == 0)) { /*STD*/
@@ -586,7 +586,7 @@ static void dolby_vision_get_vinfo(struct hdmitx_dev *hdmitx_device)
 		width = 4096;
 		height = 2160;
 	} else {
-		printf("unkown mode, use default 1080p\n");
+		printf("unknown mode, use default 1080p\n");
 		width = 1920;
 		height = 1080;
 	}
@@ -647,7 +647,7 @@ static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 			hdmitx_device->RXCap.dv_info.length + 1);
 
 		//two case use std mode:
-		//1.user not requeset LL mode
+		//1.user not request LL mode
 		//2.user request LL mode but sink not support LL mode
 		if (dovi_mode.dv_rgb_444_8bit &&
 			(!request_ll_mode() || dovi_mode.ll_ycbcr_422_12bit == 0))
