@@ -16,8 +16,8 @@
 #define	ENODEV		19	/* No such device */
 #define HCI_CMD_READ_BD_ADDR 0x1009
 #define HCI_VENDOR_CHANGE_BDRATE 0xfc17
-#define HCI_VENDOR_READ_RTK_ROM_VERISION 0xfc6d
-#define HCI_VENDOR_READ_LMP_VERISION 0x1001
+#define HCI_VENDOR_READ_RTK_ROM_VERSION 0xfc6d
+#define HCI_VENDOR_READ_LMP_VERSION 0x1001
 #define HCI_VENDOR_CHIP_RESET 0x0C03
 #define HCI_VENDOR_SET_WAKE_UP_DEVICE 0xfc7b
 #define HCI_VENDOR_FORCE_RESET_AND_PATCHABLE    0xFC66
@@ -148,7 +148,7 @@ typedef struct {
 typedef struct {
 	unsigned short idVendor;
 	unsigned short idProduct;
-	char *usb_moudle;
+	char *usb_module;
 	char *fw_name;
 	unsigned int fw_size;
 	unsigned char *fw_buf;
