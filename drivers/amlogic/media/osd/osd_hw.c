@@ -1739,7 +1739,7 @@ void osd2_setup_hw(u32 index,
 		osd_logd("osd[%d] canvas.height=%d\n",
 			 index, osd_hw.fb_gem[index].height);
 	}
-	/* osd blank only control by /sys/class/graphcis/fbx/blank */
+	/* osd blank only control by /sys/class/graphics/fbx/blank */
 
 	if (memcmp(&pan_data, &osd_hw.pandata[index],
 		   sizeof(struct pandata_s)) != 0 ||
