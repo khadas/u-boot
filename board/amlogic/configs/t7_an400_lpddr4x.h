@@ -273,21 +273,35 @@
 		"load_bmp_logo="\
 			"run load_bmp_logo_base;"\
 			"\0"\
-        "init_display="\
+		"init_display="\
 			"run init_display_hdmitx;"\
 			"\0"\
-        "check_display="\
-            "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
-            "if test ${reboot_mode} = ffv_reboot; then "\
-                "if test ${ffv_wake} = on; then "\
-                    "echo ffv reboot no display; "\
-                "else "\
-                    "run init_display; "\
-                "fi; "\
-            "else "\
-                "run init_display; "\
-            "fi; "\
-            "\0"\
+		"check_display="\
+			"if test ${reboot_mode} = cold_boot; then "\
+				"if test ${powermode} = standby; then "\
+					"echo not init_display; "\
+				"else if test ${powermode} = last; then "\
+					"echo suspend=${suspend}; "\
+					"if test ${suspend} = off; then "\
+						"run init_display; "\
+					"else if test ${suspend} = on; then "\
+						"echo not init_display; "\
+					"else if test ${suspend} = shutdown; then "\
+						"echo not init_display; "\
+					"fi; fi; fi; "\
+				"else "\
+					"run init_display; "\
+				"fi; fi; "\
+			"else if test ${reboot_mode} = ffv_reboot; then "\
+				"if test ${ffv_wake} = on; then "\
+					"echo ffv reboot no display; "\
+				"else "\
+					"run init_display; "\
+				"fi; "\
+			"else "\
+				"run init_display; "\
+			"fi;fi; "\
+			"\0"\
 		"cmdline_keys="\
 			"setenv usid an400${cpu_id};"\
 			"run cmdline_keys_base;"\
