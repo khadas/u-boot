@@ -66,7 +66,7 @@ static void reset_ao_timera(void)
 	unsigned int val;
 	ao_timer_ctrl = readl(AO_TIMER_REG);
 	ao_timera = readl(AO_TIMERA_REG);
-	/* set ao timera work mode and interrrupt time 100us resolution*/
+	/* set ao timera work mode and interrupt time 100us resolution*/
 	val = (1 << 2) | (3 << 0) | (1 << 3);
 	writel(val, AO_TIMER_REG);
 	/* periodic time 10ms */
