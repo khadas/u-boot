@@ -16,7 +16,7 @@
 
 /* define the parameter type here and make sure the same with blxx */
 enum {
-	STORAGE_PARAM_TPYE = 1,
+	STORAGE_PARAM_TYPE = 1,
 	BL2PARMA_PARAM_TYPE = 2,
 	/* other */
 };

@@ -346,7 +346,7 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 
 	memset(ssp, 0, sizeof(struct storage_startup_parameter));
 	if (!usb_boot) {
-		storage_param_e = param_of(STORAGE_PARAM_TPYE);
+		storage_param_e = param_of(STORAGE_PARAM_TYPE);
 		if (!storage_param_e)
 			return -1;
 		memcpy(ssp, storage_param_e->data,
