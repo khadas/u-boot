@@ -401,7 +401,7 @@ unifykey_read:
 }
 
 int writeUKeyData(const char *key_name, unsigned char data_buf[], int wr_size) {
-    // if the key is not burn data, the fucntion will return fail
+    // if the key is not burn data, the function will return fail
     // now we disable the unifykey check function.
 /*
     int key_len = 0;
