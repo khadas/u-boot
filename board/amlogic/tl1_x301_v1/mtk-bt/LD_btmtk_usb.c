@@ -39,7 +39,7 @@ static volatile int metaMode;
 static volatile int metaCount;
 /* 0: False; 1: True */
 static int isbtready;
-static int isUsbDisconnet;
+static int isUsbDisconnect;
 static volatile int is_assert = 0;
 
 //---------------------------------------------------------------------------
@@ -1495,7 +1495,7 @@ int LD_btmtk_usb_probe(mtkbt_dev_t *dev)
         os_kfree(data->rom_patch_bin_file_name);
 
 
-    isUsbDisconnet = 0;
+    isUsbDisconnect = 0;
     BT_INST(dev)->priv_data = data;
     isbtready = 1;
 
@@ -1524,7 +1524,7 @@ void LD_btmtk_usb_disconnect(mtkbt_dev_t *dev)
 
     usb_debug("unregister bt irq\n");
 
-    isUsbDisconnet = 1;
+    isUsbDisconnect = 1;
     usb_debug("btmtk: stop all URB\n");
     os_kfree(data->io_buf);
     os_kfree(data);
