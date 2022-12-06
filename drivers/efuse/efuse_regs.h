@@ -27,7 +27,7 @@
 
 typedef enum {
 	EFUSE_SOC_CHIP_GXBB,
-	EFUSE_SOC_CHIP_UNKNOW,
+	EFUSE_SOC_CHIP_UNKNOWN,
 }efuse_socchip_type_e;
 
 #endif
