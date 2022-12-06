@@ -2330,7 +2330,7 @@ void hdmi_parse_attr(struct hdmi_format_para *para, char const *name)
 }
 
 /*
- * Paramter 'name' can be 1080p60hz, or 1920x1080p60hz
+ * Parameter 'name' can be 1080p60hz, or 1920x1080p60hz
  * or 3840x2160p60hz, 2160p60hz
  * or 3840x2160p60hz420, 2160p60hz420 (Y420 mode)
  */
