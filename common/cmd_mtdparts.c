@@ -200,7 +200,7 @@ static u64 memsize_parse (const char *const ptr, const char **retptr)
  * @param buf output buffer
  * @param size size to be converted to string
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static void memsize_format(char *buf, u64 size)
 {
 #define SIZE_GB ((u32)1024*1024*1024)
@@ -438,7 +438,7 @@ static int part_validate(struct mtdids *id, struct part_info *part)
  * @param part partition to delete
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static int part_del(struct mtd_device *dev, struct part_info *part)
 {
 	u8 current_save_needed = 0;
@@ -568,7 +568,7 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
  * @param part partition to be added
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static int part_add(struct mtd_device *dev, struct part_info *part)
 {
 	/* verify alignment and size */
@@ -804,7 +804,7 @@ struct mtd_device *device_find(u8 type, u8 num)
  *
  * @param dev device to be added
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static void device_add(struct mtd_device *dev)
 {
 	u8 current_save_needed = 0;
@@ -981,7 +981,7 @@ static int mtd_devices_init(void)
  *
  * @return pointer to the id if it exists, NULL otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static struct mtdids* id_find(u8 type, u8 num)
 {
 	struct list_head *entry;
@@ -1079,7 +1079,7 @@ int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type,
  * @param buflen buffer size
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static int generate_mtdparts(char *buf, u32 buflen)
 {
 	struct list_head *pentry, *dentry;
@@ -1209,7 +1209,7 @@ cleanup:
  * @param buflen buffer size
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static int generate_mtdparts_save(char *buf, u32 buflen)
 {
 	int ret;
@@ -1444,7 +1444,7 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
  * @param id string describing device and partition
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static int delete_partition(const char *id)
 {
 	u8 pnum;
@@ -1987,7 +1987,7 @@ static int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	#ifdef CONFIFG_AML_MTDPART
+	#ifdef CONFIG_AML_MTDPART
 	if (argc > 1) {
 		printf("Don't support mtdpart XXX operation\n");
 		return 0;
@@ -2022,7 +2022,7 @@ static int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 0;
 	}
 
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 	/* mtdparts add <mtd-dev> <size>[@<offset>] <name> [ro] */
 	if (((argc == 5) || (argc == 6)) && (strncmp(argv[1], "add", 3) == 0)) {
 #define PART_ADD_DESC_MAXLEN 64

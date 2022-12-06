@@ -465,7 +465,7 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
 	return 0;
 }
 
-#ifdef CONFIFG_AML_MTDPART
+#ifdef CONFIG_AML_MTDPART
 	extern int __initdata mtd_devs;
 #endif
 int ubi_part(char *part_name, const char *vid_header_offset)

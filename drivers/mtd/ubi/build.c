@@ -72,7 +72,7 @@ struct mtd_dev_param {
 };
 
 /* Numbers of elements set in the @mtd_dev_param array */
-#ifdef CONFIFG_AML_MTDPART
+#ifdef CONFIG_AML_MTDPART
 int __initdata mtd_devs;
 #else
 static int __initdata mtd_devs;
@@ -1492,7 +1492,7 @@ int ubi_mtd_param_parse(const char *val, struct kernel_param *kp)
 		return -EINVAL;
 	}
 
-#ifdef CONFIFG_AML_MTDPART
+#ifdef CONFIG_AML_MTDPART
 	for (i = 0; i < mtd_devs; i++) {
 		p = &mtd_dev_param[i];
 		if (!strcmp(&p->name[0], tokens[0])) {
