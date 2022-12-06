@@ -186,7 +186,7 @@ static const char *COLOR_ATTRIBUTE_LIST1[] = {
  * TV_B witch support 1080p60hz 444,8bit maximum.
  * should keep mode(1080p60hz) witch user selected,
  * and 8bit depth(sdr) is kept in select list for
- * safety of conner case.
+ * safety of corner case.
  * i.e. if HDR cs/cd is not supported, may select
  * 8bit mode.
  * also for user change resolution case in sysctl.

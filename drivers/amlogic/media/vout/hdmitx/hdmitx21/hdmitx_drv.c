@@ -1167,7 +1167,7 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	//---------------
 	// config I2S
 	//---------------
-	//some common reister config,why config this value ?? TODO
+	//some common register config,why config this value ?? TODO
 	hdmitx21_wr_reg(AIP_HDMI2MHL_IVCTX, 0x00); //AIP
 	hdmitx21_wr_reg(PKT_FILTER_0_IVCTX, 0x02); //PKT FILTER
 	hdmitx21_wr_reg(ASRC_IVCTX, 0x00); //ASRC

@@ -1376,7 +1376,7 @@ bool hdmitx_chk_mode_attr_sup(hdmi_data_t *hdmi_data, char *mode, char *attr)
 }
 
 /* force_flag: 0 means check with RX's edid */
-/* 1 means no check wich RX's edid */
+/* 1 means no check with RX's edid */
 enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 	const char *disp_mode, char force_flag)
 {
@@ -1430,7 +1430,7 @@ static bool hdmitx_edid_header_invalid(unsigned char *buf)
 			}
 		}
 	}
-	/* judge header strickly, only if both header invalid */
+	/* judge header strictly, only if both header invalid */
 	if (buf[0x7e] > 0) {
 		if (buf[0x80] != 0x2 && buf[0x80] != 0xf0)
 			ext_blk_invalid = true;
