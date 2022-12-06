@@ -45,7 +45,7 @@ static unsigned char mipi_init_on_table[] = {
 	0x23, 2, 0XC5, 0X01, //TURN ON
 	0xfd, 1, 100,
 
-	//AUO4.97+NT35596_intial
+	//AUO4.97+NT35596_initial
 	0x23, 2, 0XFF, 0XEE, //CMD page select
 	0x23, 2, 0XFB, 0X01, //NON-RELOAD CMD
 	0x23, 2, 0X1F, 0X45,

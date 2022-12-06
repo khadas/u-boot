@@ -130,7 +130,7 @@ static int lcd_tcon_spi_update_data(struct lcd_tcon_spi_block_s *spi_block,
 	return 0;
 }
 
-/* for ext_data, need udpate cmd table when compare */
+/* for ext_data, need update cmd table when compare */
 static int lcd_tcon_spi_ext_cmp(unsigned char index,
 				struct lcd_tcon_spi_block_s *spi_block)
 {
