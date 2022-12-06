@@ -56,7 +56,7 @@ static int fb_nand_lookup(const char *partname,
 		fastboot_fail("cannot find partition");
 		return ret;
 	}
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 	if (dev->id->type != MTD_DEV_TYPE_NAND) {
 		error("partition '%s' is not stored on a NAND device",
 		      partname);

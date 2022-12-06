@@ -109,7 +109,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MTD_WRITEABLE_CMD		1
 
 /* overide mtd part in envs */
-#ifdef CONFIFG_AML_MTDPART
+#ifdef CONFIG_AML_MTDPART
 struct part_info *amlmtd_part = NULL;
 int amlmtd_part_cnt = 0;
 extern int mtdparts_init(void);
@@ -124,7 +124,7 @@ static const char *const mtdids_default = NULL;
 #if defined(MTDPARTS_DEFAULT)
 static const char *const mtdparts_default = MTDPARTS_DEFAULT;
 #else
-static const char *const mtdparts_default = NULL;
+static const char *const mtdparts_default;
 #endif
 #endif
 
@@ -1249,7 +1249,7 @@ static uint64_t net_part_size(struct mtd_info *mtd, struct part_info *part)
 }
 #endif
 
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 static void print_partition_table(void)
 {
 	struct list_head *dentry, *pentry;
@@ -1310,7 +1310,7 @@ static void print_partition_table(void)
  */
 static void list_partitions(void)
 {
-	#ifndef CONFIFG_AML_MTDPART
+	#ifndef CONFIG_AML_MTDPART
 	struct part_info *part;
 
 	debug("\n---list_partitions---\n");
@@ -1352,7 +1352,7 @@ static void list_partitions(void)
  * @param part pointer to requested partition (output)
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 int find_dev_and_part(const char *id, struct mtd_device **dev,
 		u8 *part_num, struct part_info **part)
 {
@@ -1577,7 +1577,7 @@ static int spread_partitions(void)
 static int __attribute__((unused))parse_mtdparts(const char *const mtdparts)
 {
 	const char *p = mtdparts;
-	struct mtd_device *dev;
+	struct mtd_device *dev = NULL;
 	int err = 1;
 	char tmp_parts[MTDPARTS_MAXLEN];
 
@@ -1749,7 +1749,7 @@ static int __attribute__((unused))parse_mtdids(const char *const ids)
  *
  * @return 0 on success, 1 otherwise
  */
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 int mtdparts_init(void)
 {
 	static int initialized = 0;

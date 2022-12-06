@@ -29,7 +29,7 @@
 #include <linux/err.h>
 
 #include "mtdcore.h"
-#ifdef CONFIFG_AML_MTDPART
+#ifdef CONFIG_AML_MTDPART
 #include <jffs2/load_kernel.h>
 #endif
 /* Our partition linked list */
@@ -835,7 +835,7 @@ unsigned int get_mtd_size(char *name)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mtd_get_device_size);
-#ifdef CONFIFG_AML_MTDPART
+#ifdef CONFIG_AML_MTDPART
 extern struct part_info *amlmtd_part;
 extern int amlmtd_part_cnt;
 /* construct a partition list */

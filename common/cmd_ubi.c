@@ -540,9 +540,11 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 		return err;
 	}
 	//ubi = ubi_devices[0];
+#ifdef	CONFIG_AML_MTDPART
 	curr_dev = mtd_devs - 1;
 	ubi = ubi_devices[curr_dev];
 	ubi_msg("current ubi device %d\n", curr_dev);
+#endif
 	return 0;
 }
 
@@ -556,6 +558,7 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (strcmp(argv[1], "device") == 0) {
 		/* list all attached ubi device*/
+#ifdef	CONFIG_AML_MTDPART
 		if (argc == 2) {
 			int i = 0;
 			if (0 == mtd_devs) {
@@ -570,14 +573,17 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				mtd_devs, curr_dev, ubi->mtd->name);
 			return 0;
 		}
+#endif
 		/* select device if it exist */
 		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
+#ifdef	CONFIG_AML_MTDPART
 			if (dev >= mtd_devs) {
 				ubi_msg("check cmd plz, current device %d, %s\n",
 						curr_dev, ubi->mtd->name);
 				return 1;
 			}
+#endif
 			if (dev != curr_dev) {
 				if (ubi_devices[dev]) {
 					curr_dev = dev;
