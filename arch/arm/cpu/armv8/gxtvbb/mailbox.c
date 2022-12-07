@@ -125,14 +125,15 @@ void open_scp_log(unsigned int channel)
 	scpi_send32(SCPI_CMD_OPEN_SCP_LOG, channel, LOW_PRIORITY);
 }
 
-int send_usr_data(unsigned int clinet_id, unsigned int *val, unsigned int size)
+int send_usr_data(unsigned int client_id, unsigned int *val, unsigned int size)
 {
 	unsigned long command;
 
 	if (size > 0x1fd)
 		return -1;
 
-	command = ((unsigned int)SCPI_CMD_SET_USR_DATA & 0xff) | ((clinet_id & 0xff) << 8) | ((size & 0x1ff) << 20);
+	command = ((unsigned int)SCPI_CMD_SET_USR_DATA & 0xff) |
+		  ((client_id & 0xff) << 8) | ((size & 0x1ff) << 20);
 	scpi_send_block(command,val,size,0);
 
 	return 0;
