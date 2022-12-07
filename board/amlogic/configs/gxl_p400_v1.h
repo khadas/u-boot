@@ -81,7 +81,7 @@
 #endif
 #define CONFIG_SARADC_CH  0
 
-/* SMP Definitions */
+/* SMP definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */
@@ -406,7 +406,7 @@
 #define CONFIG_CMD_NAND 1
 #define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
-#define CONFIFG_AML_MTDPART	1
+#define CONFIGURE_AML_MTDPART	1
 /* mtd parts by env default way.*/
 /*
 #define MTDIDS_NAME_STR		"aml_nand.0"
