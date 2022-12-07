@@ -694,6 +694,44 @@ config TARGET_A5_AV409
 
 endif
 
+if MESON_A4
+
+config SYS_SOC
+	default "a4"
+
+config DDRFW_TYPE
+	string "a4 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+        string "a4 CHIPSET NAME"
+        default ""
+
+config CHIPSET_VARIANT
+        string "a4 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "a4 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+choice
+        prompt "a4 Board"
+
+config A4_SKT
+        bool "A4_SKT"
+		select TARGET_A4_SKT
+		help
+		    Select A4 SKT(XXXX) config
+
+endchoice
+
+config TARGET_A4_SKT
+	bool "A4 SKT board"
+	depends on A4_SKT
+
+endif
+
 if MESON_C3
 
 config SYS_SOC
@@ -1570,3 +1608,4 @@ source "board/amlogic/t5m_ay301/Kconfig"
 
 source "board/amlogic/t5m_ay309/Kconfig"
 
+source "board/amlogic/a4_skt/Kconfig"

@@ -164,6 +164,13 @@ config MESON_G12B
 	help
 		Support Amlogic Meson G12B (A311D etc..)
 
+config MESON_A4
+	bool "A4"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson A4
 endchoice
 
 config SYS_MALLOC_F_LEN
