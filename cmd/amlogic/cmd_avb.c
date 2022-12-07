@@ -246,7 +246,7 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops, const char *partit
 static AvbIOResult get_size_of_partition(AvbOps *ops, const char *partition,
 		uint64_t *out_size_num_bytes)
 {
-	int rc = 0;
+	uint64_t rc = 0;
 
 	if (!strcmp(partition, "dt_a") || !strcmp(partition, "dt_b") ||
 			!strcmp(partition, "dt")) {
