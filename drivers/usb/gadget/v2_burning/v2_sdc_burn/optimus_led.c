@@ -68,7 +68,7 @@ static int optimus_pwm_led_show_state(OptimusLedStates_e ledState)
             }
             break;
         default:
-            DWN_ERR("invlaid pwm state %d\n", ledState);
+		DWN_ERR("invalid pwm state %d\n", ledState);
             return __LINE__;
     }
 

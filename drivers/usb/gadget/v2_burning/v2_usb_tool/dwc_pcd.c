@@ -145,7 +145,7 @@ static void dwc_otg_core_init() //Elvis Fool, add 'static'
     dwc_otg_enable_common_interrupts();
 
     /*
-     * Do device or host intialization based on mode during PCD and HCD
+     * Do device or host initialization based on mode during PCD and HCD
      * initialization
      */
      if (dwc_read_reg32(DWC_REG_GINTSTS) & 0x1) {

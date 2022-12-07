@@ -24,7 +24,7 @@ static struct
     int             pktHeadLen;
     char*           chunkDataBuf;//buf for usb download
 
-    //back up infomation for verify
+    //back up information for verify
     chunk_header_t* chunkInfoBackAddr;//file header and chunk info back address
     uint32_t        backChunkNum;      //chunk number backed
     int64_t         leftTransLen;
@@ -249,7 +249,7 @@ static int simg2img_fill_chunk_write(const char* partName, int fillLen, const un
 
 
 //v3tool_simg2img_write_img called after transfer (and checksum) ok
-//Recevied data format: [file header] + [chunk info] or [chunk body >=0] + [next chunk info]
+//rx data format: [file header] + [chunk info] or [chunk body >=0] + [next chunk info]
 //                  <==> <[file header]> + <[chunkBody]> + <[nextChunkInfo]>
 //                      //has [file header] if first download
 //                      //[chunkBody] size 0 if first download or CHUNK_TYPE_DONT_CARE

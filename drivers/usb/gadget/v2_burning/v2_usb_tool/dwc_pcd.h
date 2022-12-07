@@ -169,7 +169,7 @@ typedef struct pcd_struct_s{
 	 unsigned status;
 
      struct {
-         u8     type;//1-->setup+out+in, others: reseved
+	u8     type;//1-->setup+out+in, others: reserved
          u8     setup_complete;
          u8     out_complete;
          u8     in_complete;
@@ -1168,7 +1168,7 @@ typedef union doepint_data
 		unsigned epdisabled : 1;
 		/** AHB Error */
 		unsigned ahberr : 1;
-		/** Setup Phase Done (contorl EPs) */
+		/** Setup Phase Done (control EPs) */
 		unsigned setup : 1;
 		unsigned reserved04_31 : 28;
 	} b;

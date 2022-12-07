@@ -413,7 +413,7 @@ int optimus_progress_ui_update_by_bytes(__hdle hUiPrgress, const unsigned nBytes
     int         ret             = 0;
     int percentsToReport        = 0;
 
-    //bytes not enghout to update one percent
+    //bytes not enough to update one percent
     if (bytesNotReport < nDownBytesOnePercent_f)
     {
         pUiProgress->smartModeLeftBytes = bytesNotReport;

@@ -103,7 +103,7 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
     }
     imgVer = hImg->imgHead.version;
     if (AML_FRMWRM_VER_V1 !=  imgVer && AML_FRMWRM_VER_V2 != imgVer) {
-        DWN_ERR("error verison 0x%x\n", hImg->imgHead.version);
+	DWN_ERR("error version 0x%x\n", hImg->imgHead.version);
         goto _err;
     }
     DWN_MSG("image version [0x%08x]\n", imgVer);

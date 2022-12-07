@@ -60,7 +60,7 @@ typedef struct {
 }AmlResImgHead_t;
 #pragma pack(pop)
 
-/*The Amlogic resouce image is consisted of a AmlResImgHead_t and many
+/*The Amlogic resource image is consisted of a AmlResImgHead_t and many
  *
  * |<---AmlResImgHead_t-->|<--AmlResItemHead_t-->---...--|<--AmlResItemHead_t-->---...--|....
  *
@@ -127,8 +127,8 @@ static void hdcp2DataDecryption(const unsigned len, const char *input, char *out
 }
 
 /*
- *This fucntion called by mwrite command, mread= bulkcmd "download key .." + n * download transfer, for key n==1
- *Attentions: "return value is the key length" if burn sucess
+ *called by mwrite command, mread= bulkcmd "download key .." + n * download transfer, for key n==1
+ *Attentions: "return value is the key length" if burn ok
 
  *@keyName: key name in null-terminated c style string
  *@keyVal: key value download from USB, "the value for special keyName" may need de-encrypt by user code
@@ -203,7 +203,7 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 
 
 /*
- *This fucntion called by mread command, mread= bulkcmd "upload key .." + n * upload transfer, for key n==1
+ *called by mread command, mread= bulkcmd "upload key .." + n * upload transfer, for key n==1
  *Attentions: return 0 if success, else failed
  *@keyName: key name in null-terminated c style string
  *@keyVal: the buffer to read back the key value

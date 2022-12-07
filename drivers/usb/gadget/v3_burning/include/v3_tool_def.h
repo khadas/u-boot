@@ -53,7 +53,7 @@ unsigned add_sum(const void* pBuf, const unsigned size);//Add-sum used for 64K t
 int optimus_erase_bootloader(const char* extBootDev);
 void optimus_clear_ovd_register(void);
 
-//outStr will be null-terminater after format
+//outStr will be null-terminated after format
 int optimus_hex_data_2_ascii_str(const unsigned char* hexData, const unsigned nBytes, char* outStr, const unsigned strSz);
 
 //for prompting step info
@@ -184,7 +184,7 @@ int store_dtb_rw(void* buf, unsigned dtbSz, int rwFlag);
 int v2_key_command(const int argc, char * const argv[], char *info);
 
 /*
- *This fucntion called by mread command, mread= bulkcmd "upload key .." + n * upload transfer, for key n==1
+ *called by mread command, mread= bulkcmd "upload key .." + n * upload transfer, for key n==1
  *Attentions: return 0 if success, else failed
  *@keyName: key name in null-terminated c style string
  *@keyVal: the buffer to read back the key value
@@ -194,8 +194,8 @@ int v2_key_command(const int argc, char * const argv[], char *info);
 int v2_key_read(const char* keyName, u8* keyVal, const unsigned keyValLen, char* errInfo, unsigned* fmtLen);
 
 /*
- *This fucntion called by mwrite command, mread= bulkcmd "download key .." + n * download transfer, for key n==1
- *Attentions: return value is the key length if burn sucess
+ *called by mwrite command, mread= bulkcmd "download key .." + n * download transfer, for key n==1
+ *Attentions: return value is the key length if burn ok
  *@keyName: key name in null-terminated c style string
  *@keyVal: key value download from USB, "the value for special keyName" may need de-encrypt by user code
  *@keyValLen: the key value downloaded from usb transfer!

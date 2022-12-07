@@ -8,7 +8,7 @@
 
 #include "../v2_burning_i.h"
 
-#define OPTIMUS_PROMPT_SIZE_MIN     (4U<<20)//mininal size to prompt burning progress step
+#define OPTIMUS_PROMPT_SIZE_MIN     (4U << 20)//minimal size to prompt burning progress step
 
 struct ProgressInfo{
     u32     itemSzLow;
@@ -80,7 +80,7 @@ int optimus_update_progress(const unsigned thisBurnSz)
     return 0;
 }
 
-//outStr will be null-terminater after format
+//outStr will be null-terminated after format
 int optimus_hex_data_2_ascii_str(const unsigned char* hexData, const unsigned nBytes, char* outStr, const unsigned strSz)
 {
     int i = 1;

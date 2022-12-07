@@ -35,7 +35,7 @@ static int unifykey_item_verify_check(struct key_item_t *key_item)
 		return -1;
 	}
 
-	if ((key_item->dev == KEY_M_UNKNOW_DEV) ||(key_item->datFmt == KEY_M_MAX_DF)) {
+	if (key_item->dev == KEY_M_UNKNOWN_DEV || key_item->datFmt == KEY_M_MAX_DF) {
 		KM_ERR("unify key item is invalid\n");
 		return -1;
 	}

@@ -33,7 +33,7 @@ static struct
     u32      notWrBackSz4LongChunk;
     u32      nextFlashAddr4LastLongChunk; //flash start Addr not write back chunk data , in sector
 
-    //back up infomation for verify
+    //back up information for verify
     u32      chunkInfoBackAddr;//file header and chunk info back address
     u32      backChunkNum;      //chunk number backed
     u64      chunkOffset;
@@ -426,7 +426,7 @@ U_BOOT_CMD(
    1,               //repeatable
    do_timestamp,   //command function
    "Burning a partition from sdmmc ",           //description
-   "Usage: sdc_update partiton image_file_path fileFmt(sparse or normal)\n"   //usage
+	"Usage: sdc_update partition image_file_path fileFmt(sparse or normal)\n"   //usage
 );
 #endif//#if 0
 

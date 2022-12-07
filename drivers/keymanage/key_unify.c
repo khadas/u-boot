@@ -254,7 +254,7 @@ static const KmDevKeyOps* _get_km_ops_by_name(const char* keyname)
             theDevOps = _km_devKeyOpsArr[_KM_DEV_INDEX_PROVISION];
             break;
 
-        case KEY_M_UNKNOW_DEV:
+	case KEY_M_UNKNOWN_DEV:
         default:
             KM_ERR("key %s not know device %d\n", keyname, theDevice);
             return NULL;
@@ -573,7 +573,7 @@ U_BOOT_CMD(
         "key unify sub-system",
         "init seedNum [dtbAddr] --init the drivers\n"
         "keyunify uninit - init key in device\n"
-        "keyunify write keyname data <len>  ---- wirte key data. len non-exist if data is ascii str\n"
+	"keyunify write keyname data <len>  ---- len non-exist if data is ascii str\n"
         "keyunify read keyname data-addr <len> \n"
 );
 
