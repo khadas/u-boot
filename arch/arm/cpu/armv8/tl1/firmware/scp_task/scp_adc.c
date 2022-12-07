@@ -120,7 +120,7 @@ void saradc_enable(void)
 
 	aml_write_reg32(P_AO_SAR_ADC_REG0, 0x84004040);
 	aml_write_reg32(P_AO_SAR_ADC_CHAN_LIST, 0);
-	/* REG2: all chanel set to 8-samples & median averaging mode */
+	/* REG2: all channel set to 8-samples & median averaging mode */
 	aml_write_reg32(P_AO_SAR_ADC_AVG_CNTL, 0);
 	aml_write_reg32(P_AO_SAR_ADC_REG3, 0x9b88000a);
 
