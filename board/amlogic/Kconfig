@@ -1246,12 +1246,30 @@ config T5M_SKT
 	help
 		Select T5M SKT(XXXX) config
 
+config T5M_AY301
+	bool "T5M_AY301"
+	select TARGET_T5M_AY301
+	help
+		Select T5M AY301 config
+
+config T5M_AY309
+	bool "T5M_AY309"
+	select TARGET_T5M_AY309
+	help
+		Select T5M AY309 config
 endchoice
 
 config TARGET_T5M_SKT
 	bool "T5M SKT board"
 	depends on T5M_SKT
 
+config TARGET_T5M_AY301
+	bool "T5M AY301 board"
+	depends on T5M_AY301
+
+config TARGET_T5M_AY309
+	bool "T5M AY309 board"
+	depends on T5M_AY309
 endif
 
 if MESON_C2
@@ -1522,4 +1540,8 @@ source "board/amlogic/c3_aw429/Kconfig"
 source "board/amlogic/t5w_at301_v1/Kconfig"
 
 source "board/amlogic/t5m_skt/Kconfig"
+
+source "board/amlogic/t5m_ay301/Kconfig"
+
+source "board/amlogic/t5m_ay309/Kconfig"
 
