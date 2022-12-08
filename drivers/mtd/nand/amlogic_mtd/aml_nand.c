@@ -1781,7 +1781,7 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 				offset = adjust_offset + start_blk *
 					mtd->erasesize;
 				error = mtd->_block_isbad(mtd, offset);
-				if (error) {
+				if (error == FACTORY_BAD_BLOCK_ERROR) {
 					pr_info("%s:%d factory bad addr=%llx\n",
 						__func__, __LINE__,
 					(uint64_t)(offset >>
