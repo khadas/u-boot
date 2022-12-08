@@ -37,6 +37,7 @@ struct hdmitx_dev {
 	/* Add dongle_mode, clock, phy may be different from mbox */
 	unsigned int dongle_mode;
 	unsigned char limit_res_1080p;
+	bool config_csc_en;
 };
 
 struct hdmitx_dev *hdmitx_get_hdev(void);

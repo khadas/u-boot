@@ -188,6 +188,22 @@ static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
 }
 
+static void hdmitx_config_csc_en(struct hdmitx_dev *hdev)
+{
+	if (!hdev)
+		return;
+
+	if (env_get("config_csc_en")) {
+		if (strncmp("0", env_get("config_csc_en"), 1) == 0)
+			hdev->config_csc_en = 0;
+		else
+			hdev->config_csc_en = 1;
+		printf("config_csc_en:%d\n", hdev->config_csc_en);
+	} else {
+		hdev->config_csc_en = 0;
+	}
+}
+
 static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
@@ -316,6 +332,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		}
 		printf("set hdmitx VIC = %d CS = %d CD = %d\n",
 			hdev->vic, hdev->para->cs, hdev->para->cd);
+		hdmitx_config_csc_en(hdev);
 		ret = hdmi_tx_set(hdev);
 		if (ret != 0)
 			return CMD_RET_FAILURE;
