@@ -4,8 +4,12 @@
  */
 
 #include <common.h>
+#include <amlogic/clk_measure.h>
 #include <amlogic/media/vout/hdmitx/hdmitx.h>
 #include "hdmitx_clk.h"
+
+#define SET_CLK_MAX_TIMES 10
+#define CLK_TOLERANCE 2 /* Unit: MHz */
 
 static uint32_t frac_rate;
 
@@ -165,7 +169,7 @@ void set_hpll_clk_out(unsigned int clk)
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004f3);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00018000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -177,7 +181,7 @@ void set_hpll_clk_out(unsigned int clk)
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004e9);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x0000aaab);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);/*test*/
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);/*test*/
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -192,7 +196,7 @@ void set_hpll_clk_out(unsigned int clk)
 		else
 			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00007333);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -249,7 +253,7 @@ void set_hpll_clk_out(unsigned int clk)
 		else
 			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00005c29);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -276,7 +280,7 @@ void set_hpll_clk_out(unsigned int clk)
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b00048f);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00018000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -291,7 +295,7 @@ void set_hpll_clk_out(unsigned int clk)
 		else
 			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x0000451f);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -303,7 +307,7 @@ void set_hpll_clk_out(unsigned int clk)
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b000485);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00007555);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -318,7 +322,7 @@ void set_hpll_clk_out(unsigned int clk)
 		else
 			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00018000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -330,7 +334,7 @@ void set_hpll_clk_out(unsigned int clk)
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004a8);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00000000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -797,13 +801,17 @@ static void set_hdmitx_fe_clk(struct hdmitx_dev *hdev)
 	hd_set_reg_bits(P_CLKCTRL_HDMI_CLK_CTRL, tmp, 20, 4);
 }
 
-static void set_hdmitx_clk_(struct hdmitx_dev *hdev, enum hdmi_color_depth cd)
+static void set_hdmitx_clk_(struct hdmitx_dev *hdev, enum hdmi_color_depth cd,
+		struct hw_enc_clk_val_group *test_clk)
 {
 	int i = 0;
 	int j = 0;
 	struct hw_enc_clk_val_group *p_enc = NULL;
 	enum hdmi_vic vic = hdev->vic;
 	char *sspll_dis = NULL;
+
+	if (!test_clk)
+		return;
 
 	if (cd == HDMI_COLOR_DEPTH_24B) {
 		p_enc = &setting_enc_clk_val_24[0];
@@ -847,6 +855,7 @@ static void set_hdmitx_clk_(struct hdmitx_dev *hdev, enum hdmi_color_depth cd)
 		return;
 	}
 next:
+	*test_clk = p_enc[j];
 	set_hdmitx_sys_clk();
 	set_hpll_clk_out(p_enc[j].hpll_clk_out);
 	sspll_dis = env_get("sspll_dis");
@@ -865,9 +874,108 @@ next:
 	set_hdmitx_fe_clk(hdev);
 }
 
+/*
+ * calculate the pixel clock with current clock parameters
+ * and measure the pixel clock from hardware clkmsr
+ * then compare above 2 clocks
+ */
+static bool test_pixel_clk(struct hdmitx_dev *hdev, const struct hw_enc_clk_val_group *t)
+{
+	u32 idx;
+	u32 calc_pixel_clk;
+	u32 msr_pixel_clk;
+
+	if (!hdev || !t)
+		return 0;
+
+	/* refer to meson-clk-measure.c, here can see that before SC2,
+	 * the pixel index is 36, and since or after SC2, the index is 59
+	 * the index may change in later chips
+	 */
+	idx = 59;
+
+	/* calculate the pixel_clk firstly */
+	calc_pixel_clk = t->hpll_clk_out;
+	if (frac_rate)
+		calc_pixel_clk = calc_pixel_clk - calc_pixel_clk / 1001;
+	calc_pixel_clk /= (t->od1 > 0) ? t->od1 : 1;
+	calc_pixel_clk /= (t->od2 > 0) ? t->od2 : 1;
+	calc_pixel_clk /= (t->od3 > 0) ? t->od3 : 1;
+	switch (t->vid_pll_div) {
+	case VID_PLL_DIV_2:
+		calc_pixel_clk /= 2;
+		break;
+	case VID_PLL_DIV_2p5:
+		calc_pixel_clk = calc_pixel_clk * 2 / 5;
+		break;
+	case VID_PLL_DIV_3:
+		calc_pixel_clk /= 3;
+		break;
+	case VID_PLL_DIV_3p25:
+		calc_pixel_clk = calc_pixel_clk * 4 / 13;
+		break;
+	case VID_PLL_DIV_3p5:
+		calc_pixel_clk = calc_pixel_clk * 2 / 7;
+		break;
+	case VID_PLL_DIV_3p75:
+		calc_pixel_clk = calc_pixel_clk * 4 / 15;
+		break;
+	case VID_PLL_DIV_4:
+		calc_pixel_clk /= 4;
+		break;
+	case VID_PLL_DIV_5:
+		calc_pixel_clk /= 5;
+		break;
+	case VID_PLL_DIV_6:
+		calc_pixel_clk /= 6;
+		break;
+	case VID_PLL_DIV_6p25:
+		calc_pixel_clk = calc_pixel_clk * 4 / 25;
+		break;
+	case VID_PLL_DIV_7:
+		calc_pixel_clk /= 7;
+		break;
+	case VID_PLL_DIV_7p5:
+		calc_pixel_clk = calc_pixel_clk * 2 / 15;
+		break;
+	case VID_PLL_DIV_12:
+		calc_pixel_clk /= 12;
+		break;
+	case VID_PLL_DIV_14:
+		calc_pixel_clk /= 14;
+		break;
+	case VID_PLL_DIV_15:
+		calc_pixel_clk /= 15;
+		break;
+	case VID_PLL_DIV_1:
+	default:
+		calc_pixel_clk /= 1;
+		break;
+	}
+	calc_pixel_clk /= (t->vid_clk_div > 0) ? t->vid_clk_div : 1;
+	calc_pixel_clk /= (t->hdmi_tx_pixel_div > 0) ? t->hdmi_tx_pixel_div : 1;
+
+	/* measure the current HW pixel_clk */
+	msr_pixel_clk = clk_util_clk_msr(idx);
+
+	/* convert both unit to MHz and compare */
+	calc_pixel_clk /= 1000;
+	msr_pixel_clk /= 1000000;
+	if (calc_pixel_clk == msr_pixel_clk)
+		return 1;
+	if (calc_pixel_clk > msr_pixel_clk && ((calc_pixel_clk - msr_pixel_clk) <= CLK_TOLERANCE))
+		return 1;
+	if (calc_pixel_clk < msr_pixel_clk && ((msr_pixel_clk - calc_pixel_clk) <= CLK_TOLERANCE))
+		return 1;
+	pr_info("calc_pixel_clk %dMHz msr_pixel_clk %dMHz\n", calc_pixel_clk, msr_pixel_clk);
+	return 0;
+}
+
 void hdmitx_set_clk(struct hdmitx_dev *hdev)
 {
 	char *frac_rate_str = NULL;
+	int i = 0;
+	struct hw_enc_clk_val_group test_clks = {0};
 
 	frac_rate_str = env_get("frac_rate_policy");
 	if (frac_rate_str && (frac_rate_str[0] == '0'))
@@ -876,9 +984,16 @@ void hdmitx_set_clk(struct hdmitx_dev *hdev)
 		frac_rate = 1;
 	hdev->frac_rate_policy = frac_rate;
 
-	if (hdev->para->cs != HDMI_COLOR_FORMAT_422)
-		set_hdmitx_clk_(hdev, hdev->para->cd);
-	else
-		set_hdmitx_clk_(hdev, HDMI_COLOR_DEPTH_24B);
+	/* set the clock and test the pixel clock */
+	for (i = 0; i < SET_CLK_MAX_TIMES; i++) {
+		if (hdev->para->cs != HDMI_COLOR_FORMAT_422)
+			set_hdmitx_clk_(hdev, hdev->para->cd, &test_clks);
+		else
+			set_hdmitx_clk_(hdev, HDMI_COLOR_DEPTH_24B, &test_clks);
+		if (test_pixel_clk(hdev, &test_clks))
+			break;
+	}
+	if (i == SET_CLK_MAX_TIMES)
+		pr_info("need check hdmitx clocks\n");
 }
 
