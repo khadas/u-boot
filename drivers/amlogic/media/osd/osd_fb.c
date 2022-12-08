@@ -1069,7 +1069,7 @@ static int get_vpp_slice_num(const struct vinfo_s *info)
 	return slice_num;
 }
 
-void update_vpp_input_info(const struct vinfo_s *info)
+static void update_vpp_input_info(const struct vinfo_s *info)
 {
 	vpp_input.slice_num = get_vpp_slice_num(info);
 	vpp_input.overlap_hsize = 32;
@@ -1364,7 +1364,7 @@ void vpp_post_set(u32 vpp_index, struct vpp_post_s *vpp_post)
 	//vpp_post_win_cut_set(vpp_index, vpp_post);
 }
 
-void vpp_post_blend_update_s5(const struct vinfo_s *vinfo)
+static void vpp_post_blend_update_s5(void)
 {
 	struct vpp_post_s vpp_post;
 
@@ -1444,7 +1444,7 @@ no_scale:
 #endif
 #ifdef AML_S5_DISPLAY
 	update_vpp_input_info(vinfo);
-	vpp_post_blend_update_s5(vinfo);
+	vpp_post_blend_update_s5();
 #endif
 	osd_enable_hw(osd_index, 1);
 
