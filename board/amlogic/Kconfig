@@ -1227,7 +1227,7 @@ config DDRFW_TYPE
 
 config CHIPSET_NAME
         string "T5M CHIPSET NAME"
-        default ""
+        default "t963d4"
 
 config CHIPSET_VARIANT
         string "T5M CHIPSET VARIANT"
