@@ -171,12 +171,10 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#ifdef CONFIG_PXP_EMULATOR
-	return 0;
-#else
 	char outputModePre[30] = {};
+#ifdef CONFIG_PXP_EMULATOR
 	char outputModeCur[30] = {};
-
+#endif
 	printf("board late init\n");
 
 	/* ****************************************************
@@ -220,6 +218,7 @@ int board_late_init(void)
 
 	/* load unifykey */
 	run_command("keyman init 0x1234", 0);
+#ifdef CONFIG_PXP_EMULATOR
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -273,9 +272,8 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
-
-	return 0;
 #endif
+	return 0;
 }
 
 phys_size_t get_effective_memsize(void)
@@ -287,21 +285,21 @@ phys_size_t get_effective_memsize(void)
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 	if (ddr_size >= 0xe0000000)
 		ddr_size = 0xe0000000;
-	return (0x20000000 - CONFIG_SYS_MEM_TOP_HIDE);
+	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 	if (ddr_size >= 0xe0000000)
 		ddr_size = 0xe0000000;
-	return 0x20000000;
+	return ddr_size;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
 
 phys_size_t get_ddr_info_size(void)
 {
-	//phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
 
-	return 0x20000000;
+	return ddr_size;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)
@@ -317,7 +315,7 @@ static struct mm_region bd_mem_map[] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
-		.size = 0x20000000UL,
+		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
