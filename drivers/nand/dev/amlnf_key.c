@@ -9,16 +9,16 @@
 static struct amlnand_chip *aml_chip_key = NULL;
 
 /*
- * This funcion reads the u-boot keys.
+ * This function reads the u-boot keys.
  */
-int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth)
+int amlnf_key_read(u8 * buf, int len, uint32_t *actual_length)
 {
 	struct amlnand_chip * aml_chip = aml_chip_key;
 	struct nand_menson_key *key_ptr = NULL;
 	u32 keysize = aml_chip->keysize;
 	int error = 0;
 
-	*actual_lenth = keysize;
+	*actual_length = keysize;
 
 	if (aml_chip == NULL) {
 		printk("%s(): amlnf key not ready yet!", __func__);
@@ -58,9 +58,9 @@ exit:
 }
 
 /*
- * This funcion write the keys.
+ * This function write the keys.
  */
-int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth)
+int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length)
 {
 	struct amlnand_chip * aml_chip = aml_chip_key;
 	struct nand_menson_key *key_ptr = NULL;

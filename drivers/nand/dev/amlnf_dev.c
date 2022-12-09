@@ -305,7 +305,7 @@ static ssize_t nand_part_table_get(struct class *class,
 				part_table[j].mask_flags =
 					dev_paramt->partitions[j].mask_flags;
 				/*
-				aml_nand_msg("CODE: partiton name %s, size %llx,
+				aml_nand_msg("CODE: partition name %s, size %llx,
 				offset %llx maskflag %d",
 				part_table[j].name,
 				part_table[j].size,
@@ -338,7 +338,7 @@ static ssize_t nand_part_table_get(struct class *class,
 				part_table[k].mask_flags =
 					dev_paramt->partitions[j].mask_flags;
 				/*
-				aml_nand_msg("CODE: partiton name %s,size %llx,
+				aml_nand_msg("CODE: partition name %s,size %llx,
 				offset %llx maskflag %d",
 				part_table[k].name,
 				part_table[k].size,
@@ -371,7 +371,7 @@ static ssize_t nand_part_table_get(struct class *class,
 				part_table[m].mask_flags =
 					dev_paramt->partitions[j].mask_flags;
 				/*
-				aml_nand_msg("CODE:partiton name %s,size %llx,
+				aml_nand_msg("CODE:partition name %s,size %llx,
 				offset %llx maskflag %d",
 				part_table[m].name,
 				part_table[m].size,

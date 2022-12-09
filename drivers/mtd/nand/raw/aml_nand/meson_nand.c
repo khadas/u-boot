@@ -500,7 +500,7 @@ static int m3_nand_options_confirm(struct aml_nand_chip *aml_chip)
 			aml_chip->ecc_max = 16;
 			break;
 		default :
-			printk("unknow ecc mode, error!");
+			printk("unknown ecc mode, error!");
 			error = -ENXIO;
 			break;
 	}

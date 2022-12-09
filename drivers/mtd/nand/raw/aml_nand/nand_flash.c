@@ -987,7 +987,7 @@ void display_para_page(struct parameter_page para_page,unsigned long log_level)
 
 	if (1 == log_level) {
 		printk("The parameter value is show as following list,"
-			"please refer to ONFI SPEC for more infomation.\n");
+			"please refer to ONFI SPEC for more information.\n");
 		printk("index val index val index val index val ");
 		for (i = 0; i < sizeof(para_page); i++, buf++) {
 			if (!(i % 4))

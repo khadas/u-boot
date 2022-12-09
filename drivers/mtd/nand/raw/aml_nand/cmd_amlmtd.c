@@ -567,11 +567,11 @@ static char amlmtd_help_text[] =
 	"amlnf bl2_erase [cpy]	- erase bl2 area, erase all without cpy!\n"
 	"amlnf bl2_read addr cpy size 	- read bl2 by cpy.\n"
 	"amlnf bl2_write addr [cpy] size	- write bl2.\n"
-    "\t[cpy] copy to operate\n\twirte all copies if without cpy\n"
+    "\t[cpy] copy to operate\n\twrite all copies if without cpy\n"
     "amlnf fip_info	- show fip infos\n"
     "amlnf fip_read addr off size	- read fip.\n"
     "amlnf fip_write addr [off] size	- write fip.\n"
-    "\t[off] inside offset\n\twirte all copies if without off\n"
+    "\t[off] inside offset\n\twrite all copies if without off\n"
     "amlnf fip_erase [cpy]	- erase fip area, erase all without cpy!\n"
 
     "amlnf dtb_read/write addr size	- read/write dtd.\n"
