@@ -56,11 +56,11 @@ void t7_sys0_pll_unprepare(struct meson_clk_pll_data *pll)
 
 static const struct pll_params_table t7_sys_pll_table[] = {
 	PLL_PARAMS(67, 1, 1), /*DCO=1608M OD=804MM*/
-	PLL_PARAMS(133, 1, 1), /*DCO=3192M OD=1596MM*/
+	PLL_PARAMS(126, 1, 1), /*DCO=3024M OD=1512MM*/
 	{ /* sentinel */ }
 };
 
-static unsigned int t7_sys_pll_default_rate[] = {804, 1596};
+static unsigned int t7_sys_pll_default_rate[] = {804, 1512};
 
 static const struct reg_sequence t7_sys0_pll_init_regs[] = {
 	{ .reg = ANACTRL_SYS0PLL_CTRL0, .def = 0x20011086 },
@@ -124,31 +124,6 @@ struct meson_clk_pll_data t7_sys0_pll = {
 	.clkmsr_margin = 10,
 };
 
-int t7_sys1_pll_prepare(struct meson_clk_pll_data *pll)
-{
-	struct arm_smccc_res res;
-
-	/* store rate */
-	meson_pll_store_rate(pll);
-
-	/* Set fixed clk to 1G, Switch to fixed clk first */
-	arm_smccc_smc(SECURE_CPU_CLK, SECID_CPU_CLK_DYN,
-	1, 0, 0, 0, 0, 0, &res);
-
-	meson_switch_cpu_clk(SECURE_CPU_CLK, SECID_CPU_CLK_SEL, 0);
-
-	return 0;
-}
-
-void t7_sys1_pll_unprepare(struct meson_clk_pll_data *pll)
-{
-	/* restore rate */
-	meson_pll_restore_rate(pll);
-
-	/* Switch back cpu to sys pll */
-	meson_switch_cpu_clk(SECURE_CPU_CLK, SECID_CPU_CLK_SEL, 1);
-}
-
 static const struct reg_sequence t7_sys1_pll_init_regs[] = {
 	{ .reg = ANACTRL_SYS1PLL_CTRL0, .def = 0x20011086 },
 	{ .reg = ANACTRL_SYS1PLL_CTRL0, .def = 0x30011086 },
@@ -197,8 +172,6 @@ struct meson_clk_pll_data t7_sys1_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		.pll_prepare = t7_sys1_pll_prepare,
-		.pll_unprepare = t7_sys1_pll_unprepare,
 		.pll_disable = meson_secure_pll_disable,
 		.pll_set_rate = meson_secure_pll_set_rate,
 		.pll_set_parm_rate = meson_secure_pll_set_parm_rate,
