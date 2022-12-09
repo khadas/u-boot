@@ -485,6 +485,13 @@ static void flash(char *cmd_parameter, char *response)
 		struct blk_desc *dev_desc;
 		int erase_flag = 0;
 
+		rc = store_part_size("bootloader_a");
+		if (rc != -1) {
+			fastboot_mmc_erase("bootloader_a", response);
+			fastboot_mmc_flash_write("bootloader_a", fastboot_buf_addr, image_size,
+				response);
+		}
+
 		/* the max size of bootloader.img is 4M, we reserve 128k for gpt.bin
 		 * so we put gpt.bin at offset 0x3DFE00
 		 * 0 ~ 512 bootloader secure boot, we don't care it here.
