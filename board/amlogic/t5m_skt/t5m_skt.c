@@ -287,21 +287,21 @@ phys_size_t get_effective_memsize(void)
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 	if (ddr_size >= 0xe0000000)
 		ddr_size = 0xe0000000;
-	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
+	return (0x20000000 - CONFIG_SYS_MEM_TOP_HIDE);
 #else
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
 	if (ddr_size >= 0xe0000000)
 		ddr_size = 0xe0000000;
-	return ddr_size
+	return 0x20000000;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
 
 phys_size_t get_ddr_info_size(void)
 {
-	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+	//phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
 
-	return ddr_size;
+	return 0x20000000;
 }
 
 ulong board_get_usable_ram_top(ulong total_size)
@@ -317,7 +317,7 @@ static struct mm_region bd_mem_map[] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
-		.size = 0xe0000000UL,
+		.size = 0x20000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
