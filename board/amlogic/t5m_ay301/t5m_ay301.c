@@ -47,9 +47,6 @@
 #ifdef CONFIG_AML_VOUT
 #include <amlogic/media/vout/aml_vout.h>
 #endif
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmitx/hdmitx_module.h>
-#endif
 #ifdef CONFIG_AML_LCD
 #include <amlogic/media/vout/lcd/lcd_vout.h>
 #endif
@@ -201,6 +198,7 @@ int board_late_init(void)
 	char *outputmode_str = env_get("outputmode");
 	if (outputmode_str)
 		strlcpy(outputModePre, outputmode_str, 30);
+	printf("outputmode:%s\n", outputmode_str);
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);

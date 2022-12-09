@@ -1059,6 +1059,7 @@ void vout_probe(void)
 		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
 		break;
 	case MESON_CPU_MAJOR_ID_T3:
+	case MESON_CPU_MAJOR_ID_T5M:
 		vout_conf = &vout_config_dual_t3;
 		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
 		break;
