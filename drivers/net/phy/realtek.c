@@ -231,17 +231,6 @@ static struct phy_driver RTL8211E_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-/* Support for RTL8211F PHY */
-static struct phy_driver RTL8211F_driver = {
-       .name = "RealTek RTL8211F",
-       .uid = 0x1cc916,
-       .mask = 0xffffff,
-       .features = PHY_GBIT_FEATURES,
-       .config = &rtl8211f_config,
-       .startup = &rtl8211f_startup,
-       .shutdown = &genphy_shutdown,
-};
-
 /* Support for RTL8211DN PHY */
 static struct phy_driver RTL8211DN_driver = {
 	.name = "RealTek RTL8211DN",
@@ -250,6 +239,17 @@ static struct phy_driver RTL8211DN_driver = {
 	.features = PHY_GBIT_FEATURES,
 	.config = &rtl8211x_config,
 	.startup = &rtl8211x_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+/* Support for RTL8211F PHY */
+static struct phy_driver RTL8211F_driver = {
+	.name = "RealTek RTL8211F",
+	.uid = 0x1cc916,
+	.mask = 0xffffff,
+	.features = PHY_GBIT_FEATURES,
+	.config = &rtl8211f_config,
+	.startup = &rtl8211f_startup,
 	.shutdown = &genphy_shutdown,
 };
 

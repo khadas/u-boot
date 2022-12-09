@@ -322,17 +322,6 @@
                  "mmc dev 1;"\
              "fi;"\
              "\0"\
-        "display_config="\
-             "fdt addr ${dtb_mem_addr}; "\
-             "if test ${lcd_exist} = 0; then "\
-                 "fdt set /lcd status disable;"\
-                 "fdt set /backlight status disable;"\
-             "else "\
-                 "if test ${nativeui} = enable; then "\
-                    "setenv nativeui disable;"\
-                 "fi;"\
-             "fi;"\
-             "\0"\
         "wol_init="\
             "if test ${ext_ethernet} = 0; then "\
                "kbi powerstate;"\
@@ -349,7 +338,18 @@
                "setenv bootargs ${bootargs} wol_enable=0;"\
             "fi;"\
             "\0"\
-		"port_mode_change="\
+        "display_config="\
+             "fdt addr ${dtb_mem_addr}; "\
+             "if test ${lcd_exist} = 0; then "\
+                 "fdt set /lcd status disable;"\
+                 "fdt set /backlight status disable;"\
+             "else "\
+                 "if test ${nativeui} = enable; then "\
+                    "setenv nativeui disable;"\
+                 "fi;"\
+             "fi;"\
+             "\0"\
+        "port_mode_change="\
              "fdt addr ${dtb_mem_addr}; "\
              "kbi portmode r;"\
              "if test ${port_mode} = 0; then "\
@@ -609,6 +609,7 @@
 
 /* DISPLAY & HDMITX */
 #define CONFIG_AML_HDMITX20 1
+
 #define CONFIG_AML_CANVAS 1
 #define CONFIG_AML_VOUT 1
 #define CONFIG_AML_OSD 1
