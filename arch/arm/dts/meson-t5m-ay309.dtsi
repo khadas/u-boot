@@ -132,8 +132,8 @@
 	pinctrl-names = "sd_all_pins", "sd_uart";
 
 	bus-width = <4>;
-//	cap-sd-highspeed;
-	max-frequency = <6000000>;
+	cap-sd-highspeed;
+	max-frequency = <100000000>;
 	disable-wp;
 
 	cd-gpios = <&gpio GPIOC_10 GPIO_ACTIVE_HIGH>;
@@ -158,9 +158,9 @@
 	pinctrl-names = "default";
 
 	bus-width = <8>;
-//	cap-mmc-highspeed;
+	cap-mmc-highspeed;
 	//mmc-hs200-1_8v;
-	max-frequency = <6000000>;
+	max-frequency = <200000000>;
 	non-removable;
 	disable-wp;
 	/* mmc-ddr-1_8v; */
