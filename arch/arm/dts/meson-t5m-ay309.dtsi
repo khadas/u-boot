@@ -191,25 +191,42 @@
 };
 
 &crg20 {
-        status = "okay";
-        dr_mode = "host";
+	status = "okay";
+	dr_mode = "host";
+};
+
+&crg21 {
+	status = "okay";
+	dr_mode = "host";
 };
 
 &crg30 {
-        status = "okay";
-        dr_mode = "host";
+	status = "okay";
+	dr_mode = "host";
 };
 
-&usb2_phy_v2 {
-        status = "okay";
-        portnum = <3>;
+&usb20_phy_v2 {
+	status = "okay";
+	portnum = <1>;
 };
 
-&usb3_phy_v2 {
-        status = "okay";
-        portnum = <0>;
-        gpio-vbus-power = "GPIOD_6";
-        gpios = <&gpio GPIOD_6 GPIO_ACTIVE_HIGH>;
+&usb30_phy_v2 {
+	status = "okay";
+	portnum = <0>;
+	/* gpio-vbus-power = "GPIOH_6"; */
+	/* gpios = <&gpio GPIOh_6 GPIO_ACTIVE_HIGH>; */
+};
+
+&usb21_phy_v2 {
+	status = "okay";
+	portnum = <1>;
+};
+
+&usb31_phy_v2 {
+	status = "okay";
+	portnum = <0>;
+	/* gpio-vbus-power = "GPIOH_6"; */
+	/* gpios = <&gpio GPIOh_6 GPIO_ACTIVE_HIGH>; */
 };
 
 &pwm_ef {
