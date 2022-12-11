@@ -14,6 +14,7 @@
 
 #define PM_MAX           5
 #define PM_DSPA		(PM_MAX + 1)
+#define PM_HDMIRX	9
 
 unsigned long viu_init_psci_smc(void);
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);

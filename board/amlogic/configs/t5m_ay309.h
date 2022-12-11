@@ -488,9 +488,9 @@
 
 #define CONFIG_MULTI_DTB    1
 
-//#define CONFIG_RX_RTERM		1
+#define CONFIG_RX_RTERM		1
 
-//#define CONFIG_CMD_HDMIRX   1
+#define CONFIG_CMD_HDMIRX   1
 
 #define CONFIG_CMD_CEC		1
 /* support secure boot */

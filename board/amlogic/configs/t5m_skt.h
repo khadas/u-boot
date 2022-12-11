@@ -332,7 +332,7 @@
 #define CONFIG_CMD_CACHE
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
 
 #define CONFIG_MULTI_DTB    1
 
