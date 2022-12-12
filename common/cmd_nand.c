@@ -267,7 +267,8 @@ static inline int str2long(const char *p, ulong *num)
 	*num = simple_strtoul(p, &endptr, 16);
 	return *p != '\0' && *endptr == '\0';
 }
-#ifndef CONFIFG_AML_MTDPART
+
+#ifndef CONFIG_AML_MTDPART
 static int get_part(const char *partname, int *idx, loff_t *off, loff_t *size,
 		loff_t *maxsize)
 {

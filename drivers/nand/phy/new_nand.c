@@ -229,20 +229,20 @@ static int aml_nand_get_20nm_OTP_value(struct hw_controller *controller,  unsign
 			break;
 		}
 	}
-		if (check_flag) {
-		aml_nand_msg(" 20 nm flashdefault vaule abnormal not safe !!!!!, chip[%d]", chipnr);
+	if (check_flag) {
+		aml_nand_msg(" 20 nm flashdefault value abnormal not safe !!!!!, chip[%d]", chipnr);
 		BUG();
 	}
 	else{
 		tmp_buf = buf;
-		aml_nand_dbg("20 nm flashdefault vaule OK at %dst copy", i);
+		aml_nand_dbg("20 nm flashdefault value OK at %dst copy", i);
 		memcpy(&retry_info->reg_def_val[chipnr][0], tmp_buf, retry_info->reg_cnt_lp);
-		aml_nand_dbg("20 nm flash default vaule");
+		aml_nand_dbg("20 nm flash default value");
 		for (j=0;j<retry_info->reg_cnt_lp;j++)
 			aml_nand_dbg("REG(0x%x):   value:0x%2x, for chip[%d]", retry_info->reg_addr_lp[j],
 			                   retry_info->reg_def_val[chipnr][j], chipnr);
 		tmp_buf += retry_info->reg_cnt_lp;
-		aml_nand_dbg("20 nm flash offset vaule");
+		aml_nand_dbg("20 nm flash offset value");
 		for (j=0;j<retry_info->retry_cnt_lp;j++) {
 			for (k=0;k<retry_info->reg_cnt_lp;k++) {
 				retry_info->reg_offs_val_lp[chipnr][j][k] = (char)tmp_buf[0];

@@ -6,7 +6,7 @@
  *
  */
 
-/* cmd c files for aml mtd, overide amlnf cmds */
+/* cmd c files for aml mtd, override amlnf cmds */
 #include <config.h>
 #include <common.h>
 #include <command.h>
@@ -547,37 +547,38 @@ static int do_amlmtd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
     return CMD_RET_USAGE;
 }
 
-
+#define CONFIG_AMLNF_BL2_BOOTLOADER	0
 #ifdef CONFIG_SYS_LONGHELP
 static char amlmtd_help_text[] =
 #ifndef CONFIG_DISCRETE_BOOTLOADER
-    "amlnf rom_read addr off size	- read uboot by offset.\n"
+	"amlnf rom_read addr off size	- read uboot by offset.\n"
     "amlnf rom_write addr off size	- write all uboot at once.\n"
     "amlnf rom_erase  - erase whole boot area\n"
 #else
-#if 0 /* hide for interal usage */
-    "amlnf rom_erase [cpy]	- erase bl2 area, erase all without cpy!\n"
-    "amlnf rom_read addr off size	- read bl2 by offset.\n"
-    "amlnf rom_write addr [off] size	- write bl2.\n"
-    "\t[off] inside offset\n\twirte all copies if without off\n"
+#if CONFIG_AMLNF_BL2_BOOTLOADER /* hide for internal usage */
+	"amlnf rom_erase [cpy]	- erase bl2 area, erase all without cpy!\n"
+	"amlnf rom_read addr off size	- read bl2 by offset.\n"
+	"amlnf rom_write addr [off] size	- write bl2.\n"
+	"\t[off] inside offset\n\twrite all copies if without off\n"
 #endif
-    "amlnf bl2_info	- show bl2 infos\n"
-    "amlnf bl2_erase [cpy]	- erase bl2 area, erase all without cpy!\n"
-    "amlnf bl2_read addr cpy size	- read bl2 by cpy.\n"
-    "amlnf bl2_write addr [cpy] size	- write bl2.\n"
-    "\t[cpy] copy to operate\n\twirte all copies if without cpy\n"
-    "amlnf fip_info	- show fip infos\n"
-    "amlnf fip_read addr off size	- read fip.\n"
-    "amlnf fip_write addr [off] size	- write fip.\n"
-    "\t[off] inside offset\n\twirte all copies if without off\n"
-    "amlnf fip_erase [cpy]	- erase fip area, erase all without cpy!\n"
+	"amlnf bl2_info	- show bl2 infos\n"
+	"amlnf bl2_erase [cpy]	- erase bl2 area, erase all without cpy!\n"
+	"amlnf bl2_read addr cpy size	- read bl2 by cpy.\n"
+	"amlnf bl2_write addr [cpy] size	- write bl2.\n"
+	"\t[cpy] copy to operate\n\twrite all copies if without cpy\n"
+	"amlnf fip_info	- show fip infos\n"
+	"amlnf fip_read addr off size	- read fip.\n"
+	"amlnf fip_write addr [off] size	- write fip.\n"
+	"\t[off] inside offset\n\twrite all copies if without off\n"
+	"amlnf fip_erase [cpy]	- erase fip area, erase all without cpy!\n"
 #endif
-    "amlnf dtb_read/write addr size	- read/write dtd.\n"
-    "amlnf dtb_erase    - erase dtb area!\n"
-    "amlnf key_read/write addr size	- read/write keys.\n"
-    "amlnf key_erase    - erase keys!\n"
+	"amlnf dtb_read/write addr size	- read/write dtd.\n"
+	"amlnf dtb_erase    - erase dtb area!\n"
+	"amlnf key_read/write addr size	- read/write keys.\n"
+	"amlnf key_erase    - erase keys!\n"
 	"";
 #endif
+
 U_BOOT_CMD(
 	amlnf, CONFIG_SYS_MAXARGS, 0, do_amlmtd,
 	"aml mtd nand sub-system",

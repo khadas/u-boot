@@ -2583,63 +2583,68 @@ int amlnand_init_block_status(struct amlnand_chip *aml_chip)
 #ifdef AML_NAND_UBOOT
 static int confirm_dev_para(struct dev_para*dev_para_cmp,struct amlnf_partition *config_init,int dev_flag)
 {
-	int ret =0, j=0,partiton_num=0;
+	int ret = 0, j = 0, partition_num = 0;
 	struct amlnf_partition *partition = NULL;
-	struct amlnf_partition * partition_ptr =NULL;
+	struct amlnf_partition *partition_ptr = NULL;
 
 	for (j = 0; j < MAX_NAND_PART_NUM; j++) {
 		partition = &(config_init[j]);
-		partition_ptr =& (dev_para_cmp->partitions[partiton_num]);
+		partition_ptr = &dev_para_cmp->partitions[partition_num];
 		if (partition->mask_flags == dev_flag) {
 			if (memcmp(partition_ptr->name, partition->name, strlen(partition->name))) {
-				aml_nand_msg("nand partition table changed: partition->name: from %s  to %s",partition_ptr->name,partition->name);
+				aml_nand_msg("partition table name changed: from %s to %s",
+				partition_ptr->name, partition->name);
 				ret = -1;
 				break;
 			}
 			if (partition->size != partition_ptr->size) {
-				aml_nand_msg("nand partition table changed:  %s partition->size: from %llx	to %llx",partition->name,partition_ptr->size,partition->size);
+				aml_nand_msg("%s partition table size changed: from %llx to %llx",
+				partition->name, partition_ptr->size, partition->size);
 				ret = -1;
 				break;
 			}
 			if (partition_ptr->mask_flags != dev_flag) {
-				aml_nand_msg("nand partition table %s : mask_flag changed from %d to %d",partition->name,partition_ptr->mask_flags,partition->mask_flags);
+				aml_nand_msg("partition table %s : mask_flag changed from %d to %d",
+				partition->name, partition_ptr->mask_flags, partition->mask_flags);
 				ret = -1;
 				break;
 			}
-			partiton_num ++;
+			partition_num++;
 		}
 	}
 
-	if (dev_para_cmp->nr_partitions != partiton_num) {
-		aml_nand_msg("nand dev %s : nr_partitions num changed from %d to %d",dev_para_cmp->name,dev_para_cmp->nr_partitions,partiton_num);
+	if (dev_para_cmp->nr_partitions != partition_num) {
+		aml_nand_msg("nand dev %s : nr_partitions num changed from %d to %d",
+				dev_para_cmp->name, dev_para_cmp->nr_partitions, partition_num);
 		ret = -1;
 	}
 
 	return ret ;
 }
 
-static void init_dev_para(struct dev_para*dev_para_ptr,struct amlnf_partition *config_init, int dev_flag)
+static void init_dev_para(struct dev_para *dev_para_ptr,
+		struct amlnf_partition *config_init, int dev_flag)
 {
-	int j=0,partiton_num=0;
+	int j = 0, partition_num = 0;
 	struct amlnf_partition *partition = NULL;
-	struct amlnf_partition * partition_ptr =NULL;
+	struct amlnf_partition *partition_ptr = NULL;
 
 	for (j = 0; j < MAX_NAND_PART_NUM; j++) {
 		//printf("%s, j = %d\n", __func__, j);
 		partition = &(config_init[j]);
-		partition_ptr =& (dev_para_ptr->partitions[partiton_num]);
+		partition_ptr = &dev_para_ptr->partitions[partition_num];
 		if (partition->mask_flags == dev_flag) {
 			memcpy(partition_ptr->name, partition->name, strlen( partition->name));
 			partition_ptr->size = partition->size;
 			partition_ptr->mask_flags = partition->mask_flags;
-			partiton_num ++;
+			partition_num++;
 			aml_nand_dbg("init_dev_para : partition->name %s ", partition->name);
 			aml_nand_dbg("init_dev_para : partition->size %llx", partition->size);
 			aml_nand_dbg("init_dev_para : partition->mask_flags %d", partition->mask_flags);
 		}
 	}
-	dev_para_ptr->nr_partitions = partiton_num;
-	aml_nand_msg("partition-> partiton_num %d",partiton_num);
+	dev_para_ptr->nr_partitions = partition_num;
+	aml_nand_msg("partition-> partition_num %d", partition_num);
 
 	return;
 }

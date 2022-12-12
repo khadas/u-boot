@@ -56,9 +56,9 @@ int dtb_write(void *addr);
 
 /* emmc key operation */
 int mmc_key_read(unsigned char *buf,
-		unsigned int size, uint32_t *actual_lenth);
+		unsigned int size, uint32_t *actual_length);
 int mmc_key_write(unsigned char *buf,
-		unsigned int size, uint32_t *actual_lenth);
+		unsigned int size, uint32_t *actual_length);
 int mmc_key_erase(void);
 
 /* partition operation */

@@ -18,8 +18,9 @@
 #include <asm/cpu_id.h>
 
 #include "aml_mtd.h"
+#define AML_NAND_DEBUG	0
 
-#if  0
+#if  AML_NAND_DEBUG
 #define aml_nand_debug(a...) \
 	{ printk("%s()[%s,%d]",__func__,__FILE__,__LINE__); printk(a); }
 #else
@@ -302,7 +303,7 @@ int8_t aml_nand_get_20nm_OTP_value(struct aml_nand_chip *aml_chip,
 			break;
 	}
 	if (check_flag) {
-		printk("%s %d 20nm flash default vaule abnormal,chip[%d]\n",
+		printf("%s %d 20nm flash default value abnormal,chip[%d]\n",
 			__func__, __LINE__, chipnr);
 		BUG();
 	} else {
@@ -382,7 +383,7 @@ for (j = 0; j < aml_chip->new_nand_info.read_rety_info.retry_cnt; j++)
 	}
 	for (i = 0;i < 32; i++)
 		if (retry_value_sta[i] == 0) {
-			printk("  chip[%d] flash %d vaule abnormal not safe\n",
+			printf("  chip[%d] flash %d value abnormal not safe\n",
 				chipnr, i);
 			return 1;
 		}
@@ -617,7 +618,7 @@ int aml_nand_slcprog_1ynm_hynix(struct mtd_info *mtd,
 		aml_oob_ops.oobbuf = oob_buf;
 		op_add = next_msb_page*mtd->writesize;
 		mtd->_write_oob(mtd, op_add, &aml_oob_ops);
-		printk("Eneter 1y nm SLC mode ,must fill 0xff data into %d\n",
+		printf("Enter 1y nm SLC mode ,must fill 0xff data into %d\n",
 			next_msb_page);
 		next_msb_page++;
 	}
@@ -629,7 +630,7 @@ int aml_nand_slcprog_1ynm_hynix(struct mtd_info *mtd,
 	aml_oob_ops.oobbuf = oob_buf;
 	op_add = op_page_add*mtd->writesize;
 	error = mtd->_write_oob(mtd, op_add, &aml_oob_ops);
-	printk("Eneter 1y nm SLC mode ,write systerm data into %d\n",
+	printf("Enter 1y nm SLC mode ,write system data into %d\n",
 		op_page_add);
 	if (error) {
 		printk("blk check good but write failed: %llx, %d\n",
@@ -895,7 +896,7 @@ void aml_nand_save_read_default_value_hynix(struct mtd_info *mtd)
 for (j = 0; j < aml_chip->new_nand_info.read_rety_info.reg_cnt; j++)
 	if ((aml_chip->new_nand_info.read_rety_info.reg_default_value[i][j]<0x18)
 ||(aml_chip->new_nand_info.read_rety_info.reg_default_value[i][j] > 0xd8)) {
-		printk("%s %d def vaule abnormal not safe refuse to save!\n",
+		printf("%s %d def value abnormal not safe refuse to save!\n",
 			__func__, __LINE__);
 		return;
 	}
@@ -2046,7 +2047,7 @@ retry_status:
 				status[i] = (int)chip->read_byte(mtd);
 			//printk("s:%x\n", status[i]);
 			if ((read_status++ < 3) && (!(status[i] & NAND_STATUS_READY))) {
-				printk("after wirte,read %d status =%d fail\n",
+				printf("after write,read %d status =%d fail\n",
 					read_status,status[i]);
 				goto retry_status;
 			}

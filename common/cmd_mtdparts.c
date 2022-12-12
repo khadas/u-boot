@@ -108,7 +108,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * field for read-only partitions */
 #define MTD_WRITEABLE_CMD		1
 
-/* overide mtd part in envs */
+/* override mtd part in envs */
 #ifdef CONFIG_AML_MTDPART
 struct part_info *amlmtd_part = NULL;
 int amlmtd_part_cnt = 0;

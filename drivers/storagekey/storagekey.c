@@ -191,19 +191,19 @@ ssize_t amlkey_read(const uint8_t *name, uint8_t *buffer, uint32_t len)
 {
 	int32_t ret = 0;
 	ssize_t retval = 0;
-	uint32_t actul_len;
+	uint32_t actual_len;
 
 	if ( NULL == name ) {
 		printf("%s() %d, invalid key ", __func__, __LINE__);
 		return 0;
 	}
-	ret = secure_storage_read((uint8_t *)name, buffer, len, &actul_len);
+	ret = secure_storage_read((uint8_t *)name, buffer, len, &actual_len);
 	if (ret) {
 		printf("%s() %d: return %d\n", __func__, __LINE__, ret);
 		retval = 0;
 		goto _out;
 	}
-	retval = actul_len;
+	retval = actual_len;
 _out:
 	return retval;
 }

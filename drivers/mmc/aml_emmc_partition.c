@@ -443,7 +443,7 @@ static void compose_ept(struct _iptbl *dtb, struct _iptbl *inh,
 
 		prio = is_prio_partition(ept, src);
 		if (prio) {
-			/* overide prio partition by new */
+			/* override prio partition by new */
 			apt_info("override %d: %s\n", ept->count, prio->name);
 			//*prio = *src;
 			dst = prio;
@@ -573,7 +573,7 @@ _err:
 	return ret;
 }
 
-static int _cmp_partition(struct partitions *dst, struct partitions *src, int overide)
+static int _cmp_partition(struct partitions *dst, struct partitions *src, int override)
 {
 	int ret = 0;
 #if (CONFIG_CMP_PARTNAME)
@@ -589,14 +589,14 @@ static int _cmp_partition(struct partitions *dst, struct partitions *src, int ov
 		ret = -5;
 #endif
 
-	if (ret && (!overide)) {
+	if (ret && !override) {
 		apt_err("name: %10.10s<->%10.10s\n", dst->name, src->name);
 		apt_err("size: %llx<->%llx\n", dst->size, src->size);
 		apt_err("offset: %llx<->%llx\n", dst->offset, src->offset);
 		apt_err("mask: %08x<->%08x\n", dst->mask_flags, src->mask_flags);
 	}
 
-	if (overide) {
+	if (override) {
 		*dst = *src;
 		ret = 0;
 	}

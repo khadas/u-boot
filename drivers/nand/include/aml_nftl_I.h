@@ -15,7 +15,7 @@ int __weak add_ntd_partitions(struct amlnand_phydev* master) {
 	return 0;
 }
 
-/* #warning("just for complier!!
+/* #warning("just for compiler!!
  * and the nand phy driver work well")
  */
 int __weak amlnf_logic_init(unsigned flag) {

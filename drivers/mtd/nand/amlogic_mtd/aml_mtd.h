@@ -153,7 +153,7 @@ typedef union nand_core_clk {
 /* This depends on uboot size */
 #define BOOT_PAGES_PER_COPY (1024)
 #define BOOT_COPY_NUM (BOOT_TOTAL_PAGES / BOOT_PAGES_PER_COPY)
-/*it also means normal device start addrress */
+/*it also means normal device start address */
 
 /* reserved region info */
 #define NAND_GAP_BLOCK_NUM 4

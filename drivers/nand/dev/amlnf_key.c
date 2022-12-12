@@ -13,7 +13,7 @@ static struct amlnand_chip *aml_chip_key = NULL;
 static struct amlnand_chip *aml_ddr_para = NULL;
 
 /*
- * This funcion reads the u-boot keys.
+ * This function reads the u-boot keys.
  */
 int amlnf_key_read(u8 *buf, int len, uint32_t *actual_length)
 {
@@ -61,7 +61,7 @@ exit:
 }
 
 /*
- * This funcion write the keys.
+ * This function write the keys.
  */
 int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length)
 {

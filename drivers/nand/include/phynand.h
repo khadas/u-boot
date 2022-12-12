@@ -18,6 +18,7 @@
 #include <linux/io.h>
 #endif /*AML_NAND_UBOOT*/
 /* #define CONFIG_OF */
+#define BIT(x) (1 << (x))
 
 #define NAND_COMPATIBLE_REGION	1
 #define NAND_RESERVED_REGION	1
@@ -190,44 +191,44 @@ union nand_core_clk_t {
 #define	MAX_CYCLE_NUM		20
 
 /***nand chip options***/
-#define	NAND_CTRL_FORCE_WP		(1<<0)
+#define	NAND_CTRL_FORCE_WP		BIT(0)
 
 /***nand controller options***/
-#define	NAND_CTRL_NONE_RB		(1<<1)
-#define	NAND_CTRL_INTERLEAVING_MODE	(1<<2)
-#define	NAND_MULTI_PLANE_MODE		(1<<3)
-#define	NAND_USE_SHAREPAGE_MODE		(1<<4)
+#define	NAND_CTRL_NONE_RB		BIT(1)
+#define	NAND_CTRL_INTERLEAVING_MODE	BIT(2)
+#define	NAND_MULTI_PLANE_MODE		BIT(3)
+#define	NAND_USE_SHAREPAGE_MODE		BIT(4)
 
 
 /***nand controller ECC options***/
 #define	MAX_ECC_MODE_NUM		16
-#define	NAND_ECC_TYPE_MASK		(0xf<<4)
+#define	NAND_ECC_TYPE_MASK		(0xf << 4)
 
-#define	NAND_ECC_SOFT_MODE		(0x0<<4)
-#define	NAND_ECC_SHORT_MODE		(0x1<<4)
-#define	NAND_ECC_BCH9_MODE		(0x2<<4)
-#define	NAND_ECC_BCH8_MODE		(0x3<<4)
-#define	NAND_ECC_BCH12_MODE		(0x4<<4)
-#define	NAND_ECC_BCH16_MODE		(0x5<<4)
-#define	NAND_ECC_BCH8_1K_MODE		(0x6<<4)
-#define	NAND_ECC_BCH16_1K_MODE		(0x7<<4)
-#define	NAND_ECC_BCH24_1K_MODE		(0x8<<4)
-#define	NAND_ECC_BCH30_1K_MODE		(0x9<<4)
-#define	NAND_ECC_BCH40_1K_MODE		(0xa<<4)
-#define	NAND_ECC_BCH50_1K_MODE		(0xb<<4)
-#define	NAND_ECC_BCH60_1K_MODE		(0xc<<4)
+#define	NAND_ECC_SOFT_MODE		(0x0 << 4)
+#define	NAND_ECC_SHORT_MODE		(0x1 << 4)
+#define	NAND_ECC_BCH9_MODE		(0x2 << 4)
+#define	NAND_ECC_BCH8_MODE		(0x3 << 4)
+#define	NAND_ECC_BCH12_MODE		(0x4 << 4)
+#define	NAND_ECC_BCH16_MODE		(0x5 << 4)
+#define	NAND_ECC_BCH8_1K_MODE		(0x6 << 4)
+#define	NAND_ECC_BCH16_1K_MODE		(0x7 << 4)
+#define	NAND_ECC_BCH24_1K_MODE		(0x8 << 4)
+#define	NAND_ECC_BCH30_1K_MODE		(0x9 << 4)
+#define	NAND_ECC_BCH40_1K_MODE		(0xa << 4)
+#define	NAND_ECC_BCH50_1K_MODE		(0xb << 4)
+#define	NAND_ECC_BCH60_1K_MODE		(0xc << 4)
 
 
 	/***FOR NAND CHIP TYPES ***/
-#define	NAND_CHIP_TYPE_MASK		(0x3<<9)
+#define	NAND_CHIP_TYPE_MASK		(0x3 << 9)
 
-#define	NAND_CHIP_TYPE_MLC		(0x0<<9)
-#define	NAND_CHIP_TYPE_SLC		(0x1<<9)
-#define	NAND_CHIP_TYPE_TLC		(0x2<<9)
+#define	NAND_CHIP_TYPE_MLC		(0x0 << 9)
+#define	NAND_CHIP_TYPE_SLC		(0x1 << 9)
+#define	NAND_CHIP_TYPE_TLC		(0x2 << 9)
 
-#define	NAND_CHIP_AYSNC_MODE		(0x0<<12)
-#define	NAND_CHIP_TOGGLE_MODE		(0x1<<12)
-#define	NAND_CHIP_SLC_MODE		(0x1<<13)
+#define	NAND_CHIP_ASYNC_MODE		(0x0 << 12)
+#define	NAND_CHIP_TOGGLE_MODE		(0x1 << 12)
+#define	NAND_CHIP_SLC_MODE		(0x1 << 13)
 
 
 	/***FOR TIMMING MODE ***/
@@ -702,7 +703,7 @@ struct nand_flash {
 *mulit-chip 0
 *serial-chip available
 *multi-plane
-*sigle-plane
+*single-plane
 */
 struct chip_ops_para {
 	u32 page_addr;
