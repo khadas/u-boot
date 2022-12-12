@@ -119,7 +119,7 @@ typedef struct _PMU_SMB_DDR3U_1D_t {
                               //
                               // For example to set Vref at 0.75*VDDQ, set this field to 0x60.
                               //
-                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedances, terminations, and series resistance present in the system.
+                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedance, terminations, and series resistance present in the system.
    uint8_t  DramType;         // Byte offset 0x0d, CSR Addr 0x54006, Direction=In
                               // Module Type:
                               //   0x01 = DDR3 unbuffered
