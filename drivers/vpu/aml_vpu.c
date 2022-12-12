@@ -26,7 +26,7 @@
 /* v20200817: add t5 support */
 /* v20201022: add t5d support */
 /* v20210819: add t5w support */
-#define VPU_VERION	"v20210819"
+#define VPU_VERSION	"v20210819"
 
 static int dts_ready = 0;
 
@@ -546,7 +546,7 @@ static void vpu_chip_detect(void)
 		break;
 	}
 
-	strcpy(vpu_conf.drv_version, VPU_VERION);
+	strcpy(vpu_conf.drv_version, VPU_VERSION);
 
 	if (vpu_conf.data == NULL) {
 		VPUERR("invalid vpu\n");

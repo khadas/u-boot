@@ -55,7 +55,7 @@ int mhu_get_addr(uint32_t chan, uintptr_t *mboxset_addr,
         case HIFIA_REE_CHANNEL:
         case HIFIB_REE_CHANNEL:
         case SECPU_REE_CHANNEL:
-                printf("[BL33]: no support hifi or secpu channnel\n");
+                printf("[BL33]: no support hifi or secpu channel\n");
                 break;
         case AOCPU_REE_CHANNEL:
                 *mboxset_addr = REE2AO_SET_ADDR;
@@ -63,7 +63,7 @@ int mhu_get_addr(uint32_t chan, uintptr_t *mboxset_addr,
                 *mboxpl_addr = REE2AO_PL_ADDR;
                 break;
         default:
-                printf("[BL33]: no support channnel 0x%x\n", chan);
+                printf("[BL33]: no support channel 0x%x\n", chan);
                 break;
         };
         return 0;

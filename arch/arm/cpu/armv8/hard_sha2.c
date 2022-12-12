@@ -159,7 +159,7 @@ static void SHA2_HW_update(sha2_ctx *ctx, const uint8_t *data, uint32_t len)
 	if (ctx->len) {
 		fill_len = SHA256_BLOCK_SIZE - ctx->len;
 		memcpy(&ctx->block[ctx->len], data, fill_len);
-		/* after mempcy,must flush data to ddr */
+		/* after memcpy,must flush data to ddr */
 		flush_dcache_range((unsigned long)ctx->block,(unsigned long)ctx->block+128);
 		data_len -= fill_len;
 		offset = fill_len;
@@ -188,7 +188,7 @@ static void SHA2_HW_update(sha2_ctx *ctx, const uint8_t *data, uint32_t len)
 	if (rem_len) {
 		/* save the remaining data */
 		memcpy(ctx->block, &data[offset], rem_len);
-		/* after mempcy,must flush data to ddr */
+		/* after memcpy,must flush data to ddr */
 		flush_dcache_range((unsigned long)ctx->block,(unsigned long)ctx->block+128);
 		ctx->len = rem_len;
 	}
