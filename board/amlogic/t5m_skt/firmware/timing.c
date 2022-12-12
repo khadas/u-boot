@@ -16,6 +16,14 @@
  */
 #define CPU_CLK                                 1920
 #define DSU_CLK                                 1512
+/* board vmin_value defines */
+#define VMIN_FF_VALUE                           770
+#define VMIN_TT_VALUE                           800
+#define VMIN_SS_VALUE                           810
+/* board vddee_value defines */
+#define VDDEE_FF_VALUE                          0x8000a
+#define VDDEE_TT_VALUE                          0x8000a
+#define VDDEE_SS_VALUE                          0x8000a
 
 /* ddr config support multiple configs for boards which use same bootloader:
  * config steps:
@@ -4197,43 +4205,43 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 /* VDDEE_VAL_REG */
-#if    (VDDEE_VAL == 710)
+#if    (VDDEE_VAL == 740)
 #define VDDEE_VAL_REG   0x120000
-#elif (VDDEE_VAL == 720)
-#define VDDEE_VAL_REG   0x110001
-#elif (VDDEE_VAL == 730)
-#define VDDEE_VAL_REG   0x100002
-#elif (VDDEE_VAL == 740)
-#define VDDEE_VAL_REG   0xf0003
 #elif (VDDEE_VAL == 750)
-#define VDDEE_VAL_REG   0xe0004
+#define VDDEE_VAL_REG   0x110001
 #elif (VDDEE_VAL == 760)
-#define VDDEE_VAL_REG   0xd0005
+#define VDDEE_VAL_REG   0x100002
 #elif (VDDEE_VAL == 770)
-#define VDDEE_VAL_REG   0xc0006
+#define VDDEE_VAL_REG   0xf0003
 #elif (VDDEE_VAL == 780)
-#define VDDEE_VAL_REG   0xb0007
+#define VDDEE_VAL_REG   0xe0004
 #elif (VDDEE_VAL == 790)
-#define VDDEE_VAL_REG   0xa0008
+#define VDDEE_VAL_REG   0xd0005
 #elif (VDDEE_VAL == 800)
-#define VDDEE_VAL_REG   0x90009
+#define VDDEE_VAL_REG   0xc0006
 #elif (VDDEE_VAL == 810)
-#define VDDEE_VAL_REG   0x8000a
+#define VDDEE_VAL_REG   0xb0007
 #elif (VDDEE_VAL == 820)
-#define VDDEE_VAL_REG   0x7000b
+#define VDDEE_VAL_REG   0xa0008
 #elif (VDDEE_VAL == 830)
-#define VDDEE_VAL_REG   0x6000c
+#define VDDEE_VAL_REG   0x90009
 #elif (VDDEE_VAL == 840)
-#define VDDEE_VAL_REG   0x5000d
+#define VDDEE_VAL_REG   0x8000a
 #elif (VDDEE_VAL == 850)
-#define VDDEE_VAL_REG   0x4000e
+#define VDDEE_VAL_REG   0x7000b
 #elif (VDDEE_VAL == 860)
-#define VDDEE_VAL_REG   0x3000f
+#define VDDEE_VAL_REG   0x6000c
 #elif (VDDEE_VAL == 870)
-#define VDDEE_VAL_REG   0x20010
+#define VDDEE_VAL_REG   0x5000d
 #elif (VDDEE_VAL == 880)
-#define VDDEE_VAL_REG   0x10011
+#define VDDEE_VAL_REG   0x4000e
 #elif (VDDEE_VAL == 890)
+#define VDDEE_VAL_REG   0x3000f
+#elif (VDDEE_VAL == 900)
+#define VDDEE_VAL_REG   0x20010
+#elif (VDDEE_VAL == 910)
+#define VDDEE_VAL_REG   0x10011
+#elif (VDDEE_VAL == 920)
 #define VDDEE_VAL_REG   0x12
 #else
 #error "VDDEE val out of range\n"
@@ -4247,12 +4255,17 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
+	/* config vmin_ft value */
+	{ 0, VMIN_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_1, 0 },
+	{ 0, VMIN_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_2, 0 },
+	{ 0, VMIN_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_3, 0 },
+	/*config vddee and vcck pwm - pwm_a and pwm_b*/
 	/*config vddee and vcck pwm - pwm_a and pwm_b*/
 	/* PWM_A VDDEE_VAL_REG */
 #ifdef CONFIG_PDVFS_ENABLE
-	{PWMAB_PWM_A, 0x90009, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
-	{PWMAB_PWM_A, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
-	{PWMAB_PWM_A, 0x4000e, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+	{PWMAB_PWM_A, VDDEE_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMAB_PWM_A, VDDEE_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMAB_PWM_A, VDDEE_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
 #else
 	{PWMAB_PWM_A, VDDEE_VAL_REG, 0xffffffff, 0,	0, 0},
 #endif
