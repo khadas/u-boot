@@ -535,6 +535,9 @@ int mmc_wait_dat0(struct mmc *mmc, int state, int timeout);
 int mmc_set_blocklen(struct mmc *mmc, int len);
 int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 			   lbaint_t blkcnt);
+int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_length);
+int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_length);
+
 #else
 struct mmc_ops {
 	int (*send_cmd)(struct mmc *mmc,
