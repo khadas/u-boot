@@ -8,7 +8,7 @@
 
 #define PWR_ON    1
 #define PWR_OFF   0
-
+#define PM_ETH		5
 enum pm_e {
 	PM_DOS_HEVC = 2,
 	PM_DOS_VDEC = 3,
