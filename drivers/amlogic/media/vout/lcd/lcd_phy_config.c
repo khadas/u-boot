@@ -1344,7 +1344,7 @@ static void lcd_p2p_phy_set_t5m(struct aml_lcd_drv_s *pdrv, int status)
 			break;
 		}
 	} else {
-		lcd_phy_cntl_set_t3(phy, status, 1, 0, 0);
+		lcd_phy_cntl_set_t5m(phy, status, 1, 0, 0);
 	}
 }
 

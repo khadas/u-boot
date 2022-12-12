@@ -79,6 +79,13 @@
 	/*mc_val = <0x1621>;*/
 };
 
+&i2c2 {
+	status= "okay";
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins2>;
+};
+
 &pinctrl_periphs {
 	bl_pwm_off_pins:bl_pwm_off_pin {
 		mux {
