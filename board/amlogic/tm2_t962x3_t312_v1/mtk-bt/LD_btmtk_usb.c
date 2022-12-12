@@ -516,7 +516,7 @@ static void btmtk_usb_cap_init(struct LD_btmtk_usb_data *data)
         data->rom_patch_len = 0;
 
     } else {
-        usb_debug("unknown chip(%x)\n", data->chip_id);
+	usb_debug("unknown chip(%x)\n", data->chip_id);
     }
 }
 

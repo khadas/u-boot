@@ -503,7 +503,7 @@
 #define CONFIG_CMD_NAND 1
 #define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
-#define CONFIFG_AML_MTDPART	1
+#define CONFIG_AML_MTDPART	1
 /* mtd parts by env default way.*/
 /*
 #define MTDIDS_NAME_STR		"aml_nand.0"

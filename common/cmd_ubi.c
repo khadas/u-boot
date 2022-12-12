@@ -437,14 +437,14 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
 	mtd_part.name = buffer;
 	mtd_part.size = part->size;
 	mtd_part.offset = part->offset;
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 	add_mtd_partitions(info, &mtd_part, 1);
 #endif
 	strcpy(ubi_mtd_param_buffer, buffer);
 	if (vid_header_offset)
 		sprintf(ubi_mtd_param_buffer, "mtd=%d,%s", pnum,
 				vid_header_offset);
-#ifdef CONFIFG_AML_MTDPART
+#ifdef CONFIG_AML_MTDPART
 	err = ubi_mtd_param_parse(ubidev, NULL);
 #else
 	err = ubi_mtd_param_parse(ubi_mtd_param_buffer, NULL);
@@ -471,7 +471,9 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
 int ubi_part(char *part_name, const char *vid_header_offset)
 {
 	int err = 0;
-	// char mtd_dev[16];
+#ifndef	CONFIG_AML_MTDPART
+	char mtd_dev[16];
+#endif
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -512,7 +514,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 		return 1;
 	}
 
-#ifndef CONFIFG_AML_MTDPART
+#ifndef CONFIG_AML_MTDPART
 	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(dev->id->type), dev->id->num);
 	ubi_dev.mtd_info = get_mtd_device_nm(mtd_dev);
 	if (IS_ERR(ubi_dev.mtd_info)) {
