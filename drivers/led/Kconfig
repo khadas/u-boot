@@ -60,9 +60,9 @@ config LED_UNIPOLAR_GPIO
 	depends on LED && DM_GPIO
 	help
 	  Enable support for LEDs which are connected to GPIO lines. These
-	  GPIOs may be on the SoC or some other device which provides GPIOs.
+	  GPIOs may be on the SOC or some other device which provides GPIOs.
 	  The GPIO driver must used driver model. LEDs are configured using
-	  the device tree. Those LEDs are reciving unipolar code to control
+	  the device tree. Those LEDs are receiving unipolar code to control
 	  its rgb state.
 
 config AML_LED_PWM
