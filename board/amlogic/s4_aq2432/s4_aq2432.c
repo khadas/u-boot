@@ -438,25 +438,41 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 int checkhw(char *name)
 {
 	char loc_name[64] = {0};
-	unsigned long ddr_size = 0;
+	unsigned long ddr_size = 0, board_id = 0;
 	int i;
+
+	board_id = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xff00) >> 8);
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		ddr_size += gd->bd->bi_dram[i].size;
-	printf("ddr_size is %lx\n", ddr_size);
-	
+
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+
+	printf("ddr_size is %lx; board id is %ld\n", ddr_size, board_id);
+
 	switch (ddr_size) {
 	case 0x20000000:
-		strcpy(loc_name, "s4_s805c3_aq2432-512m\0");
+		if (board_id == 2)
+			strcpy(loc_name, "s4d_s805c3_t215-512m\0");
+		else
+			strcpy(loc_name, "s4d_s805c3_aq2432-512m\0");
 		break;
 	case 0x40000000:
-		strcpy(loc_name, "s4_s805c3_aq2432-1g\0");
+		if (board_id == 2)
+			strcpy(loc_name, "s4d_s805c3_t215-1g\0");
+		else
+			strcpy(loc_name, "s4d_s805c3_aq2432-1g\0");
 		break;
 	case 0x60000000:
-		strcpy(loc_name, "s4_s805c3_aq2432-1.5g\0");
+		if (board_id == 2)
+			strcpy(loc_name, "s4d_s805c3_t215-1.5g\0");
+		else
+			strcpy(loc_name, "s4d_s805c3_aq2432-1.5g\0");
 		break;
 	default:
-		strcpy(loc_name, "s4_s805c3_unsupport");
+		strcpy(loc_name, "s4d_s805c3_unsupport");
 		break;
 	}
 
