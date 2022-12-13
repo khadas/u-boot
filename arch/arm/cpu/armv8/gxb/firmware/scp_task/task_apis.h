@@ -40,7 +40,7 @@ unsigned int get_time(void);
 
 void set_wakeup_method(unsigned int method);
 void suspend_pwr_ops_init(void);
-void suspend_get_wakeup_source(void *reponse, unsigned int suspend_from);
+void suspend_get_wakeup_source(void *response, unsigned int suspend_from);
 void set_cec_val1(unsigned int cec_val);
 void set_cec_val2(unsigned int cec_val);
 void set_cec_wk_msg(unsigned char msg_idx, unsigned char *cec_wk_msg);

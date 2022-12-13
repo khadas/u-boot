@@ -50,7 +50,7 @@ bl21_real_entry:
 	/*
 	 * Readable names for registers
 	 *
-	 * Registers r0, r1 and r2 are also set by zeromem which
+	 * Registers r0, r1 and r2 are also set by zero_mem which
 	 * branches into the fallback path directly, so cursor, length and
 	 * stop_address should not be retargeted to other registers.
 	 */
@@ -80,16 +80,16 @@ bl21_real_entry:
 	 * If the start address is already aligned to 8 bytes, skip this loop.
 	 */
 	tst	cursor, #(8-1)
-	beq	.Lzeromem_8bytes_aligned
+	beq	.Lzero_mem_8bytes_aligned
 
 	/* Calculate the next address aligned to 8 bytes */
 	orr	tmp, cursor, #(8-1)
 	adds	tmp, tmp, #1
 	/* If it overflows, fallback to byte per byte zeroing */
-	beq	.Lzeromem_1byte_aligned
+	beq	.Lzero_mem_1byte_aligned
 	/* If the next aligned address is after the stop address, fall back */
 	cmp	tmp, stop_address
-	bhs	.Lzeromem_1byte_aligned
+	bhs	.Lzero_mem_1byte_aligned
 
 	/* zero byte per byte */
 1:
@@ -98,7 +98,7 @@ bl21_real_entry:
 	bne	1b
 
 	/* zero 8 bytes at a time */
-.Lzeromem_8bytes_aligned:
+.Lzero_mem_8bytes_aligned:
 
 	/* Calculate the last 8 bytes aligned address. */
 	bic	tmp, stop_address, #(8-1)
@@ -114,7 +114,7 @@ bl21_real_entry:
 2:
 
 	/* zero byte per byte */
-.Lzeromem_1byte_aligned:
+.Lzero_mem_1byte_aligned:
 	cmp	cursor, stop_address
 	beq	2f
 1:
@@ -132,18 +132,18 @@ bl21_real_entry:
 
 #if 0
 /* -----------------------------------------------------------------------
- * void zeromem(void *mem, unsigned int length)
+ * void zero_mem(void *mem, unsigned int length)
  *
  * Initialise a region in normal memory to 0. This functions complies with the
  * AAPCS and can be called from C code.
  *
  * -----------------------------------------------------------------------
  */
-func zeromem
+func zero_mem
 	/*
 	 * Readable names for registers
 	 *
-	 * Registers r0, r1 and r2 are also set by zeromem which
+	 * Registers r0, r1 and r2 are also set by zero_mem which
 	 * branches into the fallback path directly, so cursor, length and
 	 * stop_address should not be retargeted to other registers.
 	 */
@@ -173,16 +173,16 @@ func zeromem
 	 * If the start address is already aligned to 8 bytes, skip this loop.
 	 */
 	tst	cursor, #(8-1)
-	beq	.Lzeromem_8bytes_aligned
+	beq	.Lzero_mem_8bytes_aligned
 
 	/* Calculate the next address aligned to 8 bytes */
 	orr	tmp, cursor, #(8-1)
 	adds	tmp, tmp, #1
 	/* If it overflows, fallback to byte per byte zeroing */
-	beq	.Lzeromem_1byte_aligned
+	beq	.Lzero_mem_1byte_aligned
 	/* If the next aligned address is after the stop address, fall back */
 	cmp	tmp, stop_address
-	bhs	.Lzeromem_1byte_aligned
+	bhs	.Lzero_mem_1byte_aligned
 
 	/* zero byte per byte */
 1:
@@ -191,7 +191,7 @@ func zeromem
 	bne	1b
 
 	/* zero 8 bytes at a time */
-.Lzeromem_8bytes_aligned:
+.Lzero_mem_8bytes_aligned:
 
 	/* Calculate the last 8 bytes aligned address. */
 	bic	tmp, stop_address, #(8-1)
@@ -207,7 +207,7 @@ func zeromem
 2:
 
 	/* zero byte per byte */
-.Lzeromem_1byte_aligned:
+.Lzero_mem_1byte_aligned:
 	cmp	cursor, stop_address
 	beq	2f
 1:
@@ -226,6 +226,6 @@ func zeromem
 	.unreq	zeroreg1
 	.unreq	zeroreg2
 	.unreq	tmp
-endfunc zeromem
+endfunc zero_mem
 
 #endif

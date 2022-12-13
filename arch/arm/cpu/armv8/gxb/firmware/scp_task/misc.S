@@ -39,6 +39,6 @@ bss_loop:
 
 .align 2
 _bss_start:
-.long _bssstart
+.long _bss_start_
 _bss_end:
-.long _bssend
+.long _bss_end_
