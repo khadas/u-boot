@@ -314,16 +314,16 @@
 		};
 
 		spicc0: spi@fe050000 {
-			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe050000 0x0 0x44>;
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050000 0x0 0x38>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
 		};
 
 		spicc1: spi@fe052000 {
-			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe052000 0x0 0x44>;
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe051000 0x0 0x38>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";

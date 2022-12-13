@@ -291,6 +291,16 @@ config AML_SPICC
 	help
 	  Enable support for SPICC on all meson SoCs.
 
+config AML_SPICCV2
+	bool "Amlogic SPICC_V2 Driver"
+	help
+	  Enable support for SPICC v2 on meson a4 SoCs.
+	  It is a new spi controller to support,
+	  - PIO, DMA-memory, DMA-SG,
+	  - Descriptor list
+	  - Dual/Quad SPI
+	  - LCD data/command mode(9bits or pin)
+
 config AML_SPIFC
 	bool "Amlogic SPIFC Driver"
 	help
