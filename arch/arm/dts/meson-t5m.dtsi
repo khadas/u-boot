@@ -143,7 +143,7 @@
 		0x0 0xFE024000 0x0 0x8
 		0x0 0xFE028000 0x0 0xa0>;
 	reg-names = "eth_base", "eth_top", "eth_cfg";
-	phy_cntl1 = <0x41054147>;
+	phy_cntl1 = <0x41054143>;
 	internal_phy = <1>;
 	mc_val = <0x4be04>;
 	cali_val = <0x60000>;

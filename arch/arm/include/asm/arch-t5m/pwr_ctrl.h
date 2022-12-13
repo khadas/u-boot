@@ -5,6 +5,7 @@
 
 #define PWR_ON    1
 #define PWR_OFF   0
+#define PM_ETH    5
 
 #define PM_DOS_HCODEC    0
 #define PM_DOS_GE2D_WRAP 1

@@ -72,6 +72,13 @@
 	/* pinctrl-0 = <&i2c3_master_pins2>;*/
 };
 
+&ethmac {
+	status = "okay";
+	internal_phy = <1>;
+	mc_val = <0x4be04>;
+	/*mc_val = <0x1621>;*/
+};
+
 &pinctrl_periphs {
 	bl_pwm_off_pins:bl_pwm_off_pin {
 		mux {
