@@ -1513,12 +1513,25 @@ static void vpp_set_lcd_gamma_table(int index, u16 *data, u32 rgb_mask)
 	}
 
 	if (get_cpu_id().family_id >= MESON_CPU_MAJOR_ID_T7) {
-		vpp_reg_write(reg_addr_port, (1 << 8));
-		for (i = 0; i < 256; i++)
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T5M) {
+			vpp_reg_write(reg_addr_port, (1 << 9));
+			for (i = 0; i < 256; i++)
+				vpp_reg_write(reg_data_port,
+					      (data[i] << 20) |
+					      (data[i] << 10) |
+					      (data[i] << 0));
 			vpp_reg_write(reg_data_port,
-				(data[i] << 20) |
-				(data[i] << 10) |
-				(data[i] << 0));
+				      (0x3ff << 20) |
+				      (0x3ff << 10) |
+				      (0x3ff << 0));
+		} else {
+			vpp_reg_write(reg_addr_port, (1 << 8));
+			for (i = 0; i < 256; i++)
+				vpp_reg_write(reg_data_port,
+					      (data[i] << 20) |
+					      (data[i] << 10) |
+					      (data[i] << 0));
+		}
 		return;
 	}
 

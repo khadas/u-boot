@@ -1197,7 +1197,8 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		postbld_src3_sel = 4;
 
 	/* for s5_display, OSDx to din(x+1) */
@@ -4250,7 +4251,8 @@ void osd_init_hw_viux(u32 index)
 	data32 |= 0xff << 6;
 	osd_reg_write(hw_osd_reg_array[index].osd_ctrl_stat2, data32);
 
-	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.path_ctrl_independ = 1;
 
 	if (index == VIU2_OSD1) {
@@ -4338,7 +4340,8 @@ void osd_init_hw_viux(u32 index)
 
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.mif_linear = 1;
 }
 #else
@@ -4590,7 +4593,8 @@ void osd_init_hw(void)
 	osd_vpu_power_on();
 
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
-		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W)
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.path_ctrl_independ = 1;
 
 #ifdef AML_S5_DISPLAY
@@ -4822,7 +4826,8 @@ void osd_init_hw(void)
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.mif_linear = 1;
 
 	return;
