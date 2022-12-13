@@ -212,9 +212,9 @@ struct ext_lcd_config_s ext_lcd_config[LCD_NUM_MAX] = {
 
 static struct lcd_pinmux_ctrl_s lcd_pinmux_ctrl[LCD_PINMUX_MAX] = {
 	{
-		.name = "lcd_vbyone_pin", //GPIOH_0/8
-		.pinmux_set = {{0x7, 0x4}, {0x8, 0x4}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{0x7, 0xf}, {0x8, 0xf}, {LCD_PINMUX_END, 0x0}},
+		.name = "lcd_vbyone_pin", //GPIOH_0/1
+		.pinmux_set = {{0x7, 0x44}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x7, 0xff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "lcd_minilvds_pin", //GPIOH_0~6
