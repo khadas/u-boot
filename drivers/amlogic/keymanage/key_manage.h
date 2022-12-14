@@ -7,7 +7,7 @@
 #define __KEY_MANAGE_H__
 
 enum key_manager_dev_e{
-	KEY_M_UNKNOWN_DEV = 0,
+    KEY_M_UNKNOWN_DEV=0,
     KEY_M_EFUSE_NORMAL,
     KEY_M_SECURE_KEY,       //secure nandkey/emmckey
     KEY_M_NORAML_KEY,       //non-secure nandkey/emmckey

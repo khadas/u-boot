@@ -1048,7 +1048,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_GPIOE_DS,	      (0x3 << 8),      (0x3 << 8),    0, 0, 0 },
 	/* mux gpioe_4 to pwmao_e */
 	{ PADCTRL_PIN_MUX_REGC,	      (0x1 << 16),     (0xf << 16),   0, 0, 0 },
-	/* set TEST_N to high(defualt high) */
+	/* set TEST_N to high(default high) */
 	//{PADCTRL_TESTN_O,	(0x1 << 0),             (0x1 << 0),	0, 0, 0},
 	//{PADCTRL_TESTN_OEN,	(0x0 << 0),             (0x1 << 0),	0, 0, 0},
 
@@ -1069,7 +1069,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_GPIOE_DS,	      (0x3 << 6),      (0x3 << 6),    0, 0, 0 },
 	/* mux gpioe_3 to pwmao_d */
 	{ PADCTRL_PIN_MUX_REGC,	      (0x1 << 12),     (0xf << 12),   0, 0, 0 },
-	/* set gpiod_2 to high(defualt high) */
+	/* set gpiod_2 to high(default high) */
 	//{PADCTRL_GPIOD_O,	(0x1 << 2),             (0x1 << 2), 0, 0, 0},
 	//{PADCTRL_GPIOD_OEN, (0x0 << 2),               (0x1 << 2), 0, 0, 0},
 	//{PADCTRL_PIN_MUX_REGA,	(0x0 << 8),             (0xf << 8), 0, 0, 0},
