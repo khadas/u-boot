@@ -1237,6 +1237,10 @@ config AMLOGIC_KEY_TYPE
         string "T5M AMLOGIC KEY TYPE"
         default "dev-keys"
 
+config BL30_SELECT
+	string "T5M BL30 board config"
+	default "t5m_skt"
+
 choice
 	prompt "T5M Board"
 
