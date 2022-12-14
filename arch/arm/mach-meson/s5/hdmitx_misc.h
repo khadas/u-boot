@@ -1,6 +1,18 @@
-/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ * arch/arm/mach-meson/sc2/hdmitx_misc.h
+ *
+ * Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
  */
 
 #ifndef __HDMITX_MISC_H__
@@ -23,8 +35,6 @@
 #define P_CLKCTRL_VID_PLL_CLK_DIV HHI_REG_ADDR(CLKCTRL_VID_PLL_CLK_DIV)
 #define CLKCTRL_HDCP22_CLK_CTRL 0x0040
 #define P_CLKCTRL_HDCP22_CLK_CTRL HHI_REG_ADDR(CLKCTRL_HDCP22_CLK_CTRL)
-#define PADCTRL_GPIOW_I 0x0090
-#define P_PADCTRL_GPIOW_I HHI_REG_ADDR(PADCTRL_GPIOW_I)
 
 /* REG_BASE:  REGISTER_BASE_ADDR = 0xfe002000 */
 #define RESETCTRL_RESET0 0x0000

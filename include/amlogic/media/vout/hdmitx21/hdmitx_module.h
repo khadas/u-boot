@@ -46,8 +46,6 @@ struct hdmitx_dev {
 	unsigned char limit_res_1080p;
 	unsigned char enc_idx;
 	int dv_en;
-	unsigned char pxp_mode; /* for running at pxp only */
-	enum amhdmitx_chip_e chip_type;
 };
 
 struct hdmitx_dev *get_hdmitx21_device(void);

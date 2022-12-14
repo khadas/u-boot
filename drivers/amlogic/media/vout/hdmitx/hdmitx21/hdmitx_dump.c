@@ -65,13 +65,12 @@ static int dump_hdmivpfdet_show(void)
 	u32 reg;
 	u32 val;
 	u32 total, active, front, sync, back, blank;
-	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	pr_info("\n--------vp fdet info--------\n");
 
 	hdmitx21_wr_reg(VP_FDET_CLEAR_IVCTX, 0);
 	hdmitx21_wr_reg(VP_FDET_STATUS_IVCTX, 0);
-	mdelay(hdev->pxp_mode ? 1 : 50); /* at least 1 frame? */
+	mdelay(50); /* at least 1 frame? */
 
 	reg = VP_FDET_FRAME_RATE_IVCTX;
 	val = CONNECT3REG(reg);

@@ -9,8 +9,6 @@
 
 static int do_vpu_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	run_command("mw fe010130 118", 0); /* TODO */
-	run_command("mw fe000218 00080000", 0); /* TODO */
 	vpu_probe();
 	return 0;
 }

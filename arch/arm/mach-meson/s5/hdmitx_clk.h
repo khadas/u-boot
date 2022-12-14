@@ -1,7 +1,22 @@
-/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
- * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
- */
+ * driver/amlogic/media/vout/hdmitx/hdmitx_common.h
+ *
+ * Copyright (C) 2018 Amlogic, Inc. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
 
 #ifndef __HDMITX_COMMON_H__
 #define __HDMITX_COMMON_H__
@@ -26,19 +41,43 @@
 #define VID_PLL_DIV_2p5    14
 #define VID_PLL_DIV_3p25   15
 
+enum viu_type {
+    VIU_ENCL = 0,
+    VIU_ENCI,
+    VIU_ENCP,
+    VIU_ENCT,
+};
+
+typedef struct{
+    enum hdmi_vic vic;
+    unsigned viu_path;
+    enum viu_type viu_type;
+    unsigned hpll_clk_out;
+    unsigned od1;
+    unsigned od2;
+    unsigned od3;
+    unsigned vid_pll_div;
+    unsigned vid_clk_div;
+    unsigned hdmi_tx_pixel_div;
+    unsigned encp_div;
+    unsigned enci_div;
+}hw_enc_clk_val_t;
+
 #define GROUP_MAX       10
 #define GROUP_END       -1
 struct hw_enc_clk_val_group {
-	enum hdmi_vic group[GROUP_MAX];
-	u32 hpll_clk_out; /* Unit: kHz */
-	u32 od1;
-	u32 od2; /* HDMI_CLK_TODIG */
-	u32 od3;
-	u32 vid_pll_div;
-	u32 vid_clk_div;
-	u32 enc_div;
-	u32 fe_div;
-	u32 pnx_div;
-	u32 pixel_div;
+    enum hdmi_vic group[GROUP_MAX];
+    unsigned viu_path;
+    enum viu_type viu_type;
+    unsigned hpll_clk_out;
+    unsigned od1;
+    unsigned od2;
+    unsigned od3;
+    unsigned vid_pll_div;
+    unsigned vid_clk_div;
+    unsigned hdmi_tx_pixel_div;
+    unsigned encp_div;
+    unsigned enci_div;
 };
+
 #endif

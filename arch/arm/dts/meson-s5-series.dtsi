@@ -415,16 +415,6 @@
 			status = "disabled";
 		};
 
-		amhdmitx: amhdmitx {
-			compatible = "amlogic, amhdmitx-s5";
-			status = "okay";
-			res_1080p = <0>;
-			/* below may re-defined in customer dts file */
-			enc_idx = <0>; /* default TV ENC is 0 */
-			vend_name = "Amlogic"; /* Max 8 bytes */
-			prod_desc = "MBox Meson Ref"; /* Max 16 bytes */
-		};
-
 		nand: nfc@fe08c800 {
 			compatible = "amlogic,meson-nfc";
 			reg = <0x0 0xfe08c800 0x0 0x200>;
