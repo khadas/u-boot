@@ -21,8 +21,8 @@
  *    address of the register + 0x4.
  * 3) Clear bits only access. To clear bits, write which bits you want to clear
  *    to the address of the register + 0x8.
- * 4) Toggle bits only access. To toggle bits, write which bits you want to
- *    toggle to the address of the register + 0xc.
+ * 4) Timeout bits only access. To timeout bits, write which bits you want to
+ *    timeout to the address of the register + 0xc.
  *
  * IMPORTANT NOTE: Not all registers support accesses 2-4! Also, not all bits
  * can be set/cleared by pure write as in access type 1, some need to be

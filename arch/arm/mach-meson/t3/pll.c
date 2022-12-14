@@ -784,7 +784,7 @@ void t3_meson_plls_test(int argc, char * const argv[])
 		return;
 	}
 
-	if ((argc - 2) == pll->init_count)
+	if (pll->init_count && ((argc - 2) == pll->init_count))
 		meson_pll_parm_test(pll, argv);
 	else if (argc == 2)
 		meson_pll_test(pll);

@@ -271,6 +271,7 @@ struct hw_para_s {
 	u32 mif_linear;
 	u32 path_ctrl_independ;
 	u32 viux_scale_cap;
+	u32 has_pi;
 };
 
 struct hw_osd_reg_s {
@@ -308,7 +309,142 @@ struct hw_osd_reg_s {
 	u32 osd_sci_wh_m1;/* VPP_OSD_SCI_WH_M1 */
 	u32 osd_sco_h_start_end;/* VPP_OSD_SCO_H_START_END */
 	u32 osd_sco_v_start_end;/* VPP_OSD_SCO_V_START_END */
+	u32 osd_proc_in_size;    /* OSD1_PROC_IN_SIZE */
+	u32 osd_proc_out_size;   /* OSD1_PROC_OUT_SIZE */
 };
+
+#ifdef AML_S5_DISPLAY
+/* VPP POST input src: 3VD, 2 OSD */
+/* S5 only VD1, VD2 */
+#define VPP_POST_VD_NUM   3
+#define VPP_POST_OSD_NUM  2
+#define VPP_POST_NUM (VPP_POST_VD_NUM + VPP_POST_OSD_NUM)
+
+#define POST_SLICE_NUM    4
+struct vpp_post_blend_s {
+	u32 bld_out_en;
+	u32 bld_out_w;
+	u32 bld_out_h;
+	u32 bld_out_premult;
+
+	u32 bld_src1_sel;	  //1:din0	2:din1 3:din2 4:din3 5:din4 else :close
+	u32 bld_src2_sel;	  //1:din0	2:din1 3:din2 4:din3 5:din4 else :close
+	u32 bld_src3_sel;	  //1:din0	2:din1 3:din2 4:din3 5:din4 else :close
+	u32 bld_src4_sel;	  //1:din0	2:din1 3:din2 4:din3 5:din4 else :close
+	u32 bld_src5_sel;	  //1:din0	2:din1 3:din2 4:din3 5:din4 else :close
+	u32 bld_dummy_data;
+
+	//usually the bottom layer set 1, for example postbld_src1_sel = 1,set 0x1
+	u32 bld_din0_premult_en;
+	u32 bld_din1_premult_en;
+	u32 bld_din2_premult_en;
+	u32 bld_din3_premult_en;
+	u32 bld_din4_premult_en;
+
+	//u32 vd1_index;//VPP_VD1/VPP_VD2/VPP_VD3
+	u32 bld_din0_h_start;
+	u32 bld_din0_h_end;
+	u32 bld_din0_v_start;
+	u32 bld_din0_v_end;
+	u32 bld_din0_alpha;
+
+	//u32 vd2_index;//VPP_VD1/VPP_VD2/VPP_VD3
+	u32 bld_din1_h_start;
+	u32 bld_din1_h_end;
+	u32 bld_din1_v_start;
+	u32 bld_din1_v_end;
+	u32 bld_din1_alpha;
+
+	//u32 vd3_index;//VPP_VD1/VPP_VD2/VPP_VD3
+	u32 bld_din2_h_start;
+	u32 bld_din2_h_end;
+	u32 bld_din2_v_start;
+	u32 bld_din2_v_end;
+	u32 bld_din2_alpha;
+
+	//u32 osd1_index;//VPP_OSD1/VPP_OSD2/VPP_OSD3/VPP_OSD4
+	u32 bld_din3_h_start;
+	u32 bld_din3_h_end;
+	u32 bld_din3_v_start;
+	u32 bld_din3_v_end;
+
+	//u32 osd2_index;//VPP_OSD1/VPP_OSD2/VPP_OSD3/VPP_OSD4
+	u32 bld_din4_h_start;
+	u32 bld_din4_h_end;
+	u32 bld_din4_v_start;
+	u32 bld_din4_v_end;
+};
+
+struct vd1_hwin_s {
+	u32 vd1_hwin_en;
+	u32 vd1_hwin_in_hsize;
+	/* hwin cut out before to blend */
+	u32 vd1_hwin_out_hsize;
+};
+
+struct vpp_post_pad_s {
+	u32 vpp_post_pad_en;
+	u32 vpp_post_pad_hsize;
+	u32 vpp_post_pad_dummy;
+	/* 1: padding with last colum */
+	/* 0: padding with vpp_post_pad_dummy val */
+	u32 vpp_post_pad_rpt_lcol;
+};
+
+struct vpp_post_hwin_s {
+	u32 vpp_post_hwin_en;
+	u32 vpp_post_dout_hsize;
+	u32 vpp_post_dout_vsize;
+};
+
+struct vpp_post_proc_slice_s {
+	u32 hsize[POST_SLICE_NUM];
+	u32 vsize[POST_SLICE_NUM];
+};
+
+struct vpp_post_proc_hwin_s {
+	u32 hwin_en[POST_SLICE_NUM];
+	u32 hwin_bgn[POST_SLICE_NUM];
+	u32 hwin_end[POST_SLICE_NUM];
+};
+
+struct vpp_post_proc_s {
+	struct vpp_post_proc_slice_s vpp_post_proc_slice;
+	struct vpp_post_proc_hwin_s vpp_post_proc_hwin;
+	u32 align_fifo_size[POST_SLICE_NUM];
+	u32 gamma_bypass;
+	u32 ccm_bypass;
+	u32 vadj2_bypass;
+	u32 lut3d_bypass;
+	u32 gain_off_bypass;
+	u32 vwm_bypass;
+};
+
+struct vpp_post_input_s {
+	u32 slice_num;
+	u32 overlap_hsize;
+	u32 din_hsize[VPP_POST_NUM];
+	u32 din_vsize[VPP_POST_NUM];
+	u32 din_x_start[VPP_POST_NUM];
+	u32 din_y_start[VPP_POST_NUM];
+	u32 bld_out_hsize;
+	u32 bld_out_vsize;
+	/* means vd1 4s4p padding */
+	u32 vd1_padding_en;
+	u32 vd1_size_before_padding;
+	u32 vd1_size_after_padding;
+};
+
+struct vpp_post_s {
+	u32 slice_num;
+	u32 overlap_hsize;
+	struct vd1_hwin_s vd1_hwin;
+	struct vpp_post_blend_s vpp_post_blend;
+	struct vpp_post_pad_s vpp_post_pad;
+	struct vpp_post_hwin_s vpp_post_hwin;
+	struct vpp_post_proc_s vpp_post_proc;
+};
+#endif
 
 extern struct hw_osd_reg_s hw_osd_reg_array[HW_OSD_COUNT];
 

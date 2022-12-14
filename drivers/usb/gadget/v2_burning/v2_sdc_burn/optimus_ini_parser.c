@@ -152,14 +152,14 @@ int _optimus_abandon_ini_comment_lines(char* lines[], const unsigned lineNum)
             }
 
             isSpaceLine = 0;//no space line
-            //test if frist char is comment delimeter
+            //test if first char is comment delimeter
             if (';' == c)
             {
                 lines[lineIndex] = NULL;//invalid comment lines
             }
         }
 
-        //if all character is space or tab, also invlalid it
+        //if all character is space or tab, also invalid it
         if (isSpaceLine)
         {
             lines[lineIndex] = NULL;

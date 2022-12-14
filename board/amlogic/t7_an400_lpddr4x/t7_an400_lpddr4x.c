@@ -196,7 +196,7 @@ int board_late_init(void)
 	board_init_mem();
 	run_command("run bcb_cmd", 0);
 	board_boot_freertos();
-#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
 		run_command("if test ${reboot_mode} = fastboot; then "\
@@ -207,7 +207,7 @@ int board_late_init(void)
 	run_command("if fdt addr ${dtb_mem_addr}; then "\
 		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 
-#endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -508,28 +508,19 @@ int checkhw(char * name)
 		cpu_id = get_cpu_id();
 
 		switch (ddr_size) {
-		case CONFIG_T7_3G_SIZE:
-			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "t7_a311d2_an400-3g\0");
-			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400-3g\0");
-				//
-			}
-			break;
 		case CONFIG_T7_4G_SIZE:
 			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+				#ifdef CONFIG_HDMITX_ONLY
+				strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
+				#else
 				strcpy(loc_name, "t7_a311d2_an400\0");
+				#endif
 			} else if (cpu_id.chip_rev == 0xC) {
+				#ifdef CONFIG_HDMITX_ONLY
+				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only\0");
+				#else
 				strcpy(loc_name, "t7c_a311d2_an400-4g\0");
-				//
-			}
-			break;
-		case CONFIG_T7_6G_SIZE:
-			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "t7_a311d2_an400-6g\0");
-			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400-6g\0");
-				//
+				#endif
 			}
 			break;
 		case CONFIG_T7_8G_SIZE:
@@ -542,7 +533,7 @@ int checkhw(char * name)
 			break;
 		default:
 			printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
-			printf("set defalult t7_a311d2_an400\n");
+			printf("set default t7_a311d2_an400\n");
 			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
 				strcpy(loc_name, "t7_a311d2_an400\0");
 			} else if (cpu_id.chip_rev == 0xC) {

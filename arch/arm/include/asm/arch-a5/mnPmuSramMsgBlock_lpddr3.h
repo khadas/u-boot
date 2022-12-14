@@ -426,7 +426,7 @@ typedef struct _PMU_SMB_LPDDR3_1D_t {
 	// This field is reserved and must be programmed to 0x00.
 	uint16_t PhyConfigOverride;	// Byte offset 0x6e, CSR Addr 0x54037, Direction=In
 	// Override PhyConfig csr.
-	// 0x0: Use hardware csr value for PhyConfing (recommended)
+	// 0x0: Use hardware csr value for PhyConfig (recommended)
 	// Other values: Use value for PhyConfig instead of Hardware value.
 	//
 	uint8_t Reserved70;	// Byte offset 0x70, CSR Addr 0x54038, Direction=N/A

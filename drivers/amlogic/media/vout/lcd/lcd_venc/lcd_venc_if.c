@@ -25,7 +25,7 @@ static struct lcd_venc_op_s lcd_venc_op = {
 
 void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv)
 {
-#ifndef CONFIG_AML_LCD_PXP
+#ifdef CONFIG_AML_LCD_PXP
 	return;
 #endif
 	if (!lcd_venc_op.wait_vsync)
@@ -55,7 +55,7 @@ void lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
 
 static void lcd_gamma_init(struct aml_lcd_drv_s *pdrv)
 {
-#ifndef CONFIG_AML_LCD_PXP
+#ifdef CONFIG_AML_LCD_PXP
 	return;
 #endif
 

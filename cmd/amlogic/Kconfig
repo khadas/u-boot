@@ -101,6 +101,13 @@ config CMD_AUTOSCR
 	help
 	  Run script in memory
 
+config CMD_RMA
+	bool "support rma command"
+	depends on OPTEE
+	default n
+	help
+	  Support rma cmd
+
 #prduct mode start---->
 config NO_FASTBOOT_FLASHING
 	depends on FASTBOOT

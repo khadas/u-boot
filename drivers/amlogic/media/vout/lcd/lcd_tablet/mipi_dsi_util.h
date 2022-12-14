@@ -9,7 +9,7 @@
 
 /* ********************************************************
  * MIPI DSI Data Type/ MIPI DCS Command Type Definitions
- * Pheripheral to Host
+ * Peripheral to Host
  */
 enum mipi_dsi_data_type_host_e {
 	DT_VSS                  = 0x01,
@@ -93,7 +93,7 @@ enum mipi_dsi_data_type_host_e {
 #define DCS_WRITE_MEMORY_CONTINUE    0x3c
 #define DCS_WRITE_MEMORY_START       0x2c
 
-/* Pheripheral to Host
+/* Peripheral to Host
  * normal: 0x87(LPDT), data_type, 0, 0, ecc.  (write or tearing-effect)
  * error:  0x87(LPDT), 0x02, error_code[15:0], ecc.
  * short read: 0x87, data_type, data0, data1, ecc
@@ -184,7 +184,7 @@ struct dsi_cmd_request_s {
 #define BIT_FRAME_BTA_ACK_EN     14
 #define BIT_LP_HFP_EN            13
 #define BIT_LP_HBP_EN            12
-#define BIT_LP_VCAT_EN           11
+#define BIT_LP_VACT_EN           11
 #define BIT_LP_VFP_EN            10
 #define BIT_LP_VBP_EN             9
 #define BIT_LP_VSA_EN             8
@@ -457,7 +457,7 @@ enum tv_enc_lcd_type_e {
 #define DPHY_TIME_LP_TA_GETX(ui)    (5 * DPHY_TIME_LP_LPX(ui))
 /* >100ns */
 #define DPHY_TIME_HS_EXIT(ui)       (110 * 100)
-/* max(8*ui, 60+4*ui), (teot)<105+12*ui */
+/* max(8*ui, 60+4*ui), (test)<105+12*ui */
 #define DPHY_TIME_HS_TRAIL(ui)      ((ui > (60 * 100 / 4)) ? \
 					(8 * ui) : ((60 * 100) + 4 * ui))
 /* (40+4*ui, 85+6*ui) */
@@ -465,7 +465,7 @@ enum tv_enc_lcd_type_e {
 /* hs_prepare+hs_zero >145+10*ui */
 #define DPHY_TIME_HS_ZERO(ui)       (160 * 100 + 10 * ui - \
 					DPHY_TIME_HS_PREPARE(ui))
-/* >60ns, (teot)<105+12*ui */
+/* >60ns, (test)<105+12*ui */
 #define DPHY_TIME_CLK_TRAIL(ui)     (70 * 100)
 /* >60+52*ui */
 #define DPHY_TIME_CLK_POST(ui)      (2 * (60 * 100 + 52 * ui))

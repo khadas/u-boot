@@ -90,11 +90,11 @@ static AvbSlotVerifyResult load_full_partition(AvbOps* ops,
     }
 
     if (*out_image_buf != NULL) {
-      if (part_num_read != image_size) {
-        avb_errorv(part_name, ": Read incorrect number of bytes.\n", NULL);
-        return AVB_SLOT_VERIFY_RESULT_ERROR_IO;
-      }
-      *out_image_preloaded = true;
+	*out_image_preloaded = true;
+	if (part_num_read != image_size) {
+		avb_errorv(part_name, ": Read incorrect number of bytes.\n", NULL);
+		return AVB_SLOT_VERIFY_RESULT_ERROR_IO;
+	}
     }
   }
 
@@ -373,7 +373,12 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   // Although only one of the type might be used, we have to defined the
   // structure here so that they would live outside the 'if/else' scope to be
   // used later.
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_context sha256_ctx;
+	uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+#else
   AvbSHA256Ctx sha256_ctx;
+#endif
   AvbSHA512Ctx sha512_ctx;
   size_t image_size_to_hash = hash_desc.image_size;
   // If we allow verification error and the whole partition is smaller than
@@ -382,10 +387,18 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
     image_size_to_hash = image_size;
   }
   if (avb_strcmp((const char*)hash_desc.hash_algorithm, "sha256") == 0) {
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_starts(&sha256_ctx);
+	sha256_update(&sha256_ctx, desc_salt, hash_desc.salt_len);
+	sha256_update(&sha256_ctx, image_buf, image_size_to_hash);
+	sha256_finish(&sha256_ctx, sha256_output);
+	digest = sha256_output;
+#else
     avb_sha256_init(&sha256_ctx);
     avb_sha256_update(&sha256_ctx, desc_salt, hash_desc.salt_len);
     avb_sha256_update(&sha256_ctx, image_buf, image_size_to_hash);
     digest = avb_sha256_final(&sha256_ctx);
+#endif
     digest_len = AVB_SHA256_DIGEST_SIZE;
   } else if (avb_strcmp((const char*)hash_desc.hash_algorithm, "sha512") == 0) {
     avb_sha512_init(&sha512_ctx);
@@ -453,7 +466,8 @@ out:
     loaded_partition->data_size = image_size;
 	loaded_partition->data = NULL;
 	avb_free(image_buf);
-    loaded_partition->preloaded = image_preloaded;
+	loaded_partition->preloaded = image_preloaded;
+	loaded_partition->verify_result = ret;
     image_buf = NULL;
   }
 
@@ -548,7 +562,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     AvbSlotVerifyFlags flags,
     bool allow_verification_error,
     AvbVBMetaImageFlags toplevel_vbmeta_flags,
-    int rollback_index_location,
+	uint32_t rollback_index_location,
     const char* partition_name,
     size_t partition_name_len,
     const uint8_t* expected_public_key,
@@ -559,7 +573,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   char full_partition_name[AVB_PART_NAME_MAX_SIZE];
   AvbSlotVerifyResult ret;
   AvbIOResult io_ret;
-  size_t vbmeta_offset;
+	uint64_t vbmeta_offset;
   size_t vbmeta_size;
   uint8_t* vbmeta_buf = NULL;
   size_t vbmeta_num_read;
@@ -650,6 +664,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
       ret = AVB_SLOT_VERIFY_RESULT_ERROR_IO;
       goto out;
     }
+	avb_assert(footer_num_read == AVB_FOOTER_SIZE);
 
     if (!avb_footer_validate_and_byteswap((const AvbFooter*)footer_buf,
                                           &footer)) {
@@ -741,6 +756,16 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
 				!strcmp(full_partition_name, "vbmeta_a") ||
 				!strcmp(full_partition_name, "vbmeta_b")) {
 			if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+				sha256_context boot_key_sha256_ctx;
+				uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+
+				sha256_starts(&boot_key_sha256_ctx);
+				sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
+				sha256_finish(&boot_key_sha256_ctx, sha256_output);
+				avb_memcpy(boot_key_hash, sha256_output,
+						AVB_SHA256_DIGEST_SIZE);
+#else
 				AvbSHA256Ctx boot_key_sha256_ctx;
 
 				avb_sha256_init(&boot_key_sha256_ctx);
@@ -748,6 +773,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
 				avb_memcpy(boot_key_hash,
 						avb_sha256_final(&boot_key_sha256_ctx),
 						AVB_SHA256_DIGEST_SIZE);
+#endif
 			}
 		}
 	}
@@ -802,6 +828,10 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   }
 
   uint32_t rollback_index_location_to_use = rollback_index_location;
+
+	if (is_main_vbmeta) {
+		rollback_index_location_to_use = vbmeta_header.rollback_index_location;
+	}
 
   /* Check if key used to make signature matches what is expected. */
   if (pk_data != NULL) {
@@ -1216,16 +1246,16 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     }
   }
 
-  if (rollback_index_location < 0 ||
-      rollback_index_location >= AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS) {
-    avb_errorv(
-        full_partition_name, ": Invalid rollback_index_location.\n", NULL);
-    ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_METADATA;
-    goto out;
-  }
+	if (rollback_index_location_to_use >=
+		AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS) {
+		avb_errorv(full_partition_name,
+			": Invalid rollback_index_location.\n", NULL);
+		ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_METADATA;
+		goto out;
+	}
 
-  slot_data->rollback_indexes[rollback_index_location] =
-      vbmeta_header.rollback_index;
+	slot_data->rollback_indexes[rollback_index_location_to_use] =
+	    vbmeta_header.rollback_index;
 
   if (out_algorithm_type != NULL) {
     *out_algorithm_type = (AvbAlgorithmType)vbmeta_header.algorithm_type;
@@ -1343,7 +1373,7 @@ out:
 
 static bool has_system_partition(AvbOps* ops, const char* ab_suffix) {
   char part_name[AVB_PART_NAME_MAX_SIZE];
-  char* system_part_name = "system";
+	const char *system_part_name = "system";
   char guid_buf[37];
   AvbIOResult io_ret;
 
@@ -1718,14 +1748,27 @@ const char* avb_slot_verify_result_to_string(AvbSlotVerifyResult result) {
   return ret;
 }
 
-void avb_slot_verify_data_calculate_vbmeta_digest(AvbSlotVerifyData* data,
-                                                  AvbDigestType digest_type,
-                                                  uint8_t* out_digest) {
+void avb_slot_verify_data_calculate_vbmeta_digest(const AvbSlotVerifyData *data,
+						  AvbDigestType digest_type,
+						  uint8_t *out_digest)
+{
   bool ret = false;
   size_t n;
 
   switch (digest_type) {
     case AVB_DIGEST_TYPE_SHA256: {
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_context ctx;
+	uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+
+	sha256_starts(&ctx);
+	for (n = 0; n < data->num_vbmeta_images; n++)
+		sha256_update(&ctx,
+				data->vbmeta_images[n].vbmeta_data,
+				data->vbmeta_images[n].vbmeta_size);
+	sha256_finish(&ctx, sha256_output);
+	avb_memcpy(out_digest, sha256_output, AVB_SHA256_DIGEST_SIZE);
+#else
       AvbSHA256Ctx ctx;
       avb_sha256_init(&ctx);
       for (n = 0; n < data->num_vbmeta_images; n++) {
@@ -1734,6 +1777,7 @@ void avb_slot_verify_data_calculate_vbmeta_digest(AvbSlotVerifyData* data,
                           data->vbmeta_images[n].vbmeta_size);
       }
       avb_memcpy(out_digest, avb_sha256_final(&ctx), AVB_SHA256_DIGEST_SIZE);
+#endif
       ret = true;
     } break;
 

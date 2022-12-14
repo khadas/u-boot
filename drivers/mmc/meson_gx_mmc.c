@@ -379,7 +379,7 @@ static int mmc_pre_dma(struct udevice *dev, struct mmc_data *data,
 				*meson_mmc_cmd |= CMD_CFG_DATA_WR;
 			*meson_mmc_cmd |= CMD_CFG_TIMEOUT_4S;
 			desc_cur->data_addr = data_addr
-				+ (desc_cnt * bl_len * mmc->read_bl_len);
+				+ (desc_cnt * mmc->cfg->b_max * mmc->read_bl_len);
 			desc_cur->data_addr &= ~(1 << 0);
 			if (blks) {
 				desc_cur++;
@@ -1131,7 +1131,7 @@ int emmc_ds_manual_sht(struct mmc *mmc)
 	gintf3->ds_sht_m = 0;
 	gintf3->sd_intf3 = 1;
 	meson_write(mmc, intf3, MESON_SD_EMMC_INTF3);
-	offset = (u32)rand() % capacity;
+	offset = (u32)rand_r(0) % capacity;
 	for (i = 0; i < 64; i++) {
 		cnt = mmc_read(mmc, offset, 200, addr);
 		if (cnt == 200)
@@ -1358,7 +1358,7 @@ static u32 scan_emmc_cmd_win(struct mmc *mmc, int send_status)
 
 	for (i = 0; i < 64; i++) {
 		meson_write(mmc, delay2, MESON_SD_EMMC_DELAY2);
-		offset = (u32)rand() % capacity;
+		offset = (u32)rand_r(0) % capacity;
 		for (j = 0; j < repeat_times; j++) {
 			if (send_status)
 				err = aml_sd_emmc_cmd_v3(mmc);
@@ -1469,7 +1469,6 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct meson_host *host = dev_get_priv(dev);
 	struct mmc_config *cfg = &pdata->cfg;
-	struct udevice *clk_udevice;
 	fdt_addr_t addr;
 	int ret = 0;
 
@@ -1509,8 +1508,6 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 		if (ret)
 			return ret;
 	}
-
-	uclass_get_device_by_name(UCLASS_CLK, "amlogic,g12a-clkc", &clk_udevice);
 
 	clk_get_by_name(dev, "clkin", &host->div2);
 	clk_get_by_name(dev, "xtal", &host->xtal);

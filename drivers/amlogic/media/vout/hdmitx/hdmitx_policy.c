@@ -110,29 +110,34 @@ static const char * const MODE_4K_LIST[] = {
 	MODE_4K2K50HZ,
 };
 
-/* for check hdr non-4k support or not */
+/* for check hdr non-4k support or not
+ * interface mode is lower priority as some android
+ * version may removed interlace mode.
+ * descending order
+ */
 static const char * const MODE_NON4K_LIST[] = {
 	MODE_1080P,
 	MODE_1080P50HZ,
-	MODE_1080I,
-	MODE_1080I50HZ,
 	MODE_720P,
 	MODE_720P50HZ,
 	MODE_576P,
 	MODE_480P,
+	MODE_1080I,
+	MODE_1080I50HZ,
 	MODE_576I,
 	MODE_480I,
 };
 
+/* ascending order */
 static const char *MODE_RESOLUTION_FIRST[] = {
 	MODE_480I,
 	MODE_576I,
+	MODE_1080I50HZ,
+	MODE_1080I,
 	MODE_480P,
 	MODE_576P,
 	MODE_720P50HZ,
 	MODE_720P,
-	MODE_1080I50HZ,
-	MODE_1080I,
 	MODE_1080P50HZ,
 	MODE_1080P,
 	MODE_4K2K24HZ,
@@ -142,15 +147,16 @@ static const char *MODE_RESOLUTION_FIRST[] = {
 	MODE_4K2K60HZ
 };
 
+/* ascending order */
 static const char *MODE_FRAMERATE_FIRST[] = {
 	MODE_480I,
 	MODE_576I,
+	MODE_1080I50HZ,
+	MODE_1080I,
 	MODE_480P,
 	MODE_576P,
 	MODE_720P50HZ,
 	MODE_720P,
-	MODE_1080I50HZ,
-	MODE_1080I,
 	MODE_4K2K24HZ,
 	MODE_4K2K25HZ,
 	MODE_4K2K30HZ,
@@ -160,8 +166,10 @@ static const char *MODE_FRAMERATE_FIRST[] = {
 	MODE_4K2K60HZ
 };
 
-/* this is prior selected list of
+/* this is prior selected list for sdr of
  * 4k2k50hz, 4k2k60hz smpte50hz, smpte60hz
+ * for user change resolution case in sysctl.
+ * descending order
  */
 static const char *COLOR_ATTRIBUTE_LIST1[] = {
 	COLOR_YCBCR420_10BIT,
@@ -171,16 +179,40 @@ static const char *COLOR_ATTRIBUTE_LIST1[] = {
 	COLOR_RGB_8BIT
 };
 
-/* this is prior selected list  of other display mode */
+/* this is prior selected list for hdr and sdr of
+ * non 4k50/60hz display mode.
+ * under HDR priority && auto best is off, it may
+ * change from TV_A (1080p60hz 444,10bit HDR) to
+ * TV_B witch support 1080p60hz 444,8bit maximum.
+ * should keep mode(1080p60hz) witch user selected,
+ * and 8bit depth(sdr) is kept in select list for
+ * safety of conner case.
+ * i.e. if HDR cs/cd is not supported, may select
+ * 8bit mode.
+ * also for user change resolution case in sysctl.
+ * descending order
+ */
 static const char *COLOR_ATTRIBUTE_LIST2[] = {
-	COLOR_YCBCR444_10BIT,
 	COLOR_YCBCR422_12BIT,
+	COLOR_YCBCR444_10BIT,
 	COLOR_RGB_10BIT,
 	COLOR_YCBCR444_8BIT,
 	COLOR_RGB_8BIT
 };
 
-/* this is prior selected list  of Low Power Mode
+/* this is prior selected list for sdr of
+ * non 4k50/60hz display mode
+ * descending order
+ */
+static const char *SDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
+	COLOR_YCBCR444_8BIT,
+	COLOR_RGB_8BIT,
+	COLOR_YCBCR422_12BIT,
+	COLOR_YCBCR444_10BIT,
+	COLOR_RGB_10BIT,
+};
+
+/* this is prior selected list of Low Power Mode
  * 4k2k50hz, 4k2k60hz smpte50hz, smpte60hz
  */
 static const char *COLOR_ATTRIBUTE_LIST3[] = {
@@ -209,16 +241,20 @@ static const char *COLOR_ATTRIBUTE_LIST4[] = {
 	COLOR_RGB_12BIT
 };
 
-/* this is prior selected list of HDR non 4k colorspace */
+/* this is prior selected list of HDR non 4k50/60 colorspace
+ * descending order
+ */
 static const char * const HDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
-	COLOR_YCBCR444_10BIT,
 	COLOR_YCBCR422_12BIT,
+	COLOR_YCBCR444_10BIT,
 	COLOR_RGB_10BIT,
 	COLOR_YCBCR444_12BIT,
 	COLOR_RGB_12BIT,
 };
 
-/* this is prior selected list of HDR 4k colorspace(2160p60hz/2160p50hz) */
+/* this is prior selected list of HDR 4k colorspace(2160p60hz/2160p50hz)
+ * descending order
+ */
 static const char * const HDR_4K_COLOR_ATTRIBUTE_LIST[] = {
 	COLOR_YCBCR420_10BIT,
 	COLOR_YCBCR422_12BIT,
@@ -320,7 +356,7 @@ static inline bool is_meson_gxl_package_805Y(void)
 }
 
 /* below items has feature limited, may need extra judgement */
-static bool hdmitx_limited_1080p(void)
+bool is_hdmitx_limited_1080p(void)
 {
 #ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
@@ -340,7 +376,7 @@ static bool hdmitx_limited_1080p(void)
 
 bool is_support_4k(void)
 {
-	if (hdmitx_limited_1080p())
+	if (is_hdmitx_limited_1080p())
 		return false;
 	return true;
 }
@@ -703,7 +739,7 @@ static void filter_hdmimode(struct input_hdmi_data *hdmi_data, char *mode)
 	if (!hdmi_data || !mode)
 		return;
 
-	if (hdmi_sink_disp_mode_sup(hdmi_data, mode)) {
+	if (hdmi_sink_disp_mode_sup(hdmi_data, hdmi_data->ubootenv_hdmimode)) {
 		strcpy(mode, hdmi_data->ubootenv_hdmimode);
 	} else {
 		/* old mode is not support in this TV,
@@ -743,9 +779,13 @@ static void get_best_color_attr(struct input_hdmi_data *hdmi_data,
 	const char **color_list = NULL;
 	char temp_mode[MODE_LEN] = {0};
 	int i;
+	struct hdmitx_dev *hdev = NULL;
 
 	if (!hdmi_data || !outputmode || !colorattribute)
 		return;
+
+	hdev = container_of(hdmi_data->prxcap,
+		struct hdmitx_dev, RXCap);
 
 	/* filter some color value options, aimed at some modes. */
 	if (!strcmp(outputmode, MODE_4K2K60HZ) ||
@@ -763,9 +803,18 @@ static void get_best_color_attr(struct input_hdmi_data *hdmi_data,
 		if (is_low_powermode()) {
 			color_list = COLOR_ATTRIBUTE_LIST4;
 			length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST4);
-		} else {
+		} else if (is_hdr_preference(hdev)) {
+			/* hdr non 4k50/60hz color format priority table */
+			/* ex:connect 2160p60 420 8bit TV, when switch to
+			 * 1080p60, 10bit first for hdr, switch 2160p60,
+			 * only 420 8bit
+			 */
 			color_list = COLOR_ATTRIBUTE_LIST2;
 			length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST2);
+		} else {
+			/* sdr non 4k50/60hz color format priority table */
+			color_list = SDR_NON4K_COLOR_ATTRIBUTE_LIST;
+			length = ARRAY_SIZE(SDR_NON4K_COLOR_ATTRIBUTE_LIST);
 		}
 	}
 
@@ -941,37 +990,62 @@ static bool is_support_non4k_hdr(struct input_hdmi_data *hdmi_data,
 	return false;
 }
 
+static bool find_hdr_prefer_mode(struct input_hdmi_data *hdmi_data,
+	scene_output_info_t *output_info)
+{
+	bool find = false;
+
+	if (!hdmi_data || !output_info)
+		return find;
+
+	/* if box can support 4k case
+	 * find prefer 4k50/60hz hdr resolution and color format based on edid
+	 */
+	if (is_support_4k())
+		find = is_support_4k60hdr(hdmi_data, output_info);
+
+	/* 1.not find 4k hdr mode case 2. box not support 4k case
+	 * find prefer non 4k hdr resolution and color format based on edid
+	 */
+	if (!find)
+		find = is_support_non4k_hdr(hdmi_data, output_info);
+
+	return find;
+}
+
 void hdr_scene_process(struct input_hdmi_data *hdmi_data,
 	scene_output_info_t *output_info)
 {
 	bool find = false;
-	char outputmode[MODE_LEN] = {0};
 	char colorattribute[MODE_LEN] = {0};
 
 	if (!hdmi_data || !output_info)
 		return;
 
 	if (is_best_outputmode()) {
-		if (is_support_4k())
-			find = is_support_4k60hdr(hdmi_data, output_info);
-
-		if (!find) {
-			find = is_support_non4k_hdr(hdmi_data, output_info);
-			if (!find)
-				printf("%s not find hdr support\n", __func__);
-		}
+		find = find_hdr_prefer_mode(hdmi_data, output_info);
+		if (!find)
+			printf("%s not find hdr support mode\n", __func__);
 	} else {
-		/* 1. choose resolution, frame rate */
-		get_hdmi_outputmode(hdmi_data, outputmode);
-		if (strlen(outputmode) == 0)
-			strcpy(outputmode, DEFAULT_HDMI_MODE);
-		strcpy(output_info->final_displaymode, outputmode);
-
-		/* 2.choose color format, bit-depth */
-		update_hdmi_deepcolor(hdmi_data, outputmode, colorattribute);
-		strcpy(output_info->final_deepcolor, colorattribute);
-		printf("hdr final displaymode:%s, deepcolor:%s\n",
-			output_info->final_displaymode, output_info->final_deepcolor);
+		/* 1.check current displaymode + colorattribute support or not */
+		if (hdmitx_chk_mode_attr_sup(hdmi_data, hdmi_data->ubootenv_hdmimode,
+			hdmi_data->ubootenv_colorattribute)) {
+			strcpy(output_info->final_displaymode, hdmi_data->ubootenv_hdmimode);
+			strcpy(output_info->final_deepcolor, hdmi_data->ubootenv_colorattribute);
+		} else if (hdmi_sink_disp_mode_sup(hdmi_data, hdmi_data->ubootenv_hdmimode)) {
+			/* 2.check cur_displaymode support or not
+			 * if support, find best color format for this mode.
+			 */
+			get_best_color_attr(hdmi_data, hdmi_data->ubootenv_hdmimode,
+				colorattribute);
+			strcpy(output_info->final_displaymode, hdmi_data->ubootenv_hdmimode);
+			strcpy(output_info->final_deepcolor, colorattribute);
+		} else {
+			/* 3.find best hdr prefer mode */
+			find = find_hdr_prefer_mode(hdmi_data, output_info);
+			if (!find)
+				printf("%s not find hdr support mode2\n", __func__);
+		}
 	}
 }
 

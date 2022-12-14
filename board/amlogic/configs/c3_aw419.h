@@ -119,6 +119,7 @@
 	"fs_type=""rootfstype=ramfs""\0"\
 	"initargs="\
 	"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
+	"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
 	"\0"\
 	"upgrade_check="\
 	"echo recovery_status=${recovery_status};"\
@@ -210,7 +211,7 @@
 		"echo active_slot: ${active_slot};"\
 		"setenv loadaddr ${loadaddr_kernel};"\
 		"if test ${active_slot} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
 			"if test ${upgrade_step} = 3; then "\
 				"if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
 				"if test ${vendor_boot_mode} = true; then "\
@@ -227,16 +228,14 @@
 		"else "\
 			"if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
 			"if test ${partition_mode} = normal; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
+				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
 				"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
 			"else "\
 				"if test ${vendor_boot_mode} = true; then "\
-					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-					"androidboot.slot_suffix=${active_slot};"\
+					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
 					"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
 				"else "\
-					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-					"androidboot.slot_suffix=${active_slot};"\
+					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
 					"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
 				"fi;"\
 			"fi;"\
@@ -345,7 +344,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256 * 1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN				(6 * 1024 * 1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1
@@ -445,7 +444,7 @@
 #define CRG_UDC_ADDR_C3         (0xfe340000)
 /* UBOOT fastboot config */
 
-/* UBOOT Facotry usb/sdcard burning config */
+/* UBOOT factory usb/sdcard burning config */
 
 /* net */
 /* #define CONFIG_CMD_NET   1 */
@@ -496,7 +495,7 @@
 #define CONFIG_LIBAVB		1
 
 /* define CONFIG_SYS_MEM_TOP_HIDE 8M space for free buffer */
-#define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
+//#define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
 
 #define CONFIG_CPU_ARMV8
 
@@ -539,5 +538,7 @@
 
 #define AML_RSV_DTB_SIZE (128 * 1024)
 
+#define CONFIG_INITRD_HIGH_ADDR "0xFC00000"
+#define CONFIG_FDT_HIGH_ADDR "0x5000000"
 #endif
 

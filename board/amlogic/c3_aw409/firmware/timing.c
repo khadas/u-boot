@@ -259,7 +259,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[2]  = 279,
 	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[3]  = 283,
 
-	//20220806,when aw419 enable DFE,read_dqs_delay[2]must set 170,138 cause low max frequercy
+	//20220806,when aw419 enable DFE,read_dqs_delay[2]must set 170,138 cause low max frequency
 	.cfg_ddr_training_delay_ps.read_dqs_delay[0]  = 170,//123,
 	.cfg_ddr_training_delay_ps.read_dqs_delay[1]  = 170,//127,
 	.cfg_ddr_training_delay_ps.read_dqs_delay[2]  = 170,//138,
@@ -471,25 +471,25 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
-	//hxbao, need fine tune
-	{ 0, 0, 0xffffffff, 0, 0, 0 },
+	//need fine tune
+	{0, 0, 0xffffffff, 0, 0x1, 0},    //flag: 1=disable bl32 0=enable bl32
 };
 
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
-	/* config vddee and vcck pwm - pwm_e and pwm_f*/
-	{ PWMEF_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
-	{ PWMEF_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
-	{ PWMEF_MISC_REG_AB,	   (0x3 << 0),	  (0x3 << 0), 0, 0, 0 },
-	/* set pwm e and pwm f clock rate to 24M, enable them */
-	{ CLKCTRL_PWM_CLK_EF_CTRL, ((0x1 << 8) | (0x1 << 24)), 0xffffffff, 0, 0, 0 },
+	/* config vddee and vcck pwm - pwm_a and pwm_b*/
+	{ PWMAB_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
+	{ PWMAB_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
+	{ PWMAB_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
+				(0x3 << 0) | (0x1 << 15) | (0x1 << 23), 0, 0, 0 },
+	/* set pwm a and pwm b clock rate to 24M, enable them */
+	{ CLKCTRL_PWM_CLK_AB_CTRL, ((0x1 << 8) | (0x1 << 24)), 0xffffffff, 0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 drive strength to 3 */
 	{ PADCTRL_GPIOE_DS,	   0xf,		  0xf,	      0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 mux to pwme pwmf */
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 0),	  (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 4),	  (0xf << 4), 0, 0, 0 },
-	{ PADCTRL_GPIOD_PULL_UP,   (0x1 << 2),	  (0x1 << 2), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000

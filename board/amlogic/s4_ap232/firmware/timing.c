@@ -2186,7 +2186,7 @@ __attribute__ ((section(".clk_param"))) = {
 #endif
 
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
-	//hxbao, need fine tune
+	//need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
 };
 
@@ -2194,7 +2194,18 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
 	/* config vddee and vcck pwm - pwm_h and pwm_j*/
-	{ PWMGH_PWM_B,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
+#ifdef CONFIG_PDVFS_ENABLE
+	/* s4 set vddee */
+	{PWMGH_PWM_B, 0x8000a, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
+	{PWMGH_PWM_B, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
+	{PWMGH_PWM_B, 0x20010, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+	/* s4d set vddee */
+	{PWMGH_PWM_B, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_4, 0},
+	{PWMGH_PWM_B, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_5, 0},
+	{PWMGH_PWM_B, 0x3000f, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_6, 0},
+#else
+	{PWMGH_PWM_B, VDDEE_VAL_REG, 0xffffffff, 0, 0, 0},
+#endif
 	{ PWMIJ_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMGH_MISC_REG_AB,	   (0x1 << 1),	  (0x1 << 1), 0, 0, 0 },
 	{ PWMIJ_MISC_REG_AB,	   (0x1 << 1),	  (0x1 << 1), 0, 0, 0 },

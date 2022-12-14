@@ -18,16 +18,24 @@ int meson_set_gate_by_id(struct clk *clk, struct meson_gate *gate_arr,
 	struct meson_clk *priv = dev_get_priv(clk->dev);
 	struct meson_gate *gate;
 	unsigned i, index = 0;
-	unsigned long id;
+	unsigned long id = 0;
 
 	debug("%s: %sabling %ld\n", __func__, on ? "en" : "dis", id);
 
 	/* Find the array by id */
 	id = clk->id;
 	for (i = 0; i < arr_size; i++) {
-		if (id == gate_arr[i].index)
+		if (id == gate_arr[i].index) {
 			index = i;
+			break;
+		}
 	}
+
+	if (i == arr_size) {
+		debug("the gate_id(%ld) is unsupport\n", id);
+		return 0;
+	}
+
 	gate = &gate_arr[index];
 	if (gate->reg == 0)
 		return 0;
@@ -57,9 +65,17 @@ int meson_mux_set_parent_by_id(struct clk *clk, struct meson_mux *mux_arr,
 	 *2.find the parent clock index in table
 	*/
 	for (i = 0; i < arr_size; i++) {
-		if (clk->id == mux_arr[i].index)
+		if (clk->id == mux_arr[i].index) {
 			index = i;
+			break;
+		}
 	}
+
+	if (i == arr_size) {
+		debug("the mux_id(%ld) is unsupport\n", clk->id);
+		return 0;
+	}
+
 	mux = &mux_arr[index];
 	parents = mux->table;
 	for (i = 0; i < mux->table_size; i++) {

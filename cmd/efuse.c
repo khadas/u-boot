@@ -27,13 +27,13 @@
 int cmd_efuse(int argc, char * const argv[], char *buf)
 {
 	int i, action = -1;
-	u32 offset;
+	u64 offset;
 	u32 size = 0, max_size;
 	char *end;
 	char *s;
 	int ret;
 	long lAddr1, lAddr2;
-	unsigned long nType;
+	unsigned long nType = 0;
 
 	if (strncmp(argv[1], "mac", 3) == 0) {
 			char mac[6] = {0};
@@ -123,7 +123,7 @@ int cmd_efuse(int argc, char * const argv[], char *buf)
 	/*check efuse user data max size*/
 	offset = simple_strtoul(argv[2], &end, 16);
 	size = simple_strtoul(argv[3], &end, 16);
-	printf("%s: offset is %d  size is  %d\n", __func__, offset, size);
+	printf("%s: offset is %lld  size is  %d\n", __func__, offset, size);
 	max_size = efuse_get_max();
 	if (!size) {
 		printf("\n error: size is zero!!!\n");
@@ -241,8 +241,6 @@ efuse_action:
 		case CMD_EFUSE_CUSTOMER_ID_SET:
 			nType = AML_D_P_W_EFUSE_CUSTOMER_ID;
 			break;
-		default:
-			return -1;
 		}
 
 		ret = aml_sec_boot_check(nType, lAddr2, GXB_EFUSE_PATTERN_SIZE<<1, 0);
@@ -254,6 +252,10 @@ efuse_action:
 
 		return ret;
 	} else {
+		/*
+		 * This part of the code is necessary to prevent unknown errors
+		 */
+		/* coverity[dead_error_begin] */
 		printf("arg error\n");
 		return CMD_RET_USAGE;
 	}

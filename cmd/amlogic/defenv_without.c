@@ -112,7 +112,7 @@ static int do_defenv_reserv(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 }
 
 U_BOOT_CMD_COMPLETE(
-   defenv_reserv,       //command name
+	defenv_reserve,		//command name
    CONFIG_SYS_MAXARGS,  //maxargs
    0,                   //repeatable
    do_defenv_reserv,    //command function

@@ -73,7 +73,6 @@ static int lcd_venc_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
 	offset = pdrv->data->offset_venc[pdrv->index];
 	start = pdrv->config.timing.hstart;
 	width = pdrv->config.basic.h_active / 9;
-	num = (num >= LCD_ENC_TST_NUM_MAX) ? 0 : num;
 
 	lcd_venc_wait_vsync(pdrv);
 	lcd_vcbus_write(ENCL_VIDEO_RGBIN_CTRL + offset, lcd_enc_tst[num][6]);

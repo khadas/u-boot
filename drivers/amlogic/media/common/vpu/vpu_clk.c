@@ -260,33 +260,22 @@ int set_vpu_clk(struct vpu_conf_s *vconf, unsigned int vclk)
 
 int set_vpu_clkb(struct vpu_conf_s *vconf, unsigned int vclk)
 {
-	unsigned int clk_level;
 	unsigned int clkb_reg;
 	int ret = 0;
 
 	/* vpu clkb */
 	clkb_reg = vconf->data->vpu_clkb_reg;
-	if (!clkb_reg)
+	if (clkb_reg == VPU_REG_END)
 		return 0;
 
-	if (vclk >= 100) /* regard as vpu_clk */
-		clk_level = get_vpu_clk_level(vconf, vclk);
-	else /* regard as clk_level */
-		clk_level = vclk;
-
-	if (clk_level >= vconf->data->clk_level_max) {
-		clk_level = vconf->data->clk_level_dft;
-		VPUPR("clk out of supported range, set to default\n");
-	}
 #ifdef VPU_DEBUG_PRINT
 	VPUPR("%s\n", __func__);
 #endif
 
-	vpu_hiu_setb(clkb_reg, 1, 8, 1);
-	vpu_hiu_setb(clkb_reg, 1, 0, 8);
+	vpu_hiu_write(clkb_reg, ((0 << 20) | (0 << 16)));
 	vpu_hiu_setb(clkb_reg, 1, 24, 1);
-	vpu_hiu_setb(clkb_reg, 0, 16, 4);
-	vpu_hiu_setb(clkb_reg, 0, 20, 2);
+	vpu_hiu_setb(clkb_reg, 1, 0, 8);
+	vpu_hiu_setb(clkb_reg, 1, 8, 1);
 
 #ifdef VPU_DEBUG_PRINT
 	VPUPR("%s finish\n", __func__);

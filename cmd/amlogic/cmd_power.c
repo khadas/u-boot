@@ -30,6 +30,10 @@ static int do_powershow(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 	}
 
 	for (i = 0; i < PM_MAX; i++)
+		/*
+		 * The features of each board are different, ignore cov weak cryptor report.
+		 */
+		/* coverity[overrun-local] */
 		printf("%s[%d]:		%lx\n", domain_name[i],i, pwr_ctrl_status_psci_smc(i));
 
 	return ret;
@@ -54,8 +58,6 @@ static int do_powerset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 	domain_id = simple_strtoul(argv[1], NULL, 10);
 	domain_status = simple_strtoul(argv[2], NULL, 10);
-	printf("domain_id: %d \n",domain_id);
-	printf("domain_status: %d\n",domain_status);
 
 	pwr_ctrl_psci_smc(domain_id, !domain_status);
 

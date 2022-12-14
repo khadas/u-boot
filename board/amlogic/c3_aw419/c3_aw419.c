@@ -134,6 +134,49 @@ int board_init(void)
 	return 0;
 }
 
+void media_clock_init(void)
+{
+	unsigned int val = 0;
+
+	/* enable mipi dsi A/B clk81 */
+	writel(readl(CLKCTRL_SYS_CLK_EN0_REG1) | (1 << 23) | (1 << 24) |
+		(1 << 26) | (1 << 27), CLKCTRL_SYS_CLK_EN0_REG1);
+
+	/* enable dsi 0/1 PHY clock, rate depends on the lcd resolution*/
+	writel(readl(CLKCTRL_MIPIDSI_PHY_CLK_CTRL) | (1 << 8),
+			CLKCTRL_MIPIDSI_PHY_CLK_CTRL);
+
+	/* csiphy0_clk = 200M; isp0_clk = 400M */
+	val = 0;
+	val = (0x3 << 25);/* csiphy0_clk select fclk5 */
+	val |= (1 << 16);/* csiphy0_clk_div = 2;csiphy0_clk = 200M */
+	val |= (1 << 24);/* enable csiphy0_clk */
+
+	val |= (0x3 << 9);/* isp0_clk select fclk5 */
+	val |= (0 << 0);/* isp0_clk_div = 1; isp0_clk = 400M */
+	val |= (1 << 8);/* enable csiphy0_clk */
+	writel(val, CLKCTRL_ISP0_CLK_CTRL);
+
+	/* vapb = 400M */
+	val = 0;
+	val = (0x3 << 9);/* vapb_clk select fclk5 */
+	val |= (0 << 0);/* vapb_clk_div = 1; vapb_clk = 400M */
+	val |= (1 << 8);/* enable vapb_clk */
+	writel(val, CLKCTRL_VAPBCLK_CTRL);
+	printf("CLKCTRL_VAPBCLK_CTRL = %x\n", readl(CLKCTRL_VAPBCLK_CTRL));
+
+	/* init mclk */
+	writel(0x20011063, ANACTRL_MPLL_CTRL0);
+	writel(0x30011063, ANACTRL_MPLL_CTRL0);
+	writel(0x1420500f, ANACTRL_MPLL_CTRL1);
+	writel(0x00023041, ANACTRL_MPLL_CTRL2);
+	writel(0x18180000, ANACTRL_MPLL_CTRL3);
+	writel(0x00101307, ANACTRL_MPLL_CTRL4);
+	writel(0x10011063, ANACTRL_MPLL_CTRL0);
+	writel(0x00023001, ANACTRL_MPLL_CTRL2);
+	printf("init mclk_pll done\n");
+}
+
 int board_late_init(void)
 {
 	printf("board late init\n");
@@ -146,6 +189,9 @@ int board_late_init(void)
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
 
+	printf("init clocks for free-RTOS\n");
+	media_clock_init();
+
 #if !defined(CONFIG_PXP_DDR)	//bypass below operations for pxp
 	run_command("echo upgrade_step $upgrade_step; \
 		if itest ${upgrade_step} == 1; then defenv_reserv; \
@@ -154,7 +200,7 @@ int board_late_init(void)
 	board_init_mem();
 	run_command("run bcb_cmd", 0);
 
-#ifndef CONFIG_SYSTEM_RTOS	//prue rtos not need dtb
+#ifndef CONFIG_SYSTEM_RTOS	//pure rtos not need dtb
 	if (run_command("run common_dtb_load", 0)) {
 		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
 	} else {
@@ -163,7 +209,7 @@ int board_late_init(void)
 		("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;",
 		0);
 	}
-#endif //#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#endif //#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE	//try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);

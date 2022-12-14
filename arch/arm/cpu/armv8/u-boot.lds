@@ -149,6 +149,11 @@ SECTIONS
 #ifdef CONFIG_SUPPORT_BL33Z
 	. = ALIGN(4096);
 #endif
+
+#ifdef CONFIG_NASC_NAGRA_TIER_1
+	. = ALIGN(4096);
+#endif
+
 	_end = .;
 
 	. = ALIGN(8);

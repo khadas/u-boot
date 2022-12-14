@@ -273,6 +273,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (rc != AVB_SLOT_VERIFY_RESULT_OK &&
 					rc != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION &&
 					rc != AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX &&
+					rc != AVB_SLOT_VERIFY_RESULT_ERROR_IO &&
 					rc != AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED) {
 				avb_slot_verify_data_free(out_data);
 				return rc;
@@ -296,7 +297,16 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return rc;
 			}
 		}
-		bootargs = env_get("bootargs");
+
+		if (rc == AVB_SLOT_VERIFY_RESULT_ERROR_IO) {
+			const int is_dev_unlocked = is_device_unlocked();
+
+			if (is_dev_unlocked)
+				run_command("setenv bootconfig ${bootconfig} "\
+				"androidboot.verifiedbootstate=orange", 0);
+		}
+
+		bootargs = env_get("bootconfig");
 		if (!bootargs) {
 			bootargs = "\0";
 		}
@@ -304,12 +314,18 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (out_data) {
 			keymaster_boot_params boot_params;
 			const int is_dev_unlocked = is_device_unlocked();
+			AvbVBMetaImageHeader toplevel_vbmeta;
+
+			avb_vbmeta_image_header_to_host_byte_order
+			((const AvbVBMetaImageHeader *)out_data->vbmeta_images[0].vbmeta_data,
+			&toplevel_vbmeta);
 
 			boot_params.boot_patchlevel =
 				avb_get_boot_patchlevel_from_vbmeta(out_data);
 
 			boot_params.device_locked = is_dev_unlocked? 0: 1;
-			if (is_dev_unlocked) {
+			if (is_dev_unlocked || (toplevel_vbmeta.flags &
+				AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED)) {
 				bootstate = bootstate_o;
 				boot_params.verified_boot_state = 2;
 			}
@@ -317,6 +333,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				bootstate = bootstate_g;
 				boot_params.verified_boot_state = 0;
 			}
+
 			memcpy(boot_params.verified_boot_key, boot_key_hash,
 					sizeof(boot_params.verified_boot_key));
 
@@ -335,19 +352,19 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return -1;
 			}
 			sprintf(newbootargs, "%s %s %s", bootargs, out_data->cmdline, bootstate);
-			env_set("bootargs", newbootargs);
+			env_set("bootconfig", newbootargs);
 			free(newbootargs);
 			newbootargs = NULL;
 			avb_slot_verify_data_free(out_data);
 		}
 	}else {
 		const int is_dev_unlocked = is_device_unlocked();
-		if (is_dev_unlocked) {
-			run_command("setenv bootargs ${bootargs} androidboot.verifiedbootstate=orange",0);
-		}
-		else {
-			run_command("setenv bootargs ${bootargs} androidboot.verifiedbootstate=green",0);
-		}
+		if (is_dev_unlocked)
+			run_command("setenv bootconfig ${bootconfig} "\
+			"androidboot.verifiedbootstate=orange", 0);
+		else
+			run_command("setenv bootconfig ${bootconfig} "\
+			"androidboot.verifiedbootstate=green", 0);
 	}
 #endif//CONFIG_CMD_BOOTCTOL_AVB
 

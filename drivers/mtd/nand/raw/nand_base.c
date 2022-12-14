@@ -4150,7 +4150,7 @@ int nand_match_ecc_req(struct nand_chip *chip,
 				continue;
 
 			/*
-			 * We assume the best is to meet the chip's requrement
+			 * We assume the best is to meet the chip's requirement
 			 * with the least number of ECC bytes.
 			 */
 			if (ecc_bytes_total < best_ecc_bytes_total) {

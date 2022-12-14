@@ -1,0 +1,8 @@
+config AML_CRYPTO
+	tristate "Amlogic Crypto driver"
+	default n
+	help
+	  Amlogic Crypto driver
+
+	  Crypto driver for Amlogic DMA device
+

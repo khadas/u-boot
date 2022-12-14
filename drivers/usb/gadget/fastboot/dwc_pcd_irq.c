@@ -259,9 +259,19 @@ static void pcd_setup(pcd_struct_t *_pcd)
 		}
 		break;
 	case USB_REQ_SET_INTERFACE:
+		/* Configuration changed */
+		req_flag->request_config = 1;
+		DBG("Call the Gadget Driver's setup functions\n");
+		/* Call the Gadget Driver's setup functions */
+		driver->setup(gadget, &ctrl);
+		break;
 	case USB_REQ_SET_CONFIGURATION:
 		/* Configuration changed */
 		req_flag->request_config = 1;
+		DBG("Call the Gadget Driver's setup functions\n");
+		/* Call the Gadget Driver's setup functions */
+		driver->setup(gadget, &ctrl);
+		break;
 	default:
 		DBG("Call the Gadget Driver's setup functions\n");
 		/* Call the Gadget Driver's setup functions */

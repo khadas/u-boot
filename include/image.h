@@ -160,6 +160,9 @@ enum {
 	IH_OS_OPENRTOS,		/* OpenRTOS	*/
 	IH_OS_ARM_TRUSTED_FIRMWARE,     /* ARM Trusted Firmware */
 	IH_OS_TEE,			/* Trusted Execution Environment */
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+	IH_OS_ZIRCON,                   /* Zircon       */
+#endif
 
 	IH_OS_COUNT,
 };
@@ -570,6 +573,9 @@ int boot_get_setup(bootm_headers_t *images, uint8_t arch, ulong *setup_start,
 #endif
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
 #define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+#define IMAGE_FORMAT_ZIRCON     0x04    /* Zircon boot image */
+#endif
 
 ulong genimg_get_kernel_addr_fit(char * const img_addr,
 			         const char **fit_uname_config,
@@ -1323,6 +1329,8 @@ static inline int fit_image_check_target_arch(const void *fdt, int node)
 #endif /* CONFIG_FIT_VERBOSE */
 #endif /* CONFIG_FIT */
 
+bool copy_bootconfig_to_cmdline(void);
+
 #if defined(CONFIG_ANDROID_BOOT_IMAGE)
 #include <android_image.h>
 int android_image_check_header(const boot_img_hdr_t *hdr);
@@ -1342,6 +1350,16 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr, ulong *rd_data, u
 int vendor_boot_image_check_header(const vendor_boot_img_hdr_t * hdr);
 
 #endif /* CONFIG_ANDROID_BOOT_IMAGE */
+
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+struct andr_img_hdr;
+int zircon_image_check_header(const void *hdr);
+int zircon_image_get_kernel(const void *hdr, int verify,
+		ulong *os_data, ulong *os_len);
+ulong zircon_image_get_end(const void *hdr);
+ulong zircon_image_get_kload(const void *hdr);
+ulong zircon_image_get_comp(const void *hdr);
+#endif /* CONFIG_ZIRCON_BOOT_IMAGE */
 
 /**
  * board_fit_config_name_match() - Check for a matching board name

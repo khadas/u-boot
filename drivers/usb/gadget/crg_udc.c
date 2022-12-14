@@ -395,7 +395,7 @@ static int get_ep_state(struct crg_gadget_dev *crg_udc, int DCI)
 {
 	struct crg_udc_ep *udc_ep_ptr;
 
-	if (DCI < 0 || DCI == 1)
+	if (DCI < 0 || DCI == 1 || DCI >= EP_TOTAL)
 		return -EINVAL;
 
 	udc_ep_ptr = &crg_udc->udc_ep[DCI];
@@ -728,7 +728,7 @@ void setup_status_trb(struct crg_gadget_dev *crg_udc,
 
 	u32 tmp, dir = 0;
 
-	/* There are some cases where seutp_status_trb() is called with
+	/* There are some cases where setup_status_trb() is called with
 	 * usb_req set to NULL.
 	 */
 	if (usb_req != NULL) {
@@ -1811,16 +1811,11 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 				(_req->length == 0)) {
 		crg_udc->setup_status = STATUS_STAGE_XFER;
 		status = -EINPROGRESS;
-		if (udc_req_ptr) {
-			debug("udc_req_ptr = 0x%p\n", udc_req_ptr);
+		debug("udc_req_ptr = 0x%p\n", udc_req_ptr);
 
-			build_ep0_status(&crg_udc->udc_ep[0], false, status,
-					udc_req_ptr, 0, 0);
-		} else {
-			debug("udc_req_ptr = NULL\n");
-			build_ep0_status(&crg_udc->udc_ep[0],
-				true, status, NULL, 0, 0);
-		}
+		build_ep0_status(&crg_udc->udc_ep[0], false, status,
+				udc_req_ptr, 0, 0);
+
 		debug("act status request for control endpoint\n");
 		return 0;
 	}
@@ -1860,10 +1855,9 @@ crg_udc_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 		status = crg_udc_build_td(udc_ep_ptr, udc_req_ptr);
 	}
 
-	if (!status) {
-		if (udc_req_ptr)
-			list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
-	}
+	if (!status)
+		list_add_tail(&udc_req_ptr->queue, &udc_ep_ptr->queue);
+
 	return status;
 }
 
@@ -1908,18 +1902,19 @@ static struct usb_ep_ops crg_udc_ep_ops = {
 	.set_halt = crg_udc_ep_set_halt,
 };
 
-
 static void crg_ep_struct_setup(struct crg_gadget_dev *crg_udc,
 			uint32_t DCI, const char *name){
 	struct crg_udc_ep *ep = &crg_udc->udc_ep[DCI];
 
 	ep->DCI = DCI;
 
+	if (DCI >= EP_TOTAL)
+		return;
+
 	if (DCI > 1) {
-		strcpy(ep->name, name);
+		strncpy(ep->name, name, 9);
 		ep->usb_ep.name = ep->name;
 		ep->usb_ep.maxpacket = 512;
-		//ep->usb_ep.max_streams = 16;
 	} else if (DCI == 0) {
 		strcpy(ep->name, "ep0");
 		ep->usb_ep.name = ep->name;
@@ -1937,7 +1932,6 @@ static void crg_ep_struct_setup(struct crg_gadget_dev *crg_udc,
 	if (DCI > 1)
 		list_add_tail(&ep->usb_ep.ep_list, &crg_udc->gadget.ep_list);
 }
-
 
 #define ODB_SIZE_EP0		(512)
 #define ODB_SIZE_VAL_EP0	(3)
@@ -2621,7 +2615,7 @@ void getstatusrequest(struct crg_gadget_dev *crg_udc,
 
 		debug("Get status request endpoint request DCI = %d\n", DCI);
 
-		if (DCI == 1) {
+		if (DCI == 1 || DCI >= EP_TOTAL) {
 			status_val = 0;
 			debug("Get status request INVALID! DCI = %d\n", DCI);
 			goto get_status_error;
@@ -2786,6 +2780,11 @@ bool setfeaturesrequest(struct crg_gadget_dev *crg_udc,
 		DCI = index2DCI(index);
 
 		if (DCI == 1) {
+			debug("setfeat INVALID DCI = 0x%x !!\n", DCI);
+			goto set_feature_error;
+		}
+
+		if (DCI >= EP_TOTAL) {
 			debug("setfeat INVALID DCI = 0x%x !!\n", DCI);
 			goto set_feature_error;
 		}
@@ -3146,7 +3145,7 @@ queue_more_trbs:
 unsigned int hs_term_wakeup;
 int init_connected = -1;
 
-/*temprory solution, this function should be board specific*/
+/*temporary solution, this function should be board specific*/
 int g_dnl_board_usb_cable_connected(void)
 {
 	struct crg_gadget_dev *crg_udc;
@@ -3154,9 +3153,6 @@ int g_dnl_board_usb_cable_connected(void)
 	u32 tmp;
 
 	crg_udc = &crg_udc_dev;
-	if (crg_udc == NULL)
-		return -EOPNOTSUPP;
-
 
 	uccr = crg_udc->uccr;
 	tmp = reg_read(&uccr->portsc);
@@ -3577,8 +3573,6 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 
 	crg_udc = &crg_udc_dev;
 
-	if (!crg_udc)
-		return -ENODEV;
 	if (!driver || driver != crg_udc->gadget_driver)
 		return -EINVAL;
 

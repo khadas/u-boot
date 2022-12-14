@@ -147,30 +147,6 @@ static int cmdline_append_option(AvbSlotVerifyData* slot_data,
   return 1;
 }
 
-#define AVB_MAX_DIGITS_UINT64 32
-
-/* Writes |value| to |digits| in base 10 followed by a NUL byte.
- * Returns number of characters written excluding the NUL byte.
- */
-static size_t uint64_to_base10(uint64_t value,
-                               char digits[AVB_MAX_DIGITS_UINT64]) {
-  char rev_digits[AVB_MAX_DIGITS_UINT64];
-  size_t n, num_digits;
-
-  for (num_digits = 0; num_digits < AVB_MAX_DIGITS_UINT64 - 1;) {
-    rev_digits[num_digits++] = avb_div_by_10(&value) + '0';
-    if (value == 0) {
-      break;
-    }
-  }
-
-  for (n = 0; n < num_digits; n++) {
-    digits[n] = rev_digits[num_digits - 1 - n];
-  }
-  digits[n] = '\0';
-  return n;
-}
-
 static int cmdline_append_version(AvbSlotVerifyData* slot_data,
                                   const char* key,
                                   uint64_t major_version,
@@ -180,8 +156,8 @@ static int cmdline_append_version(AvbSlotVerifyData* slot_data,
   char combined[AVB_MAX_DIGITS_UINT64 * 2 + 1];
   size_t num_major_digits, num_minor_digits;
 
-  num_major_digits = uint64_to_base10(major_version, major_digits);
-  num_minor_digits = uint64_to_base10(minor_version, minor_digits);
+	num_major_digits = avb_uint64_to_base10(major_version, major_digits);
+	num_minor_digits = avb_uint64_to_base10(minor_version, minor_digits);
   avb_memcpy(combined, major_digits, num_major_digits);
   combined[num_major_digits] = '.';
   avb_memcpy(combined + num_major_digits + 1, minor_digits, num_minor_digits);
@@ -194,7 +170,7 @@ static int cmdline_append_uint64_base10(AvbSlotVerifyData* slot_data,
                                         const char* key,
                                         uint64_t value) {
   char digits[AVB_MAX_DIGITS_UINT64];
-  uint64_to_base10(value, digits);
+	avb_uint64_to_base10(value, digits);
   return cmdline_append_option(slot_data, key, digits);
 }
 
@@ -364,6 +340,10 @@ AvbSlotVerifyResult avb_append_options(
         avb_assert_not_reached();
         ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
         goto out;
+	case AVB_HASHTREE_ERROR_MODE_PANIC:
+		verity_mode = "panicking";
+		dm_verity_mode = "panic_on_corruption";
+	break;
       default:
         ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT;
         goto out;

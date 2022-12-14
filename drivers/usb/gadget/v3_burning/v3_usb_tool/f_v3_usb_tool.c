@@ -26,7 +26,9 @@ static void cb_aml_media_write(struct usb_ep *ep, struct usb_request *req);
 static void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq);
 static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req);
 
-static const char*  const _def_norisk_cmd_list_[] = {"printenv","help","echo",NULL};
+static const char *  const _def_norisk_cmd_list_[] = {
+	"printenv", "help", "echo", "get_bootloaderversion", NULL
+};
 extern const char * const white_list_adnl_cmds[0] __attribute__((weak, alias("_def_norisk_cmd_list_")));
 
 #define DNL_PROTOCOL_VERSION		"0.1"
@@ -169,7 +171,8 @@ static unsigned int ddr_size_usable(unsigned int addr_start)
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req);
 
-static char response_str[RESPONSE_LEN + 1];
+#define _INFO_BUF_LEN (512 + 16)
+static char response_str[_INFO_BUF_LEN/*RESPONSE_LEN + 1*/];
 
 static void fastboot_fail(const char *s)
 {
@@ -948,6 +951,16 @@ static void cb_oem_cmd(struct usb_ep *ep, struct usb_request *req)
 		strsep(&_cmd, " ");
 		ret = efuse_obj_status(_cmd, ack, RESPONSE_LEN - 4);
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
+	} else if (!strcmp("env_get", argv[0])) {
+		ret = __LINE__;
+		if (argc != 2) {
+			FBS_ERR(ack, "env_get only support one para now\n");
+		} else if (env_get(argv[1])) {
+			strncpy(ack, env_get(argv[1]), RESPONSE_LEN - 4);
+			ret = 0;
+		} else {
+			FBS_ERR(ack, "env %s not exist", argv[1]);
+		}
 	} else {
 		strsep(&cmd, " ");
 		char* p = cmd; strsep(&p, ";"); //only allow one command to execute
@@ -1060,7 +1073,7 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 		break;
 	}
 	if ( -1 == mediaType ) {
-		FBS_ERR(ack, "unsupprted media %s", media);
+		FBS_ERR(ack, "unsupported media %s", media);
 		return -__LINE__;
 	}
 
@@ -1103,7 +1116,7 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 				}
 			}break;
 		default:
-			FBS_ERR(ack, "unsupported meida %s", media);
+			FBS_ERR(ack, "unsupported media %s", media);
 			return -__LINE__;
 	}
 	ret = v3tool_buffman_img_init(&imgTransPara, 1);
@@ -1154,7 +1167,7 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 		break;
 	}
 	if ( -1 == mediaType ) {
-		FBS_ERR(ack, "unsupprted media %s", media);
+		FBS_ERR(ack, "unsupported media %s", media);
 		return -__LINE__;
 	}
 	if (V3TOOL_MEDIA_TYPE_UNIFYKEY != mediaType && IS_FEAT_BOOT_VERIFY()) {
@@ -1179,7 +1192,7 @@ static int _mread_cmd_parser(const int argc, char* argv[], char* ack)
 				memcpy(commonInf->partName, partition, V3_PART_NAME_LEN);
 			}break;
 		default:
-			FBS_ERR(ack, "unsupported meida %s", media);
+			FBS_ERR(ack, "unsupported media %s", media);
 			return -__LINE__;
 	}
 	ret = v3tool_buffman_img_init(&imgTransPara, 0);
@@ -1284,7 +1297,7 @@ void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq)
 					_mreadInfo.totalBytes = _pUsbUpInf->dataSize;
 					sprintf(response_str, "DATAIN0x%x", _pUsbUpInf->dataSize);
 				}
-				fastboot_tx_write(response_str, strnlen(response_str, RESPONSE_LEN) + 1);//add 0 ternimated
+				fastboot_tx_write(response_str, strnlen(response_str, RESPONSE_LEN) + 1);//add 0 terminated
 				FB_DBG("_pUsbUpInf %p,sz %d\n", _pUsbUpInf->dataBuf, _mreadInfo.totalBytes);
 				return ;
 			}
@@ -1309,7 +1322,7 @@ void cb_aml_media_read(struct usb_ep *outep, struct usb_request *outreq)
 				const int uploadOk = (_mreadInfo.totalBytes == _mreadInfo.transferredBytes);
 				const char* ack = uploadOk ? "OKAY" : "FAIL";
 				fastboot_tx_write_str(ack);
-			} break;//just reuturn
+			} break;//just return
 	}
 
 	return;

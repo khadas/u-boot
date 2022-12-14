@@ -321,7 +321,7 @@ int mv_xor_transfer(u32 chan, int xor_type, u32 xor_chain_ptr)
  *
  * DESCRIPTION:
  *       XOR channel activity state can be active, idle, paused.
- *       This function retrunes the channel activity state.
+ *       This function returnes the channel activity state.
  *
  * INPUT:
  *       chan     - the channel number

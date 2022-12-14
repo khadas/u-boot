@@ -19,12 +19,12 @@
 
 extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 extern struct hw_controller *controller;
-/* provide a policy that caluate the bakups of bootloader */
+/* provide a policy that calculate the bakups of bootloader */
 int get_boot_num(struct mtd_info *mtd, size_t rwsize)
 {
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);
 	size_t bad_blk_len_low = 0, bad_blk_len_up = 0, skip;
-	size_t aviable_space;
+	size_t available_space;
 	size_t block_len, block_off;
 	loff_t block_start;
 	loff_t offset = 0;
@@ -35,7 +35,7 @@ int get_boot_num(struct mtd_info *mtd, size_t rwsize)
 		return ret;
 	}
 
-	/* algin with page size */
+	/* align with page size */
 	rwsize = ((rwsize + mtd->writesize - 1)/mtd->writesize)*mtd->writesize;
 
 	while (offset < mtd->size) {
@@ -59,15 +59,15 @@ int get_boot_num(struct mtd_info *mtd, size_t rwsize)
 		rwsize, bad_blk_len_low, bad_blk_len_up);
 
 	skip = bad_blk_len_low + bad_blk_len_up;
-	aviable_space = mtd->size - skip - 2 * mtd->writesize; /*no understand*/
+	available_space = mtd->size - skip - 2 * mtd->writesize; /*no understand*/
 
-	if (rwsize*2 <= aviable_space) {
+	if (rwsize * 2 <= available_space) {
 		ret = 1;
 		if (rwsize + mtd->writesize + bad_blk_len_low > mtd->size / 2)
 			return 1; /*1st must be write*/
 		if (rwsize + mtd->writesize + bad_blk_len_up <= mtd->size / 2)
 			ret ++;
-	} else /*needn't consider bad block length, unlikly so many bad blocks*/
+	} else /*needn't consider bad block length, unlikely so many bad blocks*/
 		ret = 1;
 
 	aml_chip->boot_copy_num = ret;
@@ -300,7 +300,7 @@ int m3_nand_boot_read_page_hwecc(struct mtd_info *mtd,
 
 		if ((pages_per_blk_w != pages_per_blk)
 			|| (configure_data != configure_data_w))
-			printk("page%d warnning, configure:0x%x-0x%x "
+			printk("page%d warning, configure:0x%x-0x%x "
 				"pages_per_blk:0x%x-0x%x\n",
 				page, configure_data_w, configure_data,
 				pages_per_blk_w, pages_per_blk);

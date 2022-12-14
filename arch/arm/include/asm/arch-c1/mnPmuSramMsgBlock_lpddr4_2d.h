@@ -282,7 +282,7 @@ typedef struct _PMU_SMB_LPDDR4_2D_t {
                               // During 2D training, the ideal eye center changes depending on how valuable voltage margin is compared to delay margin. voltage_weight2D sets the value, or weight, of one step of voltage margin. The ratio of voltage_weight2D to delay_weight2D will be used by 2D training to choose your preferred center point. There are 128 voltage steps in a perfect eye.
    uint16_t PhyConfigOverride; // Byte offset 0x22, CSR Addr 0x54011, Direction=In
                               // Override PhyConfig csr.
-                              // 0x0: Use hardware csr value for PhyConfing (recommended)
+                              // 0x0: Use hardware csr value for PhyConfig (recommended)
                               // Other values: Use value for PhyConfig instead of Hardware value.
                               //
    uint8_t  EnabledDQsChA;    // Byte offset 0x24, CSR Addr 0x54012, Direction=In

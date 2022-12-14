@@ -21,7 +21,7 @@ struct efusekey_info{
 };
 
 static struct _efuseCfgInf{
-    unsigned                initMaigc;//magic to indicate whether inited
+    unsigned                initMagic;//magic to indicate whether inited
     unsigned                totalCfgKeyNums;
     struct efusekey_info *  pKeyInf;
 }
@@ -45,7 +45,7 @@ int efuse_usr_api_init_dtb(const char*  dt_addr)
 		EFUSE_ERR("fdt check failed [%s]\n", fdt_strerror(ret));
         return __LINE__;
     }
-    _efuseKeyInfos.initMaigc = 0;
+    _efuseKeyInfos.initMagic = 0;
 
     extern int fdt_path_offset(const void *fdt, const char *path);
 	nodeoffset = fdt_path_offset(dt_addr, "/efusekey");
@@ -125,7 +125,7 @@ int efuse_usr_api_init_dtb(const char*  dt_addr)
     _efuseKeyInfos.totalCfgKeyNums = efusekeynum;
     _efuseKeyInfos.pKeyInf         = efusekey_infos;
     EFUSE_DBG("%s success!\n", __func__);
-    _efuseKeyInfos.initMaigc = 0xee;
+    _efuseKeyInfos.initMagic = 0xee;
 	return 0;
 
 err:
@@ -140,7 +140,7 @@ static int _get_cfg_key_inf_byname(const char* keyname, const struct efusekey_in
     struct efusekey_info* theKeyInf = _efuseKeyInfos.pKeyInf;
     int ret = 0;
 
-    if (0xee != _efuseKeyInfos.initMaigc) {
+    if (0xee != _efuseKeyInfos.initMagic) {
         EFUSE_ERR("Pls init first.\n");
         return __LINE__;
     }

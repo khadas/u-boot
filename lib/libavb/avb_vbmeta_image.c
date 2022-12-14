@@ -9,6 +9,7 @@
 #include "avb_sha.h"
 #include <libavb/avb_util.h>
 #include <libavb/avb_version.h>
+#include <u-boot/sha256.h>
 
 AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     const uint8_t* data,
@@ -19,7 +20,12 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   AvbVBMetaImageHeader h;
   uint8_t* computed_hash;
   const AvbAlgorithmData* algorithm;
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_context sha256_ctx;
+	uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+#else
   AvbSHA256Ctx sha256_ctx;
+#endif
   AvbSHA512Ctx sha512_ctx;
   const uint8_t* header_block;
   const uint8_t* authentication_block;
@@ -159,12 +165,20 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     case AVB_ALGORITHM_TYPE_SHA256_RSA2048:
     case AVB_ALGORITHM_TYPE_SHA256_RSA4096:
     case AVB_ALGORITHM_TYPE_SHA256_RSA8192:
+#ifdef CONFIG_AVB2_UBOOT_SHA256
+	sha256_starts(&sha256_ctx);
+	sha256_update(&sha256_ctx, header_block, sizeof(AvbVBMetaImageHeader));
+	sha256_update(&sha256_ctx, auxiliary_block, h.auxiliary_data_block_size);
+	sha256_finish(&sha256_ctx, sha256_output);
+	computed_hash = sha256_output;
+#else
       avb_sha256_init(&sha256_ctx);
       avb_sha256_update(
           &sha256_ctx, header_block, sizeof(AvbVBMetaImageHeader));
       avb_sha256_update(
           &sha256_ctx, auxiliary_block, h.auxiliary_data_block_size);
       computed_hash = avb_sha256_final(&sha256_ctx);
+#endif
       break;
     /* Explicit fall-through: */
     case AVB_ALGORITHM_TYPE_SHA512_RSA2048:
@@ -221,39 +235,40 @@ out:
 }
 
 void avb_vbmeta_image_header_to_host_byte_order(const AvbVBMetaImageHeader* src,
-                                                AvbVBMetaImageHeader* dest) {
-  avb_memcpy(dest, src, sizeof(AvbVBMetaImageHeader));
+						AvbVBMetaImageHeader *dest) {
+	avb_memcpy(dest, src, sizeof(AvbVBMetaImageHeader));
 
-  dest->required_libavb_version_major =
-      avb_be32toh(dest->required_libavb_version_major);
-  dest->required_libavb_version_minor =
-      avb_be32toh(dest->required_libavb_version_minor);
+	dest->required_libavb_version_major =
+		avb_be32toh(dest->required_libavb_version_major);
+	dest->required_libavb_version_minor =
+		avb_be32toh(dest->required_libavb_version_minor);
 
-  dest->authentication_data_block_size =
-      avb_be64toh(dest->authentication_data_block_size);
-  dest->auxiliary_data_block_size =
-      avb_be64toh(dest->auxiliary_data_block_size);
+	dest->authentication_data_block_size =
+		avb_be64toh(dest->authentication_data_block_size);
+	dest->auxiliary_data_block_size =
+		avb_be64toh(dest->auxiliary_data_block_size);
 
-  dest->algorithm_type = avb_be32toh(dest->algorithm_type);
+	dest->algorithm_type = avb_be32toh(dest->algorithm_type);
 
-  dest->hash_offset = avb_be64toh(dest->hash_offset);
-  dest->hash_size = avb_be64toh(dest->hash_size);
+	dest->hash_offset = avb_be64toh(dest->hash_offset);
+	dest->hash_size = avb_be64toh(dest->hash_size);
 
-  dest->signature_offset = avb_be64toh(dest->signature_offset);
-  dest->signature_size = avb_be64toh(dest->signature_size);
+	dest->signature_offset = avb_be64toh(dest->signature_offset);
+	dest->signature_size = avb_be64toh(dest->signature_size);
 
-  dest->public_key_offset = avb_be64toh(dest->public_key_offset);
-  dest->public_key_size = avb_be64toh(dest->public_key_size);
+	dest->public_key_offset = avb_be64toh(dest->public_key_offset);
+	dest->public_key_size = avb_be64toh(dest->public_key_size);
 
-  dest->public_key_metadata_offset =
-      avb_be64toh(dest->public_key_metadata_offset);
-  dest->public_key_metadata_size = avb_be64toh(dest->public_key_metadata_size);
+	dest->public_key_metadata_offset =
+		avb_be64toh(dest->public_key_metadata_offset);
+	dest->public_key_metadata_size = avb_be64toh(dest->public_key_metadata_size);
 
-  dest->descriptors_offset = avb_be64toh(dest->descriptors_offset);
-  dest->descriptors_size = avb_be64toh(dest->descriptors_size);
+	dest->descriptors_offset = avb_be64toh(dest->descriptors_offset);
+	dest->descriptors_size = avb_be64toh(dest->descriptors_size);
 
-  dest->rollback_index = avb_be64toh(dest->rollback_index);
-  dest->flags = avb_be32toh(dest->flags);
+	dest->rollback_index = avb_be64toh(dest->rollback_index);
+	dest->flags = avb_be32toh(dest->flags);
+	dest->rollback_index_location = avb_be32toh(dest->rollback_index_location);
 }
 
 const char* avb_vbmeta_verify_result_to_string(AvbVBMetaVerifyResult result) {

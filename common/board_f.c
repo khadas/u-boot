@@ -709,6 +709,11 @@ static int reloc_bloblist(void)
 
 static int setup_reloc(void)
 {
+#ifdef CONFIG_NASC_NAGRA_TIER_1
+	/* move bl2f.bin to 0x10800000*/
+	memset((void *)0x10800000, 0, 0x80000);
+	memmove((void *)0x10800000, (void *)_end, 0x80000);
+#endif
 	if (gd->flags & GD_FLG_SKIP_RELOC) {
 		debug("Skipping relocation due to flag\n");
 		return 0;

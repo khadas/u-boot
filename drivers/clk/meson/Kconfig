@@ -72,5 +72,11 @@ config CLK_MESON_C3
         bool "Support C3 Clock"
         depends on CLK
         help
-          This option is used to enable the meson a5 clock
+          This option is used to enable the meson c3 clock
+
+config CLK_MESON_S5
+        bool "Support S5 Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson s5 clock
           driver

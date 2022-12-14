@@ -9,6 +9,7 @@
 #include <u-boot/sha256.h>
 #include <amlogic/aml_efuse.h>
 #include <amlogic/image_check.h>
+#include <amlogic/aml_crypto.h>
 
 extern struct scs_krnl_key_t __scs_krnl_devkey;
 
@@ -96,7 +97,8 @@ int secure_image_check(u8 *data, u32 size, unsigned long option)
 	} else {
 		if (encryption_enabled) {
 			flush_dcache_range((unsigned long)img, (unsigned long)img + hdr.img_size);
-			aes256dec_keytbl(img, img, hdr.img_size);
+			aes256cbc_iv0_dec_keytbl(img, img, hdr.img_size,
+					SBOOT_BL2_ENCRYPT_KEYSLOT);
 		}
 
 		sha256_csum_wd(img, hdr.img_size, buf, 0);

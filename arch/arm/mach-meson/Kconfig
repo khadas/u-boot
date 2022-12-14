@@ -92,6 +92,14 @@ config MESON_P1
 	help
 		Support Amlogic Meson P1
 
+config MESON_S5
+	bool "S5"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson S5
+
 config MESON_T7
 	bool "T7"
 	select ARM64

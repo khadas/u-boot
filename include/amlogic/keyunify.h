@@ -28,7 +28,7 @@ int key_unify_query_canOverWrite(const char* keyname, int* canOverWrite);
 //Does the key configured in dts
 int key_unify_query_key_has_configure(const char* keyname);
 
-//Another APIs with APP concers, like special flower hdcp2
+//Another APIs with APP concerns, like special flower hdcp2
 //These APIs are based on key_unify_*
 //
 int key_manage_init(const char* seednum, const char* dtbaddr);

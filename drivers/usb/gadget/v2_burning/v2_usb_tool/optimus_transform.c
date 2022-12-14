@@ -15,32 +15,6 @@
 #define USB_BURN_POWER_CONTROL  1
 #endif// #ifdef CONFIG_CMD_AML
 
-static inline int str2longlong(char *p, unsigned long long *num)
-{
-    char *endptr;
-
-    *num = simple_strtoull(p, &endptr, 16);
-    if (*endptr != '\0')
-    {
-        switch (*endptr)
-        {
-            case 'g':
-            case 'G':
-                *num<<=10;
-            case 'm':
-            case 'M':
-                *num<<=10;
-            case 'k':
-            case 'K':
-                *num<<=10;
-                endptr++;
-                break;
-        }
-    }
-
-    return (*p != '\0' && *endptr == '\0') ? 1 : 0;
-}
-
 int optimus_mem_md (int argc, char * const argv[], char *info)
 {
     ulong	addr, length = 0x100;
@@ -86,7 +60,7 @@ int set_low_power_for_usb_burn(int arg, char* buff)
 
 #if USB_BURN_POWER_CONTROL
     int ret2=0;
-    //limit vbus curretn to 500mA, i.e, if hub is 4A, 8 devices at most, arg3 to not set_env as it's not inited yet!!
+    //limit vbus current to 500mA, i.e, if hub is 4A, 8 devices at most, arg3 to not set_env as it's not inited yet!!
     MYDBG("set_usbcur_limit 500 0\n");
     ret2 = run_command("set_usbcur_limit 500 0", 0);
     if (ret2) {
@@ -163,7 +137,7 @@ static int _get_chipid(char* buff)
 
     buff[0] = ':', buff[1]='\0';
     for (; i < 12; ++i) {
-        sprintf(buff, "%s%02x", buff, chipid[15-i]);
+	sprintf(buff + 1 + i, "%02x", chipid[15 - i]);
     }
     return 0;
 }

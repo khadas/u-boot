@@ -50,7 +50,7 @@ typedef struct {
         __u8            keyName[AML_BOOT_PART_KEY_ITEM_NAME_LEN_MAX];
 
         __u32           itemIndex;
-        __u32           itemSz;         //equl to sizeof of each key
+        __u32           itemSz;         //equal to sizeof of each key
 
         __u32           itemBodyOffset;
         __u32           itemHasConf;//this item name is configured in keys.conf
@@ -78,14 +78,14 @@ typedef struct {
 
 enum {
         KEY_FMT__MAC            = 0XBB,         //string format like 00:01:02:03:04:05
-        KEY_FMT__ONLEYONE             ,         //only one format means read the total license file as key value
+        KEY_FMT__ONLYONE              ,         //only one format means read the total license file as key value
         KEY_FMT__HDCP                 ,
         KEY_FMT__HDCP2                ,
 };
 
 //Different keyNames can have the same key format
 typedef int (*pFunc_getKeyValByLic)(const char* licensePath, u8* keyVal, unsigned* keyValLen, const char* keyName);
-typedef int (*pFunc_updateLic)(const char* keyName, const char* licensePath);//update the licnese file when burn succeed
+typedef int (*pFunc_updateLic)(const char* keyName, const char* licensePath);//update the license file when burn succeed
 
 typedef struct _keyFmtMapping{
         unsigned                magic;
@@ -112,7 +112,7 @@ static const KeyFmtMap_t _keysFmtMapping[] = {
         [2] = {KEY_MAP_MAGIC,   "mac_wifi",             "license/mac_wifi.ini"   , KEY_FMT__MAC     , get_key_val_for_fmt_mac    , update_lic_for_fmt_mac    },
         [3] = {KEY_MAP_MAGIC,   "hdcp",                 "license/HDCP_LIENCE"    , KEY_FMT__HDCP    , get_key_val_for_fmt_hdcp   , update_lic_for_fmt_hdcp   },
         [4] = {KEY_MAP_MAGIC,   "hdcp2",                "license/HDCP2_LIENCE"   , KEY_FMT__HDCP2   , get_key_val_for_fmt_hdcp2rx, update_lic_for_fmt_hdcp2rx},
-        [5] = {KEY_MAP_MAGIC,   "secure_boot_set",      "license/SECURE_BOOT_SET", KEY_FMT__ONLEYONE, get_key_val_for_fmt_onlyone, NULL},
+        [5] = {KEY_MAP_MAGIC,   "secure_boot_set",      "license/SECURE_BOOT_SET", KEY_FMT__ONLYONE , get_key_val_for_fmt_onlyone, NULL},
 };
 #define _SupportKeysNum (sizeof(_keysFmtMapping)/sizeof(KeyFmtMap_t))
 

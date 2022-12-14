@@ -9,9 +9,15 @@
 #include <malloc.h>
 #include <errno.h>
 #include <version.h>
+#include <xbc.h>
+#include <emmc_partitions.h>
+#include <amlogic/store_wrapper.h>
+
 static const unsigned char lzop_magic[] = {
 	0x89, 0x4c, 0x5a, 0x4f, 0x00, 0x0d, 0x0a, 0x1a, 0x0a
 };
+
+static bool _read_in_bootconfig(struct vendor_boot_img_hdr *boot_info, uint32_t ramdisk_size);
 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
 
@@ -77,9 +83,17 @@ static int save_dtbo_idx(const char *cmdline)
 			       dtbo_chosen_idx_end - dtbo_chosen_idx_start + 1);
 			strncpy(dtbo_idx, dtbo_chosen_idx_start,
 				dtbo_chosen_idx_end - dtbo_chosen_idx_start);
-		} else
+		} else {
+			dtbo_idx = malloc(strlen(dtbo_chosen_idx_start) + 1);
+			if (!dtbo_idx) {
+				pr_info("dtbo out of memory\n");
+				return -1;
+			}
+			memset(dtbo_idx, 0x00,
+			       strlen(dtbo_chosen_idx_start) + 1);
 			strncpy(dtbo_idx, dtbo_chosen_idx_start,
 				strlen(dtbo_chosen_idx_start));
+		}
 
 		env_set("androidboot.dtbo_idx",
 		       dtbo_idx + strlen("androidboot.dtbo_idx="));
@@ -248,6 +262,8 @@ int android_image_get_ramdisk(const  boot_img_hdr_t *hdr,
 {
 	if (is_android_r_image((void*)hdr))
 		return android_image_get_ramdisk_v3((void*)hdr,rd_data,rd_len);
+	else
+		copy_bootconfig_to_cmdline();
 
 	if (!hdr->ramdisk_size) {
 		*rd_data = *rd_len = 0;
@@ -384,75 +400,72 @@ static int android_image_get_kernel_v3(const boot_img_hdr_v3_t *hdr, int verify,
 	 * string is null terminated so we take care of this.
 	 */
 	/*check vendor boot image first*/
-	if (!p_vender_boot_img)
+	if (p_vender_boot_img)
 	{
-		if (os_data)
-			*os_data = 0;
-		if (os_len)
-			*os_len = 0;
-		goto exit;
-	}
+		p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
+		char boot_name[ANDR_BOOT_NAME_SIZE + 8];
 
-	p_vendor_boot_img_hdr_t vb_hdr = &p_vender_boot_img->hdr;
-	char boot_name[ANDR_BOOT_NAME_SIZE + 8];
-	memset(boot_name,0,sizeof(boot_name));
-	strncpy(boot_name, (char *)vb_hdr->name, ANDR_BOOT_NAME_SIZE);
-	if (strlen(boot_name))
-		printf("Android's image name: %s\n", boot_name);
+		memset(boot_name, 0, sizeof(boot_name));
+		strncpy(boot_name, (char *)vb_hdr->name, ANDR_BOOT_NAME_SIZE);
+		if (strlen(boot_name))
+			printf("Android's image name: %s\n", boot_name);
 
-	//debug("Kernel load addr 0x%08x size %u KiB\n",
-	//      hdr_v3->kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
+		//debug("Kernel load addr 0x%08x size %u KiB\n",
+		//      hdr_v3->kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
 
-	int len = 0;
+		int len = 0;
 #if defined(CONFIG_ANDROID_IMG)
 	ulong end;
 	ulong dtb_size = vb_hdr->dtb_size;
 	ulong dtb_addr = vb_hdr->dtb_addr;
 #endif
 
-	if (*vb_hdr->cmdline) {
-		printf("Kernel command line: %s\n", vb_hdr->cmdline);
-		len += strlen(vb_hdr->cmdline);
-	}
+		if (*vb_hdr->cmdline) {
+			printf("Kernel command line: %s\n", vb_hdr->cmdline);
+			len += strlen(vb_hdr->cmdline);
+		}
 
 	#ifdef CONFIG_OF_LIBFDT_OVERLAY
 	save_dtbo_idx(vb_hdr->cmdline);
 	#endif
 
-	char *pbootargs = env_get("bootargs");
-	if (pbootargs) {
-		int nlen = strlen(pbootargs) + len + 2;
-		char *pnewbootargs = malloc(nlen);
-		if (pnewbootargs) {
-			memset((void *)pnewbootargs,0,nlen);
-			sprintf(pnewbootargs,"%s %s",pbootargs,vb_hdr->cmdline);
-			env_set("bootargs",pnewbootargs);
-			free(pnewbootargs);
-			pnewbootargs = NULL;
-		}
-		else {
-			puts("Error: malloc in pnewbootargs failed!\n");
-		}
-	}
-	else {
-		puts("Error: add kernel command line in bootargs failed!\n");
-	}
+		char *pbootargs = env_get("bootargs");
 
-	if (os_data) {
-		*os_data = (ulong)hdr;
-		*os_data += 0x1000; //android R header size
-	}
-	if (os_len)
-		*os_len = hdr->kernel_size;
+		if (pbootargs) {
+			int nlen = strlen(pbootargs) + len + 2;
+			char *pnewbootargs = malloc(nlen);
 
-#if defined(CONFIG_ANDROID_IMG)
+			if (pnewbootargs) {
+				memset((void *)pnewbootargs, 0, nlen);
+				sprintf(pnewbootargs, "%s %s", pbootargs, vb_hdr->cmdline);
+				env_set("bootargs", pnewbootargs);
+				free(pnewbootargs);
+				pnewbootargs = NULL;
+			} else {
+				puts("Error: malloc in pnewbootargs failed!\n");
+			}
+		} else {
+			puts("Error: add kernel command line in bootargs failed!\n");
+		}
+
+		if (os_data) {
+			*os_data = (ulong)hdr;
+			*os_data += 0x1000; //android R header size
+		}
+		if (os_len)
+			*os_len = hdr->kernel_size;
+
+	#if defined(CONFIG_ANDROID_IMG)
 	images.ft_len = dtb_size;
 	end = dtb_addr;
 	images.ft_addr = (char *)end;
-#endif
-
-exit:
-
+	#endif
+	} else {
+		if (os_data)
+			*os_data = 0;
+		if (os_len)
+			*os_len = 0;
+	}
 	return 0;
 }
 
@@ -500,6 +513,26 @@ static  ulong android_image_get_kload_v3(const boot_img_hdr_v3_t *hdr)
 		return 0;
 }
 
+bool copy_bootconfig_to_cmdline(void)
+{
+	char *bootargs = env_get("bootargs");
+	char *bootconfig = env_get("bootconfig");
+
+	if (bootconfig && bootargs) {
+		int nlen = strlen(bootconfig) + strlen(bootargs) + 2;
+		char *pnewbootargs = malloc(nlen);
+
+		if (pnewbootargs) {
+			memset((void *)pnewbootargs, 0, nlen);
+			sprintf(pnewbootargs, "%s %s", bootargs, bootconfig);
+			env_set("bootargs", pnewbootargs);
+			free(pnewbootargs);
+			pnewbootargs = NULL;
+		}
+	}
+	return true;
+}
+
 int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr,
 			      ulong *rd_data, ulong *rd_len)
 {
@@ -520,7 +553,7 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr,
 	vb_hdr->ramdisk_addr = CONFIG_RAMDISK_MEM_ADDR;
 #endif
 
-	debug("RAM disk load addr 0x%08x size %u KiB\n",
+	printf("RAM disk load addr 0x%08x size %u KiB\n",
 	       vb_hdr->ramdisk_addr, DIV_ROUND_UP(hdr->ramdisk_size, 1024));
 
 	/*ramdisk offset of android R boot image*/
@@ -540,17 +573,225 @@ int android_image_get_ramdisk_v3(const boot_img_hdr_v3_t *hdr,
 		vb_hdr->ramdisk_addr, DIV_ROUND_UP(init_boot_ramdisk_size, 1024));
 	}
 
-	memmove(pRAMdisk, (char *)(unsigned long)(simple_strtoul(env_get("loadaddr"), NULL, 16)
-		+ nOffset), ramdisksize);
-	memmove(pRAMdisk + ramdisksize, p_vender_boot_img->szData, vb_hdr->vendor_ramdisk_size);
+	if (vb_hdr->header_version < 4) {
+		copy_bootconfig_to_cmdline();
+		memmove(pRAMdisk, (char *)(unsigned long)(simple_strtoul(env_get("loadaddr"),
+			NULL, 16) + nOffset), ramdisksize);
+		memmove(pRAMdisk + ramdisksize, p_vender_boot_img->szData,
+			vb_hdr->vendor_ramdisk_size);
+
+		if (rd_len)
+			*rd_len  = ramdisksize + vb_hdr->vendor_ramdisk_size
+				+ vb_hdr->vendor_bootconfig_size;
+	} else {
+		unsigned char *pbuffpreload = 0;
+		int i;
+		int table_offset;
+		int ramdisk_offset, ramdisk_size;
+		char *recovery_mode;
+		int flag = 0;
+
+		debug("vendor_ramdisk_table_size: 0x%x\n",
+			vb_hdr->vendor_ramdisk_table_size);
+		debug("vendor_ramdisk_table_entry_num: 0x%x\n",
+			vb_hdr->vendor_ramdisk_table_entry_num);
+		debug("vendor_ramdisk_table_entry_size: 0x%x\n",
+			vb_hdr->vendor_ramdisk_table_entry_size);
+
+		pbuffpreload = malloc(vb_hdr->vendor_ramdisk_table_size);
+		if (!pbuffpreload) {
+			printf("aml log: Fail to allocate memory!\n");
+			return -1;
+		}
+
+		u32 vramdisk_size_page_aligned =
+			ALIGN(vb_hdr->vendor_ramdisk_size, vb_hdr->page_size);
+		u32 vdtb_size_page_aligned =
+			ALIGN(vb_hdr->dtb_size, vb_hdr->page_size);
+
+		table_offset = vramdisk_size_page_aligned
+				+ vdtb_size_page_aligned;
+		ramdisk_offset = 0;
+		ramdisk_size = vb_hdr->vendor_ramdisk_size;
+
+		memmove(pbuffpreload, p_vender_boot_img->szData + table_offset,
+			vb_hdr->vendor_ramdisk_table_size);
+
+		recovery_mode = env_get("recovery_mode");
+
+		for (i = 0; i < vb_hdr->vendor_ramdisk_table_entry_num; i++) {
+			p_vendor_ramdisk_table_entry_v4_t ramdisk_table =
+				(p_vendor_ramdisk_table_entry_v4_t)(pbuffpreload +
+				i * vb_hdr->vendor_ramdisk_table_entry_size);
+			printf("ramdisk_entry_name: %s\n", ramdisk_table->ramdisk_name);
+
+			if (strcmp((char *)ramdisk_table->ramdisk_name, "recovery") == 0) {
+				if (recovery_mode && (strcmp(recovery_mode, "true") == 0)) {
+					ramdisk_offset = ramdisk_table->ramdisk_offset;
+					ramdisk_size = ramdisk_table->ramdisk_size;
+					printf("use recovery ramdisk\n");
+					flag = 1;
+				} else {
+					printf("skip\n");
+					continue;
+				}
+			} else {
+				ramdisk_offset = ramdisk_table->ramdisk_offset;
+				ramdisk_size = ramdisk_table->ramdisk_size;
+			}
+		}
+
+		printf("ramdisk_size: 0x%x\n", ramdisk_size);
+		printf("ramdisk_offset: 0x%x\n", ramdisk_offset);
+
+		printf("flag = %d\n", flag);
+		if (flag == 0) {
+			memmove(pRAMdisk, (char *)(unsigned long)(simple_strtoul
+				(env_get("loadaddr"), NULL, 16)
+				+ nOffset), ramdisksize);
+			memmove(pRAMdisk + ramdisksize,
+				p_vender_boot_img->szData + ramdisk_offset,
+				ramdisk_size);
+			_read_in_bootconfig(vb_hdr, ramdisksize + ramdisk_size);
+
+			if (rd_len)
+				*rd_len  = ramdisksize + ramdisk_size
+					+ vb_hdr->vendor_bootconfig_size;
+		} else {
+			printf("vendor_ramdisk_size: 0x%x\n", vb_hdr->vendor_ramdisk_size);
+			memmove(pRAMdisk, p_vender_boot_img->szData, vb_hdr->vendor_ramdisk_size);
+			_read_in_bootconfig(vb_hdr, vb_hdr->vendor_ramdisk_size);
+
+			if (rd_len)
+				*rd_len  = vb_hdr->vendor_ramdisk_size
+					+ vb_hdr->vendor_bootconfig_size;
+		}
+		free(pbuffpreload);
+	}
 
 	if (rd_data)
 		*rd_data = vb_hdr->ramdisk_addr;
 
-	if (rd_len)
-		*rd_len  = ramdisksize + vb_hdr->vendor_ramdisk_size;
-
 	return 0;
+}
+
+static bool _read_in_bootconfig(struct vendor_boot_img_hdr *boot_info, uint32_t ramdisk_size)
+{
+#ifdef CONFIG_XBC
+	char *bootconfig = env_get("bootconfig");
+	char *avb_bootargs = env_get("avb_bootargs");
+
+	char partname[32] = {0};
+	char *slot_name;
+	unsigned int offset = 0;
+	int bootconfig_size = 0;
+	int ret = 0;
+
+	slot_name = env_get("slot-suffixes");
+	if (slot_name && (strcmp(slot_name, "0") == 0))
+		strcpy((char *)partname, "vendor_boot_a");
+	else if (slot_name && (strcmp(slot_name, "1") == 0))
+		strcpy((char *)partname, "vendor_boot_b");
+	else
+		strcpy((char *)partname, "vendor_boot");
+
+	unsigned char *pRAMdisk = (unsigned char *)(unsigned long)boot_info->ramdisk_addr;
+
+	printf("bootconfig_size: 0x%x\n", boot_info->vendor_bootconfig_size);
+
+	if (boot_info->vendor_bootconfig_size > 0) {
+		u32 vramdisk_size_page_aligned =
+			ALIGN(boot_info->vendor_ramdisk_size, boot_info->page_size);
+		u32 vdtb_size_page_aligned =
+			ALIGN(boot_info->dtb_size, boot_info->page_size);
+		u32 vramdisk_table_size_page_aligned =
+			ALIGN(boot_info->vendor_ramdisk_table_size, boot_info->page_size);
+
+		offset = 0x1000 + vramdisk_size_page_aligned
+				+ vdtb_size_page_aligned
+				+ vramdisk_table_size_page_aligned;
+
+		printf("bootconfig offset 0x%x\n", offset);
+
+		ret = store_logic_read(partname, offset, boot_info->vendor_bootconfig_size,
+			(void *)(pRAMdisk + ramdisk_size));
+		if (ret) {
+			printf("Fail to read 0x%xB from part[%s] at offset 0x%x\n",
+				boot_info->vendor_bootconfig_size, partname, offset);
+			return false;
+		}
+
+		bootconfig_size += boot_info->vendor_bootconfig_size;
+	} else {
+		// there is no bootconfig
+		printf("copy bootconfig to bootargs\n");
+		copy_bootconfig_to_cmdline();
+	}
+
+	if (bootconfig) {
+		int nlen = 0;
+
+		if (avb_bootargs)
+			nlen = strlen(bootconfig) + strlen(avb_bootargs) + 2;
+		else
+			nlen = strlen(bootconfig) + 2;
+
+		char *pnewbootargs = malloc(nlen);
+		char params[128];
+		char param_list[64][128];
+		int i = 0, j = 0, flag = 0;
+
+		if (pnewbootargs) {
+			memset((void *)pnewbootargs, 0, nlen);
+			if (avb_bootargs)
+				sprintf(pnewbootargs, "%s %s", bootconfig, avb_bootargs);
+			else
+				sprintf(pnewbootargs, "%s", bootconfig);
+
+			// Add any additional boot config parameters from the boot loader here. The
+			// final size of the boot config section will need to be tracked.
+			char *result = NULL;
+
+			result = strtok(pnewbootargs, " ");
+
+			while (result != NULL) {
+				sprintf(params, "%s\n", result);
+				for (i = 0; i < j; i++) {
+					if (strcmp(params, param_list[i]) == 0)
+						flag = 1;
+				}
+				if (flag != 1) {
+					strcpy(param_list[j], params);
+					j++;
+					ret = addBootConfigParameters(params, strlen(params),
+					boot_info->ramdisk_addr + ramdisk_size, bootconfig_size);
+					if (ret <= 0)
+						printf("Failed to apply boot config params\n");
+					else
+						bootconfig_size += ret;
+				} else {
+					flag = 0;
+				}
+				result = strtok(NULL, " ");
+			}
+			printf("bootconfig_size: 0x%x\n", bootconfig_size);
+			free(pnewbootargs);
+			pnewbootargs = NULL;
+		}
+	}
+
+	//Add bootconfig MAGIC
+	ret = addBootConfigTrailer(boot_info->ramdisk_addr + ramdisk_size,
+		bootconfig_size);
+	if (ret > 0)
+		bootconfig_size += ret;
+
+	printf("bootconfig_size: 0x%x\n", bootconfig_size);
+
+	// Need to update the size after adding parameters
+	boot_info->vendor_bootconfig_size = bootconfig_size;
+#endif
+	return true;
 }
 
 static ulong android_image_get_comp_v3(const boot_img_hdr_v3_t *os_hdr)

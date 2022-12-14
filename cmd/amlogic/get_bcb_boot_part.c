@@ -224,7 +224,7 @@ static int do_GetValidSlot(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 U_BOOT_CMD(
     get_boot_part, 3, 0, do_GetValidSlot,
     "get part name to load the bootable part",
-    "\nThis command will get which partititon name should be used for booting\n"
+    "\nThis command will get which partitions name should be used for booting\n"
     "    argv: get_boot_part <bcbPartName> <loadaddr>\n"   //usage
 );
 

@@ -40,6 +40,6 @@ struct param_e *param_of(int type)
 		if (param->type == STORAGE_PARAM_TPYE)
 			return param;
 	}
-	printf("ERROR param_of(Type=%d) not found\n", param->type);
+	printf("ERROR %s(Type=%d) not found\n", __func__, type);
 	return NULL;
 }

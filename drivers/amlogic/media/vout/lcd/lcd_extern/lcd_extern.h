@@ -38,6 +38,10 @@ int lcd_extern_i2c_RT6947_probe(struct lcd_extern_driver_s *edrv,
 int lcd_extern_i2c_ANX6862_7911_probe(struct lcd_extern_driver_s *edrv,
 				      struct lcd_extern_dev_s *ext_dev);
 #endif
+#ifdef CONFIG_AML_LCD_EXTERN_I2C_OLED
+int lcd_extern_i2c_oled_probe(struct lcd_extern_driver_s *edrv,
+			      struct lcd_extern_dev_s *ext_dev);
+#endif
 
 #endif
 

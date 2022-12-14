@@ -121,7 +121,6 @@ int board_init(void)
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
-	return 0;
 
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
@@ -142,8 +141,6 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-	return 0;
-
 	//default uboot env need before anyone use it
 	if (env_get("default_env")) {
 		printf("factory reset, need default all uboot env.\n");
@@ -155,14 +152,14 @@ int board_late_init(void)
 	board_init_mem();
 	run_command("run bcb_cmd", 0);
 
-#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
 	} else {
 		//load dtb here then users can directly use 'fdt' command
 		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 	}
-#endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);

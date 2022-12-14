@@ -35,7 +35,7 @@ static int optimus_prepare_upgrading_bmps(HIMAGE hImg)
     static const char* bmpsLoadAddr = (const char*)UpgradeLogoAddr;
     int ret = 0;
 
-    sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
+	sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
     ret = run_command(env_buf, 0);
     if (!ret) return 0;
     bmpsLoadAddr = UpgradeLogoAddr;//Reset to default if unapckimg directly failed
@@ -44,7 +44,7 @@ static int optimus_prepare_upgrading_bmps(HIMAGE hImg)
     sprintf(env_buf, "imgread res logo 0x%p", bmpsLoadAddr);
     ret = run_command(env_buf, 0);
     if (!ret) {
-        sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
+	sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
         ret = run_command(env_buf, 0);
     }
 
@@ -70,7 +70,7 @@ static int optimus_prepare_upgrading_bmps(HIMAGE hImg)
             DWN_MSG("align 4 mmc read...\t");//Assert Make 'DDR' buffer addr align 8
             bmpsLoadAddr += image_get_cluster_size(hImg);
             bmpsLoadAddr -= itemSzNotAligned;
-            sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
+		sprintf(env_buf, "unpackimg 0x%p", bmpsLoadAddr);
         }
         ret = image_item_read(hImg, hItem, (char*)bmpsLoadAddr, imgItemSz);
         if (ret) {
@@ -98,7 +98,7 @@ int video_res_prepare_for_upgrade(HIMAGE hImg)
     memset((void*)UpgradeLogoAddr, 0, 16);//clear to force reload whole logo.img
     ret = optimus_prepare_upgrading_bmps(hImg);
     if (ret) {
-        DWN_ERR("Fail in loading bmps for upgradig\n");
+        DWN_ERR("Fail in loading bmps for upgrading\n");
         return __LINE__;
     }
 
@@ -336,7 +336,7 @@ static int optimus_progress_ui_set_steps(__hdle hUiProgress, int steps)
     }
     else if(UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK == curPercent)
     {
-        lcd_printf("[OK]Burn Data Partitons\n");
+        lcd_printf("[OK]Burn Data partitions\n");
     }
     else if(UPGRADE_STEPS_AFTER_BURN_BOOTLOADER_OK == curPercent)
     {
@@ -404,7 +404,7 @@ int optimus_progress_ui_update_by_bytes(__hdle hUiPrgress, const unsigned nBytes
     int         ret             = 0;
     int percentsToReport        = 0;
 
-    //bytes not enghout to update one percent
+    //bytes not enough to update one percent
     if (bytesNotReport < nDownBytesOnePercent_f)
     {
         pUiProgress->smartModeLeftBytes = bytesNotReport;
@@ -425,7 +425,7 @@ int optimus_progress_ui_release(__hdle hUiPrgress)
 {
     UiProgress_t* pUiProgress = (UiProgress_t*)hUiPrgress;
 
-    DWN_MSG("Release prgress bar res\n");
+    DWN_MSG("Release progress bar res\n");
     if (pUiProgress)
     {
         free(pUiProgress), pUiProgress = NULL;
@@ -511,7 +511,7 @@ int optimus_progress_ui_report_upgrade_stat(__hdle hUiProgress, const int isSucc
     }
     else if(UPGRADE_STEPS_AFTER_DISK_INIT_OK < curPercent && UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK > curPercent)
     {
-        lcd_printf("Burning Data Partitons[%d%%]\n", curPercent);
+        lcd_printf("Burning Data partitions[%d%%]\n", curPercent);
     }
     else if(UPGRADE_STPES_AFTER_BURN_DATA_PARTS_OK == curPercent)
     {
@@ -558,7 +558,7 @@ static int do_progress_bar_test(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         return 0;
     }
 
-    run_command("imgread res logo $loadaddr; unpackimg $loadaddr", 0);
+	run_command("imgread res logo $loadaddr; unpackimg $loadaddr", 0);
     run_command("setenv outputmode 1080p60hz;", 0);
 
     if (!hProgressBar)
@@ -637,7 +637,7 @@ U_BOOT_CMD(
    0,               //repeatable
    do_progress_bar_test,   //command function
    "Test dynamic upgrade progress bar",           //description
-   "argv: dir [percents]: show percents directlry\n"//usage
+   "argv: dir [percents]: show percents directly\n"//usage
    "argv: nb [bytes]: smart mode, show percents with bytes\n"//usage
 );
 #endif//#if PROGRESS_BAR_TEST

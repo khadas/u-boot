@@ -473,13 +473,13 @@ void lcd_extern_pinmux_set(struct lcd_extern_driver_s *edrv, int status)
 int lcd_extern_get_dts_child(char *dtaddr, char *snode, int index)
 {
 	int nodeoffset;
-	char chlid_node[30];
+	char child_node[30];
 	char *propdata;
 
-	sprintf(chlid_node, "%s/extern_%d", snode, index);
-	nodeoffset = fdt_path_offset(dtaddr, chlid_node);
+	sprintf(child_node, "%s/extern_%d", snode, index);
+	nodeoffset = fdt_path_offset(dtaddr, child_node);
 	if (nodeoffset < 0) {
-		EXTERR("dts: not find  node %s\n", chlid_node);
+		EXTERR("dts: not find  node %s\n", child_node);
 		return nodeoffset;
 	}
 
@@ -1786,6 +1786,10 @@ static int lcd_extern_add_dev(struct lcd_extern_driver_s *edrv,
 #ifdef CONFIG_AML_LCD_EXTERN_I2C_ANX6862_7911
 	} else if (strcmp(edev->config.name, "i2c_ANX6862_7911") == 0) {
 		ret = lcd_extern_i2c_ANX6862_7911_probe(edrv, edev);
+#endif
+#ifdef CONFIG_AML_LCD_EXTERN_I2C_OLED
+	} else if (strcmp(edev->config.name, "i2c_oled") == 0) {
+		ret = lcd_extern_i2c_oled_probe(edrv, edev);
 #endif
 	} else {
 		EXTERR("[%d]: %s: invalid dev: %s(%d)\n",

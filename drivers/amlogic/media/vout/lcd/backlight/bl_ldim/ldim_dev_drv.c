@@ -859,7 +859,7 @@ static int ldim_dev_get_config_from_dts(struct ldim_dev_driver_s *dev_drv,
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "ldim_pwm_pinmux_sel", NULL);
 	if (propdata) {
-		LDIMPR("find custome ldim_pwm_pinmux_sel: %s\n", propdata);
+		LDIMPR("find custom ldim_pwm_pinmux_sel: %s\n", propdata);
 		strncpy(dev_drv->pinmux_name, propdata, (LDIM_DEV_NAME_MAX - 1));
 	}
 
@@ -949,7 +949,7 @@ static int ldim_dev_get_config_from_dts(struct ldim_dev_driver_s *dev_drv,
 			goto ldim_dev_get_config_from_dts_next;
 		}
 	}
-	LDIMPR("%s:find custome ldim_zone_mapping\n", __func__);
+	LDIMPR("%s:find custom ldim_zone_mapping\n", __func__);
 	for (i = 0; i < dev_drv->zone_num; i++)
 		dev_drv->bl_mapping[i] = (unsigned short)be32_to_cpup((((u32 *)propdata) + i));
 
@@ -1134,7 +1134,7 @@ static int ldim_dev_get_config_from_ukey(struct ldim_dev_driver_s *dev_drv)
 		strcpy(dev_drv->pinmux_name, "invalid");
 	} else {
 		strncpy(dev_drv->pinmux_name, str, (LDIM_DEV_NAME_MAX - 1));
-		LDIMPR("find custome ldim_pwm_pinmux_sel: %s\n", str);
+		LDIMPR("find custom ldim_pwm_pinmux_sel: %s\n", str);
 	}
 
 	/* ctrl (271Byte) */

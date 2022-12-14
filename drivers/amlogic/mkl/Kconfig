@@ -1,0 +1,7 @@
+config AML_MKL
+        tristate "Amlogic Keyladder driver"
+        default n
+        help
+          Amlogic Keyladder driver
+
+          Enable for the Amlogic AML keyladder

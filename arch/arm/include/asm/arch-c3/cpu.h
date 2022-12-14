@@ -20,7 +20,7 @@
 #define CONFIG_CMD_VIU_PROBE    1
 #endif
 
-/* for uboot envrionment use */
+/* for uboot environment use */
 #define CONFIG_DDR_SIZE					2048
 
 /* dram */
@@ -76,5 +76,7 @@ AES key will be generated to EFUSE pattern, it can be used for use case
 like the AES key not ready when secure boot enabled for the first time.
 */
 //#define CONFIG_AML_EFUSE_GEN_AES_ONLY 1
+
+#define CONFIG_KEY_PRESERVE
 
 #endif /* _CPU_H */

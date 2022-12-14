@@ -6,7 +6,6 @@
 #ifndef __SC2_DEF_H__
 #define __SC2_DEF_H__
 
-#include "secure_apb.h"
 
 
 #define SEC_AO_SEC_GP_CFG2     SYSCTRL_SEC_STATUS_REG6

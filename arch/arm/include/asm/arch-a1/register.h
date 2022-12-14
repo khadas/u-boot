@@ -992,7 +992,7 @@
    //bit 9.   range1 enable:   1: enable; 0 : disable.
    //bit 8.   range0 enable:   1: enable; 0 : disable.
    //bit 7:4  to control spi clock register security.  bit 7 = 1, APB bus can access spi clock domain register.  bit 7 == 0 : only PPROT[0] == bit 4, the APB can access spic clock domain register.
-   //bit 3:0  to control ahb clock domain register secruity. bit 3 = 1, APB bus can access ahb clock domain register.  bit 3 ==0; only PPROT[0] == bit 0, the APB can access ahb clock domain register.
+   //bit 3:0  to control ahb clock domain register security. bit 3 = 1, APB bus can access ahb clock domain register.  bit 3 ==0; only PPROT[0] == bit 0, the APB can access ahb clock domain register.
 #define SPIFC_RANGE0_STA                           ((0x0010  << 2) + 0xfd000400)
   //bit 28 :6.
   //AHB security range 0  start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1002,7 +1002,7 @@
   //AHB security range 0  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE0_CTRL                          ((0x0012  << 2) + 0xfd000400)
-  // AHB secruity range 0 control.
+  // AHB security range 0 control.
   //bit 15:8 range 0 access control for DMA access.
   //bit  15  range 0 access control for DMA thread 7
   //bit  14  range 0 access control for DMA Thread 6
@@ -1029,7 +1029,7 @@
   //AHB security range 1  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE1_CTRL                          ((0x0015  << 2) + 0xfd000400)
-  // AHB secruity range 1 control.
+  // AHB security range 1 control.
   //bit 15:8 range 1 access control for DMA access.
   //bit  15  range 1 access control for DMA thread 7
   //bit  14  range 1 access control for DMA Thread 6
@@ -1056,7 +1056,7 @@
   //AHB security range 2  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE2_CTRL                          ((0x0018  << 2) + 0xfd000400)
-  // AHB secruity range 2 control.
+  // AHB security range 2 control.
   //bit 15:8 range 2 access control for DMA access.
   //bit  15  range 2 access control for DMA thread 7
   //bit  14  range 2 access control for DMA Thread 6
@@ -1083,7 +1083,7 @@
   //AHB security range 3  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE3_CTRL                          ((0x001b  << 2) + 0xfd000400)
-  // AHB secruity range 3 control.
+  // AHB security range 3 control.
   //bit 15:8 range 3 access control for DMA access.
   //bit  15  range 3 access control for DMA thread 7
   //bit  14  range 3 access control for DMA Thread 6
@@ -1110,7 +1110,7 @@
   //AHB security range 4  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE4_CTRL                          ((0x001e  << 2) + 0xfd000400)
-  // AHB secruity range 4 control.
+  // AHB security range 4 control.
   //bit 15:8 range 4 access control for DMA access.
   //bit  15  range 4 access control for DMA thread 7
   //bit  14  range 4 access control for DMA Thread 6
@@ -1137,7 +1137,7 @@
   //AHB security range 5  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE5_CTRL                          ((0x0020  << 2) + 0xfd000400)
-  // AHB secruity range 5 control.
+  // AHB security range 5 control.
   //bit 15:8 range 5 access control for DMA access.
   //bit  15  range 5 access control for DMA thread 7
   //bit  14  range 5 access control for DMA Thread 6
@@ -1164,7 +1164,7 @@
   //AHB security range 6  end address in unit of 64Byte. related to HADDR bit 28:6.
   //bit 5:0.  always 0.
 #define SPIFC_RANGE6_CTRL                          ((0x0024  << 2) + 0xfd000400)
-  // AHB secruity range 6 control.
+  // AHB security range 6 control.
   //bit 15:8 range 6 access control for DMA access.
   //bit  15  range 6 access control for DMA thread 7
   //bit  14  range 6 access control for DMA Thread 6
@@ -1183,7 +1183,7 @@
   // bit  1. range 6 access control for HMASTER == 1   //CPU secure access
   // bit  0. range 6 access control for HMASTER == 0   //CPU non secure.
 #define SPIFC_RANGE7_CTRL                          ((0x0025  << 2) + 0xfd000400)
-  // AHB secruity range 7( default range) control.
+  // AHB security range 7( default range) control.
   //bit 15:8 range 7 access control for DMA access.
   //bit  15  range 7 access control for DMA thread 7
   //bit  14  range 7 access control for DMA Thread 6
@@ -1212,7 +1212,7 @@
   //bit 1    HNONSEC.
   //bit 0    HWRITE.
 #define SPIFC_AHB_STS                              ((0x0029  << 2) + 0xfd000400)
-  //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb requent is holded.  0, ahb is still busy.
+  //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb frequent is holded.  0, ahb is still busy.
   //bit 30.  AHB data cycle status, when ahb disabled, to show ahb data cycle status. 1, data cycle is holded,  0 : not in data cycle or data cycle is processing.
   //bit 29.  AHB bus spi requst status. 1: still waiting for spi data. 0: idle.
   //bit 28:0.  not used.
@@ -1230,7 +1230,7 @@
   //bit 18:17  user address mode:  00 = SPI extend mode. 01 : dual mode.  10:  quad mode.
   //bit 16:15  user address Byte length  00 = 1 byte.  01 = 2 bytes.  10 = 3 bytes. 11 = 4bytes.
   //bit 14     user datout enable.
-  //bit 13     user dataout AES enable. 1: dataout through AES describle. 0 : original data.
+  //bit 13     user dataout AES enable. 1: dataout through AES describe. 0 : original data.
   //bit 12     user data output source. 0: from data buffer.  1: from status register.
   //bit 11:10  user dataout mode: 00 SPI extend model. 01 : dual model. 10. quad mode.
   //bit 9:0    User data out bytes num.
@@ -1247,7 +1247,7 @@
 #define SPIFC_USER_CTRL3                           ((0x0083  << 2) + 0xfd000400)
   //bit 31 usr_datin_en  1: datain cycle enabled.  0: no datain cycle.
   //bit 30: datin_dest.  1: save the input data to STATUS register.  0 save the input data to data buffer.
-  //bit 29: 1: enable datain data AES describle. 0: not use AES.
+  //bit 29: 1: enable datain data AES describe. 0: not use AES.
   //bit 28:27.  datin mode.  2'b00 SPI extend mode. 01: dual mode. 10 Quad mode.
   //bit 25:16.  user data in data bytes.  how many bytes of user datain expected.
 #define SPIFC_USER_ADDR                            ((0x0084  << 2) + 0xfd000400)
@@ -1260,17 +1260,17 @@
  //bit 19.    ahb request address cycle enable.
  //bit 18:17  AHB ADDRESS  mode. 2'b00: spi mode. 01: dual mode. 10 Quad mode.
  //bit 16:15  AHB ADDRESS data width. 2'b00: 1byte. 2'b01 : 2bytes. 2'b10: 3bytes. 2'b11 4bytes.
- //bit 13:10   AHB request spi bus input switch time. 0 : after address cycle. 1: the frist dummy cycles. ... 0xf. after dummy cycle.
+ //bit 13:10   AHB request spi bus input switch time. 0 : after address cycle. 1: the first dummy cycles. ... 0xf. after dummy cycle.
  //bit 9:8     AHB DATAIN mode.   2'b00: spi mode. 01: dual mode. 10 Quad mode.
  //bit 7       DATA IN AES enable. 1: enable 0: disable.
- //bit 1:0     AHB REQ DATA size.  2'b00:  64bytes.  2'b01: 32 bytes. 2'b10 : 16 bytes. 2'b11: reserved. this bit settign should be same as RDBUF_SIZE setting.
+ //bit 1:0     AHB REQ DATA size.  2'b00:  64bytes.  2'b01: 32 bytes. 2'b10 : 16 bytes. 2'b11: reserved. this bit setting should be same as RDBUF_SIZE setting.
 #define SPIFC_AHB_REQ_CTRL1                        ((0x0086  << 2) + 0xfd000400)
   //bit 31.  ahb Dummy enable.
   //bit 30:29.  ahb dummy mode.
   //bit 28:23.  ahb request dummy clock cycles.
   //bit 15:0.   ahb dummy period output data.
 #define SPIFC_AHB_REQ_CTRL2                        ((0x0087  << 2) + 0xfd000400)
-  //bit 1:0  AHB address position. this settign depend on SPIFC_AHB_CTRL register CWF_EN bit and RDBUF_SIZE.
+  //bit 1:0  AHB address position. this setting depend on SPIFC_AHB_CTRL register CWF_EN bit and RDBUF_SIZE.
   // if CWF_EN is enabled. these bit should be set to 2'b10 (16BYTE boundary).
   // if CWF_EN is disabled. these bit should be set to same as the RDBUF_SIZE and AHB REQ DATA SIZE.
           //00 :  64byte boundary.
@@ -1294,9 +1294,9 @@
 #define SPIFC_ACTIMING2                            ((0x008a  << 2) + 0xfd000400)
  //bit 31.  spi clock input pin enable. SPIFC controller used this pin as clock to latch the input data.
  //bit [3:0]  spi clock input pin delay adjustment.
-//SPI DATA BUFFER.  There's a total 512Byte + 64byte(orgnized as 36x128bits) SRAM .
+//SPI DATA BUFFER.  There's a total 512Byte + 64byte(organized as 36x128bits) SRAM .
 // since each APB access is 32bits. So we use word address as APB read/write address.
-// But for SPI side we have to use 128bit boundary. That's the first Pragram/read SPI with data buffer must start at data buffer 128bit boundary.  that means the SPIFC_USE_DBUF_ADDR last 2 bits must be 0.
+// But for SPI side we have to use 128bit boundary. That's the first program/read SPI with data buffer must start at data buffer 128bit boundary.  that means the SPIFC_USE_DBUF_ADDR last 2 bits must be 0.
 #define SPIFC_DBUF_CTRL                            ((0x0090  << 2) + 0xfd000400)
   //bit 31.    1 = write DBUF.  0 : read DBUF.
   //bit 30.    1. = auto update address. 0 don't change address.
@@ -1337,7 +1337,7 @@
  //bit 1   axi interface auto clock gating enable. 1 = enable; 0 = disable.
  //bit 0   axi interface AXI request enable.  1 = enable. 0 = disable.
 #define PSRAM_DBUF_CTRL                            ((0x0001  << 2) + 0xfe007400)
- //bit 16.    MWRITE_EN.  1 : enabel mask write(with DM pin). 0 not enable.
+ //bit 16.    MWRITE_EN.  1 : enable mask write(with DM pin). 0 not enable.
  //bit 15:0   DBUF AGE to write back to PSRAM if DBUF is dirty. but whole DBUF data is not READ to write.(with MWRITE enabled).
 #define PSRAM_DBUF_CTRL1                           ((0x0002  << 2) + 0xfe007400)
   //bit 15:0  DBUF AGE to write back to psram if DBUF is dirty and whole DBUF data is ready to write.
@@ -1350,7 +1350,7 @@
              //bit 0.  when bit 3 == 0, bit 0 must match PPROT[0] to access.
 #define PSRAM_SEC_CTRL                             ((0x0004  << 2) + 0xfe007400)
    //bit 31.  ADDRESS security range enable.  1 = enable; 0: disable.
-            //if scruity range disabled, but AXI data describle enabled key0 is selected.
+            //if scrutiny range disabled, but AXI data describe enabled key0 is selected.
    //bit 23   range 7  des key selection 0 : key0;  1: key1;
    //bit 22   range 6  des key selection 0 : key0;  1: key1;
    //bit 21   range 5  des key selection 0 : key0;  1: key1;
@@ -1367,7 +1367,7 @@
    //bit 1.   range1 enable:   1: enable; 0 : disable.
    //bit 0.   range0 enable:   1: enable; 0 : disable.
 #define PSRAM_DES_PADDING                          ((0x0005  << 2) + 0xfe007400)
-   //bit 31 :0 Padding, with address together to generate describle 64 bits input.
+   //bit 31 :0 Padding, with address together to generate describe 64 bits input.
 #define PSRAM_RANGE0_STA                           ((0x0010  << 2) + 0xfe007400)
   //bit 22 :0.
   //AXI security range 0  start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1375,9 +1375,9 @@
   //bit 22 :0.
   //AXI security range 0  end address in unit of 64Byte. related to HADDR bit 28:6.
 #define PSRAM_RANGE0_CTRL0                         ((0x0012  << 2) + 0xfe007400)
-  // AXI secruity range 0 control.
+  // AXI security range 0 control.
 #define PSRAM_RANGE0_CTRL1                         ((0x0013  << 2) + 0xfe007400)
-  // AXI secruity range 0 control.
+  // AXI security range 0 control.
 #define PSRAM_RANGE1_STA                           ((0x0014  << 2) + 0xfe007400)
   //bit 22 :0.
   //AXI security range 1  start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1385,9 +1385,9 @@
   //bit 22 :0.
   //AXI security range 1  end address in unit of 64Byte. related to HADDR bit 28:6.
 #define PSRAM_RANGE1_CTRL0                         ((0x0016  << 2) + 0xfe007400)
-  // AXI secruity range 1 control.
+  // AXI security range 1 control.
 #define PSRAM_RANGE1_CTRL1                         ((0x0017  << 2) + 0xfe007400)
-  // AXI secruity range 1 control.
+  // AXI security range 1 control.
 #define PSRAM_RANGE2_STA                           ((0x0018  << 2) + 0xfe007400)
   //bit 31 : 6.
   //AXI security range 2  start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1403,9 +1403,9 @@
   //bit 31 :6.
   //AXI security range 3  end address in unit of 64Byte. related to HADDR bit 28:6.
 #define PSRAM_RANGE3_CTRL0                         ((0x001e  << 2) + 0xfe007400)
-  // AXI secruity range 3 control.
+  // AXI security range 3 control.
 #define PSRAM_RANGE3_CTRL1                         ((0x001f  << 2) + 0xfe007400)
-  // AXI secruity range 3 control.
+  // AXI security range 3 control.
 #define PSRAM_RANGE4_STA                           ((0x0020  << 2) + 0xfe007400)
   //bit 31 :6.
   //AXI security range 4  start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1413,7 +1413,7 @@
   //bit 31 :6.
   //AXI security range 4  end address in unit of 64Byte. related to HADDR bit 28:6.
 #define PSRAM_RANGE4_CTRL0                         ((0x0022  << 2) + 0xfe007400)
-  // AXI secruity range 4 control.
+  // AXI security range 4 control.
 #define PSRAM_RANGE4_CTRL1                         ((0x0023  << 2) + 0xfe007400)
 #define PSRAM_RANGE5_STA                           ((0x0024  << 2) + 0xfe007400)
   //bit 22 :0.
@@ -1422,9 +1422,9 @@
   //bit 22 :0.
   //AXI security range 5  end address in unit of 64Byte. related to HADDR bit 28:6.
 #define PSRAM_RANGE5_CTRL0                         ((0x0026  << 2) + 0xfe007400)
-  // AXI secruity range 5 control.
+  // AXI security range 5 control.
 #define PSRAM_RANGE5_CTRL1                         ((0x0027  << 2) + 0xfe007400)
-  // AXI secruity range 5 control.
+  // AXI security range 5 control.
 #define PSRAM_RANGE6_STA                           ((0x0028  << 2) + 0xfe007400)
   //bit 22 :0.
   //AXI security range 6 start address in unit of 64Byte. related to HADDR bit 28:6.
@@ -1432,9 +1432,9 @@
   //bit 22 :0.
   //AXI security range 6  end address in unit of 64Byte. related to HADDR bit 28:6.
 #define PSRAM_RANGE6_CTRL0                         ((0x002a  << 2) + 0xfe007400)
-  // AXI secruity range 6 control.
+  // AXI security range 6 control.
 #define PSRAM_RANGE6_CTRL1                         ((0x002b  << 2) + 0xfe007400)
-  // AXI secruity range 6 control.
+  // AXI security range 6 control.
 #define PSRAM_RANGE7_CTRL0                         ((0x002c  << 2) + 0xfe007400)
 #define PSRAM_RANGE7_CTRL1                         ((0x002d  << 2) + 0xfe007400)
 #define PSRAM_VIO_STATUS                           ((0x002e  << 2) + 0xfe007400)
@@ -1463,7 +1463,7 @@
   //bit 5:0    USR data  DQS read enable postion.
 #define PSRAM_USER_CTRL2                           ((0x0082  << 2) + 0xfe007400)
   //bit 31  usr des key selection. 1 : key 1; 0 : key 0.
-  //bit 30. usr check latency. for Winbond PSRAM data read/write, DQS input indentify the latency is doubled or not.
+  //bit 30. usr check latency. for Winbond PSRAM data read/write, DQS input identify the latency is doubled or not.
   //bit 29. usr data des enable.
   //bit 28   usr datain enable.
   //bit 27.  usr datain destination. 1 : write to CFG_STS register. 0 : write to DATA REGISTERs.
@@ -1473,7 +1473,7 @@
   //bit 13~11. not used.
   //bit 10~0.  usr dataout clock cycles.
 #define PSRAM_USER_CTRL3                           ((0x0083  << 2) + 0xfe007400)
-  //bit 17:16. which cycle to ask phy to check read/write latency at PSRAM SEND COMMOND stage.
+  //bit 17:16. which cycle to ask phy to check read/write latency at PSRAM SEND command stage.
              //since PSRAM send command stage only 3 clock cycle.  So this number only can chose 0, 1, 2.
   //bit 15:0.  user dummy data when output in dummy cycle.
 #define PSRAM_USER_ADDR                            ((0x0084  << 2) + 0xfe007400)
@@ -1517,9 +1517,9 @@
  //bit [31]   1: force to reset PSRAM PCTL and PHY logic. 0: normal.
  //bit [30]   1: automatic reset PSRAM PCTL and PHY logic if watch dog triggered.
  //bit 12:0.  watch dog timer.   for Winbond PSRAM should be 1us for tRC.  for APMEMORY should be 1us for tCEM.
-//SPI DATA BUFFER.  There's a total 512KByte + 64byte(orgnized as 36x128bits) SRAM .
+//SPI DATA BUFFER.  There's a total 512KByte + 64byte(organized as 36x128bits) SRAM .
 // since each APB access is 32bits. So we use word address as APB read/write address.
-// But for SPI side we have to use 128bit boundary. That's the first Pragram/read SPI with data buffer must start at data buffer 128bit boundary.  that means the PSRAM_USE_DBUF_ADDR last 2 bits must be 0.
+// But for SPI side we have to use 128bit boundary. That's the first program/read SPI with data buffer must start at data buffer 128bit boundary.  that means the PSRAM_USE_DBUF_ADDR last 2 bits must be 0.
 #define PSRAM_DBUF_0                               ((0x0090  << 2) + 0xfe007400)
 #define PSRAM_DBUF_1                               ((0x0091  << 2) + 0xfe007400)
 #define PSRAM_DBUF_2                               ((0x0092  << 2) + 0xfe007400)
@@ -1887,11 +1887,11 @@
  //range 7 write access enable based on DMC ID assignments.
  //check DMC_SEC_RANGE0_WID_CTRL for each bit define.
 #define DMC_SEC_RANGE_CTRL                         ((0x001e  << 2) + 0xfd021000)
-  //bit 23:16    8 range security level. to chosse with DES KEY to use data describle.
-  //bit 7:0      8 range enable. each bit for one range to indentify the range is enabled or not.
+  //bit 23:16    8 range security level. to choose with DES KEY to use data describe.
+  //bit 7:0      8 range enable. each bit for one range to identify the range is enabled or not.
 //registers to check the security protection and watch point error information.
 #define DMC_DES_CTRL                               ((0x0020  << 2) + 0xfd021000)
- //bit 1 data describle enable.
+ //bit 1 data describe enable.
  //bit 0  wirte 1 to block DES CTRL and DES PADDING read/write.
 #define DMC_DES_PADDING                            ((0x0021  << 2) + 0xfd021000)
 #define DMC_SEC_STATUS                             ((0x00b8  << 2) + 0xfd021000)
@@ -2007,7 +2007,7 @@
    //bit 30.  when enable test, enable the write to DDR function.
    //bit 29.  when enable test, enable the read from DDR function.
    //bit 28.  Not used.
-   //bit 27.  enabe to compare data.  when do the read enable to enable the error comparaion. suppose the read data should be same as the data in the write buffer.
+   //bit 27.  enable to compare data.  when do the read enable to enable the error comparison. suppose the read data should be same as the data in the write buffer.
    //bit 26.  Not used.
    //bit 25.  address generation type.  0: continuous increase the address in the range of test start address and test end address.
    //                                   1: test module would pick the random address from test start address  and test end address.
@@ -2061,7 +2061,7 @@
 #define DMC_TEST_RD7                               ((0x00f3  << 2) + 0xfd021400)
    // the read back data 7.  if error happens, it would capture the first error data.
 #define DMC_TEST_ERR_ADDR                          ((0x00f4  << 2) + 0xfd021400)
-  // it capature the first error address.
+  // it capture the first error address.
 #define DMC_TEST_ERR_CNT                           ((0x00f5  << 2) + 0xfd021400)
   // how many data error happens in the whole test period.
 #define DMC_TEST_STS                               ((0x00f6  << 2) + 0xfd021400)
@@ -2132,9 +2132,9 @@
   //bit 7   DMC DFI dcu soft reset_n
   //bit 6   DMC siu soft reset_n
   //bit 5.  DMC test soft reset_n.  0 : reset. 1 : normal working mode.
-  //bit 4.  DMC low power control moudle soft reset_n.    0 : reset. 1 : normal working mode.
+  //bit 4.  DMC low power control module soft reset_n.    0 : reset. 1 : normal working mode.
   //bit 3.  DMC QOS monitor module soft reset_n.   0 : reset. 1 : normal working mode.
-  //bit 2.  DMC register modle soft reset_n.       0 : reset. 1 : normal working mode.
+  //bit 2.  DMC register module soft reset_n.       0 : reset. 1 : normal working mode.
   //bit 1.  DMC canvas transfer module soft reset_n.  0 : reset. 1 : normal working mode.
   //bit 0.  DMC command buffers and command generation modules soft reset.  0 = reset. 1:
 #define DMC_VERSION                                ((0x0005  << 2) + 0xfd020000)
@@ -2149,14 +2149,14 @@
    //bit 8    to select DMC TEST
    //bit 7:0  each bit enable one AXI subID.
 #define DMC_MON_CTRL2                              ((0x0022  << 2) + 0xfd020000)
-   //bit 8.  to enabe monitor 0 second level subID selection for example device.
+   //bit 8.  to enable monitor 0 second level subID selection for example device.
    //bit 7:0  each bit to enable one second level subID inside device.
 #define DMC_MON_CTRL3                              ((0x0023  << 2) + 0xfd020000)
    //bit 8:0.  qos monitor 1 channel select.
    //bit 8    to select DMC TEST
    //bit 7:0  each bit enable one AXI subID.
 #define DMC_MON_CTRL4                              ((0x0024  << 2) + 0xfd020000)
-   //bit 8.  to enabe monitor 1 second level subID selection for example device.
+   //bit 8.  to enable monitor 1 second level subID selection for example device.
    //bit 7:0  each bit to enable one second level subID inside device.
 #define DMC_MON_ALL_REQ_CNT                        ((0x0029  << 2) + 0xfd020000)
   // at the test period,  the whole MMC request time.
@@ -2170,7 +2170,7 @@
  // timer for the monitor period.
 #define DMC_CLKG_CTRL2                             ((0x0032  << 2) + 0xfd020000)
   //bit 10  enable auto clock gating for dfi command generation
-  //bit 9   enable auto clock gating for dram cntroller
+  //bit 9   enable auto clock gating for dram controller
   //bit 8   enable auto clock gating for dfi data path.
   //bit 7.  enalbe auto clock gating for write rsp generation.
   //bit 6.  enalbe auto clock gating for read rsp generation.
@@ -2182,7 +2182,7 @@
   //bit 0.  reserved
 #define DMC_CLKG_CTRL3                             ((0x0033  << 2) + 0xfd020000)
   //bit 10  force to disable the clock of dfi command generation
-  //bit 9   force to disable the clock of dram cntroller
+  //bit 9   force to disable the clock of dram controller
   //bit 8   force to disable the clock of dfi data path.
   //bit 7. force to disalbe the clock of write rsp generation.
   //bit 6. force to disalbe the clock of read rsp generation.
@@ -2397,12 +2397,12 @@
 #define DMC_DRAM_DFITPHYUPDTYPE3                   ((0x0083  << 2) + 0xfd020400)
  //dfi_phyupd_ack hold time for dfi_phyupd_req type = 3.
 #define DMC_DRAM_DFIODTCFG                         ((0x0084  << 2) + 0xfd020400)
-  //bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+  //bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
   //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
   //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
   //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
   //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-  //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+  //bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
   //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
   //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
   //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
@@ -2463,7 +2463,7 @@
   //bit 11 : send DFI_LP_REQ  after enter ASR mode.
   //bit 10 : set DFI_CLK_DISABLE after enter ASR mode.
   //bit 9:0.   0 disable auto ASR mode.
-             // Non-zero valule enable ASR mode. when DMC is in idle state for this number of clock cycles, the DMC will enter ASR mode.
+             // Non-zero value enable ASR mode. when DMC is in idle state for this number of clock cycles, the DMC will enter ASR mode.
 #define DMC_DRAM_PHYMSTR_CTRL                      ((0x0090  << 2) + 0xfd020400)
   //not used in A1. should be all 0.
 #define DMC_DRAM_DFIODTRANKMAP                     ((0x0091  << 2) + 0xfd020400)
@@ -2476,7 +2476,7 @@
   //bit 3:1. how many refresh command send for one period. = this number + 1
   //bit 0.  enable dmc send auto refresh command.
 #define DMC_DRAM_FREQ_CTRL                         ((0x0093  << 2) + 0xfd020400)
-//bit 31 .  wiret 1 to change freqency   read 0: finished.
+//bit 31 .  write 1 to change freqency   read 0: finished.
 //bit 30:9.  not used.
 //bit 9.  1 : FREQ MRW done. let FREQ change machine continue.
 //bit 8   FREQ WAIT. 1 when freq change finishes, state machine stop at self refresh state in case there's something need to handle.
@@ -2498,8 +2498,8 @@
   //bit 23:20   stop_st
   //bit 19:15   sleep_st
   //bit 14:12  ACCESS STATUS 0 :  ACCESS is in normal working mode.
-                          //1 :   ACCESS sending precharege command.
-                          //2 :   ACCESS sending AUTO REFESH command.
+                          //1 :   ACCESS sending precharge command.
+                          //2 :   ACCESS sending AUTO REFRESH command.
                           //3 :   ACCESS sending DIF_CTRLUPD_REQ command.
                           //4 :   ACCESS sending ZQCS command to DDR DRAM(ZQCAL for LPDDR4).
                           //5 :   ACCESS sending ZQLATCH command to  LPDDR4 only.
@@ -2898,7 +2898,7 @@
 // APB_BASE:  APB1_BASE_ADDR = 0xfd020800
 // -----------------------------------------------
 //`define DMC_STICKY_REG_BASE   32'hfd020800
-//those register is for software save some tempary value. and because it's in RAM. it won't lose if DMC get reseted.
+//those register is for software save some temporary value. and because it's in RAM. it won't lose if DMC get reseted.
 #define DMC_STICKY_0                               ((0x0000  << 2) + 0xfd020800)
 #define DMC_STICKY_1                               ((0x0001  << 2) + 0xfd020800)
 #define DMC_STICKY_2                               ((0x0002  << 2) + 0xfd020800)

@@ -231,11 +231,11 @@ typedef struct ddr_set{
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
 	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use chanel a cs0 cs1 chanel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
 	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
 
 	/* rsv_char0. update for diagnose type define */
 	unsigned	char	diagnose;
@@ -278,18 +278,18 @@ typedef struct ddr_set{
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned	int		dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
 	unsigned	short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned	char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned	char	ddr_rdbi_wr_enable;
@@ -327,25 +327,25 @@ typedef struct ddr_set{
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned	short	clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned	short	soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned	short	soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned	short	soc_cs_slew_rate;
@@ -448,7 +448,7 @@ typedef struct psram_bl2_set{
 	uint32_t	psram_ac_timing1;
 	uint32_t	psram_ac_timing2;
 	uint32_t	psram_mode_crtl;
-	uint32_t	psram_cur_clk_frequeny;
+	uint32_t	psram_cur_clk_frequency;
 	char 		psram_cur_amlogic_protocol_id;
 	char        psram_use_hifi_pll;
 	char        psram_fixed_latency_enable;

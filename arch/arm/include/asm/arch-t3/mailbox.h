@@ -52,7 +52,7 @@
 #define __MBX_COMPOSE_MSG(mod, func)    (((mod) << 10) | ((func) & 0x3FF))
 
 /*******************************************************************************
- * Define moudle type here, 6bits valid
+ * Define module type here, 6bits valid
  ******************************************************************************/
 #define MBX_SYSTEM              0x0
 
@@ -66,7 +66,7 @@
 #define CMD_LED_INFO            0xF7
 
 /*******************************************************************************
- * Mssage Comopsition
+ * Mssage composition
  ******************************************************************************/
 #define MBX_CMD_TEST    __MBX_COMPOSE_MSG(MBX_SYSTEM, CMD_TEST)
 enum {

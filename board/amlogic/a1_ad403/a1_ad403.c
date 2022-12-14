@@ -123,14 +123,14 @@ int board_late_init(void)
 	run_command(UPGRADE_CMD, 0);
 	board_init_mem();
 
-#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if (run_command("run common_dtb_load", 0)) {
 		pr_info("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
 	} else {
 		//load dtb here then users can directly use 'fdt' command
 		run_command(CHECK_FDT_CMD, 0);
 	}
-#endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 
 	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)

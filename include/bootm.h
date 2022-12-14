@@ -35,6 +35,9 @@ typedef int boot_os_fn(int flag, int argc, char * const argv[],
 			bootm_headers_t *images);
 
 extern boot_os_fn do_bootm_linux;
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+extern boot_os_fn do_bootm_zircon;
+#endif
 extern boot_os_fn do_bootm_vxworks;
 
 int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);

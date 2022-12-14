@@ -16,7 +16,7 @@ struct amlnf_partition *amlnand_config = NULL;
 static struct partitions * part_table = NULL;
 #define SZ_1M                           0x00100000
 
-/*partition info by liuxj*/
+/*partition info by liuxianjun*/
 struct partitions partition_table[] = {
 		{
 			.name = "logo",

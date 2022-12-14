@@ -149,7 +149,12 @@ static void hdmitx_hw_init(void)
 
 	hdmitx_wr_reg(HDMITX_DWC_MC_CLKDIS, 0x00);
 	/*disable null package*/
-	hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x7);
+	if (hdmitx_find_vendor_null_pkt(&hdmitx_device)) {
+		printf("special TV, need enable NULL packet\n");
+		hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x6);
+	} else {
+		hdmitx_wr_reg(HDMITX_TOP_DISABLE_NULL, 0x7);
+	}
 }
 
 /*
@@ -316,6 +321,7 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMIV_1280x1024p60hz, "1280x1024p60hz", 0},
 	{HDMIV_1680x1050p60hz, "1680x1050p60hz", 0},
 	{HDMIV_1024x600p60hz, "1024x600p60hz", 0},
+	{HDMIV_2560x1440p60hz, "2560x1440p60hz", 0},
 };
 
 static void hdmitx_list_support_modes(void)
@@ -511,7 +517,7 @@ static int hdmitx_set_audmode(struct hdmitx_dev *hdev)
 	unsigned int data32;
 	unsigned int aud_n_para;
 
-	pr_info("hdmtix: set audio\n");
+	pr_info("hdmitx: set audio\n");
 	hdmitx_set_reg_bits(HDMITX_TOP_CLK_CNTL, 3, 2, 2);
 	hdmitx_set_reg_bits(HDMITX_DWC_FC_PACKET_TX_EN, 1, 0, 1);
 	hdmitx_set_reg_bits(HDMITX_DWC_FC_PACKET_TX_EN, 1, 3, 1);
@@ -686,7 +692,8 @@ static signed int to_signed(unsigned int a);
  *0:TMDS_CLK_rate=TMDS_Character_rate; 1:TMDS_CLK_rate=TMDS_Character_rate/4,
  *for TMDS_Character_rate>340Mcsc.
  */
-static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
+static void config_hdmi20_tx(struct hdmitx_dev *hdev, enum hdmi_vic vic,
+	struct hdmi_format_para *para,
 	unsigned char   color_depth, unsigned char input_color_format,
 	unsigned char   input_color_range, unsigned char   output_color_format,
 	unsigned char   output_color_range)
@@ -876,7 +883,7 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 
 	/* Frame Composer configuration */
 
-	/* Video definitions, as per output video(for packet gen/schedulling) */
+	/* Video definitions, as per output video(for packet gen/scheduling) */
 
 	data32  = 0;
 	data32 |= (1 << 7);
@@ -887,6 +894,8 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	data32 |= (!(para->progress_mode) << 1);
 	data32 |= (!(para->progress_mode) << 0);
 	hdmitx_wr_reg(HDMITX_DWC_FC_INVIDCONF,  data32);
+	if (!hdev->RXCap.IEEEOUI) /* DVI devices */
+		hdmitx_set_reg_bits(HDMITX_DWC_FC_INVIDCONF, 0, 3, 1);
 
 	data32  = GET_TIMING(h_active)&0xff;
 	hdmitx_wr_reg(HDMITX_DWC_FC_INHACTV0,   data32);
@@ -1081,7 +1090,7 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	hdmitx_wr_reg(HDMITX_DWC_FC_CTRLQHIGH,  15);
 	hdmitx_wr_reg(HDMITX_DWC_FC_CTRLQLOW, 3);
 
-	/* packet scheduller configuration for SPD, VSD, ISRC1/2, ACP. */
+	/* packet scheduler configuration for SPD, VSD, ISRC1/2, ACP. */
 	data32  = 0;
 	data32 |= (0 << 4);
 	data32 |= (0 << 3);
@@ -1094,7 +1103,7 @@ static void config_hdmi20_tx ( enum hdmi_vic vic, struct hdmi_format_para *para,
 	hdmitx_wr_reg(HDMITX_DWC_FC_DATMAN, 0);
 	hdmitx_set_spdinfo();
 
-	/* packet scheduller configuration for AVI, GCP, AUDI, ACR. */
+	/* packet scheduler configuration for AVI, GCP, AUDI, ACR. */
 	data32  = 0;
 	data32 |= (0 << 5);
 	data32 |= (0 << 4);
@@ -3098,7 +3107,7 @@ static int hdmitx_set_hw(struct hdmitx_dev *hdev)
 	/* --------------------------------------------------------*/
 	/* Set up HDMI*/
 	/* --------------------------------------------------------*/
-	config_hdmi20_tx(hdev->vic, para, /*pixel_repeat*/
+	config_hdmi20_tx(hdev, hdev->vic, para, /*pixel_repeat*/
 		hdev->para->cd,           /*Pixel bit width: 4=24-bit; 5=30-bit; 6=36-bit; 7=48-bit.*/
 		TX_INPUT_COLOR_FORMAT,    /*input_color_format: 0=RGB444; 1=YCbCr422; 2=YCbCr444; 3=YCbCr420.*/
 		TX_INPUT_COLOR_RANGE,     /*input_color_range: 0=limited; 1=full.*/

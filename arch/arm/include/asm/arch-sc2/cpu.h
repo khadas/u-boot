@@ -20,7 +20,7 @@
 #define CONFIG_CMD_VIU_PROBE    1
 #endif
 
-/* for uboot envrionment use */
+/* for uboot environment use */
 #define CONFIG_DDR_SIZE					2048
 
 /* dram */
@@ -66,7 +66,9 @@
 //#define CONFIG_SILENT_U_BOOT_ONLY
 
 /* 2018.03.19 new compress solution, only support BL33 LZ4 compress */
+#ifndef CONFIG_NASC_NAGRA_TIER_1
 #define CONFIG_AML_BL33_COMPRESS_ENABLE 1
+#endif
 
 /* 2018.03.19 G12A only support v3 format for normal & secure boot */
 #define CONFIG_AML_SECURE_BOOT_V3 1
@@ -87,5 +89,7 @@ like the AES key not ready when secure boot enabled for the first time.
 //#define CONFIG_AML_EFUSE_GEN_AES_ONLY 1
 
 #define CONFIG_AVB2_KPUB_FROM_FIP 1
+
+#define CONFIG_KEY_PRESERVE
 
 #endif /* _CPU_H */

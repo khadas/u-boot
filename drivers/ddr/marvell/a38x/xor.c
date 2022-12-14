@@ -224,7 +224,7 @@ int mv_xor_mem_init(u32 chan, u32 start_ptr, unsigned long long block_size,
  *
  * DESCRIPTION:
  *       XOR channel activity state can be active, idle, paused.
- *       This function retrunes the channel activity state.
+ *       This function returnes the channel activity state.
  *
  * INPUT:
  *       chan     - the channel number

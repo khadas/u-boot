@@ -389,7 +389,7 @@ void usb_device_mode_init(void){
 	writel(0xbe18, (unsigned long)(phy_base_addr + 0x50));
 	//--------------------------------------------------
 
-	// ------------- usb phy21 initinal end ----------
+	// ------------- usb phy21 initial end ----------
 
 	//--------------------------------------------------
 

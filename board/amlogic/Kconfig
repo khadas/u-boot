@@ -31,12 +31,18 @@ config PXP_SCS
 		fast PXP bring up. This config should be closed if SCS feature
 		is ready.
 
-config PXP_NO_SIGNED
-	bool "Amlogic Pxp no signed flag"
+config BUILD_UNSIGN
+	bool "Amlogic pxp unsign flag"
 	help
 		Support PXP no signed environment
 		When PXP bring up this option is open. This config should be
 		closed when signature is ready.
+
+config BOARD_PACKAGE_NAME
+	string "rtos sdk name"
+	default ""
+	help
+		This config can help to select bl30 board name.
 
 config KALLSYMS
 	bool "Support call stack dump when crash"
@@ -140,7 +146,7 @@ config DDR_FULL_FW
 	default n
 	help
 		Support full ddr fw for soc using advanced boot loader as
-		bl2, such as sc2/t7/s4/t3/p1....
+		bl2, such as sc2/t7/s4/t3/p1/s5....
 
 choice
 	prompt "BL2E size"
@@ -182,6 +188,10 @@ config BL2E_PAYLOAD_SIZE
 	default  131072 if BL2E_128K
 	default  262144 if BL2E_256K
 	default 1048576 if BL2E_1024K
+
+config ZIRCON_BOOT_IMAGE
+	bool "Build Zircon compatible boot image"
+	default n
 
 if MESON_GXBB
 
@@ -635,6 +645,12 @@ config A5_AV400
 	help
 		Select A5 AV400 config
 
+config A5_AV400_ZIRCON
+	bool "A5_AV400_ZIRCON"
+	select TARGET_A5_AV400_ZIRCON
+	help
+		Select A5 AV400 ZIRCON config
+
 config A5_AV409
 	bool "A5_AV409"
 	select TARGET_A5_AV409
@@ -650,6 +666,10 @@ config TARGET_A5_SKT
 config TARGET_A5_AV400
 	bool "A5 AV400 board"
 	depends on A5_AV400
+
+config TARGET_A5_AV400_ZIRCON
+	bool "A5 AV400 ZIRCON board"
+	depends on A5_AV400_ZIRCON
 
 config TARGET_A5_AV409
 	bool "A5 AV409 board"
@@ -914,6 +934,78 @@ config TARGET_P1_AS409
 config TARGET_P1_NINOX_4
 	bool "P1 NINOX 4 board"
 	depends on P1_NINOX_4
+
+endif
+
+if MESON_S5
+
+config SYS_SOC
+	default "s5"
+
+config DDRFW_TYPE
+	string "s5 DDR FW Type"
+	default "lpddr4"
+
+config CHIPSET_NAME
+        string "S5 CHIPSET NAME"
+        default "s928x"
+
+config CHIPSET_VARIANT
+        string "S5 CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "S5 AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+config BL30_SELECT
+	string "S5 BL30 board config"
+	default "s5_skt"
+
+choice
+	prompt "S5 Board"
+
+config S5_SKT
+	bool "S5_SKT"
+	select TARGET_S5_SKT
+	help
+		Select S5 SKT(XXXX) config
+
+config S5_AX201
+	bool "S5_AX201"
+	select TARGET_S5_AX201
+	help
+		Select S5 AX201(XXXX) config
+
+config S5_AX208
+	bool "S5_AX208"
+	select TARGET_S5_AX208
+	help
+		Select S5 AX208(XXXX) config
+
+config S5_AX209
+	bool "S5_AX209"
+	select TARGET_S5_AX209
+	help
+		Select S5 AX209(XXXX) config
+
+endchoice
+
+config TARGET_S5_SKT
+	bool "S5 SKT board"
+	depends on S5_SKT
+
+config TARGET_S5_AX201
+	bool "S5 AX201 board"
+	depends on S5_AX201
+
+config TARGET_S5_AX208
+	bool "S5 AX208 board"
+	depends on S5_AX208
+
+config TARGET_S5_AX209
+	bool "S5 AX209 board"
+	depends on S5_AX209
 
 endif
 
@@ -1261,6 +1353,8 @@ source "board/amlogic/a5_skt/Kconfig"
 
 source "board/amlogic/a5_av400/Kconfig"
 
+source "board/amlogic/a5_av400_zircon/Kconfig"
+
 source "board/amlogic/a5_av409/Kconfig"
 
 source "board/amlogic/sc2_skt/Kconfig"
@@ -1306,6 +1400,14 @@ source "board/amlogic/p1_as408/Kconfig"
 source "board/amlogic/p1_as409/Kconfig"
 
 source "board/amlogic/p1_ninox_4/Kconfig"
+
+source "board/amlogic/s5_skt/Kconfig"
+
+source "board/amlogic/s5_ax201/Kconfig"
+
+source "board/amlogic/s5_ax208/Kconfig"
+
+source "board/amlogic/s5_ax209/Kconfig"
 
 source "board/amlogic/t7_skt/Kconfig"
 

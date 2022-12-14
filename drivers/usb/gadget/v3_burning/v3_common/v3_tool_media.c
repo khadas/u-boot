@@ -106,7 +106,7 @@ static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const ch
 	if (binSz + off > bootCpySz) FBS_EXIT(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
 
 	if (off) {
-		FBS_ERR(_ACK, "current only 0 suuported!\n");
+		FBS_ERR(_ACK, "current only 0 supported!\n");
 		return -__LINE__;
 	}
 	do {
@@ -182,7 +182,7 @@ static int _bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz, const ch
 				binSz, off, bootCpySz);
 
 	if (off) {
-		FBS_ERR(_ACK, "current only 0 suuported!\n");
+		FBS_ERR(_ACK, "current only 0 supported!\n");
 		return -__LINE__;
 	}
 
@@ -211,11 +211,12 @@ static p_payload_info_t _bl2x_mode_detect(u8* dataBuf)
 static int _bl2x_mode_check_header(p_payload_info_t pInfo)
 {
 	p_payload_info_hdr_t hdr    = &pInfo->hdr;
+	p_payload_info_hdr_v2 v2hdr    = (p_payload_info_hdr_v2)hdr;
 	uint8_t gensum[SHA256_SUM_LEN];
 	const int nItemNum = hdr->byItemNum;
 
 	printf("\naml log : info parse...\n");
-	printf("\tsztimes : %s\n",hdr->szTimeStamp);
+	printf("\tsztimes : %s\n", (hdr->byVersion == 1) ? hdr->szTimeStamp : v2hdr->build_info);
 	printf("\tversion : %d\n",hdr->byVersion);
 	printf("\tItemNum : %d\n",nItemNum);
 	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);
@@ -323,7 +324,7 @@ static int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* 
 		FBS_ERR(_ACK, "bootloader sz(0x%x) + off(0x%x) > bootCpySz 0x%x\n", binSz, off, bootCpySz);
 		return -__LINE__;
 	}
-	if (off) FBS_EXIT(_ACK, "current only 0 suuported!\n");
+	if (off) FBS_EXIT(_ACK, "current only 0 supported!\n");
 
 	for (iCopy = 0; iCopy < bootCpyNum; ++iCopy) {
 		void* dataBuf = iCopy ? pBuf + binSz : pBuf;
@@ -696,6 +697,7 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 		unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
 		if (fdtAddr != (unsigned long)dtbLoadedAddr)
 			memmove((char*)dtbLoadedAddr, (char*)fdtAddr, fdtsz);
+		env_set_ulong("dtb_mem_addr", (unsigned long)dtbLoadedAddr);
 	}
 
 	return 0;

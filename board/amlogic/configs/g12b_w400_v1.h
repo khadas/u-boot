@@ -400,7 +400,7 @@
 
 #ifdef CONFIG_AML_MTD
 
-/* bootlaoder is construct by bl2 and fip
+/* bootloader is construct by bl2 and fip
  * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
  * will not be stored continuously, and nand layout
  * would be bl2|rsv|fip|normal, but not
@@ -508,8 +508,8 @@
 #define CONFIG_DEVICE_PRODUCT   "g12b_w400"
 #endif
 
-/* UBOOT Facotry usb/sdcard burning config */
-/* #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning */
+/* UBOOT factory usb/sdcard burning config */
+/* #define CONFIG_AML_V2_FACTORY_BURN              1       //support factory usb burning */
 #if 0
 #define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
 #define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isnt power-key for factory sdcard burning

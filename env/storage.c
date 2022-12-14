@@ -20,21 +20,20 @@ static int env_storage_save(void)
 	int boot_id = get_romcode_boot_id();
 
 	if (BOOT_DEVICE_SPI != boot_id && BOOT_DEVICE_SD != boot_id) {
-		if (store_get_type() == BOOT_NONE) {
-			printf("env_storage: must init before save\n");
-			return -ENOENT;
-		}
-		ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
+	if (store_get_type() == BOOT_NONE) {
+		printf("env_storage: must init before save\n");
+		return -ENOENT;
+	}
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
+	if (env_export(env_new)) {
+		printf("env_storage: export failed\n");
+		return -EINVAL;
+	}
 
-		if (env_export((env_t *)buf)) {
-			printf("env_storage: export failed\n");
-			return -EINVAL;
-		}
-
-		if (store_rsv_write(RSV_ENV, CONFIG_ENV_SIZE, (void *)buf)) {
-			printf("env_storage: write failed\n");
-			return -EIO;
-		}
+	if (store_rsv_write(RSV_ENV, CONFIG_ENV_SIZE, (void *)env_new)) {
+		printf("env_storage: write failed\n");
+		return -EIO;
+	}
 	} else {
 		printf("Current boot device: %s, do not save env to eMMC.\n", get_boot_source_str(get_romcode_boot_id()));
 		return -EIO;

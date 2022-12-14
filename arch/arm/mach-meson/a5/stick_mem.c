@@ -39,5 +39,5 @@ void get_stick_reboot_flag(void)
 	if (ret != 0)
 		printf("\r\nstick_reboot_flag communication failed\n");
 	else
-		printf("\r\nsitck_reboot_flag = 0x%x\n", stick_reboot_flag);
+		printf("\r\nstick_reboot_flag = 0x%x\n", stick_reboot_flag);
 }

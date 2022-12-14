@@ -538,7 +538,7 @@ static int amlmmc_write_info_sector(struct mmc *mmc)
 	struct storage_emmc_boot_info *boot_info;
 	struct virtual_partition *ddr_part;
 	struct partitions *part;
-	/* partitons with mask = 8 need to fill to bootinfo */
+	/* partitions with mask = 8 need to fill to bootinfo */
 	struct part_property *mask8;
 	int mask8_partition_count;
 	u8 *buffer;

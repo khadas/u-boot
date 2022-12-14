@@ -677,6 +677,7 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 {
 	struct nand_device* dev = mtd_to_nanddev(mtd);
+	struct spinand_device *spinand = mtd_to_spinand(mtd);
 	struct boot_info *boot_info = (struct boot_info *)buf;
 	u32 page_per_bbt, i;
 
@@ -688,16 +689,22 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 
 	if (dev->memorg.planes_per_lun > 1) {
 		boot_info->dev_cfg.planes_per_lun = ((6 & 0xf) << 4) | ((dev->memorg.planes_per_lun & 0xf) << 0);
-		boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (1 << 0);
+		if (spinand->op_templates.read_cache->cmd.opcode == 0x6b)
+			boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (2 << 0);
+		else
+			boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (1 << 0);
 	} else {
 		boot_info->dev_cfg.planes_per_lun = 1;
-		boot_info->dev_cfg.bus_width = 1;
+		if (spinand->op_templates.read_cache->cmd.opcode == 0x6b)
+			boot_info->dev_cfg.bus_width = 2;
+		else
+			boot_info->dev_cfg.bus_width = 1;
 	}
 
 	for (i = 0; i < sizeof(struct boot_info) - 4; i++)
 		boot_info->checksum += *((u8 *)buf + i);
 
-	/* temporary dump info page for brinpup */
+	/* temporary dump info page for bringup */
 	for (i = 0; i < sizeof(struct boot_info); i++) {
 		if (!(i % 8))
 			printf("\n");
@@ -1299,7 +1306,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 				  const struct mtd_partition *parts,
 				  int nbparts)
 {
-	int part_num = 0, i = 0;
+	int part_num = 0, i = 0, ret = 1;
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
 
@@ -1371,12 +1378,12 @@ int spinand_add_partitions(struct mtd_info *mtd,
 			pr_err("name can't be null! ");
 			pr_err("please check your %d th partition name!\n",
 				 i + 1);
-			return 1;
+			goto _out;
 		}
 		if ((off + parts[i].size) > mtd->size) {
 			pr_err("%s %d over nand size!\n",
 				__func__, __LINE__);
-			return 1;
+			goto _out;
 		}
 		parts_nm[i].name = parts[i].name;
 #ifndef CONFIG_NOT_SKIP_BAD_BLOCK
@@ -1404,7 +1411,10 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		if (i == (nbparts - 1))
 			parts_nm[i].size = mtd->size - off;
 	}
-	return add_mtd_partitions(mtd, temp, part_num);
+	ret = add_mtd_partitions(mtd, temp, part_num);
+_out:
+	kfree(temp);
+	return ret;
 }
 #endif
 
@@ -1413,7 +1423,8 @@ static int spinand_scan_bbt(struct spinand_device *spinand, struct mtd_info *mtd
 {
 	loff_t offset = 0;
 	u64 block_cnt = mtd->size >> mtd->erasesize_shift;
-	int i = 0, ret = 0;
+	u64 i = 0;
+	int ret = 0;
 
 	spinand->bbt_scan = 1;
 	memset(spinand->bbt, 0, block_cnt);
@@ -1506,6 +1517,12 @@ static int spinand_probe(struct udevice *dev)
 	meson_rsv_check(spinand->rsv->env);
 	meson_rsv_check(spinand->rsv->key);
 	meson_rsv_check(spinand->rsv->dtb);
+#endif
+
+#ifdef CONFIG_CMD_NAND
+	/* only one nand dev on spinand */
+	nand_info[0] = mtd;
+	nand_curr_device = 0;
 #endif
 
 	return ret;

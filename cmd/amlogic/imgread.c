@@ -8,6 +8,9 @@
 #include <image.h>
 #include <linux/libfdt.h>
 #include <android_image.h>
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+#include <zircon/image.h>
+#endif
 #include <asm/arch/bl31_apis.h>
 #include <asm/arch/secure_apb.h>
 #include <amlogic/store_wrapper.h>
@@ -52,7 +55,7 @@ typedef struct {
 
         unsigned char magic[AML_SECU_BOOT_IMG_HDR_MAGIC_SIZE];//magic to identify whether it is a encrypted boot image
 
-        unsigned int  version;                  //ersion for this header struct
+        unsigned int  version;                  //version for this header struct
         unsigned int  nBlkCnt;
 
         unsigned char szTimeStamp[16];
@@ -84,13 +87,11 @@ COMPILE_TYPE_ASSERT(2048 >= sizeof(AmlSecureBootImgHeader), _cc);
 
 static int is_andr_9_image(void* pBuffer)
 {
-
+	boot_img_hdr_t *pAHdr = (boot_img_hdr_t *)(unsigned long)pBuffer;
     int nReturn = 0;
 
     if (!pBuffer)
         goto exit;
-
-    boot_img_hdr_t *pAHdr = (boot_img_hdr_t*)(unsigned long)pBuffer;
 
     if (pAHdr->header_version)
         nReturn = 1;
@@ -136,7 +137,6 @@ static int _aml_get_secure_boot_kernel_size(const void *ploadaddr, u32 *ptotalen
 	}
 
 	*ptotalenckernelsz = 0;
-	return 0;
 #endif
 	if (is_andr_9_image(pandhdr))
 		securekernelimgsz = 4096;
@@ -481,8 +481,14 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			p_vender_boot_img = 0;
 		}
         genFmt = genimg_get_format(hdr_addr);
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+	if (IMAGE_FORMAT_ANDROID != genFmt && IMAGE_FORMAT_ZIRCON != genFmt) {
+		errorP("Fmt 0x%x unsupported!, supported genFmt 0x%x or 0x%x\n", genFmt,
+				IMAGE_FORMAT_ANDROID, IMAGE_FORMAT_ZIRCON);
+#else
         if (IMAGE_FORMAT_ANDROID != genFmt) {
             errorP("Fmt unsupported!genFmt 0x%x != 0x%x\n", genFmt, IMAGE_FORMAT_ANDROID);
+#endif
             return __LINE__;
         }
 
@@ -505,6 +511,14 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
             debugP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr->ramdisk_size, ramdisk_size);
 			debugP("dtbSz 0x%x, Total actualbootimgsz 0x%x\n", dtbsz, actualbootimgsz);
         }
+
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+	if (genFmt == IMAGE_FORMAT_ZIRCON) {
+		const zbi_header_t *zbi = (zbi_header_t *)hdr_addr;
+
+		actualbootimgsz = zbi->length + sizeof(*zbi);
+	}
+#endif//#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
 
 		if (actualbootimgsz > IMG_PRELOAD_SZ) {
 			const u32 leftsz = actualbootimgsz - IMG_PRELOAD_SZ;
@@ -567,10 +581,11 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 		ramdisk_size = ALIGN(hdr_addr_v3->ramdisk_size, 0x1000);
 
-		debugP("kernel_size 0x%x, totalSz 0x%x\n",
+		MsgP("kernel_size 0x%x, totalSz 0x%x\n",
 			hdr_addr_v3->kernel_size, kernel_size);
-		debugP("ramdisk_size 0x%x, totalSz 0x%x\n",
+		MsgP("ramdisk_size 0x%x, totalSz 0x%x\n",
 			hdr_addr_v3->ramdisk_size, ramdisk_size);
+		MsgP("boot header_version = %d\n", hdr_addr_v3->header_version);
 		if (securekernelimgsz) {
 			actualbootimgsz = securekernelimgsz;
 			MsgP("securekernelimgsz=0x%x\n", actualbootimgsz);
@@ -613,8 +628,9 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 						leftsz, partname, IMG_PRELOAD_SZ);
 					return __LINE__;
 				}
+
 				if (rc_init != -1) {
-					MsgP("read from part: %s\n", partname_init);
+					MsgP("read header from part: %s\n", partname_init);
 					unsigned int nflashloadlen_init = 0;
 					const int preloadsz_init = 0x1000 * 2;
 					unsigned char *pbuffpreload_init = 0;
@@ -646,19 +662,26 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 					ramdisk_size = ALIGN(pinitbootimghdr->ramdisk_size,
 							0x1000);
-					debugP("ramdisk_size 0x%x, totalSz 0x%x\n",
+					MsgP("ramdisk_size 0x%x, totalSz 0x%x\n",
 						pinitbootimghdr->ramdisk_size, ramdisk_size);
+					MsgP("init_boot header_version = %d\n",
+						pinitbootimghdr->header_version);
 					init_boot_ramdisk_size = pinitbootimghdr->ramdisk_size;
 
-					rc = store_logic_read(partname_init, BOOT_IMG_V3_HDR_SIZE,
-						ramdisk_size,
-						loadaddr + kernel_size + BOOT_IMG_V3_HDR_SIZE);
-					if (rc) {
-						errorP("Fail to read 0x%xB from part[%s]\n",
-							ramdisk_size, partname_init);
-						free(pbuffpreload_init);
-						pbuffpreload_init = 0;
-						return __LINE__;
+					if (init_boot_ramdisk_size != 0) {
+						MsgP("read ramdisk from part: %s\n", partname_init);
+						rc = store_logic_read(partname_init,
+							BOOT_IMG_V3_HDR_SIZE,
+							ramdisk_size,
+							loadaddr + kernel_size
+							+ BOOT_IMG_V3_HDR_SIZE);
+						if (rc) {
+							errorP("Fail to read 0x%xB from part[%s]\n",
+								ramdisk_size, partname_init);
+							free(pbuffpreload_init);
+							pbuffpreload_init = 0;
+							return __LINE__;
+						}
 					}
 					free(pbuffpreload_init);
 					pbuffpreload_init = 0;
@@ -681,7 +704,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		u64 lflashreadoff_r = 0;
 		unsigned int nflashloadlen_r = 0;
 		const int preloadsz_r = 0x1000 * 2;//4k not enough for signed
-		unsigned char *pbuffpreload = 0;
+		p_vendor_boot_img_hdr_t pbuffpreload = 0;
+		u64 vendorboot_part_sz = 0;
 		int rc_r = 0;
 
 		if (strcmp(slot_name, "0") == 0)
@@ -692,6 +716,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			strcpy((char *)partname_r, "vendor_boot");
 
 		MsgP("partname_r = %s\n", partname_r);
+		vendorboot_part_sz = store_part_size(partname_r);
 
 		nflashloadlen_r = preloadsz_r;		//head info is one page size == 4k
 		debugP("sizeof preloadSz=%u\n", nflashloadlen_r);
@@ -754,6 +779,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 				MsgP("securekernelimgsz=0x%x\n", nflashloadlen_r);
 			} else {
 				unsigned long ramdisk_size_r, dtb_size_r;
+				unsigned long ramdisk_table_size;
 				const int pagesz_r = pvendorimghdr->page_size;
 
 				/* Android R's vendor_boot partition include ramdisk and dtb */
@@ -761,15 +787,40 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 					pagesz_r);
 				dtb_size_r      = ALIGN(pvendorimghdr->dtb_size, pagesz_r);
 				nflashloadlen_r = ramdisk_size_r + dtb_size_r + 0x1000;
-				debugP("ramdisk_size_r 0x%x, totalSz 0x%lx\n",
+				MsgP("ramdisk_size_r 0x%x, totalSz 0x%lx\n",
 					pvendorimghdr->vendor_ramdisk_size, ramdisk_size_r);
-				debugP("dtb_size_r 0x%x, totalSz 0x%lx\n",
+				MsgP("dtb_size_r 0x%x, totalSz 0x%lx\n",
 					pvendorimghdr->dtb_size, dtb_size_r);
+				MsgP("vendor_boot header_version = %d\n",
+					pvendorimghdr->header_version);
+				if (pvendorimghdr->header_version > 3) {
+					MsgP("vendor_ramdisk_table_size: 0x%x\n",
+					pvendorimghdr->vendor_ramdisk_table_size);
+					MsgP("vendor_ramdisk_table_entry_num: 0x%x\n",
+					pvendorimghdr->vendor_ramdisk_table_entry_num);
+					MsgP("vendor_ramdisk_table_entry_size: 0x%x\n",
+					pvendorimghdr->vendor_ramdisk_table_entry_size);
+					MsgP("vendor_bootconfig_size: 0x%x\n",
+					pvendorimghdr->vendor_bootconfig_size);
+					ramdisk_table_size =
+						ALIGN(pvendorimghdr->vendor_ramdisk_table_size,
+						pagesz_r);
+					nflashloadlen_r = nflashloadlen_r + ramdisk_table_size;
+
+					MsgP("ramdisk table offset 0x%lx, nflashloadlen_r 0x%x\n",
+					ramdisk_size_r + dtb_size_r + 0x1000, nflashloadlen_r);
+				}
+			}
+			if (nflashloadlen_r > vendorboot_part_sz) {
+				errorP("nflashloadlen_r 0x%x > vendorboot_part_sz 0x%llx\n",
+						nflashloadlen_r, vendorboot_part_sz);
+				return __LINE__;
 			}
 
 			if (nflashloadlen_r > preloadsz_r) {
 				free(pbuffpreload);
 				pbuffpreload = malloc(nflashloadlen_r);
+				memset(pbuffpreload, 0, nflashloadlen_r);
 				if (!pbuffpreload)
 					return __LINE__;
 				if (upgrade_step_s && (strcmp(upgrade_step_s, "3") == 0) &&
@@ -818,8 +869,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 						(unsigned long)pbuffpreload,
 						GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
 #else
-				rc_r = secure_image_check(pbuffpreload, GXB_IMG_SIZE,
-						GXB_IMG_DEC_DTB);
+				rc_r = secure_image_check((uint8_t *)(unsigned long)
+						pbuffpreload, GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
 				/*pbuffpreload += android_image_check_offset();*/
 				memmove(pbuffpreload, pbuffpreload + android_image_check_offset(),
 						nflashloadlen_r - android_image_check_offset());
@@ -914,7 +965,7 @@ static int do_image_read_res(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         return __LINE__;
     }
 
-    //Read the actual size of the new version res imgae
+    //Read the actual size of the new version res image
     totalSz = pResImgHead->imgSz;
     if (totalSz > IMG_PRELOAD_SZ )
     {
@@ -1028,8 +1079,8 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
                     char env_name[IH_NMLEN*2];
                     char env_data[IH_NMLEN*2];
                     unsigned long picLoadAddr = (unsigned long)loadaddr + (unsigned)pItem->start;
-                    int         itemSz      = pItem->size;
-                    int         uncompSz    = 0;
+			int         itemSz      = pItem->size;
+			unsigned long uncompSz    = 0;
 
                     if (pItem->start + itemSz > flashReadOff)
                     {
@@ -1046,14 +1097,14 @@ static int do_image_read_pic(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
                     //uncompress supported format
                     unsigned long uncompLoadaddr = picLoadAddr + itemSz + 7;
                     uncompLoadaddr &= ~(0x7U);
-                    rc = imgread_uncomp_pic((unsigned char*)picLoadAddr, itemSz, (unsigned char*)uncompLoadaddr,
-                            CONFIG_MAX_PIC_LEN, (unsigned long*)&uncompSz);
+			rc = imgread_uncomp_pic((unsigned char *)picLoadAddr, itemSz,
+				(unsigned char *)uncompLoadaddr, CONFIG_MAX_PIC_LEN, &uncompSz);
                     if (rc) {
                         errorP("Fail in uncomp pic,rc[%d]\n", rc);
                         return __LINE__;
                     }
-                    if (uncompSz) {
-                        itemSz      = uncompSz;
+			if (uncompSz) {
+				itemSz      = (int)uncompSz;
                         picLoadAddr = uncompLoadaddr;
                     }
 
@@ -1220,7 +1271,7 @@ U_BOOT_CMD_COMPLETE(
 static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     if (3 > argc) {
-        errorP("argc(%d) < 3 illegle\n", argc);
+        errorP("argc(%d) < 3 illegal\n", argc);
         return CMD_RET_USAGE;
     }
     int iRet = 0;
@@ -1244,7 +1295,7 @@ static int do_load_logo_from_ext4(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	}
 
     if (!loadaddr) {
-        errorP("illgle loadaddr %s\n", argv[2]);
+        errorP("illegal loadaddr %s\n", argv[2]);
         return CMD_RET_FAILURE;
     }
 

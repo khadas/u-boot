@@ -113,14 +113,14 @@ int board_late_init(void)
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
 
-#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
 	} else {
 		//load dtb here then users can directly use 'fdt' command
 		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 	}
-#endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 
 	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)

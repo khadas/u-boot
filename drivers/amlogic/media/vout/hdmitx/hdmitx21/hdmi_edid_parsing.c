@@ -38,7 +38,7 @@
 #define EDID_DETAILED_TIMING_DES_BLOCK2_POS 0x5A
 #define EDID_DETAILED_TIMING_DES_BLOCK3_POS 0x6C
 
-/* EDID Descrptor Tag */
+/* EDID descriptor Tag */
 #define TAG_PRODUCT_SERIAL_NUMBER 0xFF
 #define TAG_ALPHA_DATA_STRING 0xFE
 #define TAG_RANGE_LIMITS 0xFD
@@ -622,7 +622,7 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 	 * so continue parse as other sources do
 	 */
 	if (blockbuf[0] == 0x0)
-		printf("unkonw Extension Tag detected, continue\n");
+		printf("unknown Extension Tag detected, continue\n");
 	else if (blockbuf[0] != 0x02)
 		return -1; /* not a CEA BLOCK. */
 	end = blockbuf[2]; /* CEA description. */
@@ -677,7 +677,7 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 				   blockbuf[offset + 1] == 0x5d &&
 				   blockbuf[offset + 2] == 0xc4)
 				hdmitx_parse_sink_capability(prxcap, offset, blockbuf, count);
-			offset += count; /* ignore the remaind. */
+			offset += count; /* ignore the remains. */
 			break;
 
 		case HDMI_EDID_BLOCK_TYPE_SPEAKER:
@@ -1009,8 +1009,58 @@ static int is_4k_fmt(char *mode)
 	return 0;
 }
 
+static bool is_over_60hz(const struct hdmi_timing *timing)
+{
+	if (!timing)
+		return 1;
+
+	if (timing->v_freq > 60000)
+		return 1;
+
+	return 0;
+}
+
+/* check the resolution is over 1920x1080 or not */
+static bool is_over_1080p(const struct hdmi_timing *timing)
+{
+	if (!timing)
+		return 1;
+
+	if (timing->h_active > 1920 || timing->v_active > 1080)
+		return 1;
+
+	return 0;
+}
+
+/* test current vic is over 150MHz or not */
+static bool is_over_pixel_150mhz(const struct hdmi_timing *timing)
+{
+	if (!timing)
+		return 1;
+
+	if (timing->pixel_freq > 150000)
+		return 1;
+
+	return 0;
+}
+
+static bool is_vic_over_limited_1080p(enum hdmi_vic vic)
+{
+	const struct hdmi_timing *tp = hdmitx21_gettiming_from_vic(vic);
+
+	if (!tp)
+		return 1;
+
+	if (is_over_1080p(tp) || is_over_60hz(tp) ||
+		is_over_pixel_150mhz(tp)) {
+		pr_err("over limited vic: %d\n", vic);
+		return 1;
+	}
+	return 0;
+}
+
 /* For some TV's EDID, there maybe exist some information ambiguous.
- * Such as EDID declears support 2160p60hz(Y444 8bit), but no valid
+ * Such as EDID declare support 2160p60hz(Y444 8bit), but no valid
  * Max_TMDS_Clock2 to indicate that it can support 5.94G signal.
  */
 bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
@@ -1033,6 +1083,15 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 
 	if (strcmp(para->sname, "invalid") == 0)
 		return 0;
+	/* if current limits to 1080p, here will check the freshrate and
+	 * 4k resolution
+	 */
+	if (is_hdmitx_limited_1080p()) {
+		if (is_vic_over_limited_1080p(para->timing.vic)) {
+			printf("over limited vic%d in %s\n", para->timing.vic, __func__);
+			return 0;
+		}
+	}
 	if (!is_support_4k() && is_4k_fmt(para->sname))
 		return false;
 	/* exclude such as: 2160p60hz YCbCr444 10bit */
@@ -1078,6 +1137,14 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 		rx_max_tmds_clk = prxcap->Max_TMDS_Clock1 * 5;
 	}
 
+	/* if current status already limited to 1080p, so here also needs to
+	 * limit the rx_max_tmds_clk as 150 * 1.5 = 225 to make the valid mode
+	 * checking works
+	 */
+	if (is_hdmitx_limited_1080p()) {
+		if (rx_max_tmds_clk > 225)
+			rx_max_tmds_clk = 225;
+	}
 	calc_tmds_clk = para->tmds_clk / 1000;
 	/* printf("RX tmds clk: %d   Calc clk: %d\n", */
 	/* rx_max_tmds_clk, calc_tmds_clk); */

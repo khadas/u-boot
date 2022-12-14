@@ -41,7 +41,7 @@ enum scdc_addr {
 /* HDMI VIC definitions */
 enum hdmi_vic {
 	/* Refer to CEA 861-D */
-	HDMI_unkown = 0,
+	HDMI_unknown = 0,
 	HDMI_640x480p60_4x3 = 1,
 	HDMI_720x480p60_4x3 = 2,
 	HDMI_720x480p60_16x9 = 3,
@@ -101,7 +101,7 @@ enum hdmi_vic {
 	HDMI_720x480p240_16x9 = 57,
 	HDMI_720x480i240_4x3 = 58,
 	HDMI_720x480i240_16x9 = 59,
-	/* Refet to CEA 861-F */
+	/* resetto CEA 861-F */
 	HDMI_1280x720p24_16x9 = 60,
 	HDMI_1280x720p25_16x9 = 61,
 	HDMI_1280x720p30_16x9 = 62,
@@ -638,8 +638,8 @@ struct hdmi_support_mode {
 #define DEFAULT_COLORATTRIBUTE_ENV	"444,8bit"
 
 #define DEFAULT_COLOR_FORMAT_4K         "420,8bit"
-#define DEFAULT_COLOR_FORMAT            "444,8bit"
-#define DEFAULT_HDMI_MODE               "480p60hz"
+#define DEFAULT_COLOR_FORMAT            "rgb,8bit"
+#define DEFAULT_HDMI_MODE               "720p60hz"
 
 typedef enum {
 	DOLBY_VISION_PRIORITY = 0,

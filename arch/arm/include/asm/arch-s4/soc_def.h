@@ -6,7 +6,6 @@
 #ifndef __SC2_DEF_H__
 #define __SC2_DEF_H__
 
-#include "secure_apb.h"
 
 
 #define SEC_SYS_CPU_CFG2		CPUCTRL_SYS_CPU_CFG2

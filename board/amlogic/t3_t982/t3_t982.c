@@ -140,6 +140,9 @@ int board_init(void)
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
 
+	/* set GPIO_TEST_N to 1 (TEST_N set to high), enable usb 5v voltage */
+	run_command("gpio set GPIO_TEST_N0", 0);
+
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
@@ -187,7 +190,7 @@ int board_late_init(void)
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
 
-#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
 		run_command("if test ${reboot_mode} = fastboot; then "\
@@ -198,7 +201,7 @@ int board_late_init(void)
 	run_command("if fdt addr ${dtb_mem_addr}; then "\
 		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 
-#endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
+#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 
 	/* ****************************************************
 	 * 2.use bootup resource after setup

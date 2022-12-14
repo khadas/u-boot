@@ -47,6 +47,12 @@ int dump_backtrace(struct pt_regs *regs)
 {
 	struct stackframe frame;
 	unsigned long offset;
+	/*
+	 * this current_sp use asm ("sp") it is register vary, it has value,
+	 * don't be init again, ignor coverity report
+	 * coverity[var_decl][missing_initializer_on_const][caretline
+	 */
+	/* coverity[missing_initializer_on_const]*/
 	const register unsigned long current_sp asm ("sp");
 	int ret;
 
@@ -62,6 +68,12 @@ int dump_backtrace(struct pt_regs *regs)
 		 * +0x10 to reach the real bottom of
 		 * the curent frame
 		 */
+		/*
+		 * this current_sp use asm ("sp") it is register vary, it has value,
+		 * don't be init again, ignor coverity report
+		 * coverity[var_decl][missing_initializer_on_const][caretline]
+		 */
+		/* coverity[uninit_use] */
 		frame.sp = current_sp + 0x10;
 		frame.pc = (unsigned long)dump_backtrace;
 	}

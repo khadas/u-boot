@@ -250,6 +250,42 @@
 #define OSD4_HDR_IN_SIZE                           0x1a5d
 #endif
 
+#ifndef VPP_OSD1_IN_SIZE
+#define VPP_OSD1_IN_SIZE                           0x1df1
+#endif
+
+#ifndef DOLBY_PATH_CTRL
+#define DOLBY_PATH_CTRL                            0x1a0c
+#endif
+
+#ifndef OSD_PATH_MISC_CTRL
+#define OSD_PATH_MISC_CTRL                         0x1a0e
+#endif
+
+#ifndef PATH_START_SEL
+#define PATH_START_SEL                             0x1a0e
+#endif
+
+#ifndef MALI_AFBCD_TOP_CTRL
+#define MALI_AFBCD_TOP_CTRL                        0x1a8a
+#endif
+
+#ifndef VPP_POSTBLEND_H_SIZE
+#define VPP_POSTBLEND_H_SIZE                       0x1d21
+#endif
+
+#ifndef VPP2_OFIFO_SIZE
+#define VPP2_OFIFO_SIZE                            0x1927
+#endif
+
+#ifndef VPP_DUMMY_DATA1
+#define VPP_DUMMY_DATA1                            0x1d69
+#endif
+
+#ifndef OSD_PI_BYPASS_EN
+#define OSD_PI_BYPASS_EN                           0x6076
+#endif
+
 #define UBOOT_INFO_FLAG                VIU_OSD1_TCOLOR_AG1
 
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))

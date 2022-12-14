@@ -15,6 +15,13 @@
 #include <amlogic/aml_efuse.h>
 #include <amlogic/aml_mmc.h>
 
+#include <android_image.h>
+#include <image.h>
+#include <amlogic/store_wrapper.h>
+#include <malloc.h>
+#include <amlogic/image_check.h>
+#include <fs.h>
+
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 #include <amlogic/anti-rollback.h>
 #endif
@@ -476,6 +483,8 @@ static void flash(char *cmd_parameter, char *response)
 	if (mmc && strcmp(cmd_parameter, "bootloader") == 0) {
 		printf("try to read gpt data from bootloader.img\n");
 		struct blk_desc *dev_desc;
+		int erase_flag = 0;
+
 		/* the max size of bootloader.img is 4M, we reserve 128k for gpt.bin
 		 * so we put gpt.bin at offset 0x3DFE00
 		 * 0 ~ 512 bootloader secure boot, we don't care it here.
@@ -496,17 +505,43 @@ static void flash(char *cmd_parameter, char *response)
 			printf("find gpt parition table, update it\n"
 				"and write bootloader to boot0/boot1\n");
 
+			erase_flag = check_gpt_part(dev_desc, fastboot_buf_addr + 0x3DFE00);
+
+			if (erase_flag == 1) {
+				printf("partition changes, erase emmc\n");
+				run_command("store erase.chip 0;", 0);
+			}
+
 			if (write_mbr_and_gpt_partitions(dev_desc, fastboot_buf_addr + 0x3DFE00)) {
 				printf("%s: writing GPT partitions failed\n", __func__);
 				fastboot_fail("writing GPT partitions failed", response);
 				return;
 			}
+
 			if (mmc_device_init(mmc) != 0) {
 				printf(" update gpt partition table fail\n");
 				fastboot_fail("fastboot update gpt partition fail", response);
 				return;
 			}
 			printf("%s: writing GPT partitions ok\n", __func__);
+
+			char *mem_addr;
+			void *addr = NULL;
+			int ret;
+
+			mem_addr = env_get("dtb_mem_addr");
+
+			if (mem_addr && erase_flag == 1) {
+				printf("partition changes, erase emmc\n");
+				run_command("store erase.chip 0;", 0);
+				printf("write _aml_dtb\n");
+				addr = (void *)simple_strtoul(mem_addr, NULL, 16);
+				ret = dtb_write(addr);
+				if (ret)
+					printf("write _aml_dtb error\n");
+				else
+					printf("write _aml_dtb ok\n");
+			}
 		}
 
 		if (aml_gpt_valid(mmc) == 0) {
@@ -522,7 +557,7 @@ static void flash(char *cmd_parameter, char *response)
 #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 			run_command("update_env_part -p default_env;", 0);
 #else
-			run_command("saveenv;", 0);
+			run_command("defenv_reserve;saveenv;", 0);
 #endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 			return;
 		}
@@ -599,11 +634,12 @@ static void flash(char *cmd_parameter, char *response)
 #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 		run_command("update_env_part -p default_env;", 0);
 #else
-		run_command("saveenv;", 0);
+		run_command("defenv_reserve;saveenv;", 0);
 #endif// #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 	}
 
-	if (aml_gpt_valid(mmc) == 0) {
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+	if (mmc && aml_gpt_valid(mmc) == 0) {
 		if (vendor_boot_partition) {
 			if (strcmp_l1("vendor_boot", name) == 0) {
 				printf("gpt mode, write dts to reserve\n");
@@ -616,6 +652,7 @@ static void flash(char *cmd_parameter, char *response)
 			}
 		}
 	}
+#endif
 }
 
 /**
@@ -903,6 +940,7 @@ static void flashing(char *cmd_parameter, char *response)
 	LockData_t info = {0};
 	char lock_d[LOCK_DATA_SIZE];
 	u64 rc;
+	int debug_flag = 0;
 
 	if (IS_FEAT_BOOT_VERIFY()) {
 		printf("device is secure mode, can not run this cmd.\n");
@@ -947,6 +985,105 @@ static void flashing(char *cmd_parameter, char *response)
 		return;
 	}
 
+	boot_img_hdr_t *hdr_addr = NULL;
+	const int preloadsz = 0x1000 * 2;//4k not enough for signed
+	unsigned char *pbuffpreload = 0;
+	char partname[32] = {0};
+	char *slot_name;
+	char cmdline[4096];
+	char *result = NULL;
+
+	slot_name = env_get("slot-suffixes");
+	if (slot_name && (strcmp(slot_name, "0") == 0))
+		strcpy((char *)partname, "boot_a");
+	else if (slot_name && (strcmp(slot_name, "1") == 0))
+		strcpy((char *)partname, "boot_b");
+	else
+		strcpy((char *)partname, "boot");
+
+	pbuffpreload = malloc(preloadsz);
+	if (!pbuffpreload) {
+		printf("Fail to allocate memory!\n");
+		goto next;
+	}
+
+	hdr_addr = (boot_img_hdr_t *)pbuffpreload;
+
+	printf("read from part: %s\n", partname);
+	rc = store_logic_read(partname, 0, preloadsz, pbuffpreload);
+	if (rc) {
+		printf("Fail to read 0x%xB from part[%s] at offset 0\n",
+			preloadsz, partname);
+		free(pbuffpreload);
+		pbuffpreload = 0;
+		goto next;
+	}
+
+	if (is_android_r_image((void *)hdr_addr)) {
+		char partname_r[32] = {0};
+		const int preloadsz_r = 0x1000 * 2;//4k not enough for signed
+		unsigned char *pbuffpreload_r = 0;
+		int ret_r = __LINE__;
+
+		if (slot_name && (strcmp(slot_name, "0") == 0))
+			strcpy((char *)partname_r, "vendor_boot_a");
+		else if (slot_name && (strcmp(slot_name, "1") == 0))
+			strcpy((char *)partname_r, "vendor_boot_b");
+		else
+			strcpy((char *)partname_r, "vendor_boot");
+
+		pbuffpreload_r = malloc(preloadsz_r);
+
+		if (!pbuffpreload_r) {
+			printf("Fail to allocate memory for %s!\n",
+				partname_r);
+			goto next;
+		}
+
+		printf("read from part: %s\n", partname_r);
+		ret_r = store_logic_read(partname_r, 0,
+				preloadsz_r, pbuffpreload_r);
+		if (ret_r) {
+			printf("Fail to read 0x%xB from part[%s] at offset 0\n",
+				preloadsz_r, partname_r);
+			free(pbuffpreload_r);
+			pbuffpreload_r = 0;
+			goto next;
+		}
+
+		p_vendor_boot_img_hdr_t vb_hdr = (p_vendor_boot_img_hdr_t)pbuffpreload_r;
+
+		if (*vb_hdr->cmdline) {
+			printf("Kernel command line: %s\n", vb_hdr->cmdline);
+			sprintf(cmdline, "%s", vb_hdr->cmdline);
+		}
+		free(pbuffpreload_r);
+		pbuffpreload_r = 0;
+	} else {
+		if (*hdr_addr->cmdline) {
+			printf("Kernel command line: %s\n", hdr_addr->cmdline);
+			sprintf(cmdline, "%s", hdr_addr->cmdline);
+		}
+	}
+
+	free(pbuffpreload);
+	pbuffpreload = 0;
+
+	result = strtok(cmdline, " ");
+	while (result) {
+		printf("result: %s\n", result);
+		if (strcmp(result, "buildvariant=userdebug") == 0 ||
+			strcmp(result, "buildvariant=eng") == 0)
+			debug_flag = 1;
+		result = strtok(NULL, " ");
+	}
+
+	if (info.unlock_ability == 0 && debug_flag == 1) {
+		printf("userdebug mode can ignore\n");
+		info.unlock_ability = 1;
+	}
+
+next:
 	rc = store_part_size("userdata");
 
 	if (!strcmp_l1("unlock_critical", cmd)) {

@@ -1676,6 +1676,9 @@ endif
 ifeq ("$(FASTBOOTMODE)", "1")
 	echo "#define CONFIG_FASTBOOT_WRITING_CMD" \"$(FASTBOOTMODE)\" >> $(version_h)
 endif
+ifeq ("$(AVB2RECOVERY)", "1")
+	echo "#define CONFIG_AVB2_RECOVERY" \"$(AVB2RECOVERY)\" >> $(version_h)
+endif
 
 ifeq ("$(CHIPMODE)", "1")
 	echo "#define CONFIG_CHIP_NOCS" $(CHIPMODE) >> $(version_h)
@@ -1687,6 +1690,10 @@ endif
 
 ifeq ("$(CONFIG_SUPPORT_BL33Z)", "1")
 	echo "#define CONFIG_SUPPORT_BL33Z" $(CONFIG_SUPPORT_BL33Z) >> $(version_h)
+endif
+
+ifeq ("$(CONFIG_NASC_NAGRA_TIER_1)", "1")
+	echo "#define CONFIG_NASC_NAGRA_TIER_1" \"$(CONFIG_NASC_NAGRA_TIER_1)\" >> $(version_h)
 endif
 
 $(timestamp_h): $(srctree)/Makefile FORCE

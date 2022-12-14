@@ -773,6 +773,15 @@ int lcd_tcon_mem_tee_protect(int mem_flag, int protect_en)
 	unsigned char *secure_handle_vaddr;
 	unsigned int temp;
 
+	if (!local_cfg) {
+		LCDERR("%s: local_cfg is null\n", __func__);
+		return -1;
+	}
+	if (!tcon_conf) {
+		LCDERR("%s: tcon_conf is null\n", __func__);
+		return -1;
+	}
+
 	if (mem_flag > tcon_conf->axi_bank) {
 		LCDPR("no need protect\n");
 		return 0;

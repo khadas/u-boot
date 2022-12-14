@@ -175,10 +175,18 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		if (image_get_magic((image_header_t *)images.os.image_start) == IH_MAGIC) {
-			if (env_get_hex("initrd_high", 0) != 0xF100000) {
-				env_set("initrd_high", "0D000000");
-				env_set("fdt_high", "0D000000");
-			}
+			#ifdef CONFIG_INITRD_HIGH_ADDR
+			env_set("initrd_high", CONFIG_INITRD_HIGH_ADDR);
+			#else
+			env_set("initrd_high", "0D000000");
+			#endif
+
+			#ifdef CONFIG_FDT_HIGH_ADDR
+			env_set("fdt_high", CONFIG_FDT_HIGH_ADDR);
+			#else
+			env_set("fdt_high", "0D000000");
+			#endif
+
 			images.os.arch = ((image_header_t *)(images.os.image_start))->ih_arch;
 			images.os.image_start += sizeof(image_header_t);
 		}
@@ -194,6 +202,19 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		images.os.end = android_image_get_end(os_hdr);
 		images.os.load = android_image_get_kload(os_hdr);
+		if (images.os.load == 0x10008000)
+			images.os.load = 0x1080000;
+		images.ep = images.os.load;
+		ep_found = true;
+		break;
+#endif
+#ifdef CONFIG_ZIRCON_BOOT_IMAGE
+	case IMAGE_FORMAT_ZIRCON:
+		images.os.type = IH_TYPE_KERNEL;
+		images.os.comp =  zircon_image_get_comp(os_hdr);
+		images.os.os = IH_OS_ZIRCON;
+		images.os.end = zircon_image_get_end(os_hdr);
+		images.os.load = zircon_image_get_kload(os_hdr);
 		if (images.os.load == 0x10008000)
 			images.os.load = 0x1080000;
 		images.ep = images.os.load;
@@ -568,6 +589,12 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 		      blob_start, blob_end);
 		debug("images.os.load = 0x%lx, load_end = 0x%lx\n", load,
 		      load_end);
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+		if (os.os == IH_OS_ZIRCON) {
+			/* no further checking is necessary */
+			return 0;
+		}
+#endif
 #ifndef CONFIG_ANDROID_BOOT_IMAGE
 		/* Check what type of image this is. */
 		if (images->legacy_hdr_valid) {
@@ -762,20 +789,42 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	}
 #endif
 #if IMAGE_ENABLE_OF_LIBFDT && defined(CONFIG_LMB)
-	if (!ret && (states & BOOTM_STATE_FDT)) {
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+	if (images->os.os != IH_OS_ZIRCON && !ret && (states & BOOTM_STATE_FDT)) {
 		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
 		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
 					&images->ft_len);
+		if (ret)
+			pr_info("boot_relocate_fdt fail\n");
 	}
+#else
+	if (!ret && (states & BOOTM_STATE_FDT)) {
+		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
+		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
+				&images->ft_len);
+		if (ret)
+			pr_info("boot_relocate_fdt fail\n");
+	}
+#endif
 #endif
 
 	/* Check reserved memory region */
 #ifdef CONFIG_CMD_RSVMEM
+#if defined(CONFIG_ZIRCON_BOOT_IMAGE)
+	if (images->os.os != IH_OS_ZIRCON) {
+		ret = run_command("rsvmem check", 0);
+		if (ret) {
+			puts("rsvmem check failed\n");
+			return ret;
+		}
+	}
+#else
 	ret = run_command("rsvmem check", 0);
 	if (ret) {
 		puts("rsvmem check failed\n");
 		return ret;
 	}
+#endif
 #endif
 
 	/* From now on, we need the OS boot function */
@@ -1007,6 +1056,15 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 			return NULL;
 		if (android_image_get_kernel(buf, images->verify,
 					     os_data, os_len))
+			return NULL;
+		break;
+#endif
+#ifdef CONFIG_ZIRCON_BOOT_IMAGE
+	case IMAGE_FORMAT_ZIRCON:
+		printf("## Booting Zircon Image at 0x%08lx ...\n", img_addr);
+		buf = map_sysmem(img_addr, 0);
+		if (zircon_image_get_kernel(buf, images->verify,
+					os_data, os_len))
 			return NULL;
 		break;
 #endif

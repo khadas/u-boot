@@ -69,7 +69,7 @@ typedef struct _ConfigPara{
 
 //ini parser
 int _optimus_parse_buf_2_lines(char* pTextBuf, const unsigned textSz, const char* lines[],
-                unsigned* totalLineNum, const unsigned MaxLines);//parse text context to linces delimitted by (\r)\n
+                unsigned* totalLineNum, const unsigned MaxLines);//parse text context to lines delimitted by (\r)\n
 
 int parse_ini_file_2_valid_lines(const char* filePath, char* iniBuf, const unsigned bufSz, char* lines[]);
 int parse_ini_buf_2_valid_lines(char* iniBuf, const unsigned bufSz, char* lines[]);
@@ -99,7 +99,7 @@ int get_burn_parts_from_img(HIMAGE hImg, ConfigPara_t* pcfg);
 int optimus_sdc_burn_partitions(ConfigPara_t* pCfgPara, HIMAGE hImg, __hdle hUiProgress, int needVerify);
 int optimus_sdc_burn_dtb_load(HIMAGE hImg);
 
-int optimus_burn_bootlader(HIMAGE hImg);
+int optimus_burn_bootloader(HIMAGE hImg);
 int optimus_burn_gpt(HIMAGE hImg);
 
 int optimus_report_burn_complete_sta(int isFailed, int rebootAfterBurn);

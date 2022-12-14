@@ -52,9 +52,11 @@ static int audiobus_update_bits(unsigned int reg, unsigned int mask,
 static void aml_set_audio_spdif_clk(void)
 {
 	/*mpll0: 491520000 */
-	hhi_write(ANACTRL_MPLL_CTRL0, 0x543);
-	hhi_write(ANACTRL_MPLL_CTRL1, 0xC040046B);
-	hhi_write(ANACTRL_MPLL_CTRL2, 0x40000033);
+	// TODO
+	hhi_write(0, 0x543);
+	//hhi_write(ANACTRL_MPLL_CTRL0, 0x543);
+	//hhi_write(ANACTRL_MPLL_CTRL1, 0xC040046B);
+	//hhi_write(ANACTRL_MPLL_CTRL2, 0x40000033);
 
 	/* audio clk gate */
 	audiobus_write(EE_AUDIO_CLK_GATE_EN0,
@@ -112,7 +114,7 @@ void frddr_init_without_mngr(void)
 	end_addr = start_addr + sizeof(buf) - 1;
 	int_addr = sizeof(buf) / 64;
 
-	audiobus_write(EE_AUDIO_ARB_CTRL0, 0x800000ff);
+	//audiobus_write(EE_AUDIO_ARB_CTRL0, 0x800000ff);
 
 	audiobus_write(EE_AUDIO_FRDDR_A_START_ADDR, start_addr);
 

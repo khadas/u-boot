@@ -28,7 +28,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	fast_boot[0]				=	0x1,
 	.cfg_board_common_setting.	fast_boot[3]				=	0x46,
 
-	//DDR frequercy 1
+	//DDR frequency 1
 	.cfg_board_SI_setting_ps[0].DRAMFreq					=	1320,//1320,1200,1104,1008,912,792
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
@@ -332,7 +332,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	reserve1_test_function		=	{0},
 	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
 
-	//DDR frequercy 2
+	//DDR frequency 2
 	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
 	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
@@ -433,7 +433,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	fast_boot[0]				=	0x1,
 	.cfg_board_common_setting.	fast_boot[3]				=	0x46,
 
-	//DDR frequercy 1
+	//DDR frequency 1
 	.cfg_board_SI_setting_ps[0].DRAMFreq					=	1200,//1320,1200,1104,1008,912,792
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
@@ -583,7 +583,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	reserve1_test_function		=	{0},
 	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
 
-	//DDR frequercy 2
+	//DDR frequency 2
 	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
 	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
@@ -684,7 +684,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	fast_boot[0]				=	0x1,
 	.cfg_board_common_setting.	fast_boot[3]				=	0x46,
 
-	//DDR frequercy 1
+	//DDR frequency 1
 	.cfg_board_SI_setting_ps[0].DRAMFreq					=	1200,//1320,1200,1104,1008,912,792
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
@@ -894,7 +894,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	reserve1_test_function		=	{0},
 	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
 
-	//DDR frequercy 2
+	//DDR frequency 2
 	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
 	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
@@ -995,7 +995,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	fast_boot[0]				=	0x1,
 	.cfg_board_common_setting.	fast_boot[3]				=	0x46,
 
-	//DDR frequercy 1
+	//DDR frequency 1
 	.cfg_board_SI_setting_ps[0].DRAMFreq					=	912,//1008,912,792
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
@@ -1304,7 +1304,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	reserve1_test_function		=	{0},
 	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
 
-	//DDR frequercy 2
+	//DDR frequency 2
 	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
 	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
@@ -1403,7 +1403,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	ddr_dmc_remap				=	DDR_DMC_REMAP_LPDDR4_32BIT,//DDR_DMC_REMAP_LPDDR4_32BIT,//DDR_DMC_REMAP_DDR3_32BIT
 	.cfg_board_common_setting.	fast_boot					=	{0},
 
-	//DDR frequercy 1
+	//DDR frequency 1
 	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,//1320,1200,1104,1008,912,792
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
@@ -1548,7 +1548,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	reserve1_test_function		=	{0},
 	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
 
-	//DDR frequercy 2
+	//DDR frequency 2
 	.cfg_board_SI_setting_ps[1].DRAMFreq					=	667,
 	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,
@@ -1647,7 +1647,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	ddr_dmc_remap				=	DDR_DMC_REMAP_LPDDR4_32BIT,
 	.cfg_board_common_setting.	fast_boot					=	{0},
 
-	//DDR frequercy 1
+	//DDR frequency 1
 	.cfg_board_SI_setting_ps[0].DRAMFreq					=	667,
 	.cfg_board_SI_setting_ps[0].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl		=	0,
@@ -1814,7 +1814,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	.cfg_board_common_setting.	reserve1_test_function		=	{0},
 	.cfg_board_common_setting.	ddr_vddee_setting			=	{0},
 
-	//DDR frequercy 2
+	//DDR frequency 2
 	.cfg_board_SI_setting_ps[1].DRAMFreq					=	600,
 	.cfg_board_SI_setting_ps[1].PllBypassEn					=	0,
 	.cfg_board_SI_setting_ps[1].training_SequenceCtrl		=	0,

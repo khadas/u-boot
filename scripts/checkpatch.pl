@@ -3180,10 +3180,10 @@ sub process {
 				}
 
 				# check if the script is in the GPL-2.0 sources tree
-				my @gpl_licnese_tree = ( "uboot",  );
+				my @gpl_license_tree = ( "uboot",  );
 				my $fetch_url = `git remote -v | awk 'NR==1 {print \$2}'`;
 				my $is_gpl_license = 0;
-				foreach my $check (@gpl_licnese_tree) {
+				foreach my $check (@gpl_license_tree) {
 					if ( $fetch_url =~ /$check/ ) {
 						$is_gpl_license = 1;
 						last;

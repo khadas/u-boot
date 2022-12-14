@@ -463,8 +463,8 @@
 #define CONFIG_DEVICE_PRODUCT	"u200"
 #endif
 
-/* UBOOT Facotry usb/sdcard burning config */
-/* #define CONFIG_AML_V2_FACTORY_BURN              1       //support facotry usb burning */
+/* UBOOT factory usb/sdcard burning config */
+/* #define CONFIG_AML_V2_FACTORY_BURN              1       //support factory usb burning */
 #if 0
 #define CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE   1       //support factory sdcard burning
 #define CONFIG_POWER_KEY_NOT_SUPPORTED_FOR_BURN 1       //There isnt power-key for factory sdcard burning

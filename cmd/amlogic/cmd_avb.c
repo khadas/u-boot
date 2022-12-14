@@ -20,12 +20,16 @@
 #endif
 #include <version.h>
 #include <amlogic/aml_efuse.h>
+#include <amlogic/store_wrapper.h>
 
 #define AVB_USE_TESTKEY
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
 #define DTB_PARTITION_SIZE 258048
 #define AVB_NUM_SLOT (4)
 #define MAX_AVBKEY_LEN (8 + 1024)
+
+/* use max nand page size, 4K */
+#define NAND_PAGE_SIZE (0x1000)
 
 #define CONFIG_AVB2_KPUB_EMBEDDED
 
@@ -55,6 +59,7 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 	int rc = 0;
 	uint64_t part_bytes = 0;
 	AvbIOResult result = AVB_IO_RESULT_OK;
+	size_t total_bytes = num_bytes;
 
 	if (ops->get_size_of_partition(ops, partition, &part_bytes) != AVB_IO_RESULT_OK) {
 		result = AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -92,14 +97,61 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 			goto out;
 		}
 	} else {
-		rc = store_read(partition, offset, num_bytes, buffer);
+		enum boot_type_e type = store_get_type();
+
+		/* There is only 1 recovery partition even in A/B */
+		if (!strcmp(partition, "recovery_a") ||
+				!strcmp(partition, "recovery_b") ||
+				!strcmp(partition, "recovery"))
+			partition = "recovery";
+
+		if (type == BOOT_NAND_MTD || type == BOOT_SNAND) {
+			if (offset != 0) {
+				uint8_t *tmp_buf = malloc(NAND_PAGE_SIZE);
+				int64_t align = offset & ~(NAND_PAGE_SIZE - 1);
+				int64_t drop_bytes = offset - align;
+				int32_t valid_data = NAND_PAGE_SIZE - drop_bytes;
+
+				if (!tmp_buf) {
+					printf("failed to allocate tmp buf for nand\n");
+					result = AVB_IO_RESULT_ERROR_IO;
+					goto out;
+				}
+
+				rc = store_logic_read(partition, align, NAND_PAGE_SIZE, tmp_buf);
+				if (rc) {
+					free(tmp_buf);
+					printf("part 1: Failed to read %dB from part[%s] at %lld\n",
+							NAND_PAGE_SIZE, partition, align);
+					result = AVB_IO_RESULT_ERROR_IO;
+					goto out;
+				} else {
+					if (num_bytes > valid_data) {
+						memcpy(buffer, tmp_buf + drop_bytes, valid_data);
+						num_bytes -= valid_data;
+					} else {
+						memcpy(buffer, tmp_buf + drop_bytes, num_bytes);
+						num_bytes = 0;
+					}
+					offset = align + NAND_PAGE_SIZE;
+					free(tmp_buf);
+				}
+				if (num_bytes > 0)
+					rc = store_logic_read(partition, offset, num_bytes, buffer);
+			} else {
+				rc = store_logic_read(partition, 0, num_bytes, buffer);
+			}
+		} else {
+			rc = store_read(partition, offset, num_bytes, buffer);
+		}
+
 		if (rc) {
-			printf("Failed to read %zdB from part[%s] at %lld\n",
+			printf("Part 2 Failed to read %zdB from part[%s] at %lld\n",
 					num_bytes, partition, offset);
 			result = AVB_IO_RESULT_ERROR_IO;
 			goto out;
 		}
-		*out_num_read = num_bytes;
+		*out_num_read = total_bytes;
 	}
 
 out:
@@ -137,7 +189,13 @@ static AvbIOResult write_to_partition(AvbOps *ops, const char *partition,
 			goto out;
 		}
 	} else {
-		rc = store_write(partition, offset, num_bytes, (unsigned char *)buffer);
+		/* There is only 1 recovery partition even in A/B */
+		if (!strcmp(partition, "recovery_a") ||
+				!strcmp(partition, "recovery_b") ||
+				!strcmp(partition, "recovery"))
+			rc = store_write("recovery", offset, num_bytes, (unsigned char *)buffer);
+		else
+			rc = store_write(partition, offset, num_bytes, (unsigned char *)buffer);
 		if (rc) {
 			printf("Failed to write %zdB from part[%s] at %lld\n",
 					num_bytes, partition, offset);
@@ -165,18 +223,19 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops, const char *partit
 	}
 	//printf("active_slot is %s\n", s1);
 	if (!memcmp(partition, "system", strlen("system"))) {
-		if (s1 && (strcmp(s1, "_a") == 0)) {
+		if (s1 && (strcmp(s1, "_a") == 0))
 			ret = get_partition_num_by_name("system_a");
-			sprintf(part_name, "/dev/mmcblk0p%d", (ret + 1));
-			strncpy(guid_buf, part_name, guid_buf_size);
-		} else if (s1 && (strcmp(s1, "_b") == 0)) {
+		else if (s1 && (strcmp(s1, "_b") == 0))
 			ret = get_partition_num_by_name("system_b");
-			sprintf(part_name, "/dev/mmcblk0p%d", (ret + 1));
+		else
+			ret = get_partition_num_by_name("system");
+
+		if (ret >= 0) {
+			sprintf(part_name, "/dev/mmcblk0p%d", ret + 1);
 			strncpy(guid_buf, part_name, guid_buf_size);
 		} else {
-			ret = get_partition_num_by_name("system");
-			sprintf(part_name, "/dev/mmcblk0p%d", (ret + 1));
-			strncpy(guid_buf, part_name, guid_buf_size);
+			printf("system part isn't exist\n");
+			return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
 		}
 	} else if (!memcmp(partition, "vbmeta", strlen("vbmeta"))) {
 		strncpy(guid_buf, "/dev/block/vbmeta", guid_buf_size);
@@ -193,7 +252,13 @@ static AvbIOResult get_size_of_partition(AvbOps *ops, const char *partition,
 			!strcmp(partition, "dt")) {
 		*out_size_num_bytes = DTB_PARTITION_SIZE;
 	} else {
-		rc = store_part_size(partition);
+		/* There is only 1 recovery partition even in A/B */
+		if (!strcmp(partition, "recovery_a") ||
+				!strcmp(partition, "recovery_b") ||
+				!strcmp(partition, "recovery"))
+			rc = store_part_size("recovery");
+		else
+			rc = store_part_size(partition);
 		if (rc == 1) {
 			printf("Failed to get partition[%s] size\n", partition);
 			return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -438,12 +503,20 @@ int is_device_unlocked(void)
 
 int avb_verify(AvbSlotVerifyData** out_data)
 {
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", "dtbo", NULL, NULL, NULL};
+#ifdef CONFIG_AVB2_RECOVERY
+#define RECOVERY "recovery"
 #else
-	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", NULL, NULL, NULL, NULL};
+#define RECOVERY NULL
 #endif
-	const char *requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dt", NULL, NULL, NULL};
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", "dtbo",
+		RECOVERY, NULL, NULL};
+#else
+	const char *requested_partitions_ab[AVB_NUM_SLOT + 1] = {"boot", RECOVERY,
+	    NULL, NULL, NULL};
+#endif
+	const char *requested_partitions[AVB_NUM_SLOT + 1] = {"boot", "dt",
+	    RECOVERY, NULL, NULL};
 	AvbSlotVerifyResult result = AVB_SLOT_VERIFY_RESULT_OK;
 	char *s1 = NULL;
 	char *ab_suffix = NULL;
@@ -496,11 +569,13 @@ int avb_verify(AvbSlotVerifyData** out_data)
 			AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE, out_data);
 
 	if (upgradestep && (!strcmp(upgradestep, "3"))) {
-		run_command("setenv bootargs ${bootargs} androidboot.vbmeta.avb_version=1.1;", 0);
+		run_command("setenv bootconfig ${bootconfig} androidboot.vbmeta.avb_version=1.1;",
+			0);
 		result = AVB_SLOT_VERIFY_RESULT_OK;
 	}
 
 	return result;
+#undef RECOVERY
 }
 
 static int do_avb_verify(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -589,10 +664,10 @@ uint32_t avb_get_boot_patchlevel_from_vbmeta(AvbSlotVerifyData *data)
 
 		if (ret) {
 			for (i = 0, j = 0; i < len; i++) {
-				if (ret[i] != '-' && j < 9)
+				if (ret[i] != '-' && j < 8)
 					buff[j++] = ret[i];
 			}
-			buff[8] = '\n';
+			buff[8] = '\0';
 			if (!strict_strtoul(buff, 10, &boot_patchlevel))
 				return (uint32_t)boot_patchlevel;
 		}

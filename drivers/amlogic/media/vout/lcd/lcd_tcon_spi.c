@@ -249,6 +249,8 @@ static int lcd_tcon_spi_data_load(void)
 	if (tcon_spi.version == 0)
 		return 0;
 
+	if (!mm_table)
+		return -2;
 	if (mm_table->version == 0)
 		return 0;
 

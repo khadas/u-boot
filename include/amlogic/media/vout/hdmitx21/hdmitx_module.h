@@ -45,6 +45,9 @@ struct hdmitx_dev {
 	unsigned int dongle_mode;
 	unsigned char limit_res_1080p;
 	unsigned char enc_idx;
+	int dv_en;
+	unsigned char pxp_mode; /* for running at pxp only */
+	enum amhdmitx_chip_e chip_type;
 };
 
 struct hdmitx_dev *get_hdmitx21_device(void);
@@ -114,6 +117,10 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data);
 void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 	struct dv_vsif_para *data);
 bool is_hdmi_mode(char *mode);
+
+/* the hdmitx output limits to 1080p */
+bool is_hdmitx_limited_1080p(void);
+
 #undef printk
 #define printk printf
 #undef pr_info

@@ -752,3 +752,14 @@ void load_bl33z(void)
 		func_tpl();
 }
 #endif
+
+#ifdef CONFIG_NASC_NAGRA_TIER_1
+void load_bl2f(unsigned long x1, unsigned long x2, unsigned long x3)
+{
+	unsigned long bl2f_entry = 0x10800000UL;
+	typedef unsigned long (*__FUNC_TPL)(unsigned long x1, unsigned long x2, unsigned long x3);
+	__FUNC_TPL func_tpl = (__FUNC_TPL)bl2f_entry;
+
+	func_tpl(x1, x2, x3);
+}
+#endif

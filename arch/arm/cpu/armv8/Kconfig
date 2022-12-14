@@ -163,6 +163,32 @@ config ARMV8_SECURE_BASE
 	  but platform can choose to place PSCI code image separately in other
 	  places such as some secure RAM built-in SOC etc.
 
+config ARMV8_CE_SHA256
+	bool "SHA-256 digest algorithm (ARMv8 Crypto Extensions)"
+	default y if SHA256
+
+endif
+
+menuconfig ARMV8_CRYPTO
+	bool "ARM64 Accelerated Cryptographic Algorithms"
+	help
+		To enable ARMCE support
+		for SHA1
+		for SHA256
+		for AES in the future
+
+
+if ARMV8_CRYPTO
+
+config ARMV8_CE_SHA1
+	bool "SHA-1 digest algorithm (ARMv8 Crypto Extensions)"
+	default y if SHA1
+
+
+config ARMV8_CE_SHA256
+	bool "SHA-256 digest algorithm (ARMv8 Crypto Extensions)"
+	default y if SHA256
+
 endif
 
 endif

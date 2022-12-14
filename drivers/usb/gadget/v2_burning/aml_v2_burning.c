@@ -134,7 +134,7 @@ static int aml_burn_usb_producing(int flag, bd_t* bis)
     optimus_work_mode_set(OPTIMUS_WORK_MODE_USB_PRODUCE);
 #endif//#if (defined AML_USB_BURN_TOOL)
 
-    close_usb_phy_clock(0);//disconect before re-connect to enhance pc compatibility
+    close_usb_phy_clock(0);//disconnect before re-connect to enhance pc compatibility
     optimus_clear_ovd_register();//clear OVD register for normal reboot
     return v2_usbburning(20000);
 }

@@ -19,8 +19,8 @@
 /* v20210317: add t3 support */
 /* v20210428: add s4d support */
 /* v20220503: add c3 support */
-#define VPU_VERION	"v20220503"
-
+/* v20220517: add s5 support */
+#define VPU_VERSION	"v20220517"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,6 +39,7 @@ static struct vpu_data_s vpu_data_g12a = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -71,6 +72,7 @@ static struct vpu_data_s vpu_data_g12b = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -103,6 +105,7 @@ static struct vpu_data_s vpu_data_tl1 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -135,6 +138,7 @@ static struct vpu_data_s vpu_data_tl1 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -168,6 +172,7 @@ static struct vpu_data_s vpu_data_tm2 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -200,6 +205,7 @@ static struct vpu_data_s vpu_data_sc2 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK_CTRL2,
 
@@ -232,6 +238,7 @@ static struct vpu_data_s vpu_data_t5 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -264,6 +271,7 @@ static struct vpu_data_s vpu_data_t5d = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -296,6 +304,7 @@ static struct vpu_data_s vpu_data_t7 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
 
@@ -328,6 +337,7 @@ static struct vpu_data_s vpu_data_s4 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK_CTRL2,
 
@@ -451,6 +461,37 @@ static struct vpu_data_s vpu_data_c3 = {
 	.change_clk = NULL,
 };
 
+static struct vpu_data_s vpu_data_s5 = {
+	.chip_type = VPU_CHIP_S5,
+	.chip_name = "s5",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
+	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
+	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
+	.test_reg = vcbus_test_reg,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table_t7,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+	.module_init_config = vpu_module_init_config,
+};
+
 static void vpu_chip_detect(void)
 {
 	unsigned int cpu_type;
@@ -496,13 +537,16 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_C3:
 		vpu_conf.data = &vpu_data_c3;
 		break;
+	case MESON_CPU_MAJOR_ID_S5:
+		vpu_conf.data = &vpu_data_s5;
+		break;
 	default:
 		vpu_conf.data = NULL;
 		//vpu_conf.data = &vpu_data_t3;
 		break;
 	}
 
-	strcpy(vpu_conf.drv_version, VPU_VERION);
+	strcpy(vpu_conf.drv_version, VPU_VERSION);
 	if (!vpu_conf.data) {
 		VPUERR("invalid chip: 0x%x\n", cpu_type);
 		return;
@@ -547,6 +591,7 @@ static int vpu_check(void)
 	case VPU_CHIP_T3:
 	case VPU_CHIP_S4D:
 	case VPU_CHIP_C3:
+	case VPU_CHIP_S5:
 		ret = 0;
 		break;
 	default:

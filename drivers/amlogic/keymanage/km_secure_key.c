@@ -84,7 +84,7 @@ int keymanage_secukey_write(const char *keyname, const void* keydata, unsigned i
 
 ssize_t keymanage_secukey_size(const char* keyname)
 {
-	return amlkey_size((uint8_t*)keyname);	//actully size
+	return amlkey_size((uint8_t*)keyname);	//actually size
 }
 
 int keymanage_secukey_exist(const char* keyname)
@@ -179,7 +179,7 @@ int _burn_key_in_type_hdcp2(const char* keyname, void* databuf, const unsigned b
     }
 
     hdcp2DataEncryption(keyLen, databuf, decryptBuf);
-    KM_MSG("Ecnrypt hdcp2 END.\n");
+    KM_MSG("encrypt hdcp2 END.\n");
     pHdcp2RxKey = (Hdcp2RxKeyFmt_t*)decryptBuf;
 
     const uint8_t* tmpName      = (uint8_t*)HDCP2_RX_KEY_LC128_NAME;

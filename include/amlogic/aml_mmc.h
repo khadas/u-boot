@@ -16,7 +16,7 @@
 #define AML_BL_BOOT     (0x6)
 #define AML_BL_ALL		(0x7)
 
-/** For actul partitions with mask 8 store into bootinfo
+/** For actually partitions with mask 8 store into bootinfo
  * name: partition name.
  * addr: sector addr of the partition
  * size: sector cont of the partition
@@ -29,7 +29,7 @@ struct part_property
 };
 #define PART_PROPERTY_SIZE sizeof(struct part_property)
 #define BOOTINFO_MAX_PARTITIONS (4)
-#define BOOTINFO_PARITIONS_SIZE (PART_PROPERTY_SIZE * BOOTINFO_MAX_PARTITIONS)
+#define BOOTINFO_PARTITIONS_SIZE (PART_PROPERTY_SIZE * BOOTINFO_MAX_PARTITIONS)
 
 
 #define VPART_PROPERTY_SIZE sizeof(struct vpart_property)
@@ -55,7 +55,7 @@ struct storage_emmc_boot_info {
 	struct vpart_property ddr;
 
 	struct part_property parts[BOOTINFO_MAX_PARTITIONS];
-	uint8_t reserved[512 - 2 * VPART_PROPERTY_SIZE - BOOTINFO_PARITIONS_SIZE - 12];
+	uint8_t reserved[512 - 2 * VPART_PROPERTY_SIZE - BOOTINFO_PARTITIONS_SIZE - 12];
 	u32 checksum;
 };
 

@@ -22,7 +22,7 @@ int get_part_info_by_name(struct blk_desc *dev_desc,
 #define AML_SEC_SIZE	(512)
 #define MAGIC_OFFSET	(1)
 
-/* read back boot partitons */
+/* read back boot partitions */
 static int _get_partition_info_aml(struct blk_desc * dev_desc,
 	int part_num, disk_partition_t * info, int verb)
 {

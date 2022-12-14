@@ -223,7 +223,7 @@ int key_unify_init(const char* seedStr, const char* dtbLoadaddr)
 }
 
 /* function name: key_unify_uninit
- * functiion : uninit
+ * function : uninit
  * return : >=0 ok, <0 fail
  * */
 int key_unify_uninit(void)

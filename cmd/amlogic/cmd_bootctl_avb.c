@@ -15,6 +15,10 @@
 #include <version.h>
 #include <amlogic/storage.h>
 #include <emmc_partitions.h>
+#ifdef CONFIG_UNIFY_BOOTLOADER
+#include "cmd_bootctl_wrapper.h"
+#endif
+#include "cmd_bootctl_utils.h"
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -165,7 +169,9 @@ typedef struct bootloader_control {
 #define MISC_VIRTUAL_AB_MESSAGE_VERSION 2
 #define MISC_VIRTUAL_AB_MAGIC_HEADER 0x56740AB0
 
+#ifndef CONFIG_UNIFY_BOOTLOADER
 unsigned int kDefaultBootAttempts = 4;
+#endif
 
 /* Magic for the A/B struct when serialized. */
 #define AVB_AB_MAGIC "\0AB0"
@@ -232,7 +238,11 @@ uint8_t reserved1[1];
   uint32_t crc32;
 }AvbABData;
 
-bool boot_info_validate_VAB(bootloader_control *info)
+#ifdef CONFIG_UNIFY_BOOTLOADER
+bootctl_func_handles avb_cmd_bootctrl_handles = {0};
+#endif
+
+static bool boot_info_validate_VAB(bootloader_control *info)
 {
 	if (info->magic != BOOT_CTRL_MAGIC) {
 		printf("Magic 0x%x is incorrect.\n", info->magic);
@@ -241,7 +251,7 @@ bool boot_info_validate_VAB(bootloader_control *info)
 	return true;
 }
 
-bool boot_info_validate(AvbABData* info)
+static bool boot_info_validate(AvbABData *info)
 {
 	if (memcmp(info->magic, AVB_AB_MAGIC, AVB_AB_MAGIC_LEN) != 0) {
 		printf("Magic %s is incorrect.\n", info->magic);
@@ -254,7 +264,7 @@ bool boot_info_validate(AvbABData* info)
 	return true;
 }
 
-void boot_info_reset(AvbABData* info)
+static void boot_info_reset(AvbABData *info)
 {
 	memset(info, '\0', sizeof(AvbABData));
 	memcpy(info->magic, AVB_AB_MAGIC, AVB_AB_MAGIC_LEN);
@@ -268,7 +278,7 @@ void boot_info_reset(AvbABData* info)
 	info->slots[1].successful_boot = 0;
 }
 
-void dump_boot_info(AvbABData* info)
+static void dump_boot_info(AvbABData *info)
 {
 #if 0
 	printf("info->magic = %s\n", info->magic);
@@ -308,12 +318,14 @@ int get_active_slot_VAB(bootloader_control *info)
 	}
 }
 
-static bool slot_is_bootable(AvbABSlotData* slot) {
+static bool slot_is_bootable(AvbABSlotData *slot)
+{
   return slot->priority > 0 &&
 		 (slot->successful_boot || (slot->tries_remaining > 0));
 }
 
-int get_active_slot(AvbABData* info) {
+static int get_active_slot(AvbABData *info)
+{
 	if (info->slots[0].priority > info->slots[1].priority)
 		return 0;
 	else
@@ -321,7 +333,7 @@ int get_active_slot(AvbABData* info) {
 }
 
 
-int boot_info_set_active_slot(AvbABData* info, int slot)
+static int boot_info_set_active_slot(AvbABData *info, int slot)
 {
 	unsigned int other_slot_number;
 
@@ -341,24 +353,6 @@ int boot_info_set_active_slot(AvbABData* info, int slot)
 	return 0;
 }
 
-int boot_info_open_partition(char *miscbuf)
-{
-	char *partition = "misc";
-	//int i;
-	printf("Start read %s partition datas!\n", partition);
-	if (store_read((const char *)partition,
-		0, MISCBUF_SIZE, (unsigned char *)miscbuf) < 0) {
-		printf("failed to store read %s.\n", partition);
-		return -1;
-	}
-
-	/*for (i = AB_METADATA_MISC_PARTITION_OFFSET;
-	 *		  i < (AB_METADATA_MISC_PARTITION_OFFSET + AVB_AB_DATA_SIZE);i++)
-	 *	printf("buf: %c\n", miscbuf[i]);
-	 */
-	return 0;
-}
-
 bool boot_info_load_VAB(bootloader_control *out_info, char *miscbuf)
 {
 	memcpy(out_info, miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, sizeof(bootloader_control));
@@ -366,14 +360,14 @@ bool boot_info_load_VAB(bootloader_control *out_info, char *miscbuf)
 	return true;
 }
 
-bool boot_info_load(AvbABData *out_info, char *miscbuf)
+static bool boot_info_load(AvbABData *out_info, char *miscbuf)
 {
 	memcpy(out_info, miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, AVB_AB_DATA_SIZE);
 	dump_boot_info(out_info);
 	return true;
 }
 
-bool boot_info_save(AvbABData *info, char *miscbuf)
+static bool boot_info_save(AvbABData *info, char *miscbuf)
 {
 	char *partition = "misc";
 
@@ -388,7 +382,7 @@ bool boot_info_save(AvbABData *info, char *miscbuf)
 	return true;
 }
 
-int write_bootloader(int copy, int dstindex)
+static int write_bootloader(int copy, int dstindex)
 {
 	int iRet = 0;
 	int ret = -1;
@@ -704,7 +698,7 @@ static int do_SetRollFlag
 	return 0;
 }
 
-int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_GetSystemMode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_SYSTEM_AS_ROOT
 	env_set("system_mode", "1");
@@ -715,7 +709,7 @@ int do_GetSystemMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_GetAvbMode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_AVB2
 	env_set("avb2", "1");
@@ -729,6 +723,19 @@ int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #endif /* CONFIG_BOOTLOADER_CONTROL_BLOCK */
 
+#ifdef CONFIG_UNIFY_BOOTLOADER
+bootctl_func_handles *get_bootctl_cmd_func_avb(void)
+{
+	avb_cmd_bootctrl_handles.do_GetValidSlot_func = do_GetValidSlot;
+	avb_cmd_bootctrl_handles.do_SetActiveSlot_func = do_SetActiveSlot;
+	avb_cmd_bootctrl_handles.do_SetRollFlag_func = do_SetRollFlag;
+	avb_cmd_bootctrl_handles.do_SetUpdateTries_func = do_SetUpdateTries;
+	avb_cmd_bootctrl_handles.do_GetSystemMode_func = do_GetSystemMode;
+	avb_cmd_bootctrl_handles.do_GetAvbMode_func = do_GetAvbMode;
+
+	return &avb_cmd_bootctrl_handles;
+}
+#else
 U_BOOT_CMD(
 	get_valid_slot, 2, 0, do_GetValidSlot,
 	"get_valid_slot",
@@ -771,4 +778,4 @@ U_BOOT_CMD(
 	"\nThis command will get avb mode\n"
 	"So you can execute command: get_avb_mode"
 );
-
+#endif

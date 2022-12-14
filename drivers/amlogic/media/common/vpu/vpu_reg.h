@@ -20,6 +20,7 @@
 /* memory mapping */
 #define REG_ADDR_AOBUS(reg)         (reg + 0L)
 #define REG_ADDR_HIU(reg)           (reg + 0L)
+#define REG_ADDR_SYSCTRL(reg)       ((reg) + 0L)
 #define REG_ADDR_CBUS(reg)          (REG_BASE_CBUS + REG_OFFSET_CBUS(reg) + 0L)
 #define REG_ADDR_VCBUS(reg)         (REG_BASE_VCBUS + REG_OFFSET_VCBUS(reg) + 0L)
 
@@ -194,5 +195,10 @@ static inline void vpu_ao_setb(unsigned int _reg, unsigned int _value,
 			~(((1L << (_len))-1) << (_start))) |
 			(((_value)&((1L<<(_len))-1)) << (_start))));
 }
+
+static inline void vpu_sysctrl_write(unsigned int _reg, unsigned int _value)
+{
+	*(unsigned int *)REG_ADDR_SYSCTRL(_reg) = (_value);
+};
 
 #endif

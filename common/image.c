@@ -1085,6 +1085,10 @@ int genimg_get_format(const void *img_addr)
 	if (android_image_check_header(img_addr) == 0)
 		return IMAGE_FORMAT_ANDROID;
 #endif
+#ifdef CONFIG_ZIRCON_BOOT_IMAGE
+	if (zircon_image_check_header(img_addr) == 0)
+		return IMAGE_FORMAT_ZIRCON;
+#endif
 
 	return IMAGE_FORMAT_INVALID;
 }
@@ -1150,6 +1154,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	int		rd_noffset;
 #endif
 	const char *select = NULL;
+	int android_image_flag = 0;
 
 	*rd_start = 0;
 	*rd_end = 0;
@@ -1266,6 +1271,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		case IMAGE_FORMAT_ANDROID:
 			android_image_get_ramdisk((void *)images->os.start,
 				&rd_data, &rd_len);
+			android_image_flag = 1;
 			break;
 #endif
 		default:
@@ -1312,6 +1318,10 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		*rd_start = rd_data;
 		*rd_end = rd_data + rd_len;
 	}
+
+	if (android_image_flag == 0)
+		copy_bootconfig_to_cmdline();
+
 	debug("   ramdisk start = 0x%08lx, ramdisk end = 0x%08lx\n",
 			*rd_start, *rd_end);
 

@@ -432,7 +432,7 @@ void usb_device_mode_init(int phy_num) {
 	set_usb_pll(phy_base_addr);
 	//--------------------------------------------------
 
-	// ------------- usb phy21 initinal end ----------
+	// ------------- usb phy21 initial end ----------
 
 	//--------------------------------------------------
 }

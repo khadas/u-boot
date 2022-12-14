@@ -28,6 +28,13 @@ ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 obj-y += cmd_bcb.o
 obj-y += get_bcb_boot_part.o
 obj-y += cmd_dynamic.o
+obj-y += cmd_bootctl_utils.o
+ifdef CONFIG_UNIFY_BOOTLOADER
+obj-y += cmd_bootctl_vab.o
+obj-y += cmd_bootctl_avb.o
+obj-y += cmd_bootctl.o
+obj-y += cmd_bootctl_wrapper.o
+else
 ifdef CONFIG_CMD_BOOTCTOL_AVB
 ifdef CONFIG_CMD_BOOTCTOL_VAB
 obj-y += cmd_bootctl_vab.o
@@ -38,13 +45,24 @@ else
 obj-y += cmd_bootctl.o
 endif
 endif
+endif
 obj-$(CONFIG_AML_RPMB) += cmd_rpmb.o
 obj-$(CONFIG_CMD_BOOTCTOL_AVB) += cmd_avb.o
 obj-$(CONFIG_CMD_DDR_D2PLL) += cmd_d2pll.o
+
+ifdef CONFIG_NASC_NAGRA_TIER_1
+
+else
 ifdef CONFIG_MESON_P1
 obj-y += cmd_ddr_test_p1.o
 else
+ifdef CONFIG_MESON_S5
+obj-y += cmd_ddr_test_s5.o
+else
 obj-y += cmd_ddr_test_g12.o
+endif
+endif
+
 endif
 
 obj-$(CONFIG_CMD_OS_IDENT) += os_ident.o
@@ -54,3 +72,4 @@ obj-$(CONFIG_SECURE_POWER_CONTROL) += cmd_power.o
 obj-$(CONFIG_CMD_HDMIRX) += cmd_hdmirx.o
 obj-$(CONFIG_CMD_CEC) += cmd_cec.o
 obj-$(CONFIG_CMD_PMU) += cmd_pmic.o
+obj-$(CONFIG_CMD_RMA) += cmd_rma.o

@@ -20,7 +20,7 @@
 #define CONFIG_CMD_VIU_PROBE    1
 #endif
 
-/* for uboot envrionment use */
+/* for uboot environment use */
 #define CONFIG_DDR_SIZE					2048
 
 /* dram */
@@ -81,5 +81,7 @@ like the AES key not ready when secure boot enabled for the first time.
 #define CONFIG_SYS_NONCACHED_MEMORY     (1 << 20)       /* 1 MiB */
 
 #define CONFIG_AVB2_KPUB_FROM_FIP 1
+
+#define CONFIG_KEY_PRESERVE
 
 #endif /* _CPU_H */
