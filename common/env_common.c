@@ -277,7 +277,7 @@ void env_relocate(void)
 		gd->flags &= ~GD_FLG_SILENT;
 		flush_print_buf();
 	}
-	destory_print_buf();
+	destroy_print_buf();
 #endif
 }
 

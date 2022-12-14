@@ -781,7 +781,7 @@ int	vprintf(const char *fmt, va_list args);
 
 #ifdef CONFIG_SILENT_CONSOLE
 extern void flush_print_buf(void);
-extern void destory_print_buf(void);
+void destroy_print_buf(void);
 #endif
 
 /* stderr */

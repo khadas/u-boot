@@ -513,7 +513,7 @@ void flush_print_buf(void)
 	return;
 }
 
-void destory_print_buf(void)
+void destroy_print_buf(void)
 {
 	if (print_buf)
 		free(print_buf);
