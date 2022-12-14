@@ -84,7 +84,7 @@ struct xMesonI2c {
 	uint32_t num_tokens;	/* Number of tokens to be written */
 	uint32_t clock_frequency;
 	uint32_t div_factor;
-	uint32_t delay_ajust;
+	uint32_t delay_adjust;
 	uint32_t clkin_rate;
 };
 
@@ -461,7 +461,7 @@ int32_t xI2cMesonPortInit(uint32_t id)
 
 	i2cs[id].regs = (struct xI2cRegs *)cur_plat->reg;
 	i2cs[id].div_factor = cur_plat->div_factor;
-	i2cs[id].delay_ajust = cur_plat->delay_ajust;
+	i2cs[id].delay_adjust = cur_plat->delay_adjust;
 	i2cs[id].clock_frequency = cur_plat->clock_frequency;
 
 	if (cur_plat->clk_base)
@@ -486,7 +486,7 @@ int32_t xI2cMesonPortInit(uint32_t id)
 	iprintf
 	    ("index = %u, reg = 0x%x, div = %u, delay = %u ,clock-frequency = %u\n",
 	     cur_plat->bus_num, i2cs[id].regs, i2cs[id].div_factor,
-	     i2cs[id].delay_ajust, i2cs[id].clock_frequency);
+	     i2cs[id].delay_adjust, i2cs[id].clock_frequency);
 #endif
 	prvMesonI2cRegsInit();
 

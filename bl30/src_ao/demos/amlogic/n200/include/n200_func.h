@@ -6,7 +6,11 @@
 __BEGIN_DECLS
 
 #include "n200_timer.h"
-#include "interrupt_control.h"
+#ifdef N200_REVA
+#include "interrupt_control_pic.h"
+#else
+#include "interrupt_control_eclic.h"
+#endif
 
 #define PMP_CFG_R_NO    (0<<0)
 #define PMP_CFG_R_EN    (1<<0)

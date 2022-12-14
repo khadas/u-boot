@@ -10,10 +10,10 @@
 #define MHU_COPETE_SIZE		0x8
 #define MHU_ULLCTL_SIZE		0x8
 #define MHU_STS_SIZE		0x4
-#define MHU_HEAD_SIZE		0x1c /*inclule status 0x4 task id 0x8, completion 0x8*/
-#define MHU_RESEV_SIZE		0x4 /*inclule status 0x2 task id 0x8, completion 0x8*/
+#define MHU_HEAD_SIZE		0x1c /*include status 0x4 task id 0x8, completion 0x8*/
+#define MHU_RESEV_SIZE		0x4 /*include status 0x2 task id 0x8, completion 0x8*/
 #define MHU_DATA_SIZE		(MHU_MAX_SIZE - MHU_HEAD_SIZE - MHU_RESEV_SIZE)
-#define MHU_DATA_OFFSET		(MHU_HEAD_SIZE / 4) /*inclule status 0x4 task id 0x8, completion 0x8*/
+#define MHU_DATA_OFFSET		(MHU_HEAD_SIZE / 4) /*include status 0x4 task id 0x8, completion 0x8*/
 
 #define IRQ_MAX			32
 #define MBOX_AO_IRQ		249 //MBOX_IRQ1

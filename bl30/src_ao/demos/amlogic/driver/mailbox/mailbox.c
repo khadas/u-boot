@@ -79,7 +79,7 @@ static void vMbHandleIsr(void)
 	val &= ulIrqMask;
 	while (val) {
 		for (i = 0; i < IRQ_MAX; i++) {
-			if (val & (1 << i)) {
+			if (val & (1ULL << i)) {
 				if (xMbHandlerTable[i].vHandler != NULL) {
 					xMbHandlerTable[i].vHandler(xMbHandlerTable[i].vArg);
 				}
@@ -97,11 +97,13 @@ static void vMbHandleIsr(void)
 /*Ree 2 AOCPU mailbox*/
 static void vAoRevMbHandler(void *vArg)
 {
-	//BaseType_t xYieldRequired = pdFALSE;
-	uint32_t mbox = (uint32_t)vArg;
 	mbPackInfo mbInfo;
 	MbStat_t st;
 	uint32_t addr, ulMbCmd, ulSize, ulSync;
+	//BaseType_t xYieldRequired = pdFALSE;
+	uint32_t mbox = (uint32_t)vArg;
+
+	memset(&mbInfo.mbdata, 0, sizeof(mboxData));
 
 	vDisableMbInterrupt(IRQ_REV_BIT(mbox));
 	st = xGetMboxStats(MAILBOX_STAT(mbox));
@@ -115,7 +117,7 @@ static void vAoRevMbHandler(void *vArg)
 	if (ulMbCmd == 0) {
 		PRINT_DBG("[%s] mbox cmd is 0, cannot match\n");
 		vClrMboxStats(MAILBOX_CLR(mbox));
-		vClrMbInterrupt(IRQ_REV_BIT(mbox));
+		vClrMbInterrupt((uint64_t)IRQ_REV_BIT(mbox));
 		vEnableMbInterrupt(IRQ_REV_BIT(mbox));
 		return;
 	}
@@ -166,14 +168,14 @@ static void vAoRevMbHandler(void *vArg)
 #ifdef AO_MBOX_ONLY_SYNC
 		PRINT_DBG("[%s]: ASYNC no support\n", MBTAG);
 		vClrMboxStats(MAILBOX_CLR(mbox));
-		vClrMbInterrupt(IRQ_REV_BIT(mbox));
+		vClrMbInterrupt((uint64_t)IRQ_REV_BIT(mbox));
 		vEnableMbInterrupt(IRQ_REV_BIT(mbox));
 #endif
 		break;
 	default:
 		PRINT_ERR("[%s]: Not SYNC or ASYNC, Fail\n", MBTAG);
 		vClrMboxStats(MAILBOX_CLR(mbox));
-		vClrMbInterrupt(IRQ_REV_BIT(mbox));
+		vClrMbInterrupt((uint64_t)IRQ_REV_BIT(mbox));
 		vEnableMbInterrupt(IRQ_REV_BIT(mbox));
 		break;
 	}
@@ -225,7 +227,7 @@ static void vReeSyncTask(void *pvParameters)
 		PRINT_DBG("[%s]:Ree Sync clear mbox:%d\n", MBTAG, mbox);
 		ulReeSyncTaskWake = 0;
 		vClrMboxStats(MAILBOX_CLR(mbox));
-		vClrMbInterrupt(IRQ_REV_BIT(mbox));
+		vClrMbInterrupt((uint64_t)IRQ_REV_BIT(mbox));
 		vEnableMbInterrupt(IRQ_REV_BIT(mbox));
 		vExitCritical();
 	}
@@ -264,7 +266,7 @@ static void vTeeSyncTask(void *pvParameters)
 		PRINT_DBG("[%s]:Tee Sync clear mbox:%d\n", MBTAG, mbox);
 		ulTeeSyncTaskWake = 0;
 		vClrMboxStats(MAILBOX_CLR(mbox));
-		vClrMbInterrupt(IRQ_REV_BIT(mbox));
+		vClrMbInterrupt((uint64_t)IRQ_REV_BIT(mbox));
 		vEnableMbInterrupt(IRQ_REV_BIT(mbox));
 		vExitCritical();
 	}
@@ -303,7 +305,7 @@ static void vDspSyncTask(void *pvParameters)
 		PRINT_DBG("[%s]:Tee Sync clear mbox:%d\n", MBTAG, mbox);
 		ulDspSyncTaskWake = 0;
 		vClrMboxStats(MAILBOX_CLR(mbox));
-		vClrMbInterrupt(IRQ_REV_BIT(mbox));
+		vClrMbInterrupt((uint64_t)IRQ_REV_BIT(mbox));
 		vEnableMbInterrupt(IRQ_REV_BIT(mbox));
 		vExitCritical();
 	}
@@ -396,7 +398,7 @@ BaseType_t xTransferMessageAsync(uint32_t ulChan, uint32_t ulCmd,
 		st.sync = 0;
 		vSetMboxStats(MAILBOX_SET(mboxId), st);
 	} else {
-		vClrMbInterrupt(IRQ_SENDACK_BIT(mboxId));
+		vClrMbInterrupt((uint64_t)IRQ_SENDACK_BIT(mboxId));
 		vEnableMbInterrupt(IRQ_SENDACK_BIT(mboxId));
 	}
 	return 0;

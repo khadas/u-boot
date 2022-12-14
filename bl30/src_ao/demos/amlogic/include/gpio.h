@@ -175,7 +175,7 @@ extern "C" {
 	extern void vDisableGpioIRQ(uint16_t gpio);
 
 /**
- * restore and backup irqreg
+ * restore and backup irq register
  *
  */
 	extern void vRestoreGpioIrqReg(void);

@@ -128,12 +128,14 @@ function get_versions() {
 	else
 		for loop in ${!BLX_NAME[@]}; do
 			if [ -d ${BLX_BIN_FOLDER[$loop]} ]; then
-				# loop bin folder. (this will overwrite src version if both exist)
-				git_operate ${BLX_BIN_FOLDER[loop]} log --pretty=oneline -1
-				git_msg=${GIT_OPERATE_INFO}
-				IFS=' ' read -ra DATA <<< "$git_msg"
-				CUR_REV[$loop]=${DATA[2]}
-				echo -n "revL:${CUR_REV[$loop]} "
+				if [ "1" != "${CONFIG_WITHOUT_BIN_GIT}" ]; then
+					# loop bin folder. (this will overwrite src version if both exist)
+					git_operate ${BLX_BIN_FOLDER[loop]} log --pretty=oneline -1
+					git_msg=${GIT_OPERATE_INFO}
+					IFS=' ' read -ra DATA <<< "$git_msg"
+					CUR_REV[$loop]=${DATA[2]}
+					echo -n "revL:${CUR_REV[$loop]} "
+				fi
 				echo "@ ${BLX_BIN_FOLDER[$loop]}"
 			elif [ -d ${BLX_SRC_FOLDER[$loop]} ]; then
 				# merge into android/buildroot, can not get manifest.xml, get version by folder
@@ -151,7 +153,7 @@ function get_versions() {
 }
 
 function git_operate() {
-	return
+	return 0
 	# $1: path, $2: other parameters
 	GIT_OPERATE_INFO=`git --git-dir $1/.git --work-tree=$1 ${@:2}`
 	dbg "${GIT_OPERATE_INFO}"
@@ -185,93 +187,99 @@ function get_blx_bin() {
 		BLX_BIN_SUB_FOLDER=""
 	fi
 
-	git_operate ${BLX_BIN_FOLDER[index]} log --pretty=oneline
+	# if uboot code without git for binary directory
+	if [ "1" == "${CONFIG_WITHOUT_BIN_GIT}" ]; then
+		cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
+	else
+		git_operate ${BLX_BIN_FOLDER[index]} log --pretty=oneline
 
-	git_msg=${GIT_OPERATE_INFO}
-	BLX_READY[${index}]="false"
-	mkdir -p ${FIP_BUILD_FOLDER}
+		git_msg=${GIT_OPERATE_INFO}
+		BLX_READY[${index}]="false"
+		mkdir -p ${FIP_BUILD_FOLDER}
 
-	# get version log line by line, compare with target version
-	line_num=0
-	while read line;
-	do
-		IFS=' ' read -ra DATA <<< "$line"
-		# v1-fix support short-id
-		dbg "${CUR_REV[$index]:0:7} - ${DATA[2]:0:7}"
-		if [ "${CUR_REV[$index]:0:7}" == "${DATA[2]:0:7}" ]; then
-			BLX_READY[${index}]="true"
-			dbg "blxbin:${DATA[0]} blxsrc:  ${DATA[2]}"
-			dbg "blxbin:${DATA[0]} blxsrc-s:${DATA[2]:0:7}"
-			# reset to history version
-			#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
-			#git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
-			# copy binary file
-			if [ "bl32" == "${BLX_NAME[$index]}" ]; then
-				# bl32 is optional
-				if [ "y" == "${CONFIG_NEED_BL32}" ]; then
-					cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
-					if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
-						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null || true
-					fi
-				fi
-			else
-				if [ "${CONFIG_CAS}" == "irdeto" ]; then
-					if [ "${BLX_BIN_NAME_IRDETO[index]}" != "NULL" ]; then
-						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_NAME_IRDETO[index]} \
-							${FIP_BUILD_FOLDER}/${BLX_BIN_NAME[index]} -f || \
-								BLX_READY[${index}]="false"
-					fi
-					if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ] && \
-					   [ "${BLX_IMG_NAME_IRDETO[index]}" != "NULL" ]; then
-						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME_IRDETO[index]} \
-							${FIP_BUILD_FOLDER}/${BLX_IMG_NAME[index]} || \
-								BLX_READY[${index}]="false"
-					fi
-				elif [ "${CONFIG_CAS}" == "vmx" ]; then
-					if [ "${BLX_BIN_NAME_VMX[index]}" != "NULL" ]; then
-						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_NAME_VMX[index]} \
-							${FIP_BUILD_FOLDER}/${BLX_BIN_NAME[index]} -f || \
-								BLX_READY[${index}]="false"
-					fi
-					if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
-						if [ "${BLX_IMG_NAME_VMX[index]}" != "NULL" ]; then
-							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME_VMX[index]} \
-								${FIP_BUILD_FOLDER}/${BLX_IMG_NAME[index]} || \
-									BLX_READY[${index}]="false"
+		# get version log line by line, compare with target version
+		line_num=0
+		while read line;
+		do
+			IFS=' ' read -ra DATA <<< "$line"
+			# v1-fix support short-id
+			dbg "${CUR_REV[$index]:0:7} - ${DATA[2]:0:7}"
+			if [ "${CUR_REV[$index]:0:7}" == "${DATA[2]:0:7}" ]; then
+				BLX_READY[${index}]="true"
+				dbg "blxbin:${DATA[0]} blxsrc:  ${DATA[2]}"
+				dbg "blxbin:${DATA[0]} blxsrc-s:${DATA[2]:0:7}"
+				# reset to history version
+				#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
+				#git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
+				# copy binary file
+				if [ "bl32" == "${BLX_NAME[$index]}" ]; then
+					# bl32 is optional
+					if [ "y" == "${CONFIG_NEED_BL32}" ]; then
+						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
+						if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
+							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null || true
 						fi
 					fi
 				else
-					cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
-					if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
-						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null || true
+					if [ "${CONFIG_CAS}" == "irdeto" ]; then
+						if [ "${BLX_BIN_NAME_IRDETO[index]}" != "NULL" ]; then
+							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_NAME_IRDETO[index]} \
+								${FIP_BUILD_FOLDER}/${BLX_BIN_NAME[index]} -f || \
+									BLX_READY[${index}]="false"
+						fi
+						if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ] && \
+						   [ "${BLX_IMG_NAME_IRDETO[index]}" != "NULL" ]; then
+							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME_IRDETO[index]} \
+								${FIP_BUILD_FOLDER}/${BLX_IMG_NAME[index]} || \
+									BLX_READY[${index}]="false"
+						fi
+					elif [ "${CONFIG_CAS}" == "vmx" ]; then
+						if [ "${BLX_BIN_NAME_VMX[index]}" != "NULL" ]; then
+							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_NAME_VMX[index]} \
+								${FIP_BUILD_FOLDER}/${BLX_BIN_NAME[index]} -f || \
+									BLX_READY[${index}]="false"
+						fi
+						if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
+							if [ "${BLX_IMG_NAME_VMX[index]}" != "NULL" ]; then
+								cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME_VMX[index]} \
+									${FIP_BUILD_FOLDER}/${BLX_IMG_NAME[index]} || \
+										BLX_READY[${index}]="false"
+							fi
+						fi
+					else
+						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
+						if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
+							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null || true
+						fi
+					fi
+					if [ -e ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/bl2.v3.bin ]; then
+						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/bl2.v3.bin ${FIP_BUILD_FOLDER} -f
 					fi
 				fi
-				if [ -e ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/bl2.v3.bin ]; then
-					cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/bl2.v3.bin ${FIP_BUILD_FOLDER} -f
+				# undo reset
+				if [ 0 -ne ${line_num} ]; then
+					# this is not latest version, can do reset. latest version doesn't have 'git reflog'
+					#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset 'HEAD@{1}' --hard
+					#git_operate2 ${BLX_BIN_FOLDER[index]} reset 'HEAD@{1}' --hard
+					:
 				fi
+				break
 			fi
-			# undo reset
-			if [ 0 -ne ${line_num} ]; then
-				# this is not latest version, can do reset. latest version doesn't have 'git reflog'
-				#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset 'HEAD@{1}' --hard
-				#git_operate2 ${BLX_BIN_FOLDER[index]} reset 'HEAD@{1}' --hard
-				:
-			fi
-			break
-		fi
-		line_num=$((line_num+1))
-	done <<< "${git_msg}"
-	if [ "true" == ${BLX_READY[${index}]} ]; then
-		echo "Get ${BLX_NAME[$index]} from ${BLX_BIN_FOLDER[$index]}... done"
-	else
-		echo -n "Get ${BLX_NAME[$index]} from ${BLX_BIN_FOLDER[$index]}... failed"
-		if [ "true" == ${BLX_NEEDFUL[$index]} ]; then
-			echo "... abort"
-			exit -1
+			line_num=$((line_num+1))
+		done <<< "${git_msg}"
+		if [ "true" == ${BLX_READY[${index}]} ]; then
+			echo "Get ${BLX_NAME[$index]} from ${BLX_BIN_FOLDER[$index]}... done"
 		else
-			echo ""
+			echo -n "Get ${BLX_NAME[$index]} from ${BLX_BIN_FOLDER[$index]}... failed"
+			if [ "true" == ${BLX_NEEDFUL[$index]} ]; then
+				echo "... abort"
+				exit -1
+			else
+				echo ""
+			fi
 		fi
 	fi
+
 	return 0;
 }
 

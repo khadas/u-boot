@@ -51,7 +51,7 @@ do {									\
 #define IRError(fmt, x...)						\
 	iprintf("%sError: %s: "fmt, DRIVE_NAME, __func__,  ##x);
 
-static inline void prvIRRegWrite(uint8_t ucCTL, uint8_t ucAddr, uint32_t ulval)
+static inline void prvIRRegWrite(uint8_t ucCTL, uint8_t ucAddr, uint32_t ulvalue)
 {
 	uint32_t ulRegBase = 0;
 
@@ -62,7 +62,7 @@ static inline void prvIRRegWrite(uint8_t ucCTL, uint8_t ucAddr, uint32_t ulval)
 
 	ulRegBase = IS_LEGACY_CTRL(ucCTL);
 
-	REG32((unsigned long)(ulRegBase + ucAddr)) = ulval;
+	REG32((unsigned long)(ulRegBase + ucAddr)) = ulvalue;
 }
 
 static inline uint32_t prvIRRegRead(uint8_t ucCTL, uint8_t ucAddr)
@@ -168,7 +168,7 @@ static void prvCheckPowerKey(void)
 		}
 }
 
-static void vIRIntteruptHandler(void)
+static void vIRInterruptHandler(void)
 {
 	uint32_t ulDecodeStatus = 0;
 	uint8_t ucIndex = 0;
@@ -246,7 +246,7 @@ void vIRInit(uint16_t usWorkMode, uint16_t usGpio, enum PinMuxType func,
 	xDrvData->ucCurWorkMode = usWorkMode;
 	xDrvData->vIRHandler = vIRHandler;
 
-	RegisterIrq(IRQ_NUM_IRIN, 2, vIRIntteruptHandler);
+	RegisterIrq(IRQ_NUM_IRIN, 2, vIRInterruptHandler);
 	EnableIrq(IRQ_NUM_IRIN);
 
 	xDrvData->ucIsInit = 1;

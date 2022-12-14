@@ -32,7 +32,7 @@ usage() {
     cat << EOF
 Usage: $(basename $0) --help | --version
 
-       Generate Amlogic SC2 chipset Device Vendor Secure Chipset Startup (SCS) root hash and tempalte
+       Generate Amlogic SC2 chipset Device Vendor Secure Chipset Startup (SCS) root hash and template
 
        $(basename $0)
 		--key-dir <root-key-dir> \\
@@ -147,7 +147,7 @@ if [ -z "$project" ]; then
 	BASEDIR_FIP_AESKEY_ROOT="${BASEDIR_ROOT}/fip/aes/protkey"
 
 	BASEDIR_ROOTHASH_OUTPUT="${BASEDIR_RSAKEY_ROOT}/roothash"
-	BASEDIR_BOOTBLOBS_TEMPALTE_OUTPUT="${BASEDIR_ROOT}/boot-blobs/template/rootrsa-${DEVICE_ROOTRSA_INDEX}"
+	BASEDIR_BOOTBLOBS_TEMPLATE_OUTPUT="${BASEDIR_ROOT}/boot-blobs/template/rootrsa-${DEVICE_ROOTRSA_INDEX}"
 	BASEDIR_FIP_TEMPLATE_OUTPUT="${BASEDIR_ROOT}/fip/template/rootrsa-${DEVICE_ROOTRSA_INDEX}"
 else
 	BASEDIR_AESKEY_ROOT="${BASEDIR_ROOT}/root/aes/${project}/rootkey"
@@ -157,7 +157,7 @@ else
 	BASEDIR_FIP_AESKEY_ROOT="${BASEDIR_ROOT}/fip/aes/${project}/protkey"
 
 	BASEDIR_ROOTHASH_OUTPUT="${BASEDIR_RSAKEY_ROOT}/roothash"
-	BASEDIR_BOOTBLOBS_TEMPALTE_OUTPUT="${BASEDIR_ROOT}/boot-blobs/template/${project}/rootrsa-${DEVICE_ROOTRSA_INDEX}"
+	BASEDIR_BOOTBLOBS_TEMPLATE_OUTPUT="${BASEDIR_ROOT}/boot-blobs/template/${project}/rootrsa-${DEVICE_ROOTRSA_INDEX}"
 	BASEDIR_FIP_TEMPLATE_OUTPUT="${BASEDIR_ROOT}/fip/template/${project}/rootrsa-${DEVICE_ROOTRSA_INDEX}"
 fi
 

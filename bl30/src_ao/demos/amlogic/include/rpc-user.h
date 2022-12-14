@@ -16,7 +16,7 @@
 #define MBX_MSG_FUNC(msgcode)	((msgcode) & (0x3FF))
 
 /*******************************************************************************
- * Define moudle type here, 6bits valid
+ * Define module type here, 6bits valid
  ******************************************************************************/
 #define MBX_SYSTEM		0x0
 
@@ -50,7 +50,7 @@
 
 
 /*******************************************************************************
- * Mssage Comopsition
+ * Mssage Composition
  ******************************************************************************/
 #define MBX_CMD_RPCUINTREE_TEST	__MBX_COMPOSE_MSG(MBX_SYSTEM, CMD_RPCUINTREE_TEST)
 #define MBX_CMD_RPCUINTTEE_TEST	__MBX_COMPOSE_MSG(MBX_SYSTEM, CMD_RPCUINTTEE_TEST)

@@ -60,7 +60,7 @@ struct dev_power_ops {
 #if defined (SUPPORT_PM)
 int pm_enter(void);
 int pm_wake_up(ws_t arg);
-int dev_unregiser_ws(ws_t arg);
+int dev_unregister_ws(ws_t arg);
 int find_static_power_dev(void);
 void wakeup_ap_from_kernel(void);
 int set_platform_power_ops(struct platform_power_ops *ops);

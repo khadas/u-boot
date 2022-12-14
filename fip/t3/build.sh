@@ -9,7 +9,7 @@ function init_vari() {
 	#source ${AUTOCFG_FILE} &> /dev/null # ignore warning/error
 
 	AML_BL2_NAME="bl2.bin"
-	AML_KEY_BLOB_NANE="aml-user-key.sig"
+	AML_KEY_BLOB_NAME="aml-user-key.sig"
 
 	if [ "y" == "${CONFIG_AML_SECURE_BOOT_V3}" ]; then
 		V3_PROCESS_FLAG="--level v3"
@@ -208,7 +208,7 @@ function mk_bl2ex() {
 		ls -la ${output}/
 		exit -1
 	fi
-	echo "done to genenrate bb1st.bin folder"
+	echo "done to generate bb1st.bin folder"
 }
 
 function mk_devfip() {
@@ -232,7 +232,7 @@ function mk_devfip() {
 
 	# fix size for BL40 96KB
 	if [ -f ${output}/bl40.bin ]; then
-		blx_szie=`stat -c %s ${output}/bl40.bin`
+		blx_size=`stat -c %s ${output}/bl40.bin`
 		if [ $blx_size -gt 98304 ]; then
 			echo "Error: bl40 size exceed limit 98304"
 			exit -1
@@ -308,7 +308,7 @@ function mk_devfip() {
 		echo "Error: ${output}/device-fip.bin does not exist... abort"
 		exit -1
 	fi
-	echo "done to genenrate device-fip.bin"
+	echo "done to generate device-fip.bin"
 }
 
 # due to size limit of BL2, only one type of DDR firmware is
@@ -381,7 +381,7 @@ function mk_ddr_fip()
 		# 1. make sure we only copy 36KB, 32KB IMEM + 4KB DMEM
 		# 2. make a empty bin with fw_size
 		# 3. copy from fw to empty bin
-		# 4. padding this bin to finnal output
+		# 4. padding this bin to final output
 		if [ ${fw_size} -gt "36864" ]; then
 			fw_size="36864"
 		fi

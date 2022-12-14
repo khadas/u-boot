@@ -1441,7 +1441,7 @@
 #define   P_PREG_PAD_GPIO5_I                                   (volatile uint32_t *)(0xff634400 + (0x022 << 2))
 // ----------------------------
 // ----------------------------
-// Pad conntrols
+// Pad controls
 // ----------------------------
 //`define PAD_PULL_UP_REG6                    8'h39
 #define     PAD_PULL_UP_REG0                                   (0xff634400 + (0x03a << 2))
@@ -6281,7 +6281,7 @@
 #define     EARCTX_MUTE_VAL                                    (0xff603400 + (0x001 << 2))
 #define SEC_EARCTX_MUTE_VAL                                    (0xff603400 + (0x001 << 2))
 #define   P_EARCTX_MUTE_VAL                                    (volatile uint32_t *)(0xff603400 + (0x001 << 2))
-//Bit 31:0,     reg_spdif_mute_val     ,default = 0,when biahpase encode mute,the channel value,with reg_mute_l/reg_mute_r
+//Bit 31:0,     reg_spdif_mute_val     ,default = 0,when biphase encode mute,the channel value,with reg_mute_l/reg_mute_r
 #define     EARCTX_SPDIFOUT_GAIN0                              (0xff603400 + (0x002 << 2))
 #define SEC_EARCTX_SPDIFOUT_GAIN0                              (0xff603400 + (0x002 << 2))
 #define   P_EARCTX_SPDIFOUT_GAIN0                              (volatile uint32_t *)(0xff603400 + (0x002 << 2))
@@ -6324,8 +6324,8 @@
 //Bit 30,     reg_keep_req_ddr_init ,default = 0,reg_keep_req_ddr_init
 //Bit 29:28,  reserved
 //Bit 27,     reg_gain_en         ,default = 0,gain enable
-//Bit 26:24,  reg_frddr_sel       ,default = 0,from ddr selet
-//Bit 23:16,  reg_wait_cnt        ,default = 0,wait some time when enalble set to 1
+//Bit 26:24,  reg_frddr_sel       ,default = 0,from ddr select
+//Bit 23:16,  reg_wait_cnt        ,default = 0,wait some time when enable set to 1
 //Bit 15:13,  reserved
 //Bit 12:8,   reg_frddr_msb       ,default = 0,msb position of data
 //Bit 7,      reg_force_start     ,default = 0,set 1 no need ack from frddr to transmit channel status
@@ -6334,19 +6334,19 @@
 #define     EARCTX_SPDIFOUT_PREAMB                             (0xff603400 + (0x006 << 2))
 #define SEC_EARCTX_SPDIFOUT_PREAMB                             (0xff603400 + (0x006 << 2))
 #define   P_EARCTX_SPDIFOUT_PREAMB                             (volatile uint32_t *)(0xff603400 + (0x006 << 2))
-//Bit 31,     reg_premable_Z_set      ,default = 0,user 8'b11101000 1 user 7:0
-//Bit 30,     reg_premable_Y_set      ,default = 0,user 8'b11100100 1 user 15:8
-//Bit 29,     reg_premable_X_set      ,default = 0,user 8'b11100010 1 user 23:16
+//Bit 31,     reg_preamble_Z_set      ,default = 0,user 8'b11101000 1 user 7:0
+//Bit 30,     reg_preamble_Y_set      ,default = 0,user 8'b11100100 1 user 15:8
+//Bit 29,     reg_preamble_X_set      ,default = 0,user 8'b11100010 1 user 23:16
 //Bit 28:24,  reserved
-//Bit 23:16,  reg_premable_X_value    ,default = 0
-//Bit 15:8,   reg_premable_Y_value    ,default = 0
-//Bit 7:0,    reg_premable_Z_value    ,default = 0
+//Bit 23:16,  reg_preamble_X_value    ,default = 0
+//Bit 15:8,   reg_preamble_Y_value    ,default = 0
+//Bit 7:0,    reg_preamble_Z_value    ,default = 0
 #define     EARCTX_SPDIFOUT_SWAP                               (0xff603400 + (0x007 << 2))
 #define SEC_EARCTX_SPDIFOUT_SWAP                               (0xff603400 + (0x007 << 2))
 #define   P_EARCTX_SPDIFOUT_SWAP                               (volatile uint32_t *)(0xff603400 + (0x007 << 2))
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 squence some times after intial done from frddr set
-//Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 squence time ,valid when reg_init_send_en set 1
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after initial done from frddr set
+//Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define     EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x008 << 2))
 #define SEC_EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x008 << 2))
 #define   P_EARCTX_ERR_CORRT_CTRL0                             (volatile uint32_t *)(0xff603400 + (0x008 << 2))
@@ -6380,7 +6380,7 @@
 //Bit 15:8,   reg_mute_ch_Bit      ,default = 0,mute Bit at channel statue which bit
 //Bit 7:3,    reserved
 //Bit 2,      reg_mute_data_sel    ,default = 0,mute data sel: 0 data 1 reg_mute_data_value
-//Bit 1:0,    reg_mute_mode        ,default = 0,0:always mute 1:mute block number and dis mute 2:mute bolck number and hold bus
+//Bit 1:0,    reg_mute_mode        ,default = 0,0:always mute 1:mute block number and dis mute 2:mute block number and hold bus
 #define     EARCTX_ERR_CORRT_CTRL3                             (0xff603400 + (0x00b << 2))
 #define SEC_EARCTX_ERR_CORRT_CTRL3                             (0xff603400 + (0x00b << 2))
 #define   P_EARCTX_ERR_CORRT_CTRL3                             (volatile uint32_t *)(0xff603400 + (0x00b << 2))
@@ -6400,7 +6400,7 @@
 //Bit 21,    reg_data_sel                 ,default = 0,//data sel: 0 data 1 reg_mute_data_value
 //Bit 20:19, reg_ubit_sel                 ,default = 0,//userBit sel: 0 data 1 reg_value 2 fifo data
 //Bit 18,    reg_vbit_sel                 ,default = 0,//validBit sel: 0 data 1 reg_value
-//Bit 17,    reg_chst_sel                 ,default = 0,//chanel status sel: 0 data 1 reg_value
+//Bit 17,    reg_chst_sel                 ,default = 0,//channel status sel: 0 data 1 reg_value
 //Bit 16,    reg_ubit_fifo_less_irq_en    ,default = 0,fifo_less_thd irq enable
 //Bit 15:8,  reg_ubit_fifo_start_thd      ,default = 0,start transmit iu after fifo level greater than this value
 //Bit 7:0,   reg_ubit_fifo_less_thd       ,default = 0,generate irq,when fifo level less than this value
@@ -6595,7 +6595,7 @@
 //Bit   13   ,     cmdc_debug2               unsigned, default = 0, 1: enable
 //Bit   12:7 ,     reserved
 //Bit    6   ,     mute_select               unsigned, default = 0, 1: use bit5, 0: earc off
-//Bit    5   ,     mute_contrl               unsigned, default = 0, value of mannul mute control
+//Bit    5   ,     mute_contrl               unsigned, default = 0, value of manual mute control
 //Bit    4:0 ,     reserved
 #define     EARC_RX_CMDC_TOP_CTRL1                             (0xff603800 + (0x001 << 2))
 #define SEC_EARC_RX_CMDC_TOP_CTRL1                             (0xff603800 + (0x001 << 2))
@@ -6760,7 +6760,7 @@
 #define   P_EARC_RX_CMDC_PACKET_CTRL3                          (volatile uint32_t *)(0xff603800 + (0x015 << 2))
 //Bit      31,       cmdc_en                      unsigned, default = 0,  XX
 //Bit      30,       cmdc_parity_mask             unsigned, default = 0,  XX
-//Bit      29,       imeout_en                    unsigned, default = 0,  XX
+//Bit      29,       timeout_en                    unsigned, default = 0,  XX
 //Bit      28,       ecc_check_en                 unsigned, default = 0,  XX
 //Bit      27,       rev_debug_en                 unsigned, default = 0,  XX
 //Bit     26:16,     reserved
@@ -6901,22 +6901,22 @@
 #define     EARC_RX_CMDC_STATUS6                               (0xff603800 + (0x02d << 2))
 #define SEC_EARC_RX_CMDC_STATUS6                               (0xff603800 + (0x02d << 2))
 #define   P_EARC_RX_CMDC_STATUS6                               (volatile uint32_t *)(0xff603800 + (0x02d << 2))
-//Bit      31,         ro_idle2_int                unsigned, RO, dfault =0
-//Bit      30,         ro_idle1_int                unsigned, RO, dfault =0
-//Bit      29,         ro_disc2_int                unsigned, RO, dfault =0
-//Bit      28,         ro_disc1_int                unsigned, RO, dfault =0
-//Bit      27,         ro_earc_int                 unsigned, RO, dfault =0
-//Bit      26,         ro_hb_status_int            unsigned, RO, dfault =0
-//Bit      25,         ro_losthb_int               unsigned, RO, dfault =0
-//Bit      24,         ro_timeout_int              unsigned, RO, dfault =0
-//Bit      23,         ro_status_ch_int            unsigned, RO, dfault =0
-//Bit      22,         ro_int_rec_invalid_id       unsigned, RO, dfault =0
-//Bit      21,         ro_int_rec_invalid_offset   unsigned, RO, dfault =0
-//Bit      20,         ro_int_rec_unexp            unsigned, RO, dfault =0
-//Bit      19,         ro_int_rec_ecc_err          unsigned, RO, dfault =0
-//Bit      18,         ro_int_rec_parity_err       unsigned, RO, dfault =0
-//Bit      17,         ro_int_recv_packet          unsigned, RO, dfault =0
-//Bit      16,         ro_int_rec_time_out         unsigned, RO, dfault =0
+//Bit      31,         ro_idle2_int                unsigned, RO, default =0
+//Bit      30,         ro_idle1_int                unsigned, RO, default =0
+//Bit      29,         ro_disc2_int                unsigned, RO, default =0
+//Bit      28,         ro_disc1_int                unsigned, RO, default =0
+//Bit      27,         ro_earc_int                 unsigned, RO, default =0
+//Bit      26,         ro_hb_status_int            unsigned, RO, default =0
+//Bit      25,         ro_losthb_int               unsigned, RO, default =0
+//Bit      24,         ro_timeout_int              unsigned, RO, default =0
+//Bit      23,         ro_status_ch_int            unsigned, RO, default =0
+//Bit      22,         ro_int_rec_invalid_id       unsigned, RO, default =0
+//Bit      21,         ro_int_rec_invalid_offset   unsigned, RO, default =0
+//Bit      20,         ro_int_rec_unexp            unsigned, RO, default =0
+//Bit      19,         ro_int_rec_ecc_err          unsigned, RO, default =0
+//Bit      18,         ro_int_rec_parity_err       unsigned, RO, default =0
+//Bit      17,         ro_int_recv_packet          unsigned, RO, default =0
+//Bit      16,         ro_int_rec_time_out         unsigned, RO, default =0
 //Bit      15:0,       reserved
 //
 // Closing file:  earc_rx_cmdc.h
@@ -7034,7 +7034,7 @@
 //Bit   29:28,  reserved
 //Bit   27,     reg_debug_en                  unsigned, default = 0, debug enable
 //Bit   26,     reg_chnum_en                  unsigned, default = 0, star add ch_cnt to ch_num
-//Bit   25,     reg_findpapb_en               unsigned, default = 0, papb check enalbe
+//Bit   25,     reg_findpapb_en               unsigned, default = 0, papb check enable
 //Bit   24,     reg_nonpcm2pcm_en             unsigned, default = 0, nonpcm2pcm_th enable
 //Bit   23:12,  reg_nonpcm2pcm_th             unsigned, default = 0, if long time didn't detect PaPb again,will generate irq
 //Bit   11:8,   reg_ch_status_sel             unsigned, default = 0, for stat1/stat2
@@ -7096,11 +7096,11 @@
 #define   P_EARCRX_DMAC_UBIT_CTRL0                             (volatile uint32_t *)(0xff603c00 + (0x013 << 2))
 //Bit   31,     reg_work_enable               unsigned, default = 0, dmac user bit decode enable
 //Bit   30:24,  reg_iu_sync                   unsigned, default = 0, iu sync value
-//Bit   23:16,  reg_fifo_thd                  unsigned, default = 0, generate irq when fifo level pass some threthold
-//Bit   15,     reg_max_dist_en               unsigned, default = 0, max distance bewteen IUs to set lost
+//Bit   23:16,  reg_fifo_thd                  unsigned, default = 0, generate irq when fifo level pass some threshold
+//Bit   15,     reg_max_dist_en               unsigned, default = 0, max distance between IUs to set lost
 //Bit   14,     reg_iu_sync_en                unsigned, default = 0, iu sync code enable 0 : all iu to fifo 1 only sync iu packet to fifo
 //Bit   13:12,  reg_user_lr                   unsigned, default = 0, 00 off 01 use l channel userbit 10 use r channel userbit 11 user lr channel userbit
-//Bit   11:8,   reg_max_dist                  unsigned, default = 0, max distance bewteen IUs value
+//Bit   11:8,   reg_max_dist                  unsigned, default = 0, max distance between IUs value
 //Bit   7,      reg_fifo_thd_en               unsigned, default = 0, fifo_thd irq enable
 //Bit   6,      reg_fifo_lost_init_en         unsigned, default = 0, when lost,initial fifo
 //Bit   5,      reg_fifo_init                 unsigned, default = 0, fifo initial
@@ -7142,8 +7142,8 @@
 //Bit   29,     reg_ana_rst_sf                unsigned, default = 0, soft reset value
 //Bit   28,     reserved
 //Bit   27:23,  reg_new_format_pos_num        unsigned, default = 0, when new format data in, hold reset after N posedge
-//Bit   22:20,  reg_dmacrx_div2_thd_tick_sel  unsigned, default = 0, earcrx_div2 hold thresthold tick select
-//Bit   19:0,   reg_earcrx_div2_thd           unsigned, default = 0, earcrx_div2 hold thresthold
+//Bit   22:20,  reg_dmacrx_div2_thd_tick_sel  unsigned, default = 0, earcrx_div2 hold threshold tick select
+//Bit   19:0,   reg_earcrx_div2_thd           unsigned, default = 0, earcrx_div2 hold threshold
 #define     EARCRX_ANA_RST_CTRL1                               (0xff603c00 + (0x019 << 2))
 #define SEC_EARCRX_ANA_RST_CTRL1                               (0xff603c00 + (0x019 << 2))
 #define   P_EARCRX_ANA_RST_CTRL1                               (volatile uint32_t *)(0xff603c00 + (0x019 << 2))

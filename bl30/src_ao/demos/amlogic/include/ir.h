@@ -45,7 +45,7 @@ enum PowerKeyType {
 /*supported protocol*/
 #define MODE_SOFT		0x0
 #define MODE_HARD_NEC		0x1
-#define MODE_HARD_LEAGCY_NEC	0xff
+#define MODE_HARD_LEGACY_NEC	0xff
 #define MAX_KEY_NUM  		80
 
 /**

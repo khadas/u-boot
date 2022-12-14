@@ -221,7 +221,7 @@ EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/krnl-level-3-rsa-priv.pem "
 #EXPORT_FILES+="${BASEDIR_AESKEY_ROOT}/aes256-device-rootkey-bootstage-1.bin "
 
 ### Input (Required for Device Bootloader Encryption) ###
-### Required to protect BL30/BL33 and kernel protction ###
+### Required to protect BL30/BL33 and kernel protection ###
 EXPORT_FILES+="${BASEDIR_FIP_AESKEY_ROOT}/genkey-prot-bl30.bin "
 EXPORT_FILES+="${BASEDIR_FIP_AESKEY_ROOT}/genkey-prot-bl33.bin "
 EXPORT_FILES+="${BASEDIR_FIP_AESKEY_ROOT}/genkey-prot-krnl.bin "

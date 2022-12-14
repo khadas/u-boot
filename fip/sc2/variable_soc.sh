@@ -65,6 +65,9 @@ declare -a BL2E_SUPPORT_FINAL_SIZE=("74864" "140400" "271472" "1057904")
 
 declare BL30_BIN_SIZE="65536"
 declare BL33_BIN_SIZE="1572864"
+if [ "1" == "${CONFIG_NASC_NAGRA_TIER_1}" ]; then
+	declare BL33_NOCS_BIN_SIZE="1572348"
+fi
 declare DEV_ACS_BIN_SIZE="28672"
 declare -a BLX_RAWBIN_NAME=("bl2.bin.sto"	\
 			    "bl2.bin.usb"	\
@@ -142,7 +145,7 @@ declare BL3X_SUFFIX="bin"
 declare V3_PROCESS_FLAG=""
 declare FIP_ARGS=""
 declare AML_BL2_NAME=""
-declare AML_KEY_BLOB_NANE=""
+declare AML_KEY_BLOB_NAME=""
 declare FIP_BL32_PROCESS=""
 declare BOOT_SIG_FLAG=""
 declare EFUSE_GEN_FLAG=""

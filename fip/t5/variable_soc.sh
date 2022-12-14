@@ -28,7 +28,7 @@ declare BL33_COMPRESS_FLAG=""
 declare BL3X_SUFFIX="bin"
 declare V3_PROCESS_FLAG=""
 declare AML_BL2_NAME=""
-declare AML_KEY_BLOB_NANE=""
+declare AML_KEY_BLOB_NAME=""
 declare FIP_BL32_PROCESS=""
 
 BUILD_PATH=${FIP_BUILD_FOLDER}

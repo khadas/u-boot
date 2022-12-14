@@ -255,7 +255,7 @@ enum {
  * Even though the bit zero is not SWRESET type we still want to write zero
  * to it when changing type. Bit zero is 'SWRESET' trigger bit and if we
  * write 1 to it we will trigger the action. So always write 0 to it when
- * changning SWRESET action - no matter what we read from it.
+ * changing SWRESET action - no matter what we read from it.
  */
 #define BD718XX_SWRESET_TYPE_MASK	7
 #define BD718XX_SWRESET_TYPE_DISABLED	0

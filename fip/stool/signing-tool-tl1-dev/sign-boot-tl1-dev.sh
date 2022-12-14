@@ -347,11 +347,12 @@ get_pub_pem_key_len() {
         exit 1
     fi
     bits=$(openssl rsa -in $pem -pubin -text -noout | \
-        grep '^Public-Key: (' | \
+        grep 'Public-Key: (' | \
+        sed 's/RSA Public-Key: (//' | \
         sed 's/Public-Key: (//' | \
         sed 's/ bit)//')
-    if [ "$bits" -ne 1024 ] && [ "$bits" -ne 2048 ] &&
-       [ "$bits" -ne 4096 ] && [ "$bits" -ne 8192]; then
+    if [ "$bits" != "1024" ] && [ "$bits" != "2048" ] &&
+       [ "$bits" != "4096" ] && [ "$bits" != "8192" ]; then
        echo "Unexpected key size  $bits"
        exit 1
     fi
@@ -371,8 +372,8 @@ get_pem_key_len() {
         grep 'Private-Key: (' | \
         sed -r 's/(RSA )?Private-Key: \(//'| \
         sed -r 's/ bit(,.?[0-9].?primes)?\)//')
-    if [ "$bits" -ne 1024 ] && [ "$bits" -ne 2048 ] &&
-       [ "$bits" -ne 4096 ] && [ "$bits" -ne 8192]; then
+    if [ "$bits" != "1024" ] && [ "$bits" != "2048" ] &&
+       [ "$bits" != "4096" ] && [ "$bits" != "8192" ]; then
        echo "Unexpected key size  $bits"
        exit 1
     fi

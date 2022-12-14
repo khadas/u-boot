@@ -27,7 +27,7 @@ usage() {
 Usage: $(basename $0) --help
        $(basename $0) --version
        $(basename $0) --generate-efuse-pattern \\
-                      --soc [gxl | txlx | axg | g12a | sm1 | a1 | c1 | t5 ] \\
+                      --soc [gxl | txlx | axg | g12a | sm1 | a1 | c1 | t5 | t5d | t5w ] \\
                       [--soc-rev [a | b]] \\
                       [--root-hash rootkeys.hash] \\
                       [--password-hash password.hash] \\
@@ -293,7 +293,7 @@ generate_efuse_pattern() {
 
     if [ "$soc" != "gxl" ] && [ "$soc" != "axg" ] && [ "$soc" != "txlx" ] &&
             [ "$soc" != "g12a" ] && [ "$soc" != "sm1" ] && [ "$soc" != "a1" ] &&
-            [ "$soc" != "c1" ] && [ "$soc" != "t5" ]; then
+            [ "$soc" != "c1" ] && [ "$soc" != "t5" ] && [ "$soc" != "t5d" ] && [ "$soc" != "t5w" ]; then
         echo Error: invalid soc: \"$soc\"
         exit 1
     fi
@@ -302,7 +302,7 @@ generate_efuse_pattern() {
     if [ "$soc" == "txlx" ] || [ "$soc" == "axg" ] || [ "$soc" == "g12a" ] || [ "$soc" == "sm1" ]; then
         keyhashver=2
     fi
-    if [ "$soc" == "a1" ] || [ "$soc" == "c1" ] || [ "$soc" == "t5" ]; then
+    if [ "$soc" == "a1" ] || [ "$soc" == "c1" ] || [ "$soc" == "t5" ] || [ "$soc" == "t5d" ] || [ "$soc" == "t5w" ]; then
         keyhashver=3
     fi
 
@@ -439,7 +439,7 @@ generate_efuse_pattern() {
         generate_efuse_pattern_sm1
     elif [ "$soc" == "a1" ] || [ "$soc" == "c1" ]; then
         generate_efuse_pattern_a1
-    elif [ "$soc" == "t5" ]; then
+    elif [ "$soc" == "t5" ] || [ "$soc" == "t5d" ] || [ "$soc" == "t5w" ]; then
         generate_efuse_pattern_t5
     elif [ "$soc" == "axg" ]; then
         generate_efuse_pattern_axg
@@ -1427,9 +1427,13 @@ generate_efuse_pattern_t5() {
     b_a2="00"
     b_a3="00"
     if [ "$disablejtag" == "true" ]; then
-        # Disable *ALL* JTAG (AO, AP) in SM1
+        # Disable *ALL* JTAG (AO, AP) in T5/T5D
         b_a3="$(printf %02x $(( 0x$b_a3 | 0x40 )))"
         b_a3="$(printf %02x $(( 0x$b_a3 | 0x20 )))"
+        # Disable AU JTAG in T5W
+        if [ "$soc" == "t5w" ]; then
+            b_a3="$(printf %02x $(( 0x$b_a3 | 0x80 )))"
+        fi
     fi
 
     if [ "$disableprint" == "true" ]; then

@@ -39,7 +39,7 @@ extern void eclic_irq50_handler(void);
 /* use for ir */
 #define IRQ_NUM_IRIN	7
 
-/* gpio key/blutooth or others gpio irq useage*/
+/* gpio key/bluetooth or others gpio irq useage*/
 #define IRQ_NUM_GPIO3	23
 #define IRQ_NUM_GPIO2	22
 #define IRQ_NUM_GPIO1	21

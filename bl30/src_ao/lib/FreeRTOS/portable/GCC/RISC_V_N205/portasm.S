@@ -523,18 +523,20 @@ MTIME_HANDLER:
 
 	mret
 
-#if 0
+#if 1
 .align 2
 .globl MSIP_HANDLER
 MSIP_HANDLER:
 	pushREGFILE
+	portSAVE_EPC_MSTATUS
 	portSAVE_CONTEXT_IRQ
 
-	csrs CSR_MSTATUS, MSTATUS_MIE
-	jal 	test_handler
-	csrc CSR_MSTATUS, MSTATUS_MIE
+	//csrs CSR_MSTATUS, MSTATUS_MIE
+	jal		vSoftIRQHandler
+	//csrc CSR_MSTATUS, MSTATUS_MIE
 
 	portRESTORE_CONTEXT_IRQ
+	portRESTORE_EPC_MSTATUS
 	popREGFILE
 
 	mret

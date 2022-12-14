@@ -69,7 +69,7 @@ typedef struct ddr_set{
 	//bit 2 ---use byte 2 ,1 disable byte 2,
 	//bit 3 ---use byte 3 ,1 disable byte 3,
 	unsigned	char	Is2Ttiming;
-	//ddr3/ddr3 use 2t timing,now only support 2t timming
+	//ddr3/ddr3 use 2t timing,now only support 2t timing
 	unsigned	char	HdtCtrl;
 	//training information control,do not modify
 	unsigned	char	dram_rank_config;
@@ -77,11 +77,11 @@ typedef struct ddr_set{
 	//#define CONFIG_DDR0_16BIT_CH0				0x1  //dram total bus width 16bit only use cs0
 	//#define CONFIG_DDR0_16BIT_RANK01_CH0		0x4  //dram total bus width 16bit  use cs0 cs1
 	//#define CONFIG_DDR0_32BIT_RANK0_CH0			0x2  //dram total bus width 32bit  use cs0
-	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use chanel a cs0 cs1 chanel b cs0 cs1
+	//#define CONFIG_DDR0_32BIT_RANK01_CH01		0x3    //only for lpddr4,dram total bus width 32bit  use channel a cs0 cs1 channel b cs0 cs1
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK0_CH0		0x5    //dram total bus width 32bit only use cs0,but high address use 16bit mode
 	//#define CONFIG_DDR0_32BIT_16BIT_RANK01_CH0	0x6   //dram total bus width 32bit  use cs0 cs1,but cs1 use 16bit mode ,current phy not support reserve
 	//#define CONFIG_DDR0_32BIT_RANK01_CH0		0x7       //dram total bus width 32bit  use cs0 cs1
-	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use chanel a cs0  chanel b cs0
+	//#define CONFIG_DDR0_32BIT_RANK0_CH01		0x8     //only for lpddr4,dram total bus width 32bit  use channel a cs0  channel b cs0
 
 	/* rsv_char0. update for diagnose type define */
 	unsigned	char	diagnose;
@@ -124,18 +124,18 @@ typedef struct ddr_set{
 	// [1]Odt pattern for accesses targeting rank 1. [3:0] is used for write ODT [7:4] is used for read ODT
 	unsigned	int		dfi_odt_config;
 	//normal go status od config,use for normal status
-	//bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+	//bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
 	//bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
 	//bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
 	//bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
 	//bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-	//bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+	//bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
 	//bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
 	//bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
 	//bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read occure in rank1.
 	unsigned	short	DRAMFreq[4];
-	//config dram frequency,use DRAMFreq[0],ohter reserve
+	//config dram frequency,use DRAMFreq[0],other reserve
 	unsigned	char	PllBypassEn;
 	//system reserve,do not modify
 	unsigned	char	ddr_rdbi_wr_enable;
@@ -173,25 +173,25 @@ typedef struct ddr_set{
 	 *        .pll_ssc_mode = (1<<20) | (1<<8) | (6 << 4) | 2,
 	 */
 	unsigned	short	clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned	short	ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned	short	soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull up driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin pull down driver strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull up strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
+	//config soc data pin odt pull down strength,select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned	short	dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin pull up pull down driver strength,ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned	short	dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned	short	soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned	short	soc_cs_slew_rate;
@@ -206,8 +206,8 @@ typedef struct ddr_set{
 	//soc init SOC receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
 	unsigned	short	vref_dram_permil;
 	//soc init DRAM receiver vref ,config like 500 means 0.5VDDQ,take care ,please follow SI
-	unsigned	short	max_core_timmming_frequency;
-	//use for limited ddr speed core timmming parameter,for some old dram maybe have no over speed register
+	unsigned	short	max_core_timing_frequency;
+	//use for limited ddr speed core timing parameter,for some old dram maybe have no over speed register
 	/* align8 */
 
 	unsigned	char	ac_trace_delay[10];
@@ -294,7 +294,7 @@ typedef struct pll_set{
 	unsigned long     lCustomerID;
 	unsigned short    debug_mode;
 	unsigned char    rsv1;
-	unsigned char    ddr_timming_save_mode;
+	unsigned char    ddr_timing_save_mode;
 
 	/* align 8Byte */
 
@@ -421,7 +421,7 @@ int main(int argc, char **argv)
 	acs_set_p=(acs_set_t  *)((buffer)+(((unsigned long)(value_p))-link_add));
 	pll_set_p=(pll_set_t  *)((buffer)+(((unsigned long)(acs_set_p->pll_set_addr))-link_add));
 	ddr_set_p=(ddr_set_t  *)((buffer)+(((unsigned long)(acs_set_p->ddr_set_addr))-link_add));
-	unsigned int ddr_timming_array=(acs_set_p->ddr_set_length/acs_set_p->ddr_struct_org_size);
+	unsigned int ddr_timing_array=(acs_set_p->ddr_set_length/acs_set_p->ddr_struct_org_size);
 
 	if (ddr_setting_addr != (unsigned int)(acs_set_p->ddr_set_addr))
 	{
@@ -439,14 +439,14 @@ int main(int argc, char **argv)
 	printf("\nacs_set_p->ddr_struct_org_size==0x%08x ",(unsigned int )acs_set_p->ddr_struct_org_size);
 	printf("\nacs_set_p->ddr_set_addr==0x%08x ",(unsigned int )acs_set_p->ddr_set_addr);
 	printf("\nacs_set_p->ddr_set_length==0x%08x ",(unsigned int )acs_set_p->ddr_set_length);
-	printf("\nacs_set_p->ddr_array==0x%08x ", ddr_timming_array);
+	printf("\nacs_set_p->ddr_array==0x%08x ", ddr_timing_array);
 
 	printf("\nacs_set_p->pll_set_addr==0x%08x ",(unsigned int )acs_set_p->pll_set_addr);
 	printf("\n");
 	#endif
-	if (0 == pll_set_p->ddr_timming_save_mode)
+	if (0 == pll_set_p->ddr_timing_save_mode)
 	{
-		printf("\nstart reduce timing for mode %d", pll_set_p->ddr_timming_save_mode);
+		printf("\nstart reduce timing for mode %d", pll_set_p->ddr_timing_save_mode);
 
 		for (i = 0; i < ((acs_set_p->ddr_set_addr) - link_add); i++)
 		{
@@ -475,7 +475,7 @@ int main(int argc, char **argv)
 		}
 	#endif
 
-		for (i = 0; i < ddr_timming_array; i++)
+		for (i = 0; i < ddr_timing_array; i++)
 		{
 			printf("\nconfig %d  (ddr_set_p->board_id)=0x%08x",i,(unsigned int )(unsigned long )((ddr_set_p->board_id)));
 			if (ddr_set_p->board_id)
@@ -501,10 +501,10 @@ int main(int argc, char **argv)
 			ddr_set_p=ddr_set_p+1;
 		}
 
-		printf("\ncopy ddr timming ddr_set_p=0x%08x\n",(unsigned int )(unsigned long )(ddr_set_p));
+		printf("\ncopy ddr timing ddr_set_p=0x%08x\n",(unsigned int )(unsigned long )(ddr_set_p));
 		unsigned int ddr_set_addr_offset_f=0;
 		ddr_set_addr_offset_f=((acs_set_p->ddr_set_addr)-link_add);
-		for (i = 0; i < ddr_timming_array; i++)
+		for (i = 0; i < ddr_timing_array; i++)
 		{
 			if ((acs_set_p->board_id[i]) & 0xff)
 			{
@@ -516,8 +516,8 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		ddr_set_addr_offset_f=ddr_set_addr_offset_f+acs_set_p->ddr_struct_size[ddr_timming_array-1];
-		unsigned int ddr_set_reduce_offset=ddr_timming_array*(acs_set_p->ddr_struct_org_size)+ddr_set_addr_offset-ddr_set_addr_offset_f;
+		ddr_set_addr_offset_f=ddr_set_addr_offset_f+acs_set_p->ddr_struct_size[ddr_timing_array-1];
+		unsigned int ddr_set_reduce_offset=ddr_timing_array*(acs_set_p->ddr_struct_org_size)+ddr_set_addr_offset-ddr_set_addr_offset_f;
 
 	#ifdef NO_DDR_SETTINGS_LAYOUT_OPTIMIZATION
 		if ((ddr_set_reduce_offset/4)%2)  //align byte 8  for other data
@@ -528,19 +528,19 @@ int main(int argc, char **argv)
 			buffer_f[ddr_set_addr_offset_f+2]=0;
 			buffer_f[ddr_set_addr_offset_f+3]=0;
 
-			acs_set_p->ddr_struct_size[ddr_timming_array-1] += 4;
+			acs_set_p->ddr_struct_size[ddr_timing_array-1] += 4;
 			ddr_set_addr_offset_f=ddr_set_addr_offset_f+4;
 		}
 	#endif
 
-		if (fileLen - ddr_timming_array*(acs_set_p->ddr_struct_org_size) - ddr_set_addr_offset)
+		if (fileLen - ddr_timing_array*(acs_set_p->ddr_struct_org_size) - ddr_set_addr_offset)
 		{
 			printf("\nError: __ddr_setting is not at end of acs firmware,no layout refine!\n");
 
 	#ifdef NO_DDR_SETTINGS_LAYOUT_OPTIMIZATION
-			for (i = 0;i < (fileLen-ddr_timming_array*(acs_set_p->ddr_struct_org_size)-ddr_set_addr_offset); i++)
+			for (i = 0;i < (fileLen-ddr_timing_array*(acs_set_p->ddr_struct_org_size)-ddr_set_addr_offset); i++)
 			{
-				buffer_f[ddr_set_addr_offset_f+i]=(buffer[i+ddr_timming_array*(acs_set_p->ddr_struct_org_size)+ddr_set_addr_offset])&0xff;
+				buffer_f[ddr_set_addr_offset_f+i]=(buffer[i+ddr_timing_array*(acs_set_p->ddr_struct_org_size)+ddr_set_addr_offset])&0xff;
 			}
 
 			*((unsigned int *)((buffer_f)+4)) = *((unsigned int *)((buffer_f)+4)) - ddr_set_reduce_offset;
@@ -596,7 +596,7 @@ int main(int argc, char **argv)
 
 	printf("\nfinal timing size:%dbytes, while original size:%dbytes\n", length_f, (unsigned int)fileLen);
 	if (length_f > 4096)
-		printf("\nwarning timming size over limmit");
+		printf("\nwarning timing size over limit");
 
 	fwrite(buffer_f , sizeof(char), length_f, file_f);
 	fclose(file_f);

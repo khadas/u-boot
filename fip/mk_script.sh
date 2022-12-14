@@ -87,7 +87,7 @@ function init_variable_late() {
 		source "${CONFIG_FILE_TMP}" &> /dev/null || true
 		rm ${CONFIG_FILE_TMP}
 	fi
-	if [ "y" == "${CONFIG_SUPPORT_CUSOTMER_BOARD}" ]; then
+	if [ "y" == "${CONFIG_SUPPORT_CUSTOMER_BOARD}" ]; then
 		BOARD_DIR="customer/board/${CONFIG_SYS_BOARD}"
 	else
 		BOARD_DIR="${CONFIG_BOARDDIR}"
@@ -296,13 +296,21 @@ function build() {
 	if [ ! $CONFIG_FASTBOOT_WRITING_CMD ]; then
 		CONFIG_FASTBOOT_WRITING_CMD=null
 	fi
-#	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB} ${CONFIG_FASTBOOT_WRITING_CMD}
+	if [ ! $CONFIG_AVB2_RECOVERY ]; then
+		CONFIG_AVB2_RECOVERY=null
+	fi
+#	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB} ${CONFIG_FASTBOOT_WRITING_CMD} ${CONFIG_AVB2_RECOVERY}
 
 	# source other configs after uboot compile
 	init_variable_late
 
 	# bl2/bl30/bl31..etc, build or copy from bin.git
 	build_blx $@
+
+	if [ "1" == "${CONFIG_NASC_NAGRA_TIER_1}" ]; then
+		# combine bl2f.bin with bl33(uboot)
+		combine_bl2f_with_bl33
+	fi
 
 	# cp bl33(uboot)
 	copy_bl33
@@ -349,8 +357,7 @@ function usage() {
         ./$(basename $0) [config_name] --update-bl2 --ddrfw
 
     7. build uboot with bl[x]/src source code, and run coverity defect
-        ./$(basename $0) [config_name] --update-bl[x] --cov
-        ./$(basename $0) [config_name] --update-bl[x] --cov-high [path]
+        see help info: ./fip/check_coverity.sh -h
 
     8. build uboot with ramdump function
         ./$(basename $0) [config_name] --update-bl[x] --enable-ramdump --chipid [cpu_id]
@@ -522,6 +529,10 @@ function bin_path_parser() {
 				continue ;;
 			--update-bl2e)
 				update_bin_path 5 "source"
+				if [ "1" == "${CONFIG_NASC_NAGRA_TIER_1}" ]; then
+					BL2F_UPDATE_TYPE=y
+					export BL2F_UPDATE_TYPE
+				fi
 				if [[ ${argv[i]} == "sto" || ${argv[i]} == "usb" ]]; then
 					BL2E_UPDATE_TYPE=${argv[i]}
 					export BL2E_UPDATE_TYPE
@@ -562,6 +573,14 @@ function bin_path_parser() {
 			--build-unsign)
 				CONFIG_BUILD_UNSIGN=1
 				export CONFIG_BUILD_UNSIGN
+				continue ;;
+			--nasc_nagra_tier_1)
+				CONFIG_NASC_NAGRA_TIER_1=1
+				export CONFIG_NASC_NAGRA_TIER_1
+				continue;;
+			--build-nogit)
+				CONFIG_WITHOUT_BIN_GIT=1
+				export CONFIG_WITHOUT_BIN_GIT
 				continue ;;
 			--cas)
 				cas="${argv[$i]}"
@@ -609,9 +628,43 @@ function bin_path_parser() {
 				echo "export CONFIG_FASTBOOT_WRITING_CMD"
 				export CONFIG_FASTBOOT_WRITING_CMD=1
 				continue ;;
+			--avb2-recovery)
+				CONFIG_AVB2_RECOVERY=1
+				echo "export CONFIG_AVB2_RECOVERY"
+				export CONFIG_AVB2_RECOVERY=1
+				continue ;;
 				*)
 		esac
 	done
+}
+
+function combine_bl2f_with_bl33() {
+	if [ "1" == "${CONFIG_NASC_NAGRA_TIER_1}" ]; then
+		# place bl2f at end of u-boot.bin, _end align(4096)
+		if [ "y" == "${BL2F_UPDATE_TYPE}" ]; then
+			BL2F_BIN=bl2/ree/bl2f/bl2f.bin
+		else
+			echo CUR_SOC is $CUR_SOC
+			echo CONFIG_CHIPSET_NAME is $CONFIG_CHIPSET_NAME
+			BL2F_BIN=bl2/bin/$CUR_SOC/$CONFIG_CHIPSET_NAME/bl2f.bin
+		fi
+
+		if [ ! -f ${BL2F_BIN} ]; then
+			echo No $BL2F_BIN
+			exit -1
+		fi
+
+		END_LENS=`stat -c "%s" "./bl33/v2019/build/u-boot.bin"`
+		END_ALIGN=4096
+		BL2F_LOAD=`echo "((($END_LENS-1) / $END_ALIGN * $END_ALIGN) + $END_ALIGN)" | bc`
+		echo "uboot.bin size:$END_LENS, align:$END_ALIGN, new uboot size:$BL2F_LOAD"
+
+		dd if=/dev/zero of=./bl33/v2019/u-boot.tmp bs=$BL2F_LOAD count=1
+		dd if=./bl33/v2019/build/u-boot.bin of=./bl33/v2019/u-boot.tmp  conv=notrunc  &> /dev/null
+		cat $BL2F_BIN >> bl33/v2019/u-boot.tmp
+		cp -rf bl33/v2019/u-boot.tmp bl33/v2019/build/u-boot.bin
+		echo "Append bl2f.bin to the end of uboot.bin OK."
+	fi
 }
 
 function main() {

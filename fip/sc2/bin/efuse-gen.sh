@@ -70,6 +70,10 @@ Usage: $(basename $0) --help
                       -o ta_segid.efuse
        $(basename $0) --stbcasn stbcasn_value \\
                       -o stbcasn.efuse
+       $(basename $0) --kl -etsi [csv_file_input for etsi] \\
+       $(basename $0) --kl -dgpk1 [csv_file_input for dgpk1] \\
+       $(basename $0) --kl -dgpk2 [csv_file_input for dgpk2]
+
 EOF
     exit 1
 }
@@ -680,6 +684,363 @@ function generate_stbcasn_pattern() {
 	rm -f $stbcasn_efuse
 }
 
+function generate_kl_pattern() {
+    local argv=("$@")
+    local i=1
+
+    # Parse args
+    while [ $i -lt $# ]; do
+        arg="${argv[$i]}"
+        i=$((i + 1))
+        #echo "generate_kl_pattern arg=$arg"
+        case "$arg" in
+            -etsi)
+                input="${argv[$i]}"
+                echo "reading input=$input"
+                etsi_fuse=true
+                echo "reading etsi_fuse=$etsi_fuse"
+                output="${argv[$i]}".bin
+                echo "reading output=$output"
+                ;;
+            -dgpk1)
+                input="${argv[$i]}"
+                echo "reading input=$input"
+                dgpk1_fuse=true
+                echo "reading dgpk1_fuse=$dgpk1_fuse"
+                output="${argv[$i]}".bin
+                echo "reading output=$output"
+                ;;
+            -dgpk2)
+                input="${argv[$i]}"
+                echo "reading input=$input"
+                dgpk2_fuse=true
+                echo "reading dgpk2_fuse=$dgpk2_fuse"
+                output="${argv[$i]}".bin
+                echo "reading output=$output"
+                ;;
+            *)
+                echo "Unknown option $arg"; exit 1
+                ;;
+        esac
+        i=$((i + 1))
+    done
+
+    # Verify args
+    if [ -z "$input" ]; then echo Error: Missing input file option ; exit 1; fi
+    if [ -z "$output" ]; then echo Error: Missing output path option ; exit 1; fi
+
+    local patt=$(mktemp -p .)
+	local etsi_sck_0=$(mktemp -p .)
+	local etsi_sck_1=$(mktemp -p .)
+	local etsi_sck_2=$(mktemp -p .)
+	local etsi_sck_3=$(mktemp -p .)
+    local etsi_config_0=$(mktemp -p .)
+    local etsi_config_1=$(mktemp -p .)
+    local etsi_config_2=$(mktemp -p .)
+    local etsi_config_3=$(mktemp -p .)
+	local etsi_sck_lock=$(mktemp -p .)
+
+    local dgpk_1=$(mktemp -p .)
+	local dgpk_2=$(mktemp -p .)
+	local dgpk_lock=$(mktemp -p .)
+
+    echo "reading $input, Generating $output"
+    dos2unix $input
+    sed -i -e '$a\' $input
+
+    #Generate empty efuse pattern bytes array
+    dd if=/dev/zero of=$patt count=4096 bs=1 &> /dev/null
+
+
+	if [ "$etsi_fuse" != "" ]; then
+        # Construct zero-filled etsi_sck0~3
+        dd if=/dev/zero of=$etsi_sck_0 count=16 bs=1 &>/dev/null
+        dd if=/dev/zero of=$etsi_sck_1 count=16 bs=1 &>/dev/null
+        dd if=/dev/zero of=$etsi_sck_2 count=16 bs=1 &>/dev/null
+        dd if=/dev/zero of=$etsi_sck_3 count=16 bs=1 &>/dev/null
+
+        # Construct zero-filled etsi_sck0~3_config
+        dd if=/dev/zero of=$etsi_config_0 count=4 bs=1 &>/dev/null
+        dd if=/dev/zero of=$etsi_config_1 count=4 bs=1 &>/dev/null
+        dd if=/dev/zero of=$etsi_config_2 count=4 bs=1 &>/dev/null
+        dd if=/dev/zero of=$etsi_config_3 count=4 bs=1 &>/dev/null
+
+        # Construct zero-filled etsi_sck_0~1_lock
+        dd if=/dev/zero of=$etsi_sck_lock count=1 bs=1 &>/dev/null
+
+        b_etsi_sck_lock=$(xxd -ps -l1 $etsi_sck_lock)
+	fi
+
+	if [ "$dgpk1_fuse" != "" ]; then
+		# Construct zero-filled dgpk1
+        dd if=/dev/zero of=$dgpk_1 count=16 bs=1 &>/dev/null
+
+        # Construct zero-filled dgpk1_lock
+	    dd if=/dev/zero of=$dgpk_lock count=1 bs=1 &>/dev/null
+        b_dgpk_1_lock=$(xxd -ps -l1 $dgpk_lock)
+	fi
+
+    if [ "$dgpk2_fuse" != "" ]; then
+		# Construct zero-filled dgpk2
+        dd if=/dev/zero of=$dgpk_2 count=16 bs=1 &>/dev/null
+
+        # Construct zero-filled dgpk2_lock
+	    dd if=/dev/zero of=$dgpk_lock count=1 bs=1 &>/dev/null
+        b_dgpk_2_lock=$(xxd -ps -l1 $dgpk_lock)
+	fi
+
+    while IFS=',' read feat sz value
+    do
+        len_value=${#value}
+        case $feat in
+            ETSI_SCK_0)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_sck_0
+                ;;
+			ETSI_SCK_1)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_sck_1
+                ;;
+			ETSI_SCK_2)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_sck_2
+                ;;
+			ETSI_SCK_3)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_sck_3
+                ;;
+            ETSI_SCK_CONFIG_0)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_config_0
+                ;;
+            ETSI_SCK_CONFIG_1)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_config_1
+                ;;
+            ETSI_SCK_CONFIG_2)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_config_2
+                ;;
+            ETSI_SCK_CONFIG_3)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $etsi_config_3
+                ;;
+            ETSI_SCK_0_LOCK)
+                echo found ${feat} bit length ${sz} value ${value}
+                if ([ "$value" != "0" ] && [ "$value" != "1" ]); then
+                    echo feature $feat : $value is not in expected range
+                    break
+                fi
+                if [ "$value" == "1" ]; then
+                    b_etsi_sck_lock="$(printf %02x $(( 0x$b_etsi_sck_lock | 0x01 )))"
+                fi
+                ;;
+            ETSI_SCK_1_LOCK)
+                echo found ${feat} bit length ${sz} value ${value}
+                if ([ "$value" != "0" ] && [ "$value" != "1" ]); then
+                    echo feature $feat : $value is not in expected range
+                    break
+                fi
+                if [ "$value" == "1" ]; then
+                    b_etsi_sck_lock="$(printf %02x $(( 0x$b_etsi_sck_lock | 0x02 )))"
+                fi
+                ;;
+            ETSI_SCK_2_LOCK)
+                echo found ${feat} bit length ${sz} value ${value}
+                if ([ "$value" != "0" ] && [ "$value" != "1" ]); then
+                    echo feature $feat : $value is not in expected range
+                    break
+                fi
+                if [ "$value" == "1" ]; then
+                    b_etsi_sck_lock="$(printf %02x $(( 0x$b_etsi_sck_lock | 0x04 )))"
+                fi
+                ;;
+            ETSI_SCK_3_LOCK)
+                echo found ${feat} bit length ${sz} value ${value}
+                if ([ "$value" != "0" ] && [ "$value" != "1" ]); then
+                    echo feature $feat : $value is not in expected range
+                    break
+                fi
+                if [ "$value" == "1" ]; then
+                    b_etsi_sck_lock="$(printf %02x $(( 0x$b_etsi_sck_lock | 0x08 )))"
+                fi
+                ;;
+            DGPK_1)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $dgpk_1
+                ;;
+			DGPK_2)
+                echo found ${feat} bit length ${sz} value ${value}
+                if [ $len_value != $(($sz / 4)) ]; then
+                    echo feature $feat : $value has invalid length $(($len_value * 4)).
+                    echo expected length is $sz bits.
+                    break
+                fi
+                if ! [[ $value =~ ^[0-9a-fA-F]{$len_value}$ ]]; then
+                    echo $feat:$value invalid format, Only hexadecimal numbers are acceptable.
+                    break
+                fi
+                echo $value | xxd -r -p > $dgpk_2
+                ;;
+            DGPK_1_LOCK)
+                echo found ${feat} bit length ${sz} value ${value}
+                if ([ "$value" != "0" ] && [ "$value" != "1" ]); then
+                    echo feature $feat : $value is not in expected range
+                    break
+                fi
+                if [ "$value" == "1" ]; then
+                    b_dgpk_1_lock="$(printf %02x $(( 0x$b_dgpk_1_lock | 0x10 )))"
+                fi
+                ;;
+            DGPK_2_LOCK)
+                echo found ${feat} bit length ${sz} value ${value}
+                if ([ "$value" != "0" ] && [ "$value" != "1" ]); then
+                    echo feature $feat : $value is not in expected range
+                    break
+                fi
+                if [ "$value" == "1" ]; then
+                    b_dgpk_2_lock="$(printf %02x $(( 0x$b_dgpk_2_lock | 0x20 )))"
+                fi
+                ;;
+			*)
+                echo Feature ${feat} is not supported
+                ;;
+        esac
+    done < <(tail -n +2 $input)
+
+    if [ "$etsi_fuse" != "" ]; then
+       #ETSI_SCK_0, 232=232#block
+        dd if="$etsi_sck_0" of="$patt" bs=16 seek=232 count=1 conv=notrunc >& /dev/null
+        dd if="$etsi_sck_1" of="$patt" bs=16 seek=233 count=1 conv=notrunc >& /dev/null
+        dd if="$etsi_sck_2" of="$patt" bs=16 seek=234 count=1 conv=notrunc >& /dev/null
+        dd if="$etsi_sck_3" of="$patt" bs=16 seek=235 count=1 conv=notrunc >& /dev/null
+
+        #ETSI_CONFIG_0, 56=(128/32)*14#block
+        dd if="$etsi_config_0" of="$patt" bs=4 seek=56 count=1 conv=notrunc >& /dev/null
+        dd if="$etsi_config_1" of="$patt" bs=4 seek=57 count=1 conv=notrunc >& /dev/null
+        dd if="$etsi_config_2" of="$patt" bs=4 seek=58 count=1 conv=notrunc >& /dev/null
+        dd if="$etsi_config_3" of="$patt" bs=4 seek=59 count=1 conv=notrunc >& /dev/null
+
+        #LICENSE_LOCK_1_B232_LOCK, 509=(Byte offset: 0x1FD)
+        echo $b_etsi_sck_lock | xxd -r -p > $etsi_sck_lock
+        dd if="$etsi_sck_lock" of="$patt" bs=1 seek=509 count=1 conv=notrunc >& /dev/null
+	fi
+
+	if [ "$dgpk1_fuse" != "" ]; then
+		#DGPK_1, 228=block#228
+	    dd if="$dgpk_1" of="$patt" bs=16 seek=228 count=1 conv=notrunc >& /dev/null
+        #LICENSE_LOCK_1_B228_LOCK, 508=(Byte offset: 0x1FC)
+        echo $b_dgpk_1_lock | xxd -r -p > $dgpk_lock
+        dd if="$dgpk_lock" of="$patt" bs=1 seek=508 count=1 conv=notrunc >& /dev/null
+	fi
+
+    if [ "$dgpk2_fuse" != "" ]; then
+		#DGPK_2, 229=block#229
+        dd if="$dgpk_2" of="$patt" bs=16 seek=229 count=1 conv=notrunc >& /dev/null
+        #LICENSE_LOCK_1_B228_LOCK, 508=(Byte offset: 0x1FC)
+        echo $b_dgpk_2_lock | xxd -r -p > $dgpk_lock
+        dd if="$dgpk_lock" of="$patt" bs=1 seek=508 count=1 conv=notrunc >& /dev/null
+	fi
+
+	${BASEDIR_TOP}/aml_encrypt_sc2 --efsproc --input $patt --output $output --option=debug
+
+	rm -f $patt
+    rm -f $etsi_sck_lock
+    rm -f $etsi_config_0
+    rm -f $etsi_config_1
+    rm -f $etsi_config_2
+    rm -f $etsi_config_3
+    rm -f $etsi_sck_0
+    rm -f $etsi_sck_1
+    rm -f $etsi_sck_2
+    rm -f $etsi_sck_3
+
+    rm -f $dgpk_lock
+    rm -f $dgpk_1
+    rm -f $dgpk_2
+}
+
 
 parse_main() {
     case "$@" in
@@ -703,6 +1064,9 @@ parse_main() {
             ;;
         *--ta-segid*)
             generate_ta_segid_pattern "$@"
+            ;;
+		*--kl*)
+            generate_kl_pattern "$@"
             ;;
         *-o*)
             generate_efuse_device_pattern "$@"

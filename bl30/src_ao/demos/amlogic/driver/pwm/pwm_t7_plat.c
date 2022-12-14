@@ -112,7 +112,7 @@ xPwmMesonVoltage_t vddcpu_table[] = {
  * todo: need processing here vddee pwmh vddcpu pwmj
  * Different boards may use different pwm channels
  */
-uint32_t prvMesonVoltToPwmchip(enum pwm_voltage_id voltage_id)
+uint32_t prvMesonVoltToPwmChip(enum pwm_voltage_id voltage_id)
 {
 	switch (voltage_id) {
 	case VDDEE_VOLT:
@@ -139,7 +139,7 @@ uint32_t prvMesonVoltToPwmchip(enum pwm_voltage_id voltage_id)
  * todo: need processing here
  * Different boards may use different pwm channels
  */
-uint32_t prvMesonVoltToPwmchannel(enum pwm_voltage_id voltage_id)
+uint32_t prvMesonVoltToPwmChannel(enum pwm_voltage_id voltage_id)
 {
 	switch (voltage_id) {
 	case VDDEE_VOLT:
@@ -199,7 +199,7 @@ uint32_t vPwmMesonGetVoltTableSize(uint32_t voltage_id)
 xPwmMesonChip_t *prvIdToPwmChip(uint32_t chip_id)
 {
 	if (chip_id >= PWM_MUX) {
-		iprintf("pwm chip id is invail!\n");
+		iprintf("pwm chip id is invalid!\n");
 		return NULL;
 	}
 

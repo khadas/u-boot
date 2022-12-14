@@ -621,12 +621,12 @@ xPwmMesondevice_t *xPwmMesonChannelApply(uint32_t chip_id, uint32_t channel_id)
 	xPwmMesonChip_t *chip;
 
 	if (chip_id >= PWM_MUX) {
-		iprintf("pwm chip id is invail!\n");
+		iprintf("pwm chip id is invalid!\n");
 		return NULL;
 	}
 
 	if (channel_id > MESON_PWM_3) {
-		iprintf("pwm channel id is invail!\n");
+		iprintf("pwm channel id is invalid!\n");
 		return NULL;
 	}
 
@@ -671,7 +671,7 @@ void vPwmMesonChannelFree(xPwmMesondevice_t *pwm)
 	vPortFree(pwm);
 }
 
-int32_t vPwmMesonsetvoltage(uint32_t voltage_id, uint32_t voltage_mv)
+int32_t vPwmMesonSetVoltage(uint32_t voltage_id, uint32_t voltage_mv)
 {
 	xPwmMesondevice_t *pwm;
 	xPwmMesonVoltage_t *vtable;
@@ -680,13 +680,13 @@ int32_t vPwmMesonsetvoltage(uint32_t voltage_id, uint32_t voltage_mv)
 #endif
 	uint32_t chip_id, channel_id, duty, vtable_size, max_value, min_value;
 
-	chip_id = prvMesonVoltToPwmchip(voltage_id);
+	chip_id = prvMesonVoltToPwmChip(voltage_id);
 	if (chip_id >= PWM_MUX) {
 		iprintf("volt id:%d get chip id fail!\n", voltage_id);
 		return -1;
 	}
 
-	channel_id = prvMesonVoltToPwmchannel(voltage_id);
+	channel_id = prvMesonVoltToPwmChannel(voltage_id);
 	if (channel_id >= MESON_PWM_2) {
 		iprintf("volt id:%d get channel id fail!\n", voltage_id);
 		return -1;
@@ -748,7 +748,7 @@ int32_t vPwmMesonsetvoltage(uint32_t voltage_id, uint32_t voltage_mv)
 	return 0;
 }
 
-int32_t vPwmMesongetvoltage(uint32_t voltage_id)
+int32_t vPwmMesonGetVoltage(uint32_t voltage_id)
 {
 	xPwmMesondevice_t *pwm;
 	xPwmMesonVoltage_t *vtable;
@@ -756,13 +756,13 @@ int32_t vPwmMesongetvoltage(uint32_t voltage_id)
 	uint32_t chip_id, channel_id, duty, vtable_size;
 	int32_t voltage_mv;
 
-	chip_id = prvMesonVoltToPwmchip(voltage_id);
+	chip_id = prvMesonVoltToPwmChip(voltage_id);
 	if (chip_id >= PWM_MUX) {
 		iprintf("volt id:%d get chip id fail!\n", voltage_id);
 		return -1;
 	}
 
-	channel_id = prvMesonVoltToPwmchannel(voltage_id);
+	channel_id = prvMesonVoltToPwmChannel(voltage_id);
 	if (channel_id >= MESON_PWM_2) {
 		iprintf("volt id:%d get channel id fail!\n", voltage_id);
 		return -1;

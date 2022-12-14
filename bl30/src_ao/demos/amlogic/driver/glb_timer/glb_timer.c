@@ -51,9 +51,9 @@ static inline int prvGlbTimerRead(uint32_t addr)
 	return REG32(addr);
 }
 
-static inline void prvGlbTimerWrite(uint32_t addr, uint32_t ulval)
+static inline void prvGlbTimerWrite(uint32_t addr, uint32_t ulvalue)
 {
-	REG32((unsigned long)(addr)) = ulval;
+	REG32((unsigned long)(addr)) = ulvalue;
 }
 
 static inline void vGlbTimerTopCtlReset(void)
@@ -170,8 +170,8 @@ static inline uint64_t prvGlbTimerTrigSrcGetCount(uint8_t ucSrc)
  * @ucSrc: Triger Source can be found in
  * lib/third_party/amlogic/include/drivers/global_timer.h note that this number
  * and GPIO
- * line number should keep mapping 0-31 <--> GLBT_GPIO0_IRQ--GLBT_GPIO31_IRQ
- * @MesonGlbSorcSelFlag: Trigger type can be found in
+ * line number should keep mapping 0-31 <--> GLBT_GPIO0_IRQ -- GLBT_GPIO31_IRQ
+ * @MesonGlbSrcSelFlag: Trigger type can be found in
  * lib/third_party/amlogic/include/drivers/global_timer.h
  * @returns: return 0 for success or -EINVAL fail.
  */
@@ -193,7 +193,7 @@ int uGlobalTimerInputGPIOConfigure(uint8_t ucSrc, enum MesonGlbSrcSelFlag type)
  * @ucSrc: Triger Source can be found in
  * lib/third_party/amlogic/include/drivers/global_timer.h note that this
  * number and GPIO
- * line number should keep mapping 0-31 <--> GLBT_GPIO0_IRQ--GLBT_GPIO31_IRQ
+ * line number should keep mapping 0-31 <--> GLBT_GPIO0_IRQ -- GLBT_GPIO31_IRQ
  * @retruns:the global timer 64 bit snapshot value
  */
 uint64_t ullGlobalTimerInputGPIOGetSnapshot(uint8_t ucSrc)

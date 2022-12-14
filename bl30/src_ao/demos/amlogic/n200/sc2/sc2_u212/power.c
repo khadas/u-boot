@@ -92,7 +92,7 @@ void str_power_on(int shutdown_flag)
 
 	shutdown_flag = shutdown_flag;
 	/***set vdd_ee val***/
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,vdd_ee);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,vdd_ee);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
@@ -119,13 +119,13 @@ void str_power_off(int shutdown_flag)
 
 	shutdown_flag = shutdown_flag;
 	/***set vdd_ee val***/
-	vdd_ee = vPwmMesongetvoltage(VDDEE_VOLT);
+	vdd_ee = vPwmMesonGetVoltage(VDDEE_VOLT);
 	if (vdd_ee < 0) {
 		printf("vdd_EE pwm get fail\n");
 		return;
 	}
 
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,770);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,770);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;

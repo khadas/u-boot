@@ -96,7 +96,7 @@ OBJS += ${COMPILER}/main.o	\
 		$(COMPILER)/heap_5.o \
 		$(COMPILER)/n200_func.o \
 		$(COMPILER)/handlers.o \
-		$(COMPILER)/interrupt_control.o \
+		$(COMPILER)/interrupt_control_eclic.o \
 		$(COMPILER)/power_domain.o \
 		$(COMPILER)/clk.o \
 		$(COMPILER)/util.o  \

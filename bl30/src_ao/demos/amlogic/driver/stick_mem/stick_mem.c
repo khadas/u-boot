@@ -25,7 +25,7 @@
  */
 #include "stick_mem.h"
 #include "myprintf.h"
-
+#include "FreeRTOSConfig.h"
 
 extern unsigned int __stick_base;
 unsigned int last_stick_reboot_flag;

@@ -129,7 +129,7 @@ static struct xRegList xRC6RegList[] = {
 	/* logic '0' or '00' 1500us*/
 	{REG_BIT_0,         51 << 16 | 38 << 0 },
 	{REG_REG0,          (7 << 28)|(0xFA0 << 12)|0x13},
-	/* sys clock boby time.base time = 20 body frame*/
+	/* sys clock time.base time = 20 body frame*/
 	{REG_STATUS,       (94 << 20) | (82 << 10)},
 	/*20bit:9440 32bit:9f40 36bit:a340 37bit:a440*/
 	{REG_REG1,         0xa440},
@@ -219,7 +219,7 @@ static xRegProtocolMethod xRCMMDecode = {
 #endif
 
 static xRegProtocolMethod xNECLegacyDecode = {
-	.ucProtocol = MODE_HARD_LEAGCY_NEC,
+	.ucProtocol = MODE_HARD_LEGACY_NEC,
 	.RegList = xNECLegacyRegList,
 	.ucRegNum = ARRAY_SIZE(xNECLegacyRegList),
 };

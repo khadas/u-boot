@@ -67,8 +67,8 @@ typedef struct xPwmMesonChip {
 	unsigned long clk_addr;
 } xPwmMesonChip_t;
 
-uint32_t prvMesonVoltToPwmchip(enum pwm_voltage_id voltage_id);
-uint32_t prvMesonVoltToPwmchannel(enum pwm_voltage_id voltage_id);
+uint32_t prvMesonVoltToPwmChip(enum pwm_voltage_id voltage_id);
+uint32_t prvMesonVoltToPwmChannel(enum pwm_voltage_id voltage_id);
 xPwmMesonVoltage_t *vPwmMesonGetVoltTable(uint32_t voltage_id);
 uint32_t vPwmMesonGetVoltTableSize(uint32_t voltage_id);
 xPwmMesonChip_t *prvIdToPwmChip(uint32_t chip_id);

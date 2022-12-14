@@ -222,11 +222,11 @@
   //bit 7   DMC DFI dcu soft reset_n
   //bit 6   DMC siu soft reset_n
   //bit 5.  DMC test soft reset_n.  0 : reset. 1 : normal working mode.
-  //bit 4.  DMC low power control moudle soft reset_n.
+  //bit 4.  DMC low power control module soft reset_n.
   //0 : reset. 1 : normal working mode.
   //bit 3.  DMC QOS monitor module soft reset_n.
   //0 : reset. 1 : normal working mode.
-  //bit 2.  DMC register modle soft reset_n.
+  //bit 2.  DMC register model soft reset_n.
   //0 : reset. 1 : normal working mode.
   //bit 1.  DMC canvas transfer module soft reset_n.
   //0 : reset. 1 : normal working mode.
@@ -254,7 +254,7 @@
   //bit 12  enalbe auto clock gating for awcmdfifo.
   //bit 11  enalbe auto clock gating for arcmdfifo.
   //bit 10  enable auto clock gating for dfi command generation
-  //bit 9   enable auto clock gating for dram cntroller
+  //bit 9   enable auto clock gating for dram controller
   //bit 8   enable auto clock gating for dfi data path.
   //bit 7.  enalbe auto clock gating for write rsp generation.
   //bit 6.  enalbe auto clock gating for read rsp generation.
@@ -269,7 +269,7 @@
   //bit 12  force to disable the clock of awcmdfifo.
   //bit 11  force to disable the clock of arcmdfifo.
   //bit 10  force to disable the clock of dfi command generation
-  //bit 9   force to disable the clock of dram cntroller
+  //bit 9   force to disable the clock of dram controller
   //bit 8   force to disable the clock of dfi data path.
   //bit 7. force to disalbe the clock of write rsp generation.
   //bit 6. force to disalbe the clock of read rsp generation.
@@ -304,7 +304,7 @@
   //which goes to 16bits ddr. unit:64bits
 
 #define DMC_MON0_CTRL                    ((0x0025  << 2) + 0xff638000)
-  //BW MONTIOR 0 address range ctrol.
+  //BW MONTIOR 0 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -318,10 +318,10 @@
    //bit 15:0.  BW monitor 0 port select for the selected channel.
 #define DMC_MON0_BW                      ((0x0028  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON1_CTRL                    ((0x0029  << 2) + 0xff638000)
-  //BW monitor 1 address range ctrol.
+  //BW monitor 1 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -335,10 +335,10 @@
    //bit 15:0.  BW monitor 1 port select for the selected channel.
 #define DMC_MON1_BW                      ((0x002c  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON2_CTRL                    ((0x002d  << 2) + 0xff638000)
-  //BW monitor 2 address range ctrol.
+  //BW monitor 2 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -352,10 +352,10 @@
    //bit 15:0.  BW monitor 2 port select for the selected channel.
 #define DMC_MON2_BW                      ((0x0030  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON3_CTRL                    ((0x0031  << 2) + 0xff638000)
-  //BW monitor 3 address range ctrol.
+  //BW monitor 3 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -369,10 +369,10 @@
    //bit 15:0.  BW monitor 3 port select for the selected channel.
 #define DMC_MON3_BW                      ((0x0034  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON4_CTRL                    ((0x0035  << 2) + 0xff638000)
-  //BW monitor 4 address range ctrol.
+  //BW monitor 4 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -386,10 +386,10 @@
    //bit 15:0.  BW monitor 4 port select for the selected channel.
 #define DMC_MON4_BW                      ((0x0038  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON5_CTRL                    ((0x0039  << 2) + 0xff638000)
-  //BW monitor 5 address range ctrol.
+  //BW monitor 5 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -403,10 +403,10 @@
    //bit 15:0.  BW monitor 5 port select for the selected channel.
 #define DMC_MON5_BW                      ((0x003c  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON6_CTRL                    ((0x003d  << 2) + 0xff638000)
-  //BW monitor 6 address range ctrol.
+  //BW monitor 6 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -421,10 +421,10 @@
 
 #define DMC_MON6_BW                      ((0x0040  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON7_CTRL                    ((0x0041  << 2) + 0xff638000)
-  //BW monitor 7 address range ctrol.
+  //BW monitor 7 address range control.
   //start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
@@ -438,7 +438,7 @@
    //bit 15:0.  BW monitor 7 port select for the selected channel.
 #define DMC_MON7_BW                      ((0x0044  << 2) + 0xff638000)
   // at the test period,
-  //this range granted data cycles for the seletec channel and ports.
+  //this range granted data cycles for the selected channel and ports.
 
 #define DMC_CMD_FILTER_CTRL1                  ((0x0050  << 2) + 0xff638000)
   //not used.
@@ -1086,7 +1086,7 @@
 #define DMC_AXI12_CHAN_STS                    ((0x00cc  << 2) + 0xff638000)
 #define DMC_AXI13_CHAN_STS                    ((0x00cd  << 2) + 0xff638000)
 #define DMC_CHAN_STS                     ((0x00ce  << 2) + 0xff638000)
-  //AXI0  is first CPU and Mali conbined channel from CCI-400 directly.
+  //AXI0  is first CPU and Mali combined channel from CCI-400 directly.
   //The first 2Gbyte address will go through this channel.
   //AXI10  is the second CPU, Mali channel combined with NNA  from NIC-400.
   //The upper 2Gbyte address will go through this channel.
@@ -1142,11 +1142,11 @@
   //bit 15:0 for some AXI port subID bits
 
 #define DMC_PROT_VIO_0                   ((0x00d6  << 2) + 0xff638000)
-  //ddr0 write proection violation address.
+  //ddr0 write protection violation address.
 #define DMC_PROT_VIO_1                   ((0x00d7  << 2) + 0xff638000)
   //bit 31:22 . not used. always 0.
-  //21.    ddr0 protection 1 vilation.
-  //20     ddr0 protection 0 vilation.
+  //21.    ddr0 protection 1 violation.
+  //20     ddr0 protection 0 violation.
   //19:16. ddr0 write violation AWPROT bits. ( 4 bits for security)
   //15:14.  Not used.
   //13:0    ddr0_write violation ID. bit 13~9 for Master ID. bit 7:4 for subid.
@@ -1183,8 +1183,8 @@
    //bit 29.  when enable test, enable the read from DDR function.
    //bit 28.  when enable test,  enable the sha calculation function
    //         must be same as read enable but without write function.
-   //bit 27.  enabe to compare data.
-   //         when do the read enable to enable the error comparaion.
+   //bit 27.  enable to compare data.
+   //         when do the read enable to enable the error comparison.
    //         suppose the read data should be same as the data in the write buffer.
    //bit 26.  0: save sha result to test_sha_message registers.  1 : don't save.
    //bit 25.  address generation type.
@@ -1304,7 +1304,7 @@
    // the read back data 7.  if error happens, it would capture the first error data.
 
 #define DMC_TEST_ERR_ADDR                ((0x0040  << 2) + 0xff639800)
-  //read only. it capature the first error address.
+  //read only. it capture the first error address.
 #define DMC_TEST_ERR_CNT                 ((0x0041  << 2) + 0xff639800)
   //read only. how many data error happens in the whole test period.
 #define DMC_TEST_STS                     ((0x0042  << 2) + 0xff639800)
@@ -1471,12 +1471,12 @@
 #define DMC_DRAM_TXS_FAST                ((0x0035  << 2) + 0xff638400)
  //bit 9:0 DDR4 mode XS_FAST exit self_refrest to zqcl/zqcs/mrs command.
 #define DMC_DRAM_DFIODTCFG                    ((0x0036  << 2) + 0xff638400)
-  //bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+  //bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
   //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
   //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
   //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
   //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occur in rank0.
-  //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+  //bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
   //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
   //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
   //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
@@ -1507,7 +1507,7 @@
 #define DMC_DRAM_ZQCTRL                  ((0x003d  << 2) + 0xff638400)
   //tZQCI bits in DMC_DRAM_TREFI  defined how many refresh period send ZQCS/ZQUPD/command.
   //this register defines in 0~tZQCI period,
-  //which refresh period count to send partical ZQCS/ZACAL/ZQUPD command
+  //which refresh period count to send partial ZQCS/ZACAL/ZQUPD command
   //31:24.  in LPDDR4 case when to send ZQLAT comman to both RANKs of LPDDR4 SDRAM
   //23:16.  when to send PHY ZQ UPDATE command.
   //15:8.   when to send ZQCS/ZQCAL to rank1 DDR SDRAM.
@@ -1627,10 +1627,10 @@
   //      1: after dfi_init_complete, wait additional EXSR time for new command.
   //      0: phy will handle all the timing
   //      after dfi_init_complete DMC can do everything they want.
-  //bit 18:  dfi_rddata_cs_n polariy.
+  //bit 18:  dfi_rddata_cs_n polarity.
   //      0:  rank0 select = 2'b10. rank1 select = 2'b10.
   //      1: rank0 select = 2'b01, rank1_select = 2'b10.
-  //bit 17:  dfi_wrdata_cs_n polariy.
+  //bit 17:  dfi_wrdata_cs_n polarity.
   //      0:  rank0 select = 2'b10. rank1 select = 2'b10.
   //      1: rank0 select = 2'b01, rank1_select = 2'b10.
   //bit 16:  force PHY ctrl_on  if = 1, phy_ctrl_on signal will keep on.
@@ -1683,7 +1683,7 @@
   //bit 17 : send DFI_LP_REQ  after enter ASR mode.
   //bit 16 : set DFI_CLK_DISABLE after enter ASR mode.
   //bit 15:0.   0 disable auto ASR mode.
-	     // Non-zero valule enable ASR mode.
+	     // Non-zero value enable ASR mode.
 	     //when DMC is in idle state for this number of clock cycles,
 	     //the DMC will enter ASR mode.
 
@@ -1694,7 +1694,7 @@
   //bit 19  dmc to control zqcs1 generation enable.
   //bit 18  dmc to control zqcs0 generation enable.
   //bit 17:8 auto refresh request pending cnt if there's page hit request.
-  //bit 7  retrain enable for auto refresh requent. 1: enable. 0: disable.
+  //bit 7  retrain enable for auto refresh frequency. 1: enable. 0: disable.
   //bit 6  Disabled auto refresh command if over 16 auto refresh command sent in 2 TREFI_DDR3 period
   //bit 5  enable dmc send ZQCS command .
   //bit 4. enable dmc send DFI_CTRUPD_REQ.
@@ -1737,8 +1737,8 @@
   //bit 23:20   stop_st
   //bit 19:15   sleep_st
   //bit 14:12  ACCESS STATUS 0 :  ACCESS is in normal working mode.
-			  //1 :   ACCESS sending precharege command.
-			  //2 :   ACCESS sending AUTO REFESH command.
+			  //1 :   ACCESS sending precharge command.
+			  //2 :   ACCESS sending AUTO REFRESH command.
 			  //3 :   ACCESS sending DIF_CTRLUPD_REQ command.
 			  //4 :   ACCESS sending ZQCS command to DDR DRAM(ZQCAL for LPDDR4).
 			  //5 :   ACCESS sending ZQLATCH command to  LPDDR4 only.
@@ -2248,7 +2248,7 @@
 // -----------------------------------------------
 // REG_BASE:  DMC_STICKY_REG_BASE = 0xff638800
 // -----------------------------------------------
-//those register is for software save some tempary value.
+//those register is for software save some temporary value.
 //and because it's in RAM. it won't lose if DMC get reseted.
 #define DMC_STICKY_0                     ((0x0000  << 2) + 0xff638800)
 #define DMC_STICKY_1                     ((0x0001  << 2) + 0xff638800)
@@ -2351,7 +2351,7 @@
 //         AUDIO  : AR/AWID[7:3] == 4'h6.  8bits control.  use AR/AWID[2:0].
 //         the others total 16 bits use AR/AWID[7:3].  bit 2 and bit 6 not used.
 
-//VPU the 5 VPU ports use ARSEC/AWSEC as the secruity control.
+//VPU the 5 VPU ports use ARSEC/AWSEC as the security control.
 //VDEC  total 16bits.  use AR/WID[5:2]
 //GE2D. total 3bits.  2 read bits, check ARID[0].  1 write bit.   AWID dont care.
 
@@ -2367,76 +2367,76 @@
   //bit 31:16   | 0 | range0_eda | range 0 end address  higher 16bits.
   //bit 15:0    | 0 | range0_sta | range 0 start address higher 16bits.
 #define DMC_SEC_RANGE0_CTRL1                  ((0x0001  << 2) + 0xff639000)
-  //bit 7:5 | 0 | range0_secrity_level | range0 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range0_security_level | range0 security level for DMC and DEMUX only.
   //bit 4  | 0 | range0_prot_en       | range0 allow protect monitor function.
   //             1: allowed.  0: not allowed.
-  //bit 3  | 0 | range0_local_des_en  | range0 data describle enable.
+  //bit 3  | 0 | range0_local_des_en  | range0 data describe enable.
   //             1: enable. 0 : disable.
   //             this bit works together with GLOBAL_DES_EN to
-  //             decide this region data describle enable or not.
+  //             decide this region data describe enable or not.
   //bit 2  | 0 | range0_lock  |  lock range 0 registers.
   //       write 1 to lock range 0 register. can't change anymore.
-  //bit 1  | 0 | range0_key_sel | range 0 data describle key selection.  1 : key1. 0 : key0.
+  //bit 1  | 0 | range0_key_sel | range 0 data describe key selection.  1 : key1. 0 : key0.
   //bit 0  | 0 | range0_en    | range 0 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE1_CTRL                   ((0x0002  << 2) + 0xff639000)
   //bit 31:16   | 0 | range1_eda | range 1 end address  higher 16bits.
   //bit 15:0    | 0 | range1_sta | range 1 start address higher 16bits.
 #define DMC_SEC_RANGE1_CTRL1                  ((0x0003  << 2) + 0xff639000)
-  //bit 7:5 | 0 | range1_secrity_level | range1 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range1_security_level | range1 security level for DMC and DEMUX only.
   //bit 4  | 0 | range1_prot_en       | range1 allow protect monitor function.
   //             1: allowed.  0: not allowed.
-  //bit 3  | 0 | range1_local_des_en  | range1 data describle enable.
+  //bit 3  | 0 | range1_local_des_en  | range1 data describe enable.
   //             1: enable. 0 : disable.
   //             this bit works together with GLOBAL_DES_EN to
-  //             decide this region data describle enable or not.
+  //             decide this region data describe enable or not.
   //bit 2  | 0 | range1_lock  |  lock range 1 registers.
   //       write 1 to lock range 1 register. can't change anymore.
-  //bit 1  | 0 | range1_key_sel | range 1 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range1_key_sel | range 1 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range1_en    | range 0 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE2_CTRL                   ((0x0004  << 2) + 0xff639000)
   //bit 31:16   | 0 | range2_eda | range 2 end address  higher 16bits.
   //bit 15:0    | 0 | range2_sta | range 2 start address higher 16bits.
 #define DMC_SEC_RANGE2_CTRL1                  ((0x0005  << 2) + 0xff639000)
-  //bit 7:5 | 0 | range2_secrity_level | range2 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range2_security_level | range2 security level for DMC and DEMUX only.
   //bit 4  | 0 | range2_prot_en       | range2 allow protect monitor function.
   //             1: allowed.  0: not allowed.
-  //bit 3  | 0 | range2_local_des_en  | range2 data describle enable.
+  //bit 3  | 0 | range2_local_des_en  | range2 data describe enable.
   //       1: enable. 0 : disable.
   //       this bit works together with GLOBAL_DES to
-  //       decide this region data describle enable or not.
+  //       decide this region data describe enable or not.
   //bit 2  | 0 | range2_lock  |  lock range 2 registers.
   //        write 1 to lock range 2 register. can't change anymore.
-  //bit 1  | 0 | range2_key_sel | range 2 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range2_key_sel | range 2 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range2_en    | range 2 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE3_CTRL                   ((0x0006  << 2) + 0xff639000)
   //bit 31:16   | 0 | range3_eda | range 3 end address  higher 16bits.
   //bit 15:0    | 0 | range3_sta | range 3 start address higher 16bits.
 #define DMC_SEC_RANGE3_CTRL1                  ((0x0007  << 2) + 0xff639000)
-  //bit 7:5 | 0 | range3_secrity_level | range3 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range3_security_level | range3 security level for DMC and DEMUX only.
   //bit 4  | 0 | range3_prot_en       | range3 allow protect monitor function.
   //             1: allowed.  0: not allowed.
-  //bit 3  | 0 | range3_local_des_en  | range3 data describle enable.
+  //bit 3  | 0 | range3_local_des_en  | range3 data describe enable.
   //       1: enable. 0 : disable.
   //       this bit works together with GLOBAL_DES to
-  //       decide this region data describle enable or not.
+  //       decide this region data describe enable or not.
   //bit 2  | 0 | range3_lock    | lock range 3 registers.
   //       write 1 to lock range 3 related registers. can't change anymore.
-  //bit 1  | 0 | range3_key_sel | range 3 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range3_key_sel | range 3 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range3_en      | range 3 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE4_CTRL                   ((0x0008  << 2) + 0xff639000)
   //bit 31:16   | 0 | range4_eda | range 4 end address  higher 16bits.
   //bit 15:0    | 0 | range4_sta | range 4 start address higher 16bits.
 #define DMC_SEC_RANGE4_CTRL1                  ((0x0009  << 2) + 0xff639000)
-  //bit 7:5 | 0 | range4_secrity_level | range4 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range4_security_level | range4 security level for DMC and DEMUX only.
   //bit 4  | 0 | range4_prot_en       | range4 allow protect monitor function.
   //             1: allowed.  0: not allowed.
-  //bit 3  | 0 | range4_local_des_en  | range4 data describle enable.
+  //bit 3  | 0 | range4_local_des_en  | range4 data describe enable.
   //       1: enable. 0 : disable.
   //       this bit works together with GLOBAL_DES to
-  //       decide this region data describle enable or not.
+  //       decide this region data describe enable or not.
   //bit 2  | 0 | range4_lock    | lock range 4 registers.
   //       write 1 to lock range 4 related registers. can't change anymore.
-  //bit 1  | 0 | range4_key_sel | range 4 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range4_key_sel | range 4 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range4_en      | range 4 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE5_CTRL                   ((0x000a  << 2) + 0xff639000)
 #define DMC_SEC_RANGE5_CTRL1                  ((0x000b  << 2) + 0xff639000)
@@ -2460,21 +2460,21 @@
 #define DMC_SEC_RANGE14_CTRL1                 ((0x001d  << 2) + 0xff639000)
 #define DMC_SEC_RANGE15_CTRL1                 ((0x001f  << 2) + 0xff639000)
   //default : 0
-  //bit 7:5 | 0 | range1_secrity_level | range1 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range1_security_level | range1 security level for DMC and DEMUX only.
   //bit 4  | 0 | range1_prot_en       | range1 allow protect monitor function.
   //1: allowed.  0: not allowed.
-  //bit 3  | 0 | range1_local_des_en  | range1 data describle enable.
+  //bit 3  | 0 | range1_local_des_en  | range1 data describe enable.
   //1: enable. 0 : disable.
   //this bit works together with GLOBAL_DES_EN to
-  //decide this region data describle enable or not.
+  //decide this region data describe enable or not.
   //bit 2  | 0 | range1_lock  |  lock range 1 registers.
   //       write 1 to lock range 1 register. can't change anymore.
-  //bit 1  | 0 | range1_key_sel | range 1 data describle key selection.
+  //bit 1  | 0 | range1_key_sel | range 1 data describe key selection.
   //1 : key1. 1 : key0.
   //bit 0  | 0 | not used. range 15 is always enabled.
 
 //for each range there's 96bits read/write subid control to control all master DDR access.
-//the 96bits assignments  rangex_rd_sid_en[95:0] and rangx_wr_sid_en[95:0] is as below:
+//the 96bits assignments  rangex_rd_sid_en[95:0] and rangex_wr_sid_en[95:0] is as below:
 
 //bit 3:0. for CPU  ARPROT[2:1]/AWPROT[2:1] selection.
       //CPU ARPROT[2:1] /AWPROT[2:1] define:
@@ -2494,10 +2494,10 @@
 //bit 47:32 for 16 device subids. bit34 and bit38 not used which for dma and audio subid.
 //bit 55:48 for DMA 8 thread IDs. DMA write also need check the sec_lvl <= region_sec_lvl.
 //bit 63:56 not used.
-//bit 79:64 for HEVC 16 secuirity levels.
+//bit 79:64 for HEVC 16 security levels.
 //bit 87:80 for VDEC  8 security levels.
-//bit 88 for GE2D secruit video.
-//bit 89 for GE2D secruit video.
+//bit 88 for GE2D security video.
+//bit 89 for GE2D security video.
 //bit 90 read control bit for VPURD0 read secure video.(VPURD0 is read only).
 //bit 90 write control bit for VPUWR3 write secure video.(VPUWR3 is write only path).
 //bit 91 read control bit for VPURD0 read non-secure video
@@ -2883,9 +2883,9 @@
  //bit 5
  //bit 4
  //bit 3   1 : normal security register write violation.
- //       ( APB bus WDATA not equre the register value when APB write).
+ //       ( APB bus WDATA not enquire the register value when APB write).
  //       write 1 to clean this bit to 0.
- //bit 2   sec_alert.   1 DMC secruity register alert function triggered.
+ //bit 2   sec_alert.   1 DMC security register alert function triggered.
  //        can't clean. only reset DMC can clear this bit.
  //bit 1   write security violation.
  //bit 0.  read security violation.
@@ -2900,17 +2900,17 @@
   //19:16. ddr0 write violation AWPROT bits.
   //15:0   ddr0_write violation ID. bit 13~9. Master ID bit 7:4 for subid.
 #define DMC_VIO_ADDR2                    ((0x00fd  << 2) + 0xff639000)
-  //ddr0 read seure violation address
+  //ddr0 read secure violation address
 #define DMC_VIO_ADDR3                    ((0x00fe  << 2) + 0xff639000)
   //bit 31:26. not used. always 0.
   //24     ddr0 read secure check violation.
   //23:21. Not used.
   //20     ddr 0 read address overflow. write out of DDR size.
   //19:16. ddr 0 read violation ARPROT bits.
-  //15:0   ddr 0 read violation ID. bit 13~9 Marster ID. bit 7:4 subid.
+  //15:0   ddr 0 read violation ID. bit 13~9 Master ID. bit 7:4 subid.
 
 #define DMC_DDR_CTRL                     ((0x0100  << 2) + 0xff639000)
-   //bit 27.   0 : cavnas use 64bytes boundary
+   //bit 27.   0 : canvas use 64bytes boundary
 	      // 1 : canvas use 32bytes boundary.
   //bit 24:22   3'b000 : ddr3 mode.
 	      //3'b001 : ddr4 mode.

@@ -9,7 +9,7 @@ function init_vari() {
 	#source ${AUTOCFG_FILE} &> /dev/null # ignore warning/error
 
 	AML_BL2_NAME="bl2.bin"
-	AML_KEY_BLOB_NANE="aml-user-key.sig"
+	AML_KEY_BLOB_NAME="aml-user-key.sig"
 
 	if [ "y" == "${CONFIG_AML_SECURE_BOOT_V3}" ]; then
 		V3_PROCESS_FLAG="--level v3"
@@ -215,7 +215,7 @@ function mk_bl2ex() {
 		ls -la ${output}/
 		exit -1
 	fi
-	echo "done to genenrate test-bb1st.bin folder"
+	echo "done to generate test-bb1st.bin folder"
 }
 
 function mk_devfip() {
@@ -241,7 +241,7 @@ function mk_devfip() {
 	# fix size for BL40 96KB
 	if [ -f ${output}/bl40.bin ]; then
 		#blx_size=`du -b ${output}/bl40.bin | awk '{print int(${output}/bl40.bin)}'`
-		blx_szie=`stat -c %s ${output}/bl40.bin`
+		blx_size=`stat -c %s ${output}/bl40.bin`
 		if [ $blx_size -gt 98304 ]; then
 			echo "Error: bl40 size exceed limit 98304"
 			exit -1
@@ -320,7 +320,7 @@ function mk_devfip() {
 		echo "Error: ${output}/device-fip.bin does not exist... abort"
 		exit -1
 	fi
-	echo "done to genenrate device-fip.bin"
+	echo "done to generate device-fip.bin"
 }
 
 function mk_uboot() {
@@ -616,6 +616,16 @@ function process_blx() {
 	fi
 	dd if=/dev/zero of=${BUILD_PATH}/bl33-payload.bin bs=${BL33_BIN_SIZE} count=1 &> /dev/null
 	dd if=${BUILD_PATH}/bl33.bin of=${BUILD_PATH}/bl33-payload.bin conv=notrunc &> /dev/null
+
+	if [ "1" == "${CONFIG_NASC_NAGRA_TIER_1}" ]; then
+		nocs_size=`expr ${blx_size} + 15`
+		rem=`expr ${nocs_size} % 16`
+		nocs_size=`expr ${nocs_size} - ${rem}`
+		echo ==== align bl33 size ${blx_size} to ${nocs_size} ====
+		# Nocs should sign bl33-payload-nocs.bin with it's size aligned
+		dd if=/dev/zero of=${BUILD_PATH}/bl33-payload-nocs.bin bs=${nocs_size} count=1 &> /dev/null
+		dd if=${BUILD_PATH}/bl33.bin of=${BUILD_PATH}/bl33-payload-nocs.bin conv=notrunc &> /dev/null
+	fi
 
 	if [ ! -f ${BUILD_PATH}/blob-bl40.bin.signed ]; then
 		echo "Warning: local bl40"

@@ -70,12 +70,15 @@ static void prvTaskExitError( void );
 unsigned long ulSynchTrap(unsigned long mcause, unsigned long sp, unsigned long arg1);
 #ifdef N200_REVA
 uint32_t vPortSysTickHandler(uint32_t int_num);
+uint32_t vSoftIRQHandler(uint32_t int_num);
 #else
 void vPortSysTickHandler(void);
+void vSoftIRQHandler(void);
 #endif
 void vPortSetupTimer(void);
 void vPortSetup(void);
 void vPortSysTickHandler_soc(void);
+void vGenerateSoftIRQ(void);
 
 /* System Call Trap */
 //ECALL macro stores argument in a2
@@ -357,8 +360,55 @@ void vPortSetupTimer(void) {
 }
 /*-----------------------------------------------------------*/
 
+/* Replace yield with generating soft interrupt pending instead
+ * of ECALL, which causing IRQ interrupted by task switch.
+ */
+#ifdef N200_REVA
+uint32_t vSoftIRQHandler(uint32_t int_num) {
+	volatile uint32_t *msip = (volatile uint32_t *)(TIMER_CTRL_ADDR + TIMER_MSIP);
+#else
+void vSoftIRQHandler(void) {
+	volatile uint8_t *msip = (volatile uint8_t *)(TIMER_CTRL_ADDR + TIMER_MSIP);
+#endif
+	/* clear software irq */
+	*msip = 0;
+
+	vTaskSwitchContext();
+
+#ifdef N200_REVA
+	return int_num;
+#endif
+}
+
+void vGenerateSoftIRQ(void) {
+#ifdef N200_REVA
+	volatile uint32_t *msip = (volatile uint32_t *)(TIMER_CTRL_ADDR + TIMER_MSIP);
+#else
+	volatile uint8_t *msip = (volatile uint8_t *)(TIMER_CTRL_ADDR + TIMER_MSIP);
+#endif
+	/* generate software irq */
+	*msip = 1;
+}
+
+static void vPortSetupSoftIRQ(void) {
+#ifdef N200_REVA
+	pic_enable_interrupt(PIC_INT_SFT);
+	pic_set_priority(PIC_INT_SFT, 0x1);
+#else
+	uint8_t msip_intattr;
+	msip_intattr = eclic_get_intattr(ECLIC_INT_MSIP);
+	msip_intattr |= ECLIC_INT_ATTR_SHV | ECLIC_INT_ATTR_MACH_MODE;
+	msip_intattr |= ECLIC_INT_ATTR_TRIG_EDGE;
+	eclic_set_intattr(ECLIC_INT_MSIP, msip_intattr);
+	eclic_enable_interrupt(ECLIC_INT_MSIP);
+
+	eclic_set_intctrl(ECLIC_INT_MSIP, 10 << 4);
+#endif
+}
+
 void vPortSetup(void)	{
 	vPortSetupTimer();
+	vPortSetupSoftIRQ();
 	uxCriticalNesting = 0;
 }
 /*-----------------------------------------------------------*/

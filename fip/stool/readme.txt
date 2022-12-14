@@ -1,5 +1,5 @@
 Introduction:
-This document is deciated for usage help of Amlogic Script Signing Tool Set which is a tool set for Amlogic secure boot solution.
+This document is dedicated for usage help of Amlogic Script Signing Tool Set which is a tool set for Amlogic secure boot solution.
 It includes two topic as following:
 a. support sign uboot/kernel/recovery/dtb with the tool
 b. support usb password feature
@@ -10,7 +10,7 @@ SIGNING PROCESS FOR UBOOT/KERNEL
 |  |-1. get the latest version which support script sign uboot feature
 |	 |-2. then open the switch #define CONFIG_AML_SIGNED_UBOOT   1 //gxl_skt_v1.h
 |	 |-3. build uboot successfully with command ./mk gxl_skt_v1
-|  1-4. get package file for v3 secript gxl_skt_v1-u-boot.aml.zip
+|  1-4. get package file for v3 script gxl_skt_v1-u-boot.aml.zip
 |
 |--KERNEL/RECOVERY/DTB prepare
 |  |-1. kernel/recovery/dtb image should be ready and place them to folder ./input
@@ -18,7 +18,7 @@ SIGNING PROCESS FOR UBOOT/KERNEL
 |--KEY prepare
 |  |-1. run ./key.create.bash keypath to generate keys to folder keypath
 |  |    |-1. for uboot signing you must afford RSA/AES key for bl2/bl3x and place them to folder   ./key
-|  |    |-2. for kernel/recovery/dtb signing you must afford RSA/AES key and place them to folfder ./key
+|  |    |-2. for kernel/recovery/dtb signing you must afford RSA/AES key and place them to folder ./key
 |  |-2. for those project which use aml_encrypt_gxl/txlx/axg/g12a/g12b/tl1/tm2/c1/t5/t5d etc for secure boot, please use following mapping table for key transfer
 |       |------former key        <---->  script tool key(14 key files)-------
 |       |-1.                            /aml-key/bl2aesiv         //dd if=/dev/zero of=bl2aesiv conv=notrunc bs=1 count=16 >& /dev/null
@@ -60,13 +60,13 @@ SIGNING PROCESS FOR UBOOT/KERNEL
 USB password process
 |
 |--password prepare
-|   |-1. password.bin  //passowrd for usb boot, min is 4bytes and max to 16bytes, binary format,random value
+|   |-1. password.bin  //password for usb boot, min is 4bytes and max to 16bytes, binary format,random value
 |   |-2. salt.bin      //solution usage, must be 4byts, binary format, random value
 |
 |--password process
 |   |-1. tool amlpwdefs dedicated to generate the corresponding pattern with password & salt
 |        |- ./amlpwdefs --password password.bin --salt salt.bin //get output is password.bin_PMMMMMMMM_SNNNNNNNN.bin
-|   |-2. tool efuse.sh is a tool wraper for efuse pattern process, it will canl efuse-gen.sh from signing-tool-gxl-dev or
+|   |-2. tool efuse.sh is a tool wraper for efuse pattern process, it will call efuse-gen.sh from signing-tool-gxl-dev or
 |   |    |  signing-tool-g12a-dev or signing-tool-tl1-dev or signing-tool-c1-dev, current version only support gxl/txlx/axg/g12a/g12b/tl1/tm2/c1/t5/t5d
 |   |    |- ./efuse.sh --generate-efuse-pattern --password-hash password.bin_PMMMMMMMM_SNNNNNNNN.bin -o pattern.usb.efuse  --enable-usb-passwor
 |
@@ -90,7 +90,7 @@ USB password process
 |   |    |    | get output image with fixed size 1024bytes pattern.usb.efuse which can be used to program the pattern to SoC and enable the license bit
 |   |
 |   |-5. burn pattern to SoC with uboot command
-|   |    |-1. fatload mmc 0 1080000 pattern.efuse  //load passowrd pattern file to DDR 0x1080000
+|   |    |-1. fatload mmc 0 1080000 pattern.efuse  //load password pattern file to DDR 0x1080000
 |   |    |-2. efuse amlogic_set 1080000            //burn EFUSE
 |   |    |-3. reset                                //reset to make the usb password protection work
 |   |    |-4.                                      //from now on the SoC usb boot is protected with password
@@ -182,7 +182,7 @@ FOLDER ARCHITECTURE:
 |  |
 |-output  //input for script signing tool, support set with -o outputfolder
 |  |
-|  |--pattern.efuse                         //EFUSE pattern for secure boot & usb boot (optional, inlcude the usb password if file usb.password.hash.bin exit in the key folder)
+|  |--pattern.efuse                         //EFUSE pattern for secure boot & usb boot (optional, include the usb password if file usb.password.hash.bin exit in the key folder)
 |  |--pattern.secureboot.efuse              //EFUSE pattern for secure boot only
 |  |--pattern.usb.efuse                     //EFUSE pattern for usb boot only (auto generate if usb.password.hash.bin does exist in the key folder)
 |  |--u-boot.bin.signed.encrypted           //signed uboot for NAND/SPI/eMMC

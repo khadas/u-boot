@@ -159,7 +159,7 @@ void pm_main(void *arg)
 				wakeup_ap();
 			}
 		} else {
-			loge("Error occureed, should never get here.\n");
+			loge("Error occurred, should never get here.\n");
 		}
 	}
 }
@@ -224,7 +224,7 @@ struct wakeup_source * dev_register_ws(char * name, struct dev_power_ops *ops, v
 	return ws;
 }
 
-int dev_unregiser_ws(ws_t  arg)
+int dev_unregister_ws(ws_t  arg)
 {
 	struct wakeup_source *ws = arg;
 	uint32_t ret;

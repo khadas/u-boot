@@ -169,7 +169,7 @@
 //DMC CLK and RESET domain register. please check DMC_SEC_APB_CTRLx register for access details.
 #define DMC_SOFT_RST                               ((0x0001  << 2) + 0xfe036000)
   //bit 31~8. reserved for future.
-  //bit 7:0. 8 AXI BUS input intefaces n_clk domain reset_n signal. 0: reset. 1: normal working mode. each bit for one interface.
+  //bit 7:0. 8 AXI BUS input interfaces n_clk domain reset_n signal. 0: reset. 1: normal working mode. each bit for one interface.
 #define DMC_SOFT_RST1                              ((0x0002  << 2) + 0xfe036000)
   //To reset the Async interface, you need to disable the interface both clock domain, then reset both n_clk and m_clk domain
   //bit 31~8 not used.
@@ -182,9 +182,9 @@
   //bit 7   DMC DFI dcu soft reset_n
   //bit 6   DMC siu soft reset_n
   //bit 5.  DMC test soft reset_n.  0 : reset. 1 : normal working mode.
-  //bit 4.  DMC low power control moudle soft reset_n.    0 : reset. 1 : normal working mode.
+  //bit 4.  DMC low power control module soft reset_n.    0 : reset. 1 : normal working mode.
   //bit 3.  DMC QOS monitor module soft reset_n.   0 : reset. 1 : normal working mode.
-  //bit 2.  DMC register modle soft reset_n.       0 : reset. 1 : normal working mode.
+  //bit 2.  DMC register model soft reset_n.       0 : reset. 1 : normal working mode.
   //bit 1.  DMC canvas transfer module soft reset_n.  0 : reset. 1 : normal working mode.
   //bit 0.  DMC command buffers and command generation modules soft reset.  0 = reset. 1:
 #define DMC_RST_STS1                               ((0x0004  << 2) + 0xfe036000)
@@ -200,7 +200,7 @@
   //bit 12  enalbe auto clock gating for awcmdfifo.
   //bit 11  enalbe auto clock gating for arcmdfifo.
   //bit 10  enable auto clock gating for dfi command generation
-  //bit 9   enable auto clock gating for dram cntroller
+  //bit 9   enable auto clock gating for dram controller
   //bit 8   enable auto clock gating for dfi data path.
   //bit 7.  enalbe auto clock gating for write rsp generation.
   //bit 6.  enalbe auto clock gating for read rsp generation.
@@ -214,7 +214,7 @@
   //bit 12  force to disable the clock of awcmdfifo.
   //bit 11  force to disable the clock of arcmdfifo.
   //bit 10  force to disable the clock of dfi command generation
-  //bit 9   force to disable the clock of dram cntroller
+  //bit 9   force to disable the clock of dram controller
   //bit 8   force to disable the clock of dfi data path.
   //bit 7. force to disalbe the clock of write rsp generation.
   //bit 6. force to disalbe the clock of read rsp generation.
@@ -244,7 +244,7 @@
 #define DMC_MON_ALL16_BW                           ((0x0024  << 2) + 0xfe036000)
   // at the test period,  the whole MMC granted data cycles which goes to 16bits ddr. unit:64bits
 #define DMC_MON0_CTRL                              ((0x0025  << 2) + 0xfe036000)
-  //BW MONTIOR 0 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW MONTIOR 0 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON0_CTRL1                             ((0x0026  << 2) + 0xfe036000)
@@ -253,9 +253,9 @@
 #define DMC_MON0_CTRL2                             ((0x0027  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 0 port select for the selected channel.
 #define DMC_MON0_BW                                ((0x0028  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_MON1_CTRL                              ((0x0029  << 2) + 0xfe036000)
-  //BW monitor 1 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 1 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON1_CTRL1                             ((0x002a  << 2) + 0xfe036000)
@@ -264,9 +264,9 @@
 #define DMC_MON1_CTRL2                             ((0x002b  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 1 port select for the selected channel.
 #define DMC_MON1_BW                                ((0x002c  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_MON2_CTRL                              ((0x002d  << 2) + 0xfe036000)
-  //BW monitor 2 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 2 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON2_CTRL1                             ((0x002e  << 2) + 0xfe036000)
@@ -275,9 +275,9 @@
 #define DMC_MON2_CTRL2                             ((0x002f  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 2 port select for the selected channel.
 #define DMC_MON2_BW                                ((0x0030  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_MON3_CTRL                              ((0x0031  << 2) + 0xfe036000)
-  //BW monitor 3 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 3 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON3_CTRL1                             ((0x0032  << 2) + 0xfe036000)
@@ -286,9 +286,9 @@
 #define DMC_MON3_CTRL2                             ((0x0033  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 3 port select for the selected channel.
 #define DMC_MON3_BW                                ((0x0034  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_MON4_CTRL                              ((0x0035  << 2) + 0xfe036000)
-  //BW monitor 4 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 4 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON4_CTRL1                             ((0x0036  << 2) + 0xfe036000)
@@ -297,9 +297,9 @@
 #define DMC_MON4_CTRL2                             ((0x0037  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 4 port select for the selected channel.
 #define DMC_MON4_BW                                ((0x0038  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_MON5_CTRL                              ((0x0039  << 2) + 0xfe036000)
-  //BW monitor 5 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 5 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON5_CTRL1                             ((0x003a  << 2) + 0xfe036000)
@@ -308,9 +308,9 @@
 #define DMC_MON5_CTRL2                             ((0x003b  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 5 port select for the selected channel.
 #define DMC_MON5_BW                                ((0x003c  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_MON6_CTRL                              ((0x003d  << 2) + 0xfe036000)
-  //BW monitor 6 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 6 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON6_CTRL1                             ((0x003e  << 2) + 0xfe036000)
@@ -319,9 +319,9 @@
 #define DMC_MON6_CTRL2                             ((0x003f  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 6 port select for the selected channel.
 #define DMC_MON6_BW                                ((0x0040  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_MON7_CTRL                              ((0x0041  << 2) + 0xfe036000)
-  //BW monitor 7 address range ctrol.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 7 address range control.  start addrss <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON7_CTRL1                             ((0x0042  << 2) + 0xfe036000)
@@ -330,7 +330,7 @@
 #define DMC_MON7_CTRL2                             ((0x0043  << 2) + 0xfe036000)
    //bit 15:0.  BW monitor 7 port select for the selected channel.
 #define DMC_MON7_BW                                ((0x0044  << 2) + 0xfe036000)
-  // at the test period, this range granted data cycles for the seletec channel and ports.
+  // at the test period, this range granted data cycles for the selected channel and ports.
 #define DMC_CMD_FILTER_CTRL1                       ((0x0050  << 2) + 0xfe036000)
   //not used.
 #define DMC_CMD_FILTER_CTRL2                       ((0x0051  << 2) + 0xfe036000)
@@ -545,7 +545,7 @@
 #define DMC_AXI6_CHAN_STS                          ((0x00c6  << 2) + 0xfe036000)
 #define DMC_AXI7_CHAN_STS                          ((0x00c7  << 2) + 0xfe036000)
 #define DMC_CHAN_STS                               ((0x00ce  << 2) + 0xfe036000)
-  //AXI0  is first CPU and Mali conbined channel from CCI-400 directly.  The first 2Gbyte address will go through this channel.
+  //AXI0  is first CPU and Mali combined channel from CCI-400 directly.  The first 2Gbyte address will go through this channel.
   //AXI10  is the second CPU, Mali channel combined with NNA  from NIC-400.  The upper 2Gbyte address will go through this channel.
   // read only regsiter.
   // the second mali and NNA channel IDLE.
@@ -588,11 +588,11 @@
   //bit 24.  protection range 1 write access protection enable bit.
   //bit 15:0 for some AXI port subID bits
 #define DMC_PROT_VIO_0                             ((0x00d6  << 2) + 0xfe036000)
-  //ddr0 write proection violation address.
+  //ddr0 write protection violation address.
 #define DMC_PROT_VIO_1                             ((0x00d7  << 2) + 0xfe036000)
   //bit 31:22 . not used. always 0.
-  //21.    ddr0 protection 1 vilation.
-  //20     ddr0 protection 0 vilation.
+  //21.    ddr0 protection 1 violation.
+  //20     ddr0 protection 0 violation.
   //19:14. ddr0 write violation AWPROT bits. ( 6 bits for write security)
   //13:12.  Not used.
   //11:0    ddr0_write violation ID. bit 11~9 for Master ID. bit 7:4 for subid.
@@ -603,7 +603,7 @@
   //21     ddr0 read protection 1 violation.
   //20     ddr0 read protection 0 violation.
   //19.    not used.
-  //18:16. ddr0 read violation ARPROT bits. (3 bits for read secutiry).
+  //18:16. ddr0 read violation ARPROT bits. (3 bits for read security).
   //15:12. not used.
   //11:0   ddr0 read violation ID.   bit 11~9 for master ID. bit 7:4 for subid.
 #define DMC_PROT_IRQ_CTRL                          ((0x00da  << 2) + 0xfe036000)
@@ -625,7 +625,7 @@
    //bit 30.  when enable test, enable the write to DDR function.
    //bit 29.  when enable test, enable the read from DDR function.
    //bit 28.  when enable test,  enable the sha calculation function  must be same as read enable but without write function.
-   //bit 27.  enabe to compare data.  when do the read enable to enable the error comparaion. suppose the read data should be same as the data in the write buffer.
+   //bit 27.  enable to compare data.  when do the read enable to enable the error comparison. suppose the read data should be same as the data in the write buffer.
    //bit 26.  0: save sha result to test_sha_message registers.  1 : don't save.
    //bit 25.  address generation type.  0: continuous increase the address in the range of test start address and test end address.
    //                                   1: test module would pick the random address from test start address  and test end address.
@@ -725,7 +725,7 @@
 #define DMC_TEST_RD15                              ((0x002f  << 2) + 0xfe037800)
    // the read back data 7.  if error happens, it would capture the first error data.
 #define DMC_TEST_ERR_ADDR                          ((0x0040  << 2) + 0xfe037800)
-  //read only. it capature the first error address.
+  //read only. it capture the first error address.
 #define DMC_TEST_ERR_CNT                           ((0x0041  << 2) + 0xfe037800)
   //read only. how many data error happens in the whole test period.
 #define DMC_TEST_STS                               ((0x0042  << 2) + 0xfe037800)
@@ -880,12 +880,12 @@
 #define DMC_DRAM_TXS_FAST                          ((0x0035  << 2) + 0xfe036400)
  //bit 9:0 DDR4 mode XS_FAST exit self_refrest to zqcl/zqcs/mrs command.
 #define DMC_DRAM_DFIODTCFG                         ((0x0036  << 2) + 0xfe036400)
-  //bit 12.  rank1 ODT default. default vulue for ODT[1] pins if theres no read/write activity.
+  //bit 12.  rank1 ODT default. default value for ODT[1] pins if theres no read/write activity.
   //bit 11.  rank1 ODT write sel.  enable ODT[1] if there's write occur in rank1.
   //bit 10.  rank1 ODT write nsel. enable ODT[1] if theres's write occur in rank0.
   //bit 9.   rank1 odt read sel.   enable ODT[1] if there's read occur in rank1.
   //bit 8.   rank1 odt read nsel.  enable ODT[1] if there's read occure in rank0.
-  //bit 4.   rank0 ODT default.    default vulue for ODT[0] pins if theres no read/write activity.
+  //bit 4.   rank0 ODT default.    default value for ODT[0] pins if theres no read/write activity.
   //bit 3.   rank0 ODT write sel.  enable ODT[0] if there's write occur in rank0.
   //bit 2.   rank0 ODT write nsel. enable ODT[0] if theres's write occur in rank1.
   //bit 1.   rank0 odt read sel.   enable ODT[0] if there's read occur in rank0.
@@ -911,7 +911,7 @@
   // PHY_CTRL_RD_ON.  = 20 + RL + (tDQSCK+ tRPST + tDQSQ)/ddr_clk + BL/2
 #define DMC_DRAM_ZQCTRL                            ((0x003d  << 2) + 0xfe036400)
   //tZQCI bits in DMC_DRAM_TREFI  defined how many refresh period send ZQCS/ZQUPD/command.
-  //this register defines in 0~tZQCI period, which refresh period count to send partical ZQCS/ZACAL/ZQUPD command
+  //this register defines in 0~tZQCI period, which refresh period count to send partial ZQCS/ZACAL/ZQUPD command
   //31:24.  in LPDDR4 case when to send ZQLAT comman to both RANKs of LPDDR4 SDRAM
   //23:16.  when to send PHY ZQ UPDATE command.
   //15:8.   when to send ZQCS/ZQCAL to rank1 DDR SDRAM.
@@ -1020,8 +1020,8 @@
   //bit 31 siu_dfi_lat err generation enable.  1: if dfi read latency violation, generate data error. 0 : disable.
   //bit 20 phy_ctrl_rd_on phy_ctrl_wr_on ignore 16bit mode.  1: sending 0xf in 16bit mode.  0: sending valid byte enable in 16bit mode
   //bit 19: dfi_init_complete wait enable.  1: after dfi_init_complete, wait additional EXSR time for new command. 0: phy will handle all the timing    after dfi_init_complete DMC can do everything they want.
-  //bit 18:  dfi_rddata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
-  //bit 17:  dfi_wrdata_cs_n polariy.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
+  //bit 18:  dfi_rddata_cs_n polarity.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
+  //bit 17:  dfi_wrdata_cs_n polarity.  0:  rank0 select = 2'b10. rank1 select = 2'b10. 1: rank0 select = 2'b01, rank1_select = 2'b10.
   //bit 16:  force PHY ctrl_on  if = 1, phy_ctrl_on singal will keep on.
    //bit 15 siu_dfi1_lp_en
   //bit 14 siu_dfi_lp_ack_and
@@ -1068,7 +1068,7 @@
   //bit 17 : send DFI_LP_REQ  after enter ASR mode.
   //bit 16 : set DFI_CLK_DISABLE after enter ASR mode.
   //bit 15:0.   0 disable auto ASR mode.
-	     // Non-zero valule enable ASR mode. when DMC is in idle state for this number of clock cycles, the DMC will enter ASR mode.
+	     // Non-zero value enable ASR mode. when DMC is in idle state for this number of clock cycles, the DMC will enter ASR mode.
 #define DMC_DRAM_REFR_CTRL                         ((0x0092  << 2) + 0xfe036400)
   //bit 22  dmc to control DFI_CTRLUPD_REQ  with zq generation together.
   //bit 21  dmc to control PHY ZQ generation enable.
@@ -1076,7 +1076,7 @@
   //bit 19  dmc to control zqcs1 generation enable.
   //bit 18  dmc to control zqcs0 generation enable.
   //bit 17:8 auto refresh request pending cnt if there's page hit request.
-  //bit 7  retrain enable for auto refresh requent. 1: enable. 0: disable.
+  //bit 7  retrain enable for auto refresh frequency. 1: enable. 0: disable.
   //bit 6  Disabled auto refresh command if over 16 auto refresh command sent in 2 TREFI_DDR3 period
   //bit 5  enable dmc send ZQCS command .
   //bit 4. enable dmc send DFI_CTRUPD_REQ.
@@ -1116,8 +1116,8 @@
   //bit 23:20   stop_st
   //bit 19:15   sleep_st
   //bit 14:12  ACCESS STATUS 0 :  ACCESS is in normal working mode.
-			  //1 :   ACCESS sending precharege command.
-			  //2 :   ACCESS sending AUTO REFESH command.
+			  //1 :   ACCESS sending precharge command.
+			  //2 :   ACCESS sending AUTO REFRESH command.
 			  //3 :   ACCESS sending DIF_CTRLUPD_REQ command.
 			  //4 :   ACCESS sending ZQCS command to DDR DRAM(ZQCAL for LPDDR4).
 			  //5 :   ACCESS sending ZQLATCH command to  LPDDR4 only.
@@ -1605,7 +1605,7 @@
 // -----------------------------------------------
 // REG_BASE:  APB1_BASE_ADDR = 0xfe036800
 // -----------------------------------------------
-//those register is for software save some tempary value. and because it's in RAM. it won't lose if DMC get reseted.
+//those register is for software save some temporary value. and because it's in RAM. it won't lose if DMC get reseted.
 #define DMC_STICKY_0                               ((0x0000  << 2) + 0xfe036800)
 #define DMC_STICKY_1                               ((0x0001  << 2) + 0xfe036800)
 #define DMC_STICKY_2                               ((0x0002  << 2) + 0xfe036800)
@@ -1703,7 +1703,7 @@
 // DEVICE  DMA    : AR/AWID[7:3] == 4'h2.  8bits control   use AR/WID[3:1].
 //         AUDIO  : AR/AWID[7:3] == 4'h6.  8bits control.  use AR/AWID[2:0].
 //         the others total 16 bits use AR/AWID[7:3].  bit 2 and bit 6 not used.
-//VPU the 5 VPU ports use ARSEC/AWSEC as the secruity control.
+//VPU the 5 VPU ports use ARSEC/AWSEC as the security control.
 //VDEC  total 16bits.  use AR/WID[5:2]
 //GE2D. total 3bits.  2 read bits, check ARID[0].  1 write bit.   AWID dont care.
 //there's total 16 ranges in the whole memory range.
@@ -1715,51 +1715,51 @@
   //bit 31:16   | 0 | range0_eda | range 0 end address  higher 16bits.
   //bit 15:0    | 0 | range0_sta | range 0 start address higher 16bits.
 #define DMC_SEC_RANGE0_CTRL1                       ((0x0001  << 2) + 0xfe037000)
-  //bit 7:5 | 0 | range0_secrity_level | range0 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range0_security_level | range0 security level for DMC and DEMUX only.
   //bit 4  | 0 | range0_prot_en       | range0 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range0_local_des_en  | range0 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describle enable or not.
+  //bit 3  | 0 | range0_local_des_en  | range0 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describe enable or not.
   //bit 2  | 0 | range0_lock  |  lock range 0 registers. write 1 to lock range 0 register. can't change anymore.
-  //bit 1  | 0 | range0_key_sel | range 0 data describle key selection.  1 : key1. 0 : key0.
+  //bit 1  | 0 | range0_key_sel | range 0 data describe key selection.  1 : key1. 0 : key0.
   //bit 0  | 0 | range0_en    | range 0 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE1_CTRL                        ((0x0002  << 2) + 0xfe037000)
   //bit 31:16   | 0 | range1_eda | range 1 end address  higher 16bits.
   //bit 15:0    | 0 | range1_sta | range 1 start address higher 16bits.
 #define DMC_SEC_RANGE1_CTRL1                       ((0x0003  << 2) + 0xfe037000)
-  //bit 7:5 | 0 | range1_secrity_level | range1 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range1_security_level | range1 security level for DMC and DEMUX only.
   //bit 4  | 0 | range1_prot_en       | range1 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range1_local_des_en  | range1 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describle enable or not.
+  //bit 3  | 0 | range1_local_des_en  | range1 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describe enable or not.
   //bit 2  | 0 | range1_lock  |  lock range 1 registers. write 1 to lock range 1 register. can't change anymore.
-  //bit 1  | 0 | range1_key_sel | range 1 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range1_key_sel | range 1 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range1_en    | range 0 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE2_CTRL                        ((0x0004  << 2) + 0xfe037000)
   //bit 31:16   | 0 | range2_eda | range 2 end address  higher 16bits.
   //bit 15:0    | 0 | range2_sta | range 2 start address higher 16bits.
 #define DMC_SEC_RANGE2_CTRL1                       ((0x0005  << 2) + 0xfe037000)
-  //bit 7:5 | 0 | range2_secrity_level | range2 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range2_security_level | range2 security level for DMC and DEMUX only.
   //bit 4  | 0 | range2_prot_en       | range2 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range2_local_des_en  | range2 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 3  | 0 | range2_local_des_en  | range2 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describe enable or not.
   //bit 2  | 0 | range2_lock  |  lock range 2 registers. write 1 to lock range 2 register. can't change anymore.
-  //bit 1  | 0 | range2_key_sel | range 2 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range2_key_sel | range 2 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range2_en    | range 2 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE3_CTRL                        ((0x0006  << 2) + 0xfe037000)
   //bit 31:16   | 0 | range3_eda | range 3 end address  higher 16bits.
   //bit 15:0    | 0 | range3_sta | range 3 start address higher 16bits.
 #define DMC_SEC_RANGE3_CTRL1                       ((0x0007  << 2) + 0xfe037000)
-  //bit 7:5 | 0 | range3_secrity_level | range3 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range3_security_level | range3 security level for DMC and DEMUX only.
   //bit 4  | 0 | range3_prot_en       | range3 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range3_local_des_en  | range3 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 3  | 0 | range3_local_des_en  | range3 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describe enable or not.
   //bit 2  | 0 | range3_lock    | lock range 3 registers. write 1 to lock range 3 related registers. can't change anymore.
-  //bit 1  | 0 | range3_key_sel | range 3 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range3_key_sel | range 3 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range3_en      | range 3 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE4_CTRL                        ((0x0008  << 2) + 0xfe037000)
   //bit 31:16   | 0 | range4_eda | range 4 end address  higher 16bits.
   //bit 15:0    | 0 | range4_sta | range 4 start address higher 16bits.
 #define DMC_SEC_RANGE4_CTRL1                       ((0x0009  << 2) + 0xfe037000)
-  //bit 7:5 | 0 | range4_secrity_level | range4 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range4_security_level | range4 security level for DMC and DEMUX only.
   //bit 4  | 0 | range4_prot_en       | range4 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range4_local_des_en  | range4 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describle enable or not.
+  //bit 3  | 0 | range4_local_des_en  | range4 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES to decide this region data describe enable or not.
   //bit 2  | 0 | range4_lock    | lock range 4 registers. write 1 to lock range 4 related registers. can't change anymore.
-  //bit 1  | 0 | range4_key_sel | range 4 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range4_key_sel | range 4 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | range4_en      | range 4 enable bit. 1 : enable, 0 : disable.
 #define DMC_SEC_RANGE5_CTRL                        ((0x000a  << 2) + 0xfe037000)
 #define DMC_SEC_RANGE5_CTRL1                       ((0x000b  << 2) + 0xfe037000)
@@ -1783,14 +1783,14 @@
 #define DMC_SEC_RANGE14_CTRL1                      ((0x001d  << 2) + 0xfe037000)
 #define DMC_SEC_RANGE15_CTRL1                      ((0x001f  << 2) + 0xfe037000)
   //default : 0
-  //bit 7:5 | 0 | range1_secrity_level | range1 secruity level for DMC and DEMUX only.
+  //bit 7:5 | 0 | range1_security_level | range1 security level for DMC and DEMUX only.
   //bit 4  | 0 | range1_prot_en       | range1 allow protect monitor function.  1: allowed.  0: not allowed.
-  //bit 3  | 0 | range1_local_des_en  | range1 data describle enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describle enable or not.
+  //bit 3  | 0 | range1_local_des_en  | range1 data describe enable.  1: enable. 0 : disable. this bit works together with GLOBAL_DES_EN to decide this region data describe enable or not.
   //bit 2  | 0 | range1_lock  |  lock range 1 registers. write 1 to lock range 1 register. can't change anymore.
-  //bit 1  | 0 | range1_key_sel | range 1 data describle key selection.  1 : key1. 1 : key0.
+  //bit 1  | 0 | range1_key_sel | range 1 data describe key selection.  1 : key1. 1 : key0.
   //bit 0  | 0 | not used. range 15 is always enabled.
 //for each range there's 96bits read/write subid control to control all master DDR access.
-//the 96bits assignments  rangex_rd_sid_en[95:0] and rangx_wr_sid_en[95:0] is as below:
+//the 96bits assignments  rangex_rd_sid_en[95:0] and rangex_wr_sid_en[95:0] is as below:
 //bit 3:0. for CPU  ARPROT[2:1]/AWPROT[2:1] selection.
       //CPU ARPROT[2:1] /AWPROT[2:1] define:
 //bit0 PROT[2:1]==00:   data secure access.
@@ -2108,8 +2108,8 @@
  //bit 6
  //bit 5
  //bit 4
- //bit 3   1 : normal security register write violation.( APB bus WDATA not equre the register value when APB write).  write 1 to clean this bit to 0.
- //bit 2   sec_alert.   1 DMC secruity register alert function triggered. can't clean. only reset DMC can clear this bit.
+ //bit 3   1 : normal security register write violation.( APB bus WDATA not enquire the register value when APB write).  write 1 to clean this bit to 0.
+ //bit 2   sec_alert.   1 DMC security register alert function triggered. can't clean. only reset DMC can clear this bit.
  //bit 1   write security violation.
  //bit 0.  read security violation.
 #define DMC_VIO_ADDR0                              ((0x00fb  << 2) + 0xfe037000)
@@ -2119,11 +2119,11 @@
   //24      ddr0 secure check violation.
   //23:21.  not used.
   //20     ddr0 write address overflow. write out of DDR size.
-  //19:14. ddr0 write violation AWPROT bits.  (6bits write secruity)
+  //19:14. ddr0 write violation AWPROT bits.  (6bits write security)
   //13:12  Not used.
   //11:0   ddr0_write violation ID. bit 11~9. Master ID bit 7:4 for subid.
 #define DMC_VIO_ADDR2                              ((0x00fd  << 2) + 0xfe037000)
-  //ddr0 read seure violation address
+  //ddr0 read secure violation address
 #define DMC_VIO_ADDR3                              ((0x00fe  << 2) + 0xfe037000)
   //bit 31:26. not used. always 0.
   //24     ddr0 read secure check violation.
@@ -2132,9 +2132,9 @@
   //19.    Not used.
   //18:16. ddr 0 read violation ARPROT bits. (3 bits for read security).
   //15:12. Not used.
-  //11:0   ddr 0 read violation ID. bit 11~9 Marster ID. bit 7:4 subid.
+  //11:0   ddr 0 read violation ID. bit 11~9 Master ID. bit 7:4 subid.
 #define DMC_DDR_CTRL                               ((0x0100  << 2) + 0xfe037000)
-   //bit 27.   0 : cavnas use 64bytes boundary
+   //bit 27.   0 : canvas use 64bytes boundary
 			// 1 : canvas use 32bytes boundary.
   //bit 24:22     3'b000 : ddr3 mode.
 				//3'b001 : ddr4 mode.
@@ -2408,7 +2408,7 @@
   //bit 23.  chan0 rx_lp_en control selection. 1 = from register. 0 from chan0 state machine.
   //bit 22. register bit from chan0 rx_lp_en.
   //bit 21.  chan0 contention detection enable control selection. 1 = from register. 0 from chan0 state machine.
-  //bit 20. register bit from chan0 contention dectection enable.
+  //bit 20. register bit from chan0 contention detection enable.
   //bit 19.  chan1 tx_hs_en control selection. 1 = from register. 0 from chan0 state machine.
   //bit 18.  register bit for chan1 tx_hs_en.
   //bit 17.  chan1 tx_lp_en control selection. 1 = from register. 0 from chan0 state machine.
@@ -3323,13 +3323,13 @@
 #define AOCPU_CPU_CTRL5                            ((0x0005  << 2) + 0xfe09c000)
 //Bit 31:0-       0   - reserved
 #define AOCPU_CPU_STS0                             ((0x000a  << 2) + 0xfe09c000)
-//Bit 31:0 -       0   - n205_debug_sel==0 : n205_trace_casuse, 1:n205_trace_tval, 2:n205_trace_iaddr, 3:n205_trace_instr
+//Bit 31:0 -       0   - n205_debug_sel==0 : n205_trace_cause, 1:n205_trace_tval, 2:n205_trace_iaddr, 3:n205_trace_instr
 #define AOCPU_CPU_STS1                             ((0x000b  << 2) + 0xfe09c000)
 //Bit 31   -       0   - n205_core_sleep_value
 //Bit 30:29-       0   - n205_trace_priv
 //Bit 28:20-       0   - reserved
 //Bit 19   -       0   - n205_core_wfi_mode
-//Bit 18   -       0   - n205_trace_ivalid
+//Bit 18   -       0   - n205_trace_invalid
 //Bit 17   -       0   - n205_trace_iexception
 //Bit 16   -       0   - n205_trace_interrupt
 //Bit 15:0 -       0   - reserved
@@ -3424,13 +3424,13 @@
 #define AUCPU_CPU_CTRL5                            ((0x0005  << 2) + 0xfe09e000)
 //Bit 31:0 -       0   - reserved
 #define AUCPU_CPU_STS0                             ((0x000a  << 2) + 0xfe09e000)
-//Bit 31:0 -       0   - n205_debug_sel==0 : n205_trace_casuse, 1:n205_trace_tval, 2:n205_trace_iaddr, 3:n205_trace_instr
+//Bit 31:0 -       0   - n205_debug_sel==0 : n205_trace_cause, 1:n205_trace_tval, 2:n205_trace_iaddr, 3:n205_trace_instr
 #define AUCPU_CPU_STS1                             ((0x000b  << 2) + 0xfe09e000)
 //Bit 31   -       0   - n205_core_sleep_value
 //Bit 30:29-       0   - n205_trace_priv
 //Bit 28:20-       0   - reserved
 //Bit 19   -       0   - n205_core_wfi_mode
-//Bit 18   -       0   - n205_trace_ivalid
+//Bit 18   -       0   - n205_trace_invalid
 //Bit 17   -       0   - n205_trace_iexception
 //Bit 16   -       0   - n205_trace_interrupt
 //Bit 15:0 -       0   - reserved
@@ -6678,8 +6678,8 @@
 //Bit 30,     reg_keep_req_ddr_init ,default = 0,reg_keep_req_ddr_init
 //Bit 29:28,  reserved
 //Bit 27,     reg_gain_en         ,default = 0,gain enable
-//Bit 26:24,  reg_frddr_sel       ,default = 0,from ddr selet
-//Bit 23:16,  reg_wait_cnt        ,default = 0,wait some time when enalble set to 1
+//Bit 26:24,  reg_frddr_sel       ,default = 0,from ddr select
+//Bit 23:16,  reg_wait_cnt        ,default = 0,wait some time when enable set to 1
 //Bit 15:13,  reserved
 //Bit 12:8,   reg_frddr_msb       ,default = 0,msb position of data
 //Bit 7,      reg_force_start     ,default = 0,set 1 no need ack from frddr to transmit channel status
@@ -6695,8 +6695,8 @@
 //Bit 7:0,    reg_premable_Z_value    ,default = 0
 #define EARCTX_SPDIFOUT_SWAP                       ((0x0007  << 2) + 0xfe333400)
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 squence some times after intial done from frddr set
-//Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 squence time ,valid when reg_init_send_en set 1
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after intial done from frddr set
+//Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define EARCTX_ERR_CORRT_CTRL0                     ((0x0008  << 2) + 0xfe333400)
 //Bit 31:24,  reserved
 //Bit 23,     reg_bch_in_reverse       ,default = 0,bch input data generate in 24it data reverse
@@ -6724,7 +6724,7 @@
 //Bit 15:8,   reg_mute_ch_Bit      ,default = 0,mute Bit at channel statue which bit
 //Bit 7:3,    reserved
 //Bit 2,      reg_mute_data_sel    ,default = 0,mute data sel: 0 data 1 reg_mute_data_value
-//Bit 1:0,    reg_mute_mode        ,default = 0,0:always mute 1:mute block number and dis mute 2:mute bolck number and hold bus
+//Bit 1:0,    reg_mute_mode        ,default = 0,0:always mute 1:mute block number and dis mute 2:mute block number and hold bus
 #define EARCTX_ERR_CORRT_CTRL3                     ((0x000b  << 2) + 0xfe333400)
 //Bit 31:30,  reserved
 //Bit 29,     reg_bch_en           ,default = 0,bch generate enable
@@ -6875,7 +6875,7 @@
 //Bit   13   ,     cmdc_debug2               unsigned, default = 0, 1: enable
 //Bit   12:7 ,     reserved
 //Bit    6   ,     mute_select               unsigned, default = 0, 1: use bit5, 0: earc off
-//Bit    5   ,     mute_contrl               unsigned, default = 0, value of mannul mute control
+//Bit    5   ,     mute_contrl               unsigned, default = 0, value of manual mute control
 //Bit    4:0 ,     reserved
 #define EARC_RX_CMDC_TOP_CTRL1                     ((0x0001  << 2) + 0xfe333800)
 //Bit      31:13,  reserved
@@ -7247,7 +7247,7 @@
 #define EARCRX_DMAC_UBIT_CTRL0                     ((0x0013  << 2) + 0xfe333c00)
 //Bit   31,     reg_work_enable               unsigned, default = 0, dmac user bit decode enable
 //Bit   30:24,  reg_iu_sync                   unsigned, default = 0, iu sync value
-//Bit   23:16,  reg_fifo_thd                  unsigned, default = 0, generate irq when fifo level pass some threthold
+//Bit   23:16,  reg_fifo_thd                  unsigned, default = 0, generate irq when fifo level pass some threshold
 //Bit   15,     reg_max_dist_en               unsigned, default = 0, max distance bewteen IUs to set lost
 //Bit   14,     reg_iu_sync_en                unsigned, default = 0, iu sync code enable 0 : all iu to fifo 1 only sync iu packet to fifo
 //Bit   13:12,  reg_user_lr                   unsigned, default = 0, 00 off 01 use l channel userbit 10 use r channel userbit 11 user lr channel userbit
@@ -7283,8 +7283,8 @@
 //Bit   29,     reg_ana_rst_sf                unsigned, default = 0, soft reset value
 //Bit   28,     reserved
 //Bit   27:23,  reg_new_format_pos_num        unsigned, default = 0, when new format data in, hold reset after N posedge
-//Bit   22:20,  reg_dmacrx_div2_thd_tick_sel  unsigned, default = 0, earcrx_div2 hold thresthold tick select
-//Bit   19:0,   reg_earcrx_div2_thd           unsigned, default = 0, earcrx_div2 hold thresthold
+//Bit   22:20,  reg_dmacrx_div2_thd_tick_sel  unsigned, default = 0, earcrx_div2 hold threshold tick select
+//Bit   19:0,   reg_earcrx_div2_thd           unsigned, default = 0, earcrx_div2 hold threshold
 #define EARCRX_ANA_RST_CTRL1                       ((0x0019  << 2) + 0xfe333c00)
 //Bit   31,     reg_dmacrx_data_filt_en       unsigned, default = 0, filter enable
 //Bit   30:28,  reg_dmacrx_data_filter_sel    unsigned, default = 0, filter select
@@ -9805,14 +9805,14 @@
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe441000
 // -----------------------------------------------
-//ree domian
+//ree domain
 #define REE_SCPU2REE_CSR_ADDR                      ((0x0300  << 2) + 0xfe441000)
 #define REE_SCPU2REE_DATA_ST_ADDR                  ((0x0380  << 2) + 0xfe441000)
 #define REE_SCPU2REE_DATA_ED_ADDR                  ((0x039f  << 2) + 0xfe441000)
 #define REE_REE2SCPU_CSR_ADDR                      ((0x0200  << 2) + 0xfe441000)
 #define REE_REE2SCPU_DATA_ST_ADDR                  ((0x0280  << 2) + 0xfe441000)
 #define REE_REE2SCPU_DATA_ED_ADDR                  ((0x029f  << 2) + 0xfe441000)
-//tee domian
+//tee domain
 #define TEE_SCPU2TEE_CSR_ADDR                      ((0x0100  << 2) + 0xfe441000)
 #define TEE_SCPU2TEE_DATA_ST_ADDR                  ((0x0180  << 2) + 0xfe441000)
 #define TEE_SCPU2TEE_DATA_ED_ADDR                  ((0x019f  << 2) + 0xfe441000)

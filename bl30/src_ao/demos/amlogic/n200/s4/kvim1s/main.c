@@ -49,7 +49,7 @@
 #include "vrtc.h"
 #include "mailbox-api.h"
 #include "version.h"
-
+#include "eth.h"
 //#include "printf.h"
 #define INT_TEST_NEST_DEPTH  6
 #define INT_TEST_GPIO_NUM  6
@@ -89,6 +89,8 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
 void power_on_off_cpu(void);
 
 extern void create_str_task(void);
+static void config_pmp_all_nx(void);
+static uint32_t config_pmp(void);
 
 /* Timer handle */
 TimerHandle_t xSoftTimer = NULL;
@@ -135,11 +137,60 @@ static void vPrintTask2( void *pvParameters )
 	}
 }
 #endif
+static void config_pmp_all_nx(void)
+{
+	uint32_t region_size;
+	uint32_t pmp_cfg = 0;
+
+	region_size = 0x1fffffff;
+	/* region (all 32bit address space): NAPOT ROM/RAM2 2^32: 4G size */
+	write_csr(pmpaddr4, (0x0) | region_size);
+	pmp_cfg = (PMP_CFG_R_EN | PMP_CFG_W_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+	write_csr(pmpcfg1, (pmp_cfg << 0));
+}
+
+static uint32_t config_pmp(void)
+{
+	uint32_t start_text_addr = (uint32_t)&_text;
+	uint32_t end_text_addr = (uint32_t)&_etext;
+	uint32_t text_size;
+	uint32_t region_addr[2];
+	uint32_t pmp_cfg[2] = {0};
+
+	text_size = end_text_addr - start_text_addr;
+	if (text_size > PMP_TEXT_MAX_SIZE) {
+		printf("AOCPU warning: exceed the maximum pmp size,\
+		       configure PMP failed\n");
+		return 1;
+	}
+
+	printf("AOCPU: configure PMP for memory 0x%x ~ 0x%x\n",
+	       start_text_addr, end_text_addr);
+	/* The _text and _etext represent the start and end of the text */
+	/* code section, which defined in standalone.ld */
+	/* region0 (text/ro data): start_text_addr NAPOT ROM/RAM0 2^15: 32K size*/
+	region_addr[0] = start_text_addr;
+	/* region1 (text/ro data): 32K offset NAPOT ROM/RAM1 2^14: 16K size*/
+	region_addr[1] = start_text_addr + PMP_TEXT_REGION0_SIZE;
+
+	/* Configure pmpaddrn and pmpcfgn CSR */
+	write_csr(pmpaddr0, (region_addr[0] >> 2) | NAPOT_SIZE(PMP_TEXT_REGION0_SIZE));
+	write_csr(pmpaddr1, (region_addr[1] >> 2) | NAPOT_SIZE(PMP_TEXT_REGION1_SIZE));
+
+	pmp_cfg[0] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+	pmp_cfg[1] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+	write_csr(pmpcfg0, (pmp_cfg[1] << 8) | (pmp_cfg[0] << 0));
+	/* Configure all 32-bit address space access privilege to NX */
+	config_pmp_all_nx();
+
+	return 0;
+}
 
 void hardware_init(void);
 void hardware_init()
 {
 	config_eclic_irqs();
+	config_pmp();
 }
 
 // Test target board
@@ -174,12 +225,13 @@ int main(void)
 
 	vCecCallbackInit(CEC_CHIP_S4);
 	vRtcInit();
+	vETHMailboxCallback();
 	create_str_task();
 
 	printf("Starting task scheduler ...\r\n");
 	vTaskStartScheduler();
 
-	for (;;)
+	do {}while(1);
 
 	return 0;
 }
@@ -216,7 +268,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
     ( void ) xTask;
 
     /* Run time stack overflow checking is performed if
-    configconfigCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
+    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
     function is called if a stack overflow is detected.  pxCurrentTCB can be
     inspected in the debugger if the task name passed into this function is
     corrupt. */

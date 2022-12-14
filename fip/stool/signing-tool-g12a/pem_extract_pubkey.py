@@ -179,7 +179,7 @@ def pem_get_mod(filename):
   return (mod["data"], exp["data"])
 
 def modinv(a, m):
-  """ The multiplicitive inverse of a in the integers modulo m.
+  """ The multiplicative inverse of a in the integers modulo m.
 
   Return b when a * b == 1 mod m
   """

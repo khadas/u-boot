@@ -64,7 +64,7 @@ struct st_cec_mailbox_data {
 
 static unsigned int cec_wait_addr;
 static cec_wakeup_t cec_wakup;
-static unsigned char hdmi_cec_func_config;
+static uint32_t hdmi_cec_func_config;
 static cec_msg_t cec_msg;
 static u32 cec_wakup_flag;
 struct st_cec_mailbox_data cec_mailbox;
@@ -117,8 +117,8 @@ unsigned int cec_reg_tab[] = {
 	SYSCTRL_STATUS_REG1,
 
 	0xffff,//AO_CEC_STICKY_DATA0,
-	0xffff,//AO_CEC_STICKY_DATA1,
-	0xffff,//AO_CEC_STICKY_DATA2,
+	SYSCTRL_STICKY_REG5,//AO_CEC_STICKY_DATA1,
+	SYSCTRL_STICKY_REG6,//AO_CEC_STICKY_DATA2,
 	0xffff,//AO_CEC_STICKY_DATA3,
 	0xffff,//AO_CEC_STICKY_DATA4,
 	0xffff,//AO_CEC_STICKY_DATA5,
@@ -857,9 +857,11 @@ static unsigned char remote_cecb_ll_rx(void)
 
 	len = cecb_rd_reg(DWC_CECB_RX_CNT);
 	printf("cec R:");
-	for (i = 0; i < len; i++) {
-		cec_msg.buf[cec_msg.rx_write_pos].msg[i] = cecb_rd_reg(DWC_CECB_RX_DATA00 + i);
-		printf(" 0x%02x", cec_msg.buf[cec_msg.rx_write_pos].msg[i]);
+	if (len <= 16) {
+		for (i = 0; i < len; i++) {
+			cec_msg.buf[cec_msg.rx_write_pos].msg[i] = cecb_rd_reg(DWC_CECB_RX_DATA00 + i);
+			printf(" 0x%02x", cec_msg.buf[cec_msg.rx_write_pos].msg[i]);
+		}
 	}
 	/* clr CEC lock bit */
 	cecb_wr_reg(DWC_CECB_LOCK_BUF, 0);
@@ -883,9 +885,11 @@ static unsigned char remote_ceca_ll_rx(void)
 
 	len = ceca_rd_reg(CECA_RX_MSG_LENGTH) + 1;
 	printf("cec R:");
-	for (i = 0; i < len; i++) {
-		cec_msg.buf[cec_msg.rx_write_pos].msg[i] = ceca_rd_reg(CECA_RX_MSG_0_HEADER + i);
-		printf(" 0x%02x", cec_msg.buf[cec_msg.rx_write_pos].msg[i]);
+	if (len <= 16) {
+		for (i = 0; i < len; i++) {
+			cec_msg.buf[cec_msg.rx_write_pos].msg[i] = ceca_rd_reg(CECA_RX_MSG_0_HEADER + i);
+			printf(" 0x%02x", cec_msg.buf[cec_msg.rx_write_pos].msg[i]);
+		}
 	}
 
 	write_ao(CECA_REG_INTR_CLR, (1 << 2));
@@ -946,7 +950,7 @@ static int cec_queue_tx_msg(unsigned char *msg, unsigned char len)
 	return 0;
 }
 
-static int cecb_triggle_tx(unsigned char *msg, unsigned char len)
+static int cecb_trigger_tx(unsigned char *msg, unsigned char len)
 {
 	int i = 0, lock;
 
@@ -981,7 +985,7 @@ static int cecb_triggle_tx(unsigned char *msg, unsigned char len)
 	return 0;
 }
 
-static int ceca_triggle_tx(unsigned char *msg, unsigned char len)
+static int ceca_trigger_tx(unsigned char *msg, unsigned char len)
 {
 	int i = 0/*, lock*/;
 	unsigned int j = 40;
@@ -1024,14 +1028,14 @@ static int ceca_triggle_tx(unsigned char *msg, unsigned char len)
 	return 0;
 }
 
-static int cec_triggle_tx(unsigned char *msg, unsigned char len)
+static int cec_trigger_tx(unsigned char *msg, unsigned char len)
 {
 	int ret;
 
 	if (cec_ip == CEC_B)
-		ret = cecb_triggle_tx(msg, len);
+		ret = cecb_trigger_tx(msg, len);
 	else
-		ret = ceca_triggle_tx(msg, len);
+		ret = ceca_trigger_tx(msg, len);
 
 	return ret;
 }
@@ -1041,7 +1045,7 @@ static int remote_cec_ll_tx(unsigned char *msg, unsigned char len)
 	int ret = 0;
 
 	cec_queue_tx_msg(msg, len);
-	ret = cec_triggle_tx(msg, len);
+	ret = cec_trigger_tx(msg, len);
 
 	return ret;
 }
@@ -1096,7 +1100,7 @@ static int cecb_check_irq_sts(void)
 
 static int ceca_check_irq_sts(void)
 {
-	unsigned int reg;
+	unsigned int reg = 0;
 	unsigned int ret = TX_IDLE;
 	unsigned int cnt = 0;
 	unsigned int int_st;
@@ -1107,7 +1111,7 @@ static int ceca_check_irq_sts(void)
 			write_ao(CECA_REG_INTR_CLR, int_st);
 		else
 
-		reg = ceca_rd_reg(CECA_TX_MSG_STATUS);
+		reg = (unsigned int)ceca_rd_reg(CECA_TX_MSG_STATUS);
 		if ( reg == TX_DONE ) {
 			ret = TX_DONE;
 			ceca_wr_reg(CECA_TX_MSG_CMD, TX_NO_OP);
@@ -1446,7 +1450,7 @@ static u32 cec_handle_message(void)
 		(cec_msg.buf[cec_msg.rx_read_pos].msg_len > 1)) {
 		opcode = cec_msg.buf[cec_msg.rx_read_pos].msg[1];
 #if CEC_FW_DEBUG
-		printf("handl:0x%02x\n", opcode);
+		printf("handle:0x%02x\n", opcode);
 #endif
 		switch (opcode) {
 		case CEC_OC_GET_CEC_VERSION:
@@ -1712,7 +1716,7 @@ static u32 cecb_irq_handler(void)
 		s_idx = cec_tx_msgs.send_idx;
 		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) {
 			printf("TX_OK\n");
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		} else {
 #if CEC_REG_DEBUG
@@ -1727,7 +1731,7 @@ static u32 cecb_irq_handler(void)
 		s_idx = cec_tx_msgs.send_idx;
 		if (cec_tx_msgs.msg[s_idx].retry < 2) {
 			cec_tx_msgs.msg[s_idx].retry++;
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		} else {
 			/*printf("TX retry too much, abort msg\n");*/
@@ -1739,8 +1743,8 @@ static u32 cecb_irq_handler(void)
 	if (irq & CECB_IRQ_TX_ERR_INITIATOR) {
 		printf("@TX_ERR_INIT\n");
 		s_idx = cec_tx_msgs.send_idx;
-		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // triggle tx if idle
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // trigger tx if idle
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		}
 		busy_count = 0;
@@ -1822,7 +1826,7 @@ static u32 ceca_irq_handler(void)
 		s_idx = cec_tx_msgs.send_idx;
 		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) {
 			printf("TX_OK\n");
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		} else {
 			printf("TX_END\n");
@@ -1840,7 +1844,7 @@ static u32 ceca_irq_handler(void)
 			s_idx = cec_tx_msgs.send_idx;
 			if (cec_tx_msgs.msg[s_idx].retry < 3) {
 				cec_tx_msgs.msg[s_idx].retry++;
-				cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+				cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 					       cec_tx_msgs.msg[s_idx].len);
 			} else {
 				printf("TX retry too much, abort msg\n");
@@ -1853,7 +1857,7 @@ static u32 ceca_irq_handler(void)
 	 case TX_IDLE:
 		s_idx = cec_tx_msgs.send_idx;
 		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) {
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		}
 		busy_count = 0;
@@ -1991,7 +1995,7 @@ static void cec_node_init(void)
 			 * just for simple check, ignore TX_BUSY
 			 */
 			if (tx_stat == TX_DONE) {
-				printf("TX_DONE sombody takes cec log_addr:0x%x\n",
+				printf("TX_DONE somebody takes cec log_addr:0x%x\n",
 					kern_log_addr);
 			} else {
 				cec_set_log_addr(kern_log_addr);
@@ -2019,7 +2023,7 @@ static void cec_node_init(void)
 			cec_delay(500);
 			tx_stat = cec_check_irq_sts();
 			if (tx_stat == TX_DONE) {
-				printf("TX_DONE sombody takes cec log_addr:0x%x\n",
+				printf("TX_DONE somebody takes cec log_addr:0x%x\n",
 					kern_log_addr2);
 			} else {
 				cec_set_log_addr(kern_log_addr2);
@@ -2103,7 +2107,7 @@ static void cec_node_init(void)
 				ping_state = 0;
 				return ;
 			} else if (tx_stat == TX_DONE) {
-				printf("TX_DONE sombody takes cec log_addr:0x%x\n", player_dev[idx][sub_idx]);
+				printf("TX_DONE somebody takes cec log_addr:0x%x\n", player_dev[idx][sub_idx]);
 				#if 0
 				regist_devs |= (1 << dev_idx);
 				retry += (4 - (retry & 0x03));
@@ -2277,6 +2281,49 @@ static void cec_set_wk_msg(unsigned char *otp_msg, unsigned char *as_msg)
 	if (!otp_msg || !as_msg)
 		return;
 
+#ifdef CEC_CHIP_SEL_T7
+	/* T7 no cec sticky register, so use 6 byte of general sticky reg.
+	 * only save nessary message witch may affect routing
+	 * SYSCTRL_STICKY_REG5: bit 31~0
+	 * SYSCTRL_STICKY_REG6: bit 31~16
+	 */
+	if (as_msg[2] == CEC_OC_ACTIVE_SOURCE) {
+		/* clear firstly */
+		write_ao(CEC_REG_STICK_DATA1, 0);
+		write_ao(CEC_REG_STICK_DATA2, read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		tmp_as_msg = as_msg[1] << 24 |
+			as_msg[2] << 16 |
+			as_msg[3] << 8 |
+			as_msg[4];
+		write_ao(CEC_REG_STICK_DATA1, tmp_as_msg);
+	} else if (otp_msg[2] == CEC_OC_ROUTING_CHANGE) {
+		/* clear firstly */
+		write_ao(CEC_REG_STICK_DATA1, 0);
+		write_ao(CEC_REG_STICK_DATA2, read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		/* otp msg store in two stick regs */
+		tmp_otp_msg = otp_msg[1] << 24 |
+			otp_msg[2] << 16 |
+			otp_msg[3] << 8 |
+			otp_msg[4];
+		write_ao(CEC_REG_STICK_DATA1, tmp_otp_msg);
+		tmp_otp_msg = 0;
+		tmp_otp_msg = otp_msg[5] << 24 |
+			otp_msg[6] << 16 |
+			(read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		write_ao(CEC_REG_STICK_DATA2, tmp_otp_msg);
+	} else if(otp_msg[2] == CEC_OC_SET_STREAM_PATH) {
+		/* clear firstly */
+		write_ao(CEC_REG_STICK_DATA1, 0);
+		write_ao(CEC_REG_STICK_DATA2, read_ao(CEC_REG_STICK_DATA2) & 0xffff);
+		/* otp msg store in two stick regs */
+		tmp_otp_msg = otp_msg[1] << 24 |
+			otp_msg[2] << 16 |
+			otp_msg[3] << 8 |
+			otp_msg[4];
+		write_ao(CEC_REG_STICK_DATA1, tmp_otp_msg);
+	}
+	return;
+#else
 	if (otp_msg[0] > 8) {
 		printf("wrong otp msg len: %d\n", otp_msg[0]);
 		if (as_msg[0] == 4) {
@@ -2313,7 +2360,17 @@ static void cec_set_wk_msg(unsigned char *otp_msg, unsigned char *as_msg)
 				as_msg[4];
 			write_ao(CEC_REG_STICK_DATA2, tmp_as_msg);
 		}
+	} else {
+		/* only <active source> */
+		if (as_msg[0] == 4) {
+			tmp_as_msg = as_msg[1] << 24 |
+				as_msg[2] << 16 |
+				as_msg[3] << 8 |
+				as_msg[4];
+			write_ao(CEC_REG_STICK_DATA2, tmp_as_msg);
+		}
 	}
+#endif
 }
 
 

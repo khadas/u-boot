@@ -68,7 +68,7 @@ extern "C" {
 		uint32_t bus_num;
 		unsigned long reg;
 		uint32_t div_factor;
-		uint32_t delay_ajust;
+		uint32_t delay_adjust;
 		uint32_t clock_frequency;	/* i2c rate */
 		uint32_t clkin_rate;
 		uint32_t clk_base;

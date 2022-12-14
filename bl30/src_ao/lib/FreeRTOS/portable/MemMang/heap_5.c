@@ -141,7 +141,7 @@ void *pvPortMalloc( size_t xWantedSize )
 BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
 void *pvReturn = NULL;
 
-/* If this is the first call to malloc then the heap will require initialsation
+/* If this is the first call to malloc then the heap will require initialization
    to setup the list of free blocks. */
 	if (pxEnd == NULL) {
 		vPortDefineHeapRegions(NULL);

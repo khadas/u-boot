@@ -36,7 +36,7 @@
 #include "mailbox-api.h"
 #include "hdmi_cec.h"
 #include "btwake.h"
-#include "interrupt_control.h"
+#include "interrupt_control_eclic.h"
 #include "eth.h"
 
 static TaskHandle_t cecTask = NULL;
@@ -163,7 +163,7 @@ void str_power_on(int shutdown_flag)
 	power_on_vcc3v3();
 
 	/***restore vddcpu***/
-	ret = vPwmMesonsetvoltage(VDDCPU_VOLT,vdd_cpu);
+	ret = vPwmMesonSetVoltage(VDDCPU_VOLT,vdd_cpu);
 	if (ret < 0) {
 		printf("vddcpu pwm set fail\n");
 		return;
@@ -171,7 +171,7 @@ void str_power_on(int shutdown_flag)
 	printf("vddcpu restored\n");
 
 	/***set vdd_ee val***/
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,vdd_ee);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,vdd_ee);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
@@ -180,7 +180,7 @@ void str_power_on(int shutdown_flag)
 	/***power on vcc5v***/
 	power_on_vcc5v();
 
-	/*Wait 200ms for VDDCPU statble*/
+	/*Wait 200ms for VDDCPU stable*/
 	vTaskDelay(pdMS_TO_TICKS(200));
 }
 
@@ -196,12 +196,12 @@ void str_power_off(int shutdown_flag)
 	}
 
 	/***set vddcpu val***/
-	vdd_cpu = vPwmMesongetvoltage(VDDCPU_VOLT);
+	vdd_cpu = vPwmMesonGetVoltage(VDDCPU_VOLT);
 	if (vdd_cpu < 0) {
 		printf("vddcpu pwm get fail\n");
 		return;
 	}
-	ret = vPwmMesonsetvoltage(VDDCPU_VOLT,720);
+	ret = vPwmMesonSetVoltage(VDDCPU_VOLT,720);
 	if (ret < 0) {
 		printf("vddcpu pwm set fail\n");
 		return;
@@ -209,13 +209,13 @@ void str_power_off(int shutdown_flag)
 	printf("vddcpu 720mv\n");
 
 	/***set vdd_ee val***/
-	vdd_ee = vPwmMesongetvoltage(VDDEE_VOLT);
+	vdd_ee = vPwmMesonGetVoltage(VDDEE_VOLT);
 	if (vdd_ee < 0) {
 		printf("vdd_EE pwm get fail\n");
 		return;
 	}
 
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,770);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,770);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;

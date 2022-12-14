@@ -345,8 +345,8 @@ get_pem_key_len() {
        echo "Unexpected key size  $bits"
        exit 1
     fi
-    if [ "$bits" -ne 1024 ] && [ "$bits" -ne 2048 ] &&
-       [ "$bits" -ne 4096 ] && [ "$bits" -ne 8192]; then
+    if [ "$bits" != "1024" ] && [ "$bits" != "2048" ] &&
+       [ "$bits" != "4096" ] && [ "$bits" != "8192" ]; then
        echo "Unexpected key size  $bits"
        exit 1
     fi

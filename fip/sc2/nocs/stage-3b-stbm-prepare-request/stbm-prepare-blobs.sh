@@ -25,6 +25,13 @@ FIN_BLOB_BL2E="${AMLOGIC_BOOTLOADER_BUILDDIR}/fip/_tmp/blob-bl2e.sto.nocs-prod.b
 FOUT_BB1ST_BIN="intermediate/bb1st.bin"
 FOUT_BLOB_BL2E="intermediate/blob-bl2e.bin"
 
+BLOBS_ARGS=""
+
+if [ "x${CONFIG_FLASHPROT_ENABLE}" == "xy" ]; then
+	BLOBS_ARGS="${BLOBS_ARGS} --flag-enable-flashprot"
+fi
+
+
 #
 # Functions
 #
@@ -38,7 +45,7 @@ mkdir -p "./intermediate/"
 
 ### Prepare 1st Boot Blob ###
 ${ACPU_IMAGETOOL} create-boot-blobs \
-    --scs-family=sc2 \
+    --scs-family=sc2 ${BLOBS_ARGS}	\
     --infile-template-bb1st=${FIN_BB1ST_BIN} \
     --infile-pubkey-device-lvl2cert=${DEVICE_KEYS_BASEDIR}/boot-blobs/rsa/${PRJ}/rootrsa-0/key/level-2-rsa-pub.pem \
     --infile-epks-device-lvl2cert=${DEVICE_KEYS_BASEDIR}/boot-blobs/rsa/${PRJ}/rootrsa-0/epk/lvl2cert-epks.bin \

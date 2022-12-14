@@ -34,7 +34,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "common.h"
-#include "FreeRTOSConfig.h"
+// #include "FreeRTOSConfig.h"
 #define KERN_ERROR		1
 #define KERN_WARNING	2
 #define KERN_DEBUG		3

@@ -305,7 +305,7 @@ struct regulator_desc bd71837_desc[15] = {
 			.enable_reg = BD718XX_REG_BUCK1_CTRL,
 			.enable_mask = 0x3,   //bit0 = 1, bit1 = 1
 			.enable_val = 0x3,
-			.disable_val = 0x2,  //bitt = 0 ,bit1 = 1
+			.disable_val = 0x2,  //bit0 = 0 ,bit1 = 1
 			.vsel_reg = BD718XX_REG_BUCK1_VOLT_RUN,
 			.vsel_mask = 0x3f,
 		},
@@ -318,7 +318,7 @@ struct regulator_desc bd71837_desc[15] = {
 			.enable_reg = BD718XX_REG_BUCK2_CTRL,
 			.enable_mask = 0x3,    //bit0 =1 ,bit1 = 1;
 			.enable_val = 0x3,
-			.disable_val = 0x2,  //bitt = 0 ,bit1 = 1
+			.disable_val = 0x2,  //bit0 = 0 ,bit1 = 1
 			.vsel_reg = BD718XX_REG_BUCK2_VOLT_RUN,
 			.vsel_mask = 0x3f,
 		},
@@ -331,7 +331,7 @@ struct regulator_desc bd71837_desc[15] = {
 			.enable_reg = BD71837_REG_BUCK3_CTRL,
 			.enable_mask = 0x7,    //bit0 =1 ,bit1 = 1 , bit2 = 1;
 			.enable_val = 0x7,
-			.disable_val = 0x2,  //bitt = 0 ,bit1 = 1
+			.disable_val = 0x2,  //bit0 = 0 ,bit1 = 1
 			.vsel_reg = BD71837_REG_BUCK3_VOLT_RUN,
 			.vsel_mask = 0x3f,
 		},
@@ -344,7 +344,7 @@ struct regulator_desc bd71837_desc[15] = {
 			.enable_reg = BD71837_REG_BUCK4_CTRL,
 			.enable_mask = 0x7, //bit0 =1 ,bit1 = 1 , bit2 = 1;
 			.enable_val = 0x7,
-			.disable_val = 0x2,  //bitt = 0 ,bit1 = 1
+			.disable_val = 0x2,  //bit0 = 0 ,bit1 = 1
 			.vsel_reg = BD71837_REG_BUCK4_VOLT_RUN,
 			.vsel_mask = 0x3f,
 		},

@@ -32,7 +32,7 @@ usage() {
     cat << EOF
 Usage: $(basename $0) --help | --version
 
-       Update VMX Device tempalte bb1st
+       Update VMX Device template bb1st
 
        $(basename $0)
                 --vmx-cert-path <VMX cert path> \\
@@ -171,7 +171,7 @@ BASEDIR_BOOTBLOBS_RSAKEY_ROOT="${BASEDIR_ROOT}/boot-blobs/rsa/${project}/rootrsa
 BASEDIR_FIP_RSAKEY_ROOT="${BASEDIR_ROOT}/fip/rsa/${project}/rootrsa-${DEVICE_ROOTRSA_INDEX}"
 
 BASEDIR_ROOTHASH_OUTPUT="${BASEDIR_RSAKEY_ROOT}/roothash"
-BASEDIR_BOOTBLOBS_TEMPALTE_OUTPUT="${BASEDIR_ROOT}/boot-blobs/template/${project}/rootrsa-${DEVICE_ROOTRSA_INDEX}"
+BASEDIR_BOOTBLOBS_TEMPLATE_OUTPUT="${BASEDIR_ROOT}/boot-blobs/template/${project}/rootrsa-${DEVICE_ROOTRSA_INDEX}"
 #BASEDIR_FIP_TEMPLATE_OUTPUT="${BASEDIR_ROOT}/fip/template/${project}/rootrsa-${DEVICE_ROOTRSA_INDEX}"
 
 check_dir "${output_dir}"

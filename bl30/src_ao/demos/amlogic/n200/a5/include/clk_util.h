@@ -69,7 +69,7 @@ void clk_util_set_audio_amclk_iec958(uint32_t clk_in_mhz);
 //					uint32_t vclk2_ratio, uint32_t vclk1_ratio);
 //void clk_util_setup_lvds_clock( uint32_t vid_pll_clk_sel,
 //						uint32_t phy_clk_div2, uint32_t vid_pll_hiu_reg,
-//           uint32_t vid_pll_xd, uint32_t digclk_sel, uint32_t perform_cal );
+//           uint32_t vid_pll_xd, uint32_t digital_clk_sel, uint32_t perform_cal );
 
 //define the expected or deriving frequency value and position in clk_to_msr_in
 //frequency value

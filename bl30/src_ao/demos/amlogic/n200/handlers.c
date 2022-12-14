@@ -12,7 +12,7 @@ __attribute__((weak)) uintptr_t handle_nmi(void)
 {
   //_exit(1);
 
-	  printf("\nhandle_nmi");
+	  printf("\n handle_nmi");
 
 
   do {}while(1);
@@ -31,7 +31,7 @@ __attribute__((weak)) uintptr_t handle_trap(uintptr_t mcause, uintptr_t sp)
   printf("In trap handler, the mepc is 0x%lx\n", read_csr(mepc));
   printf("In trap handler, the mtval is 0x%lx\n", read_csr(mbadaddr));
   //_exit(mcause);
-  printf("\nhandle_trap");
+  printf("\n handle_trap");
 
   do {}while(1);
   return 0;
@@ -47,7 +47,8 @@ __attribute__((weak)) uint32_t handle_irq(uint32_t int_num){
     //set_csr(mstatus, MSTATUS_MIE);
 
   pic_interrupt_handlers[int_num]();
-  pic_complete_interrupt(int_num);
+  /* Since it will complete in the assembly instructions, it is redundant in this place. */
+  //pic_complete_interrupt(int_num);
     // Disable interrupts
     //clear_csr(mstatus, MSTATUS_MIE);
   return int_num;

@@ -69,7 +69,7 @@
 
 /*frame status*/
 enum {
-	STATUS_INVALI = 0,
+	STATUS_INVALID = 0,
 	STATUS_NORMAL,
 	STATUS_REPEAT,
 };

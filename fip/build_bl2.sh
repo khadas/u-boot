@@ -67,7 +67,7 @@ function check_branch() {
 			return
 		fi
 
-		# 3, if contains uncommited local changes, stop compile
+		# 3, if contains uncommitted local changes, stop compile
 		#    before branch switch, user must save their local
 		#    change.
 		if [ "${diff}" == "" ]; then

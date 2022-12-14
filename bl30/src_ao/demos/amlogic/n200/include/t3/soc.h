@@ -21,6 +21,9 @@
 #define IO_BEGIN                 (IO_BASE)
 #define IO_END                   (IO_BASE + IO_SIZE)
 
+/* AOCPU IRQ SEL Register is noncontinuous in this SOC (register.h) */
+#define AOCPU_IRQ_REG_NONCONTINUOUS	 1
+
 /*SoC/Shadow register mapping*/
 #define VRTC_PARA_REG		SYSCTRL_STATUS_REG2
 #define VRTC_STICKY_REG		SYSCTRL_STICKY_REG2

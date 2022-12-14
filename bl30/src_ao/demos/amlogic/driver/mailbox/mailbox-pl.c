@@ -56,14 +56,16 @@ static void vExitCritical(void)
 
 
 /*ARM 2 AOCPU mailbox*/
-static void vAoRevTeeMbHandler(uint32_t inmbox)
+static void vAoRevTeeMbHandler(uint32_t mailbox)
 {
-	//BaseType_t xYieldRequired = pdFALSE;
-	uint32_t mbox = inmbox;
 	mbPackInfo mbInfo;
 	MbStat_t st;
 	uint32_t *addr = NULL;
 	uint32_t ulMbCmd, ulSize, ulSync;
+	//BaseType_t xYieldRequired = pdFALSE;
+	uint32_t mbox = mailbox;
+
+	memset(&mbInfo.mbdata, 0, sizeof(mboxData));
 
 	DisableIrq(MAILBOX_AOCPU_TEE_IRQ);
 	PRINT_DBG("[%s]: Teembox 0x%x\n", MBTAG, mbox);
@@ -100,7 +102,7 @@ static void vAoRevTeeMbHandler(uint32_t inmbox)
 		mbInfo.ulCmd = ulMbCmd;
 		mbInfo.ulSize = ulSize;
 		mbInfo.ulChan = xGetChan(mbox);
-		mbmemcpy(&syncTeeMbInfo, &mbInfo, sizeof(syncTeeMbInfo));;
+		mbmemcpy(&syncTeeMbInfo, &mbInfo, sizeof(syncTeeMbInfo));
 		vTaskNotifyGiveFromISR(mbTeeHandler, NULL);
 		//portYIELD_FROM_ISR(xYieldRequired);
 		break;
@@ -162,14 +164,16 @@ static void vTeeSyncTask(void *pvParameters)
 
 
 
-static void vAoRevReeMbHandler(uint32_t inmbox)
+static void vAoRevReeMbHandler(uint32_t mailbox)
 {
-	//BaseType_t xYieldRequired = pdFALSE;
-	uint32_t mbox = inmbox;
 	mbPackInfo mbInfo;
 	MbStat_t st;
 	uint32_t *addr = NULL;
 	uint32_t ulMbCmd, ulSize, ulSync;
+	//BaseType_t xYieldRequired = pdFALSE;
+	uint32_t mbox = mailbox;
+
+	memset(&mbInfo.mbdata, 0, sizeof(mboxData));
 
 	DisableIrq(MAILBOX_AOCPU_REE_IRQ);
 	PRINT_DBG("[%s]: Reembox 0x%x\n", MBTAG, mbox);
@@ -206,7 +210,7 @@ static void vAoRevReeMbHandler(uint32_t inmbox)
 		mbInfo.ulCmd = ulMbCmd;
 		mbInfo.ulSize = ulSize;
 		mbInfo.ulChan = xGetChan(mbox);
-		mbmemcpy(&syncReeMbInfo, &mbInfo, sizeof(syncReeMbInfo));;
+		mbmemcpy(&syncReeMbInfo, &mbInfo, sizeof(syncReeMbInfo));
 		vTaskNotifyGiveFromISR(mbReeHandler, NULL);
 		//portYIELD_FROM_ISR(xYieldRequired);
 		break;

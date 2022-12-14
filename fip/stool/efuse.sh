@@ -171,7 +171,6 @@ elif [ ${soc} == "c1" ] ;  then
   hashver=3
 elif [ ${soc} == "t5" ] || [ ${soc} == "t5d" ] || [ ${soc} == "t5w" ];  then
   tool_type=c1
-  soc=t5
   hashver=3
 else
   echo invalid soc [$soc]

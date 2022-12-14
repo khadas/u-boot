@@ -73,7 +73,7 @@ void str_power_on(int shutdown_flag)
 
 	shutdown_flag = shutdown_flag;
 	/***set vdd_ee val***/
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,vdd_ee);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,vdd_ee);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
@@ -91,7 +91,7 @@ void str_power_on(int shutdown_flag)
 		printf("vdd_cpu set gpio val fail\n");
 		return;
 	}
-	/*Wait 200ms for VDDCPU statble*/
+	/*Wait 200ms for VDDCPU stable*/
 	vTaskDelay(pdMS_TO_TICKS(200));
 #endif
 	printf("vdd_cpu on\n");
@@ -105,13 +105,13 @@ void str_power_off(int shutdown_flag)
 
 	shutdown_flag = shutdown_flag;
 	/***set vdd_ee val***/
-	vdd_ee = vPwmMesongetvoltage(VDDEE_VOLT);
+	vdd_ee = vPwmMesonGetVoltage(VDDEE_VOLT);
 	if (vdd_ee < 0) {
 		printf("vdd_EE pwm get fail\n");
 		return;
 	}
 
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,770);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,770);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;

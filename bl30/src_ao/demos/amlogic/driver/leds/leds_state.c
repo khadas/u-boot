@@ -47,12 +47,12 @@
 static int32_t *PLedStickMem[LED_ID_MAX];
 extern LedCoord_t *BreathInflections[];
 
-uint32_t LedMask[STICK_LED_INVAIL] = {
+uint32_t LedMask[STICK_LED_INVALID] = {
 	STICK_LED_STATE_MASK,
 	STICK_LED_BRIGHTNESS_MASK,
 	STICK_LED_BREATH_ID_MASK,
 	STICK_LED_BLINK_TIMES_MASK,
-	STICK_LED_BLINK_HIHG_MASK,
+	STICK_LED_BLINK_HIGH_MASK,
 	STICK_LED_BLINK_LOW_MASK
 };
 
@@ -60,7 +60,7 @@ static int32_t prvStickMemLedRead(uint32_t id, enum StickMemLedIdx index, uint32
 {
 	uint32_t temp;
 
-	if ((index >= STICK_LED_INVAIL) || (id >= LED_ID_MAX)) {
+	if ((index >= STICK_LED_INVALID) || (id >= LED_ID_MAX)) {
 		iprintf("%s: index: %d id: %ld read stick mem fail!\n", DRIVER_NAME, index, id);
 		return -pdFREERTOS_ERRNO_EINVAL;
 	}
@@ -80,7 +80,7 @@ static int32_t prvStickMemLedWrite(uint32_t id, enum StickMemLedIdx index, uint3
 {
 	uint32_t temp;
 
-	if ((index >= STICK_LED_INVAIL) || (id >= LED_ID_MAX)) {
+	if ((index >= STICK_LED_INVALID) || (id >= LED_ID_MAX)) {
 		iprintf("%s: index: %d id: %ld write stick mem fail!\n", DRIVER_NAME, index, id);
 		return -pdFREERTOS_ERRNO_EINVAL;
 	}
@@ -98,7 +98,7 @@ static int32_t prvStickMemLedWrite(uint32_t id, enum StickMemLedIdx index, uint3
 	return 0;
 }
 
-static int32_t prvPwmledIsBlinkedComplete(uint32_t id)
+static int32_t prvPwmLedIsBlinkedComplete(uint32_t id)
 {
 	return xPwmMesonIsBlinkComplete(MesonLeds[id].pwm);
 }
@@ -123,7 +123,7 @@ static int32_t prvPwmLedSetBrightness(uint32_t id, uint32_t brightness)
 	return 0;
 }
 
-static int32_t prvPwmledblinktimes(uint32_t id, uint32_t times, uint32_t high_cnt, uint32_t low_cnt)
+static int32_t prvPwmLedBlinkTimes(uint32_t id, uint32_t times, uint32_t high_cnt, uint32_t low_cnt)
 {
 	uint32_t duty1 ,duty2;
 
@@ -209,10 +209,10 @@ static uint32_t prvGetLedBlinkHigh(uint32_t id)
 	uint32_t high;
 	int32_t ret;
 
-	ret = prvStickMemLedRead(id, STICK_LED_BLINK_HIHG, &high);
+	ret = prvStickMemLedRead(id, STICK_LED_BLINK_HIGH, &high);
 	if (ret) {
 		iprintf("%s: id: %ld get led blink high fail return 1!\n", DRIVER_NAME, id);
-		return LED_REEOR_CNT;
+		return LED_ERROR_CNT;
 	}
 
 	return high;
@@ -226,7 +226,7 @@ static uint32_t prvGetLedBlinkLow(uint32_t id)
 	ret = prvStickMemLedRead(id, STICK_LED_BLINK_LOW, &low);
 	if (ret) {
 		iprintf("%s: id: %ld get led blink low fail return 1!\n", DRIVER_NAME, id);
-		return LED_REEOR_CNT;
+		return LED_ERROR_CNT;
 	}
 
 	return low;
@@ -240,7 +240,7 @@ static uint32_t prvGetLedBlinkTimes(uint32_t id)
 	ret = prvStickMemLedRead(id, STICK_LED_BLINK_TIMES, &times);
 	if (ret) {
 		iprintf("%s: id: %ld get led blink times fail return 1!\n", DRIVER_NAME, id);
-		return LED_REEOR_CNT;
+		return LED_ERROR_CNT;
 	}
 
 	return times;
@@ -254,7 +254,7 @@ static uint32_t prvGetLedBreathId(uint32_t id)
 	ret = prvStickMemLedRead(id, STICK_LED_BREATH_ID, &breath_id);
 	if (ret) {
 		iprintf("%s: id: %ld get led breath id fail return 1!\n", DRIVER_NAME, id);
-		return LED_REEOR_CNT;
+		return LED_ERROR_CNT;
 	}
 
 	return breath_id;
@@ -268,7 +268,7 @@ static uint32_t prvGetLedBrightness(uint32_t id)
 	ret = prvStickMemLedRead(id, STICK_LED_BRIGHTNESS, &brightness);
 	if (ret) {
 		iprintf("%s: id: %ld get led brightness fail return 1!\n", DRIVER_NAME, id);
-		return LED_REEOR_CNT;
+		return LED_ERROR_CNT;
 	}
 
 	return (brightness & 0xff);
@@ -308,30 +308,30 @@ static void prvLedStateMachine(enum LedState state, uint32_t id)
 			break;
 		case LED_STATE_BLINK_ON:
 			if (blinkflag == 0) {
-				prvPwmledblinktimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
+				prvPwmLedBlinkTimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
 				prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_ON_HANDLE);
 				blinkflag++;
-			} else if (prvPwmledIsBlinkedComplete(id)) {
-				prvPwmledblinktimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
+			} else if (prvPwmLedIsBlinkedComplete(id)) {
+				prvPwmLedBlinkTimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
 				prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_ON_HANDLE);
 			}
 			break;
 		case LED_STATE_BLINK_OFF:
 			if (blinkflag == 0) {
-				prvPwmledblinktimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
+				prvPwmLedBlinkTimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
 				prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_OFF_HANDLE);
 				blinkflag++;
-			} else if (prvPwmledIsBlinkedComplete(id)) {
-				prvPwmledblinktimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
+			} else if (prvPwmLedIsBlinkedComplete(id)) {
+				prvPwmLedBlinkTimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
 				prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_OFF_HANDLE);
 			}
 			break;
 		case LED_STATE_BLINK_BREATH:
-			prvPwmledblinktimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
+			prvPwmLedBlinkTimes(id, prvGetLedBlinkTimes(id), prvGetLedBlinkHigh(id), prvGetLedBlinkLow(id));
 			prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_BREATH_HANDLE);
 			break;
 		case LED_STATE_BLINK_ON_HANDLE:
-			if ((prvPwmledIsBlinkedComplete(id) == 1)
+			if ((prvPwmLedIsBlinkedComplete(id) == 1)
 				|| (prvGetLastLedState(id)==LED_STATE_DEFAULT)) {
 				prvPwmLedSetBrightness(id, LED_FULL);
 				prvSetLedStateToDefault(id);
@@ -339,7 +339,7 @@ static void prvLedStateMachine(enum LedState state, uint32_t id)
 			}
 			break;
 		case LED_STATE_BLINK_OFF_HANDLE:
-			if ((prvPwmledIsBlinkedComplete(id) == 1)
+			if ((prvPwmLedIsBlinkedComplete(id) == 1)
 				|| (prvGetLastLedState(id)==LED_STATE_DEFAULT)) {
 				prvPwmLedSetBrightness(id, LED_OFF);
 				prvSetLedStateToDefault(id);
@@ -347,7 +347,7 @@ static void prvLedStateMachine(enum LedState state, uint32_t id)
 			}
 			break;
 		case LED_STATE_BLINK_BREATH_HANDLE:
-			if ((prvPwmledIsBlinkedComplete(id) == 1)
+			if ((prvPwmLedIsBlinkedComplete(id) == 1)
 				|| (prvGetLastLedState(id)==LED_STATE_DEFAULT)) {
 				prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BREATH);
 			}
@@ -462,7 +462,7 @@ int32_t xLedsStateSetBlinkBreath(uint32_t id, uint32_t times, uint32_t high_ms, 
 		iprintf("%s: low_br high_br no ready!\n", DRIVER_NAME);
 
 	prvStickMemLedWrite(id, STICK_LED_BLINK_TIMES, times);
-	prvStickMemLedWrite(id, STICK_LED_BLINK_HIHG, high_ms / 50);
+	prvStickMemLedWrite(id, STICK_LED_BLINK_HIGH, high_ms / 50);
 	prvStickMemLedWrite(id, STICK_LED_BLINK_LOW, low_ms / 50);
 	prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_BREATH);
 
@@ -486,7 +486,7 @@ int32_t xLedsStateSetBlinkOn(uint32_t id, uint32_t times, uint32_t high_ms, uint
 		iprintf("%s: low_br high_br no ready!\n", DRIVER_NAME);
 
 	prvStickMemLedWrite(id, STICK_LED_BLINK_TIMES, times);
-	prvStickMemLedWrite(id, STICK_LED_BLINK_HIHG, high_ms / 50);
+	prvStickMemLedWrite(id, STICK_LED_BLINK_HIGH, high_ms / 50);
 	prvStickMemLedWrite(id, STICK_LED_BLINK_LOW, low_ms / 50);
 	prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_ON);
 
@@ -510,7 +510,7 @@ int32_t xLedsStateSetBlinkOff(uint32_t id, uint32_t times, uint32_t high_ms, uin
 		iprintf("%s: low_br high_br no ready!\n", DRIVER_NAME);
 
 	prvStickMemLedWrite(id, STICK_LED_BLINK_TIMES, times);
-	prvStickMemLedWrite(id, STICK_LED_BLINK_HIHG, high_ms / 50);
+	prvStickMemLedWrite(id, STICK_LED_BLINK_HIGH, high_ms / 50);
 	prvStickMemLedWrite(id, STICK_LED_BLINK_LOW, low_ms / 50);
 	prvStickMemLedWrite(id, STICK_LED_STATE, LED_STATE_BLINK_OFF);
 

@@ -36,7 +36,7 @@
 
 #include "hdmi_cec.h"
 
-#include "interrupt_control.h"
+#include "interrupt_control_pic.h"
 #include "eth.h"
 #include "irq.h"
 
@@ -79,10 +79,10 @@ void str_hw_init(void)
 	vETHInit(IRQ_ETH_PMT_NUM,eth_handler_t5);
 	xTaskCreate(vCEC_task, "CECtask", configMINIMAL_STACK_SIZE,
 		    NULL, CEC_TASK_PRI, &cecTask);
-	return;
-	vBackupAndClearGpioIrqReg();
-	vGpioKeyEnable();
-	vGpioIRQInit();
+	// return;
+	// vBackupAndClearGpioIrqReg();
+	// vGpioKeyEnable();
+	// vGpioIRQInit();
 }
 
 
@@ -95,9 +95,9 @@ void str_hw_disable(void)
 		vTaskDelete(cecTask);
 		cec_req_irq(0);
 	}
-	return;
-	vGpioKeyDisable();
-	vRestoreGpioIrqReg();
+	// return;
+	// vGpioKeyDisable();
+	// vRestoreGpioIrqReg();
 }
 
 void str_power_on(int shutdown_flag)
@@ -105,14 +105,14 @@ void str_power_on(int shutdown_flag)
 	int ret;
 
 	/***set vdd_ee val***/
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,vdd_ee);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,vdd_ee);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
 	}
 
 	/***set vdd_ee val***/
-	ret = vPwmMesonsetvoltage(VDDCPU_VOLT,vdd_cpu);
+	ret = vPwmMesonSetVoltage(VDDCPU_VOLT,vdd_cpu);
 	if (ret < 0) {
 		printf("vdd_CPU pwm set fail\n");
 		return;
@@ -144,7 +144,7 @@ void str_power_on(int shutdown_flag)
 			printf("VDDCPU/VDDQ set gpio val fail\n");
 			return;
 		}
-		/*Wait 10ms for VDDCPU statble*/
+		/*Wait 10ms for VDDCPU stable*/
 		vTaskDelay(pdMS_TO_TICKS(10));
 	}
 
@@ -192,26 +192,26 @@ void str_power_off(int shutdown_flag)
 	}
 
 	/***set vdd_cpu val***/
-	vdd_cpu = vPwmMesongetvoltage(VDDCPU_VOLT);
+	vdd_cpu = vPwmMesonGetVoltage(VDDCPU_VOLT);
 	if (vdd_cpu < 0) {
 		printf("vdd_CPU pwm get fail\n");
 		return;
 	}
 
-	ret = vPwmMesonsetvoltage(VDDCPU_VOLT,700);
+	ret = vPwmMesonSetVoltage(VDDCPU_VOLT,700);
 	if (ret < 0) {
 		printf("vdd_CPU pwm set fail\n");
 		return;
 	}
 
 	/***set vdd_ee val***/
-	vdd_ee = vPwmMesongetvoltage(VDDEE_VOLT);
+	vdd_ee = vPwmMesonGetVoltage(VDDEE_VOLT);
 	if (vdd_ee < 0) {
 		printf("vdd_EE pwm get fail\n");
 		return;
 	}
 
-	ret = vPwmMesonsetvoltage(VDDEE_VOLT,770);
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,770);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;

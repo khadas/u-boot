@@ -1447,7 +1447,7 @@
 #define SEC_PREG_PAD_ANALOG_I                                  (0xff634400 + (0x024 << 2))
 #define   P_PREG_PAD_ANALOG_I                                  (volatile uint32_t *)(0xff634400 + (0x024 << 2))
 // ----------------------------
-// Pad conntrols
+// Pad controls
 // ----------------------------
 //`define PAD_PULL_UP_REG6                    8'h39
 #define     PAD_PULL_UP_REG0                                   (0xff634400 + (0x03a << 2))
@@ -6790,8 +6790,8 @@
 //Bit 30,     reg_keep_req_ddr_init ,default = 0,reg_keep_req_ddr_init
 //Bit 29:28,  reserved
 //Bit 27,     reg_gain_en         ,default = 0,gain enable
-//Bit 26:24,  reg_frddr_sel       ,default = 0,from ddr selet
-//Bit 23:16,  reg_wait_cnt        ,default = 0,wait some time when enalble set to 1
+//Bit 26:24,  reg_frddr_sel       ,default = 0,from ddr select
+//Bit 23:16,  reg_wait_cnt        ,default = 0,wait some time when enable set to 1
 //Bit 15:13,  reserved
 //Bit 12:8,   reg_frddr_msb       ,default = 0,msb position of data
 //Bit 7,      reg_force_start     ,default = 0,set 1 no need ack from frddr to transmit channel status
@@ -6811,8 +6811,8 @@
 #define SEC_EARCTX_SPDIFOUT_SWAP                               (0xff603400 + (0x007 << 2))
 #define   P_EARCTX_SPDIFOUT_SWAP                               (volatile uint32_t *)(0xff603400 + (0x007 << 2))
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 squence some times after intial done from frddr set
-//Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 squence time ,valid when reg_init_send_en set 1
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after intial done from frddr set
+//Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define     EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x008 << 2))
 #define SEC_EARCTX_ERR_CORRT_CTRL0                             (0xff603400 + (0x008 << 2))
 #define   P_EARCTX_ERR_CORRT_CTRL0                             (volatile uint32_t *)(0xff603400 + (0x008 << 2))
@@ -6846,7 +6846,7 @@
 //Bit 15:8,   reg_mute_ch_Bit      ,default = 0,mute Bit at channel statue which bit
 //Bit 7:3,    reserved
 //Bit 2,      reg_mute_data_sel    ,default = 0,mute data sel: 0 data 1 reg_mute_data_value
-//Bit 1:0,    reg_mute_mode        ,default = 0,0:always mute 1:mute block number and dis mute 2:mute bolck number and hold bus
+//Bit 1:0,    reg_mute_mode        ,default = 0,0:always mute 1:mute block number and dis mute 2:mute block number and hold bus
 #define     EARCTX_ERR_CORRT_CTRL3                             (0xff603400 + (0x00b << 2))
 #define SEC_EARCTX_ERR_CORRT_CTRL3                             (0xff603400 + (0x00b << 2))
 #define   P_EARCTX_ERR_CORRT_CTRL3                             (volatile uint32_t *)(0xff603400 + (0x00b << 2))
@@ -7061,7 +7061,7 @@
 //Bit   13   ,     cmdc_debug2               unsigned, default = 0, 1: enable
 //Bit   12:7 ,     reserved
 //Bit    6   ,     mute_select               unsigned, default = 0, 1: use bit5, 0: earc off
-//Bit    5   ,     mute_contrl               unsigned, default = 0, value of mannul mute control
+//Bit    5   ,     mute_contrl               unsigned, default = 0, value of manual mute control
 //Bit    4:0 ,     reserved
 #define     EARC_RX_CMDC_TOP_CTRL1                             (0xff603800 + (0x001 << 2))
 #define SEC_EARC_RX_CMDC_TOP_CTRL1                             (0xff603800 + (0x001 << 2))
@@ -7563,7 +7563,7 @@
 #define   P_EARCRX_DMAC_UBIT_CTRL0                             (volatile uint32_t *)(0xff603c00 + (0x013 << 2))
 //Bit   31,     reg_work_enable               unsigned, default = 0, dmac user bit decode enable
 //Bit   30:24,  reg_iu_sync                   unsigned, default = 0, iu sync value
-//Bit   23:16,  reg_fifo_thd                  unsigned, default = 0, generate irq when fifo level pass some threthold
+//Bit   23:16,  reg_fifo_thd                  unsigned, default = 0, generate irq when fifo level pass some threshold
 //Bit   15,     reg_max_dist_en               unsigned, default = 0, max distance bewteen IUs to set lost
 //Bit   14,     reg_iu_sync_en                unsigned, default = 0, iu sync code enable 0 : all iu to fifo 1 only sync iu packet to fifo
 //Bit   13:12,  reg_user_lr                   unsigned, default = 0, 00 off 01 use l channel userbit 10 use r channel userbit 11 user lr channel userbit
@@ -7609,8 +7609,8 @@
 //Bit   29,     reg_ana_rst_sf                unsigned, default = 0, soft reset value
 //Bit   28,     reserved
 //Bit   27:23,  reg_new_format_pos_num        unsigned, default = 0, when new format data in, hold reset after N posedge
-//Bit   22:20,  reg_dmacrx_div2_thd_tick_sel  unsigned, default = 0, earcrx_div2 hold thresthold tick select
-//Bit   19:0,   reg_earcrx_div2_thd           unsigned, default = 0, earcrx_div2 hold thresthold
+//Bit   22:20,  reg_dmacrx_div2_thd_tick_sel  unsigned, default = 0, earcrx_div2 hold threshold tick select
+//Bit   19:0,   reg_earcrx_div2_thd           unsigned, default = 0, earcrx_div2 hold threshold
 #define     EARCRX_ANA_RST_CTRL1                               (0xff603c00 + (0x019 << 2))
 #define SEC_EARCRX_ANA_RST_CTRL1                               (0xff603c00 + (0x019 << 2))
 #define   P_EARCRX_ANA_RST_CTRL1                               (volatile uint32_t *)(0xff603c00 + (0x019 << 2))
@@ -7648,7 +7648,7 @@
 //Bit   31:28,  reserved
 //Bit   27      reg_chnum_mult_mode                 unsigned, default = 0
 //Bit   26      reg_chnum_max_force                  unsigned, default = 0
-//Bit   25:20   reg_chnum_max_val                   unsigend, default = 0
+//Bit   25:20   reg_chnum_max_val                   unsigned, default = 0
 //Bit   19:17   reserved
 //Bit   16,     reg_check_time_en                   unsigned, default = 0, reg_check_time_en
 //Bit   15:0,   reg_check_time_thd                  unsigned, default = 0, reg_check_time_thd
@@ -8028,7 +8028,7 @@
 #define     AUCPU_CPU_STS0                                     (0xff650000 + (0x00a << 2))
 #define SEC_AUCPU_CPU_STS0                                     (0xff650000 + (0x00a << 2))
 #define   P_AUCPU_CPU_STS0                                     (volatile uint32_t *)(0xff650000 + (0x00a << 2))
-//Bit 31:0 -       0   - n205_debug_sel==0 : n205_trace_casuse, 1:n205_trace_tval, 2:n205_trace_iaddr, 3:n205_trace_instr
+//Bit 31:0 -       0   - n205_debug_sel==0 : n205_trace_cause, 1:n205_trace_tval, 2:n205_trace_iaddr, 3:n205_trace_instr
 #define     AUCPU_CPU_STS1                                     (0xff650000 + (0x00b << 2))
 #define SEC_AUCPU_CPU_STS1                                     (0xff650000 + (0x00b << 2))
 #define   P_AUCPU_CPU_STS1                                     (volatile uint32_t *)(0xff650000 + (0x00b << 2))
@@ -8036,7 +8036,7 @@
 //Bit 30:29-       0   - n205_trace_priv
 //Bit 28:20-       0   - reserved
 //Bit 19   -       0   - n205_core_wfi_mode
-//Bit 18   -       0   - n205_trace_ivalid
+//Bit 18   -       0   - n205_trace_invalid
 //Bit 17   -       0   - n205_trace_iexception
 //Bit 16   -       0   - n205_trace_interrupt
 //Bit 15:0 -       0   - reserved
@@ -14434,7 +14434,7 @@
 //========================================================================
 // APB4_DECODER_NON_SECURE_BASE         32'hFF611000
 // APB4_DECODER_SECURE_BASE             32'hFF611000
-//ree domian
+//ree domain
 #define     REE_SCPU2REE_CSR_ADDR                              (0xff611000 + (0x300 << 2))
 #define SEC_REE_SCPU2REE_CSR_ADDR                              (0xff611000 + (0x300 << 2))
 #define   P_REE_SCPU2REE_CSR_ADDR                              (volatile uint32_t *)(0xff611000 + (0x300 << 2))
@@ -14453,7 +14453,7 @@
 #define     REE_REE2SCPU_DATA_ED_ADDR                          (0xff611000 + (0x29f << 2))
 #define SEC_REE_REE2SCPU_DATA_ED_ADDR                          (0xff611000 + (0x29f << 2))
 #define   P_REE_REE2SCPU_DATA_ED_ADDR                          (volatile uint32_t *)(0xff611000 + (0x29f << 2))
-//tee domian
+//tee domain
 #define     TEE_SCPU2TEE_CSR_ADDR                              (0xff611000 + (0x100 << 2))
 #define SEC_TEE_SCPU2TEE_CSR_ADDR                              (0xff611000 + (0x100 << 2))
 #define   P_TEE_SCPU2TEE_CSR_ADDR                              (volatile uint32_t *)(0xff611000 + (0x100 << 2))

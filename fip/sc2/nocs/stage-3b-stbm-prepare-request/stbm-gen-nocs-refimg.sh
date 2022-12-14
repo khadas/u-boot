@@ -86,7 +86,7 @@ case "${SZ_BLOB_BL2E}" in
     _sz_scs_total_area="701c1400"
     ;;
   *)
-    echo "ERROR: unspported size of 'blob-bl2e.bin': ${SZ_BLOB_BL2E}"
+    echo "ERROR: unsupported size of 'blob-bl2e.bin': ${SZ_BLOB_BL2E}"
     exit -1
     ;;
 esac

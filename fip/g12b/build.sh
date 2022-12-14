@@ -9,7 +9,7 @@ function init_vari() {
 	#source ${AUTOCFG_FILE} &> /dev/null # ignore warning/error
 
 	AML_BL2_NAME="bl2.bin"
-	AML_KEY_BLOB_NANE="aml-user-key.sig"
+	AML_KEY_BLOB_NAME="aml-user-key.sig"
 
 	if [ "y" == "${CONFIG_AML_SECURE_BOOT_V3}" ]; then
 		V3_PROCESS_FLAG="--level v3"
@@ -112,14 +112,14 @@ function encrypt() {
 		--ddrfw9  ./${FIP_FOLDER}${CUR_SOC}/lpddr3_1d.fw
 
 	if [ "y" == "${CONFIG_AML_CRYPTO_UBOOT}" ]; then
-		encrypt_step --efsgen --amluserkey ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/${AML_KEY_BLOB_NANE} \
+		encrypt_step --efsgen --amluserkey ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/${AML_KEY_BLOB_NAME} \
 			--output ${BUILD_PATH}/u-boot.bin.encrypt.efuse ${V3_PROCESS_FLAG}
-		encrypt_step --bootsig --input ${BUILD_PATH}/u-boot.bin --amluserkey ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/${AML_KEY_BLOB_NANE} \
+		encrypt_step --bootsig --input ${BUILD_PATH}/u-boot.bin --amluserkey ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/${AML_KEY_BLOB_NAME} \
 			--aeskey enable --output ${BUILD_PATH}/u-boot.bin.encrypt ${V3_PROCESS_FLAG}
 	fi
 
 	if [ "y" == "${CONFIG_AML_CRYPTO_IMG}" ]; then
-		encrypt_step --imgsig --input ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/boot.img --amluserkey ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/${AML_KEY_BLOB_NANE} --output ${BUILD_PATH}/boot.img.encrypt
+		encrypt_step --imgsig --input ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/boot.img --amluserkey ${UBOOT_SRC_FOLDER}/${BOARD_DIR}/${AML_KEY_BLOB_NAME} --output ${BUILD_PATH}/boot.img.encrypt
 	fi
 
 	return

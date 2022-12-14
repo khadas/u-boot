@@ -236,7 +236,7 @@
 #define HCODEC_MFDIN_REG6_DCFG                     ((0x100e  << 2) + 0xff620000)
 //cfg_soft_cmd = mfdin_reg7_scmd; // Soft Command [28]selfcleared start,[27:14]dmb_x,[13:0]dmb_y
 #define HCODEC_MFDIN_REG7_SCMD                     ((0x100f  << 2) + 0xff620000)
-//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the begining of last dmb in the picturem, picture x size
+//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the begining of last dmb in the picture, picture x size
 //cfg_pic_ysize = mfdin_reg8_dmbl[11:0];  //picture y size
 #define HCODEC_MFDIN_REG8_DMBL                     ((0x1010  << 2) + 0xff620000)
 //cfg_endian = mfdin_reg9_endn; //Endian Control
@@ -422,7 +422,7 @@
 #define PSCALE_CANVAS_WR_ADDR                      ((0x092d  << 2) + 0xff620000)
 //bit 13:8 pscale thread ID and token
 //bit 7 disable write response count adding to busy bit
-//bit 5:0  pscale prearbitor burst num
+//bit 5:0  pscale pre-arbiter burst num
 #define PSCALE_CTRL2                               ((0x092e  << 2) + 0xff620000)
 //   31 - use_omem_mb_xy_auto
 //23:16 - omem_max_mb_x
@@ -587,7 +587,7 @@
 #define MDEC_EXTIF_CFG2                            ((0x09e6  << 2) + 0xff620000)
 #define MDEC_EXTIF_STS0                            ((0x09e7  << 2) + 0xff620000)
 #define MDEC_PICW_BUFDW_CFG0                       ((0x09e8  << 2) + 0xff620000)
-#define MDEC_PICW_BUFDW_CFG1                       ((0x09e9  << 2) + 0xff620000)
+#define MDEC_PICW_BUFDW_CFG0                       ((0x09e9  << 2) + 0xff620000)
 //======================================
 //  MC Control Register Bits
 //
@@ -703,7 +703,7 @@
 #define DBLK_OST_YBASE                             ((0x097d  << 2) + 0xff620000)
 #define DBLK_OST_CBCRDIFF                          ((0x097e  << 2) + 0xff620000)
 //13:8 dblk thread ID and token
-//5:0  dblk prearbitor burst num
+//5:0  dblk pre-arbiter burst num
 #define DBLK_CTRL1                                 ((0x097f  << 2) + 0xff620000)
 // MCRCC_CTL1
 // 31:3  <reserved[23:0]>
@@ -1092,19 +1092,19 @@
 // bit[11]  -- mv_use_abs (only calculate abs)
 // bit[10]  -- mv_use_simple_mode (every size count has same weight)
 // bit[9]   -- use_simple_mode (every size count has same weight)
-// bit[8]   -- reseet_all_count // write only
+// bit[8]   -- reset_all_count // write only
 // bit[7:5] Reserved
 // bit[4:0] pic_quality_rd_idx
 #define VDEC_PIC_QUALITY_CTRL                      ((0x0c57  << 2) + 0xff620000)
 // idx  -- read out
 //   0  -- blk88_y_count // 4k will use 20 bits
 //   1  -- qp_y_sum // 4k use 27 bits
-//   2  -- intra_y_oount // 4k use 20 bits
+//   2  -- intra_y_count // 4k use 20 bits
 //   3  -- skipped_y_count // 4k use 20 bits
 //   4  -- coeff_non_zero_y_count // 4k use 20 bits
 //   5  -- blk66_c_count // 4k will use 20 bits
 //   6  -- qp_c_sum // 4k use 26 bits
-//   7  -- intra_c_oount // 4k use 20 bits
+//   7  -- intra_c_count // 4k use 20 bits
 //   8  -- skipped_cu_c_count // 4k use 20 bits
 //   9  -- coeff_non_zero_c_count // 4k use 20 bits
 //  10  -- { 1'h0, qp_c_max[6:0], 1'h0, qp_c_min[6:0], 1'h0, qp_y_max[6:0], 1'h0, qp_y_min[6:0]}
@@ -1597,7 +1597,7 @@
 // Mid Mode : (Amrisc need movi to set stream_info)
 //   bit[15:12]] push_stream_mid_length (1-12 : mid mode active, 0-short mode, 15 - byte align)
 //   bit[11:0]  push_stream_data
-// Short Mode : (Amrisc can use mtspi to push stream directely)
+// Short Mode : (Amrisc can use mtspi to push stream directly)
 //   bit[7:5] push_stream_short_length (0-5 : short length, else - invalid)
 //   bit[4:0]  push_stream_data
 #define VLC_PUSH_STREAM                            ((0x1d1f  << 2) + 0xff620000)
@@ -1722,7 +1722,7 @@
 // Bit[15:4]  mb_x
 // Bit[3:0]   mb_type
 #define VLC_MB_INFO                                ((0x1d35  << 2) + 0xff620000)
-// commnad 0 -- no pending
+// command 0 -- no pending
 // normal command + 1 is pending command
 //
 // bit 31:28 -- pending command 7
@@ -2934,7 +2934,7 @@
 //`define HCODEC_DBLK_OST_CBCRDIFF       8'h7e
 //
 ////13:8 dblk thread ID and token
-////5:0  dblk prearbitor burst num
+////5:0  dblk pre-arbiter burst num
 //`define HCODEC_DBLK_CTRL1              8'h7f
 //
 ////DBLK last address 12'h97f
@@ -3008,7 +3008,7 @@
 //// bit 1 -- mb_weighting_flag
 //// bit 0 -- slice_weighting_flag
 //`define HCODEC_VLD_DECODE_CONTROL  8'h18
-//`define HCODEC_VLD_REVERVED_19     8'h19
+//`define HCODEC_VLD_RESERVED_19     8'h19
 //
 //`define HCODEC_VIFF_BIT_CNT        8'h1a
 //`define HCODEC_BYTE_ALIGN_PEAK_HI  8'h1b
@@ -4276,7 +4276,7 @@
 // [7]   -- segment_id_map_from_shadow
 // [6]   -- segment_id_map_to_shadow
 // [5]   -- shadow_rw_addr_update
-// [4:0] -- shadiw_rw_addr
+// [4:0] -- shadow_rw_addr
 #define VP9_SHADOW_CTRL                            ((0x3150  << 2) + 0xff620000)
 // [31:0] -- shadow_rw_data
 #define VP9_SHADOW_DATA                            ((0x3151  << 2) + 0xff620000)
@@ -4297,7 +4297,7 @@
 // bit[11] multi_hypothesis_skip_enable (b_mhpskip_enabled)
 // bit[10]  dual_hypothesis_prediction_enable (dhp_enabled)
 // bit[9] - weighted_skip_enable (wsm_enabled)
-// bit[8] - asynmetric_motion_partitions_enable (Asymmetric Motion Partitions - inter_amp_enable)
+// bit[8] - asymmetric_motion_partitions_enable (Asymmetric Motion Partitions - inter_amp_enable)
 // bit[7] - useNSIP (nonsquare_intra_prediction_enable)
 // bit[6] - secT_enabled (secondary_transform_enable_flag)
 // bit[5] - slice_alf_enable_Y
@@ -5063,7 +5063,7 @@
 // [2]      -- auto index increment
 // [7:3]    -- reserved
 // [10:8]   -- start refid :: 0 through 7
-// [13:11]  -- start matrix entry index :: 0 thriugh 7
+// [13:11]  -- start matrix entry index :: 0 through 7
 // [29:14]  -- reserved
 // [30]     -- wr-bank : 2-banks: possible ping-pong
 // [31]     -- rd-bank
@@ -5071,7 +5071,7 @@
 // [26:0]   -- global motion warped-mode matrix  r/w  32byte aligned
 // [31:27]  -- reserved
 #define AV1D_MPP_ORDERHINT_CFG                     ((0x3493  << 2) + 0xff620000)
-// [3:0]    current frame orderhintbits
+// [3:0]    current frame order hint bits
 // [7:4]    reserved
 // [15:8]   current frame orderhint
 // [31:8]   reserved
@@ -5146,7 +5146,7 @@
 #define HEVC_DBLK_CFGB                             ((0x350b  << 2) + 0xff620000)
 //cfgc[31:0]      //cfg_addr_y1
 #define HEVC_DBLK_CFGC                             ((0x350c  << 2) + 0xff620000)
-//cfgd[31:0]      //cfg_alfpar
+//cfgd[31:0]
 #define HEVC_DBLK_CFGD                             ((0x350d  << 2) + 0xff620000)
 //cfge[31:0]
 #define HEVC_DBLK_CFGE                             ((0x350e  << 2) + 0xff620000)
@@ -5186,7 +5186,7 @@
 //cfgs for av1 lrf
 //lrf0[0] lrf_enable
 //lrf0[4:1] lrf_unitsize
-//lrf1[31:0] lrf_unitnum
+//lrf1[31:0] lrf_unit_num
 #define HEVC_DBLK_LRF0                             ((0x3521  << 2) + 0xff620000)
 #define HEVC_DBLK_LRF1                             ((0x3522  << 2) + 0xff620000)
 //cfgs for av1 dblk
@@ -5235,7 +5235,7 @@
 //  [28]    OW_TO_LPF_READY:0=not ready,1=ready
 //  [29]    LPF_TO_OW_VALID:0=not valid,1=valid
 //  [30]    LPF_IS_DONE:0=LPF is ON/BUSY,1=LPF/DBLK is DONE/OFF
-//  [31]    OW_IS_ON:1=OW is ON/BUSY,0=OW is DONW/OFF
+//  [31]    OW_IS_ON:1=OW is ON/BUSY,0=OW is DOWN/OFF
 #define HEVC_SAO_INT_STATUS                        ((0x3604  << 2) + 0xff620000)
 //  [0]     slice_done IRQ
 //  [31]    write "1"=slice start(self clear,read always return "0")
@@ -5334,7 +5334,7 @@
 #define HEVC_CM_CORE_STATUS                        ((0x3640  << 2) + 0xff620000)
 //[0]    tile_busy
 //[30:1] reserved 0
-//[31]   mmu_4kbuffer_empty
+//[31]   mmu_4K_buffer_empty
 #define HEVC_SAO_MMU_RESET_CTRL                    ((0x3641  << 2) + 0xff620000)
 //[31:1] reserved 0
 //[0]    sw_rst_mmu
@@ -5384,7 +5384,7 @@
 #define HEVC_CM_CORE_STATUS2                       ((0x364f  << 2) + 0xff620000)
 //[0]    tile_busy
 //[30:1] reserved 0
-//[31]   mmu_4kbuffer_empty
+//[31]   mmu_4K_buffer_empty
 //
 #define HEVC_SAO_MMU_STATUS2                       ((0x3650  << 2) + 0xff620000)
 //Read Only
@@ -5609,19 +5609,19 @@
 // bit[11]  -- mv_use_abs (only calculate abs)
 // bit[10]  -- mv_use_simple_mode (every size count has same weight)
 // bit[9]   -- use_simple_mode (every size count has same weight)
-// bit[8]   -- reseet_all_count // write only
+// bit[8]   -- reset_all_count // write only
 // bit[7:5] Reserved
 // bit[4:0] pic_quality_rd_idx
 #define HEVC_PIC_QUALITY_CTRL                      ((0x3710  << 2) + 0xff620000)
 // idx  -- read out
 //   0  -- blk44_y_count // 4k will use 20 bits
 //   1  -- qp_y_sum // 4k use 27 bits
-//   2  -- intra_y_oount // 4k use 20 bits
+//   2  -- intra_y_count // 4k use 20 bits
 //   3  -- skipped_cu_y_count // 4k use 20 bits
 //   4  -- coeff_zero_y_count // 4k use 20 bits
 //   5  -- blk44_c_count // 4k will use 20 bits
 //   6  -- qp_c_sum // 4k use 26 bits
-//   7  -- intra_c_oount // 4k use 20 bits
+//   7  -- intra_c_count // 4k use 20 bits
 //   8  -- skipped_cu_c_count // 4k use 20 bits
 //   9  -- coeff_zero_c_count // 4k use 20 bits
 //  10  -- { 1'h0, qp_c_max[6:0], 1'h0, qp_c_min[6:0], 1'h0, qp_y_max[6:0], 1'h0, qp_y_min[6:0]}
@@ -5964,7 +5964,7 @@
 #define HCODEC_PSCALE_CANVAS_WR_ADDR               ((0x192d  << 2) + 0xff620000)
 //bit 13:8 pscale thread ID and token
 //bit 7 disable write response count adding to busy bit
-//bit 5:0  pscale prearbitor burst num
+//bit 5:0  pscale pre-arbiter burst num
 #define HCODEC_PSCALE_CTRL2                        ((0x192e  << 2) + 0xff620000)
 //   31 - use_omem_mb_xy_auto
 //23:16 - omem_max_mb_x
@@ -6224,7 +6224,7 @@
 #define HCODEC_DBLK_OST_YBASE                      ((0x197d  << 2) + 0xff620000)
 #define HCODEC_DBLK_OST_CBCRDIFF                   ((0x197e  << 2) + 0xff620000)
 //13:8 dblk thread ID and token
-//5:0  dblk prearbitor burst num
+//5:0  dblk pre-arbiter burst num
 #define HCODEC_DBLK_CTRL1                          ((0x197f  << 2) + 0xff620000)
 // MCRCC_CTL1
 // 31:3  <reserved[23:0]>
@@ -6361,7 +6361,7 @@
 #define VDEC2_PSCALE_CANVAS_WR_ADDR                ((0x292d  << 2) + 0xff620000)
 //bit 13:8 pscale thread ID and token
 //bit 7 disable write response count adding to busy bit
-//bit 5:0  pscale prearbitor burst num
+//bit 5:0  pscale pre-arbiter burst num
 #define VDEC2_PSCALE_CTRL2                         ((0x292e  << 2) + 0xff620000)
 //   31 - use_omem_mb_xy_auto
 //23:16 - omem_max_mb_x
@@ -6621,7 +6621,7 @@
 #define VDEC2_DBLK_OST_YBASE                       ((0x297d  << 2) + 0xff620000)
 #define VDEC2_DBLK_OST_CBCRDIFF                    ((0x297e  << 2) + 0xff620000)
 //13:8 dblk thread ID and token
-//5:0  dblk prearbitor burst num
+//5:0  dblk pre-arbiter burst num
 #define VDEC2_DBLK_CTRL1                           ((0x297f  << 2) + 0xff620000)
 // MCRCC_CTL1
 // 31:3  <reserved[23:0]>
@@ -6758,7 +6758,7 @@
 #define HEVC_PSCALE_CANVAS_WR_ADDR                 ((0x392d  << 2) + 0xff620000)
 //bit 13:8 pscale thread ID and token
 //bit 7 disable write response count adding to busy bit
-//bit 5:0  pscale prearbitor burst num
+//bit 5:0  pscale pre-arbiter burst num
 #define HEVC_PSCALE_CTRL2                          ((0x392e  << 2) + 0xff620000)
 //   31 - use_omem_mb_xy_auto
 //23:16 - omem_max_mb_x
@@ -7018,7 +7018,7 @@
 #define HEVC_DBLK_OST_YBASE                        ((0x397d  << 2) + 0xff620000)
 #define HEVC_DBLK_OST_CBCRDIFF                     ((0x397e  << 2) + 0xff620000)
 //13:8 dblk thread ID and token
-//5:0  dblk prearbitor burst num
+//5:0  dblk pre-arbiter burst num
 #define HEVC_DBLK_CTRL1                            ((0x397f  << 2) + 0xff620000)
 // MCRCC_CTL1
 // 31:3  <reserved[23:0]>
@@ -7404,19 +7404,19 @@
 // bit[11]  -- mv_use_abs (only calculate abs)
 // bit[10]  -- mv_use_simple_mode (every size count has same weight)
 // bit[9]   -- use_simple_mode (every size count has same weight)
-// bit[8]   -- reseet_all_count // write only
+// bit[8]   -- reset_all_count // write only
 // bit[7:5] Reserved
 // bit[4:0] pic_quality_rd_idx
 #define HCODEC_VDEC_PIC_QUALITY_CTRL               ((0x1c57  << 2) + 0xff620000)
 // idx  -- read out
 //   0  -- blk88_y_count // 4k will use 20 bits
 //   1  -- qp_y_sum // 4k use 27 bits
-//   2  -- intra_y_oount // 4k use 20 bits
+//   2  -- intra_y_count // 4k use 20 bits
 //   3  -- skipped_y_count // 4k use 20 bits
 //   4  -- coeff_non_zero_y_count // 4k use 20 bits
 //   5  -- blk66_c_count // 4k will use 20 bits
 //   6  -- qp_c_sum // 4k use 26 bits
-//   7  -- intra_c_oount // 4k use 20 bits
+//   7  -- intra_c_count // 4k use 20 bits
 //   8  -- skipped_cu_c_count // 4k use 20 bits
 //   9  -- coeff_non_zero_c_count // 4k use 20 bits
 //  10  -- { 1'h0, qp_c_max[6:0], 1'h0, qp_c_min[6:0], 1'h0, qp_y_max[6:0], 1'h0, qp_y_min[6:0]}
@@ -7755,19 +7755,19 @@
 // bit[11]  -- mv_use_abs (only calculate abs)
 // bit[10]  -- mv_use_simple_mode (every size count has same weight)
 // bit[9]   -- use_simple_mode (every size count has same weight)
-// bit[8]   -- reseet_all_count // write only
+// bit[8]   -- reset_all_count // write only
 // bit[7:5] Reserved
 // bit[4:0] pic_quality_rd_idx
 #define VDEC2_VDEC_PIC_QUALITY_CTRL                ((0x2c57  << 2) + 0xff620000)
 // idx  -- read out
 //   0  -- blk88_y_count // 4k will use 20 bits
 //   1  -- qp_y_sum // 4k use 27 bits
-//   2  -- intra_y_oount // 4k use 20 bits
+//   2  -- intra_y_count // 4k use 20 bits
 //   3  -- skipped_y_count // 4k use 20 bits
 //   4  -- coeff_non_zero_y_count // 4k use 20 bits
 //   5  -- blk66_c_count // 4k will use 20 bits
 //   6  -- qp_c_sum // 4k use 26 bits
-//   7  -- intra_c_oount // 4k use 20 bits
+//   7  -- intra_c_count // 4k use 20 bits
 //   8  -- skipped_cu_c_count // 4k use 20 bits
 //   9  -- coeff_non_zero_c_count // 4k use 20 bits
 //  10  -- { 1'h0, qp_c_max[6:0], 1'h0, qp_c_min[6:0], 1'h0, qp_y_max[6:0], 1'h0, qp_y_min[6:0]}
@@ -8106,19 +8106,19 @@
 // bit[11]  -- mv_use_abs (only calculate abs)
 // bit[10]  -- mv_use_simple_mode (every size count has same weight)
 // bit[9]   -- use_simple_mode (every size count has same weight)
-// bit[8]   -- reseet_all_count // write only
+// bit[8]   -- reset_all_count // write only
 // bit[7:5] Reserved
 // bit[4:0] pic_quality_rd_idx
 #define HEVC_VDEC_PIC_QUALITY_CTRL                 ((0x3c57  << 2) + 0xff620000)
 // idx  -- read out
 //   0  -- blk88_y_count // 4k will use 20 bits
 //   1  -- qp_y_sum // 4k use 27 bits
-//   2  -- intra_y_oount // 4k use 20 bits
+//   2  -- intra_y_count // 4k use 20 bits
 //   3  -- skipped_y_count // 4k use 20 bits
 //   4  -- coeff_non_zero_y_count // 4k use 20 bits
 //   5  -- blk66_c_count // 4k will use 20 bits
 //   6  -- qp_c_sum // 4k use 26 bits
-//   7  -- intra_c_oount // 4k use 20 bits
+//   7  -- intra_c_count // 4k use 20 bits
 //   8  -- skipped_cu_c_count // 4k use 20 bits
 //   9  -- coeff_non_zero_c_count // 4k use 20 bits
 //  10  -- { 1'h0, qp_c_max[6:0], 1'h0, qp_c_min[6:0], 1'h0, qp_y_max[6:0], 1'h0, qp_y_min[6:0]}
@@ -9151,7 +9151,7 @@
 // Mid Mode : (Amrisc need movi to set stream_info)
 //   bit[15:12]] push_stream_mid_length (1-12 : mid mode active, 0-short mode, 15 - byte align)
 //   bit[11:0]  push_stream_data
-// Short Mode : (Amrisc can use mtspi to push stream directely)
+// Short Mode : (Amrisc can use mtspi to push stream directly)
 //   bit[7:5] push_stream_short_length (0-5 : short length, else - invalid)
 //   bit[4:0]  push_stream_data
 #define HCODEC_VLC_PUSH_STREAM                     ((0x1d1f  << 2) + 0xff620000)
@@ -9276,7 +9276,7 @@
 // Bit[15:4]  mb_x
 // Bit[3:0]   mb_type
 #define HCODEC_VLC_MB_INFO                         ((0x1d35  << 2) + 0xff620000)
-// commnad 0 -- no pending
+// command 0 -- no pending
 // normal command + 1 is pending command
 //
 // bit 31:28 -- pending command 7

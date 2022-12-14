@@ -9,7 +9,7 @@ function init_vari() {
 	#source ${AUTOCFG_FILE} &> /dev/null # ignore warning/error
 
 	AML_BL2_NAME="bl2.bin"
-	AML_KEY_BLOB_NANE="aml-user-key.sig"
+	AML_KEY_BLOB_NAME="aml-user-key.sig"
 
 	if [ "y" == "${CONFIG_AML_SECURE_BOOT_V3}" ]; then
 		V3_PROCESS_FLAG="--level v3"
@@ -209,7 +209,7 @@ function mk_bl2ex() {
 		ls -la ${output}/
 		exit -1
 	fi
-	echo "done to genenrate bb1st.bin folder"
+	echo "done to generate bb1st.bin folder"
 }
 
 function mk_devfip() {
@@ -233,7 +233,7 @@ function mk_devfip() {
 
 	# fix size for BL40 96KB
 	if [ -f ${output}/bl40.bin ]; then
-		blx_szie=`stat -c %s ${output}/bl40.bin`
+		blx_size=`stat -c %s ${output}/bl40.bin`
 		if [ $blx_size -gt 98304 ]; then
 			echo "Error: bl40 size exceed limit 98304"
 			exit -1
@@ -309,7 +309,7 @@ function mk_devfip() {
 		echo "Error: ${output}/device-fip.bin does not exist... abort"
 		exit -1
 	fi
-	echo "done to genenrate device-fip.bin"
+	echo "done to generate device-fip.bin"
 }
 
 # due to size limit of BL2, only one type of DDR firmware is
@@ -382,7 +382,7 @@ function mk_ddr_fip()
 		# 1. make sure we only copy 36KB, 32KB IMEM + 4KB DMEM
 		# 2. make a empty bin with fw_size
 		# 3. copy from fw to empty bin
-		# 4. padding this bin to finnal output
+		# 4. padding this bin to final output
 		if [ ${fw_size} -gt "36864" ]; then
 			fw_size="36864"
 		fi
@@ -497,18 +497,18 @@ function mk_uboot() {
 	sector=512
 	seek=0
 	seek_sector=0
-	dateStamp=SC2-`date +%Y%m%d%H%M%S`
+	dateStamp=S4-${CHIPSET_NAME}-`date +%y%m%d%H%M%S`
 
 	echo @AMLBOOT > ${file_info_cfg_temp}
 	dd if=${file_info_cfg_temp} of=${file_info_cfg} bs=1 count=8 conv=notrunc &> /dev/null
 	nItemNum=5
 	nSizeHDR=$[64+nItemNum*16]
-	printf "01 %02x %02x %02x 00 00 00 00" $[(nItemNum)&0xFF] $[(nSizeHDR)&0xFF] $[((nSizeHDR)>>8)&0xFF] \
+	printf "02 %02x %02x %02x" $[(nItemNum)&0xFF] $[(nSizeHDR)&0xFF] $[((nSizeHDR)>>8)&0xFF] \
 		| xxd -r -ps > ${file_info_cfg_temp}
 	cat ${file_info_cfg_temp} >> ${file_info_cfg}
 
 	echo ${dateStamp} > ${file_info_cfg_temp}
-	dd if=${file_info_cfg_temp} of=${file_info_cfg} bs=1 count=16 oflag=append conv=notrunc &> /dev/null
+	dd if=${file_info_cfg_temp} of=${file_info_cfg} bs=1 count=20 oflag=append conv=notrunc &> /dev/null
 
 	index=0
 	arrPayload=("BBST" "BL2E" "BL2X" "DDRF" "DEVF");

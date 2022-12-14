@@ -293,9 +293,12 @@ if [ -s "${fw_arb_cfg}" ]; then
 	export DEVICE_REE_VERS=${DEVICE_REE_VERS}
 fi
 
-export DEVICE_SCS_KEY_TOP=$(pwd)/${key_dir}
-export DEVICE_INPUT_PATH=$(pwd)/${input_dir}
-export DEVICE_OUTPUT_PATH=$(pwd)/${input_dir}
+#export DEVICE_SCS_KEY_TOP=$(pwd)/${key_dir}
+#export DEVICE_INPUT_PATH=$(pwd)/${input_dir}
+#export DEVICE_OUTPUT_PATH=$(pwd)/${input_dir}
+export DEVICE_SCS_KEY_TOP=$(readlink -f ${key_dir})
+export DEVICE_INPUT_PATH=$(readlink -f ${input_dir})
+export DEVICE_OUTPUT_PATH=$(readlink -f ${input_dir})
 export PROJECT=${part}
 export DEVICE_ROOTRSA_INDEX=${rootkey_index}
 

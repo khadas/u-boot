@@ -86,18 +86,18 @@ function mk_uboot() {
 	sector=512
 	seek=0
 	seek_sector=0
-	dateStamp=SC2-`date +%Y%m%d%H%M%S`
+	dateStamp=S4-${part}-`date +%y%m%d%H%M%S`
 
 	echo @AMLBOOT > ${file_info_cfg_temp}
 	dd if=${file_info_cfg_temp} of=${file_info_cfg} bs=1 count=8 conv=notrunc &> /dev/null
 	nItemNum=5
 	nSizeHDR=$[64+nItemNum*16]
-	printf "01 %02x %02x %02x 00 00 00 00" $[(nItemNum)&0xFF] $[(nSizeHDR)&0xFF] $[((nSizeHDR)>>8)&0xFF] \
+	printf "02 %02x %02x %02x" $[(nItemNum)&0xFF] $[(nSizeHDR)&0xFF] $[((nSizeHDR)>>8)&0xFF] \
 		| xxd -r -ps > ${file_info_cfg_temp}
 	cat ${file_info_cfg_temp} >> ${file_info_cfg}
 
 	echo ${dateStamp} > ${file_info_cfg_temp}
-	dd if=${file_info_cfg_temp} of=${file_info_cfg} bs=1 count=16 oflag=append conv=notrunc &> /dev/null
+	dd if=${file_info_cfg_temp} of=${file_info_cfg} bs=1 count=20 oflag=append conv=notrunc &> /dev/null
 
 	index=0
 	arrPayload=("BBST" "BL2E" "BL2X" "DDRF" "DEVF");

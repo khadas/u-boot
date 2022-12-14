@@ -68,7 +68,7 @@ static void bt_wakeup_Task(void *args)
 
 static void vBTWakeup(void)
 {
-	//printf("btwakeup task Resume!\n");
+	//printf("bt_wakeup task Resume!\n");
 	xTaskResumeFromISR(btTask);
 	vDisableGpioIRQ(GPIOX_18);
 };
@@ -76,7 +76,7 @@ static void vBTWakeup(void)
 static void bt_task_create(void)
 {
 	int ret = 0;
-	ret=xTaskCreate( bt_wakeup_Task, "btwakeup", configMINIMAL_STACK_SIZE, NULL, 2, &btTask );
+	ret=xTaskCreate( bt_wakeup_Task, "bt_wakeup", configMINIMAL_STACK_SIZE, NULL, 2, &btTask );
 	if (ret != pdPASS)
 		printf("bt_wakeup_Task create failed!\n");
 	else
@@ -91,7 +91,7 @@ void bt_task_start(void)
 	xRequestGpioIRQ(GPIOX_18, vBTWakeup, IRQF_TRIGGER_FALLING);
 #ifdef CONFIG_YOCTO
 	/*  In case gpio is pull low already, irq might won't triggered,
-		wake bt-task directrly */
+		wake bt-task directly */
 	if (!xGpioGetValue(GPIOX_18)) {
 		printf("bt wake pin is already low, wake up soc\n");
 		vTaskDelay(pdMS_TO_TICKS(100));

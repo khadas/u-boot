@@ -175,7 +175,7 @@ DECLARE_IRQ(IRQ_AO_UART_NUM, uart_interrupt, 1);
  *
  *	Using 24M XTAL as UART reference clock, *NOT* clk81
  *	So the clk81 can be dynamically changed and not
- *	diturb UART transfers.
+ *	disturb UART transfers.
  */
 void vUartInit(void)
 {

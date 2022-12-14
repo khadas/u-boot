@@ -225,7 +225,7 @@ void mbedtls_aesni_gcm_mult( unsigned char c[16],
          "psrlq $7, %%xmm5                  \n\t" // g1:x0>>7 = g1:g0'
          "pxor %%xmm4, %%xmm0               \n\t" // e1+f1:e0'+f0'
          "pxor %%xmm5, %%xmm0               \n\t" // e1+f1+g1:e0'+f0'+g0'
-         // e0'+f0'+g0' is almost e0+f0+g0, ex\tcept for some missing
+         // e0'+f0'+g0' is almost e0+f0+g0, except for some missing
          // bits carried from d. Now get those\t bits back in.
          "movdqa %%xmm1,%%xmm3              \n\t" // d:x0
          "movdqa %%xmm1,%%xmm4              \n\t" // same

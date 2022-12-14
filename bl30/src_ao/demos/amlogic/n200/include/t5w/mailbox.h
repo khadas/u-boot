@@ -8,10 +8,10 @@
 #define MHU_COPETE_SIZE		0x8
 #define MHU_ULLCTL_SIZE		0x8
 #define MHU_STS_SIZE		0x4
-#define MHU_HEAD_SIZE		0x1c /*inclule status 0x4 task id 0x8, completion 0x8*/
-#define MHU_RESEV_SIZE		0x4 /*inclule status 0x2 task id 0x8, completion 0x8*/
+#define MHU_HEAD_SIZE		0x1c /*include status 0x4 task id 0x8, completion 0x8*/
+#define MHU_RESEV_SIZE		0x4 /*include status 0x2 task id 0x8, completion 0x8*/
 #define MHU_DATA_SIZE		(MHU_MAX_SIZE - MHU_HEAD_SIZE - MHU_RESEV_SIZE)
-#define MHU_DATA_OFFSET		(MHU_HEAD_SIZE / 4) /*inclule status 0x4 task id 0x8, completion 0x8*/
+#define MHU_DATA_OFFSET		(MHU_HEAD_SIZE / 4) /*include status 0x4 task id 0x8, completion 0x8*/
 
 #define MAILBOX_AOCPU_REE_IRQ		90//MBOX_IRQ3
 #define MAILBOX_AOCPU_REEACK_IRQ	85//MBOX_IRQ2

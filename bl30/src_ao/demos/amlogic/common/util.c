@@ -395,7 +395,8 @@ int __clzsi2(int x)
 int get_next_bit(uint32_t *mask)
 {
 	int bit = 31 - __clzsi2(*mask);
-	*mask &= ~(1 << bit);
+	if (bit >= 0)
+		*mask &= ~(1 << bit);
 	return bit;
 }
 
