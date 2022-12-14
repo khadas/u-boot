@@ -119,7 +119,7 @@ typedef struct _PMU_SMB_DDR4U_2D_t {
                               //
                               // For example to set Vref at 0.75*VDDQ, set this field to 0x60.
                               //
-                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedances, terminations, and series resistance present in the system.
+                              // For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedance, terminations, and series resistance present in the system.
    uint8_t  DramType;         // Byte offset 0x0d, CSR Addr 0x54006, Direction=In
                               // Module Type:
                               //   0x01 = Reserved
@@ -269,7 +269,7 @@ typedef struct _PMU_SMB_DDR4U_2D_t {
                               // This field is reserved and must be programmed to 0x00.
    uint16_t PhyConfigOverride; // Byte offset 0x22, CSR Addr 0x54011, Direction=In
                               // Override PhyConfig csr.
-                              // 0x0: Use hardware csr value for PhyConfing (recommended)
+                              // 0x0: Use hardware csr value for PhyConfig (recommended)
                               // Other values: Use value for PhyConfig instead of Hardware value.
                               //
    uint8_t  DFIMRLMargin;     // Byte offset 0x24, CSR Addr 0x54012, Direction=In

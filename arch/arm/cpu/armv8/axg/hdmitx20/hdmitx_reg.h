@@ -92,7 +92,7 @@ void aocec_wr_reg(unsigned long addr, unsigned long data);
  *     3'b010=Output PRBS data; 3'b100=Output shift pattern.         Default 0.
  * Bit 11: 9 RW shift_pttn_repeat: 0=New pattern every clk cycle; 1=New pattern
  *     every 2 clk cycles; ...; 7=New pattern every 8 clk cycles.  Default 0.
- * Bit 8 RW shift_pttn_en: 1= Eanble shift pattern generator; 0=Disable.
+ * Bit 8 RW shift_pttn_en: 1= Enable shift pattern generator; 0=Disable.
  *     Default 0.
  * Bit 4: 3 RW prbs_pttn_mode: 0=PRBS11; 1=PRBS15; 2=PRBS7; 3=PRBS31. Default 0.
  * Bit 2: 1 RW prbs_pttn_width: 0=idle; 1=output 8-bit pattern;

@@ -273,7 +273,7 @@ exit:
 
 U_BOOT_CMD(
 	sha2test, 3,	1,	do_sha2test,
-	"test SHA2 fuction",
+	"test SHA2 function",
 	"[writeval] [len] \n"
 );
 

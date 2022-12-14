@@ -22,7 +22,7 @@ typedef struct __s_bl2_to_bl3x_hdr_t{
 	unsigned    int    nMagic;         //magic for identify itself, AML_BL2_TMASTER_MAGIC (@BL2)
 	unsigned    int    nVersion;       //version for control
 	unsigned    int    nHeadSize;      //sizeof(this)
-	unsigned    char   szRserved1[4];  //reserved for furture
+	unsigned    char   szRserved1[4];  //reserved for future
 
 	unsigned    char   szBL2Info[96];  //BL2 build information
 

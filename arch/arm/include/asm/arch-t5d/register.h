@@ -135,7 +135,7 @@
 // [3]      General enable for the ciplus module
 // [2]      AES CBC disable (default should be 0 to enable AES CBC)
 // [1]      AES Enable
-// [0]      DES Eanble
+// [0]      DES Enable
 #define CIPLUS_CONFIG                              ((0x18fd  << 2) + 0xffd00000)
 // bit[31:28] AES IV endian
 // bit[27:24] AES message out endian
