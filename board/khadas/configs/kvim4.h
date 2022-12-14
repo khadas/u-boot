@@ -7,6 +7,7 @@
 #define __BOARD_CFG_H__
 
 #include <asm/arch/cpu.h>
+#include <amlogic/base_env.h>
 
 /*
  * platform power init config
@@ -55,6 +56,10 @@
 
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
+#ifdef CONFIG_DTB_LOAD
+#undef CONFIG_DTB_LOAD
+#endif
+
 #ifdef CONFIG_DTB_BIND_KERNEL    //load dtb from kernel, such as boot partition
 #define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
@@ -89,6 +94,44 @@
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_HDMITX_ONLY
+#define CONFIG_EXTRA_HDMI_ENV_SETTINGS \
+	"panel_type=edp_0\0" \
+	"outputmode=1080p60hz\0" \
+	"storeargs_hdmitx="\
+		"setenv bootargs ${bootargs} powermode=${powermode} "\
+		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+		"outputmode=${outputmode} hdmitx=${cecconfig},${colorattribute};"\
+		"\0"\
+	"init_display_hdmitx="\
+		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
+		"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+		"\0"
+#else
+#define CONFIG_EXTRA_HDMI_ENV_SETTINGS \
+	"panel_type=mipi_0\0" \
+	"panel1_type=vbyone_1\0" \
+	"panel2_type=lvds_1\0" \
+	"lcd1_ctrl=0x00000000\0" \
+	"lcd2_ctrl=0x00000000\0" \
+	"outputmode=panel\0" \
+	"outputmode2=1080p60hz\0" \
+	"cvbsmode=576cvbs\0" \
+	"storeargs_hdmitx="\
+		"setenv bootargs ${bootargs} powermode=${powermode} "\
+		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+		"outputmode=${outputmode} hdmitx=${cecconfig},${colorattribute} "\
+		"vout2=${outputmode2},enable panel1_type=${panel1_type} "\
+		"lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
+		"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority};"\
+		"\0"\
+	"init_display_hdmitx="\
+		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
+		"setenv outputmode2 ${hdmimode};"\
+		"osd dual_logo;"\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+		"\0"
+#endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
        "bootcmd_spi=test.s \"$boot_source\" = \"spi\" && sf probe && "\
            "sf read $loadaddr 0x4c8000 0x8000 && script\0"\
@@ -104,30 +147,20 @@
         "pxeuuid=00000000-0000-0000-0000-000000000000\0"\
         "bootfile=\0"\
         "fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-        "firstboot=1\0"\
+        CONFIG_EXTRA_ENV_SETTINGS_BASE \
         "silent=1\0"\
-        "upgrade_step=0\0"\
-        "jtag=disable\0"\
-        "loadaddr=0x00020000\0"\
-        "os_ident_addr=0x00500000\0"\
-        "loadaddr_rtos=0x00001000\0"\
         "loadaddr_kernel=0x01080000\0"\
 		"dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
-        "panel_type=edp_0\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-		"outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=dummy_l\0" \
 		"colorattribute=444,8bit\0"\
+		"vout_init=enable\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
 		"hdmichecksum=0x00000000\0" \
-		"dolby_status=0\0" \
-		"dolby_vision_on=0\0" \
-		"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
-		"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
 		"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
         "display_bpp=24\0" \
         "display_color_index=24\0" \
@@ -146,23 +179,14 @@
         "EnableSelinux=permissive\0" \
         "recovery_part=recovery\0"\
         "lock=10101000\0"\
-        "recovery_offset=0\0"\
+        "board=kvim4\0"\
         "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
-        "active_slot=normal\0"\
-        "boot_part=boot\0"\
-        "vendor_boot_part=vendor_boot\0"\
         "suspend=off\0"\
         "powermode=on\0"\
         "ffv_wake=off\0"\
         "ffv_freeze=off\0"\
-        "board_logo_part=odm_ext\0" \
-        "Irq_check_en=0\0"\
-        "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
-        "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
-        "fatload_dev=usb\0"\
-        "fs_type=""rootfstype=ramfs""\0"\
         "edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
         "edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
         "edid_select=0\0" \
@@ -170,32 +194,18 @@
         "cec_fun=0x2F\0" \
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
+	    CONFIG_EXTRA_HDMI_ENV_SETTINGS \
         "initargs="\
             "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
-            "khadas_board=VIM4 boot_source=${boot_source} "\
+            "khadas_board=VIM4 boot_source=${boot_source} scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
             "\0"\
         "upgrade_check="\
-            "echo recovery_status=${recovery_status};"\
-            "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
-                "run init_display;run storeargs; run recovery_from_flash;"\
-            "else fi;"\
-            "echo upgrade_step=${upgrade_step}; "\
-            "if itest ${upgrade_step} == 3; then run init_display;run storeargs; run update; fi;"\
-            "\0"\
-        "storeargs="\
-            "get_bootloaderversion;" \
-            "get_rebootmode;"\
-            "setenv bootargs ${initargs} otg_device=${otg_device} "\
-                "logo=${display_layer},loaded,${fb_addr} powermode=${powermode}  vout=${outputmode},enable "\
-                "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-                "hdmimode=${hdmimode} outputmode=${outputmode} "\
-			"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} "\
-			"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
-			"hdmitx=${cecconfig},${colorattribute} "\
-			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
-                "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} wol_enable=${wol_enable} jtag=${jtag} reboot_mode=${reboot_mode}; "\
-            "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
+			"run upgrade_check_base;"\
+			"\0"\
+		"storeargs="\
+			"get_bootloaderversion;" \
+			"run storeargs_base;"\
+			"run storeargs_hdmitx;"\
             "run cmdline_keys;"\
             "\0"\
 	"cec_init="\
@@ -236,6 +246,7 @@
             "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
+            "setenv bootargs ${bootargs} reboot_mode=${reboot_mode};"\
             "setenv ffv_freeze off;"\
             "echo reboot_mode : ${reboot_mode};"\
             "if test ${reboot_mode} = factory_reset; then "\
@@ -243,9 +254,9 @@
             "else if test ${reboot_mode} = update; then "\
                     "run update;"\
             "else if test ${reboot_mode} = quiescent; then "\
-                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
             "else if test ${reboot_mode} = recovery_quiescent; then "\
-                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
                     "echo cold boot: ffv_wake=${ffv_wake} "\
@@ -283,434 +294,36 @@
                 "fi;"\
             "fi;"\
             "\0" \
-        "storeboot="\
-            "kbi resetflag 0;"\
-            "setenv loadaddr ${loadaddr_kernel};"\
-            "echo Try to boot from SD card.;"\
-            "if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim4_linux.dtb; then "\
-                "if load mmc 0:1 $loadaddr zImage; then "\
-                    "if load mmc 0:1 10000000 uInitrd; then "\
-                        "echo Boot from SD card.;"\
-                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
-                    "fi;"\
-                "fi;"\
-            "fi;"\
-            "echo Try to boot from eMMC.;"\
-            "if load mmc 1:4 $dtb_mem_addr /boot/dtb/amlogic/kvim4.dtb; then "\
-                "if load mmc 1:4 $loadaddr zImage; then "\
-                    "if load mmc 1:4 10000000 uInitrd; then "\
-                        "echo Boot from eMMC.;"\
-                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
-                    "fi;"\
-                "fi;"\
-            "fi;"\
-            "echo try upgrade as booting failure; run update;"\
-            "\0" \
-         "update="\
-            /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
-            "run usb_burning; "\
-            "run recovery_from_sdcard;"\
-            "run recovery_from_udisk;"\
-            "run recovery_from_flash;"\
-            "\0"\
-        "recovery_from_fat_dev="\
-            "setenv loadaddr ${loadaddr_kernel};"\
-            "if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
-            "if fatload ${fatload_dev} 0 ${loadaddr} recovery.img; then "\
-                "if fatload ${fatload_dev} 0 ${dtb_mem_addr} dtb.img; then echo ${fatload_dev} dtb.img loaded; fi;"\
-                "setenv bootargs ${bootargs} ${fs_type};"\
-                "bootm ${loadaddr};fi;"\
-            "\0"\
-        "recovery_from_udisk="\
-            "setenv fatload_dev usb;"\
-            "if usb start 0; then run recovery_from_fat_dev; fi;"\
-            "\0"\
-        "recovery_from_sdcard="\
-            "setenv fatload_dev mmc;"\
-            "if mmcinfo; then run recovery_from_fat_dev; fi;"\
-            "\0"\
-        "recovery_from_flash="\
-            "echo active_slot: ${active_slot};"\
-            "setenv loadaddr ${loadaddr_kernel};"\
-            "if test ${active_slot} = normal; then "\
-		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
-                "if imgread dtb recovery ${dtb_mem_addr}; then "\
-                    "else echo restore dtb; run common_dtb_load;"\
-                "fi;"\
-                "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-            "else "\
-                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-		"if test ${partition_mode} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
-                    "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-                "else "\
-                    "if test ${vendor_boot_mode} = true; then "\
-			"setenv bootargs ${bootargs} ${fs_type} "\
-			"aml_dt=${aml_dt} androidboot.slot_suffix=${active_slot};"\
-                        "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-                    "else "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-			"androidboot.slot_suffix=${active_slot};"\
-                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-                    "fi;"\
-                "fi;"\
-            "fi;"\
-            "\0"\
-        "wol_init="\
-            "kbi powerstate;"\
-            "kbi trigger wol r;"\
-            "if test ${wol_enable} = 1; then "\
-                "kbi trigger wol w 1;"\
-            "fi;"\
-            "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
-            "if test ${power_state} = 1; then "\
-                "kbi poweroff;"\
-            "else "\
-                "kbi wolreset;"\
-            "fi;"\
-            "\0"\
+		"storeboot="\
+			"run storeboot_base;"\
+			"\0"\
+		"update="\
+			"run update_base;"\
+			"\0"\
+		"enter_fastboot="\
+			"fastboot 1;"\
+			"\0"\
+		"recovery_from_fat_dev="\
+			"run recovery_from_fat_dev_base;"\
+			"\0"\
+		"recovery_from_udisk="\
+			"run recovery_from_udisk_base;"\
+			"\0"\
+		"recovery_from_sdcard="\
+			"run recovery_from_sdcard_base;"\
+			"\0"\
+		"recovery_from_flash="\
+			"run recovery_from_flash_base;"\
+			"\0"\
+		"bcb_cmd="\
+			"run bcb_cmd_base;"\
+			"\0"\
         "load_bmp_logo="\
             "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:4 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
                 "bmp display ${loadaddr};"\
                 "bmp scale;"\
             "fi;"\
-            "\0"\
-        "init_display="\
-            "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-			"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-			"dovi set;dovi pkg;vpp hdrpkt;"\
 			"\0"\
-        "check_display="\
-            "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
-            "if test ${reboot_mode} = ffv_reboot; then "\
-                "if test ${ffv_wake} = on; then "\
-                    "echo ffv reboot no display; "\
-                "else "\
-                    "run init_display; "\
-                "fi; "\
-            "else "\
-                "run init_display; "\
-            "fi; "\
-            "\0"\
-        "cmdline_keys="\
-            "setenv region_code US;"\
-            "if keyman init 0x1234; then "\
-                "if keyman read region_code ${loadaddr} str; then fi;"\
-                "if keyman read deviceid ${loadaddr} str; then "\
-                    "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
-                "fi;"\
-            "fi;"\
-            "kbi usid noprint;"\
-            "if printenv usid; then "\
-                "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-                "setenv serial ${usid}; setenv serial# ${usid};"\
-            "else "\
-                "setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
-                "setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
-            "fi;"\
-            "kbi ethmac noprint;"\
-            "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
-            "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-            "\0"\
-        "upgrade_key="\
-            "if gpio input GPIOD_4; then "\
-            "echo detect upgrade key; run update;"\
-            "fi;"\
-            "\0"\
-        "updateu="\
-            "if tftp 1080000 u-boot.bin.signed; then "\
-                "store boot_write bootloader 1080000 $filesize;"\
-            "fi;"\
-            "\0"\
-        BOOTENV\
-        "pxe_boot=dhcp; pxe get && pxe boot\0"\
-        "bootcmd_storeboot=run storeboot\0"\
-        "boot_targets=spi usb0 mmc0 mmc1 storeboot pxe dhcp\0"
-
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS \
-        "bootcmd_spi=test.s \"$boot_source\" = \"spi\" && sf probe && "\
-            "sf read $loadaddr 0x4c8000 0x8000 && script\0"\
-        "fdt_addr_r=0x01000000\0"\
-        "fdtoverlay_addr_r=0x00a00000\0"\
-        "fdtaddr=0x01000000\0"\
-        "kernel_addr_r=0x01080000\0"\
-        "pxefile_addr_r=0x00010000\0"\
-        "scriptaddr=0x00010000\0" \
-        "ramdisk_addr_r=0x10000000\0"\
-        "kernel_comp_addr_r=0x0d080000\0"\
-        "kernel_comp_size=0x2000000\0"\
-        "pxeuuid=00000000-0000-0000-0000-000000000000\0"\
-        "bootfile=\0"\
-        "fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-        "firstboot=1\0"\
-        "silent=1\0"\
-        "upgrade_step=0\0"\
-        "jtag=disable\0"\
-        "loadaddr=0x00020000\0"\
-        "os_ident_addr=0x00500000\0"\
-        "loadaddr_rtos=0x00001000\0"\
-        "loadaddr_kernel=0x01080000\0"\
-		"dv_fw_addr=0xa00000\0"\
-        "otg_device=1\0" \
-        "panel_type=mipi_0\0" \
-        "panel1_type=vbyone_1\0" \
-        "panel2_type=lvds_1\0" \
-        "lcd_ctrl=0x00000000\0" \
-        "lcd1_ctrl=0x00000000\0" \
-        "lcd2_ctrl=0x00000000\0" \
-        "lcd_debug=0x00000000\0" \
-        "outputmode=panel\0" \
-        "outputmode2=1080p60hz\0" \
-        "hdmimode=1080p60hz\0" \
-        "cvbsmode=dummy_l\0" \
-		"colorattribute=444,8bit\0"\
-        "cvbsmode=576cvbs\0" \
-        "display_width=1920\0" \
-        "display_height=1080\0" \
-		"hdmichecksum=0x00000000\0" \
-		"dolby_status=0\0" \
-		"dolby_vision_on=0\0" \
-		"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
-		"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
-		"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
-        "display_bpp=24\0" \
-        "display_color_index=24\0" \
-        "display_layer=osd0\0" \
-        "display_color_fg=0xffff\0" \
-        "display_color_bg=0\0" \
-        "dtb_mem_addr=0x01000000\0" \
-        "fb_addr=0x00300000\0" \
-        "fb_width=1920\0" \
-        "fb_height=1080\0" \
-        "frac_rate_policy=1\0" \
-        "hdr_policy=0\0" \
-        "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
-        "fdt_high=0x20000000\0"\
-        "sdcburncfg=aml_sdc_burn.ini\0"\
-        "EnableSelinux=permissive\0" \
-        "recovery_part=recovery\0"\
-        "lock=10101000\0"\
-        "recovery_offset=0\0"\
-        "cvbs_drv=0\0"\
-        "osd_reverse=0\0"\
-        "video_reverse=0\0"\
-        "active_slot=normal\0"\
-        "boot_part=boot\0"\
-        "vendor_boot_part=vendor_boot\0"\
-        "suspend=off\0"\
-        "powermode=on\0"\
-        "ffv_wake=off\0"\
-        "ffv_freeze=off\0"\
-        "board_logo_part=odm_ext\0" \
-        "rollback_flag=0\0"\
-        "boot_flag=0\0"\
-        "Irq_check_en=0\0"\
-        "common_dtb_load=" CONFIG_DTB_LOAD "\0"\
-        "get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
-        "fatload_dev=usb\0"\
-        "fs_type=""rootfstype=ramfs""\0"\
-    "disable_ir=0\0"\
-        "edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
-        "edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
-        "edid_select=0\0" \
-        "port_map=0x4321\0" \
-        "cec_fun=0x2F\0" \
-        "logic_addr=0x0\0" \
-        "cec_ac_wakeup=1\0" \
-        "initargs="\
-            "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
-            "khadas_board=VIM4 boot_source=${boot_source} "\
-            "\0"\
-        "upgrade_check="\
-            "echo recovery_status=${recovery_status};"\
-            "if itest.s \"${recovery_status}\" == \"in_progress\"; then "\
-                "run init_display;run storeargs; run recovery_from_flash;"\
-            "else fi;"\
-            "echo upgrade_step=${upgrade_step}; "\
-            "if itest ${upgrade_step} == 3; then run init_display;run storeargs; run update; fi;"\
-            "\0"\
-        "reset_suspend="\
-            "if test ${ffv_freeze} != on; then "\
-                "if test ${suspend} = on || test ${suspend} = shutdown; then "\
-                    "setenv suspend off;"\
-                    "saveenv;"\
-                "fi;"\
-            "fi;"\
-            "\0" \
-        "storeargs="\
-            "get_bootloaderversion;" \
-            "get_rebootmode;"\
-            "if test ${mipi_lcd_exist} != 1; then "\
-                "setenv vout_args vout=${outputmode},enable;"\
-            "else "\
-                "setenv vout_args vout=${outputmode},enable vout2=${outputmode2},enable;"\
-            "fi;"\
-            "setenv bootargs ${initargs} otg_device=${otg_device} "\
-                "logo=${display_layer},loaded,${fb_addr} powermode=${powermode}  ${vout_args} "\
-                "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-                "hdmimode=${hdmimode} outputmode=${outputmode} "\
-			"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
-			"hdmitx=${cecconfig},${colorattribute} "\
-			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
-                "hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
-                "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
-                "androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} wol_enable=${wol_enable} "\
-                "jtag=${jtag} disable_ir=${disable_ir} reboot_mode=${reboot_mode};"\
-            "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
-            "run cmdline_keys;"\
-            "\0"\
-		"cec_init="\
-			"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
-			"if test ${cec_ac_wakeup} = 1; then "\
-				"cec ${logic_addr} ${cec_fun}; "\
-				"if test ${edid_select} = 1111; then "\
-					"hdmirx init ${port_map} ${edid_20_dir}; "\
-				"else "\
-					"hdmirx init ${port_map} ${edid_14_dir}; "\
-				"fi;"\
-			"fi;"\
-		"\0"\
-        "ffv_freeze_action="\
-            "run cec_init;"\
-            "setenv ffv_freeze on;"\
-            "setenv bootargs ${bootargs} ffv_freeze=on"\
-            "\0"\
-        "cold_boot_normal_check="\
-            /*"run try_auto_burn;uboot wake up "*/\
-            "if test ${powermode} = on; then "\
-                /*"run try_auto_burn; "*/\
-            "else if test ${powermode} = standby; then "\
-                "run cec_init;"\
-                "systemoff; "\
-            "else if test ${powermode} = last; then "\
-                "echo suspend=${suspend}; "\
-                "if test ${suspend} = off; then "\
-                    /*"run try_auto_burn; "*/\
-                "else if test ${suspend} = on; then "\
-                    "run cec_init;"\
-                    "systemoff; "\
-                "else if test ${suspend} = shutdown; then "\
-                    "run cec_init;"\
-                    "systemoff; "\
-                "fi; fi; fi; "\
-            "fi; fi; fi; "\
-            "\0"\
-        "switch_bootmode="\
-            "get_rebootmode;"\
-        "setenv ffv_freeze off;"\
-            "echo reboot_mode : ${reboot_mode};"\
-            "if test ${reboot_mode} = factory_reset; then "\
-                    "run recovery_from_flash;"\
-            "else if test ${reboot_mode} = update; then "\
-                    "run update;"\
-            "else if test ${reboot_mode} = quiescent; then "\
-                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-            "else if test ${reboot_mode} = recovery_quiescent; then "\
-                    "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-                    "run recovery_from_flash;"\
-            "else if test ${reboot_mode} = cold_boot; then "\
-                    "echo cold boot: ffv_wake=${ffv_wake} "\
-                    "powermode=${powermode} suspend=${suspend};"\
-                    "if test ${ffv_wake} = on; then "\
-                        "if test ${powermode} = on; then "\
-                            "setenv bootargs ${bootargs} ffv_freeze=off; "\
-                        "else if test ${powermode} = standby; then "\
-                            "run ffv_freeze_action; "\
-                        "else if test ${powermode} = last; then "\
-                            "if test ${suspend} = off; then "\
-                                "setenv bootargs ${bootargs} ffv_freeze=off; "\
-                            "else if test ${suspend} = on; then "\
-                                "run ffv_freeze_action; "\
-                            "else if test ${suspend} = shutdown; then "\
-                                "run ffv_freeze_action; "\
-                            "fi; fi; fi; "\
-                        "fi; fi; fi; "\
-                    "else "\
-                        "run cold_boot_normal_check;"\
-                    "fi; "\
-            "else if test ${reboot_mode} = ffv_reboot; then "\
-                "if test ${ffv_wake} = on; then "\
-                    "run ffv_freeze_action; "\
-                "fi; "\
-            "else if test ${reboot_mode} = fastboot; then "\
-                "fastboot 1;"\
-            "fi;fi;fi;fi;fi;fi;fi"\
-            "\0" \
-        "storeboot="\
-            "kbi resetflag 0;"\
-            "setenv loadaddr ${loadaddr_kernel};"\
-            "echo Try to boot from SD card.;"\
-            "if load mmc 0:1 $dtb_mem_addr dtb/amlogic/kvim4_linux.dtb; then "\
-                "if load mmc 0:1 $loadaddr zImage; then "\
-                    "if load mmc 0:1 10000000 uInitrd; then "\
-                        "echo Boot from SD card.;"\
-                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
-                    "fi;"\
-                "fi;"\
-            "fi;"\
-            "echo Try to boot from eMMC.;"\
-            "if load mmc 1:4 $dtb_mem_addr /boot/dtb/amlogic/kvim4.dtb; then "\
-                "if load mmc 1:4 $loadaddr zImage; then "\
-                    "if load mmc 1:4 10000000 uInitrd; then "\
-                        "echo Boot from eMMC.;"\
-                        "booti $loadaddr 10000000 $dtb_mem_addr;"\
-                    "fi;"\
-                "fi;"\
-            "fi;"\
-            "\0" \
-            "echo try upgrade as booting failure; run update;"\
-            "\0" \
-        "update="\
-            /*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
-            "run usb_burning; "\
-            "run recovery_from_sdcard;"\
-            "run recovery_from_udisk;"\
-            "run recovery_from_flash;"\
-            "\0"\
-        "recovery_from_fat_dev="\
-            "setenv loadaddr ${loadaddr_kernel};"\
-            "if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi;"\
-            "if fatload ${fatload_dev} 0 ${loadaddr} recovery.img; then "\
-                "if fatload ${fatload_dev} 0 ${dtb_mem_addr} dtb.img; then echo ${fatload_dev} dtb.img loaded; fi;"\
-                "setenv bootargs ${bootargs} ${fs_type};"\
-                "bootm ${loadaddr};fi;"\
-            "\0"\
-        "recovery_from_udisk="\
-            "setenv fatload_dev usb;"\
-            "if usb start 0; then run recovery_from_fat_dev; fi;"\
-            "\0"\
-        "recovery_from_sdcard="\
-            "setenv fatload_dev mmc;"\
-            "if mmcinfo; then run recovery_from_fat_dev; fi;"\
-            "\0"\
-        "recovery_from_flash="\
-            "echo active_slot: ${active_slot};"\
-            "setenv loadaddr ${loadaddr_kernel};"\
-            "if test ${active_slot} = normal; then "\
-		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
-                "if imgread dtb recovery ${dtb_mem_addr}; then "\
-                    "else echo restore dtb; run common_dtb_load;"\
-                "fi;"\
-                "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-            "else "\
-                "if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-                "if test ${partition_mode} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
-                    "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-                "else "\
-                    "if test ${vendor_boot_mode} = true; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-			"androidboot.slot_suffix=${active_slot};"\
-                        "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-                    "else "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-			"androidboot.slot_suffix=${active_slot};"\
-                        "if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-                    "fi;"\
-                "fi;"\
-            "fi;"\
-            "\0"\
         "wol_init="\
             "kbi powerstate;"\
             "kbi trigger wol r;"\
@@ -724,19 +337,9 @@
                 "kbi wolreset;"\
             "fi;"\
             "\0"\
-        "load_bmp_logo="\
-            "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:4 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
-			    "bmp display ${loadaddr};"\
-			    "bmp scale;"\
-			"fi;"\
-			"\0"\
         "init_display="\
-			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-            "osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-            "setenv outputmode2 ${hdmimode};"\
-            "osd dual_logo;"\
-			"dovi set;dovi pkg;vpp hdrpkt;"\
-            "\0"\
+			"run init_display_hdmitx;"\
+			"\0"\
         "check_display="\
             "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
             "if test ${reboot_mode} = ffv_reboot; then "\
@@ -763,7 +366,7 @@
                 "setenv serial ${usid}; setenv serial# ${usid};"\
             "else "\
                 "setenv bootargs ${bootargs} androidboot.serialno=an400${cpu_id};"\
-                "setenv serial an400${cpu_id}; setenv serial# an400${cpu_id};"\
+                "setenv serial kvim4${cpu_id}; setenv serial# kvim4${cpu_id};"\
             "fi;"\
             "kbi ethmac noprint;"\
             "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
@@ -771,14 +374,7 @@
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_4; then "\
-                "echo detect upgrade key;"\
-                "if test ${boot_flag} = 0; then "\
-                    "echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
-                "else if test ${boot_flag} = 1; then "\
-                    "echo enter update; setenv boot_flag 2; saveenv; run update;"\
-                "else "\
-                    "echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
-                "fi;fi;"\
+                "echo detect upgrade key; run update;"\
             "fi;"\
             "\0"\
         "updateu="\
@@ -790,13 +386,12 @@
         "pxe_boot=dhcp; pxe get && pxe boot\0"\
         "bootcmd_storeboot=run storeboot\0"\
         "boot_targets=spi usb0 mmc0 mmc1 storeboot pxe dhcp\0"
-#endif
 
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
             "run check_display;"\
-            "run wol_init;"\
             "run storeargs;"\
+            "run wol_init;"\
             "run reset_suspend;"\
             "run upgrade_key;"\
             "run switch_bootmode;"
