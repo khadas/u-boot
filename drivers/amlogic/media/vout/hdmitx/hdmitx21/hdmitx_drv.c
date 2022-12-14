@@ -763,15 +763,16 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	data32 = 0;
 	switch (hdev->chip_type) {
 	case MESON_CPU_ID_S5:
+		data32 |= (1 << 0);
 		data32 |= (((para->cs != HDMI_COLORSPACE_YUV420 &&
 					hdev->frl_rate) ? 1 : 0) << 1);
 		data32 |= (para->timing.h_pol << 2);
 		data32 |= (para->timing.v_pol << 3);
-		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 4 : 0) << 5);
-		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420 &&
-					!hdev->frl_rate) ? 1 : 0) << 8);
-		data32 |= (((para->cs != HDMI_COLORSPACE_YUV420 &&	//bit[29:28],420
-					hdev->frl_rate) ? 1 : 2) << 28);
+		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 7);
+		if (hdev->frl_rate)
+			data32 |= ((para->cs == HDMI_COLORSPACE_YUV420 ? 2 : 1) << 28);
+		else
+			data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 8);
 		break;
 	case MESON_CPU_ID_T7:
 	default:
