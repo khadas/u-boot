@@ -34,7 +34,8 @@
 /* 20221111: modify edp transmit_unit_size to 48(temporary)*/
 /* 20221115: support force unfit mipi-dsi bit_rate_max*/
 /* 20221116: add T5W support*/
-#define LCD_DRV_VERSION    "20221116"
+/* 20221215: remove unnecessary tcon top reset*/
+#define LCD_DRV_VERSION    "20221215"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
