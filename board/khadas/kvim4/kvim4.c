@@ -184,6 +184,22 @@ static void set_boot_source(void)
 	env_set("boot_source", source);
 }
 
+static void select_fdtfile(void)
+{
+	cpu_id_t cpu_id;
+
+	cpu_id = get_cpu_id();
+
+	if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+		env_set("chip_recv", "b");
+		env_set("fdtfile", "amlogic/" CONFIG_DEFAULT_DEVICE_TREE".dtb");
+
+	} else if (cpu_id.chip_rev == 0xC) {
+		env_set("chip_recv", "c");
+		env_set("fdtfile", "amlogic/" CONFIG_DEFAULT_DEVICE_TREE"n.dtb");
+	}
+}
+
 
 #ifdef CONFIG_AML_HDMITX21
 static void hdmitx_set_hdmi_5v(void)
@@ -264,6 +280,9 @@ int board_late_init(void)
 
 	// Set boot source
 	set_boot_source();
+
+	// Select fdtfile
+	select_fdtfile();
 
 #ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
