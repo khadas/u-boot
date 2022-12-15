@@ -112,6 +112,7 @@ void board_init_mem(void) {
 
 int board_init(void)
 {
+	unsigned long board_id = 0;
 	printf("board init\n");
 
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
@@ -130,7 +131,12 @@ int board_init(void)
 	active_clk();
 	#endif
 #endif
-	run_command("gpio set GPIOH_7", 0);
+	board_id = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xff00) >> 8);
+	printf("board_id is %ld\n", board_id);
+	if (board_id == 2)
+		run_command("gpio set GPIOH_10", 0); //T215
+	else
+		run_command("gpio set GPIOH_7", 0);
 #ifdef CONFIG_AML_HDMITX20
 	hdmitx_set_hdmi_5v();
 	hdmitx_init();
