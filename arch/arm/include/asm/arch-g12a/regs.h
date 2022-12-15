@@ -32730,7 +32730,7 @@
 // To measure display slave's frame rate, we can use a reference clock to measure the duration of one of more edpite pulse(s).
 // Measurement control is by register MIPI_DSI_TOP_MEAS_CNTL bit[9:0].
 // Reference clock comes from clk_rst_tst.cts_dsi_meas_clk, and is defined by HIU register HHI_VDIN_MEAS_CLK_CNTL bit[23:12].
-// Mesurement result is in MIPI_DSI_TOP_MEAS_STAT_TE0 and MIPI_DSI_TOP_MEAS_STAT_TE1, as below:
+// Measurement result is in MIPI_DSI_TOP_MEAS_STAT_TE0 and MIPI_DSI_TOP_MEAS_STAT_TE1, as below:
 // edpite_meas_count[47:0]: Number of reference clock cycles counted during one measure period (non-incremental measure), or
 //                          during all measure periods so far (incremental measure).
 // edpite_meas_count_n[3:0]:Number of measure periods has been done. Number can wrap over.
@@ -32743,7 +32743,7 @@
 // To measure Host's frame rate, we can use a reference clock to measure the duration of one of more Vsync pulse(s).
 // Measurement control is by register MIPI_DSI_TOP_MEAS_CNTL bit[19:10].
 // Reference clock comes from clk_rst_tst.cts_dsi_meas_clk, and is defined by HIU register HHI_VDIN_MEAS_CLK_CNTL bit[23:12].
-// Mesurement result is in MIPI_DSI_TOP_MEAS_STAT_VS0 and MIPI_DSI_TOP_MEAS_STAT_VS1, as below:
+// Measurement result is in MIPI_DSI_TOP_MEAS_STAT_VS0 and MIPI_DSI_TOP_MEAS_STAT_VS1, as below:
 // vsync_meas_count[47:0]:  Number of reference clock cycles counted during one measure period (non-incremental measure), or
 //                          during all measure periods so far (incremental measure).
 // vsync_meas_count_n[3:0]: Number of measure periods has been done. Number can wrap over.
