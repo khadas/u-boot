@@ -53,7 +53,8 @@
 /* 20220719: support t5,t5w,t3 set vswing level in low common type*/
 /* 20220809: fix tcon axi mem mistake for DLG tcon bin*/
 /* 20221101: update pinmux contrl*/
-#define LCD_DRV_VERSION    "20221101"
+/* 20221215: remove unnecessary tcon top reset*/
+#define LCD_DRV_VERSION    "20221215"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
