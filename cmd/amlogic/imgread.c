@@ -1164,8 +1164,8 @@ U_BOOT_CMD(
    "Read the image from internal flash with actual size",           //description
    "    argv: <imageType> <part_name> <loadaddr> \n"   //usage
    "    - <image_type> Current support is kernel/res(ource).\n"
-   "imgread kernel  --- Read image in fomart IMAGE_FORMAT_ANDROID\n"
-   "imgread dtb     --- Read dtb in fomart IMAGE_FORMAT_ANDROID\n"
+   "imgread kernel  --- Read image in format IMAGE_FORMAT_ANDROID\n"
+   "imgread dtb     --- Read dtb in format IMAGE_FORMAT_ANDROID\n"
    "imgread res     --- Read image packed by 'Amlogic resource packer'\n"
    "imgread picture --- Read one picture from Amlogic logo"
    "    - e.g. \n"

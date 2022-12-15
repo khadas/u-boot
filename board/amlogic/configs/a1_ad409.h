@@ -22,7 +22,7 @@
 #define AML_VDDCORE_INIT_EFUSE_OFFSET			0xc8
 #define AML_VDDCORE_INIT_EFUSE_BASE_V0LT		680
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Bootloader Control Block function

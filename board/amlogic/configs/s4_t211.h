@@ -19,7 +19,7 @@
 /*y_led brightness val*/
 #define YELLOW_LED_VAL 0x00090013
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */

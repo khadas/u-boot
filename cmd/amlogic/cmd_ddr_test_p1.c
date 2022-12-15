@@ -7440,7 +7440,7 @@ void ddr_read_write_training_value(ddr_set_t_p1 *p_ddrs, char over_ride_index, c
 
 void ddr_read_write_training_all_delay_value(ddr_set_t_p1 *p_ddrs, char read_write, char half_flag)
 {
-    //if (ddr_gloabl_message[dmc_ddr_config_channel_id].
+    //if (ddr_global_message[dmc_ddr_config_channel_id].
 	//stick_dmc_window_test_test_enable_init_flag&DDR_ENABLE_TRAINING_OVER_RIDE_DELAY)
     for (uint32_t ps = 0; ps < 1; ps++) {
 	ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_ATXDLY, read_write, ps, p_ddrs->cfg_ddr_training_delay_ps[ps].ac_trace_delay, half_flag);
@@ -8436,7 +8436,7 @@ uint16_t lcd_bdl_value[72][4];          //org min max status
 #define  TEST_ARG_0_DMC_STICKY_MAGIC  0
 #define  TEST_ARG_1_CMD0  1
 #define  TEST_ARG_2_STEP  2           // 0 init   1 test ac  2 test tdqs_write
-#define  TEST_ARG_3_ALL_TOGHTER  3
+#define  TEST_ARG_3_ALL_TIGHTER  3
 
 //BYTE4-7
 #define  TEST_ARG_FREQ_NIBBLE_L  4
@@ -8536,9 +8536,9 @@ void dwc_window_reg_after_training_update(char over_ride_index, uint32_t over_ri
     uint64_t reg_add = 0;
 
     //if (over_ride_index == DMC_TEST_WINDOW_INDEX_ATXDLY)
-    //p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level=0;
+    //p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level=0;
     //serial_puts("\nstick_test_ddr_window_delay_override_before_after_training_setting==");
-    //serial_put_dec(p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_test_ddr_window_delay_override_before_after_training_setting);
+    //serial_put_dec(p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_test_ddr_window_delay_override_before_after_training_setting);
     //serial_puts("\n");
 
     if (!over_ride_index)
@@ -8585,30 +8585,30 @@ void dwc_window_reg_after_training_update(char over_ride_index, uint32_t over_ri
 			set_soc_vref(0, (over_ride_value >> 8) & 0xff, over_ride_value, over_ride_sub_index, 3);
 
     if (over_ride_index == DMC_TEST_WINDOW_INDEX_DRAM_VREF) {
-	//delay_old_value = 0;                              // init_dram_vref(p_dev->cur_type  ,(over_ride_value>>8)&0xff, over_ride_value, over_ride_sub_index ,p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+	//delay_old_value = 0;                              // init_dram_vref(p_dev->cur_type  ,(over_ride_value>>8)&0xff, over_ride_value, over_ride_sub_index ,p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
 	//set_dram_vref((over_ride_value >> 8) & 0xff, over_ride_value & 0xff, over_ride_sub_index, p_dev);
     }
-    //ddr_log_serial_puts p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level=0xff;
+    //ddr_log_serial_puts p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level=0xff;
 #if 0
-    ddr_log_serial_puts("\nold_value==", p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_put_dec(ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value), p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_puts("\nold_value==", p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_put_dec(ddr_cacl_phy_delay_all_step(over_ride_index, delay_old_value), p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
     //ddr_log_serial_put_dec(ddr_cacl_phy_delay_all_step(over_ride_index,delay_old_value),0);
-    ddr_log_serial_puts(" old_reg_value==0x", p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_put_hex(delay_old_value, 32, p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_puts(" index==", p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_put_dec(over_ride_index, p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_puts(" sub_index==", p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_put_dec(over_ride_sub_index, p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_puts(" update to  ", p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_put_dec(over_ride_value, p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
-    ddr_log_serial_puts(" reg==0x", p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_puts(" old_reg_value==0x", p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_put_hex(delay_old_value, 32, p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_puts(" index==", p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_put_dec(over_ride_index, p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_puts(" sub_index==", p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_put_dec(over_ride_sub_index, p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_puts(" update to  ", p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_put_dec(over_ride_value, p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+    ddr_log_serial_puts(" reg==0x", p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
     //ddr_log_serial_put_hex(((0<<20)|(1<<16)|(((over_ride_sub_index%8)>>1)<<12)|(0x8c+(over_ride_sub_index/8)+((over_ride_sub_index%2)<<8))),16,0);
     //ddr_log_serial_puts(" ",0);
 #endif
 
     /* coverity fix. delay_old_value useless */
   //  if (delay_old_value == 0xFFFFFFFF)
-//	ddr_log_serial_put_hex(delay_old_value, 32, p_dev->ddr_gloabl_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
+//	ddr_log_serial_put_hex(delay_old_value, 32, p_dev->ddr_global_message[dmc_ddr_config_channel_id].stick_ddr_log_level);
   //  ddr_log_serial_put_hex(over_ride_sub_index, 16, 0);
   //  ddr_log_serial_puts(" ", 0);
   //  ddr_log_serial_put_hex(delay_reg_value, 16, 0);
@@ -9436,7 +9436,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			printf("\n  0x1e test write_read                          ddr_test_cmd 0x1e write_read pattern_id loop start_add test_size");
 			printf("\n  0x1f test pwm_cmd                           ddr_test_cmd 0x1f pwmid   pwm_low pwm_high");
 			printf("\n  0x22 test ddr_window use env           ddr_test_cmd 0x22 a 0 test_size watchdog_time \
-						lane_disable_masrk add_test_size  setenv bootcmd  ddr_test_cmd 0x22 a 0 0x800000 15 0 0x8000000");
+						lane_disable_mask add_test_size  setenv bootcmd  ddr_test_cmd 0x22 a 0 0x800000 15 0 0x8000000");
 			printf("\n defenv;save;setenv bootcmd ddr_test_cmd 0x22 a 0 0x800000 18 0x0 0x8000000");
 			printf("\n setenv env_ddrtest_data_lane  0x22;save;reset");
 			printf("\n  0x23 test shift ddr frequency          ddr_test_cmd 0x23");
@@ -9444,7 +9444,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			printf("\n  0x25 offset ddr_lcdlr          ddr_test_cmd 0x25");
 			printf("\n  0x26 set watchdog_value        ddr_test_cmd 0x26 30");
 			printf("\n  0x27 test ddr_window use sticky register        ddr_test_cmd 0x27 a 0 test_size watchdog_time \
-						lane_disable_masrk add_test_size  setenv bootcmd  ddr_test_cmd 0x27 a 0 0x800000 15 0 0x8000000");
+						lane_disable_mask add_test_size  setenv bootcmd  ddr_test_cmd 0x27 a 0 0x800000 15 0 0x8000000");
 			printf("\n  0x28  sweep dram clk use d2pll_sticky     ddr_test_cmd 0x28  test_size start_freq end_freq test_loops  ddr_test_cmd 0x28 0x8000000 800 1500 1");
 		}
 			wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
@@ -9587,7 +9587,7 @@ int do_ddr_auto_test_window(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 	unsigned int cs1_test_size = 0;
 	unsigned int watchdog_time_s = 0;
 	unsigned int test_index_enable = 0;
-	unsigned int all_toghter_enable = 0;
+	unsigned int all_tighter_enable = 0;
 
 	cs0_test_start = ((num_arry[TEST_ARG_CS0_TEST_START_INDEX]) | ((num_arry[TEST_ARG_CS0_TEST_START_INDEX + 1]) << 8) |
 			  ((num_arry[TEST_ARG_CS0_TEST_START_INDEX + 2]) << 16) | ((num_arry[TEST_ARG_CS0_TEST_START_INDEX + 3]) << 24));
@@ -9599,13 +9599,13 @@ int do_ddr_auto_test_window(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 			 ((num_arry[TEST_ARG_CS1_TEST_SIZE_INDEX + 2]) << 16) | ((num_arry[TEST_ARG_CS1_TEST_SIZE_INDEX + 3]) << 24));
 	watchdog_time_s = ((num_arry[TEST_ARG_WATCHDOG_TIME_SIZE_INDEX]) | ((num_arry[TEST_ARG_WATCHDOG_TIME_SIZE_INDEX + 1]) << 8));
 	test_index_enable = ((num_arry[TEST_ARG_TEST_INDEX_ENALBE_INDEX]) | ((num_arry[TEST_ARG_TEST_INDEX_ENALBE_INDEX + 1]) << 8));
-	all_toghter_enable = (num_arry[TEST_ARG_3_ALL_TOGHTER]);
+	all_tighter_enable = (num_arry[TEST_ARG_3_ALL_TIGHTER]);
 	switch (ddr_test_cmd) {
 	case (DMC_STICKY_UBOOT_WINDOW_MAGIC_1):
 		if (num_arry[1] == DMC_STICKY_UBOOT_WINDOW_MAGIC_1) {
 			sprintf(str, "ddr_test_cmd 0x27 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x \
 			0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x  0x%08x", cs0_test_start, cs0_test_size, cs1_test_start, cs1_test_size,
-				watchdog_time_s, test_index_enable, 0, 0, 0, 0, 0, 0, all_toghter_enable);
+				watchdog_time_s, test_index_enable, 0, 0, 0, 0, 0, 0, all_tighter_enable);
 
 			printf("\nstr=%s\n", str);
 

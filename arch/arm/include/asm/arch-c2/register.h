@@ -6178,7 +6178,7 @@
 // bit[8]     p_top_left_mix
 // bit[7]     mv_cal_mixed_type
 // bit[6]     mc_hcmd_mixed_type
-// bit[5]     use_seperate_int_control
+// bit[5]     use_separate_int_control
 // bit[4]     hcmd_intra_use_q_info
 // bit[3]     hcmd_left_use_prev_info
 // bit[2]     hcmd_use_q_info
@@ -6190,7 +6190,7 @@
 //15:8  - hcmd_mb_y_auto
 // 7:0  - hcmd_mb_x_auto
 #define VLC_HCMD_MBXY_AUTO                         ((0x0026  << 2) + 0xfe067400)
-// bit[31:0] vlc_int_control_inter -- will be used when use_seperate_int_control is set
+// bit[31:0] vlc_int_control_inter -- will be used when use_separate_int_control is set
 #define VLC_INT_CONTROL_INTER                      ((0x002f  << 2) + 0xfe067400)
 // --------------------------------------------
 // Picture VLC

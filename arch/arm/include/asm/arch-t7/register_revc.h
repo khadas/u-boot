@@ -5366,7 +5366,7 @@
 //Bit 7:0,    reg_preamble_Z_value    ,default = 0
 #define EARCTX_SPDIFOUT_SWAP                       ((0x0007  << 2) + 0xfe333400)
 //Bit 31:16,  reg_hold_cnt        ,default = 0,hold start cnt ,valid when reg_hold_for_tdm set 1
-//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after intial done from frddr set
+//Bit 15,     reg_init_send_en    ,default = 0,send 01 sequence some times after initial done from frddr set
 //Bit 14:0,   reg_init_send_cnt   ,default = 0,send 01 sequence time ,valid when reg_init_send_en set 1
 #define EARCTX_ERR_CORRT_CTRL0                     ((0x0008  << 2) + 0xfe333400)
 //Bit 31:24,  reserved
@@ -14200,7 +14200,7 @@
 //                                      1=ABH read request burst size 24;
 //                                      2=ABH read request burst size 32;
 //                                      3=ABH read request burst size 48.
-// Bit     1 RW ctrl_sw_reset. 1=Reset RDMA logics except register.
+// Bit     1 RW ctrl_sw_reset. 1=Reset RDMA logic except register.
 // Bit     0 RW ctrl_free_clk_enable. 0=Default, Enable clock gating. 1=No clock gating, enable free clock.
 #define RDMA_CTRL                                  ((0x1114  << 2) + 0xff000000)
 // Read only.
@@ -18263,7 +18263,7 @@
 // OSD1 registers 0x10-0x2f
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -18390,7 +18390,7 @@
 // OSD2 registers 0x30-0x4f  0x64 -0x67
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -31952,7 +31952,7 @@
 //bit[30]        R-RW   0~1  0    reg_id_check       :  check the id of data path and req path
 //bit[29]        R-RW   0~1  0    reg_clear_fifo     :  manually reset bit
 //bit[28]        R-RW   0~1  0    reg_vsync_rst      :  soft_rst auto reset enable
-//bit[27]        R-RW   0~1  0    reg_update_addr    :  manually udpate start addr
+//bit[27]        R-RW   0~1  0    reg_update_addr    :  manually update start addr
 //bit[26]        R-RW   0~1  0    reg_addr_auto      :  auto update start addr enable
 //bit[25]        R-RW   0~1  0    reg_keep_receive   :  data path keep receive
 //bit[24:19]     R-RW   0~63 0    reg_req_th         :  fifo_room > req_th, then send the request
@@ -43120,14 +43120,14 @@
 //Bit  7: 4        reg_nry_burst_num         // unsigned ,    RW, default = 0  number of homo pixels in SGM threshold for burst noise detection,  the larger of this threshold, the easier burst detected, default=3;
 //Bit  3: 0        reg_nry_burst_rate        // unsigned ,    RW, default = 4  burst detection threshold delta= range*rate/16, the large this rate, the difficult to detect as burst, default=4;
 #define ISP_POST_NRY_ALPHA_MAX_LUT                 ((0x1208  << 2) + 0xfe3b4000)
-//Bit 31:28        reg_nry_alpha0_maxerr_lut_7 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
-//Bit 27:24        reg_nry_alpha0_maxerr_lut_6 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
-//Bit 23:20        reg_nry_alpha0_maxerr_lut_5 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
-//Bit 19:16        reg_nry_alpha0_maxerr_lut_4 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
-//Bit 15:12        reg_nry_alpha0_maxerr_lut_3 // unsigned ,    RW, default = 14  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
-//Bit 11: 8        reg_nry_alpha0_maxerr_lut_2 // unsigned ,    RW, default = 12  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
-//Bit  7: 4        reg_nry_alpha0_maxerr_lut_1 // unsigned ,    RW, default = 3  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
-//Bit  3: 0        reg_nry_alpha0_maxerr_lut_0 // unsigned ,    RW, default = 0  channel: alpha curv for blending gau_sigma filter results and orignal signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit 31:28        reg_nry_alpha0_maxerr_lut_7 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit 27:24        reg_nry_alpha0_maxerr_lut_6 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit 23:20        reg_nry_alpha0_maxerr_lut_5 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit 19:16        reg_nry_alpha0_maxerr_lut_4 // unsigned ,    RW, default = 15  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit 15:12        reg_nry_alpha0_maxerr_lut_3 // unsigned ,    RW, default = 14  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit 11: 8        reg_nry_alpha0_maxerr_lut_2 // unsigned ,    RW, default = 12  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit  7: 4        reg_nry_alpha0_maxerr_lut_1 // unsigned ,    RW, default = 3  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
+//Bit  3: 0        reg_nry_alpha0_maxerr_lut_0 // unsigned ,    RW, default = 0  channel: alpha curv for blending gau_sigma filter results and original signal.[0, 8, 16, 32, 64, 128, 192,256]
 #define ISP_POST_NRC_GAU_FILTER                    ((0x1209  << 2) + 0xfe3b4000)
 //Bit 31:24        reserved
 //Bit 23:22        reg_nrc_gau_horz          // unsigned ,    RW, default = 0  gaussian filter mode for chroma. 0: [1 2 1]/4; 1: [1 2 2 2 1]/8,  2/3: [1 2 3 4 3 2 1]/16

@@ -41356,7 +41356,7 @@
 #define PARSER_PARAMETER                           ((0x386f  << 2) + 0xfdf00000)
 // bit 31:0 -- insert data // write only
 // write to PARSER_CONTROL will reset the write position
-// continous write to this address can write upto 16 bytes 
+// continuous write to this address can write upto 16 bytes 
 #define PARSER_INSERT_DATA                         ((0x3870  << 2) + 0xfdf00000)
 // Bit 31:24 -- Reserved Stream_ID
 // Bit 23:16 -- Sub Stream_ID
@@ -41560,7 +41560,7 @@
 #define PARSER_B_PARSER_PARAMETER                  ((0x116f  << 2) + 0xfdf00000)
 // bit 31:0 -- insert data // write only
 // write to PARSER_CONTROL will reset the write position
-// continous write to this address can write upto 16 bytes 
+// continuous write to this address can write upto 16 bytes 
 #define PARSER_B_PARSER_INSERT_DATA                ((0x1170  << 2) + 0xfdf00000)
 // Bit 31:24 -- Reserved Stream_ID
 // Bit 23:16 -- Sub Stream_ID

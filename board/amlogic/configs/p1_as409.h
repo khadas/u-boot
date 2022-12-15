@@ -34,7 +34,7 @@
 #define AML_VDD_CPUA_INIT_VOLTAGE	880
 #define AML_VDD_CPUB_INIT_VOLTAGE	880
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Bootloader Control Block function

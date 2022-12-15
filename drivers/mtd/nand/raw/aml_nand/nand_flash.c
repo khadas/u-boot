@@ -1377,7 +1377,7 @@ static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	mtd->oobsize = valid_chip_num * aml_type->oobsize;
 	mtd->size = valid_chip_num * chip->chipsize;
 
-	/* overide bootloader's size considering info page */
+	/* override bootloader's size considering info page */
 	/* fixme, need -1 for each copies? */
 	if (!strncmp((char*)plat->name,
 		NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME)))

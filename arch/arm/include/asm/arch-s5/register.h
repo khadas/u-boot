@@ -8602,7 +8602,7 @@
 // Bit 19:14 -- des_2 ts pl state   -- Read Only
 // Bit 13:8 -- des ts pl state   -- Read Only
 // Bit 3:0 PID index to 8 PID to get key-set
-// auto increse after TS_PL_PID_DATA read/write
+// auto increase after TS_PL_PID_DATA read/write
 #define TS_PL_PID_INDEX                            ((0x00f3  << 2) + 0xfe040000)
 // Bit 13 -- PID match disble
 // Bit 12:0 -- PID
@@ -28186,11 +28186,11 @@
 //Bit  1: 0        reg_in_ds_rate_y          // unsigned ,    RW, default = 2  Input down-sample registers, normally AVG. value = [0,1,2], change according to input resolution. real rate is 2^reg_in_ds_rate
 #define INTRP_PARAM                                ((0x4b01  << 2) + 0xff800000)
 //Bit 31:26        reserved
-//Bit 25:21        reg_intep_phs_x_rtl       // signed ,    RW, default = 0  Interpolation x phase used, could be negtive num, set by SW
-//Bit 20:16        reg_intep_phs_x_use       // signed ,    RW, default = 0  Interpolation x phase used, could be negtive num, set by SW
+//Bit 25:21        reg_intep_phs_x_rtl       // signed ,    RW, default = 0  Interpolation x phase used, could be negative num, set by SW
+//Bit 20:16        reg_intep_phs_x_use       // signed ,    RW, default = 0  Interpolation x phase used, could be negative num, set by SW
 //Bit 15:10        reserved
-//Bit  9: 5        reg_intep_phs_y_rtl       // signed ,    RW, default = 0  Interpolation x phase used, could be negtive num, set by SW
-//Bit  4: 0        reg_intep_phs_y_use       // signed ,    RW, default = 0  Interpolation y phase used, could be negtive num, set by SW
+//Bit  9: 5        reg_intep_phs_y_rtl       // signed ,    RW, default = 0  Interpolation x phase used, could be negative num, set by SW
+//Bit  4: 0        reg_intep_phs_y_use       // signed ,    RW, default = 0  Interpolation y phase used, could be negative num, set by SW
 #define DCTR_BGRID_PARAM1                          ((0x4b02  << 2) + 0xff800000)
 //Bit 31:26        reserved
 //Bit 25:16        reg_grd_xnum              // unsigned ,    RW, default = 80  number of grid in horizontal dimension, value = [0-80]
@@ -30113,7 +30113,7 @@
 //Bit  3: 2,        reg_nr_cti_blend_mode                       : blend mode of nr and lti result: 0: nr; 1:cti; 2: (nr+cti)/2; 3:cti + dlt_nr  . unsigned  , default = 1
 //Bit  1: 0,        reg_nr_lti_blend_mode                       : blend mode of nr and lti result: 0: nr; 1:lti; 2: (nr+lti)/2; 3:lti + dlt_nr  . unsigned  , default = 2
 ////////////////////////////////////////////////////////////////////////////////
-// new ti regsters from here
+// new ti registers from here
 ////////////////////////////////////////////////////////////////////////////////
 #define LTI_DIR_CORE_ALPHA                         ((0x502a  << 2) + 0xff800000)
 //Bit 31:30,        reserved

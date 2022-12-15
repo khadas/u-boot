@@ -2212,7 +2212,7 @@
 // bit[8]     p_top_left_mix
 // bit[7]     mv_cal_mixed_type
 // bit[6]     mc_hcmd_mixed_type
-// bit[5]     use_seperate_int_control
+// bit[5]     use_separate_int_control
 // bit[4]     hcmd_intra_use_q_info
 // bit[3]     hcmd_left_use_prev_info
 // bit[2]     hcmd_use_q_info
@@ -2226,7 +2226,7 @@
 // 7:0  - hcmd_mb_x_auto
 #define   VLC_HCMD_MBXY_AUTO                       (0x1d26)
 #define P_VLC_HCMD_MBXY_AUTO                       (volatile unsigned int *)((0x1d26  << 2) + 0xff620000)
-// bit[31:0] vlc_int_control_inter -- will be used when use_seperate_int_control is set
+// bit[31:0] vlc_int_control_inter -- will be used when use_separate_int_control is set
 #define   VLC_INT_CONTROL_INTER                    (0x1d2f)
 #define P_VLC_INT_CONTROL_INTER                    (volatile unsigned int *)((0x1d2f  << 2) + 0xff620000)
 // --------------------------------------------
@@ -4756,7 +4756,7 @@
 // [7:6]   - max_pcm_luma_coding_block_size
 // [5:4]   - min_pcm_luma_coding_block_size
 // [3:2]   - bit_depth_luma_minus8
-// [1]     - enable_negtive_quant
+// [1]     - enable_negative_quant
 // [0]     - pcm_enabled_flag
 #define   HEVC_PARSER_HEADER_INFO2                 (0x3125)
 #define P_HEVC_PARSER_HEADER_INFO2                 (volatile unsigned int *)((0x3125  << 2) + 0xff620000)
@@ -5458,7 +5458,7 @@
 // [12]     -- ipp_cntl_clkgate_disbl
 // [13]     -- ipp_nsamples_proc_clkgate_disbl
 // [14]     -- ipp_refroute_clkgate_disbl
-// [15]     -- ipp_spred_clkgate_disbl
+// [15]     -- ipp_spread_clkgate_disbl
 // [16]     -- ipp_reg_clkgate_disbl
 // [17]     -- ipp_recon_clkgate_disbl
 // [19:18]  -- reserved
@@ -5490,7 +5490,7 @@
 // [12]     -- ipp_cntl_clkgate
 // [13]     -- ipp_nsamples_proc_clkgate
 // [14]     -- ipp_refroute_clkgate
-// [15]     -- ipp_spred_clkgate
+// [15]     -- ipp_spread_clkgate
 // [16]     -- ipp_reg_clkgate
 // [17]     -- ipp_recon_clkgate
 // [19:18]  -- reserved
@@ -5602,7 +5602,7 @@
 #define P_HEVCD_MPP_DECOMP_CTL2                    (volatile unsigned int *)((0x34c3  << 2) + 0xff620000)
 // [9:0]     -- decomp_default_Y
 // [19:10]   -- decomp_default_Cb
-// [29:20]   -- decomp_dafault_Cr
+// [29:20]   -- decomp_default_Cr
 // [31:30]   -- bitdepth_sel 00:8bit 01:9bit 10:10bit
 #define   HEVCD_MPP_DECOMP_CTL3                    (0x34c4)
 #define P_HEVCD_MPP_DECOMP_CTL3                    (volatile unsigned int *)((0x34c4  << 2) + 0xff620000)
@@ -10616,7 +10616,7 @@
 // bit[8]     p_top_left_mix
 // bit[7]     mv_cal_mixed_type
 // bit[6]     mc_hcmd_mixed_type
-// bit[5]     use_seperate_int_control
+// bit[5]     use_separate_int_control
 // bit[4]     hcmd_intra_use_q_info
 // bit[3]     hcmd_left_use_prev_info
 // bit[2]     hcmd_use_q_info
@@ -10630,7 +10630,7 @@
 // 7:0  - hcmd_mb_x_auto
 #define   HCODEC_VLC_HCMD_MBXY_AUTO                (0x1d26)
 #define P_HCODEC_VLC_HCMD_MBXY_AUTO                (volatile unsigned int *)((0x1d26  << 2) + 0xff620000)
-// bit[31:0] vlc_int_control_inter -- will be used when use_seperate_int_control is set
+// bit[31:0] vlc_int_control_inter -- will be used when use_separate_int_control is set
 #define   HCODEC_VLC_INT_CONTROL_INTER             (0x1d2f)
 #define P_HCODEC_VLC_INT_CONTROL_INTER             (volatile unsigned int *)((0x1d2f  << 2) + 0xff620000)
 // --------------------------------------------
@@ -11873,7 +11873,7 @@
 // Bit 19:14 -- des_2 ts pl state   -- Read Only
 // Bit 13:8 -- des ts pl state   -- Read Only
 // Bit 3:0 PID index to 8 PID to get key-set
-// auto increse after TS_PL_PID_DATA read/write
+// auto increase after TS_PL_PID_DATA read/write
 #define   TS_PL_PID_INDEX                          (0x18f3)
 #define P_TS_PL_PID_INDEX                          (volatile unsigned int *)((0x18f3  << 2) + 0xffd00000)
 // Bit 13 -- PID match disble
@@ -11911,7 +11911,7 @@
 // [3]      General enable for the ciplus module
 // [2]      AES CBC disable (default should be 0 to enable AES CBC)
 // [1]      AES Enable
-// [0]      DES Eanble
+// [0]      DES Enable
 #define   CIPLUS_CONFIG                            (0x18fd)
 #define P_CIPLUS_CONFIG                            (volatile unsigned int *)((0x18fd  << 2) + 0xffd00000)
 // bit[31:28] AES IV endian
@@ -13686,7 +13686,7 @@
 // bit 9:0 -- point to byte address
 #define   PFIFO_RD_PTR                             (0x3867)
 #define P_PFIFO_RD_PTR                             (volatile unsigned int *)((0x3867  << 2) + 0xffd00000)
-// bit 31:0 -- 8/16/24/32 bits data acording to pfifo_data_width
+// bit 31:0 -- 8/16/24/32 bits data according to pfifo_data_width
 #define   PFIFO_DATA                               (0x3868)
 #define P_PFIFO_DATA                               (volatile unsigned int *)((0x3868  << 2) + 0xffd00000)
 // bit 31:0 -- parser search pattern
@@ -13729,7 +13729,7 @@
 #define P_PARSER_PARAMETER                         (volatile unsigned int *)((0x386f  << 2) + 0xffd00000)
 // bit 31:0 -- insert data // write only
 // write to PARSER_CONTROL will reset the write position
-// continous write to this address can write upto 16 bytes
+// continuous write to this address can write upto 16 bytes
 #define   PARSER_INSERT_DATA                       (0x3870)
 #define P_PARSER_INSERT_DATA                       (volatile unsigned int *)((0x3870  << 2) + 0xffd00000)
 // Bit 31:24 -- Reserved Stream_ID
@@ -14320,7 +14320,7 @@
 #define   AIU_958_DISCARD_NUM                      (0x1406)
 #define P_AIU_958_DISCARD_NUM                      (volatile unsigned int *)((0x1406  << 2) + 0xffd00000)
 //bit 15:8  : A read from this register indicates the IEC958 FIFO count value
-//bit 7 :  ai_958_req_size if ture, set to 8 bits interface, used to handle odd frame continous read
+//bit 7 :  ai_958_req_size if ture, set to 8 bits interface, used to handle odd frame continuous read
 //bit 6 :  continue seeking and dont discard the rest data in one dma after frame end
 //bit 5 :  if true, byte by byte seeking, otherwise word by word seeking
 //bit 4 :  if true, the function for sync head seeking is enabled
@@ -14557,7 +14557,7 @@
 // Bit 13: 8 divisor_adc_sclk.
 // Bit     7 invert_acodec_adc_sclk.
 // Bit     6 hdmitx_sel_aoclkx2: 0=Select cts_clk_i958 as AIU clk to hdmi_tx_audio_master_clk; 1=Select cts_aoclkx2_int as AIU clk to hdmi_tx_audio_master_clk;
-// Bit  5: 0 More control on i2s divisor. For backward compatiblity, this value is ignored if is 0,
+// Bit  5: 0 More control on i2s divisor. For backward compatibility, this value is ignored if is 0,
 //           if non-zero, it takes effect over AIU_clk_ctrl[3:2].
 //           0=i2s divisor will use the old value in AIU_clk_ctrl[3:2] (divide by 1/2/4/8)
 //           1=divide by 2;
@@ -14598,7 +14598,7 @@
 #define P_AIU_MIX_GAIN                             (volatile unsigned int *)((0x141b  << 2) + 0xffd00000)
 // 15'b00001_00001_00001
 //sync head seeking is supported. The  maximum length of sync head is
-//48-bit-wide.(in byte by byte seeking mode, the maximium is 44-bit-wide).
+//48-bit-wide.(in byte by byte seeking mode, the maximum is 44-bit-wide).
 //It is consisted of 3 words (synword1_synword2_syncword3).
 //You can configure the sync head pattern by using sync mask(mask1_mask2_mask3).
 //For example. AC-3 sync head is a 16-bit word(0b77), so syncword1 is set as 0b77,
@@ -14633,7 +14633,7 @@
 #define   AIU_958_LENGTH_PER_PAUSE                 (0x1423)
 #define P_AIU_958_LENGTH_PER_PAUSE                 (volatile unsigned int *)((0x1423  << 2) + 0xffd00000)
 //'h0000
-//This reigster defines the number of pause burst in a pause burst sequence.
+//This register defines the number of pause burst in a pause burst sequence.
 //Bit 15  if true, one pause burst sequence will be added
 //Bit 14:0 the number of pause burst in a pause burst sequence
 #define   AIU_958_PAUSE_NUM                        (0x1424)
@@ -14720,7 +14720,7 @@
 //Bit 4:0		//how many bits left in the first pop register
 #define   AIU_AIFIFO2_STATUS                       (0x1441)
 #define P_AIU_AIFIFO2_STATUS                       (volatile unsigned int *)((0x1441  << 2) + 0xffd00000)
-//Same fucntion as the AIGBIT of AIFIFO in CDROM module
+//Same function as the AIGBIT of AIFIFO in CDROM module
 //write to this register how many bits wanna pop,
 //and reading this register gets the corresponding bits data
 #define   AIU_AIFIFO2_GBIT                         (0x1442)
@@ -14730,7 +14730,7 @@
 #define   AIU_AIFIFO2_CLB                          (0x1443)
 #define P_AIU_AIFIFO2_CLB                          (volatile unsigned int *)((0x1443  << 2) + 0xffd00000)
 //CRC control register, read/write
-//Bit 0		CRC caculation start
+//Bit 0		CRC calculation start
 //Bit 1		CRC core soft reset
 //Bit 2		CRC input register clear
 //Bit 3		CRC pop data from FIFO enable
@@ -14835,13 +14835,13 @@
 //default: 16'h3
 #define   AIU_DELTA_SIGMA3                         (0x1458)
 #define P_AIU_DELTA_SIGMA3                         (volatile unsigned int *)((0x1458  << 2) + 0xffd00000)
-//15:8, Added Delta Sigma DC level, range:+-1/2, minimium: +-1/128 (assume max is -1 ~ +1)
+//15:8, Added Delta Sigma DC level, range:+-1/2, minimum: +-1/128 (assume max is -1 ~ +1)
 //7:0, max same sequence number, used for unstable detection
 //default: 16'h0
 #define   AIU_DELTA_SIGMA4                         (0x1459)
 #define P_AIU_DELTA_SIGMA4                         (volatile unsigned int *)((0x1459  << 2) + 0xffd00000)
 //Bit 15:8, square wave divide num
-//Bit 7:0, square wave amplitude, -1/4 ~ 1/4, minimium: +-1/1024
+//Bit 7:0, square wave amplitude, -1/4 ~ 1/4, minimum: +-1/1024
 //default: 16'h0
 #define   AIU_DELTA_SIGMA5                         (0x145a)
 #define P_AIU_DELTA_SIGMA5                         (volatile unsigned int *)((0x145a  << 2) + 0xffd00000)
@@ -15057,7 +15057,7 @@
 // Bit 4:0		//how many bits left in the first pop register
 #define   AIU_AIFIFO_STATUS                        (0x1481)
 #define P_AIU_AIFIFO_STATUS                        (volatile unsigned int *)((0x1481  << 2) + 0xffd00000)
-// Same fucntion as the AIGBIT of AIFIFO in CDROM module
+// Same function as the AIGBIT of AIFIFO in CDROM module
 // write to this register how many bits wanna pop,
 // and reading this register gets the corresponding bits data
 #define   AIU_AIFIFO_GBIT                          (0x1482)
@@ -15449,7 +15449,7 @@
 // Bit 21:20 RW i2s_block_start_src: 0=left channel 0 is approved as block start generator, ..., 3=left channel 3 is the block start generator.
 // Bit 19:17    Rsrv.
 // Bit    16 RW I2S enable.
-// Bit 15: 8 RW audio_channel_alloc: Usage indication of up to 8 channels. If the correspoinding bit is 1, then this channel is used.
+// Bit 15: 8 RW audio_channel_alloc: Usage indication of up to 8 channels. If the corresponding bit is 1, then this channel is used.
 //                                   E.g.: In 2-channel audio, it is 00000011
 // Bit     7 RW hdmi_tx_audio_decoder input sel: 0=SPDIF; 1=I2S.
 // Bit     6 RW i2s_channel_config: 0=2-channel; 1=8-channel.
@@ -15834,7 +15834,7 @@
 //                                      1=ABH read request burst size 24;
 //                                      2=ABH read request burst size 32;
 //                                      3=ABH read request burst size 48.
-// Bit     1 RW ctrl_sw_reset. 1=Reset RDMA logics except register.
+// Bit     1 RW ctrl_sw_reset. 1=Reset RDMA logic except register.
 // Bit     0 RW ctrl_free_clk_enable. 0=Default, Enable clock gating. 1=No clock gating, enable free clock.
 #define   RDMA_CTRL                                (0x1114)
 #define P_RDMA_CTRL                                (volatile unsigned int *)((0x1114  << 2) + 0xff900000)
@@ -17914,7 +17914,7 @@
 //bit  7: 0,   mtn_maxth
 #define   DI_MTN_1_CTRL5                           (0x1744)
 #define P_DI_MTN_1_CTRL5                           (volatile unsigned int *)((0x1744  << 2) + 0xff900000)
-//bit 31:28,   mtn_m1b_extnd
+//bit 31:28,   mtn_m1b_extend
 //bit 27:24,   mtn_m1b_errod
 //bit 21:20,   mtn_mot_txt_mode
 //bit 19:18,   mtn_replace_cbyy
@@ -18856,7 +18856,7 @@
 //bit 7:0,     reg_ei_int_drtdelay2_vlddrt_sadth
 #define   DI_MTN_1_CTRL6                           (0x17a9)
 #define P_DI_MTN_1_CTRL6                           (volatile unsigned int *)((0x17a9  << 2) + 0xff900000)
-//bit 31:24,   mtn_m1b_extnd
+//bit 31:24,   mtn_m1b_extend
 //bit 23:16,   mtn_m1b_errod
 //bit 15: 8,   mtn_core_ykinter
 //bit  7: 0,   mtn_core_ckinter
@@ -19960,9 +19960,9 @@
 // Bit 15:13 v0_gofld_sel, 000: display go_field, 001: DI pre_frame_rst, 010: vdin0 go_field, 011: vdin1 go_field, otherwise: force go_field by
 // reg_v0_go_field(bit19)
 // Bit 12:6 hole_lines for d2d3 depth read interface
-// Bit 5:4 d2d3_v1_sel, 2'b01: video display read interface(DI or vd1 fomart output), 2'b10: scale output, otherwise nothing as v1
+// Bit 5:4 d2d3_v1_sel, 2'b01: video display read interface(DI or vd1 format output), 2'b10: scale output, otherwise nothing as v1
 // Bit 3 use_vdin_eol, if true, use vdin eol as the v0_eol, otherwise using length to get the v0_eol
-// Bit 2:0  d2d3_v0_sel  001: vdin0, 010: vdin1, 011: NRW, 100: video display read interface(DI or vd1 fomart output), 101: vpp scale output
+// Bit 2:0  d2d3_v0_sel  001: vdin0, 010: vdin1, 011: NRW, 100: video display read interface(DI or vd1 format output), 101: vpp scale output
 //
 #define   D2D3_INTF_CTRL0                          (0x1a09)
 #define P_D2D3_INTF_CTRL0                          (volatile unsigned int *)((0x1a09  << 2) + 0xff900000)
@@ -19970,7 +19970,7 @@
 // OSD1 registers
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -20242,7 +20242,7 @@
 // OSD2 registers
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -23716,7 +23716,7 @@
 // OSD1 registers
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -23871,7 +23871,7 @@
 // OSD2 registers
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -27324,7 +27324,7 @@
 //                                           0: unable; 1: enable, use neighboring mvs in refinement, default = 1
 //Bit 11,    reserved
 //Bit 10,    reg_mcdi_referrfrqchken
-//                                           0: unable; 1: enable, enable mv frquency check while finding min err in ref, default = 1
+//                                           0: unable; 1: enable, enable mv frequency check while finding min err in ref, default = 1
 //Bit 9,     reg_mcdi_refen
 //                                           0: unable; 1: enable, enable mv refinement, default = 1
 //Bit 8,     reg_mcdi_horlineen
@@ -27415,7 +27415,7 @@
 //Bit 19:16, reg_mcdi_chkedgedifthd0.                     thd0 for edge dif check (>=), default = 15
 //Bit   :15, reserved.
 //Bit 14:10, reg_mcdi_chkedgechklen.                      total check length for edge check, 1~24 (>0), default = 24
-//Bit  9: 8, reg_mcdi_chkedgeedgesel.                     final edge select mode, 0: original start edge, 1: lpf start edge, 2: orignal start+end edge, 3: lpf start+end edge, default = 1
+//Bit  9: 8, reg_mcdi_chkedgeedgesel.                     final edge select mode, 0: original start edge, 1: lpf start edge, 2: original start+end edge, 3: lpf start+end edge, default = 1
 //Bit  7: 3, reg_mcdi_chkedgesaddstgain.                  distance gain for sad calc while getting edges, default = 4
 //Bit     2, reg_mcdi_chkedgechkmode.                     edge used in check mode, 0: original edge, 1: lpf edge, default = 1
 //Bit     1, reg_mcdi_chkedgestartedge.                   edge mode for start edge, 0: original edge, 1: lpf edge, default = 0
@@ -27556,15 +27556,15 @@
 #define   MCDI_REF_ERR_FRQ_CHK                     (0x2f1d)
 #define P_MCDI_REF_ERR_FRQ_CHK                     (volatile unsigned int *)((0x2f1d  << 2) + 0xff900000)
 //Bit 31:28, reserved
-//Bit 27:24, reg_mcdi_referrfrqgain.               gain for mv frquency, normalized to 4 as '1', default = 10
+//Bit 27:24, reg_mcdi_referrfrqgain.               gain for mv frequency, normalized to 4 as '1', default = 10
 //Bit 23:21, reserved
-//Bit 20:16, reg_mcdi_referrfrqmax.                max gain for mv frquency check, default = 31
+//Bit 20:16, reg_mcdi_referrfrqmax.                max gain for mv frequency check, default = 31
 //Bit    15, reserved
-//Bit 14:12, reg_mcdi_ref_errfrqmvdifthd2.         mv dif threshold 2 (<) for mv frquency check, default = 3
+//Bit 14:12, reg_mcdi_ref_errfrqmvdifthd2.         mv dif threshold 2 (<) for mv frequency check, default = 3
 //Bit    11, reserved
-//Bit 10: 8, reg_mcdi_ref_errfrqmvdifthd1.         mv dif threshold 1 (<) for mv frquency check, default = 2
+//Bit 10: 8, reg_mcdi_ref_errfrqmvdifthd1.         mv dif threshold 1 (<) for mv frequency check, default = 2
 //Bit     7, reserved
-//Bit  6: 4, reg_mcdi_ref_errfrqmvdifthd0.         mv dif threshold 0 (<) for mv frquency check, default = 1
+//Bit  6: 4, reg_mcdi_ref_errfrqmvdifthd0.         mv dif threshold 0 (<) for mv frequency check, default = 1
 //Bit  3: 0, reserved
 #define   MCDI_QME_LPF_MSK                         (0x2f1e)
 #define P_MCDI_QME_LPF_MSK                         (volatile unsigned int *)((0x2f1e  << 2) + 0xff900000)
@@ -29307,7 +29307,7 @@
 //Bit 23           reg_nrdeband_en11         // unsigned , default = 0  , debanding registers of side lines, [0] for luma,   same for below
 //Bit 22           reg_nrdeband_en10         // unsigned , default = 0  , debanding registers of side lines, [1] for chroma, same for below
 //Bit 21           reg_nrdeband_siderand     // unsigned , default = 1  , options to use side two lines use the rand, instead of use for the YUV three component of middle line, 0: seed[3]/bandrand[3] for middle line yuv; 1: seed[3]/bandrand[3] for nearby three lines Y;
-//Bit 20           reg_nrdeband_randmode     // unsigned , default = 0  , mode of rand noise adding, 0: same noise strength for all difs; else: strenght of noise will not exceed the difs, MIN((pPKReg->reg_nrdeband_bandrand[m]), noise[m])
+//Bit 20           reg_nrdeband_randmode     // unsigned , default = 0  , mode of rand noise adding, 0: same noise strength for all difs; else: strength of noise will not exceed the difs, MIN((pPKReg->reg_nrdeband_bandrand[m]), noise[m])
 //Bit 19:17        reg_nrdeband_bandrand2    // unsigned , default = 6
 //Bit 16            reserved
 //Bit 15:13        reg_nrdeband_bandrand1    // unsigned , default = 6
@@ -30324,7 +30324,7 @@
 //Bit  3: 2,        reg_nr_cti_blend_mode                       : blend mode of nr and lti result: 0: nr; 1:cti; 2: (nr+cti)/2; 3:cti + dlt_nr  . unsigned  , default = 1
 //Bit  1: 0,        reg_nr_lti_blend_mode                       : blend mode of nr and lti result: 0: nr; 1:lti; 2: (nr+lti)/2; 3:lti + dlt_nr  . unsigned  , default = 2
 ////////////////////////////////////////////////////////////////////////////////
-// new ti regsters from here
+// new ti registers from here
 ////////////////////////////////////////////////////////////////////////////////
 #define   LTI_DIR_CORE_ALPHA                       (0x322a)
 #define P_LTI_DIR_CORE_ALPHA                       (volatile unsigned int *)((0x322a  << 2) + 0xff900000)
@@ -30711,7 +30711,7 @@
 //Bit 23:16,  reg_sr3_pk_hp_hvcon_replace8lv_gain     //u8: gain to local variant before calculating the hv gain for peaking, normalized to 32 as "1" default = 32;
 //Bit 15:8,   reg_sr3_pk_bp_hvcon_replace8lv_gain     //u8: gain to local variant before calculating the hv gain for peaking, normalized to 32 as "1" default = 32;
 //Bit 7,      reg_sr3_sad_intlev_mode                 //u1: interleave detection xerr mode: 0 max; 1:sum default=1
-//Bit 6,      reg_sr3_sad_intlev_mode1                //u1: mode 1 of using diagonal protection: 0: no digonal protection; 1: with diagonal protection default=1
+//Bit 6,      reg_sr3_sad_intlev_mode1                //u1: mode 1 of using diagonal protection: 0: no diagonal protection; 1: with diagonal protection default=1
 //Bit 5:0,    reg_sr3_sad_intlev_gain                 //u6: interleave detection for sad gain applied, normalized to 8 as 1  default=12
 #define   SHARP_DEJ_CTRL                           (0x3264)
 #define P_SHARP_DEJ_CTRL                           (volatile unsigned int *)((0x3264  << 2) + 0xff900000)
@@ -30798,7 +30798,7 @@
 #define P_SHARP_SR3_DERING_LUMA2PKGAIN_4TO6        (volatile unsigned int *)((0x326d  << 2) + 0xff900000)
 //Bit 31:24   reserved
 //Bit 23:16   reg_sr3_dering_luma2pkgain6             // u8: rate1 (for bpcon>th1) of curve for dering pkgain based on LPF luma level. default =24
-//Bit 15:8    reg_sr3_dering_luma2pkgain5             // u8: rate0 (for bpcon<th0) of curve for dering pkgain based on LPF luma level. dfault =50
+//Bit 15:8    reg_sr3_dering_luma2pkgain5             // u8: rate0 (for bpcon<th0) of curve for dering pkgain based on LPF luma level. default =50
 //Bit 7:0     reg_sr3_dering_luma2pkgain4             // u8: level limit(for bpcon>th1) of curve for dering pkgain based on LPF luma level. default =255
 #define   SHARP_SR3_DERING_LUMA2PKOS_0TO3          (0x326e)
 #define P_SHARP_SR3_DERING_LUMA2PKOS_0TO3          (volatile unsigned int *)((0x326e  << 2) + 0xff900000)
@@ -30810,7 +30810,7 @@
 #define P_SHARP_SR3_DERING_LUMA2PKOS_4TO6          (volatile unsigned int *)((0x326f  << 2) + 0xff900000)
 //Bit 31:24   reserved
 //Bit 23:16   reg_sr3_dering_luma2pkos6             // u8: rate1 (for bpcon>th1) of curve for dering pkOS based on LPF luma level. default =24
-//Bit 15:8    reg_sr3_dering_luma2pkos5             // u8: rate0 (for bpcon<th0) of curve for dering pkOS based on LPF luma level. dfault =50
+//Bit 15:8    reg_sr3_dering_luma2pkos5             // u8: rate0 (for bpcon<th0) of curve for dering pkOS based on LPF luma level. default =50
 //Bit 7:0     reg_sr3_dering_luma2pkos4             // u8: level limit(for bpcon>th1) of curve for dering pkOS based on LPF luma level. default =255
 #define   SHARP_SR3_DERING_GAINVS_MADSAD           (0x3270)
 #define P_SHARP_SR3_DERING_GAINVS_MADSAD           (volatile unsigned int *)((0x3270  << 2) + 0xff900000)
@@ -30868,7 +30868,7 @@
 //Bit 23           reg_nrdeband_en11         // unsigned , default = 1  debanding registers of side lines, [0] for luma,   same for below
 //Bit 22           reg_nrdeband_en10         // unsigned , default = 1  debanding registers of side lines, [1] for chroma, same for below
 //Bit 21           reg_nrdeband_siderand     // unsigned , default = 1  options to use side two lines use the rand, instead of use for the YUV three component of middle line, 0: seed[3]/bandrand[3] for middle line yuv; 1: seed[3]/bandrand[3] for nearby three lines Y;
-//Bit 20           reg_nrdeband_randmode     // unsigned , default = 0  mode of rand noise adding, 0: same noise strength for all difs; else: strenght of noise will not exceed the difs, MIN((pPKReg->reg_nrdeband_bandrand[m]), noise[m])
+//Bit 20           reg_nrdeband_randmode     // unsigned , default = 0  mode of rand noise adding, 0: same noise strength for all difs; else: strength of noise will not exceed the difs, MIN((pPKReg->reg_nrdeband_bandrand[m]), noise[m])
 //Bit 19:17        reg_nrdeband_bandrand2    // unsigned , default = 6
 //Bit 16            reserved
 //Bit 15:13        reg_nrdeband_bandrand1    // unsigned , default = 6
@@ -31293,7 +31293,7 @@
 //bit[30]        R-RW   0~1  0    reg_id_check       :  check the id of data path and req path
 //bit[29]        R-RW   0~1  0    reg_clear_fifo     :  manually reset bit
 //bit[28]        R-RW   0~1  0    reg_vsync_rst      :  soft_rst auto reset enable
-//bit[27]        R-RW   0~1  0    reg_update_addr    :  manually udpate start addr
+//bit[27]        R-RW   0~1  0    reg_update_addr    :  manually update start addr
 //bit[26]        R-RW   0~1  0    reg_addr_auto      :  auto update start addr enable
 //bit[25]        R-RW   0~1  0    reg_keep_receive   :  data path keep receive
 //bit[24:19]     R-RW   0~63 0    reg_req_th         :  fifo_room > req_th, then send the request
@@ -31731,7 +31731,7 @@
 //Bit 23           reg_nrdeband_en11         // unsigned , default = 1  debanding registers of side lines, [0] for luma,   same for below
 //Bit 22           reg_nrdeband_en10         // unsigned , default = 1  debanding registers of side lines, [1] for chroma, same for below
 //Bit 21           reg_nrdeband_siderand     // unsigned , default = 1  options to use side two lines use the rand, instead of use for the YUV three component of middle line, 0: seed[3]/bandrand[3] for middle line yuv; 1: seed[3]/bandrand[3] for nearby three lines Y;
-//Bit 20           reg_nrdeband_randmode     // unsigned , default = 0  mode of rand noise adding, 0: same noise strength for all difs; else: strenght of noise will not exceed the difs, MIN((pPKReg->reg_nrdeband_bandrand[m]), noise[m])
+//Bit 20           reg_nrdeband_randmode     // unsigned , default = 0  mode of rand noise adding, 0: same noise strength for all difs; else: strength of noise will not exceed the difs, MIN((pPKReg->reg_nrdeband_bandrand[m]), noise[m])
 //Bit 19:17        reg_nrdeband_bandrand2    // unsigned , default = 6
 //Bit 16            reserved
 //Bit 15:13        reg_nrdeband_bandrand1    // unsigned , default = 6
@@ -32696,7 +32696,7 @@
 // To measure display slave's frame rate, we can use a reference clock to measure the duration of one of more edpite pulse(s).
 // Measurement control is by register MIPI_DSI_TOP_MEAS_CNTL bit[9:0].
 // Reference clock comes from clk_rst_tst.cts_dsi_meas_clk, and is defined by HIU register HHI_VDIN_MEAS_CLK_CNTL bit[23:12].
-// Mesurement result is in MIPI_DSI_TOP_MEAS_STAT_TE0 and MIPI_DSI_TOP_MEAS_STAT_TE1, as below:
+// Measurement result is in MIPI_DSI_TOP_MEAS_STAT_TE0 and MIPI_DSI_TOP_MEAS_STAT_TE1, as below:
 // edpite_meas_count[47:0]: Number of reference clock cycles counted during one measure period (non-incremental measure), or
 //                          during all measure periods so far (incremental measure).
 // edpite_meas_count_n[3:0]:Number of measure periods has been done. Number can wrap over.
@@ -32709,7 +32709,7 @@
 // To measure Host's frame rate, we can use a reference clock to measure the duration of one of more Vsync pulse(s).
 // Measurement control is by register MIPI_DSI_TOP_MEAS_CNTL bit[19:10].
 // Reference clock comes from clk_rst_tst.cts_dsi_meas_clk, and is defined by HIU register HHI_VDIN_MEAS_CLK_CNTL bit[23:12].
-// Mesurement result is in MIPI_DSI_TOP_MEAS_STAT_VS0 and MIPI_DSI_TOP_MEAS_STAT_VS1, as below:
+// Measurement result is in MIPI_DSI_TOP_MEAS_STAT_VS0 and MIPI_DSI_TOP_MEAS_STAT_VS1, as below:
 // vsync_meas_count[47:0]:  Number of reference clock cycles counted during one measure period (non-incremental measure), or
 //                          during all measure periods so far (incremental measure).
 // vsync_meas_count_n[3:0]: Number of measure periods has been done. Number can wrap over.

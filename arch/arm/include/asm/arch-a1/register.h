@@ -959,7 +959,7 @@
 // -----------------------------------------------
 // APB_BASE:  APB2_BASE_ADDR = 0xfd000400
 // -----------------------------------------------
-//AHB domain regsiter.
+//AHB domain register.
 #define SPIFC_AHB_CTRL                             ((0x0000  << 2) + 0xfd000400)
   //bit 31   AHB BUS enable.  1 enable ahb request.  0: disable ahb request.
   //bit 30.  decerr_en for (AXI->AHB bridge).
@@ -1214,9 +1214,9 @@
 #define SPIFC_AHB_STS                              ((0x0029  << 2) + 0xfd000400)
   //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb frequent is holded.  0, ahb is still busy.
   //bit 30.  AHB data cycle status, when ahb disabled, to show ahb data cycle status. 1, data cycle is holded,  0 : not in data cycle or data cycle is processing.
-  //bit 29.  AHB bus spi requst status. 1: still waiting for spi data. 0: idle.
+  //bit 29.  AHB bus spi request status. 1: still waiting for spi data. 0: idle.
   //bit 28:0.  not used.
-//SPI cts_spi_clk domain regsiter.
+//SPI cts_spi_clk domain register.
 #define SPIFC_USER_CTRL0                           ((0x0080  << 2) + 0xfd000400)
   //bit 31.    user request enable.  write 1 to enable.  read 0, means user command accepted by the SPI_CTRL.
   //bit 30.    user request finish bit.  write 0 when enable user request.  read  1 means SPI_CTRL finished this user command.
@@ -1286,7 +1286,7 @@
   //bit 7:0     tWHSL
 #define SPIFC_ACTIMING1                            ((0x0089  << 2) + 0xfd000400)
  //bit 31.  D2 pin WP_n function enable.
- //bit 30.  D2 Pin value in WP_n fucntion.
+ //bit 30.  D2 Pin value in WP_n function.
  //bit 29.  D3 Pin HOLD_n function enable.
  //bit 8.   DTR mode. not support.
  //bit 6:4. Clock turn around delay. use it to set the system SPI clock read data delay.
@@ -1345,7 +1345,7 @@
   //7:4      PSRAM PHY register APB secure contrl.
              //bit 7,  1: no secure control.  0 : use bit 4 to match PPROT[0] bit.
              //bit 4.  when bit 7 == 0, bit 4 must match PPROT[0] to access.
-  //3:0      PCTL_CTRL APB bus control regsiters secure control.
+  //3:0      PCTL_CTRL APB bus control registers secure control.
              //bit 3,  1: no secure control.  0 : use bit 0 to match PPROT[0] bit.
              //bit 0.  when bit 3 == 0, bit 0 must match PPROT[0] to access.
 #define PSRAM_SEC_CTRL                             ((0x0004  << 2) + 0xfe007400)
@@ -1495,7 +1495,7 @@
 #define PSRAM_AXI_REQ_CTRL2                        ((0x0087  << 2) + 0xfe007400)
   //bit 31.  AXI  read request Dummy enable.
   //bit 30.  Check latency enable for WINBOND PSRAM flexible latency.
-  //bit 27:22.  clock cycles in dummy stage to eanble PSRAM PHY reading logic.
+  //bit 27:22.  clock cycles in dummy stage to enable PSRAM PHY reading logic.
   //bit 21:16.  axi_read dummy clock cycles number.
   //bit 15:0.   dummy data if output in dummy cycles.
 #define PSRAM_AXI_REQ_CTRL3                        ((0x0088  << 2) + 0xfe007400)
@@ -1892,7 +1892,7 @@
 //registers to check the security protection and watch point error information.
 #define DMC_DES_CTRL                               ((0x0020  << 2) + 0xfd021000)
  //bit 1 data describe enable.
- //bit 0  wirte 1 to block DES CTRL and DES PADDING read/write.
+ //bit 0  write 1 to block DES CTRL and DES PADDING read/write.
 #define DMC_DES_PADDING                            ((0x0021  << 2) + 0xfd021000)
 #define DMC_SEC_STATUS                             ((0x00b8  << 2) + 0xfd021000)
  //bit 31~2. not used.
@@ -1969,13 +1969,13 @@
      //others :  reserved.
 #define DMC_APB_SEC_CTRL                           ((0x00db  << 2) + 0xfd021000)
   //bit 19:16.  DMC normal APB register secure control.
-    //bit 19:  1:  all can write those register.  0:  the APB_PROT[0] must match the bit 16 to access those regsiter.
-    //Bit15:12.   DMC sticky APB regsiter secure control.
+    //bit 19:  1:  all can write those register.  0:  the APB_PROT[0] must match the bit 16 to access those register.
+    //Bit15:12.   DMC sticky APB register secure control.
     //bit 15.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 12 to access those register.
     //bit 11:8.   not used.
-    //Bit 7:4.   DMC DDR SDRAM protocal contorl register contorl
+    //Bit 7:4.   DMC DDR SDRAM protocal control register control
     //bit 11.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 4 to access those register.
-    //bit 3:0.   PHY APB regsiter secure control.
+    //bit 3:0.   PHY APB register secure control.
     //bit 3.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 0 to access those register.
 #define DMC_DDR_PHY_CTRL                           ((0x00bf  << 2) + 0xfd021000)
   //bit 4    PwrOkIn
@@ -2029,21 +2029,21 @@
 #define DMC_TEST_NUM                               ((0x00e3  << 2) + 0xfd021400)
    // how many test command for the test if the DMC_TEST_CTRL bit 24 is 0.
 #define DMC_TEST_WD0                               ((0x00e4  << 2) + 0xfd021400)
-   // write data 0 for write command. also for read back data comparision.
+   // write data 0 for write command. also for read back data comparison.
 #define DMC_TEST_WD1                               ((0x00e5  << 2) + 0xfd021400)
-   // write data 1 for write command. also for read back data comparision.
+   // write data 1 for write command. also for read back data comparison.
 #define DMC_TEST_WD2                               ((0x00e6  << 2) + 0xfd021400)
-   // write data 2 for write command. also for read back data comparision.
+   // write data 2 for write command. also for read back data comparison.
 #define DMC_TEST_WD3                               ((0x00e7  << 2) + 0xfd021400)
-   // write data 3 for write command. also for read back data comparision.
+   // write data 3 for write command. also for read back data comparison.
 #define DMC_TEST_WD4                               ((0x00e8  << 2) + 0xfd021400)
-   // write data 4 for write command. also for read back data comparision.
+   // write data 4 for write command. also for read back data comparison.
 #define DMC_TEST_WD5                               ((0x00e9  << 2) + 0xfd021400)
-   // write data 5 for write command. also for read back data comparision.
+   // write data 5 for write command. also for read back data comparison.
 #define DMC_TEST_WD6                               ((0x00ea  << 2) + 0xfd021400)
-   // write data 6 for write command. also for read back data comparision.
+   // write data 6 for write command. also for read back data comparison.
 #define DMC_TEST_WD7                               ((0x00eb  << 2) + 0xfd021400)
-   // write data 7 for write command. also for read back data comparision.
+   // write data 7 for write command. also for read back data comparison.
 #define DMC_TEST_RD0                               ((0x00ec  << 2) + 0xfd021400)
    // the read back data 0.  if error happens, it would capture the first error data.
 #define DMC_TEST_RD1                               ((0x00ed  << 2) + 0xfd021400)
@@ -2184,12 +2184,12 @@
   //bit 10  force to disable the clock of dfi command generation
   //bit 9   force to disable the clock of dram controller
   //bit 8   force to disable the clock of dfi data path.
-  //bit 7. force to disalbe the clock of write rsp generation.
-  //bit 6. force to disalbe the clock of read rsp generation.
-  //bit 5.  force to disalbe the clock of  command filter.
-  //bit 4.  force to disalbe the clock of  write reorder buffer.
-  //bit 3.  force to disalbe the clock of write data buffer.
-  //bit 2.  force to disalbe the clock of read reorder buffer.
+  //bit 7. force to disable the clock of write rsp generation.
+  //bit 6. force to disable the clock of read rsp generation.
+  //bit 5.  force to disable the clock of  command filter.
+  //bit 4.  force to disable the clock of  write reorder buffer.
+  //bit 3.  force to disable the clock of write data buffer.
+  //bit 2.  force to disable the clock of read reorder buffer.
   //bit 1.  reserved.
   //bit 0.  reserved.
 #define DMC_CHAN_STS                               ((0x0036  << 2) + 0xfd020000)
@@ -2347,7 +2347,7 @@
 #define DMC_DRAM_DFITPHYRDLAT                      ((0x0022  << 2) + 0xfd020400)
   //bit 5:0.  dfi_t_rdlat.
 #define DMC_DRAM_DFITCTRLUPDMIN                    ((0x0023  << 2) + 0xfd020400)
-  //bit 7:0.  CTRLUPD_MIN  minimux clock cycle to maintain CTRLUPD_REQ.
+  //bit 7:0.  CTRLUPD_MIN  minimum clock cycle to maintain CTRLUPD_REQ.
 #define DMC_DRAM_DFITCTRLUPDMAX                    ((0x0024  << 2) + 0xfd020400)
   //bit 7:0   CTRLUPD_MAX.  maxmum clock cycle to maintain CTRLUPD_REQ if no CTRLUPD_ACK response.
 #define DMC_DRAM_DFITMSTRRESP                      ((0x0025  << 2) + 0xfd020400)
@@ -2420,7 +2420,7 @@
  //bit 10    1: enable staggered chip select for 2 ranks DRAM.
  //bit 9     1: enable send auto refresh command to DDR SDRAM when PCTL is in CFG/STOP state.
  //bit 8     send auto refr cmd before enter register triggered  self refresh
- //bit 7     send auto refr cmd after exit regsiter triggered self refresh mode.
+ //bit 7     send auto refr cmd after exit register triggered self refresh mode.
  //bit 6     disable dram clock after enter register triggered self refresh.
  //bit 5     send DFI_LP_REQ to PHY after enter register triggered elf refresh mode.
  //bit 4     send DRAM to power down mode after enter self refresh. ONLY for LPDDR4.
@@ -2541,7 +2541,7 @@
   //bit 25:24 : retraining dfi_freq[4:3], the [2:0] bit still use the dfi_freq bits to keep the frequency.
   //bit 23:0: retraining period unit : 100ns.
 #define DMC_DFI_ERR_STAT                           ((0x0098  << 2) + 0xfd020400)
- //LPDDR4 PHY DFI error infomation.
+ //LPDDR4 PHY DFI error information.
  //bit 31:20. not used.
  //bit 9.    ddr0_dfi_error
  //bit 8:5   ddr0_dfi_error_info.

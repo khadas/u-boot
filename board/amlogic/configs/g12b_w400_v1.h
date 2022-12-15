@@ -36,7 +36,7 @@
 /*if use bt-wakeup,open it*/
 #define CONFIG_BT_WAKEUP
 #endif
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR        secondary_boot_func
 
 /* config saradc*/
@@ -404,7 +404,7 @@
  * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
  * will not be stored continuously, and nand layout
  * would be bl2|rsv|fip|normal, but not
- * bl2|fip|rsv|noraml anymore
+ * bl2|fip|rsv|normal anymore
  */
 #if 0
 #define CONFIG_DISCRETE_BOOTLOADER
