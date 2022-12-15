@@ -431,7 +431,7 @@ static void compose_ept(struct _iptbl *dtb, struct _iptbl *inh,
 	struct partitions *partition = NULL;
 	struct partitions *dst, *src, *prio;
 
-	/* overide inh info by dts */
+	/* override inh info by dts */
 	apt_info("dtb %p, inh %p, ept %p\n", dtb, inh, ept);
 	apt_info("ept->partitions %p\n", ept->partitions);
 	partition = ept->partitions;
@@ -875,8 +875,9 @@ static int _construct_ebr_1st_entry(struct _iptbl *p_iptbl,struct dos_partition 
 	p_ebr->boot_ind = 0x00;
 	p_ebr->sys_ind = 0x83;
 	/* Starting = relative offset between this EBR sector and the first sector of the logical partition
-	* the gap between two partition is a fixed value of PARTITION_RESERVED ,otherwise the emmc partiton
-	* is different with reserved */
+	* the gap between two partitions is a fixed value of PARTITION_RESERVED ,otherwise the emmc
+	* partitions is different with reserved
+	*/
 	start_offset = PARTITION_RESERVED >> 9;
 	/* Number of sectors = total count of sectors for this logical partition */
 	// logic_size = (p_iptbl->partitions[part_num].size) >> 9ULL;
@@ -919,7 +920,7 @@ static int _construct_mbr_entry(struct _iptbl *p_iptbl, struct dos_partition *p_
 	/* the entry is active or not */
 	p_entry->boot_ind = 0x00;
 
-	if (part_num == 3) {/* the logic partion entry */
+	if (part_num == 3) {/* the logic partition entry */
 		/* the entry type */
 		p_entry->sys_ind = 0x05;
 		start_offset = (p_iptbl->partitions[3].offset - PARTITION_RESERVED) >> 9;
@@ -928,7 +929,7 @@ static int _construct_mbr_entry(struct _iptbl *p_iptbl, struct dos_partition *p_
 
 		memcpy((unsigned char *)p_entry->start4, &start_offset, 4);
 		memcpy((unsigned char *)p_entry->size4, &extern_size, 4);
-	}else{/* the primary partion entry */
+	} else {/* the primary partition entry */
 		/* the entry type */
 		p_entry->sys_ind = 0x83;
 		start_offset = (p_iptbl->partitions[part_num].offset) >> 9;
@@ -1350,7 +1351,7 @@ int mmc_device_init (struct mmc *mmc)
 	} else
 		apt_wrn("get partition table from dtb failed\n");
 
-	/* try to get partiton table from rsv */
+	/* try to get table of partitions from rsv */
 	ret = _zalloc_iptbl(&p_iptbl_rsv);
 	if (ret)
 		goto _out;
@@ -1390,7 +1391,7 @@ int mmc_device_init (struct mmc *mmc)
 	/* 1st sector was reserved by romboot after gxl */
 	if (cpu_id.family_id >= MESON_CPU_MAJOR_ID_GXL) {
 		if (_check_ptbl_mbr(mmc, p_iptbl_ept)) {
-			/*fixme, comaptible for mbr&ebr */
+			/*fixme, compatible for mbr&ebr */
 			ret |= _update_ptbl_mbr(mmc, p_iptbl_ept);
 			apt_wrn("MBR Updated!\n");
 		}
