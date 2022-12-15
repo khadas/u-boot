@@ -412,6 +412,8 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	if (store_get_type() == BOOT_EMMC)
 		mmc = find_mmc_device(1);
 #endif
+	//unsupport update dt in boothal, update dt in uboot
+	run_command("update_dt;", 0);
 
 	bootloader_wp();
 

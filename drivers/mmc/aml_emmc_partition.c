@@ -784,6 +784,7 @@ static int _cmp_iptbl(struct _iptbl * dst, struct _iptbl * src)
 		srcp = &src->partitions[i];
 		ret = _cmp_partition(dstp, srcp, 0);
 		if (ret) {
+			env_set("part_changed", "1");
 			apt_err("partition %d has changed\n", i);
 			break;
 		}
