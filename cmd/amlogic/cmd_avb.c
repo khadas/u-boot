@@ -256,9 +256,9 @@ static AvbIOResult get_size_of_partition(AvbOps *ops, const char *partition,
 		if (!strcmp(partition, "recovery_a") ||
 				!strcmp(partition, "recovery_b") ||
 				!strcmp(partition, "recovery"))
-			rc = store_part_size("recovery");
+			rc = store_logic_cap("recovery");
 		else
-			rc = store_part_size(partition);
+			rc = store_logic_cap(partition);
 		if (rc == 1) {
 			printf("Failed to get partition[%s] size\n", partition);
 			return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
