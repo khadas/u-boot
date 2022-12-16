@@ -82,6 +82,11 @@
 		clocks = <&wifi32k>;
 		clock-names = "ext_clock";
 	};
+
+	tee: tee {
+		compatible = "linaro,optee-tz";
+		method = "smc";
+	};
 };
 
 &ir {
