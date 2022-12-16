@@ -497,6 +497,7 @@ struct lcd_ext_attr_s {
 struct panel_misc_s {
 	char version[8];
 	char outputmode[64];
+	char connector_type[64];
 	unsigned char panel_reverse;
 };
 

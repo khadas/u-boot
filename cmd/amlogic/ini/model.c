@@ -2437,6 +2437,19 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 		run_command(buf, 0);
 	}
 
+	ini_value = IniGetString("panel_misc", "connector_type", "null");
+	if (model_debug_flag & DEBUG_MISC)
+		ALOGD("%s, connector_type is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null")) {
+		strncpy(p_misc->connector_type, ini_value,
+			sizeof(p_misc->connector_type) - 1);
+		p_misc->connector_type[sizeof(p_misc->connector_type) - 1] = '\0';
+		snprintf(buf, 63, "setenv connector_type %s", p_misc->connector_type);
+		run_command(buf, 0);
+	} else {
+		run_command("setenv connector_type null", 0);
+	}
+
 	ini_value = IniGetString("panel_misc", "panel_reverse", "null");
 	if (model_debug_flag & DEBUG_MISC)
 		ALOGD("%s, panel_reverse is (%s)\n", __func__, ini_value);
