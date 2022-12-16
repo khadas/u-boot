@@ -793,7 +793,7 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/*
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not
-	 * have a header that provide this informaiton.
+	 * have a header that provide this information.
 	 */
 	if (bootm_find_ramdisk_fdt(flag, argc, argv))
 		return 1;
@@ -934,7 +934,7 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/*
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not
-	 * have a header that provide this informaiton.
+	 * have a header that provide this information.
 	 */
 	if (bootm_find_ramdisk_fdt(flag, argc, argv))
 		return 1;

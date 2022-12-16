@@ -148,7 +148,7 @@ static void serial_reset_port(unsigned long port_base) {
 }
 
 /*
- * Intialise the serial port with given baudrate
+ * Initialise the serial port with given baudrate
  */
 
 static int serial_init_port (unsigned long port_base)

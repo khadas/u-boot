@@ -715,7 +715,7 @@ unsigned int cec_handler(void)
 
 	 case TX_IDLE:
 		s_idx = cec_tx_msgs.send_idx;
-		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // triggle tx if idle
+		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // trigger tx if idle
 			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		}
@@ -859,7 +859,7 @@ void cec_node_init(void)
 		regist_devs |= (1 << i);
 		retry += (4 - (retry & 0x03));
 		if (regist_devs == 0x07) {
-			// No avilable logical address
+			// No available logical address
 			cec_msg.log_addr = 0x0f;
 			cec_wr_reg(CEC_LOGICAL_ADDR0, (0x1 << 4) | 0xf);
 			uart_puts("CEC allocate logic address failed\n");

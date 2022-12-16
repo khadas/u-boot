@@ -791,7 +791,7 @@ static void dwc_otg_pcd_handle_out_ep_intr(void)
 			if (doepint.b.ahberr) {
 				CLEAR_OUT_EP_INTR(epnum, ahberr);
 			}
-			/* Setup Phase Done (contorl EPs) */
+			/* Setup Phase Done (control EPs) */
 			if (doepint.b.setup) {
 #if (defined CONFIG_USB_DEVICE_V2)
 				handle_ep0();

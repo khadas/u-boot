@@ -286,7 +286,7 @@ static char efuse_help_text[] =
 	"                  [item_read sensor/saradc/mipicsi/hdmirx/eth/cvbs]\n"
 	"  [check]      -check if pattern is write\n"
 	"                  [check dgpk1|dgpk2|aud_id]\n"
-	"  [read/wirte]  - read or write 'size' data from\n"
+	"  [read/write]  - read or write 'size' data from\n"
 	"                  'offset' from efuse user data ;\n"
 	"  [offset]      - the offset byte from the beginning\n"
 	"                  of efuse user data zone;\n"

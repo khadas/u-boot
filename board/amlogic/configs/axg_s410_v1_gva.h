@@ -380,7 +380,7 @@
  * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
  * will not be stored continuously, and nand layout
  * would be bl2|rsv|fip|normal, but not
- * bl2|fip|rsv|noraml anymore
+ * bl2|fip|rsv|normal anymore
  */
 #define CONFIG_DISCRETE_BOOTLOADER
 
@@ -395,7 +395,7 @@
 #define CONFIG_CMD_NAND 1
 #define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
-#define CONFIFG_AML_MTDPART	1
+#define CONFIG_AML_MTDPART	1
 /* mtd parts by env default way.*/
 /*
 #define MTDIDS_NAME_STR		"aml_nand.0"

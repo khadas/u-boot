@@ -491,7 +491,7 @@
  * when DISCRETE_BOOTLOADER is enabled, bl2 & fip
  * will not be stored continuously, and nand layout
  * would be bl2|rsv|fip|normal, but not
- * bl2|fip|rsv|noraml anymore
+ * bl2|fip|rsv|normal anymore
  */
 #define CONFIG_DISCRETE_BOOTLOADER
 

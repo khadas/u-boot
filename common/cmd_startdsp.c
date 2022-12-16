@@ -98,7 +98,7 @@ void start_dsp(uint32_t id,uint32_t reset_addr)
 		init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2),(6 << 12)|(1<<6),(1<<14)|(1<<15)|(1<<1)|(1<<3)|(1<<2)|(1<<0)|(1<<31)|(1<<7));
 		//init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2),(6 << 12)|(1<<6),(1<<14)|(1<<15)|(1<<1)|(1<<3)|(1<<2)|(1<<0)|(1<<31)|(1<<6));
 		//init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2),0,0);
-		printf("dspa jtag enalble \n");
+		printf("dspa jtag enable \n");
 		_udelay(50);
 		//init_dsp(id,reset_addr, (0x1 |  StatVectorSel<<1 | strobe<<2),(6 << 12),);
 		printf("\n *P_DSP_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSP_CFG0,*P_DSP_CFG0);
@@ -116,7 +116,7 @@ void start_dsp(uint32_t id,uint32_t reset_addr)
 		printf("\n *P_DSP_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSP_CFG0,*P_DSP_CFG0);
 	} else {
 		init_dsp(id,reset_addr, (0x1 | StatVectorSel<<1 | strobe<<2),(7 << 12)|(1<<7),(1<<14)|(1<<15)|(1<<1)|(1<<3)|(1<<2)|(1<<0)|(1<<7)|(1<<31));
-		printf("dspb jtag enalble \n");
+		printf("dspb jtag enable \n");
 		_udelay(500);
 		printf("\n *P_DSPB_CFG0 : ADDR_0X%p, value_0x%8x \n",P_DSPB_CFG0,*P_DSPB_CFG0);
 		// *P_DSPB_CFG0 = (*P_DSPB_CFG0 & ~((1<<31) | (1<<30) | (0xffff <<0)) ) | (1<<29) | (1<<0); //15:0 prid

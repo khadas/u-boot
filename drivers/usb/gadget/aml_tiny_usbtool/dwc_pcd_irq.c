@@ -846,7 +846,7 @@ do { \
                             DBG("EP%d OUT AHB Error\n", epnum);
 				CLEAR_OUT_EP_INTR(epnum,ahberr);
                     }
-                    /* Setup Phase Done (contorl EPs) */
+                    /* Setup Phase Done (control EPs) */
                     if ( doepint.b.setup ) {
                             handle_ep0( 0 );
 				CLEAR_OUT_EP_INTR(epnum,setup);

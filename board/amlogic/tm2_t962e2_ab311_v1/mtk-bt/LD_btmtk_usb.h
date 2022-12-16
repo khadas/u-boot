@@ -71,7 +71,7 @@ struct apcf_cmd_tlv {
 };
 
 struct LD_btmtk_usb_data {
-	mtkbt_dev_t *udev;	/* store the usb device informaiton */
+	mtkbt_dev_t *udev;	/* store the usb device information */
 
 	unsigned long flags;
 	int meta_tx;

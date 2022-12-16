@@ -1289,7 +1289,7 @@ typedef union doepint_data {
 		unsigned epdisabled:1;
 		/** AHB Error */
 		unsigned ahberr:1;
-		/** Setup Phase Done (contorl EPs) */
+		/** Setup Phase Done (control EPs) */
 		unsigned setup:1;
 		/** OUT Token Received when Endpoint Disabled */
 		unsigned outtknepdis:1;

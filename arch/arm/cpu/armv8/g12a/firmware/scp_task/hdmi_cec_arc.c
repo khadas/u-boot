@@ -371,7 +371,7 @@ static int cec_queue_tx_msg(unsigned char *msg, unsigned char len)
 	return 0;
 }
 
-static int cec_triggle_tx(unsigned char *msg, unsigned char len)
+static int cec_trigger_tx(unsigned char *msg, unsigned char len)
 {
 	int i;
 
@@ -393,7 +393,7 @@ static int cec_triggle_tx(unsigned char *msg, unsigned char len)
 static int remote_cec_ll_tx(unsigned char *msg, unsigned char len)
 {
 	cec_queue_tx_msg(msg, len);
-	cec_triggle_tx(msg, len);
+	cec_trigger_tx(msg, len);
 
 	return 0;
 }
@@ -405,7 +405,7 @@ static int ping_cec_ll_tx(unsigned char *msg, unsigned char len)
 	unsigned int n = 800;
 	unsigned int reg;
 
-	cec_triggle_tx(msg, len);
+	cec_trigger_tx(msg, len);
 
 	while (cec_rd_reg(CEC_TX_MSG_STATUS) == TX_BUSY) {
 		/*
@@ -892,7 +892,7 @@ unsigned int cec_handler(void)
 		s_idx = cec_tx_msgs.send_idx;
 		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) {
 			cec_dbg_prints("TX_OK\n");
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		} else {
 			cec_dbg_prints("TX_END\n");
@@ -910,7 +910,7 @@ unsigned int cec_handler(void)
 			s_idx = cec_tx_msgs.send_idx;
 			if (cec_tx_msgs.msg[s_idx].retry < 5) {
 				cec_tx_msgs.msg[s_idx].retry++;
-				cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+				cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 					       cec_tx_msgs.msg[s_idx].len);
 			} else {
 				cec_dbg_prints("TX retry too much, abort msg\n");
@@ -922,8 +922,8 @@ unsigned int cec_handler(void)
 
 	 case TX_IDLE:
 		s_idx = cec_tx_msgs.send_idx;
-		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // triggle tx if idle
-			cec_triggle_tx(cec_tx_msgs.msg[s_idx].buf,
+		if (cec_tx_msgs.send_idx != cec_tx_msgs.queue_idx) { // trigger tx if idle
+			cec_trigger_tx(cec_tx_msgs.msg[s_idx].buf,
 				       cec_tx_msgs.msg[s_idx].len);
 		}
 		busy_count = 0;
@@ -1060,7 +1060,7 @@ void cec_node_init(void)
 		regist_devs |= (1 << i);
 		retry += (4 - (retry & 0x03));
 		if (regist_devs == 0x07) {
-			/* No avilable logical address */
+			/* No available logical address */
 			cec_msg.log_addr = 0x0f;
 			cec_set_log_addr(15);
 			uart_puts("CEC allocate logic address failed\n");

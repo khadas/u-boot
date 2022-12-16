@@ -1395,7 +1395,7 @@
 #define     NDMA_SHA_MSG_IN                                    (0xc8832000 + (0x9d << 2))
 #define SEC_NDMA_SHA_MSG_IN                                    (0xda832000 + (0x9d << 2))
 #define   P_NDMA_SHA_MSG_IN                                    (volatile uint32_t *)(0xc8832000 + (0x9d << 2))
-// Non-secure SHA Datalenth In writes
+// Non-secure SHA Datalength In writes
 #define     NDMA_SHA_DATALEN_IN                                (0xc8832000 + (0x9e << 2))
 #define SEC_NDMA_SHA_DATALEN_IN                                (0xda832000 + (0x9e << 2))
 #define   P_NDMA_SHA_DATALEN_IN                                (volatile uint32_t *)(0xc8832000 + (0x9e << 2))
