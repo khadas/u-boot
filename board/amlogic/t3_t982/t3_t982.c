@@ -188,6 +188,7 @@ int board_late_init(void)
 
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+	run_command("run bcb_cmd", 0);
 	board_init_mem();
 
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
