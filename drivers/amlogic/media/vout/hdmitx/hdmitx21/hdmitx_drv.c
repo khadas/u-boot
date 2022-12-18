@@ -884,10 +884,23 @@ bool is_hdmi_mode(char *mode)
 {
 	int i;
 	bool ret = false;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	if (!mode)
 		return false;
 
+	/* check hdmi mode for S5 */
+	if (hdev->chip_type >= MESON_CPU_ID_S5) {
+		const struct hdmi_timing *timing = NULL;
+
+		timing = hdmitx21_gettiming_from_name(mode);
+		if (timing)
+			return true;
+		else
+			return false;
+	}
+
+	/* check hdmi mode for t7 */
 	for (i = 0; i < ARRAY_SIZE(gxbb_modes); i++) {
 		if (!strcmp(mode, gxbb_modes[i].sname)) {
 			ret = true;
