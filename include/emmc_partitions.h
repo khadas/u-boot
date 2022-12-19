@@ -300,6 +300,7 @@ struct partitions *aml_get_partition_by_name(const char *name);
 int mmc_boot_size(char *name, uint64_t* size);
 struct virtual_partition *aml_get_virtual_partition_by_name(const char *name);
 bool aml_is_emmc_tsd (struct mmc *mmc);
+int check_gpt_change(struct blk_desc *dev_desc, void *buf);
 int mmc_device_init (struct mmc *mmc);
 int get_ept_from_gpt(struct mmc *mmc);
 

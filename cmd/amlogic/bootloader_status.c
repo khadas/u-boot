@@ -14,6 +14,7 @@
 #include <emmc_partitions.h>
 #include <asm/arch/efuse.h>
 #include <amlogic/aml_rollback.h>
+#include <part.h>
 
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
@@ -354,12 +355,16 @@ void update_rollback(void)
 	}
 	env_set("update_env", "1");
 	env_set("reboot_status", "reboot_next");
+	env_set("update_dts_gpt", "0");
+	env_set("write_boot", "0");
+	run_command("saveenv", 0);
+	run_command("reset", 0);
 }
 
 static int write_boot0(void)
 {
 	unsigned char *buffer = NULL;
-	int capacity_boot = 0;
+	int capacity_boot = 0x2000 * 512;
 	int iRet = 0;
 	char partname[32] = {0};
 	char *slot_name = NULL;
@@ -373,6 +378,7 @@ static int write_boot0(void)
 	if (mmc)
 		capacity_boot = mmc->capacity_boot;
 #endif
+
 	printf("capacity_boot: 0x%x\n", capacity_boot);
 	buffer = (unsigned char *)malloc(capacity_boot);
 	if (!buffer) {
@@ -391,15 +397,131 @@ static int write_boot0(void)
 	if (iRet) {
 		errorP("Fail to read 0x%xB from part[%s] at offset 0\n",
 					BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, partname);
+		free(buffer);
 		return -1;
 	}
 
 	iRet = store_boot_write("bootloader", 0, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
 	if (iRet) {
 		printf("Failed to write boot0\n");
+		free(buffer);
 		return -1;
 	}
+
+	free(buffer);
 	return 0;
+}
+
+static int update_gpt(int flag)
+{
+	int ret = 0;
+#ifdef CONFIG_MMC_MESON_GX
+	unsigned char *buffer = NULL;
+	int capacity_boot = 0x2000 * 512;
+	int iRet = 0;
+	struct mmc *mmc = NULL;
+	struct blk_desc *dev_desc;
+
+	if (store_get_type() == BOOT_EMMC)
+		mmc = find_mmc_device(1);
+
+	if (mmc)
+		capacity_boot = mmc->capacity_boot;
+
+	printf("capacity_boot: 0x%x\n", capacity_boot);
+	buffer = (unsigned char *)malloc(capacity_boot);
+	if (!buffer) {
+		printf("ERROR! fail to allocate memory ...\n");
+		return -1;
+	}
+	memset(buffer, 0, capacity_boot);
+
+	iRet = store_boot_read("bootloader", 0, 0, buffer);
+	if (iRet) {
+		printf("Failed to read boot0\n");
+		ret = -1;
+		goto exit;
+	}
+
+	if (mmc) {
+		printf("try to read gpt data from bootloader.img\n");
+		int erase_flag = 0;
+
+		dev_desc = blk_get_dev("mmc", 1);
+		if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
+			printf("invalid mmc device\n");
+			ret = -1;
+			goto exit;
+		}
+
+		if (flag == 1) {
+			printf("update from dts to gpt, erase first\n");
+			erase_gpt_part_table(dev_desc);
+		}
+
+		if (is_valid_gpt_buf(dev_desc, buffer + 0x3DFE00)) {
+			printf("printf normal bootloader.img, no gpt partition table\n");
+		} else {
+			erase_flag = check_gpt_change(dev_desc, buffer + 0x3DFE00);
+
+			if (erase_flag == 3) {
+				printf("Important partition changes, refused to upgrade\n");
+				ret = 1;
+				goto exit;
+			}
+
+			if (write_mbr_and_gpt_partitions(dev_desc, buffer + 0x3DFE00)) {
+				printf("%s: writing GPT partitions failed\n", __func__);
+				ret = 1;
+				goto exit;
+			}
+
+			if (mmc_device_init(mmc) != 0) {
+				printf(" update gpt partition table fail\n");
+				ret = 2;
+				goto exit;
+			}
+			printf("%s: writing GPT partitions ok\n", __func__);
+		}
+	}
+
+	if (flag == 1) {
+		printf("update from dts to gpt, resave boot0/boot1\n");
+		iRet = write_bootloader_back("1", 2);
+		if (iRet != 0) {
+			printf("Failed to write boot1\n");
+			ret = 3;
+			goto exit;
+		}
+		iRet = store_boot_write("bootloader", 1, 0, buffer);
+		if (iRet) {
+			printf("Failed to write boot0\n");
+			ret = 4;
+			goto exit;
+		}
+	}
+
+exit:
+	if (buffer)
+		free(buffer);
+
+	if (mmc && ret > 0) {
+		dev_desc = blk_get_dev("mmc", 1);
+		if (dev_desc && dev_desc->type != DEV_TYPE_UNKNOWN) {
+			printf("valid mmc device, erase gpt\n");
+			erase_gpt_part_table(dev_desc);
+		}
+		if (ret == 1 || ret == 2 || ret == 3) {
+			printf("rollback\n");
+			update_rollback();
+		} else if (ret == 4) {
+			printf("write back boot0, rollback\n");
+			write_bootloader_back("2", 1);
+			update_rollback();
+		}
+	}
+#endif
+	return ret;
 }
 
 static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
@@ -444,24 +566,6 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	}
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
 
-	char *write_boot = env_get("write_boot");
-
-	if (!strcmp(write_boot, "1")) {
-		printf("need to write boot0\n");
-		if (write_boot0()) {
-			printf("write boot0 fail, need to rollback!\n");
-			update_rollback();
-		} else {
-			printf("write boot0 success, need to reset!\n");
-		}
-
-		env_set("write_boot", "0");
-		env_set("reboot_status", "reboot_next");
-		env_set("expect_index", "1");
-		env_set("update_env", "1");
-		run_command("saveenv", 0);
-		run_command("reset", 0);
-	}
 	run_command("get_rebootmode", 0);
 	rebootmode = env_get("reboot_mode");
 	if (!rebootmode) {
@@ -572,6 +676,43 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		wrnP("can not get bootloader index, so skip secure check\n");
 		return -1;
 	}
+
+	char *write_boot = env_get("write_boot");
+	int rc = 0;
+	int update_flag = -1;
+	char *update_dts_gpt = NULL;
+
+	if (!strcmp(write_boot, "1")) {
+		printf("need to write boot0\n");
+		rc = write_boot0();
+		if (rc) {
+			printf("write boot0 fail, need to rollback!\n");
+			update_rollback();
+		} else {
+			update_flag = update_gpt(0);
+			printf("write boot0 success, need to reset!\n");
+		}
+	}
+
+	update_dts_gpt = env_get("update_dts_gpt");
+
+	if (rc == 0 && update_dts_gpt && !strcmp(update_dts_gpt, "1")) {
+		printf("update from dts to gpt\n");
+		update_flag = update_gpt(1);
+		env_set("update_dts_gpt", "0");
+		run_command("saveenv", 0);
+	}
+
+	if (!strcmp(write_boot, "1") || (update_flag != -1)) {
+		printf("reset......\n");
+		env_set("write_boot", "0");
+		env_set("reboot_status", "reboot_next");
+		env_set("expect_index", "1");
+		env_set("update_env", "1");
+		run_command("saveenv", 0);
+		run_command("reset", 0);
+	}
+
 /*
 #ifdef CONFIG_MMC_MESON_GX
 	if (mmc) {

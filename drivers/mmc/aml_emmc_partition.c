@@ -1126,6 +1126,166 @@ static __attribute__((unused)) int _update_ptbl_mbr(struct mmc *mmc, struct _ipt
 	return ret;
 }
 
+typedef struct PartList {
+	char name[128];
+	uint64_t old_offset;
+	uint64_t old_size;
+	uint64_t new_offset;
+	uint64_t new_size;
+	struct PartList *next;
+} __packed PartList;
+
+int check_gpt_change(struct blk_desc *dev_desc, void *buf)
+{
+	int i, k;
+	gpt_header *gpt_h;
+	gpt_entry *gpt_e;
+	u32 calc_crc32;
+	u32 entries_num;
+	size_t efiname_len;
+	int ret = 0;
+	bool alternate_flag = false;
+	int j = 0;
+	PartList *tail = NULL;
+	PartList *node = NULL;
+	PartList *list_part = NULL;
+	PartList *part_node = NULL;
+	int ishead = 0;
+
+	struct partitions *partitions = p_iptbl_ept->partitions;
+	int parts_num = p_iptbl_ept->count;
+	uint64_t offset;
+	uint64_t size;
+	char name[PARTNAME_SZ];
+	char *update_dts_gpt = NULL;
+
+	update_dts_gpt = env_get("update_dts_gpt");
+
+	if (is_valid_gpt_buf(dev_desc, buf))
+		return -1;
+
+	gpt_h = buf + (GPT_PRIMARY_PARTITION_TABLE_LBA *
+			dev_desc->blksz);
+
+	/* determine start of GPT Entries in the buffer */
+	gpt_e = buf + (le64_to_cpu(gpt_h->partition_entry_lba) *
+			dev_desc->blksz);
+	entries_num = le32_to_cpu(gpt_h->num_partition_entries);
+
+	if (le64_to_cpu(gpt_h->alternate_lba) > dev_desc->lba ||
+		le64_to_cpu(gpt_h->alternate_lba) == 0) {
+		printf("GPT: alternate_lba: %llX, " LBAF ", reset it\n",
+		       le64_to_cpu(gpt_h->alternate_lba), dev_desc->lba);
+		gpt_h->alternate_lba = cpu_to_le64(dev_desc->lba - 1);
+		alternate_flag = true;
+	}
+
+	if (le64_to_cpu(gpt_h->last_usable_lba) > dev_desc->lba) {
+		printf("GPT: last_usable_lba incorrect: %llX > " LBAF ", reset it\n",
+		       le64_to_cpu(gpt_h->last_usable_lba), dev_desc->lba);
+		if (alternate_flag)
+			gpt_h->last_usable_lba = cpu_to_le64(dev_desc->lba - 34);
+		else
+			gpt_h->last_usable_lba = cpu_to_le64(dev_desc->lba - 1);
+	}
+
+	for (i = 0; i < entries_num; i++) {
+#if (ADD_LAST_PARTITION)
+		if (i == entries_num - 1) {
+			gpt_e[i - 1].ending_lba -= gpt_e[i].ending_lba + le64_to_cpu(gap) + 1;
+			gpt_e[i].starting_lba = gpt_e[i - 1].ending_lba + le64_to_cpu(gap) + 1;
+			gpt_e[i].ending_lba = gpt_h->last_usable_lba;
+		}
+
+#endif
+		if (le64_to_cpu(gpt_e[i].ending_lba) > gpt_h->last_usable_lba) {
+			printf("gpt_e[%d].ending_lba: %llX > %llX, reset it\n",
+			i, le64_to_cpu(gpt_e[i].ending_lba), le64_to_cpu(gpt_h->last_usable_lba));
+			if (alternate_flag)
+				gpt_e[i].ending_lba = ((gpt_h->last_usable_lba >> 12) << 12) - 1;
+			else
+				gpt_e[i].ending_lba = gpt_h->last_usable_lba;
+			printf("gpt_e[%d].ending_lba: %llX\n", i, gpt_e[i].ending_lba);
+		}
+	}
+
+	calc_crc32 = crc32(0, (const unsigned char *)gpt_e,
+			entries_num * le32_to_cpu(gpt_h->sizeof_partition_entry));
+	gpt_h->partition_entry_array_crc32 = calc_crc32;
+	gpt_h->header_crc32 = 0;
+	calc_crc32 = crc32(0, (const unsigned char *)gpt_h,
+	le32_to_cpu(gpt_h->header_size));
+	gpt_h->header_crc32 = calc_crc32;
+
+	if (update_dts_gpt) {
+		printf("update_dts_gpt is %s\n", update_dts_gpt);
+		j = 1;
+	}
+
+	node = malloc(sizeof(PartList));
+
+	for (; j < parts_num; j++) {
+		if (node && partitions[j].size != 0 &&
+				(strcmp(partitions[j].name, "rsv") != 0)) {
+			strcpy(node->name, partitions[j].name);
+			node->old_offset = partitions[j].offset;
+			node->old_size = partitions[j].size;
+			if (ishead == 0) {
+				list_part = node;
+				list_part->next = NULL;
+				tail = node;
+				ishead = -1;
+			} else {
+				tail->next = node;
+				tail = node;
+			}
+		}
+	}
+
+	if (tail)
+		tail->next = NULL;
+
+	for (i = 0; i < entries_num; i++) {
+		/* partition name */
+		efiname_len = sizeof(gpt_e[i].partition_name)
+			/ sizeof(efi_char16_t);
+
+		memset(name, 0, PARTNAME_SZ);
+		for (k = 0; k < efiname_len; k++)
+			name[k] = (char)gpt_e[i].partition_name[k];
+
+		part_node = list_part;
+
+		while (part_node) {
+			if (strcmp(part_node->name, name) == 0) {
+				offset = le64_to_cpu(gpt_e[i].starting_lba << 9ULL);
+				size = ((le64_to_cpu(gpt_e[i].ending_lba) + 1) -
+					le64_to_cpu(gpt_e[i].starting_lba)) << 9ULL;
+				part_node->new_offset = offset;
+				part_node->new_size = size;
+
+				if (part_node->old_offset != part_node->new_offset ||
+						part_node->old_size != part_node->new_size) {
+					printf("%s offset/size had been changed\n",
+							part_node->name);
+					printf("offset: %016llx --> %016llx\n",
+							part_node->old_offset,
+							part_node->new_offset);
+					printf("size: %016llx --> %016llx\n",
+							part_node->old_size, part_node->new_size);
+					ret = 3;
+				}
+			}
+			part_node = part_node->next;
+		}
+	}
+
+	if (node)
+		free(node);
+
+	return ret;
+}
+
 int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 {
 	int i, k;
