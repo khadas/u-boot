@@ -6,7 +6,7 @@
 #ifndef _MESON_PINCTRL_INIT_H_
 #define _MESON_PINCTRL_INIT_H_
 
-#define PIN_CONTROLLER_NUM 3
+#define PIN_CONTROLLER_NUM 4
 int pinctrl_devices_active(int pinctrl_num);
 
 #endif /* _MESON_PINCTRL_INIT_H_ */

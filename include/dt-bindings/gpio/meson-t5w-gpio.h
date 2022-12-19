@@ -11,6 +11,9 @@
 #define	CVBS0			1
 #define	CVBS1			2
 
+/* TEST_N Bank */
+#define	GPIO_TEST_N		0
+
 /* AO Bank */
 #define	GPIOD_0			0
 #define	GPIOD_1			1

@@ -107,6 +107,22 @@
 		};
 	};
 
+	pinctrl_test: pinctrl@ff80035c {
+		compatible = "amlogic,meson-t5w-testn-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio_test: test-bank@ff80035c {
+			reg = <0x0 0xff80035c 0x0 0x4>,
+					<0x0 0xff80035c 0x0 0x4>;
+			reg-names = "mux", "gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_test 0 0 1>;
+		};
+	};
+
 	i2c_gpio_0: i2c-gpio-0 {
 		#address-cells = <1>;
 		#size-cells = <0>;

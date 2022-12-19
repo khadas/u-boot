@@ -25,6 +25,18 @@ static struct meson_pmx_func meson_t5w_analog_functions[] = {
 	FUNCTION(gpio_analog)
 };
 
+static struct meson_pmx_group meson_t5w_testn_groups[] = {
+	GPIO_GROUP(GPIO_TEST_N),
+};
+
+static const char * const gpio_testn_groups[] = {
+	"GPIO_TEST_N"
+};
+
+static struct meson_pmx_func meson_t5w_testn_functions[] = {
+	FUNCTION(gpio_testn)
+};
+
 /* D func 1*/
 static const unsigned int uart_ao_b_tx_pins[]		= { GPIOD_0 };
 static const unsigned int uart_ao_b_rx_pins[]		= { GPIOD_1 };
@@ -1558,6 +1570,22 @@ static struct meson_pmx_bank meson_t5w_analog_pmx_banks[] = {
 	BANK_PMX("ANALOG", CDAC_IOUT, CVBS1, 0x0, 29)
 };
 
+static struct meson_bank meson_t5w_testn_banks[] = {
+	/* name  first  last  pullen  pull  dir  out  in */
+	BANK("GPIO_TEST_N",  GPIO_TEST_N,  GPIO_TEST_N,
+	     0,  5,  0,  4,  0,  6,  0, 31,  0,  30)
+};
+
+static struct meson_pmx_bank meson_t5w_testn_pmx_banks[] = {
+	/*	 name	 first		last	   reg	offset  */
+	BANK_PMX("TEST_N", GPIO_TEST_N, GPIO_TEST_N, 0x0, 8)
+};
+
+static struct meson_axg_pmx_data meson_t5w_testn_pmx_banks_data = {
+	.pmx_banks	= meson_t5w_testn_pmx_banks,
+	.num_pmx_banks	= ARRAY_SIZE(meson_t5w_testn_pmx_banks),
+};
+
 static struct meson_axg_pmx_data meson_t5w_analog_pmx_banks_data = {
 	.pmx_banks	= meson_t5w_analog_pmx_banks,
 	.num_pmx_banks	= ARRAY_SIZE(meson_t5w_analog_pmx_banks),
@@ -1655,6 +1683,18 @@ static struct meson_pinctrl_data meson_t5w_analog_pinctrl_data = {
 	.pmx_data	= &meson_t5w_analog_pmx_banks_data,
 };
 
+static struct meson_pinctrl_data meson_t5w_testn_pinctrl_data = {
+	.name		= "test-banks",
+	.groups		= meson_t5w_testn_groups,
+	.funcs		= meson_t5w_testn_functions,
+	.banks		= meson_t5w_testn_banks,
+	.num_pins	= 1,
+	.num_groups	= ARRAY_SIZE(meson_t5w_testn_groups),
+	.num_funcs	= ARRAY_SIZE(meson_t5w_testn_functions),
+	.num_banks	= ARRAY_SIZE(meson_t5w_testn_banks),
+	.pmx_data	= &meson_t5w_testn_pmx_banks_data,
+};
+
 static const struct udevice_id meson_t5w_pinctrl_match[] = {
 	{
 		.compatible = "amlogic,meson-t5w-periphs-pinctrl",
@@ -1667,6 +1707,10 @@ static const struct udevice_id meson_t5w_pinctrl_match[] = {
 	{
 		.compatible = "amlogic,meson-t5w-analog-pinctrl",
 		.data = (ulong)&meson_t5w_analog_pinctrl_data,
+	},
+	{
+		.compatible = "amlogic,meson-t5w-testn-pinctrl",
+		.data = (ulong)&meson_t5w_testn_pinctrl_data,
 	},
 	{ }
 };
