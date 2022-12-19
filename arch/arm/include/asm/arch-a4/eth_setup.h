@@ -32,7 +32,7 @@ struct eth_board_socket {
 #define ETH_PLL_CNTL_DIVEN                      (1 << 0)
 #define ETH_PLL_CNTL_MACSPD                     (1 << 1)
 #define ETH_PLL_CNTL_DATEND                     (1 << 2)
-#define ETH_PLL_CNTL_DESEND                     (1 << 3)
+#define ETH_PLL_CNTL_DESCEND                     (1 << 3)
 
 /*
  *please refer following doc for detail
@@ -88,8 +88,6 @@ typedef union eth_aml_reg0 {
 	unsigned eth_urgent:1;
 		} b;
 } eth_aml_reg0_t;
-
-#define ETH_VALIDE_CLKSRC(clk, out_clk) (((clk) % (out_clk))==0)
 
 int  eth_clk_set(int selectclk, unsigned long clk_freq, unsigned long out_clk);
 
