@@ -89,9 +89,17 @@ static inline int str2longlong(char *p, u64 *num)
 	if (*endptr != '\0') {
 		switch (*endptr) {
 		case 'g':
+		/*
+		 * Falling through in this case.
+		 */
+		/* coverity[event_tag:unterminated_case] */
 		case 'G':
 			*num <<= 10;
 		case 'm':
+		/*
+		 * Falling through in this case.
+		 */
+		/* coverity[event_tag:unterminated_case] */
 		case 'M':
 			*num <<= 10;
 		case 'k':
