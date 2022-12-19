@@ -491,7 +491,7 @@ dptx_edid_dump_retry:
 		free(str);
 	}
 
-	dptx_edid_phrase(edid_buf, &edp_edid);
+	dptx_edid_parse(edid_buf, &edp_edid);
 	dptx_edid_print(&edp_edid);
 
 	free(edid_buf);
@@ -559,7 +559,7 @@ dptx_edid_timing_probe_retry:
 	if ((edp_cfg->edid_state & EDP_EDID_STATE_APPLY) == 0) {
 		if (edp_cfg->edid_retry_cnt++ > EDP_EDID_RETRY_MAX)
 			return -1;
-		dptx_edid_phrase(edid_buf, &edp_edid);
+		dptx_edid_parse(edid_buf, &edp_edid);
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			dptx_edid_print(&edp_edid);
 		edp_edid_timing_update(pdrv, &edp_edid);
