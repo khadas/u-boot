@@ -1276,7 +1276,7 @@ int aml_lcd_driver_prbs(int index, unsigned int ms, unsigned int mode_flag)
 	if (!pdrv)
 		return 0;
 
-	return lcd_prbs_test(pdrv, ms, mode_flag);
+	return aml_lcd_prbs_test(pdrv, ms, mode_flag);
 }
 
 void aml_lcd_driver_unifykey_dump(int index, unsigned int flag)

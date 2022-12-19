@@ -11,7 +11,7 @@
 
 /* **********************************
  * clk config
- * ********************************** */
+ * **********************************/
 #define LCD_PLL_MODE_DEFAULT         BIT(0)
 #define LCD_PLL_MODE_SPECIAL_CNTL    BIT(1)
 #define LCD_PLL_MODE_FRAC_SHIFT      BIT(2)
@@ -51,17 +51,11 @@ struct lcd_clk_data_s {
 	unsigned int div_out_fmax;
 	unsigned int xd_out_fmax;
 
-	unsigned char clk_path_valid;
 	unsigned char vclk_sel;
 	int enc_clk_msr_id;
 	struct lcd_clk_ctrl_s *pll_ctrl_table;
 
-	unsigned int ss_level_max;
-	unsigned int ss_freq_max;
-	unsigned int ss_mode_max;
-	char **ss_level_table;
-	char **ss_freq_table;
-	char **ss_mode_table;
+	unsigned char ss_support;
 
 	void (*clk_generate_parameter)(struct aml_lcd_drv_s *pdrv);
 	void (*pll_frac_generate)(struct aml_lcd_drv_s *pdrv);
@@ -74,6 +68,7 @@ struct lcd_clk_data_s {
 	void (*clk_config_init_print)(struct aml_lcd_drv_s *pdrv);
 	void (*clk_config_print)(struct aml_lcd_drv_s *pdrv);
 	void (*prbs_clk_config)(struct aml_lcd_drv_s *pdrv, unsigned int lcd_prbs_mode);
+	int (*prbs_test)(struct aml_lcd_drv_s *pdrv, unsigned int ms, unsigned int mode_flag);
 };
 
 struct lcd_clk_config_s { /* unit: kHz */
@@ -113,20 +108,5 @@ struct lcd_clk_config_s { /* unit: kHz */
 
 	struct lcd_clk_data_s *data;
 };
-
-/* ******** api ******** */
-struct lcd_clk_config_s *get_lcd_clk_config(struct aml_lcd_drv_s *pdrv);
-
-void lcd_clk_config_print(struct aml_lcd_drv_s *pdrv);
-
-void lcd_get_ss(struct aml_lcd_drv_s *pdrv);
-int lcd_set_ss(struct aml_lcd_drv_s *pdrv, unsigned int level,
-	       unsigned int freq, unsigned int mode);
-void lcd_update_clk(struct aml_lcd_drv_s *pdrv);
-void lcd_set_clk(struct aml_lcd_drv_s *pdrv);
-void lcd_disable_clk(struct aml_lcd_drv_s *pdrv);
-
-void lcd_clk_generate_parameter(struct aml_lcd_drv_s *pdrv);
-void lcd_clk_config_probe(struct aml_lcd_drv_s *pdrv);
 
 #endif

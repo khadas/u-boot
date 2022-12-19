@@ -7,7 +7,7 @@
 #define _AML_LCD_COMMON_H
 #include <div64.h>
 #include <amlogic/media/vout/lcd/aml_lcd.h>
-#include "lcd_clk_config.h"
+#include "./lcd_clk/lcd_clk_config.h"
 #include "lcd_unifykey.h"
 
 /* 20181106: init version */
@@ -35,7 +35,8 @@
 /* 20221115: support force unfit mipi-dsi bit_rate_max*/
 /* 20221116: add T5W support*/
 /* 20221215: remove unnecessary tcon top reset*/
-#define LCD_DRV_VERSION    "20221215"
+/* 20221216: optimize lcd clk code*/
+#define LCD_DRV_VERSION    "20221216"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
@@ -81,6 +82,19 @@ void lcd_venc_enable(struct aml_lcd_drv_s *pdrv, int flag);
 void lcd_mute_set(struct aml_lcd_drv_s *pdrv,  unsigned char flag);
 int lcd_venc_probe(struct aml_lcd_data_s *pdata);
 
+/* lcd clk*/
+struct lcd_clk_config_s *get_lcd_clk_config(struct aml_lcd_drv_s *pdrv);
+void lcd_clk_config_print(struct aml_lcd_drv_s *pdrv);
+void lcd_get_ss(struct aml_lcd_drv_s *pdrv);
+int lcd_set_ss(struct aml_lcd_drv_s *pdrv, unsigned int level,
+	       unsigned int freq, unsigned int mode);
+void lcd_update_clk(struct aml_lcd_drv_s *pdrv);
+void lcd_set_clk(struct aml_lcd_drv_s *pdrv);
+void lcd_disable_clk(struct aml_lcd_drv_s *pdrv);
+void lcd_clk_generate_parameter(struct aml_lcd_drv_s *pdrv);
+void lcd_clk_config_probe(struct aml_lcd_drv_s *pdrv);
+int aml_lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int ms, unsigned int mode_flag);
+
 /* lcd phy */
 void lcd_phy_tcon_chpi_bbc_init_tl1(struct lcd_config_s *pconf);
 unsigned int lcd_phy_vswing_level_to_value(struct aml_lcd_drv_s *pdrv, unsigned int level);
@@ -118,7 +132,7 @@ void lcd_reg_print(struct aml_lcd_drv_s *pdrv);
 void lcd_vbyone_rst(struct aml_lcd_drv_s *pdrv);
 void lcd_vbyone_cdr(struct aml_lcd_drv_s *pdrv);
 void lcd_debug_probe(struct aml_lcd_drv_s *pdrv);
-int lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned int mode_flag);
+// int lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned int mode_flag);
 
 /* lcd driver */
 #ifdef CONFIG_AML_LCD_TV
