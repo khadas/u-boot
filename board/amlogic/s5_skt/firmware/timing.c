@@ -407,13 +407,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.dram_cs0_base_add = 0,
 		//.cfg_board_common_setting.dram_cs1_base_add = 0,
 		.cfg_board_common_setting.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
@@ -759,15 +759,15 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dq_delay_c[71] = 64,
 		//pcb write dqs length > clk length 0.5UI, ideal write dqs =
 		//clk_delay(==0)+128+wl_offset*128
-		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 128,//384 - 64,
 		//clk_delay+128+wl_offset*128
-		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 128,//384 - 64,
 		.cfg_ddr_training_delay_ps.write_wck_delay[0] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[1] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[2] = 0x00000200,
@@ -1162,13 +1162,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.dram_cs0_base_add = 0,
 		//.cfg_board_common_setting.dram_cs1_base_add = 0,
 		.cfg_board_common_setting.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
@@ -1487,13 +1487,14 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dq_delay_c[70] = 64,
 		.cfg_ddr_training_delay_ps.read_dq_delay_c[71] = 64,
 		//clk_delay+128+wl_offset*128
-		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 128,//384 - 64,
 		.cfg_ddr_training_delay_ps.write_wck_delay[0] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[1] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[2] = 0x00000200,
