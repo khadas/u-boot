@@ -92,6 +92,7 @@
 		"dtb_mem_addr=0x01000000\0" \
 		"fb_width=1920\0" \
 		"fb_height=1080\0" \
+		"fb_switch_to_dmc1=1\0" \
 		"frac_rate_policy=1\0" \
 		"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
 		"fdt_high=0x20000000\0"\

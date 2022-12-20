@@ -4567,12 +4567,46 @@ static void independ_path_default_regs(void)
 	osd_reg_write(VPP2_BLEND_DUMMY_ALPHA, 0xffffffff);
 }
 
+static void switch_osd_to_dmc1(void)
+{
+	static int init;
+	u32 val = 0;
+
+	if (init)
+		return;
+
+	init = 1;
+	/* OSD1->vpp_arb1 */
+	val |= 1 << 20;
+	/* OSD2->vpp_arb1 */
+	val |= 1 << 21;
+	/* OSD3->vpp_arb1 */
+	val |= 1 << 24;
+	/* OSD4->vpp_arb1 */
+	val |= 1 << 25;
+	/* mali afbcd->vpp_arb1 */
+	val |= 1 << 27;
+	osd_reg_write(VPP_RDARB_MODE, val);
+
+	/* vpp_arb1->vpu arb read2 */
+	osd_reg_set_bits(VPU_RDARB_MODE_L2C1, 1, 17, 1);
+}
+
 void osd_init_hw(void)
 {
 	u32 group, idx, data32, data2, holdline = 8, reverse_val = 0;
 	char *osd_reverse;
 	struct vinfo_s *info = NULL;
 	char *s;
+	ulong switch_en = 0;
+
+	/* T5M RevA, switch osd to dmc1 or not */
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T5M ||
+	    get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_A) {
+		switch_en = env_get_ulong("fb_switch_to_dmc1", 10, 0);
+		if (switch_en)
+			switch_osd_to_dmc1();
+	}
 
 	osd_reverse = env_get("osd_reverse");
 	for (group = 0; group < HW_OSD_COUNT; group++)
