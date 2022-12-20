@@ -354,28 +354,30 @@ static int optimus_sdc_burn_sheader_load(HIMAGE hImg)
 	return rc;
 }
 
-int optimus_sdc_burn_dtb_load(HIMAGE hImg)
+static int _optimus_sdc_burn_dtb_load(HIMAGE hImg, int is_gpt)
 {
     s64 itemSz = 0;
     HIMAGEITEM hImgItem = NULL;
     int rc = 0;
-    const char* partName = "dtb";
+	const char *partName = is_gpt ? "gpt" : "dtb";
     u64 partBaseOffset = OPTIMUS_DOWNLOAD_TRANSFER_BUF_ADDR;
     unsigned char* dtbTransferBuf     = (unsigned char*)partBaseOffset;
+	const char *main = is_gpt ? "bin" : "dtb";
+	const char *sub = is_gpt ? "gpt" : "meson1";
 
     //meson1.dtb but not meson.dtb for m8 compatible
 #ifdef CONFIG_CMD_EFUSE
-    if (IS_FEAT_BOOT_VERIFY()) {
+	if (IS_FEAT_BOOT_VERIFY() && !is_gpt) {
         DWN_MSG("SecureEnabled, use meson1_ENC\n");
         hImgItem = image_item_open(hImg, partName, "meson1_ENC");
     }
 #endif//#ifdef CONFIG_CMD_EFUSE
     if (!hImgItem)
     {
-        hImgItem = image_item_open(hImg, partName, "meson1");
+	hImgItem = image_item_open(hImg, main, sub);
     }
     if (!hImgItem) {
-        DWN_WRN("Fail to open item [meson1,%s]\n", partName);
+	DWN_WRN("Fail to open item [%s,%s]\n", main, sub);
         return ITEM_NOT_EXIST;
     }
 
@@ -413,7 +415,7 @@ int optimus_sdc_burn_dtb_load(HIMAGE hImg)
         wrLen = optimus_download_img_data(dtbTransferBuf, (unsigned)itemSz, errInfo);
         rc = (wrLen == itemSz) ? 0 : __LINE__;
     }
-    if (!rc) {
+	if (!rc && !is_gpt) {
         extern int check_valid_dts(unsigned char *buffer);
         rc =  check_valid_dts(dtbTransferBuf);
         DWN_MSG("check dts: rc %d\n", rc);
@@ -435,9 +437,21 @@ int optimus_sdc_burn_dtb_load(HIMAGE hImg)
 	}
 	memmove((char *)OPTIMUS_DTB_LOAD_ADDR, dtbTransferBuf, fdtsz);
         }
+	} else if (is_gpt) {
+		memmove((char *)V2_GPT_LOAD_ADDR, dtbTransferBuf, itemSz);
     }
 
     return rc;
+}
+
+int optimus_sdc_burn_dtb_load(HIMAGE hImg)
+{
+	return _optimus_sdc_burn_dtb_load(hImg, 0);
+}
+
+int optimus_sdc_burn_gpt_load(HIMAGE hImg)
+{
+	return _optimus_sdc_burn_dtb_load(hImg, 1);
 }
 
 #if CONFIG_SUPPORT_SDC_KEYBURN
@@ -734,6 +748,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
 	int eraseFlag = sdc_cfg_para->custom.eraseFlash;
 	int erase_bootloader = sdc_cfg_para->custom.eraseBootloader;
     const int usbDiskUpgrade = (OPTIMUS_WORK_MODE_UDISK_PRODUCE == optimus_work_mode_get());
+	int exist_gpt = 0;
 
     optimus_buf_manager_init(16*1024);
     hImg = image_open("mmc", "0", "1", cfgFile);
@@ -820,6 +835,13 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         ret = __LINE__; goto _finish;
     }
 
+	ret = optimus_sdc_burn_gpt_load(hImg);
+	exist_gpt = !ret;
+	if (ret != ITEM_NOT_EXIST && ret) {
+		DWN_ERR("Fail in load gpt for sdc_burn\n");
+		ret = __LINE__; goto _finish;
+	}
+
 	if (sheader_need()) {
 		ret = optimus_sdc_burn_sheader_load(hImg);
 		if (ret) {
@@ -847,6 +869,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
             eraseFlag = 0;
             DWN_MSG("Disable erase as data parts size is 0\n");
     }
+
     if (eraseFlag && !strcmp("1", getenv("usb_update"))) {
         ret = optimus_storage_init(0);
         if (ret) {
@@ -878,6 +901,14 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         }
     }
 #endif
+	if (exist_gpt) {
+		ret = optimus_burn_gpt(hImg);
+		if (ret) {
+			DWN_MSG("Fail in update gpt\n");
+			ret = __LINE__; goto _finish;
+		}
+	}
+
 
     optimus_progress_ui_direct_update_progress(hUiProgress, UPGRADE_STEPS_AFTER_DISK_INIT_OK);
 

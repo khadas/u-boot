@@ -114,6 +114,7 @@ unsigned v2_key_burn(const char* keyName, const u8* keyVal, const unsigned keyVa
 #else
 #define OPTIMUS_DTB_LOAD_ADDR                   0x1000000
 #endif// #ifdef CONFIG_DTB_MEM_ADDR
+#define V2_GPT_LOAD_ADDR        (CONFIG_DTB_MEM_ADDR + 0x100000)
 
 //payload sz not fixed and > 1M, so payload need be after GPT
 #define V2_GPT_LOAD_ADDR        (CONFIG_DTB_MEM_ADDR + 0x100000)
