@@ -67,6 +67,7 @@ void hdmitx_frl_training_main(enum frl_rate_enum frl_rate);
 int hdmitx21_read_edid(u8 *_rx_edid);
 void scdc21_rd_sink(u8 adr, u8 *val);
 void scdc21_wr_sink(u8 adr, u8 val);
+struct hdmi_format_para *hdmitx21_get_fmt_paras(enum hdmi_vic vic);
 const struct hdmi_timing *hdmitx21_get_timing_para0(void);
 int hdmitx21_timing_size(void);
 void hdmitx21_set_clk(struct hdmitx_dev *hdev);
@@ -141,6 +142,7 @@ bool is_hdmi_mode(char *mode);
 
 /* the hdmitx output limits to 1080p */
 bool is_hdmitx_limited_1080p(void);
+bool is_vic_over_limited_1080p(enum hdmi_vic vic);
 const struct hdmi_timing *hdmitx21_match_dtd_timing(struct dtd *t);
 #undef printk
 #define printk printf

@@ -1141,7 +1141,7 @@ static bool is_over_pixel_150mhz(const struct hdmi_timing *timing)
 	return 0;
 }
 
-static bool is_vic_over_limited_1080p(enum hdmi_vic vic)
+bool is_vic_over_limited_1080p(enum hdmi_vic vic)
 {
 	const struct hdmi_timing *tp = hdmitx21_gettiming_from_vic(vic);
 

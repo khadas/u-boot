@@ -1442,7 +1442,7 @@ static bool is_over_pixel_150mhz(struct hdmi_format_para *para)
 	return 0;
 }
 
-static bool is_vic_over_limited_1080p(enum hdmi_vic vic)
+bool is_vic_over_limited_1080p(enum hdmi_vic vic)
 {
 	struct hdmi_format_para *para = hdmi_get_fmt_paras(vic);
 

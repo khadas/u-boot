@@ -114,6 +114,7 @@
 			"fi;fi;fi;fi;fi;fi;"\
 			"\0"\
 		"storeboot="\
+			"hdmitx_info;"\
 			"run storeboot_base;"\
 			"\0"\
 		"update="\

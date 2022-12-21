@@ -100,6 +100,7 @@ bool is_hdmi_mode(char *mode);
 
 /* the hdmitx output limits to 1080p */
 bool is_hdmitx_limited_1080p(void);
+bool is_vic_over_limited_1080p(enum hdmi_vic vic);
 
 #ifndef printk
 #define printk printf
