@@ -790,6 +790,9 @@ static bool _read_in_bootconfig(struct vendor_boot_img_hdr *boot_info, uint32_t 
 
 	// Need to update the size after adding parameters
 	boot_info->vendor_bootconfig_size = bootconfig_size;
+#else
+	printf("--- copy bootconfig to bootargs ---\n");
+	copy_bootconfig_to_cmdline();
 #endif
 	return true;
 }

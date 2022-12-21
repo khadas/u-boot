@@ -340,7 +340,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			boot_params.device_locked = is_dev_unlocked? 0: 1;
 			if (is_dev_unlocked || (toplevel_vbmeta.flags &
-				AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED)) {
+				AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED) ||
+				(toplevel_vbmeta.flags &
+				AVB_VBMETA_IMAGE_FLAGS_HASHTREE_DISABLED)) {
 				bootstate = bootstate_o;
 				boot_params.verified_boot_state = 2;
 			}
