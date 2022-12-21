@@ -370,16 +370,6 @@
                 "fdt set /pcieA@fc000000 status okay;"\
             "fi;"\
             "\0"\
-    "ext_board_det="\
-            "fdt addr ${dtb_mem_addr}; "\
-            "if test ${ext_board_exist} = 0; then "\
-                "fdt set /auge_sound/aml-audio-card,dai-link@1/codec sound-dai <0x00000095 0x00000095 0x00000097> ;"\
-                "fdt set /soc/aobus@ff800000/i2c@5000/es8316@10 status disable;"\
-            "else "\
-	        "fdt set /auge_sound/aml-audio-card,dai-link@1/codec sound-dai <0x00000095 0x00000095 0x00000097 0x00000098> ;"\
-		"fdt set /soc/aobus@ff800000/i2c@5000/es8316@10 status okay;"\
-            "fi;"\
-            "\0"\
      "ext_ethernet_change="\
             "fdt addr ${dtb_mem_addr}; "\
             "if test ${ext_ethernet} = 1; then "\
@@ -440,7 +430,6 @@
 	    "run upgrade_key;"\
             "run recovery_key;"\
 	    "run port_mode_change;"\
-        "run ext_board_det;"\
             "run ext_ethernet_change;"\
             "forceupdate;" \
             "bcb uboot-command;"\
