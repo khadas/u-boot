@@ -45,6 +45,7 @@ static struct vpu_data_s vpu_data_gxb = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -73,6 +74,7 @@ static struct vpu_data_s vpu_data_gxtvbb = {
 	.gp_pll_valid = 1,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -101,6 +103,7 @@ static struct vpu_data_s vpu_data_gxl = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -129,6 +132,7 @@ static struct vpu_data_s vpu_data_gxm = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -157,6 +161,7 @@ static struct vpu_data_s vpu_data_txl = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -185,6 +190,7 @@ static struct vpu_data_s vpu_data_txlx = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -213,6 +219,7 @@ static struct vpu_data_s vpu_data_axg = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -241,6 +248,7 @@ static struct vpu_data_s vpu_data_txhd = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -269,6 +277,7 @@ static struct vpu_data_s vpu_data_g12a = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -297,6 +306,7 @@ static struct vpu_data_s vpu_data_g12b = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -325,6 +335,7 @@ static struct vpu_data_s vpu_data_tl1 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -353,6 +364,7 @@ static struct vpu_data_s vpu_data_sm1 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -381,6 +393,7 @@ static struct vpu_data_s vpu_data_tm2 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -409,6 +422,7 @@ static struct vpu_data_s vpu_data_t5 = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -437,6 +451,7 @@ static struct vpu_data_s vpu_data_t5d = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,
 	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
 	.vid_clk_reg = HHI_VID_CLK_CNTL2,
 
@@ -861,7 +876,7 @@ static int set_vpu_clkb(unsigned int vclk)
 
 	/* vpu clkb */
 	clkb_reg = vpu_conf.data->vpu_clkb_reg;
-	if (!clkb_reg)
+	if (clkb_reg == VPU_REG_END)
 		return 0;
 
 	if (vclk >= 100) /* regard as vpu_clk */
@@ -877,11 +892,10 @@ static int set_vpu_clkb(unsigned int vclk)
 	VPUPR("%s\n", __func__);
 #endif
 
-	vpu_hiu_setb(clkb_reg, 1, 8, 1);
-	vpu_hiu_setb(clkb_reg, 1, 0, 8);
+	vpu_hiu_write(clkb_reg, ((0 << 20) | (0 << 16)));
 	vpu_hiu_setb(clkb_reg, 1, 24, 1);
-	vpu_hiu_setb(clkb_reg, 0, 16, 4);
-	vpu_hiu_setb(clkb_reg, 0, 20, 2);
+	vpu_hiu_setb(clkb_reg, 1, 0, 8);
+	vpu_hiu_setb(clkb_reg, 1, 8, 1);
 
 #ifdef VPU_DEBUG_PRINT
 	VPUPR("%s finish\n", __func__);
