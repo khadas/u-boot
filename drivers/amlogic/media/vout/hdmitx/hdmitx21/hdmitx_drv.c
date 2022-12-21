@@ -70,6 +70,7 @@ static void hdmi_hwp_init(void)
 	// [    9] tmds_clk_inv
 	// [    8] pixel_clk_inv
 	// [    3] i2s_clk_enable
+	// [    2] tmds_clk_enable
 	// [    1] tmds_clk_enable
 	// [ 0] pixel_clk_enable
 	data32 = 0;
@@ -80,6 +81,7 @@ static void hdmi_hwp_init(void)
 	data32 |= (0 << 9);
 	data32 |= (0 << 8);
 	data32 |= (1 << 3);
+	data32 |= (1 << 2);
 	data32 |= (1 << 1);
 	data32 |= (1 << 0);
 	hdmitx21_wr_reg(HDMITX_TOP_CLK_CNTL,  data32);
@@ -394,32 +396,16 @@ void enable_crt_video_encp2(u32 enable, u32 in_sel)
 void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 {
 	u32 data32;
-	u32 addr_enc02_hdmi_clk;
 	u32 addr_vid_clk02;
 	u32 addr_viid_clk02;
 	u32 addr_vid_clk022;
-	u32 val = 0;
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 	struct hdmi_format_para *para = hdev->para;
 
-	if (para->cs == HDMI_COLORSPACE_YUV420)
-		val = 1;
-	addr_enc02_hdmi_clk = (enc_sel == 0) ?
-				CLKCTRL_ENC0_HDMI_CLK_CTRL : CLKCTRL_ENC2_HDMI_CLK_CTRL;
 	addr_vid_clk02 = (enc_sel == 0) ? CLKCTRL_VID_CLK0_CTRL : CLKCTRL_VID_CLK2_CTRL;
 	addr_viid_clk02 = (enc_sel == 0) ? CLKCTRL_VIID_CLK0_CTRL : CLKCTRL_VIID_CLK2_CTRL;
 	addr_vid_clk022 = (enc_sel == 0) ? CLKCTRL_VID_CLK0_CTRL2 : CLKCTRL_VID_CLK2_CTRL2;
 
-	// hdmi_tx_pnx_clk
-	//clk_sel:hi_hdmi_clk_cntl[27:24];
-	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 24, 4);
-	// hdmi_tx_fe_clk: for 420 mode, Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk)/2,
-	// otherwise Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk).
-	// clk_sel:hi_hdmi_clk_cntl[23:20];
-	hd21_set_reg_bits(addr_enc02_hdmi_clk, (in_sel == 1) ? 0 : in_sel, 20, 4);
-	// hdmi_tx_pixel_clk
-	//clk_sel:hi_hdmi_clk_cntl[19:16];
-	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 16, 4);
 	if (in_sel <= 4) { //V1
 		if (in_sel == 1)
 			// If 420 mode, need to turn on div1_clk for hdmi_tx_fe_clk
@@ -581,6 +567,14 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	struct vinfo_s *info = vout_get_current_vinfo();
 #endif
 
+	hdev->frl_rate = 0;
+	if (hdev->RXCap.max_frl_rate)
+		hdev->frl_rate = hdmitx21_select_frl_rate(hdev->dsc_en, vic,
+			hdev->para->cs, hdev->para->cd);
+	hdmitx21_set_clk(hdev);
+	hdmitx_phy_pre_init(hdev);
+	_hdmitx21_set_clk();
+	hdmitx_set_clkdiv(hdev);
 	hdmi_hwp_init();
 	if (!hdev->pxp_mode) {
 		aml_audio_init();  /* Init audio hw firstly */
@@ -591,9 +585,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		hd21_set_reg_bits(VPU_DISP_VIU2_CTRL, 1, 29, 1);
 		hd21_set_reg_bits(VPU_VIU_VENC_MUX_CTRL, 2, 2, 2);
 	}
-	if (hdev->RXCap.max_frl_rate)
-		hdev->frl_rate = hdmitx21_select_frl_rate(hdev->dsc_en, vic,
-			hdev->para->cs, hdev->para->cd);
 	hdmitx21_venc_en(0, 0);
 	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, (hdev->enc_idx == 0) ? 0 : 1, 1);
 	if (hdev->enc_idx == 0)
@@ -689,8 +680,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	hd21_write_reg(VPU_HDMI_DITH_CNTL, data32);
 	hdmitx21_dither_config(hdev);
 
-	_hdmitx21_set_clk();
-
 	// Set this timer very small on purpose, to test the new function
 	hdmitx21_wr_reg(HDMITX_TOP_I2C_BUSY_CNT_MAX,  30);
 
@@ -708,7 +697,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	data32 |= (1920 << 0);  // [13: 0] cntl_hdcp22_min_size_h
 	hdmitx21_wr_reg(HDMITX_TOP_HDCP22_MIN_SIZE, data32);
 
-	hdmitx21_set_clk(hdev);
 	hdmitx_set_hw(hdev);
 	if (para->timing.pi_mode == 0 &&
 	    (para->timing.v_active == 480 || para->timing.v_active == 576))
@@ -802,7 +790,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	else
 		hdmitx_dfm_cfg(1, 0);
 	if (hdev->chip_type >= MESON_CPU_ID_S5) {
-		hdmitx_set_clkdiv(hdev);
 		if (hdev->RXCap.max_frl_rate)
 			hdmitx_frl_training_main(hdev->frl_rate);
 	}

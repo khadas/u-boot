@@ -326,7 +326,8 @@ void hdmitx21_set_audioclk(bool en)
 	data32 |= (2 << 9);
 	data32 |= (0 << 8);
 	data32 |= ((18 - 1) << 0);
-	hd21_write_reg(CLKCTRL_HTX_CLK_CTRL1, data32);
+	hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, 2, 9, 2);
+	hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, 18 - 1, 0, 8);
 	// [    8] clk_en for cts_hdmitx_aud_clk
 	hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, en, 8, 1);
 }
@@ -362,13 +363,6 @@ void hdmitx21_set_default_clk(void)
 
 	//hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 0, 0, 5);
 
-	// wire    wr_enable = control[3];
-	// wire    fifo_enable = control[2];
-	// assign  phy_clk_en = control[1];
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 1, 1); // Enable tmds_clk
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 2, 1); // Enable the decoupling FIFO
-	// Enable enable the write/read decoupling state machine
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 3, 1);
 	// Bring HDMITX MEM output of power down
 	hd21_set_reg_bits(PWRCTRL_MEM_PD11, 0, 8, 8);
 	// Bring out of reset

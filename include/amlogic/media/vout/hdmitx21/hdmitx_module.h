@@ -123,6 +123,7 @@ bool is_supported_mode_attr(hdmi_data_t *hdmi_data, char *mode_attr);
 bool hdmitx_chk_mode_attr_sup(hdmi_data_t *hdmi_data, char *mode, char *attr);
 int get_ubootenv_dv_type(void);
 
+void hdmitx_phy_pre_init(struct hdmitx_dev *hdev);
 void hdmitx_set_phypara(enum hdmi_phy_para mode);
 int hdmitx_get_hpd_state(void);
 void hdmitx_turnoff(void);

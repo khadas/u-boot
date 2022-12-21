@@ -51,6 +51,11 @@ int hdmitx_get_hpd_state(void)
 	return st;
 }
 
+void hdmitx_phy_pre_init(struct hdmitx_dev *hdev)
+{
+	/* dummy function, no need for t7 */
+}
+
 static void sec_wr(u32 addr, u32 data)
 {
 	struct arm_smccc_res res;
