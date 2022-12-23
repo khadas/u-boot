@@ -1379,14 +1379,12 @@ void osd_update_blend(struct pandata_s *disp_data)
 #ifdef AML_S5_DISPLAY
 	blend_width = osd_hw.free_dst_data[0].x_end - osd_hw.free_dst_data[0].x_start + 1;
 	blend_height = osd_hw.free_dst_data[0].y_end - osd_hw.free_dst_data[0].y_start + 1;
-	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_H,
-			osd_hw.free_dst_data[0].x_end << 16 | osd_hw.free_dst_data[0].x_start);
-	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_V,
-			osd_hw.free_dst_data[0].y_end << 16 | osd_hw.free_dst_data[0].y_start);
+	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_H, (blend_width - 1) << 16);
+	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_V, (blend_height - 1) << 16);
 	osd_reg_write(VIU_OSD_BLEND_BLEND0_SIZE,
-			blend_height << 16 | blend_width);
+			blend_height << 16 | ALIGN(blend_width, 4));
 	osd_reg_write(OSD_BLEND_DOUT0_SIZE,
-			blend_height << 16 | blend_width);
+			blend_height << 16 | ALIGN(blend_width, 4));
 #endif
 	/* setting blend scope */
 	osd_reg_write(VPP_OSD1_BLD_H_SCOPE,
