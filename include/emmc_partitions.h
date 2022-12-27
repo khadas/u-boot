@@ -69,6 +69,10 @@
 #define DDR_PARAMETER_OFFSET	(SZ_1M * 8)
 #define DDR_PARAMETER_SIZE	(8 * 512)
 
+#define MMC_GPT_ALT_NAME	"gpt_alternate"
+#define MMC_GPT_ALT_OFFSET	(SZ_1M * 9)
+#define MMC_GPT_ALT_SIZE	    (512)
+
 #define     MMC_MPT_VERSION_1               "01.00.00"
 #define     MMC_MPT_VERSION_2               "01.02.00"
 /* version in use, fixme when kernel driver is updated. */
@@ -262,6 +266,12 @@ typedef struct FastbootContext {
 	uint32_t crc32;
 } FastbootContext_t;
 
+struct gpt_alternate {
+	char magic[8];
+	uint64_t alternate_lba;
+	uint64_t checksum;
+};
+
 extern bool is_partition_checked;
 extern struct partitions *part_table;
 extern int parts_total_num;
@@ -280,6 +290,10 @@ extern int aml_gpt_valid(struct mmc *mmc);
 int mmc_gpt_read(void *source);
 int mmc_gpt_write(void *source);
 int mmc_gpt_erase(void);
+lbaint_t get_gpt_alternate(struct mmc *mmc);
+int write_gpt_alternate(lbaint_t gpt_alternate);
+int mmc_storage_read(const char *part_name, loff_t off, size_t size, void *dest);
+int mmc_storage_write(const char *part_name, loff_t off, size_t size, void *source);
 
 struct partitions* find_mmc_partition_by_name (char const *name);
 struct partitions *aml_get_partition_by_name(const char *name);

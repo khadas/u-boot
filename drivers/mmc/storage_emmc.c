@@ -598,7 +598,6 @@ int mmc_boot_read(const char *part_name, uint8_t cpy, size_t size, void *dest) {
 		cpy = cpy >> 1;
 	}
 
-
 R_SWITCH_BACK:
 	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, STORAGE_EMMC, USER_PARTITION);
 	if (ret != 0) {
@@ -723,6 +722,7 @@ int mmc_gpt_read(void *source)
 	struct mmc *mmc;
 	struct blk_desc *dev_desc;
 	unsigned long offset = 0;
+	char *name = NULL;
 	size_t size = 34;
 	int ret;
 
@@ -731,8 +731,8 @@ int mmc_gpt_read(void *source)
 		return -1;
 
 	dev_desc = mmc_get_blk_desc(mmc);
-	ret = blk_dread(dev_desc, offset, size, (u_char *)source);
-	if (ret != size)
+	ret = mmc_storage_read(name, offset, size, (u_char *)source);
+	if (ret)
 		return -1;
 
 	if (is_valid_gpt_buf(dev_desc, (u_char *)source)) {
@@ -747,6 +747,9 @@ int mmc_gpt_write(void *source)
 {
 	struct blk_desc *dev_desc;
 	struct mmc *mmc;
+	int ret;
+	gpt_header *gpt_h;
+	lbaint_t gpt_alternate;
 
 	mmc = find_mmc_device(STORAGE_EMMC);
 	if (!mmc)
@@ -758,6 +761,13 @@ int mmc_gpt_write(void *source)
 		return -1;
 	}
 
+	gpt_h = source + (GPT_PRIMARY_PARTITION_TABLE_LBA *
+		       dev_desc->blksz);
+
+	gpt_alternate = le64_to_cpu(gpt_h->alternate_lba);
+
+	ret = write_gpt_alternate(gpt_alternate);
+
 	if (write_mbr_and_gpt_partitions(dev_desc, (u_char *)source)) {
 		printf("%s: writing GPT partitions failed\n", __func__);
 		return -1;
@@ -768,7 +778,8 @@ int mmc_gpt_write(void *source)
 
 	part_init(dev_desc);
 	printf("update gpt and ept success\n");
-	return 0;
+
+	return ret;
 }
 
 /*

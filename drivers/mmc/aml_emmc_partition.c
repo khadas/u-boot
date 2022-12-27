@@ -129,7 +129,8 @@ struct virtual_partition virtual_partition_table[] = {
 #endif
 	VIRTUAL_PARTITION_ELEMENT(MMC_FASTBOOT_CONTEXT_NAME,
 			FASTBOOT_CONTEXT_OFFSET, FASTBOOT_CONTEXT_SIZE),
-	VIRTUAL_PARTITION_ELEMENT(MMC_DDR_PARAMETER_NAME,DDR_PARAMETER_OFFSET, DDR_PARAMETER_SIZE),
+	VIRTUAL_PARTITION_ELEMENT(MMC_DDR_PARAMETER_NAME, DDR_PARAMETER_OFFSET, DDR_PARAMETER_SIZE),
+	VIRTUAL_PARTITION_ELEMENT(MMC_GPT_ALT_NAME, MMC_GPT_ALT_OFFSET, MMC_GPT_ALT_SIZE),
 };
 
 int get_emmc_partition_arraysize(void)
@@ -254,20 +255,18 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 	size_t efiname_len, dosname_len;
 	struct _iptbl *ept = p_iptbl_ept;
 	struct partitions *partitions = ept->partitions;
-
-	if (!dev_desc) {
-		printf("%s: Invalid Argument(s)\n", __func__);
-		return 1;
-	}
+	uint64_t alternate;
 
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 				gpt_head, &gpt_pte) != 1) {
-		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
-					gpt_head, &gpt_pte) != 1) {
-			printf("%s: invalid gpt\n", __func__);
-			return 1;
+		alternate = get_gpt_alternate(mmc);
+		if (alternate != -1) {
+			if (is_gpt_valid(dev_desc, alternate, gpt_head, &gpt_pte) != 1) {
+				printf("%s: invalid gpt\n", __func__);
+				return 1;
+			}
 		}
 		printf("%s: *** Using Backup GPT ***\n", __func__);
 	}
@@ -539,14 +538,14 @@ static int _get_version(unsigned char * s)
 /*  calc checksum.
 	there's a bug on v1 which did not calculate all the partitions.
  */
-static int _calc_iptbl_check_v2(struct partitions * part, int count)
+static int _calc_iptbl_check_v2(struct partitions *part, int count)
 {
 	int ret = 0, i;
 	int size = count * sizeof(struct partitions) >> 2;
 	int *buf = (int *)part;
 
 	for (i = 0; i < size; i++)
-		ret +=buf[i];
+		ret += buf[i];
 
 	return ret;
 }
@@ -1141,11 +1140,6 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 	int gpt_changed = 0;
 	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
 
-	if (dev_desc == NULL) {
-		printf("%s: Invalid Argument(s)\n", __func__);
-		return 1;
-	}
-
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
@@ -1217,10 +1211,6 @@ int is_gpt_broken(struct mmc *mmc)
 	int broken_status = 0;
 	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
 
-	if (!dev_desc) {
-		printf("%s: Invalid Argument(s)\n", __func__);
-		return 1;
-	}
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
@@ -1358,11 +1348,206 @@ void __attribute__((unused)) _update_part_tbl(struct partitions *p, int count)
 	}
 }
 
+lbaint_t get_gpt_alternate(struct mmc *mmc)
+{
+	gpt_header *gpt_h;
+	void *buf;
+	int ret;
+	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+	lbaint_t alternate;
+
+	buf = malloc(GPT_SIZE);
+	if (!buf) {
+		printf("not enough space for gpt buffer\n");
+		return -1;
+	}
+
+	ret = mmc_gpt_read(buf);
+	if (ret == 0) {
+		/* determine start of GPT Header in the buffer */
+		gpt_h = buf + (GPT_PRIMARY_PARTITION_TABLE_LBA *
+				dev_desc->blksz);
+		alternate = le64_to_cpu(gpt_h->alternate_lba);
+		free(buf);
+		return alternate;
+	} else if (ret == -1) {
+		printf("%s: read gpt failed\n", __func__);
+		free(buf);
+		return -1;
+	}
+	free(buf);
+	return 0;
+}
+
+static uint64_t calc_alternate_check(struct gpt_alternate *gpt_alt)
+{
+	int i;
+	uint64_t checksum = 0;
+	int size = sizeof(struct gpt_alternate) - sizeof(uint64_t);
+	char *buf = (char *)gpt_alt;
+
+	for (i = 0; i < size; i++)
+		checksum += buf[i];
+
+	return checksum;
+}
+
+int is_gpt_alter_valid(lbaint_t *alternate_lba)
+{
+	struct gpt_alternate *gpt_alt;
+	int ret;
+	char *name = NULL;
+	loff_t offset = (RESERVED_GPT_OFFSET + MMC_GPT_ALT_OFFSET) >> 9;
+	size_t size = MMC_GPT_ALT_SIZE >> 9;
+
+	gpt_alt = malloc(MMC_GPT_ALT_SIZE);
+	if (!gpt_alt)
+		return -ENOMEM;
+
+	ret = mmc_storage_read(name, offset, size, (void *)gpt_alt);
+	if (ret) {
+		free(gpt_alt);
+		return -1;
+	}
+
+	if (strcmp(gpt_alt->magic, "GPT")) {
+		printf("gpt_alt->magic %s\n", gpt_alt->magic);
+		free(gpt_alt);
+		return -1;
+	} else if (calc_alternate_check(gpt_alt) != gpt_alt->checksum) {
+		printf("gpt_alt->checksum %llx\n", gpt_alt->checksum);
+		free(gpt_alt);
+		return -1;
+	}
+
+	*alternate_lba = gpt_alt->alternate_lba;
+	free(gpt_alt);
+	return 1;
+}
+
+int write_gpt_alternate(lbaint_t gpt_alternate)
+{
+	struct gpt_alternate *gpt_alt;
+	char *name = NULL;
+	int ret;
+	loff_t offset = (RESERVED_GPT_OFFSET + MMC_GPT_ALT_OFFSET) >> 9;
+	size_t size = MMC_GPT_ALT_SIZE >> 9;
+
+	gpt_alt = malloc(MMC_GPT_ALT_SIZE);
+	if (!gpt_alt)
+		return -ENOMEM;
+
+	memset(gpt_alt, 0, MMC_GPT_ALT_SIZE);
+
+	strcpy(gpt_alt->magic, "GPT");
+	gpt_alt->alternate_lba = gpt_alternate;
+	gpt_alt->checksum = calc_alternate_check(gpt_alt);
+
+	ret = mmc_storage_write(name, offset, size, (void *)gpt_alt);
+
+	free(gpt_alt);
+	return ret;
+}
+
+/*
+ * check: mbr, first_gpt, secondary_gpt, and alternate addr
+ *
+ * if first_gpt is valid but one of other part is broken
+ *		prepare to repair others
+ * else if alternate addr and secondary_gpt is valid
+ *  and first_gpt is broken
+ *		prepare to repair first_gpt
+ * otherwise
+ *		do nothing
+ */
+int _mmc_check_gpt(struct mmc *mmc, lbaint_t *alternate)
+{
+	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+	gpt_entry *gpt_pte = NULL;
+	lbaint_t alternate_lba;
+
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
+
+	/* first_gpt is valid, others is broken, repair */
+	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+			gpt_head, &gpt_pte) == 1) {
+		alternate_lba = (lbaint_t)le64_to_cpu(gpt_head->alternate_lba);
+		*alternate = alternate_lba;
+		free(gpt_pte);
+
+		if (is_gpt_valid(dev_desc, alternate_lba, gpt_head, &gpt_pte) != 1)
+			return 1;
+
+		free(gpt_pte);
+
+		if (part_test_efi(dev_desc) || alternate_lba != *alternate ||
+				(is_gpt_alter_valid(&alternate_lba) != 1))
+			return 1;
+		else
+			return 0;
+	/* first_gpt is broken, secondary_gpt is valid, repair */
+	} else if ((is_gpt_alter_valid(&alternate_lba) == 1) &&
+			(is_gpt_valid(dev_desc, alternate_lba, gpt_head, &gpt_pte)) == 1) {
+		*alternate = alternate_lba;
+		free(gpt_pte);
+		return 1;
+	/* legacy mode, secondary_gpt at last lba of mmc */
+	} else if (is_gpt_valid(dev_desc, dev_desc->lba - 1, gpt_head, &gpt_pte) == 1) {
+		*alternate = dev_desc->lba - 1;
+		free(gpt_pte);
+		return 1;
+	}
+
+	printf("%s: gpt is invalid and can't be repair\n", __func__);
+
+	return 0;
+}
+
+int mmc_repair_gpt(struct mmc *mmc, lbaint_t alternate)
+{
+	gpt_entry *gpt_pte = NULL;
+	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+	int ret;
+	u64 pri_lba = GPT_PRIMARY_PARTITION_TABLE_LBA;
+
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
+
+	if (is_gpt_valid(dev_desc, pri_lba, gpt_head, &gpt_pte) == 1) {
+		ret = write_gpt_table(dev_desc, gpt_head, gpt_pte);
+		free(gpt_pte);
+		ret |= write_gpt_alternate(alternate);
+		return ret;
+	} else if (is_gpt_valid(dev_desc, alternate, gpt_head, &gpt_pte) == 1) {
+		/* change alternate header to first header */
+		prepare_backup_gpt_header(gpt_head);
+		ret = write_gpt_table(dev_desc, gpt_head, gpt_pte);
+		free(gpt_pte);
+		ret |= write_gpt_alternate(alternate);
+		return ret;
+	}
+
+	return 1;
+}
+
+void mmc_check_gpt(struct mmc *mmc)
+{
+	lbaint_t alternate;
+	int ret;
+
+	if (_mmc_check_gpt(mmc, &alternate)) {
+		printf("GPT is not complete\n");
+		ret = mmc_repair_gpt(mmc, alternate);
+		printf("GPT is repaired %s\n", ret ? "failed" : "success");
+	}
+	printf("gpt is complete\n");
+}
+
 int resize_gpt(struct mmc *mmc)
 {
 	gpt_header *gpt_h;
 	void *buf;
 	int ret;
+
 	struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
 
 	buf = malloc(GPT_SIZE);
@@ -1452,6 +1637,8 @@ int mmc_device_init (struct mmc *mmc)
 		memset(p_iptbl_ept->partitions, 0,
 				sizeof(struct partitions) * MAX_PART_COUNT);
 	}
+
+	mmc_check_gpt(mmc);
 
 	if (resize_gpt(mmc))
 		goto _out;

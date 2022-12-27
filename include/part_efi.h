@@ -171,6 +171,7 @@ typedef struct _legacy_mbr {
 
 #endif	/* _DISK_PART_EFI_H */
 
+void prepare_backup_gpt_header(gpt_header *gpt_h);
 int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 		gpt_header *pgpt_head, gpt_entry **pgpt_pte);
 int part_test_efi(struct blk_desc *dev_desc);
