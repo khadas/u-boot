@@ -164,6 +164,11 @@ static void usb_set_calibration_trim(uint32_t phy2_pll_base)
 	printf("0x10 trim value=0x%08x\n", value);;
 }
 
+static void usb_enable_phy_pll(void)
+{
+	*(uint32_t *)P_RESET1_LEVEL |= (0x7 << 16);
+}
+
 void set_usb_pll(uint32_t phy2_pll_base)
 {
 	(*(uint32_t *)((unsigned long)phy2_pll_base + 0x40)) =
@@ -209,6 +214,7 @@ int usb2_phy_init(struct phy *phy)
 	int i, cnt;
 
 	usb_save_phy_dev(0, phy);
+	usb_enable_phy_pll();
 	//usb_set_power_domain();
 
 	//*(volatile unsigned int *)(unsigned long)priv->reset_addr = (1 << USB_RESET_BIT);
@@ -308,6 +314,7 @@ void usb_device_mode_init(void)
 	unsigned int phy_base_addr;
 	//unsigned int reset_addr;
 
+	usb_enable_phy_pll();
 	ret = get_usbphy_baseinfo();
 	if (ret) {
 		printf("get usb dts failed\n");
