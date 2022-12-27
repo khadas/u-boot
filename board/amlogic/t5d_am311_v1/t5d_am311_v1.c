@@ -636,7 +636,7 @@ int board_late_init(void)
 	char outputModePre[32] = {0};
 	char outputModeCur[32] = {0};
 
-	if (getenv("default_env") ||  getenv("update_env")) {
+	if (getenv("default_env")) {
 		printf("factory reset, need default all uboot env\n");
 		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
 	}
@@ -742,6 +742,11 @@ int board_late_init(void)
 	}
 
 	run_command("update_tries", 0);
+
+	if (getenv("update_env")) {
+		printf("factory reset, need default all uboot env\n");
+		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
+	}
 
 	unsigned char chipid[16];
 

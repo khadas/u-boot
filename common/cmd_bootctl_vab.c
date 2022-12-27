@@ -848,6 +848,9 @@ static int do_SetUpdateTries
 	boot_info_open_partition(miscbuf);
 	boot_info_load(&boot_ctrl, miscbuf);
 
+	//unsupport update dt in boothal, update dt in uboot
+	run_command("update_dt;", 0);
+
 	if (!boot_info_validate(&boot_ctrl)) {
 		printf("boot-info is invalid. Resetting\n");
 		boot_info_reset(&boot_ctrl);
@@ -962,6 +965,29 @@ int do_GetAvbMode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+int do_UpdateDt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	char *update_dt = getenv("update_dt");
+	char *part_changed = getenv("part_changed");
+
+	printf("update_dt %s, part_changed: %s\n", update_dt, part_changed);
+	if (update_dt && (!strcmp(update_dt, "1"))) {
+		printf("write dtb\n");
+		run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0);
+		run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+
+		setenv("update_dt", "0");
+		run_command("saveenv", 0);
+
+		if (part_changed && (!strcmp(part_changed, "1"))) {
+			setenv("part_changed", "0");
+			run_command("saveenv", 0);
+
+			run_command("reset", 0);
+		}
+	}
+	return 0;
+}
 
 #endif /* CONFIG_BOOTLOADER_CONTROL_BLOCK */
 
@@ -1014,5 +1040,12 @@ get_avb_mode, 1,	0, do_GetAvbMode,
 "get_avb_mode",
 "\nThis command will get avb mode\n"
 "So you can execute command: get_avb_mode"
+);
+
+U_BOOT_CMD
+(update_dt, 1,	0, do_UpdateDt,
+	"update_dt",
+	"\nThis command will update dt\n"
+	"So you can execute command: update_dt"
 );
 
