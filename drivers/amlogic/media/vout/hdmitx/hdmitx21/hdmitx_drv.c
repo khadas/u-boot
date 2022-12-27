@@ -242,6 +242,7 @@ static void hdmitx_load_dts_config(struct hdmitx_dev *hdev)
 	int node;
 	char *propdata;
 	int ret;
+	u32 tx_max_frl_rate;
 
 	hdev->limit_res_1080p = 0;
 	hdev->enc_idx = 0;
@@ -276,6 +277,18 @@ static void hdmitx_load_dts_config(struct hdmitx_dev *hdev)
 			hdev->enc_idx = 2;
 	}
 	printf("enc_idx: %d\n", hdev->enc_idx);
+
+	hdev->tx_max_frl_rate = FRL_NONE; /* default */
+	propdata = (char *)fdt_getprop(dt_blob, node, "tx_max_frl_rate", NULL);
+	if (propdata) {
+		tx_max_frl_rate = be32_to_cpup((u32 *)propdata);
+		if (tx_max_frl_rate > FRL_12G4L)
+			printf("wrong tx_max_frl_rate %d\n", tx_max_frl_rate);
+		else
+			hdev->tx_max_frl_rate = tx_max_frl_rate;
+	}
+
+	printf("tx_max_frl_rate: %d\n", hdev->tx_max_frl_rate);
 }
 
 static void amhdmitx_infoframe_init(struct hdmitx_dev *hdev)

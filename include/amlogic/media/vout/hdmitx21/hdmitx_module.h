@@ -39,6 +39,7 @@ struct hdmitx_dev {
 	struct hdmi_format_para *para;
 	enum hdmi_vic vic;
 	enum frl_rate_enum frl_rate;
+	u8 tx_max_frl_rate; /* configure in dts file */
 	u32 dsc_en;
 	unsigned int frac_rate_policy;
 	unsigned int mode420;
@@ -144,6 +145,8 @@ bool is_hdmi_mode(char *mode);
 bool is_hdmitx_limited_1080p(void);
 bool is_vic_over_limited_1080p(enum hdmi_vic vic);
 const struct hdmi_timing *hdmitx21_match_dtd_timing(struct dtd *t);
+bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
+	struct hdmi_format_para *para);
 #undef printk
 #define printk printf
 #undef pr_info

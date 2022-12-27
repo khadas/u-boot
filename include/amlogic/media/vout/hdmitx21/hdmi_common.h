@@ -15,6 +15,10 @@
 
 #define HDMI_PACKET_TYPE_GCP 0x3
 
+#define VESA_MAX_TIMING 64
+/* refer to hdmi2.1 table 7-36, 32 VIC support y420 */
+#define Y420_VIC_MAX_NUM 32
+
 #define HDMITX_VESA_OFFSET 0x300
 /* Little-Endian format */
 enum scdc_addr {
@@ -451,6 +455,7 @@ struct rx_cap {
 	unsigned int native_Mode;
 	/*video*/
 	unsigned int VIC[VIC_MAX_NUM];
+	unsigned int y420_vic[Y420_VIC_MAX_NUM];
 	unsigned int VIC_count;
 	unsigned int native_VIC;
 	/*vendor*/
@@ -662,7 +667,6 @@ struct hdmi_support_mode {
 
 #define HDMI_IEEEOUI 0x000C03
 #define MODE_LEN	32
-#define VESA_MAX_TIMING 64
 
 #define DEFAULT_OUTPUTMODE_ENV		"1080p60hz"
 #define DEFAULT_HDMIMODE_ENV		"1080p60hz"

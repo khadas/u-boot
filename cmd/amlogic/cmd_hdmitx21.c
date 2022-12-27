@@ -735,6 +735,8 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	char *colorattribute;
 	char dv_type[2] = {0};
 	struct scene_output_info scene_output_info;
+	struct hdmi_format_para *para = NULL;
+	bool mode_support = false;
 
 	if (!hdev->hwop.get_hpd_state()) {
 		printf("HDMI HPD low, no need parse EDID\n");
@@ -786,8 +788,21 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 			env_get("hdmimode"), env_get("colorattribute"),
 			hdev->RXCap.checksum);
 	}
+	/* check current mode + color attribute support or not */
+	para = hdmitx21_get_fmtpara(hdmimode, colorattribute);
+	if (hdmitx_edid_check_valid_mode(hdev, para))
+		mode_support = true;
+	else
+		mode_support = false;
 
-	if (hdev->RXCap.edid_changed) {
+	/* two cases need to go with uboot mode select policy:
+	 * 1.TV changed
+	 * 2.TV not changed, but current mode(set by sysctrl/hwc)
+	 * not supportted by uboot (probably means mode select policy or
+	 * edid parse between sysctrl and uboot have some gap)
+	 * then need to find proper output mode with uboot policy.
+	 */
+	if (hdev->RXCap.edid_changed || !mode_support) {
 		/* find proper mode if EDID changed */
 		scene_process(hdev, &scene_output_info);
 		env_set("hdmichecksum", hdev->RXCap.checksum);
