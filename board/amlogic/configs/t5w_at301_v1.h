@@ -91,6 +91,7 @@
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
+	"connector_type=LVDS-A\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
         "display_bpp=16\0" \
@@ -138,6 +139,9 @@
         "Irq_check_en=0\0"\
         "fs_type=""rootfstype=ramfs""\0"\
 	"disable_ir=0\0"\
+	"check_connector_type="\
+		"setenv bootconfig ${bootconfig} androidboot.connector_type=${connector_type};"\
+		"\0"\
         "initargs="\
             "init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xffd23000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
             "\0"\
@@ -152,6 +156,7 @@
 			"setenv bootargs ${initargs} otg_device=${otg_device} logo=${display_layer},loaded,${fb_addr} powermode=${powermode} fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} outputmode=${outputmode} vout=${outputmode},enable panel_name=${panel_name} panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmimode=${hdmimode} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} mem_size=${mem_size} disable_ir=${disable_ir};"\
 	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
 	"setenv bootargs ${bootargs} androidboot.memsize=${memsize};"\
+	"run check_connector_type; "\
             "run cmdline_keys;"\
             "\0"\
         "cec_init="\

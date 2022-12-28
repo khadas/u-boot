@@ -1223,9 +1223,9 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 	unsigned char *data_buf = NULL;
 #ifdef CONFIG_AML_LCD_TCON
 	unsigned int data_size = 0;
-	unsigned int n, k, flag = 0, type = 0,  sub_type = 0, multi_id = 0xff;
+	unsigned int n, k, type = 0,  sub_type = 0, multi_id = 0xff;
 	unsigned int offset = 0, data_len = 0;
-	int ret;
+	int flag = 0, ret;
 #endif
 
 	/* orignal data in ini */
@@ -1846,6 +1846,19 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 		strncpy(p_misc->outputmode, ini_value, 63);
 		snprintf(buf, 63, "setenv outputmode2 %s", p_misc->outputmode);
 		run_command(buf, 0);
+	}
+
+	ini_value = IniGetString("panel_misc", "connector_type", "null");
+	if (model_debug_flag & DEBUG_MISC)
+		ALOGD("%s, connector_type is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null")) {
+		strncpy(p_misc->connector_type, ini_value,
+			sizeof(p_misc->connector_type) - 1);
+		p_misc->connector_type[sizeof(p_misc->connector_type) - 1] = '\0';
+		snprintf(buf, 63, "setenv connector_type %s", p_misc->connector_type);
+		run_command(buf, 0);
+	} else {
+		run_command("setenv connector_type null", 0);
 	}
 
 	ini_value = IniGetString("panel_misc", "panel_reverse", "null");
