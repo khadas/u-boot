@@ -195,7 +195,7 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 {
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
-	uint64_t align_size, reserved_size = 0, cal_copy = ssp->boot_bakups;
+	uint64_t align_size, reserved_size = 0, cal_copy = ssp->boot_backups;
 	uint8_t i;
 
 	align_size = ALIGN_SIZE;
@@ -364,23 +364,23 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 		ssp->boot_device = current->type;
 		switch (ssp->boot_device) {
 		case BOOT_EMMC:
-			ssp->boot_bakups = storage_get_emmc_boot_seqs();
+			ssp->boot_backups = storage_get_emmc_boot_seqs();
 			break;
 		case BOOT_SNOR:
 			if (IS_FEAT_EN_4BL2_SNOR())
-				ssp->boot_bakups = 4;
+				ssp->boot_backups = 4;
 			else if (IS_FEAT_DIS_NBL2_SNOR())
-				ssp->boot_bakups = 1;
+				ssp->boot_backups = 1;
 			else
-				ssp->boot_bakups = 2; /* Default 2 backup, consistent with rom */
+				ssp->boot_backups = 2; /* Default 2 backup, consistent with rom */
 			break;
 		case BOOT_SNAND:
 			if (IS_FEAT_EN_8BL2_SNAND())
-				ssp->boot_bakups = 8;
+				ssp->boot_backups = 8;
 			else if (IS_FEAT_DIS_NBL2_SNAND())
-				ssp->boot_bakups = 1;
+				ssp->boot_backups = 1;
 			else
-				ssp->boot_bakups = 4; /* Default 4 backup, consistent with rom */
+				ssp->boot_backups = 4; /* Default 4 backup, consistent with rom */
 			sip->snasp.pagesize = current->info.write_unit;
 			sip->snasp.pages_per_eraseblock =
 			current->info.erase_unit / current->info.write_unit;
@@ -394,11 +394,11 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 			break;
 		case BOOT_NAND_NFTL:
 		case BOOT_NAND_MTD:
-			ssp->boot_bakups = 8;
+			ssp->boot_backups = 8;
 			if (IS_FEAT_DIS_8BL2_NAND())
-				ssp->boot_bakups = 4;
+				ssp->boot_backups = 4;
 			if (IS_FEAT_DIS_NBL2_NAND())
-				ssp->boot_bakups = 1;
+				ssp->boot_backups = 1;
 			sip->nsp.page_size =  current->info.write_unit;
 			sip->nsp.block_size = current->info.erase_unit;
 			sip->nsp.pages_per_block =
@@ -418,7 +418,7 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 
 	printf("boot_device:%d\n", ssp->boot_device);
 	printf("boot_seq:%d\n", ssp->boot_seq);
-	printf("boot_bakups:%d\n", ssp->boot_bakups);
+	printf("boot_backups:%d\n", ssp->boot_backups);
 	printf("rebuild_id :%d\n", *need_build);
 
 	return 0;
@@ -1211,7 +1211,7 @@ static int bl2x_mode_check_header(p_payload_info_t pInfo)
 	int sz_payload = 0;
 	uint64_t align_size = 1;
 	struct storage_startup_parameter *ssp = &g_ssp;
-	uint64_t cal_copy = ssp->boot_bakups;
+	uint64_t cal_copy = ssp->boot_backups;
 
 	printf("\naml log : info parse...\n");
 	printf("\tsztimes : %s\n",hdr->szTimeStamp);
@@ -1271,7 +1271,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 		tpl_cpynum = CONFIG_NOR_TPL_COPY_NUM;
 
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
-		bl2_cpynum = ssp->boot_bakups;
+		bl2_cpynum = ssp->boot_backups;
 	} else	{
 		bootloader_maxsize = bl2_size + tpl_per_size;
 		bl2_cpynum = CONFIG_BL2_COPY_NUM;

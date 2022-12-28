@@ -91,7 +91,7 @@ union storage_independent_parameter {
 struct storage_startup_parameter {
 	uint8_t boot_device;
 	uint8_t	boot_seq;
-	uint8_t	boot_bakups;
+	uint8_t	boot_backups;
 	uint8_t reserved;
 	struct storage_boot_entry boot_entry[MAX_BOOT_AREA_ENTRIES];
 	union storage_independent_parameter sip;

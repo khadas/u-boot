@@ -1362,7 +1362,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		temp[BOOT_AREA_BL2E].offset =
 			g_ssp.boot_entry[BOOT_AREA_BL2E].offset;
 		temp[BOOT_AREA_BL2E].size =
-			g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
+			g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_backups;
 		if (temp[0].size % mtd->erasesize)
 			WARN_ON(1);
 
@@ -1370,7 +1370,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		temp[BOOT_AREA_BL2X].offset =
 			g_ssp.boot_entry[BOOT_AREA_BL2X].offset;
 		temp[BOOT_AREA_BL2X].size =
-			g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
+			g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_backups;
 		if (temp[0].size % mtd->erasesize)
 			WARN_ON(1);
 
@@ -1378,7 +1378,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		temp[BOOT_AREA_DDRFIP].offset =
 			g_ssp.boot_entry[BOOT_AREA_DDRFIP].offset;
 		temp[BOOT_AREA_DDRFIP].size =
-			g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
+			g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_backups;
 		if (temp[0].size % mtd->erasesize)
 			WARN_ON(1);
 

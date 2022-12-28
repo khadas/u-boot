@@ -192,7 +192,8 @@ static int aml_nand_add_partition(struct aml_nand_chip *aml_chip)
 				if (i == internal_part_count -1)
 					temp_parts->size = fip_part_size;
 				else
-					temp_parts->size = g_ssp.boot_entry[i + 1].size * g_ssp.boot_bakups;
+					temp_parts->size = g_ssp.boot_entry[i + 1].size *
+							   g_ssp.boot_backups;
 			} else {
 				temp_parts->offset = adjust_offset;
 				temp_parts->size = fip_part_size;
