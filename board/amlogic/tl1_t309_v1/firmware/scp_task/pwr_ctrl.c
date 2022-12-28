@@ -48,7 +48,7 @@ static void power_off_ddr(unsigned int flag)
 
 static void power_off_at_24M(unsigned int suspend_from)
 {
-	/*set gpiaoao_2 high to power on VDDCPU*/
+	/*set gpioao_2 high to power on VDDCPU*/
 	writel(readl(AO_GPIO_O) & (~(1 << 2)), AO_GPIO_O);
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 2)), AO_GPIO_O_EN_N);
 	writel(readl(AO_RTI_PINMUX_REG0) & (~(0xf << 8)), AO_RTI_PINMUX_REG0);
@@ -73,7 +73,7 @@ static void power_on_at_24M(unsigned int suspend_from)
 	set_vddee_voltage(CONFIG_VDDEE_INIT_VOLTAGE);
 	_udelay(100);
 
-	/*set gpiaoao_2 high to power on VDDCPU*/
+	/*set gpioao_2 high to power on VDDCPU*/
 	writel(readl(AO_GPIO_O) | (1 << 2), AO_GPIO_O);
 	writel(readl(AO_GPIO_O_EN_N) & (~(1 << 2)), AO_GPIO_O_EN_N);
 	writel(readl(AO_RTI_PINMUX_REG0) & (~(0xf << 8)), AO_RTI_PINMUX_REG0);
