@@ -610,6 +610,7 @@ static void vpu_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_S5:
 		vpu_conf.data = &vpu_data_s5;
+		break;
 	case MESON_CPU_MAJOR_ID_T5M:
 		vpu_conf.data = &vpu_data_t5m;
 		break;
