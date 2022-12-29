@@ -182,7 +182,7 @@
 
 /* nand */
 &nand {
-	status = "disabled";
+	status = "okay";
 	pinctrl-names = "default", "nand_cs_only";
 	pinctrl-0 = <&all_nand_pins>;
 	pinctrl-1 = <&nand_cs_pins>;
