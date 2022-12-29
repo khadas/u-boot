@@ -551,7 +551,7 @@ int checkhw(char * name)
 				#ifdef CONFIG_HDMITX_ONLY
 				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only\0");
 				#else
-				strcpy(loc_name, "t7c_a311d2_vim4\0");
+				strcpy(loc_name, "t7c_a311d2_vim4n\0");
 				#endif
 			}
 			break;
@@ -559,7 +559,7 @@ int checkhw(char * name)
 			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
 				strcpy(loc_name, "t7_a311d2_vim4\0");
 			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_vim4\0");
+				strcpy(loc_name, "t7c_a311d2_vim4n\0");
 				//
 			}
 			break;
@@ -569,7 +569,7 @@ int checkhw(char * name)
 			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
 				strcpy(loc_name, "t7_a311d2_vim4\0");
 			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_vim4\0");
+				strcpy(loc_name, "t7c_a311d2_vim4n\0");
 				//
 			}
 			break;
