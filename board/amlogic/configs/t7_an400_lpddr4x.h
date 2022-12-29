@@ -94,7 +94,6 @@
 		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
 		"setenv outputmode2 ${hdmimode};"\
 		"osd dual_logo;"\
-		"dovi set;dovi pkg;vpp hdrpkt;"\
 		"\0"
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -334,24 +333,42 @@
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \
-    "setenv outputmode2 ${hdmimode};"\
-    "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-    "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-    "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "\0"\
+	"setenv outputmode2 ${hdmimode};"\
+	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+	"if test ${outputmode2} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"setenv display_layer osd0;osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"if test ${outputmode} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"\0"\
 
 /* dual logo, factory_reset boot, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
-    "setenv outputmode2 ${hdmimode};"\
-    "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-    "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-    "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "\0"\
+	"setenv outputmode2 ${hdmimode};"\
+	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+	"if test ${outputmode2} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"setenv display_layer osd0;osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"if test ${outputmode} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"\0"\
 
 /* single logo */
 #define CONFIG_SINGLE_LOGO \
-    "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "\0"
+	"setenv display_layer osd0;osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"if test ${outputmode} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"\0"
 #endif
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
