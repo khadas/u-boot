@@ -352,7 +352,7 @@ int boot_info_set_active_slot(AvbABData* info, int slot)
 	/* Make requested slot top priority, unsuccessful, and with max tries. */
 	info->slots[slot].priority = AVB_AB_MAX_PRIORITY;
 	info->slots[slot].tries_remaining = AVB_AB_MAX_TRIES_REMAINING;
-	info->slots[slot].successful_boot = 0;
+	//info->slots[slot].successful_boot = 0;
 
 	/* Ensure other slot doesn't have as high a priority. */
 	other_slot_number = 1 - slot;
