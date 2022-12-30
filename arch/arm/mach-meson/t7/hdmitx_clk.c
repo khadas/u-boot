@@ -1030,7 +1030,6 @@ static bool test_pixel_clk(struct hdmitx_dev *hdev, const struct hw_enc_clk_val_
 
 	/* convert both unit to MHz and compare */
 	calc_pixel_clk /= 1000;
-	msr_pixel_clk /= 1000000;
 	if (calc_pixel_clk == msr_pixel_clk)
 		return 1;
 	if (calc_pixel_clk > msr_pixel_clk && ((calc_pixel_clk - msr_pixel_clk) <= CLK_TOLERANCE))
