@@ -263,6 +263,8 @@ void board_power_domain_on(void)
 	// hdmi
 	pwr_ctrl_psci_smc(PM_VPU_HDMI, PWR_ON);
 	pwr_ctrl_psci_smc(PM_HDMIRX, PWR_ON);
+	// spicc1
++	pwr_ctrl_psci_smc(PM_SPICC1, PWR_ON);
 }
 
 int board_late_init(void)
