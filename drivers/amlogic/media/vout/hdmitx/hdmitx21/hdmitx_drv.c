@@ -160,11 +160,32 @@ static void hdmitx21_test_bist(unsigned int mode)
 	u32 width = 1920;
 	u32 height = 1080;
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	bool enci_en = false;
+
+	if (!hdev->para)
+		return;
+	if (hdev->para->timing.pi_mode == 0 &&
+		(hdev->para->timing.v_active == 480 || hdev->para->timing.v_active == 576))
+		enci_en = true;
 
 	switch (mode) {
 	case 1:
 	case 2:
 	case 3:
+		/* for enci */
+		if (enci_en) {
+			/* nearly DE_BEGIN */
+			hd21_write_reg(ENCI_TST_CLRBAR_STRT, 0x112);
+			/* 1440 / 8 = 0xb4 */
+			hd21_write_reg(ENCI_TST_CLRBAR_WIDTH, 0xb4);
+			hd21_write_reg(ENCI_TST_Y, 0x200);
+			hd21_write_reg(ENCI_TST_CB, 0x200);
+			hd21_write_reg(ENCI_TST_CR, 0x200);
+			hd21_write_reg(ENCI_TST_EN, 1);
+			hd21_write_reg(ENCI_TST_MDSEL, mode);
+			break;
+		}
+		/* for encp */
 		width = hdev->para->timing.h_active;
 		/* when FRL works, here will be half rate */
 		if (hdev->frl_rate) {
@@ -179,6 +200,8 @@ static void hdmitx21_test_bist(unsigned int mode)
 		break;
 	case 'x':
 	case 'X':
+		if (enci_en)
+			break;
 		width = hdev->para->timing.h_active;
 		/* when FRL works, here will be half rate */
 		if (hdev->frl_rate) {
@@ -198,8 +221,12 @@ static void hdmitx21_test_bist(unsigned int mode)
 		break;
 	case 0:
 	default:
-		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 1, 3, 1);
-		hd21_write_reg(VENC_VIDEO_TST_EN, 0);
+		if (enci_en) {
+			hd21_write_reg(ENCI_TST_EN, 0);
+		} else {
+			hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 1, 3, 1);
+			hd21_write_reg(VENC_VIDEO_TST_EN, 0);
+		}
 		break;
 	}
 }
