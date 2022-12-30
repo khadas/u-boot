@@ -39,7 +39,8 @@
 /* 20230222: update tcon tee memory debug info*/
 /* 20230303: fix hdmi mode 47hz & 95hz timing*/
 /* 20230313: update tcon debug info print*/
-#define LCD_DRV_VERSION    "20230313"
+/* 20230319: optimize phy code*/
+#define LCD_DRV_VERSION    "20230319"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
