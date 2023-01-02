@@ -262,12 +262,12 @@
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc1_pins>;
-	cs-gpios = <&gpio GPIOH_24 GPIO_ACTIVE_HIGH>;
+	cs-gpios = <&gpio GPIOH_22 GPIO_ACTIVE_HIGH>;
 };
 
 &spicc2 {
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc2_pins>;
+	pinctrl-0 = <&spicc2_pins_c>;
 	cs-gpios = <&gpio GPIOC_3 GPIO_ACTIVE_HIGH>;
 };
