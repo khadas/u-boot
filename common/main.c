@@ -44,6 +44,14 @@ static void modem_init(void)
 
 static void run_preboot_environment_command(void)
 {
+#ifdef CONFIG_YOCTO
+	char *pcmd;
+
+	pcmd = getenv("check_factory_reset");
+	if (pcmd)
+		run_command(pcmd, 0);
+#endif /* CONFIG_YOCTO */
+
 #ifdef CONFIG_PREBOOT
 	char *p;
 

@@ -121,6 +121,9 @@ const uchar default_environment[] = {
 #ifdef	CONFIG_EXTRA_ENV_SETTINGS
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif
+#ifdef CONFIG_YOCTO
+	"check_factory_reset=if test ${factory-reset} != 0; then defenv_reserv factory-reset; saveenv; fi;\0"
+#endif
 	"\0"
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 	}
