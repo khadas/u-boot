@@ -71,7 +71,12 @@ void arch_lmb_reserve(struct lmb *lmb)
 	debug("## Current stack ends at 0x%08lx ", sp);
 
 	/* adjust sp by 4K to be safe */
+#ifdef CONFIG_AML_UASAN
+	/* 4K is not enough if enabled UASAN */
+	sp -= UASAN_STACK_SIZE;
+#else
 	sp -= 4096;
+#endif
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		if (sp < gd->bd->bi_dram[bank].start)
 			continue;
