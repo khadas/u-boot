@@ -69,6 +69,6 @@ void init_dsp(unsigned int id,unsigned int addr,unsigned int cfg0,unsigned int j
 void init_dsp_jtag(unsigned int id);
 
 /*t5 only support to aocpu donot add more api, please use commom api*/
-void scpi_send_data(uint32_t chan, uint32_t command, void *sendmessage,
+int scpi_send_data(uint32_t chan, uint32_t command, void *sendmessage,
 		    uint32_t sendsize, void *revmessage, uint32_t revsize);
 #endif

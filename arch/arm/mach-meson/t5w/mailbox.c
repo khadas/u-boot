@@ -140,19 +140,19 @@ void mhu_init(void)
         writel(REE2AO_CLR_ADDR, 0xffffffffu);
 }
 
-void scpi_send_data(uint32_t chan, uint32_t command, void *sendmessage,
+int scpi_send_data(uint32_t chan, uint32_t command, void *sendmessage,
 		    uint32_t sendsize, void *revmessage, uint32_t revsize)
 {
         uintptr_t mboxset_addr = 0;
         uintptr_t mboxstat_addr = 0;
         uintptr_t mboxpl_addr = 0;
-        int ret;
+	int ret = 0;
 
         ret = mhu_get_addr(chan, &mboxset_addr, &mboxstat_addr, &mboxpl_addr);
         if (ret) {
                 printf("[BL33] mhu pl get addr fail\n");
-                return;
-        }
+		return ret;
+	}
         mhu_message_start(mboxstat_addr);
 	if (sendmessage != NULL && sendsize != 0)
 		mhu_build_payload(mboxpl_addr, sendmessage, sendsize);
@@ -161,4 +161,5 @@ void scpi_send_data(uint32_t chan, uint32_t command, void *sendmessage,
 	if (revmessage != NULL && revsize != 0)
 		mhu_get_payload(mboxpl_addr, revmessage, revsize);
         mhu_message_end(mboxpl_addr);
+	return ret;
 }
