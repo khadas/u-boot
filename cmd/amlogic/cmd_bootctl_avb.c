@@ -19,6 +19,7 @@
 #include "cmd_bootctl_wrapper.h"
 #endif
 #include "cmd_bootctl_utils.h"
+#include <amlogic/store_wrapper.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -370,6 +371,7 @@ static bool boot_info_load(AvbABData *out_info, char *miscbuf)
 static bool boot_info_save(AvbABData *info, char *miscbuf)
 {
 	char *partition = "misc";
+	int ret = 0;
 
 	printf("save boot-info\n");
 
@@ -378,7 +380,16 @@ static bool boot_info_save(AvbABData *info, char *miscbuf)
 
 	memcpy(miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, info, AVB_AB_DATA_SIZE);
 	dump_boot_info(info);
-	store_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
+	ret = store_erase((const char *)partition, 0, MISCBUF_SIZE, 0);
+	if (ret) {
+		printf("store erase failed at %s\n", partition);
+		return false;
+	}
+	ret = store_logic_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
+	if (ret) {
+		printf("store logic write failed at %s\n", partition);
+		return false;
+	}
 	return true;
 }
 
