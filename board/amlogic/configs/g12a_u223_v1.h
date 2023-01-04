@@ -98,6 +98,7 @@
         "dv_fw_addr=0xa00000\0"\
         "panel_type=lcd_1\0" \
 	"lcd_ctrl=0x00000000\0" \
+	"lcd_debug=0x00000000\0" \
 	"outputmode=1080p60hz\0" \
 	"vout_init=disable\0" \
         "hdmimode=1080p60hz\0" \
@@ -160,7 +161,7 @@
 		"logo=${display_layer},loaded,${fb_addr} "\
 		"fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} "\
 		"outputmode=${outputmode} vout=${outputmode},${vout_init} "\
-		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} "\
+		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 		"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
 		"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} "\
 		"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\

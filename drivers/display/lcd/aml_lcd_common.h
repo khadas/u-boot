@@ -54,7 +54,8 @@
 /* 20220809: fix tcon axi mem mistake for DLG tcon bin*/
 /* 20221101: update pinmux contrl*/
 /* 20221215: remove unnecessary tcon top reset*/
-#define LCD_DRV_VERSION    "20221215"
+/* 20230104: update lcd_ctrl and lcd_debug bootargs parameters*/
+#define LCD_DRV_VERSION    "20230104"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)

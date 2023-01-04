@@ -39,6 +39,7 @@ unsigned int lcd_debug_print_flag;
 unsigned int lcd_debug_test;
 static struct aml_lcd_drv_s aml_lcd_driver;
 static struct lcd_boot_ctrl_s boot_ctrl;
+static struct lcd_debug_ctrl_s debug_ctrl;
 
 static void lcd_chip_detect(void)
 {
@@ -319,12 +320,12 @@ static void lcd_module_enable(char *mode, unsigned int frac)
 	if ((lcd_drv->lcd_status & LCD_STATUS_ENCL_ON) == 0)
 		lcd_encl_on();
 	if ((lcd_drv->lcd_status & LCD_STATUS_IF_ON) == 0) {
-		if (boot_ctrl.lcd_init_level == LCD_INIT_LEVEL_NORMAL) {
+		if (boot_ctrl.init_level == LCD_INIT_LEVEL_NORMAL) {
 			lcd_interface_on();
 			lcd_backlight_enable();
 		} else {
 			LCDPR("bypass interface for init_level %d\n",
-			      boot_ctrl.lcd_init_level);
+			      boot_ctrl.init_level);
 		}
 	}
 	if (!lcd_debug_test)
@@ -636,7 +637,7 @@ static int lcd_config_load_id_check(char *dt_addr)
 	}
 #endif
 
-	switch (boot_ctrl.lcd_debug_para) {
+	switch (debug_ctrl.debug_para_source) {
 	case 1:
 		LCDPR("lcd_debug_para: 1,dts\n");
 		load_id = 0x1;
@@ -664,10 +665,10 @@ static int lcd_config_load_id_check(char *dt_addr)
 			return -1;
 	}
 
-	if (boot_ctrl.lcd_debug_para == 1) {
+	if (debug_ctrl.debug_para_source == 1) {
 		aml_lcd_driver.bl_config->bl_key_valid = 0;
 		aml_lcd_driver.lcd_config->lcd_key_valid = 0;
-	} else if (boot_ctrl.lcd_debug_para == 2) {
+	} else if (debug_ctrl.debug_para_source == 2) {
 		aml_lcd_driver.bl_config->bl_key_valid = 1;
 		aml_lcd_driver.lcd_config->lcd_key_valid = 1;
 	}
@@ -699,7 +700,7 @@ static int lcd_mode_probe(char *dt_addr, int load_id)
 {
 	int ret = 0;
 
-	switch (boot_ctrl.lcd_debug_mode) {
+	switch (debug_ctrl.debug_lcd_mode) {
 	case 1:
 		LCDPR("lcd_debug_mode: 1,tv\n");
 		aml_lcd_driver.lcd_config->lcd_mode = LCD_MODE_TV;
@@ -799,24 +800,23 @@ static int lcd_config_probe(void)
 
 static void lcd_update_boot_ctrl_bootargs(void)
 {
+	struct lcd_config_s *pconf = aml_lcd_driver.lcd_config;
 	unsigned int value = 0;
-	char lcd_boot_ctrl[20];
-	char env_str[15];
+	char ctrl_str[20];
 
-	value |= aml_lcd_driver.lcd_config->lcd_basic.lcd_type;
-	switch (aml_lcd_driver.lcd_config->lcd_basic.lcd_type) {
+	boot_ctrl.lcd_type = pconf->lcd_basic.lcd_type;
+	boot_ctrl.lcd_bits = pconf->lcd_basic.lcd_bits;
+	switch (pconf->lcd_basic.lcd_type) {
 	case LCD_TTL:
-		value |=
-(aml_lcd_driver.lcd_config->lcd_control.ttl_config->sync_valid & 0xff) << 8;
+		boot_ctrl.advanced_flag = pconf->lcd_control.ttl_config->sync_valid;
 		break;
 	case LCD_P2P:
-		value |=
-(aml_lcd_driver.lcd_config->lcd_control.p2p_config->p2p_type & 0xff) << 8;
+		boot_ctrl.advanced_flag = pconf->lcd_control.p2p_config->p2p_type;
 		break;
 	default:
 		break;
 	}
-	boot_ctrl.lcd_custom_pinmux = aml_lcd_driver.lcd_config->customer_pinmux ? 1 : 0;
+	boot_ctrl.custom_pinmux = pconf->customer_pinmux ? 1 : 0;
 
 	/*create new env "lcd_ctrl", define as below:
 	 *bit[3:0]: lcd_type
@@ -832,22 +832,44 @@ static void lcd_update_boot_ctrl_bootargs(void)
 	 *3=bsp for uboot)
 	 *bit[31:30]: lcd mode(0=normal, 1=tv; 2=tablet, 3=TBD)
 	*/
-	value |= (aml_lcd_driver.lcd_config->lcd_basic.lcd_bits & 0xf) << 4;
-	value |= (boot_ctrl.lcd_custom_pinmux & 0x1) << 16;
-	value |= (boot_ctrl.lcd_init_level & 0x3) << 18;
+	value |= (boot_ctrl.lcd_type & 0xf);
+	value |= (boot_ctrl.lcd_bits & 0xf) << 4;
+	value |= (boot_ctrl.advanced_flag & 0xff) << 8;
+	value |= (boot_ctrl.custom_pinmux & 0x1) << 16;
+	value |= (boot_ctrl.init_level & 0x3) << 18;
+	sprintf(ctrl_str, "0x%08x", value);
+	setenv("lcd_ctrl", ctrl_str);
+
 	value |= (lcd_debug_print_flag & 0xf) << 20;
 	value |= (lcd_debug_test & 0xf) << 24;
-	value |= (boot_ctrl.lcd_debug_para & 0x3) << 28;
-	value |= (boot_ctrl.lcd_debug_mode & 0x3) << 30;
-	if (strlen(aml_lcd_driver.lcd_config->lcd_basic.model_name) > 0)
-		setenv("panel_name", aml_lcd_driver.lcd_config->lcd_basic.model_name);
-	sprintf(lcd_boot_ctrl, "0x%08x", value);
-	setenv("lcd_ctrl", lcd_boot_ctrl);
+	value |= (debug_ctrl.debug_para_source & 0x3) << 28;
+	value |= (debug_ctrl.debug_lcd_mode & 0x3) << 30;
 
-	if (strlen(aml_lcd_driver.lcd_config->lcd_basic.model_name) > 0) {
-		sprintf(env_str, "panel_name");
-		setenv(env_str, aml_lcd_driver.lcd_config->lcd_basic.model_name);
-	}
+	if (strlen(pconf->lcd_basic.model_name) > 0)
+		setenv("panel_name", pconf->lcd_basic.model_name);
+
+	//================================
+	//debug bootargs
+	//================================
+	value = 0;
+	memset(ctrl_str, 0, 20);
+	debug_ctrl.debug_print_flag = lcd_debug_print_flag;
+	debug_ctrl.debug_test_pattern = lcd_debug_test;
+
+	/*
+	 *bit[31:30]: lcd mode(0=normal, 1=tv; 2=tablet, 3=TBD)
+	 *bit[29:28]: lcd debug para source(0=normal, 1=dts, 2=unifykey,
+	 *                                  3=bsp for uboot)
+	 *bit[27:16]: reserved
+	 *bit[15:8]: lcd test pattern
+	 *bit[7:0]:  lcd debug print flag
+	 */
+	value |= (debug_ctrl.debug_print_flag & 0xff);
+	value |= (debug_ctrl.debug_test_pattern & 0xff) << 8;
+	value |= (debug_ctrl.debug_para_source & 0x3) << 28;
+	value |= (debug_ctrl.debug_lcd_mode & 0x3) << 30;
+	sprintf(ctrl_str, "0x%08x", value);
+	setenv("lcd_debug", ctrl_str);
 }
 
 static struct phy_config_s lcd_phy_cfg = {
@@ -868,11 +890,10 @@ int lcd_probe(void)
 
 	lcd_debug_test = getenv_ulong("lcd_debug_test", 10, 0);
 
-	boot_ctrl.lcd_debug_para = getenv_ulong("lcd_debug_para", 10, 0);
+	debug_ctrl.debug_para_source = getenv_ulong("lcd_debug_para", 10, 0);
+	debug_ctrl.debug_lcd_mode = getenv_ulong("lcd_debug_mode", 10, 0);
 
-	boot_ctrl.lcd_debug_mode = getenv_ulong("lcd_debug_mode", 10, 0);
-
-	boot_ctrl.lcd_init_level = getenv_ulong("lcd_init_level", 10, 0);
+	boot_ctrl.init_level = getenv_ulong("lcd_init_level", 10, 0);
 
 	lcd_chip_detect();
 	lcd_config_bsp_init();
