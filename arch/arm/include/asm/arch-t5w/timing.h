@@ -323,11 +323,12 @@ typedef struct pll_set_new {
 typedef struct pll_set{
 	unsigned	short	cpu_clk;
 	unsigned	short	pxp;
-	unsigned	int		spi_ctrl;
+	unsigned	int	spi_ctrl;
 	unsigned	short	vddee;
 	unsigned	short	vcck;
 	unsigned	char	low_console_baud;
-	unsigned	char	szPad[3];
+	unsigned	char    key_preserve;
+	unsigned	char	szPad[2];
 
 	unsigned	long long	lCustomerID;
 	unsigned	char		debug_mode;

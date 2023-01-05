@@ -474,6 +474,9 @@
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
 
+/* scramble key preserve */
+#define	CONFIG_KEY_PRESERVE			0
+
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
 
