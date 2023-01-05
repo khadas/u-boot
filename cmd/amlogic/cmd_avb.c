@@ -129,6 +129,7 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 					if (num_bytes > valid_data) {
 						memcpy(buffer, tmp_buf + drop_bytes, valid_data);
 						num_bytes -= valid_data;
+						buffer = (uint8_t *)buffer + valid_data;
 					} else {
 						memcpy(buffer, tmp_buf + drop_bytes, num_bytes);
 						num_bytes = 0;
@@ -136,8 +137,13 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 					offset = align + NAND_PAGE_SIZE;
 					free(tmp_buf);
 				}
-				if (num_bytes > 0)
-					rc = store_logic_read(partition, offset, num_bytes, buffer);
+				if (num_bytes > 0) {
+					rc = store_logic_read(partition, offset,
+							num_bytes, buffer);
+					printf("Failed to read");
+					printf("%zdB from part[%s] at %lld\n",
+							num_bytes, partition, offset);
+				}
 			} else {
 				rc = store_logic_read(partition, 0, num_bytes, buffer);
 			}
