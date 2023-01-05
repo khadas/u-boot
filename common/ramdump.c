@@ -53,8 +53,8 @@ void ramdump_init(void)
 		ramdump_base = (ramdump_base & 0xffffff00) << 8;
 	}
 
-	data = readl(PREG_STICKY_REG6);
-	writel(data & ~RAMDUMP_STICKY_DATA_MASK, PREG_STICKY_REG6);
+	data = readl(REG_MDUMP_CPUBOOT_STATUS);
+	writel(data & ~RAMDUMP_STICKY_DATA_MASK, REG_MDUMP_CPUBOOT_STATUS);
 	printf("%s, add:%lx, size:%lx\n", __func__, ramdump_base, ramdump_size);
 
 #ifdef CONFIG_DUMP_COMPRESS_HEAD

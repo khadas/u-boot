@@ -36,6 +36,7 @@
 #define REG_MDUMP_CPUBOOT_STATUS    (SYSCTRL_STICKY_REG6) /* boot status */
 #define REG_MDUMP_COMPRESS_BASE     (SYSCTRL_DEBUG_REG6)  /* ram compress size */
 #define REG_MDUMP_COMPRESS_SIZE     (SYSCTRL_DEBUG_REG7)  /* ram compress start addrs */
+#define REG_MDUMP_REBOOT_MODE       (AO_SEC_SD_CFG15)     /* reboot mode */
 
 /*
  * P_AO_RTI_PINMUX_REG0 use PADCTRL_PIN_MUX_REG0

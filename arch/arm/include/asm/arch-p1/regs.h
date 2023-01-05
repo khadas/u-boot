@@ -31,7 +31,7 @@
 //#define SEC_AO_SEC_GP_CFG0          ((0x00c4  << 2) + 0xfe010000)
 #define AO_SEC_GP_CFG0			    ((0x00c4  << 2) + 0xfe010000) /* DDR total */
 #define AO_RTI_STATUS_REG3		    ((0x00e1  << 2) + 0xfe010000) /* reboot mode */
-//#define REG_MDUMP_REBOOT_MODE             ((0x00df  << 2) + 0xfe010000) /* get_rebootmode */
+#define REG_MDUMP_REBOOT_MODE       (AO_SEC_SD_CFG15)     /* reboot mode */
 
 /* REG_MDUMP_CPUBOOT_STATUS  use SYSCTRL_STICKY_REG6
  * REG_MDUMP_COMPRESS_BASE use SYSCTRL_DEBUG_REG6
