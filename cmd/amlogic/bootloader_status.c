@@ -13,6 +13,7 @@
 #include <fastboot.h>
 #include <emmc_partitions.h>
 #include <asm/arch/efuse.h>
+#include <amlogic/aml_rollback.h>
 
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
