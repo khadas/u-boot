@@ -16,7 +16,9 @@
 #define KDRV_HISILICON_POWER        0x4F505348  // 'HSPO'
 #define KDRV_AMLOGIC_HDCP           0x484C4D41  // 'AMLH'
 #define KDRV_GENERIC_32BIT_WATCHDOG 0x32334457  // 'WD32'
-#define KDRV_AMLOGIC_RNG            0x484C4D52  // 'AMLR'
+// 'RMLH' (typoed, originally intended to by 'AMLR')
+#define KDRV_AMLOGIC_RNG_V1         0x484C4D52  // 'RMLH'
+#define KDRV_AMLOGIC_RNG_V2         0x524c4d41  // 'AMLR'
 
 // kernel driver struct that can be used for simple drivers
 // used by KDRV_PL011_UART, KDRV_AMLOGIC_UART and KDRV_NXP_IMX_UART
@@ -95,7 +97,8 @@ typedef struct {
 	uint32_t flags;
 } dcfg_generic_32bit_watchdog_t;
 
-// for KDRV_AMLOGIC_RNG
+// for KDRV_AMLOGIC_RNG_V1
+// for KDRV_AMLOGIC_RNG_V2
 typedef struct {
 	uint64_t rng_data_phys;
 	uint64_t rng_status_phys;

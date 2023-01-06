@@ -75,6 +75,12 @@ static const dcfg_arm_generic_timer_driver_t timer_driver = {
 	.irq_phys = 30,
 };
 
+static const dcfg_amlogic_rng_driver_t rng_v2_driver = {
+	.rng_data_phys = 0xfe440790, // RNG_REE_OUT0
+	.rng_status_phys = 0xfe440788, // RNG_REE_CFG
+	.rng_refresh_interval_usec = 10,
+};
+
 static const zbi_platform_id_t platform_id = {
 	.vid = PDEV_VID_AMLOGIC,
 	.pid = PDEV_PID_AV400,
@@ -422,6 +428,8 @@ int zircon_preboot(zbi_header_t *zbi)
 			sizeof(psci_driver));
 	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_ARM_GENERIC_TIMER, &timer_driver,
 			sizeof(timer_driver));
+	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_AMLOGIC_RNG_V2, &rng_v2_driver,
+			sizeof(rng_v2_driver));
 	zircon_append_boot_item(zbi, ZBI_TYPE_CMDLINE, 0, BOOTLOADER_VERSION,
 			strlen(BOOTLOADER_VERSION) + 1);
 	// add platform ID
