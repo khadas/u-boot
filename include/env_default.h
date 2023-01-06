@@ -122,7 +122,7 @@ const uchar default_environment[] = {
 	CONFIG_EXTRA_ENV_SETTINGS
 #endif
 #ifdef CONFIG_YOCTO
-	"check_factory_reset=if test ${factory-reset} != 0; then defenv_reserv factory-reset; saveenv; fi;\0"
+	"check_factory_reset=if pri factory-reset; then if test ${factory-reset} != 0; then defenv_reserv factory-reset model_name panel_type; saveenv; fi; fi;\0"
 #endif
 	"\0"
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED

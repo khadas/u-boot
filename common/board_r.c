@@ -679,6 +679,20 @@ static int initr_kbd(void)
 }
 #endif
 
+#ifdef CONFIG_YOCTO
+static int initr_check_factory_reset(void)
+{
+	if (getenv("factory-reset")) {
+		char *pcmd;
+
+		pcmd = getenv("check_factory_reset");
+		if (pcmd)
+			run_command(pcmd, 0);
+	}
+	return 0;
+}
+#endif /* CONFIG_YOCTO */
+
 static int run_main_loop(void)
 {
 #ifdef CONFIG_SANDBOX
@@ -844,6 +858,9 @@ init_fnc_t init_sequence_r[] = {
 	/* PPC has a udelay(20) here dating from 2002. Why? */
 #ifdef CONFIG_CMD_NET
 	initr_ethaddr,
+#endif
+#ifdef CONFIG_YOCTO
+	initr_check_factory_reset,
 #endif
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
