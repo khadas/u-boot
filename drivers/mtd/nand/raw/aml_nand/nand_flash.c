@@ -490,6 +490,18 @@ struct aml_nand_flash_dev aml_nand_flash_ids[] = {
 		0,
 		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
 
+	{"4Gib MT29F4G08ABAFA",
+		{NAND_MFR_MICRON, 0xdc, 0x80, 0xA6, 0x62},
+		4096,
+		512,
+		0x40000,
+		224,
+		1,
+		16,
+		15,
+		0,
+		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE)},
+
 	{"4Gib MT29F4G08ABAEA",
 		{NAND_MFR_MICRON, 0xdc, 0x90, 0xA6, 0x54},
 		4096,
