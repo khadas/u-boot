@@ -201,8 +201,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		}
 		if (strstr(argv[1], "hz420"))
 			hdev->para->cs = HDMI_COLORSPACE_YUV420;
-		/* For RGB444 or YCbCr444 under 6Gbps mode, no deepcolor */
-		/* Only 4k50/60 has 420 modes */
+		/* S5 support over 6G, T7 not support */
 		switch (hdev->vic) {
 		case HDMI_96_3840x2160p50_16x9:
 		case HDMI_97_3840x2160p60_16x9:
@@ -210,15 +209,17 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case HDMI_102_4096x2160p60_256x135:
 		case HDMI_106_3840x2160p50_64x27:
 		case HDMI_107_3840x2160p60_64x27:
-			if (hdev->para->cs == HDMI_COLORSPACE_RGB ||
-			    hdev->para->cs == HDMI_COLORSPACE_YUV444) {
-				if (hdev->para->cd != COLORDEPTH_24B) {
-					printf("vic %d cs %d has no cd %d\n",
-						hdev->vic,
-						hdev->para->cs,
-						hdev->para->cd);
-					hdev->para->cd = COLORDEPTH_24B;
-					printf("set cd as %d\n", COLORDEPTH_24B);
+			if (hdev->chip_type == MESON_CPU_ID_T7) {
+				if (hdev->para->cs == HDMI_COLORSPACE_RGB ||
+				    hdev->para->cs == HDMI_COLORSPACE_YUV444) {
+					if (hdev->para->cd != COLORDEPTH_24B) {
+						printf("vic %d cs %d has no cd %d\n",
+							hdev->vic,
+							hdev->para->cs,
+							hdev->para->cd);
+						hdev->para->cd = COLORDEPTH_24B;
+						printf("set cd as %d\n", COLORDEPTH_24B);
+					}
 				}
 			}
 			break;
