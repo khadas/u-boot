@@ -31,6 +31,8 @@
 
 #include <amlogic/aml_efuse.h>
 #include <amlogic/image_check.h>
+#include <amlogic/aml_rollback.h>
+#include <partition_table.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -253,6 +255,16 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				}
 #endif
 			}
+
+#ifdef CONFIG_AML_ANTIROLLBACK
+			if (rc == AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX) {
+				if (has_boot_slot == 1) {
+					wrnP("ab mode\n");
+					update_rollback();
+				}
+			}
+#endif
+
 			if (nRet != AVB_SLOT_VERIFY_RESULT_OK) {
 				avb_slot_verify_data_free(out_data);
 				return nRet;
