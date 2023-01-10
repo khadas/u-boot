@@ -50,7 +50,7 @@
    That is used for recovery and the bootloader to talk to each other
   */
 #ifndef CONFIG_PXP_DDR
-#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+//#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 #endif// #ifndef CONFIG_PXP_DDR
 
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
@@ -246,7 +246,7 @@
 		"get_avb_mode;"\
 		"get_valid_slot;"\
 		"if test ${vendor_boot_mode} = true; then "\
-			"setenv loadaddr_kernel 0x3080000;"\
+			"setenv loadaddr_kernel 0x5600000;"\
 			"setenv dtb_mem_addr 0x1000000;"\
 		"fi;"\
 		"if test ${active_slot} != normal; then "\
@@ -316,7 +316,7 @@
 	"fi;"\
 	"\0"\
 
-#ifndef CONFIG_PXP_EMULATOR
+/*
 #define CONFIG_PREBOOT  \
 		"run bcb_cmd; "\
 		"run upgrade_check;"\
@@ -324,14 +324,17 @@
 		"run storeargs;"\
 		"bcb uboot-command;"\
 		"run switch_bootmode;"
-#else
-#define CONFIG_PREBOOT  "echo preboot"
-#endif
+ */
+#define CONFIG_PREBOOT  \
+			"run storeargs;"
+
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
-#define CONFIG_ENV_SIZE   (64 * 1024)
-#define CONFIG_FIT 1
+#define CONFIG_ENV_SIZE   (16 * 1024)
+//#define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
-#define CONFIG_ANDROID_BOOT_IMAGE 1
+
+//#define CONFIG_ANDROID_BOOT_IMAGE 1
+
 #define CONFIG_SYS_BOOTM_LEN (64 << 20) /* Increase max gunzip size*/
 
 /* ATTENTION */
@@ -417,8 +420,8 @@
 #define AML_VPU_CLK_LEVEL_DFT 4
 
 /* osd */
-#define OSD_SCALE_ENABLE
-#define AML_OSD_HIGH_VERSION
+//#define OSD_SCALE_ENABLE
+//#define AML_OSD_HIGH_VERSION
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
@@ -459,9 +462,9 @@
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
 	#define CONFIG_HOSTNAME        "arm_gxbb"
-#if 0
-	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
-#endif
+
+//	#define CONFIG_RANDOM_ETHADDR  1		/* use random eth addr, or default */
+
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
 	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
 	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
@@ -472,29 +475,28 @@
 #define MAC_ADDR_NEW  1
 
 /* other devices */
-#define CONFIG_SHA1 1
-#define CONFIG_MD5 1
+//#define CONFIG_SHA1 1
+//#define CONFIG_MD5 1
 
 /* commands */
-/* #define CONFIG_CMD_PLLTEST 1 */
 
 /*file system*/
-#define CONFIG_DOS_PARTITION 1
-#define CONFIG_EFI_PARTITION 1
+//#define CONFIG_DOS_PARTITION 1
+//#define CONFIG_EFI_PARTITION 1
 /* #define CONFIG_MMC 1 */
-#define CONFIG_FS_FAT 1
-#define CONFIG_FS_EXT4 1
-#define CONFIG_LZO 1
+//#define CONFIG_FS_FAT 1
+//#define CONFIG_FS_EXT4 1
+//#define CONFIG_LZO 1
 
-#define CONFIG_FAT_WRITE 1
-#define CONFIG_AML_FACTORY_PROVISION 1
+//#define CONFIG_FAT_WRITE 1
+//#define CONFIG_AML_FACTORY_PROVISION 1
 
 /* Cache Definitions */
 /* #define CONFIG_SYS_DCACHE_OFF */
 /* #define CONFIG_SYS_ICACHE_OFF */
 
 /* other functions */
-#define CONFIG_LIBAVB		1
+//#define CONFIG_LIBAVB		1
 
 /* define CONFIG_SYS_MEM_TOP_HIDE 8M space for free buffer */
 #define CONFIG_SYS_MEM_TOP_HIDE		0x001000000
@@ -508,15 +510,15 @@
 #define CONFIG_CLK_A5_TYPE
 
 //use sha2 command
-#define CONFIG_CMD_SHA2
+//#define CONFIG_CMD_SHA2
 
 //use startdsp command
 //#define CONFIG_CMD_STARTDSP
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
 
-#define CONFIG_MULTI_DTB    1
+//#define CONFIG_MULTI_DTB    1
 
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1
