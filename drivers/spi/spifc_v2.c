@@ -18,6 +18,7 @@
 #include <dm/lists.h>
 #include <dm/util.h>
 #include <dm/pinctrl.h>
+#include <asm/arch/spinand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,7 +57,6 @@ struct spifc_priv {
 #define SPIFC_DEFAULT_SPEED		24000000
 #define SPIFC_CACHE_SIZE_IN_WORD 128
 #define SPIFC_CACHE_SIZE_IN_BYTE SPIFC_CACHE_SIZE_IN_WORD << 2
-#define SPI_ADDR_BASE           0xf1000000
 
 static void spifc_set_rx_op_mode(struct spifc_priv *priv,
 				 unsigned int slave_mode, unsigned char cmd)
