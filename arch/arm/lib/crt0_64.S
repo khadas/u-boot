@@ -63,6 +63,12 @@ ENTRY(_main)
  */
 	ldr	x0, =(CONFIG_SYS_INIT_SP_ADDR)
 	sub	x0, x0, #GD_SIZE	/* allocate one GD above SP */
+#ifdef CONFIG_AML_UASAN
+	/* add 8mb more to avoid stack overlap with uboot code sice uasan
+	 * code will larger than normal build
+	 */
+	add	x0, x0, #0x800000
+#endif
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */
 	mov	x18, sp			/* GD is above SP */
 	mov	x0, #0
@@ -76,6 +82,9 @@ ENTRY(_main)
 	ldr	x0, [x18, #GD_START_ADDR_SP]	/* x0 <- gd->start_addr_sp */
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */
 	ldr	x18, [x18, #GD_BD]		/* x18 <- gd->bd */
+#ifdef CONFIG_AML_UASAN
+	sub	x18, x18, #MEM_SECTION_RED_ZONE_SIZE
+#endif
 	sub	x18, x18, #GD_SIZE		/* new GD is below bd */
 
 	adr	lr, relocation_return

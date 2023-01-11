@@ -30,6 +30,16 @@ SECTIONS
 	}
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
+#if	1
+	/* uasan global register */
+	.init_array :
+	{
+		__init_array_start = .;
+		KEEP(*(.init_array))
+		__init_array_end = .;
+	}
+#endif
+
 	. = ALIGN(8);
 	.data : {
 		*(.data*)
@@ -84,7 +94,7 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	}
 
-	ASSERT(_end <= 0x01200000, "bl33 image has exceeded its limit.")
+	ASSERT(_end <= 0x01800000, "bl33 image has exceeded its limit.")
 
 	/DISCARD/ : { *(.dynsym) }
 	/DISCARD/ : { *(.dynstr*) }

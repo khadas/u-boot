@@ -86,3 +86,17 @@ void reset_system(void)
 void reset_cpu(unsigned long flag){
 	reset_system();
 }
+
+#ifdef CONFIG_AML_UASAN
+int is_register(unsigned long addr)
+{
+	/*
+	 * skip asan range check for registers address,
+	 * see mem_map.xls of this soc
+	 */
+	if (addr >= 0xF5000000UL && addr < 0xFFFFFFFFUL)
+		return 1;
+	else
+		return 0;
+}
+#endif

@@ -65,6 +65,7 @@ obj-y += linux_string.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o
 obj-y += time.o
+obj-y += hexdump.o
 obj-$(CONFIG_TRACE) += trace.o
 obj-$(CONFIG_CMD_GPT) += uuid.o
 obj-y += vsprintf.o
@@ -74,4 +75,6 @@ obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += kvstore.o
 obj-y += libavb/
 
 obj-y += rand.o
+obj-$(CONFIG_AML_UASAN) += uasan/
+
 subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2

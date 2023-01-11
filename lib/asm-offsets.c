@@ -42,5 +42,8 @@ int main(void)
 
 #endif
 
+#if defined(CONFIG_AML_UASAN)
+	DEFINE(MEM_SECTION_RED_ZONE_SIZE, MEM_SECTION_RED_ZONE_SIZE);
+#endif
 	return 0;
 }

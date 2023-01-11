@@ -15,6 +15,8 @@
 #ifndef __ASM_ARM_BITOPS_H
 #define __ASM_ARM_BITOPS_H
 
+#include <asm-generic/bitops/__ffs.h>
+
 #ifdef __KERNEL__
 
 #include <asm/proc-armv/system.h>
@@ -189,5 +191,9 @@ found_middle:
 #define minix_find_first_zero_bit(addr,size)	find_first_zero_bit(addr,size)
 
 #endif /* __KERNEL__ */
+
+#include <asm-generic/bitops/__fls.h>
+#include <asm-generic/bitops/fls.h>
+#include <asm-generic/bitops/fls64.h>
 
 #endif /* _ARM_BITOPS_H */

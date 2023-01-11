@@ -75,12 +75,21 @@ extern char * strswab(const char *);
 #endif
 
 #ifndef __HAVE_ARCH_MEMSET
+#ifdef CONFIG_AML_UASAN
+void *__memset(void *, int, __kernel_size_t);
+#endif
 extern void * memset(void *,int,__kernel_size_t);
 #endif
 #ifndef __HAVE_ARCH_MEMCPY
+#ifdef CONFIG_AML_UASAN
+void *__memcpy(void *, const void *,  __kernel_size_t);
+#endif
 extern void * memcpy(void *,const void *,__kernel_size_t);
 #endif
 #ifndef __HAVE_ARCH_MEMMOVE
+#ifdef CONFIG_AML_UASAN
+void *__memmove(void *, const void *, __kernel_size_t);
+#endif
 extern void * memmove(void *,const void *,__kernel_size_t);
 #endif
 #ifndef __HAVE_ARCH_MEMSCAN
@@ -94,6 +103,16 @@ extern void * memchr(const void *,int,__kernel_size_t);
 #endif
 #ifndef __HAVE_ARCH_MEMCHR_INV
 void *memchr_inv(const void *, int, size_t);
+#endif
+
+#if defined(CONFIG_AML_UASAN) && !defined(__SANITIZE_ADDRESS__)
+/*
+ * For files that are not instrumented (e.g. mm/slub.c) we
+ * should use not instrumented version of mem* functions.
+ */
+#define memcpy(dst, src, len) __memcpy(dst, src, len)
+#define memmove(dst, src, len) __memmove(dst, src, len)
+#define memset(s, c, n) __memset(s, c, n)
 #endif
 
 unsigned long ustrtoul(const char *cp, char **endp, unsigned int base);

@@ -2,6 +2,7 @@
 #define _LINUX_BITOPS_H
 
 #include <asm/types.h>
+#include <linux/compiler.h>
 
 /*
  * ffs: find first bit set. This is defined the same way as
@@ -126,6 +127,13 @@ static inline unsigned int generic_hweight8(unsigned int w)
 #ifndef PLATFORM_FLS
 # define fls generic_fls
 #endif
+
+static inline unsigned fls_long(unsigned long l)
+{
+	if (sizeof(l) == 4)
+		return fls(l);
+	return fls64(l);
+}
 
 /**
  * __set_bit - Set a bit in memory

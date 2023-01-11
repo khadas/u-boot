@@ -4,6 +4,10 @@
 #define DEBUG
 #endif
 
+#ifdef CONFIG_AML_UASAN
+#include <amlogic/uasan.h>
+#endif
+
 #if 0	/* Moved to malloc.h */
 /* ---------- To make a malloc.h, start cutting here ------------ */
 
@@ -1288,6 +1292,22 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 /* conversion from malloc headers to user pointers, and back */
 
+#ifdef CONFIG_AML_UASAN
+
+#define chunk2mem(p)   ((Void_t *)((char *)(p) + \
+			(2 * SIZE_SZ + UASAN_ALLOCA_REDZONE_SIZE)))
+#define mem2chunk(mem) ((mchunkptr)((char *)(mem) - \
+			(2 * SIZE_SZ + UASAN_ALLOCA_REDZONE_SIZE)))
+
+/* insert red zone when get alloc size */
+#define request2size(req) \
+	((((long)((req) + (SIZE_SZ + MALLOC_ALIGN_MASK)) < \
+	 (long)(MINSIZE + MALLOC_ALIGN_MASK)) ? MINSIZE : \
+	 (((req) + (SIZE_SZ + MALLOC_ALIGN_MASK)) & ~(MALLOC_ALIGN_MASK))) + \
+	 UASAN_ALLOCA_REDZONE_SIZE * 2)
+
+#else /* CONFIG_AML_UASAN */
+
 #define chunk2mem(p)   ((Void_t*)((char*)(p) + 2*SIZE_SZ))
 #define mem2chunk(mem) ((mchunkptr)((char*)(mem) - 2*SIZE_SZ))
 
@@ -1297,6 +1317,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  (((long)((req) + (SIZE_SZ + MALLOC_ALIGN_MASK)) < \
   (long)(MINSIZE + MALLOC_ALIGN_MASK)) ? MINSIZE : \
    (((req) + (SIZE_SZ + MALLOC_ALIGN_MASK)) & ~(MALLOC_ALIGN_MASK)))
+#endif /* CONFIG_AML_UASAN */
 
 /* Check if m has acceptable alignment */
 
@@ -2221,7 +2242,12 @@ Void_t* mALLOc(bytes) size_t bytes;
       unlink(victim, bck, fwd);
       set_inuse_bit_at_offset(victim, victim_size);
       check_malloced_chunk(victim, nb);
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
       return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
     }
 
     idx += 2; /* Set for bin scan below. We've already scanned 2 bins. */
@@ -2248,7 +2274,12 @@ Void_t* mALLOc(bytes) size_t bytes;
 	unlink(victim, bck, fwd);
 	set_inuse_bit_at_offset(victim, victim_size);
 	check_malloced_chunk(victim, nb);
-	return chunk2mem(victim);
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
+      return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
       }
     }
 
@@ -2271,7 +2302,12 @@ Void_t* mALLOc(bytes) size_t bytes;
       set_head(remainder, remainder_size | PREV_INUSE);
       set_foot(remainder, remainder_size);
       check_malloced_chunk(victim, nb);
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
       return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
     }
 
     clear_last_remainder;
@@ -2280,7 +2316,12 @@ Void_t* mALLOc(bytes) size_t bytes;
     {
       set_inuse_bit_at_offset(victim, victim_size);
       check_malloced_chunk(victim, nb);
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
       return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
     }
 
     /* Else place in bin */
@@ -2335,7 +2376,12 @@ Void_t* mALLOc(bytes) size_t bytes;
 	    set_head(remainder, remainder_size | PREV_INUSE);
 	    set_foot(remainder, remainder_size);
 	    check_malloced_chunk(victim, nb);
-	    return chunk2mem(victim);
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
+      return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
 	  }
 
 	  else if (remainder_size >= 0)  /* take */
@@ -2343,7 +2389,12 @@ Void_t* mALLOc(bytes) size_t bytes;
 	    set_inuse_bit_at_offset(victim, victim_size);
 	    unlink(victim, bck, fwd);
 	    check_malloced_chunk(victim, nb);
-	    return chunk2mem(victim);
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
+      return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
 	  }
 
 	}
@@ -2391,7 +2442,12 @@ Void_t* mALLOc(bytes) size_t bytes;
     /* If big and would otherwise need to extend, try to use mmap instead */
     if ((unsigned long)nb >= (unsigned long)mmap_threshold &&
 	(victim = mmap_chunk(nb)) != 0)
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
       return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
 #endif
 
     /* Try to extend */
@@ -2405,7 +2461,12 @@ Void_t* mALLOc(bytes) size_t bytes;
   top = chunk_at_offset(victim, nb);
   set_head(top, remainder_size | PREV_INUSE);
   check_malloced_chunk(victim, nb);
-  return chunk2mem(victim);
+    #ifdef CONFIG_AML_UASAN
+      uasan_alloc(victim, bytes);
+      return chunk2mem(victim);
+    #else
+      return chunk2mem(victim);
+    #endif
 
 }
 
@@ -2474,6 +2535,9 @@ void fREe(mem) Void_t* mem;
   check_inuse_chunk(p);
 
   sz = hd & ~PREV_INUSE;
+#ifdef CONFIG_AML_UASAN
+  uasan_free(p, sz);
+#endif
   next = chunk_at_offset(p, sz);
   nextsz = chunksize(next);
 
@@ -2660,7 +2724,12 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	  top = chunk_at_offset(oldp, nb);
 	  set_head(top, (newsize - nb) | PREV_INUSE);
 	  set_head_size(oldp, nb);
+	#ifdef CONFIG_AML_UASAN
+	  uasan_alloc(oldp, bytes);
 	  return chunk2mem(oldp);
+	#else
+	  return chunk2mem(oldp);
+	#endif
 	}
       }
 
@@ -2698,11 +2767,22 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	    newp = prev;
 	    newsize += prevsize + nextsize;
 	    newmem = chunk2mem(newp);
+	  #ifdef CONFIG_AML_UASAN
+	    MALLOC_COPY(newmem - UASAN_ALLOCA_REDZONE_SIZE,
+	                oldmem - UASAN_ALLOCA_REDZONE_SIZE,
+	                oldsize - SIZE_SZ);
+	  #else
 	    MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
+	  #endif
 	    top = chunk_at_offset(newp, nb);
 	    set_head(top, (newsize - nb) | PREV_INUSE);
 	    set_head_size(newp, nb);
+	  #ifdef CONFIG_AML_UASAN
+	    uasan_alloc(newp, bytes);
 	    return newmem;
+	  #else
+	    return newmem;
+	  #endif
 	  }
 	}
 
@@ -2714,7 +2794,13 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	  newp = prev;
 	  newsize += nextsize + prevsize;
 	  newmem = chunk2mem(newp);
+	#ifdef CONFIG_AML_UASAN
+	  MALLOC_COPY(newmem - UASAN_ALLOCA_REDZONE_SIZE,
+		      oldmem - UASAN_ALLOCA_REDZONE_SIZE,
+		      oldsize - SIZE_SZ);
+	#else
 	  MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
+	#endif
 	  goto split;
 	}
       }
@@ -2726,7 +2812,13 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	newp = prev;
 	newsize += prevsize;
 	newmem = chunk2mem(newp);
-	MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
+	#ifdef CONFIG_AML_UASAN
+	  MALLOC_COPY(newmem - UASAN_ALLOCA_REDZONE_SIZE,
+		      oldmem - UASAN_ALLOCA_REDZONE_SIZE,
+		      oldsize - SIZE_SZ);
+	#else
+	  MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
+	#endif
 	goto split;
       }
     }
@@ -2749,7 +2841,13 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
     }
 
     /* Otherwise copy, free, and exit */
-    MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
+	#ifdef CONFIG_AML_UASAN
+	  MALLOC_COPY(newmem - UASAN_ALLOCA_REDZONE_SIZE,
+		      oldmem - UASAN_ALLOCA_REDZONE_SIZE,
+		      oldsize - SIZE_SZ);
+	#else
+	  MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
+	#endif
     fREe(oldmem);
     return newmem;
   }
@@ -2773,7 +2871,12 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
   }
 
   check_inuse_chunk(newp);
+#ifdef CONFIG_AML_UASAN
+  uasan_alloc(newp, bytes);
   return chunk2mem(newp);
+#else
+  return chunk2mem(newp);
+#endif
 }
 
 
@@ -2891,7 +2994,12 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
   }
 
   check_inuse_chunk(p);
+#ifdef CONFIG_AML_UASAN
+  uasan_alloc(p, bytes);
   return chunk2mem(p);
+#else
+  return chunk2mem(p);
+#endif
 
 }
 
@@ -2985,7 +3093,12 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
     }
 #endif
 
+#ifdef CONFIG_AML_UASAN
+    /* avoid overwrite */
+    MALLOC_ZERO(mem, csz - SIZE_SZ - UASAN_ALLOCA_REDZONE_SIZE);
+#else
     MALLOC_ZERO(mem, csz - SIZE_SZ);
+#endif
     return mem;
   }
 }

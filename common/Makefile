@@ -24,6 +24,9 @@ ifdef CONFIG_BOOT_RETRY_TIME
 obj-y += bootretry.o
 endif
 
+UASAN_SANITIZE_board_f.o := n
+UASAN_SANITIZE_dlmalloc.o := n
+
 # boards
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
