@@ -144,6 +144,15 @@
         "cec_fun=0x2F\0" \
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
+        "check_connector_type="\
+                "setenv bootconfig ${bootconfig} androidboot.connector_type=" \
+                "${connector_type};\0"\
+        "check_connector1_type="\
+                "setenv bootconfig ${bootconfig} androidboot.connector1_type=" \
+                "${connector1_type};\0"\
+        "check_connector2_type="\
+                "setenv bootconfig ${bootconfig} androidboot.connector2_type=" \
+                "${connector2_type};\0"\
 	CONFIG_EXTRA_HDMI_ENV_SETTINGS \
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
@@ -158,6 +167,9 @@
 			"run storeargs_base;"\
 			"run storeargs_hdmitx;"\
             "run cmdline_keys;"\
+			"run check_connector_type; " \
+			"run check_connector1_type; " \
+			"run check_connector2_type; " \
             "\0"\
 	"cec_init="\
 		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
