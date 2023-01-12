@@ -1307,6 +1307,66 @@ config TARGET_T3_T965D4
 
 endif
 
+if MESON_T3X
+
+config SYS_SOC
+	default "t3x"
+
+config DDRFW_TYPE
+	string "t3x FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+        string "T3X CHIPSET NAME"
+        default "t963d4"
+
+config CHIPSET_VARIANT
+        string "T3X CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "T3X AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+config BL30_SELECT
+	string "T3X BL30 board config"
+	default "t3x_skt"
+
+choice
+	prompt "T3X Board"
+
+config T3X_SKT
+	bool "T3X_SKT"
+	select TARGET_T3X_SKT
+	help
+		Select T3X SKT(XXXX) config
+
+config T3X_AY301
+	bool "T3X_AY301"
+	select TARGET_T3X_AY301
+	help
+		Select T3X AY301 config
+
+config T3X_AY309
+	bool "T3X_AY309"
+	select TARGET_T3X_AY309
+	help
+		Select T3X AY309 config
+endchoice
+
+config TARGET_T3X_SKT
+	bool "T3X SKT board"
+	depends on T3X_SKT
+
+config TARGET_T3X_AY301
+	bool "T3X AY301 board"
+	depends on T3X_AY301
+
+config TARGET_T3X_AY309
+	bool "T3X AY309 board"
+	depends on T3X_AY309
+endif
+
 if MESON_T5M
 
 config SYS_SOC
@@ -1649,3 +1709,6 @@ source "board/amlogic/a4_ba400/Kconfig"
 source "board/amlogic/a4_ba400_zircon/Kconfig"
 
 source "board/amlogic/a4_ba409/Kconfig"
+
+source "board/amlogic/t3x_skt/Kconfig"
+
