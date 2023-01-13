@@ -370,7 +370,7 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "system",
 	.offset = 0,
-	.size = 288 * SZ_1M,
+	.size = 224 * SZ_1M,
 },
 {
 	.name = "vendor",
