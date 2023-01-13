@@ -290,8 +290,20 @@ int ft_board_setup(void *blob, bd_t *bd)
 int checkhw(char *name)
 {
 	char dtb_name[64] = {0};
+	cpu_id_t cpu_id = get_cpu_id();
 
-	strcpy(dtb_name, "s5_ax201_s928x");
+	switch (cpu_id.chip_rev) {
+	case 0xA:
+		strcpy(dtb_name, "s5_s928x_ax201\0");
+		break;
+	case 0xB:
+		strcpy(dtb_name, "s5_s928x_ax201-v2\0");
+		break;
+	default:
+		strcpy(dtb_name, "s5_s928x_ax201-unsupport\0");
+		break;
+	}
+
 	strcpy(name, dtb_name);
 	env_set("aml_dt", dtb_name);
 	return 0;
