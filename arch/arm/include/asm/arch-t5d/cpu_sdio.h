@@ -33,7 +33,7 @@
 #define MMC_DDR_COPHASE			2
 #define MMC_HS2_COPHASE         2
 #define MMC_HS4_COPHASE         0
-#define MMC_HS400_TXDELAY		16
+#define MMC_HS400_TXDELAY		10
 #define CLKSRC_BASE            0Xff646000
 
 #define	SD_EMMC_RXD_ERROR				1
