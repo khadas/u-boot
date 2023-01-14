@@ -4482,6 +4482,8 @@ static int rockchip_vop2_set_plane(struct display_state *state)
 	if (ret)
 		return ret;
 
+extern int vpx_id;
+	vpx_id = cstate->crtc_id;
 	printf("VOP VP%d enable %s[%dx%d->%dx%d@%dx%d] fmt[%d] addr[0x%x]\n",
 		cstate->crtc_id, get_plane_name(primary_plane_id, plane_name),
 		cstate->src_rect.w, cstate->src_rect.h, cstate->crtc_rect.w, cstate->crtc_rect.h,

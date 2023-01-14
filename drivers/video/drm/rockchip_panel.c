@@ -26,6 +26,9 @@
 #include "rockchip_connector.h"
 #include "rockchip_panel.h"
 
+int is_mipi_lcd_exit = 0x0;
+int vpx_id = 0;
+
 struct rockchip_cmd_header {
 	u8 data_type;
 	u8 delay_ms;
@@ -292,13 +295,14 @@ static int rockchip_panel_send_dsi_cmds(struct mipi_dsi_device *dsi,
 	return 0;
 }
 
+extern int khadas_mipi_id;
 static void panel_simple_prepare(struct rockchip_panel *panel)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(panel->dev);
 	struct rockchip_panel_priv *priv = dev_get_priv(panel->dev);
 	struct mipi_dsi_device *dsi = dev_get_parent_platdata(panel->dev);
 	int ret;
-	//u8 mode;
+	u8 mode;
 
 	if (priv->prepared)
 		return;
@@ -315,8 +319,28 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 	if (plat->delay.init)
 		mdelay(plat->delay.init);
 
-	//mipi_dsi_dcs_get_power_mode(dsi, &mode);
-	//printf("0x8===>mode: 0x%x\n", mode);
+	mipi_dsi_dcs_get_power_mode(dsi, &mode);
+	if(0x8 == mode){
+		is_mipi_lcd_exit = is_mipi_lcd_exit | (0x1 << vpx_id);
+	}
+	else{
+		if(2 == vpx_id && 2!=khadas_mipi_id){
+			is_mipi_lcd_exit = is_mipi_lcd_exit & 0xb;
+			run_command("fdt set /dsi@fde20000 status disable", 0);
+			run_command("fdt set /dsi@fde20000/panel@0 status disable", 0);
+			run_command("fdt set /dsi@fde20000/ports/port@0/endpoint@0 status disable", 0);
+			run_command("fdt set /display-subsystem/route/route-dsi0 status disable", 0);
+		}
+		else if(3 == vpx_id && 2!=khadas_mipi_id){
+			is_mipi_lcd_exit = is_mipi_lcd_exit & 0x7;
+			run_command("fdt set /dsi@fde30000 status disable", 0);
+			run_command("fdt set /dsi@fde30000/panel@0 status disable", 0);
+			run_command("fdt set /dsi@fde30000/ports/port@0/endpoint@1 status disable", 0);
+			run_command("fdt set /display-subsystem/route/route-dsi1 status disable", 0);
+		}
+		printf("(vpx_id=%x)==(is_mipi_lcd_exit=%x)=vp2 and vp3 status disable\n", vpx_id,is_mipi_lcd_exit);
+	}
+	printf("0x8===>mode: 0x%d is_mipi_lcd_exit=%d\n", mode,is_mipi_lcd_exit);
        /*ret = mipi_dsi_dcs_read(dsi, 0xDA, &khadas_mipi_id, sizeof(khadas_mipi_id));
        if (ret <= 0) {
                printf("mipi_dsi_dcs_read ID ,error=%d!!\n", ret);
