@@ -424,6 +424,13 @@ static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
 	run_command("reboot fastboot", 0);
 }
 
+static void compl_do_reboot_recovery(struct usb_ep *ep, struct usb_request *req)
+{
+#ifndef CONFIG_USB_GADGET_CRG
+	f_dwc_otg_pullup(0);
+#endif
+	run_command("reboot recovery", 0);
+}
 
 static unsigned int rx_bytes_expected(struct usb_ep *ep)
 {
@@ -554,9 +561,8 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		pr_err("buffer overflow");
 		fastboot_fail("buffer overflow", response);
 	}
-
 	if (!strncmp("DATA", response, 4)) {
-		if (cmd == 5) {
+		if (cmd == 11) {
 			printf("come to fetch code\n");
 			struct usb_ep *inep = fastboot_func->in_ep;
 			struct usb_request *inreq = fastboot_func->in_req;
@@ -603,6 +609,9 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 			break;
 		case FASTBOOT_COMMAND_REBOOT_FASTBOOT:
 			fastboot_func->in_req->complete = compl_do_reboot_fastboot;
+			break;
+		case FASTBOOT_COMMAND_REBOOT_RECOVERY:
+			fastboot_func->in_req->complete = compl_do_reboot_recovery;
 			break;
 		}
 	}

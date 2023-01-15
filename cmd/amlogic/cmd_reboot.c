@@ -161,7 +161,10 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			reboot_mode_val = AMLOGIC_COLD_BOOT;
 		else if (strcmp(mode, "normal") == 0)
 			reboot_mode_val = AMLOGIC_NORMAL_BOOT;
-		else if (strcmp(mode, "recovery") == 0 || strcmp(mode, "factory_reset") == 0)
+		else if (strcmp(mode, "recovery") == 0) {
+			reboot_mode_val = AMLOGIC_FACTORY_RESET_REBOOT;
+			run_command("bcb recovery", 0);
+		} else if (strcmp(mode, "factory_reset") == 0)
 			reboot_mode_val = AMLOGIC_FACTORY_RESET_REBOOT;
 		else if (strcmp(mode, "update") == 0)
 			reboot_mode_val = AMLOGIC_UPDATE_REBOOT;

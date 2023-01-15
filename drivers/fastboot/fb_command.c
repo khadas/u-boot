@@ -47,6 +47,7 @@ static void okay(char *, char *);
 static void getvar(char *, char *);
 static void reboot_bootloader(char *, char *);
 static void reboot_fastboot(char *, char *);
+static void reboot_recovery(char *, char *);
 
 #ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void download(char *, char *);
@@ -89,6 +90,10 @@ static const struct {
 	[FASTBOOT_COMMAND_REBOOT_FASTBOOT] =  {
 		.command = "reboot-fastboot",
 		.dispatch = reboot_fastboot
+	},
+	[FASTBOOT_COMMAND_REBOOT_RECOVERY] =  {
+		.command = "reboot-recovery",
+		.dispatch = reboot_recovery
 	},
 	[FASTBOOT_COMMAND_REBOOT] =  {
 		.command = "reboot",
@@ -1245,6 +1250,17 @@ static void reboot_bootloader(char *cmd_parameter, char *response)
  * @response: Pointer to fastboot response buffer
  */
 static void reboot_fastboot(char *cmd_parameter, char *response)
+{
+	fastboot_okay(NULL, response);
+}
+
+/**
+ * reboot_recovery() - Sets reboot recovery flag.
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void reboot_recovery(char *cmd_parameter, char *response)
 {
 	fastboot_okay(NULL, response);
 }
