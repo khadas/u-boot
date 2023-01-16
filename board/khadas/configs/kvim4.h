@@ -103,7 +103,7 @@
 		"outputmode=${outputmode} hdmitx=${cecconfig},${colorattribute};"\
 		"\0"\
 	"init_display_hdmitx="\
-		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
+		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;hdmitx edid;dovi process;"\
 		"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
 		"dovi set;dovi pkg;vpp hdrpkt;"\
 		"\0"
@@ -131,7 +131,7 @@
 		"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority};"\
 		"\0"\
 	"init_display_hdmitx="\
-		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
+		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;hdmitx edid;dovi process;"\
 		"setenv outputmode2 ${hdmimode};"\
 		"osd dual_logo;"\
 		"dovi set;dovi pkg;vpp hdrpkt;"\
