@@ -563,7 +563,7 @@ static int aml_nand_write_rsv(struct mtd_info *mtd,
 		page = (int)(addr >> chip->page_shift);
 		chipnr = (int)(addr >> chip->chip_shift);
 		memset(chip->oob_poi, 0xff, mtd->oobsize);
-		memcpy(chip->oob_poi, oob_buf, mtd->oobsize);
+		memcpy(chip->oob_poi, oob_buf, sizeof(oob_buf));
 		chip->select_chip(mtd, chipnr);
 		error = chip->write_page(mtd, chip, 0, len, data_buf,
 			1, page, 0, 0);
