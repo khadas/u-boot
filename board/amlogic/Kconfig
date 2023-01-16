@@ -715,6 +715,10 @@ config AMLOGIC_KEY_TYPE
         string "a4 AMLOGIC KEY TYPE"
         default "dev-keys"
 
+config BL30_SELECT
+	string "a4 BL30 board config"
+	default "a4_pxp"
+
 choice
         prompt "a4 Board"
 
