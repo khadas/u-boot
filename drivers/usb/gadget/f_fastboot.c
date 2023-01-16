@@ -38,9 +38,13 @@
  * (64 or 512 or 1024), else we break on certain controllers like DWC3
  * that expect bulk OUT requests to be divisible by maxpacket size.
  */
+
 #ifndef CONFIG_USB_GADGET_CRG
 extern void f_dwc_otg_pullup(int is_on);
+#else
+extern int crg_gadget_stop(struct usb_gadget *g);
 #endif
+
 struct f_fastboot {
 	struct usb_function usb_function;
 
@@ -401,7 +405,10 @@ static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 {
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
+#else
+	crg_gadget_stop(NULL);
 #endif
+
 	do_reset(NULL, 0, 0, NULL);
 }
 
@@ -409,6 +416,8 @@ static void compl_do_reboot_bootloader(struct usb_ep *ep, struct usb_request *re
 {
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
+#else
+	crg_gadget_stop(NULL);
 #endif
 	if (dynamic_partition)
 		run_command("reboot bootloader", 0);
@@ -420,7 +429,10 @@ static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
 {
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
+#else
+	crg_gadget_stop(NULL);
 #endif
+
 	run_command("reboot fastboot", 0);
 }
 
@@ -622,3 +634,4 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		usb_ep_queue(ep, req, 0);
 	}
 }
+
