@@ -184,6 +184,7 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMI_3_720x480p60_16x9, "480p60hz", 0},
 	{HDMI_22_720x576i50_16x9, "576i50hz", 0},
 	{HDMI_7_720x480i60_16x9, "480i60hz", 0},
+	{HDMI_220_800x480p60hz_4x3,  "800x480p60hz", 0},
 };
 
 static void hdmitx_list_support_modes(void)

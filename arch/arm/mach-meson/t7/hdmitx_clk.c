@@ -675,6 +675,7 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 	  HDMI_17_720x576p50_4x3,
 	  HDMI_3_720x480p60_16x9,
 	  HDMI_2_720x480p60_4x3,
+	  HDMI_220_800x480p60hz_4x3,
 	  HDMI_VIC_END},
 		4324320, 4, 4, 2, VID_PLL_DIV_5, 1, 1, 1, 1, 1},
 	{{HDMI_19_1280x720p50_16x9,
