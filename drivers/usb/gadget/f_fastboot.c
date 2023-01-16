@@ -459,6 +459,12 @@ static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
 	run_command("reboot fastboot", 0);
 }
 
+static void compl_do_reboot_recovery(struct usb_ep *ep, struct usb_request *req)
+{
+	f_dwc_otg_pullup(0);
+	run_command("reboot recovery", 0);
+}
+
 static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
@@ -477,6 +483,8 @@ static void cb_reboot(struct usb_ep *ep, struct usb_request *req)
 		fastboot_func->in_req->complete = compl_do_reboot_bootloader;
 	else if (strcmp(cmd, "fastboot") == 0)
 		fastboot_func->in_req->complete = compl_do_reboot_fastboot;
+	else if (strcmp(cmd, "recovery") == 0)
+		fastboot_func->in_req->complete = compl_do_reboot_recovery;
 
 	fastboot_tx_write_str("OKAY");
 }
@@ -1924,6 +1932,11 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "reboot-fastboot",
 		.cb = cb_reboot,
 	},
+	{
+		.cmd = "reboot-recovery",
+		.cb = cb_reboot,
+	},
+
 #ifdef CONFIG_FASTBOOT_WRITING_CMD
 	{
 		.cmd = "set_active",
