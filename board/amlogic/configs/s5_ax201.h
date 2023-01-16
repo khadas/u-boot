@@ -125,7 +125,7 @@
         "boot_part=boot\0"\
         "vendor_boot_part=vendor_boot\0"\
         "board_logo_part=odm_ext\0" \
-        "board=ohm\0"\
+	"board=tyson\0"\
 		"rollback_flag=0\0"\
 	"boot_flag=0\0"\
         "Irq_check_en=0\0"\
@@ -305,7 +305,7 @@
 	    "\0"\
         "cmdline_keys="\
 			"setenv region_code US;"\
-			"setenv usid ohm${cpu_id};"\
+			"setenv usid tyson${cpu_id};"\
             "if keyman init 0x1234; then "\
                 "if keyman read usid ${loadaddr} str; then fi;"\
                 "if keyman read region_code ${loadaddr} str; then fi;"\
