@@ -2209,7 +2209,7 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 
 #ifdef CONFIG_SYS_MALLOC_CLEAR_ON_INIT
 #if MORECORE_CLEARS
-    if (p == oldtop && csz > oldtopsize)
+    if (p == oldtop && csz > oldtopsize && oldtopsize > sz)
     {
       /* clear only the bytes from non-freshly-sbrked memory */
       csz = oldtopsize;
