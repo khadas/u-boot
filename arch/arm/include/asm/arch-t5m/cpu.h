@@ -99,4 +99,6 @@ like the AES key not ready when secure boot enabled for the first time.
 
 #define CONFIG_AVB2_KPUB_FROM_FIP 1
 
+#define CONFIG_KEY_PRESERVE
+
 #endif /* _CPU_H */
