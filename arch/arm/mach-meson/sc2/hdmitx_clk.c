@@ -177,6 +177,18 @@ void set_hpll_clk_out(unsigned int clk)
 		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
 		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
 		break;
+	case 5680000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004ec);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00015555);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
 	case 5600000:
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004e9);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x0000aaab);
@@ -195,6 +207,18 @@ void set_hpll_clk_out(unsigned int clk)
 			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00000000);
 		else
 			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00007333);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
+	case 5200000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004d8);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00015555);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
@@ -261,6 +285,30 @@ void set_hpll_clk_out(unsigned int clk)
 		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
 		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
 		break;
+	case 4320000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004b4);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
+	case 4260000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004b1);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00010000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
 	case 3712500:
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b00049a);
 		if (frac_rate)
@@ -288,6 +336,18 @@ void set_hpll_clk_out(unsigned int clk)
 		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
 		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
 		break;
+	case 3420000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b00048e);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00010000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
 	case 3243240:
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b000487);
 		if (frac_rate)
@@ -303,9 +363,33 @@ void set_hpll_clk_out(unsigned int clk)
 		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
 		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
 		break;
+	case 3200000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b000485);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x0000aaab);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
 	case 3197500:
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b000485);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00007555);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
+	case 3180000:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b000484);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00010000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
@@ -599,12 +683,12 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 	  GROUP_END},
 		1, VIU_ENCP, 3200000, 4, 2, 1, VID_PLL_DIV_5, 2, 1, 1, -1},
 	{{HDMIV_852x480p60hz,
-	   HDMIV_854x480p60hz,
+	  HDMIV_854x480p60hz,
 	  GROUP_END},
 		1, VIU_ENCP, 4838400, 4, 4, 1, VID_PLL_DIV_5, 2, 1, 1, -1},
 	{{HDMIV_1024x600p60hz,
 	  GROUP_END},
-		1, VIU_ENCP, 4032000, 4, 2, 1, VID_PLL_DIV_5, 1, 2, 2, -1},
+		1, VIU_ENCP, 4032000, 4, 2, 1, VID_PLL_DIV_5, 2, 1, 1, -1},
 	{{HDMIV_1024x768p60hz,
 	  GROUP_END},
 		1, VIU_ENCP, 5200000, 4, 2, 1, VID_PLL_DIV_5, 2, 1, 1, -1},
