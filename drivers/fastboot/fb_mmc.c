@@ -474,7 +474,8 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 
 	if (strcmp(cmd, "dtb") == 0) {
 #ifndef DTB_BIND_KERNEL
-		erase_gpt_part_table(dev_desc);
+		if (gpt_partition)
+			erase_gpt_part_table(dev_desc);
 		ret = dtb_write(download_buffer);
 		if (ret)
 			fastboot_fail("fastboot write dtb fail", response);
