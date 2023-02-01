@@ -36,6 +36,8 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
 
 		FB_DBG("cfg partSzInBytes %llx for part(%s)\n", partSzInBytes, thePartName);
 		if (NAND_PART_SIZE_FULL == partSzInBytes) {return 0;}
+		if ((partSzInBytes >> 32) == 0xffffffffUL) //GPT mode last part
+			return 0;
 		if (partSzInBytes > nandPartCap) {
 			FB_EXIT("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
 					thePartName, partSzInBytes, nandPartCap);
