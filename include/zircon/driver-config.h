@@ -81,6 +81,7 @@ typedef struct {
 	uint64_t hdmitx_phys;
 } dcfg_amlogic_hdcp_driver_t;
 
+// for KDRV_GENERIC_32BIT_WATCHDOG
 typedef struct {
 	uint64_t addr;
 	uint32_t clr_mask;
@@ -89,12 +90,16 @@ typedef struct {
 
 #define KDRV_GENERIC_32BIT_WATCHDOG_FLAG_ENABLED ((uint32_t)0x00000001)
 
+// Align with fuchsia code base.
+// Since all zbi items are 8-byte(64bits) aligned,
+// it's okay to add 'reserved' field.
 typedef struct {
 	dcfg_generic_32bit_watchdog_action_t pet_action;
 	dcfg_generic_32bit_watchdog_action_t enable_action;
 	dcfg_generic_32bit_watchdog_action_t disable_action;
 	int64_t watchdog_period_nsec;
 	uint32_t flags;
+	uint32_t reserved;
 } dcfg_generic_32bit_watchdog_t;
 
 // for KDRV_AMLOGIC_RNG_V1
