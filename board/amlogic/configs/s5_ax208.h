@@ -172,7 +172,7 @@
 			"run cmdline_keys_base;"\
             "\0"\
         "upgrade_key="\
-            "if gpio input GPIOD_3; then "\
+	    "if gpio input GPIOD_2; then "\
 			"echo detect upgrade key;"\
 			"if test ${boot_flag} = 0; then "\
 				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 0;"\
