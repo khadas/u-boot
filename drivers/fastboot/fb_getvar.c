@@ -643,7 +643,10 @@ static void getvar_partition_type(char *part_name, char *response)
 			else
 				fastboot_fail("partition not found", response);
 		}
-	}else {
+	} else if ((strcmp_l1(part_name, "avb_custom_key") == 0) ||
+				(strcmp(part_name, "gpt") == 0)) {
+		fastboot_okay("raw", response);
+	} else {
 		partition_type_reply(part_name, response, "raw");
 	}
 }
