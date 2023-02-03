@@ -627,6 +627,9 @@ static void partition_type_reply(char *part_name, char *response, size_t chars_l
 			strncat(response, "FAILpartition not found", chars_left);
 		else
 			strncat(response, "ext4", chars_left);
+	} else if ((strcmp_l1("gpt", part_name) == 0) ||
+				(strcmp_l1("avb_custom_key", part_name) == 0)) {
+		strncat(response, "raw", chars_left);
 	} else {
 		if (ret != 0)
 			strncat(response, "FAILpartition not found", chars_left);
