@@ -43,13 +43,29 @@
 		ranges;
 
 		gpio: bank@fe004000 {
-			reg = <0x0 0xfe004000 0x0 0x0064>,
+			reg = <0x0 0xfe004000 0x0 0x0050>,
 			      <0x0 0xfe0040c0 0x0 0x0220>;
 			reg-names = "mux",
 				    "gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 99>;
+			gpio-ranges = <&pinctrl_periphs 0 0 73>;
+		};
+	};
+
+	pinctrl_aobus: pinctrl@fe08e700 {
+		compatible = "amlogic,meson-a4-aobus-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio_ao: bank@fe08e700 {
+			reg = <0x0 0xfe08e700 0x0 0x04>,
+			      <0x0 0xfe08e704 0x0 0x60>;
+			reg-names = "mux", "gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_aobus 0 0 8>;
 		};
 	};
 
@@ -59,8 +75,8 @@
 
 		compatible = "i2c-gpio";
 		status = "okay";
-		gpios = <&gpio GPIOH_0 GPIO_ACTIVE_HIGH>, /* SDA */
-			<&gpio GPIOH_1 GPIO_ACTIVE_HIGH>; /* CLK */
+		//gpios = <&gpio GPIOH_0 GPIO_ACTIVE_HIGH>, /* SDA */
+		//	<&gpio GPIOH_1 GPIO_ACTIVE_HIGH>; /* CLK */
 
 		i2c-gpio,delay-us = <5>;
 		is_odpin = <1>;
