@@ -128,6 +128,7 @@ enum {
 	PART_COUNT,
 };
 
+#if !defined(CONFIG_ZIRCON_GPT)
 static zbi_partition_map_t partition_map = {
 	// .block_count filled in below
 	// .block_size filled in below
@@ -192,6 +193,7 @@ static zbi_partition_map_t partition_map = {
 		},
 	},
 };
+#endif
 
 static void add_cpu_topology(zbi_header_t *zbi)
 {
@@ -231,6 +233,7 @@ static void add_cpu_topology(zbi_header_t *zbi)
 				      sizeof(nodes));
 }
 
+#if !defined(CONFIG_ZIRCON_GPT)
 static void add_partition_map(zbi_header_t *zbi)
 {
 	struct blk_desc *dev_desc;
@@ -311,6 +314,7 @@ static void add_partition_map(zbi_header_t *zbi)
 				sizeof(zbi_partition_map_t) +
 				partition_map.partition_count * sizeof(zbi_partition_t));
 }
+#endif
 
 static void add_reboot_reason(zbi_header_t *zbi)
 {
@@ -485,7 +489,9 @@ int zircon_preboot(zbi_header_t *zbi)
 	// add tsensor trim info
 	add_tsensor1_trim_info();
 	zircon_append_boot_item(zbi, ZBI_TYPE_PLATFORM_ID, 0, &platform_id, sizeof(platform_id));
+#if !defined(CONFIG_ZIRCON_GPT)
 	add_partition_map(zbi);
+#endif
 	add_cpu_topology(zbi);
 	add_reboot_reason(zbi);
 	add_eth_mac_address(zbi);

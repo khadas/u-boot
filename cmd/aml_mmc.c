@@ -202,7 +202,9 @@ int amlmmc_erase_bootloader(int dev, int map)
 	int blk_shift;
 	unsigned long n;
 	char *partname[3] = {"user", "boot0", "boot1"};
+#if !defined(CONFIG_ZIRCON_GPT)
 	cpu_id_t cpu_id = get_cpu_id();
+#endif
 	struct mmc *mmc = find_mmc_device(dev);
 
 	/* do nothing */
@@ -228,13 +230,19 @@ int amlmmc_erase_bootloader(int dev, int map)
 				ret = -3;
 			goto _out;
 	}
+#if defined(CONFIG_ZIRCON_GPT)
+	/* erase bootloader boot0/boot1 */
+	for (i = 1; i < count; i++) {
+#else
 	/* erase bootloader in user/boot0/boot1 */
 	for (i = 0; i < count; i++) {
+#endif
 		if (map & (0x1 << i)) {
 			if (!blk_select_hwpart_devnum(IF_TYPE_MMC, 1, i)) {
 				lbaint_t start = 0, blkcnt;
 
 				blkcnt = mmc->capacity >> blk_shift;
+#if !defined(CONFIG_ZIRCON_GPT)
 				if (0 == i) {
 					struct partitions *part_info;
 					/* get info by partition */
@@ -252,6 +260,7 @@ int amlmmc_erase_bootloader(int dev, int map)
 						}
 					}
 				}
+#endif
 /* some customer may use boot1 higher 2M as private data. */
 #ifdef CONFIG_EMMC_BOOT1_TOUCH_REGION
 				if (2 == i && CONFIG_EMMC_BOOT1_TOUCH_REGION <= mmc->capacity) {
@@ -259,8 +268,10 @@ int amlmmc_erase_bootloader(int dev, int map)
 				}
 #endif/* CONFIG_EMMC_BOOT1_TOUCH_REGION */
 
+#if !defined(CONFIG_ZIRCON_GPT)
 				if (i == 0 && (aml_gpt_valid(mmc) == 0))
 					continue;
+#endif
 
 				printf("Erasing blocks " LBAFU " to " LBAFU " @ %s\n",
 				   start, blkcnt, partname[i]);
@@ -318,8 +329,13 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 		start = GXL_START_BLK;
 	blkcnt = (size + mmc->read_bl_len - 1) / mmc->read_bl_len;
 
+#if defined(CONFIG_ZIRCON_GPT)
+	/* erase bootloader boot0/boot1 */
+	for (i = 1; i < count; i++) {
+#else
 	/* erase bootloader in user/boot0/boot1 */
 	for (i = 0; i < count; i++) {
+#endif
 		if (map & (0x1 << i)) {
 			if (!blk_select_hwpart_devnum(IF_TYPE_MMC, 1, i)) {
 /* some customer may use boot1 higher 2M as private data. */
@@ -330,8 +346,10 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 					break;
 				}
 #endif /* CONFIG_EMMC_BOOT1_TOUCH_REGION */
+#if !defined(CONFIG_ZIRCON_GPT)
 				if (i == 0 && (aml_gpt_valid(mmc) == 0))
 					continue;
+#endif
 
 				printf("Writing blocks " LBAFU " to " LBAFU " @ %s\n",
 				   start, blkcnt, partname[i]);

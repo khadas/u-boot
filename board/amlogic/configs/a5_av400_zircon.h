@@ -109,7 +109,7 @@
 	"video_reverse=0\0"\
 	"active_slot=normal\0"\
 	"boot_part=boot\0"\
-	"zircon_part=recovery\0"\
+	"zircon_part=zircon_a\0"\
 	"vendor_boot_part=vendor_boot\0"\
 	"board_logo_part=odm_ext\0" \
 	"board=oppen\0"\
