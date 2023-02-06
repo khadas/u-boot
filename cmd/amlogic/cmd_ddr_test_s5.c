@@ -5594,7 +5594,7 @@ int ddr_test_s_cross_talk_pattern(int ddr_test_size)
 		return 0;
 }
 
-int ddr_test_s_cross_talk_pattern_quick_retrun(int ddr_test_size)
+int ddr_test_s_cross_talk_pattern_quick_return(int ddr_test_size)
 {
 	error_outof_count_flag = 1;
 #define TEST_OFFSET  0 //0X40000000

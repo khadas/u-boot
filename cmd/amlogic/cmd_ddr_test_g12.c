@@ -1397,7 +1397,7 @@ typedef struct ddr_sha_s {
 }ddr_sha_t;
 
 ddr_sha_t ddr_sha = { { 0 } };
-ddr_set_t *ddr_set_t_p_arrary = &ddr_sha.ddrs;
+ddr_set_t *ddr_set_t_p_array = &ddr_sha.ddrs;
 
 typedef struct ddr_sha_s_c2 {
 	unsigned char	sha2[SHA256_SUM_LEN];
@@ -1406,12 +1406,12 @@ typedef struct ddr_sha_s_c2 {
 }ddr_sha_t_c2;
 
 ddr_sha_t_c2 ddr_sha_c2 = { { 0 } };
-ddr_set_t_c2 *ddr_set_t_p_arrary_c2 = &ddr_sha_c2.ddrs;
+ddr_set_t_c2 *ddr_set_t_p_array_c2 = &ddr_sha_c2.ddrs;
 ddr_set_t_c2 *ddr_set_t_p = NULL;
 
 int check_base_address(void)
 {
-	ddr_set_t_p = (ddr_set_t_c2 *)(ddr_set_t_p_arrary_c2);
+	ddr_set_t_p = (ddr_set_t_c2 *)(ddr_set_t_p_array_c2);
 	unsigned int table_max = (sizeof(__ddr_base_address_table)) / (sizeof(ddr_base_address_table_t));
 	unsigned int table_index = 0;
 	char chip_id = 0;
@@ -5212,7 +5212,7 @@ int ddr_test_s_cross_talk_pattern(int ddr_test_size)
 		return 0;
 }
 
-int ddr_test_s_cross_talk_pattern_quick_retrun(int ddr_test_size)
+int ddr_test_s_cross_talk_pattern_quick_return(int ddr_test_size)
 {
 	error_outof_count_flag = 1;
 #define TEST_OFFSET  0        //0X40000000
@@ -6611,7 +6611,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 	for (i = 0; i < argc; i++)
 		printf("\nargv[%d]=%s\n", i, argv[i]);
 	ddr_set_t *ddr_set_t_p = NULL;
-	ddr_set_t_p = (ddr_set_t *)(ddr_set_t_p_arrary);
+	ddr_set_t_p = (ddr_set_t *)(ddr_set_t_p_array);
 	ddr_set_t7 *ddr_set_t_p_t7 = (ddr_set_t7 *)ddr_set_t_p;
 	do_read_ddr_training_data(0, ddr_set_t_p);
 
@@ -7672,13 +7672,13 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 	if ((p_ddr_base->ddr_dmc_lpdd4_retraining_address))
 		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl & (~(1 << 31)));
 	ddr_set_t *ddr_set_t_p = NULL;
-	ddr_set_t_p = (ddr_set_t *)(ddr_set_t_p_arrary);
+	ddr_set_t_p = (ddr_set_t *)(ddr_set_t_p_array);
 	uint32_t ddr_set_add = 0;
 	uint32_t ddr_set_size = 0;
 	out_sha2 = (char *)ddr_sha.sha2;
 
 	ddr_set_t_c2 *ddr_set_t_p_c2 = NULL;
-	ddr_set_t_p_c2 = (ddr_set_t_c2 *)(ddr_set_t_p_arrary_c2);
+	ddr_set_t_p_c2 = (ddr_set_t_c2 *)(ddr_set_t_p_array_c2);
 
 	uint32_t write_size = 0;
 
@@ -10484,7 +10484,7 @@ int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item,
 	printf("\nenable_ddr_check_boot_reason==%d \n", enable_ddr_check_boot_reason);
 	printf("\nddr_fast_boot_enable_flag==%d \n", env_to_a_num("ddr_fast_boot_enable_flag"));
 	ddr_set_t_c2 *ddr_set_t_p = NULL;
-	ddr_set_t_p = (ddr_set_t_c2 *)(ddr_set_t_p_arrary_c2);
+	ddr_set_t_p = (ddr_set_t_c2 *)(ddr_set_t_p_array_c2);
 	uint32_t ddr_set_add = 0;
 
 	ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
@@ -10742,7 +10742,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 	printf("\nenable_ddr_check_boot_reason==%d \n", enable_ddr_check_boot_reason);
 	printf("\nddr_fast_boot_enable_flag==%d \n", env_to_a_num("ddr_fast_boot_enable_flag"));
 	ddr_set_t *ddr_set_t_p = NULL;
-	ddr_set_t_p = (ddr_set_t *)(ddr_set_t_p_arrary);
+	ddr_set_t_p = (ddr_set_t *)(ddr_set_t_p_array);
 	uint32_t ddr_set_add = 0;
 
 	ddr_set_add = (uint32_t)(uint64_t)(ddr_set_t_p);
