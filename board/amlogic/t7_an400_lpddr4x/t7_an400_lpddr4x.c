@@ -517,7 +517,7 @@ int checkhw(char * name)
 				#endif
 			} else if (cpu_id.chip_rev == 0xC) {
 				#ifdef CONFIG_HDMITX_ONLY
-				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only\0");
+				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only-4g\0");
 				#else
 				strcpy(loc_name, "t7c_a311d2_an400-4g\0");
 				#endif
