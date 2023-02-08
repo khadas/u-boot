@@ -159,7 +159,7 @@
 		"run storage_param;"\
 		"if test ${os_type} = rtos; then "\
 			"setenv loadaddr ${loadaddr_rtos};"\
-			"store read ${loadaddr} ${boot_part} 0 0x400000;"\
+			"store read ${loadaddr} ${boot_part} 0 0x300000;"\
 			"bootm ${loadaddr};"\
 		"else if test ${os_type} = kernel; then "\
 			"get_system_as_root_mode;"\
@@ -183,7 +183,7 @@
 	 "storeboot_ramdisk="\
 		"imgread dtb _aml_dtb ${dtb_mem_addr};"\
 		"imgread kernel ${boot_part} ${loadaddr_kernel};"\
-		"store read 0x01a80000 system 0 0x400000;bootm ${loadaddr_kernel};"\
+		"store read 0x01a80000 system 0 0x300000;bootm ${loadaddr_kernel};"\
 		"\0" \
 	 "update="\
 		/*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
