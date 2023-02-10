@@ -71,8 +71,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_BASE \
         "silent=1\0"\
-	"systemsuspend_switch=0\0"\
-	"ddr_resume=0\0"\
 	"otg_device=1\0" \
         "panel_type=lvds_1\0" \
         "lcd_ctrl=0x00000000\0" \
@@ -160,17 +158,17 @@
 			/*"run try_auto_burn; "*/\
 		"else if test ${powermode} = standby; then "\
 			"run cec_init;"\
-			"if test ${systemsuspend_switch} = 0;then systemoff; fi;"\
+			"systemoff; "\
 		"else if test ${powermode} = last; then "\
 			"echo suspend=${suspend}; "\
 			"if test ${suspend} = off; then "\
 				/*"run try_auto_burn; "*/\
 			"else if test ${suspend} = on; then "\
 				"run cec_init;"\
-				"if test ${systemsuspend_switch} = 0;then systemoff; fi;"\
+				"systemoff; "\
 			"else if test ${suspend} = shutdown; then "\
 				"run cec_init;"\
-				"if test ${systemsuspend_switch} = 0;then systemoff; fi;"\
+				"systemoff; "\
 			"fi; fi; fi; "\
 		"fi; fi; fi; "\
 		"\0"\
@@ -261,25 +259,15 @@
 				"run init_display; "\
 			"fi; "\
 		"else if test ${reboot_mode} = cold_boot; then "\
-			"if test ${powermode} = standby; then "\
-				"setenv ddr_resume 1;"\
-			"else if test ${powermode} = last; then "\
-				"if test ${suspend} != off; then "\
-					"setenv ddr_resume 1;"\
-				"fi;"\
-			"fi;fi;"\
 			"if test ${powermode} = on; then "\
 				"echo powermode : ${powermode} ,need to init_display; "\
-				"run init_display; "\
-			"else if test ${powermode} = standby; then "\
-				"echo reboot: ${reboot_mode} suspend: ${suspend};"\
 				"run init_display; "\
 			"else if test ${powermode} = last; then "\
 				"if test ${suspend} = off; then "\
 					"echo suspend : ${suspend} ,need to init_display; "\
 					"run init_display; "\
 				"fi; "\
-			"fi;fi;fi; "\
+			"fi;fi; "\
 		"else "\
 			"echo reboot_mode is normal;"\
 			"run init_display; "\

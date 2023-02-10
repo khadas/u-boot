@@ -922,22 +922,6 @@ static int get_kernel_version(char *paddr, int *major, int *minor)
 	return 0;
 }
 
-//extern void set_usb_power_off(void);
-void goto_suspend(void)
-{
-	char *ddr_resume = env_get("ddr_resume");
-	char *suspend_switch = env_get("systemsuspend_switch");
-
-	if (!strcmp(suspend_switch, "0"))
-		return;
-	/*usb_power make suspend power too high, need to power off first*/
-//	set_usb_power_off();
-	if (!strncmp(ddr_resume, "1", 1)) {
-		run_command("systemsuspend", 0);
-		printf("%s : exec\n", __func__);
-	}
-}
-
 /**
  * Execute selected states of the bootm command.
  *
@@ -1123,7 +1107,7 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 			ret = run_command_list(cmd_list, -1, flag);
 	}
 #endif
-	goto_suspend();
+
 	/* Check for unsupported subcommand. */
 	if (ret) {
 		puts("subcommand not supported\n");
