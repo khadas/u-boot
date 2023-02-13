@@ -995,6 +995,43 @@ static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 	return ret;
 }
 
+#define IMX415_CHIP_ADDR "0x0c"
+int khadas_camera_id = 1;//默认为 OS08A10
+static int camera_i2c_read(uint reg, const char *cp)
+{
+    int ret;
+    char val[64];
+    uchar   linebuf[1];
+    uchar chip;
+
+    chip = simple_strtoul(cp, NULL, 16);
+    ret = i2c_read(chip, reg, 1, linebuf, 1);
+    if (ret)
+        printf("Error reading the chip: %d\n",ret);
+    else {
+        sprintf(val, "%d", linebuf[0]);
+        ret = simple_strtoul(val, NULL, 10);
+	}
+    return ret;
+}
+
+static int do_check_camera(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	khadas_camera_id = camera_i2c_read(0x00,IMX415_CHIP_ADDR);
+	printf("khadas camera id=0x%x\n",khadas_camera_id);
+	if(khadas_camera_id == 0x00) {// IMX415 = 0x00
+		khadas_camera_id = 2;
+		setenv("khadas_camera_id", "2");
+		printf("khadas camera is IMX415\n");
+	} else {
+		khadas_camera_id = 1;
+		setenv("khadas_camera_id", "1");
+		printf("khadas camera is OS08A10\n");
+	}
+	printf("khadas_camera_id=%d   id=1---OS08A10   id=2---IMX415\n",khadas_camera_id);
+	return 0;
+}
+
 static int get_ircode(char reg)
 {
 	int ircode[4] = {0};
@@ -1276,6 +1313,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(wolreset, 1, 1, do_kbi_wolreset, "", ""),
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 	U_BOOT_CMD_MKENT(factorytest, 1, 1, do_kbi_factorytest, "", ""),
+	U_BOOT_CMD_MKENT(check_camera, 1, 1, do_check_camera, "", ""),
 };
 
 static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -1328,6 +1366,7 @@ static char kbi_help_text[] =
 #if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 		"kbi adc - read adc value\n"
 #endif
+		"kbi check_camera - check OS08A10 or IMX415\n"
 		"kbi powerstate - read power on state\n"
 		"kbi poweroff - power off device\n"
 		"kbi ethmac - read ethernet mac address\n"

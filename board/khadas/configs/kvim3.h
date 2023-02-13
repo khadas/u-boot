@@ -108,14 +108,14 @@
         "firstboot=1\0"\
         "upgrade_step=0\0"\
         "jtag=disable\0"\
-	"port_mode=0\0"\
+	    "port_mode=0\0"\
         "loadaddr=3080000\0"\
         "panel_type=lcd_1\0" \
-	"lcd_ctrl=0x00000000\0" \
+	    "lcd_ctrl=0x00000000\0" \
         "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
-	"nativeui=disable\0" \
-	"colorattribute=444,8bit\0"\
+	    "nativeui=disable\0" \
+	    "colorattribute=444,8bit\0"\
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
@@ -338,6 +338,14 @@
                "setenv bootargs ${bootargs} wol_enable=0;"\
             "fi;"\
             "\0"\
+            "check_camera="\
+                "fdt addr ${dtb_mem_addr}; "\
+                "if test ${khadas_camera_id} = 2; then "\
+                    "echo check IMX415 camera;"\
+                    "fdt set /sensor sensor_name imx415;"\
+                    "fdt set /iq sensor_name imx415;"\
+                "fi;"\
+            "\0"\
         "spi_check="\
             "kbi factorytest;"\
              "if test ${factorytest} = 1; then "\
@@ -386,11 +394,19 @@
             "setenv serial ${usid};"\
             "kbi ethmac noprint;"\
             "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
+            "setenv bootargs ${bootargs} khadas_camera_id=${khadas_camera_id};"\
             "\0"\
         "bcb_cmd="\
             "get_avb_mode;"\
             "get_valid_slot;"\
             "\0"\
+        "if test ${vendor_boot_mode} = true; then "\
+                "setenv dtb_mem_addr 0x1000000;"\
+            "fi;"\
+            "if test ${active_slot} != normal; then "\
+                "echo ab mode, read dtb from kernel;"\
+                "setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
+            "fi;"\
         "burn_mac="\
             "kbi init;"\
             "\0"\
@@ -419,6 +435,7 @@
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run burn_mac;"\
+            "run check_camera;"\
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run init_display;"\
