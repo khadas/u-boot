@@ -582,13 +582,10 @@ const struct mtd_partition *get_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 phys_size_t get_ddr_memsize(void)
 {
-	phys_size_t ddr_size = env_get_hex("board_ddr_size", 0);
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
 
-	if (!ddr_size) {
-		ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
-		printf("init board ddr size  %llx\n", ddr_size);
-		env_set_hex("board_ddr_size", ddr_size);
-	}
+	printf("init board ddr size  %llx\n", ddr_size);
+	env_set_hex("board_ddr_size", ddr_size);
 	return ddr_size;
 }
 #endif
@@ -596,38 +593,31 @@ phys_size_t get_ddr_memsize(void)
 int checkhw(char *name)
 {
 #ifdef CONFIG_MULTI_DTB
-	char *p_aml_dt = env_get("aml_dt");
+	char loc_name[64] = {0};
+	phys_size_t ddr_size = get_ddr_memsize();
 
-	printf("aml_dt:%s\n", p_aml_dt);
-	if (!p_aml_dt) {
-		char loc_name[64] = {0};
-		phys_size_t ddr_size = get_ddr_memsize();
-
-		switch (ddr_size) {
-		case CONFIG_T7_3G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-3g\0");
-			break;
-		case CONFIG_T7_4G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400\0");
-			break;
-		case CONFIG_T7_6G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-6g\0");
-			break;
-		case CONFIG_T7_8G_SIZE:
-			strcpy(loc_name, "t7_a311d2_an400-8g\0");
-			break;
-		default:
-			printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
-			printf("set default t7_a311d2_an400\n");
-			strcpy(loc_name, "t7_a311d2_an400\0");
-			break;
-		}
-		printf("init aml_dt to %s\n", loc_name);
-		strcpy(name, loc_name);
-		env_set("aml_dt", loc_name);
-	} else {
-		strcpy(name, env_get("aml_dt"));
+	switch (ddr_size) {
+	case CONFIG_T7_3G_SIZE:
+		strcpy(loc_name, "t7_a311d2_an400-3g\0");
+		break;
+	case CONFIG_T7_4G_SIZE:
+		strcpy(loc_name, "t7_a311d2_an400\0");
+		break;
+	case CONFIG_T7_6G_SIZE:
+		strcpy(loc_name, "t7_a311d2_an400-6g\0");
+		break;
+	case CONFIG_T7_8G_SIZE:
+		strcpy(loc_name, "t7_a311d2_an400-8g\0");
+		break;
+	default:
+		printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
+		printf("set default t7_a311d2_an400\n");
+		strcpy(loc_name, "t7_a311d2_an400\0");
+		break;
 	}
+	printf("init aml_dt to %s\n", loc_name);
+	strcpy(name, loc_name);
+	env_set("aml_dt", loc_name);
 #else
 	env_set("aml_dt", "t7_a311d2_an400\0");
 #endif

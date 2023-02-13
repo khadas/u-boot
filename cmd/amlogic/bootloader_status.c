@@ -20,9 +20,6 @@
 extern efuse_obj_field_t efuse_field;
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
 
-#ifndef IS_FEAT_BOOT_VERIFY
-#define IS_FEAT_BOOT_VERIFY() 0
-#endif// #ifndef IS_FEAT_BOOT_VERIFY
 int __attribute__((weak)) store_logic_read(const char *name, loff_t off, size_t size, void *buf)
 { return store_read(name, off, size, buf);}
 
