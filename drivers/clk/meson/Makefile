@@ -19,3 +19,4 @@ obj-$(CONFIG_CLK_MESON_S5) += clk_meson_s5.o clk_measure.o
 obj-$(CONFIG_CLK_MESON_T5W) += clk_meson_t5w.o clk_measure.o
 obj-$(CONFIG_CLK_MESON_T5M) += clk_meson_t5m.o clk_measure.o
 obj-$(CONFIG_CLK_MESON_A4) += clk_meson_a4.o clk_measure.o
+obj-$(CONFIG_CLK_MESON_T3X) += clk_meson_t3x.o clk_measure.o
