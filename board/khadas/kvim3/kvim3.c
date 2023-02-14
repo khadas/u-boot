@@ -710,6 +710,7 @@ static int check_forcebootsd(void)
 
 int board_init(void)
 {
+	printf("board init\n");
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
     //As NOT NEED other board init If USB BOOT MODE
 #ifdef CONFIG_AML_V2_FACTORY_BURN
@@ -748,6 +749,7 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	printf("board late init\n");
 		TE(__func__);
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
@@ -756,6 +758,8 @@ int board_late_init(void)
 		run_command("if itest ${upgrade_step} == 1; then "\
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 		/*add board late init function here*/
+		run_command("run bcb_cmd", 0);
+		run_command("kbi check_camera", 0);//kbi check_camera - check OS08A10 or IMX415
 #ifndef DTB_BIND_KERNEL
 		int ret;
 		ret = run_command("store dtb read $dtb_mem_addr", 1);
