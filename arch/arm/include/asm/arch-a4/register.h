@@ -7,7 +7,7 @@
 //
 // Project name: a4
 //
-// Create time: Fri Nov  4 11:29:51 CST 2022 by chong.gu
+// Create time: Tue Feb 14 11:32:43 CST 2023 by chong.gu
 //
 // ./REG_LIST_RTL.h
 //
@@ -947,6 +947,7 @@
 #define CLKCTRL_PWM_CLK_IJ_CTRL                    ((0x0064  << 2) + 0xfe000000)
 #define CLKCTRL_DEMOD_CLK_CTRL                     ((0x0080  << 2) + 0xfe000000)
 #define CLKCTRL_VOUTENC_CLK_CTRL                   ((0x0081  << 2) + 0xfe000000)
+#define CLKCTRL_AUDIO_CLK_CTRL                     ((0x0082  << 2) + 0xfe000000)
 //`define CLKCTRL_NNA_CLK_CNTL            10'h88
 #define CLKCTRL_TIMESTAMP_CTRL                     ((0x0100  << 2) + 0xfe000000)
 #define CLKCTRL_TIMESTAMP_CTRL1                    ((0x0101  << 2) + 0xfe000000)
@@ -1966,6 +1967,8 @@
 #define RESETCTRL_SEC_WATCHDOG_CNT                 ((0x0046  << 2) + 0xfe002000)
 #define RESETCTRL_SEC_WATCHDOG_CLR                 ((0x0047  << 2) + 0xfe002000)
 #define RESETCTRL_WATCHDOG_DLY_CNT                 ((0x0048  << 2) + 0xfe002000)
+#define RESETCTRL_WATCHDOG_IRQ_OFFSET              ((0x0049  << 2) + 0xfe002000)
+#define RESETCTRL_SEC_WATCHDOG_IRQ_OFFSET          ((0x004a  << 2) + 0xfe002000)
 #define RESETCTRL_SEC_RESET0                       ((0x0050  << 2) + 0xfe002000)
 #define RESETCTRL_SEC_RESET1                       ((0x0051  << 2) + 0xfe002000)
 #define RESETCTRL_SEC_RESET0_LEVEL                 ((0x0060  << 2) + 0xfe002000)
@@ -3569,6 +3572,22 @@
 #define EE_AUDIO_TDMINB_LB_MUTE5                   ((0x02d6  << 2) + 0xfe330000)
 #define EE_AUDIO_TDMINB_LB_MUTE6                   ((0x02d7  << 2) + 0xfe330000)
 #define EE_AUDIO_TDMINB_LB_MUTE7                   ((0x02d8  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_CTRL0                  ((0x02e0  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_CTRL1                  ((0x02e1  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_CTRL2                  ((0x02e2  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_CTRL3                  ((0x02e3  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_CTRL4                  ((0x02e4  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_CTRL5                  ((0x02e5  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_STAT0                  ((0x02e8  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_A_STAT1                  ((0x02e9  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_CTRL0                  ((0x02f0  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_CTRL1                  ((0x02f1  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_CTRL2                  ((0x02f2  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_CTRL3                  ((0x02f3  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_CTRL4                  ((0x02f4  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_CTRL5                  ((0x02f5  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_STAT0                  ((0x02f8  << 2) + 0xfe330000)
+#define EE_AUDIO_PCPD_MON_B_STAT1                  ((0x02f9  << 2) + 0xfe330000)
 #define EE_AUDIO_TODDR_A_CHNUM_ID0                 ((0x0300  << 2) + 0xfe330000)
 #define EE_AUDIO_TODDR_A_CHNUM_ID1                 ((0x0301  << 2) + 0xfe330000)
 #define EE_AUDIO_TODDR_A_CHNUM_ID2                 ((0x0302  << 2) + 0xfe330000)
@@ -3877,11 +3896,116 @@
 #define PDMB_CHAN_CTRL2                            ((0x000f  << 2) + 0xfe334800)
   //bit 7:0    second sample and start FSM point vs rise edge of PDM_DCLK
 //========================================================================
+//  AUDIO TOP_VAD - Registers
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe334c00
+// -----------------------------------------------
+#define EE_AUDIO2_CLK81_CTRL                       ((0x0000  << 2) + 0xfe334c00)
+#define EE_AUDIO2_CLK81_EN                         ((0x0001  << 2) + 0xfe334c00)
+#define EE_AUDIO2_SW_RESET0                        ((0x0002  << 2) + 0xfe334c00)
+#define EE_AUDIO2_CLK_GATE_EN0                     ((0x0003  << 2) + 0xfe334c00)
+#define EE_AUDIO2_SECURITY_CTRL0                   ((0x0004  << 2) + 0xfe334c00)
+#define EE_AUDIO2_SECURITY_CTRL1                   ((0x0005  << 2) + 0xfe334c00)
+#define EE_AUDIO2_MCLK_VAD_CTRL                    ((0x0010  << 2) + 0xfe334c00)
+#define EE_AUDIO2_VAD_CLK_CTRL                     ((0x0011  << 2) + 0xfe334c00)
+#define EE_AUDIO2_MST_DLY_CTRL0                    ((0x0012  << 2) + 0xfe334c00)
+#define EE_AUDIO2_MST_VAD_SCLK_CTRL0               ((0x0013  << 2) + 0xfe334c00)
+#define EE_AUDIO2_MST_VAD_SCLK_CTRL1               ((0x0014  << 2) + 0xfe334c00)
+#define EE_AUDIO2_CLK_TDMIN_VAD_CTRL               ((0x0015  << 2) + 0xfe334c00)
+#define EE_AUDIO2_CLK_PDMIN_CTRL0                  ((0x0016  << 2) + 0xfe334c00)
+#define EE_AUDIO2_CLK_PDMIN_CTRL1                  ((0x0017  << 2) + 0xfe334c00)
+#define EE_AUDIO2_AUD_VAD_PAD_CTRL0                ((0x0018  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TOVAD_CTRL0                      ((0x0020  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CTRL0                  ((0x0030  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CTRL1                  ((0x0031  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CTRL2                  ((0x0032  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_START_ADDR             ((0x0033  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_INIT_ADDR              ((0x0034  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_FINISH_ADDR            ((0x0035  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_START_ADDRB            ((0x0036  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_FINISH_ADDRB           ((0x0037  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_INT_ADDR               ((0x0038  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_STATUS1                ((0x0039  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_STATUS2                ((0x003a  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_CTRL                   ((0x0040  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_SWAP0                  ((0x0041  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_SWAP1                  ((0x0042  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE_VAL               ((0x0043  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_STAT                   ((0x0044  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE0                  ((0x0050  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE1                  ((0x0051  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE2                  ((0x0052  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE3                  ((0x0053  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE4                  ((0x0054  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE5                  ((0x0055  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE6                  ((0x0056  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MUTE7                  ((0x0057  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK0                  ((0x0058  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK1                  ((0x0059  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK2                  ((0x005a  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK3                  ((0x005b  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK4                  ((0x005c  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK5                  ((0x005d  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK6                  ((0x005e  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TDMIN_VAD_MASK7                  ((0x005f  << 2) + 0xfe334c00)
+#define EE_AUDIO2_VAD_DAT_PAD_CTRL0                ((0x0060  << 2) + 0xfe334c00)
+#define EE_AUDIO2_VAD_DAT_PAD_CTRL1                ((0x0061  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID0              ((0x0070  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID1              ((0x0071  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID2              ((0x0072  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID3              ((0x0073  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID4              ((0x0074  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID5              ((0x0075  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID6              ((0x0076  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHNUM_ID7              ((0x0077  << 2) + 0xfe334c00)
+#define EE_AUDIO2_TODDR_VAD_CHSYNC_CTRL            ((0x007f  << 2) + 0xfe334c00)
+#define EE_AUDIO2_VAD_AM2AXI_CTRL0                 ((0x0080  << 2) + 0xfe334c00)
+#define EE_AUDIO2_VAD_AXIWR_ASYNC_CTRL0            ((0x0081  << 2) + 0xfe334c00)
+#define EE_AUDIO2_VAD_AM2AXI_STAT                  ((0x0088  << 2) + 0xfe334c00)
+#define EE_AUDIO2_VAD_AXIWR_ASYNC_STAT             ((0x0089  << 2) + 0xfe334c00)
+#define EE_AUDIO2_EXCEPTION_IRQ_STS0               ((0x0090  << 2) + 0xfe334c00)
+#define EE_AUDIO2_EXCEPTION_IRQ_MASK0              ((0x0091  << 2) + 0xfe334c00)
+#define EE_AUDIO2_EXCEPTION_IRQ_MODE0              ((0x0092  << 2) + 0xfe334c00)
+#define EE_AUDIO2_EXCEPTION_IRQ_CLR0               ((0x0093  << 2) + 0xfe334c00)
+#define EE_AUDIO2_EXCEPTION_IRQ_INV0               ((0x0094  << 2) + 0xfe334c00)
+//========================================================================
+//  AUDIO ASRC WRAPPER - Registers
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe336400
+// -----------------------------------------------
+//
+#define AUDIO_ACC_ASRC_WRAPPER_TOP_CTL0            ((0x0000  << 2) + 0xfe336400)
+#define AUDIO_ACC_ASRC_WRAPPER_TOP_CTL1            ((0x0001  << 2) + 0xfe336400)
+#define AUDIO_ACC_ASRC_WRAPPER_TOP_CTL2            ((0x0002  << 2) + 0xfe336400)
+#define AUDIO_ACC_ASRC_WRAPPER_TOP_CTL3            ((0x0003  << 2) + 0xfe336400)
+#define AUDIO_ACC_ASRC_WRAPPER_TOP_CTL4            ((0x0004  << 2) + 0xfe336400)
+#define AUDIO_ACC_ASRC_WRAPPER_TOP_ST0             ((0x0010  << 2) + 0xfe336400)
+#define AUDIO_ACC_ASRC_WRAPPER_TOP_ST1             ((0x0011  << 2) + 0xfe336400)
+//========================================================================
+//  AUDIO EQDRC WRAPPER - Registers
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe336800
+// -----------------------------------------------
+//
+#define AUDIO_ACC_EQDRC_WRAPPER_TOP_CTL0           ((0x0000  << 2) + 0xfe336800)
+#define AUDIO_ACC_EQDRC_WRAPPER_TOP_CTL1           ((0x0001  << 2) + 0xfe336800)
+#define AUDIO_ACC_EQDRC_WRAPPER_TOP_CTL2           ((0x0002  << 2) + 0xfe336800)
+#define AUDIO_ACC_EQDRC_WRAPPER_TOP_CTL3           ((0x0003  << 2) + 0xfe336800)
+#define AUDIO_ACC_EQDRC_WRAPPER_TOP_CTL4           ((0x0004  << 2) + 0xfe336800)
+#define AUDIO_ACC_EQDRC_WRAPPER_TOP_ST0            ((0x0010  << 2) + 0xfe336800)
+#define AUDIO_ACC_EQDRC_WRAPPER_TOP_ST1            ((0x0011  << 2) + 0xfe336800)
+//========================================================================
 //  EQ DRC - Registers
 //========================================================================
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe332000
 // -----------------------------------------------
+//
+// Reading file:  ./audio_eq_drc.h
+//
 #define AED_COEF_RAM_CNTL                          ((0x0000  << 2) + 0xfe332000)
 #define AED_COEF_RAM_DATA                          ((0x0001  << 2) + 0xfe332000)
 #define AED_EQ_EN                                  ((0x0002  << 2) + 0xfe332000)
@@ -4097,12 +4221,20 @@
 #define AED_DRC_LOOPBACK_CNTL_B                    ((0x00dc  << 2) + 0xfe332000)
 #define AED_MDRC_CNTL_B                            ((0x00dd  << 2) + 0xfe332000)
 #define AED_STATUS_REG                             ((0x00de  << 2) + 0xfe332000)
+//
+// Closing file:  ./audio_eq_drc.h
+//
 //========================================================================
 //  AUDIO locker - Registers
 //========================================================================
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe331400
 // -----------------------------------------------
+//
+// Reading file:  ./audio_locker_reg.h
+//
+// synopsys translate_off
+// synopsys translate_on
 #define AUD_LOCK_EN                                ((0x0000  << 2) + 0xfe331400)
 #define AUD_LOCK_SW_RESET                          ((0x0001  << 2) + 0xfe331400)
 #define AUD_LOCK_SW_LATCH                          ((0x0002  << 2) + 0xfe331400)
@@ -4129,12 +4261,22 @@
 #define RO_IMCLK_PKG_CNT                           ((0x0019  << 2) + 0xfe331400)
 #define RO_OMCLK_PKG_CNT                           ((0x001a  << 2) + 0xfe331400)
 #define RO_AUD_LOCK_INT_STATUS                     ((0x001b  << 2) + 0xfe331400)
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./audio_locker_reg.h
+//
 //========================================================================
 //  AUDIO lockerB - Registers
 //========================================================================
 // -----------------------------------------------
 // REG_BASE:  REGISTER_BASE_ADDR = 0xfe334400
 // -----------------------------------------------
+//
+// Reading file:  ./audio_lockerb_reg.h
+//
+// synopsys translate_off
+// synopsys translate_on
 #define AUD_LOCKB_EN                               ((0x0000  << 2) + 0xfe334400)
 #define AUD_LOCKB_SW_RESET                         ((0x0001  << 2) + 0xfe334400)
 #define AUD_LOCKB_SW_LATCH                         ((0x0002  << 2) + 0xfe334400)
@@ -4161,6 +4303,11 @@
 #define ROB_IMCLK_PKG_CNT                          ((0x0019  << 2) + 0xfe334400)
 #define ROB_OMCLK_PKG_CNT                          ((0x001a  << 2) + 0xfe334400)
 #define ROB_AUD_LOCK_INT_STATUS                    ((0x001b  << 2) + 0xfe334400)
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  ./audio_lockerb_reg.h
+//
 //========================================================================
 //  AUDIO VAD - Registers
 //========================================================================
@@ -5537,79 +5684,386 @@
 // Closing file:  ./RESAMPLEB.h
 //
 //========================================================================
-//  AUDIO TOP_VAD - Registers
+//  AUDIO ACC TOP - Registers
 //========================================================================
 // -----------------------------------------------
-// REG_BASE:  APB0_BASE_ADDR = 0xfe334c00
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe336c00
 // -----------------------------------------------
-#define EE_AUDIO2_CLK81_CTRL                       ((0x0000  << 2) + 0xfe334c00)
-#define EE_AUDIO2_CLK81_EN                         ((0x0001  << 2) + 0xfe334c00)
-#define EE_AUDIO2_SW_RESET0                        ((0x0002  << 2) + 0xfe334c00)
-#define EE_AUDIO2_CLK_GATE_EN0                     ((0x0003  << 2) + 0xfe334c00)
-#define EE_AUDIO2_SECURITY_CTRL0                   ((0x0004  << 2) + 0xfe334c00)
-#define EE_AUDIO2_SECURITY_CTRL1                   ((0x0005  << 2) + 0xfe334c00)
-#define EE_AUDIO2_MCLK_VAD_CTRL                    ((0x0010  << 2) + 0xfe334c00)
-#define EE_AUDIO2_VAD_CLK_CTRL                     ((0x0011  << 2) + 0xfe334c00)
-#define EE_AUDIO2_MST_DLY_CTRL0                    ((0x0012  << 2) + 0xfe334c00)
-#define EE_AUDIO2_MST_VAD_SCLK_CTRL0               ((0x0013  << 2) + 0xfe334c00)
-#define EE_AUDIO2_MST_VAD_SCLK_CTRL1               ((0x0014  << 2) + 0xfe334c00)
-#define EE_AUDIO2_CLK_TDMIN_VAD_CTRL               ((0x0015  << 2) + 0xfe334c00)
-#define EE_AUDIO2_CLK_PDMIN_CTRL0                  ((0x0016  << 2) + 0xfe334c00)
-#define EE_AUDIO2_CLK_PDMIN_CTRL1                  ((0x0017  << 2) + 0xfe334c00)
-#define EE_AUDIO2_AUD_VAD_PAD_CTRL0                ((0x0018  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TOVAD_CTRL0                      ((0x0020  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CTRL0                  ((0x0030  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CTRL1                  ((0x0031  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CTRL2                  ((0x0032  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_START_ADDR             ((0x0033  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_INIT_ADDR              ((0x0034  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_FINISH_ADDR            ((0x0035  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_START_ADDRB            ((0x0036  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_FINISH_ADDRB           ((0x0037  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_INT_ADDR               ((0x0038  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_STATUS1                ((0x0039  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_STATUS2                ((0x003a  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_CTRL                   ((0x0040  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_SWAP0                  ((0x0041  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_SWAP1                  ((0x0042  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE_VAL               ((0x0043  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_STAT                   ((0x0044  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE0                  ((0x0050  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE1                  ((0x0051  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE2                  ((0x0052  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE3                  ((0x0053  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE4                  ((0x0054  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE5                  ((0x0055  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE6                  ((0x0056  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MUTE7                  ((0x0057  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK0                  ((0x0058  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK1                  ((0x0059  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK2                  ((0x005a  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK3                  ((0x005b  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK4                  ((0x005c  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK5                  ((0x005d  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK6                  ((0x005e  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TDMIN_VAD_MASK7                  ((0x005f  << 2) + 0xfe334c00)
-#define EE_AUDIO2_VAD_DAT_PAD_CTRL0                ((0x0060  << 2) + 0xfe334c00)
-#define EE_AUDIO2_VAD_DAT_PAD_CTRL1                ((0x0061  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID0              ((0x0070  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID1              ((0x0071  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID2              ((0x0072  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID3              ((0x0073  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID4              ((0x0074  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID5              ((0x0075  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID6              ((0x0076  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHNUM_ID7              ((0x0077  << 2) + 0xfe334c00)
-#define EE_AUDIO2_TODDR_VAD_CHSYNC_CTRL            ((0x007f  << 2) + 0xfe334c00)
-#define EE_AUDIO2_VAD_AM2AXI_CTRL0                 ((0x0080  << 2) + 0xfe334c00)
-#define EE_AUDIO2_VAD_AXIWR_ASYNC_CTRL0            ((0x0081  << 2) + 0xfe334c00)
-#define EE_AUDIO2_VAD_AM2AXI_STAT                  ((0x0088  << 2) + 0xfe334c00)
-#define EE_AUDIO2_VAD_AXIWR_ASYNC_STAT             ((0x0089  << 2) + 0xfe334c00)
-#define EE_AUDIO2_EXCEPTION_IRQ_STS0               ((0x0090  << 2) + 0xfe334c00)
-#define EE_AUDIO2_EXCEPTION_IRQ_MASK0              ((0x0091  << 2) + 0xfe334c00)
-#define EE_AUDIO2_EXCEPTION_IRQ_MODE0              ((0x0092  << 2) + 0xfe334c00)
-#define EE_AUDIO2_EXCEPTION_IRQ_CLR0               ((0x0093  << 2) + 0xfe334c00)
-#define EE_AUDIO2_EXCEPTION_IRQ_INV0               ((0x0094  << 2) + 0xfe334c00)
+//
+// Reading file:  ./audio_acc_reg.h
+//
+#define AUDIO_ACC_CLK_GATE_EN                      ((0x0000  << 2) + 0xfe336c00)
+//Bit 31:0   reg_aud_acc_clk_gate_en    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_SW_RESERT                        ((0x0001  << 2) + 0xfe336c00)
+//Bit 31:0   reg_aud_acc_sw_reset       //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_SECURITY_CTRL_0                  ((0x000a  << 2) + 0xfe336c00)
+//Bit 31:0   reg_security_ctrl0        //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_SECURITY_CTRL_1                  ((0x000b  << 2) + 0xfe336c00)
+//Bit 31:0   reg_security_ctrl1        //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_SECURITY_CTRL_2                  ((0x000c  << 2) + 0xfe336c00)
+//Bit 31:0   reg_security_ctrl2        //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_DBG_0                            ((0x0010  << 2) + 0xfe336c00)
+//Bit 31:0   reg_dbg_0                  //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_DBG_1                            ((0x0011  << 2) + 0xfe336c00)
+//Bit 31:0   reg_dbg_1                  //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_CTRL0                    ((0x0020  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_ctrl0          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_CTRL1                    ((0x0021  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_ctrl1          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_CTRL2                    ((0x0022  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_ctrl2          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_START_ADDR               ((0x0023  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_start_addr     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_INIT_ADDR                ((0x0024  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_init_addr      //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_FINISH_ADDR              ((0x0025  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_finish_addr    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_START_ADDRB              ((0x0026  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_start_addrb    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_FINISH_ADDRB             ((0x0027  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_finish_addrb   //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_INT_ADDR                 ((0x0028  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_0_int_addr       //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_0_RO_STATUS1               ((0x0029  << 2) + 0xfe336c00)
+//Bit 31:0   ro_frddr_0_status1         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_FRDDR_0_RO_STATUS2               ((0x002a  << 2) + 0xfe336c00)
+//Bit 31:0   ro_frddr_0_status2         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_FRDDR_0_CTRL3                    ((0x002b  << 2) + 0xfe336c00)
+//Bit 31:8  reserved
+//Bit 7:4   reg_frddr_0_ctrl3           //unsigned,   RW,   default = 0;
+//Bit 3:2   reserved
+//Bit 1:1   pls_frddr_0_trigger         //unsigned,   RW,   default = 0;
+//Bit 0:0   reg_frddr_0_trigger_mode    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_CTRL0                    ((0x0030  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_ctrl0          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_CTRL1                    ((0x0031  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_ctrl1          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_CTRL2                    ((0x0032  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_ctrl2          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_START_ADDR               ((0x0033  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_start_addr     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_INIT_ADDR                ((0x0034  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_init_addr      //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_FINISH_ADDR              ((0x0035  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_finish_addr    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_START_ADDRB              ((0x0036  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_start_addrb    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_FINISH_ADDRB             ((0x0037  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_finish_addrb   //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_INT_ADDR                 ((0x0038  << 2) + 0xfe336c00)
+//Bit 31:0   reg_frddr_1_int_addr       //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_FRDDR_1_RO_STATUS1               ((0x0039  << 2) + 0xfe336c00)
+//Bit 31:0   ro_frddr_1_status1         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_FRDDR_1_RO_STATUS2               ((0x003a  << 2) + 0xfe336c00)
+//Bit 31:0   ro_frddr_1_status2         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_FRDDR_1_CTRL3                    ((0x003b  << 2) + 0xfe336c00)
+//Bit 31:8  reserved
+//Bit 7:4   reg_frddr_1_ctrl3           //unsigned,   RW,   default = 0;
+//Bit 3:2   reserved
+//Bit 1:1   pls_frddr_1_trigger         //unsigned,   RW,   default = 0;
+//Bit 0:0   reg_frddr_1_trigger_mode    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CTRL0                    ((0x0040  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_ctrl0          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CTRL1                    ((0x0041  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_ctrl1          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CTRL2                    ((0x0042  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_ctrl2          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_START_ADDR               ((0x0043  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_start_addr     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_INIT_ADDR                ((0x0044  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_init_addr      //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_FINISH_ADDR              ((0x0045  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_finish_addr    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_START_ADDRB              ((0x0046  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_start_addrb    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_FINISH_ADDRB             ((0x0047  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_finish_addrb   //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_INT_ADDR                 ((0x0048  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_int_addr       //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_RO_STATUS1               ((0x0049  << 2) + 0xfe336c00)
+//Bit 31:0   ro_toddr_0_status1         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_TODDR_0_RO_STATUS2               ((0x004a  << 2) + 0xfe336c00)
+//Bit 31:0   ro_toddr_0_status2         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHSYNC_CTRL              ((0x004b  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chsync_ctrl    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_0               ((0x004c  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_0     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_1               ((0x004d  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_1     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_2               ((0x004e  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_2     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_3               ((0x004f  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_3     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_4               ((0x0050  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_4     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_5               ((0x0051  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_5     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_6               ((0x0052  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_6     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CHNUM_ID_7               ((0x0053  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_chnum_id_7     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_0_CTRL3                    ((0x0054  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_0_ctrl3          //unsigned,   RW,   default = 56;
+#define AUDIO_ACC_TODDR_1_CTRL0                    ((0x0060  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_ctrl0          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CTRL1                    ((0x0061  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_ctrl1          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CTRL2                    ((0x0062  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_ctrl2          //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_START_ADDR               ((0x0063  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_start_addr     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_INIT_ADDR                ((0x0064  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_init_addr      //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_FINISH_ADDR              ((0x0065  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_finish_addr    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_START_ADDRB              ((0x0066  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_start_addrb    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_FINISH_ADDRB             ((0x0067  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_finish_addrb   //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_INT_ADDR                 ((0x0068  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_int_addr       //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_RO_STATUS1               ((0x0069  << 2) + 0xfe336c00)
+//Bit 31:0   ro_toddr_1_status1         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_TODDR_1_RO_STATUS2               ((0x006a  << 2) + 0xfe336c00)
+//Bit 31:0   ro_toddr_1_status2         //unsigned,   RO,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHSYNC_CTRL              ((0x006b  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chsync_ctrl    //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_0               ((0x006c  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_0     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_1               ((0x006d  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_1     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_2               ((0x006e  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_2     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_3               ((0x006f  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_3     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_4               ((0x0070  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_4     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_5               ((0x0071  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_5     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_6               ((0x0072  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_6     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CHNUM_ID_7               ((0x0073  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_chnum_id_7     //unsigned,   RW,   default = 0;
+#define AUDIO_ACC_TODDR_1_CTRL3                    ((0x0074  << 2) + 0xfe336c00)
+//Bit 31:0   reg_toddr_1_ctrl3          //unsigned,   RW,   default = 56;
+#define AUDIO_ACC_A2P_CONV_0                       ((0x0080  << 2) + 0xfe336c00)
+//Bit 31:0   reg_act_conv_0             //unsigned,   RW,   default = 32'h0000_6038;
+#define AUDIO_ACC_A2P_CONV_1                       ((0x0081  << 2) + 0xfe336c00)
+//Bit 31:0   reg_act_conv_1             //unsigned,   RW,   default = 32'h0000_6038;
+#define AUDIO_ACC_PATH_CTRL                        ((0x0082  << 2) + 0xfe336c00)
+//Bit 31:8   reserved
+//Bit 7:0    reg_act_path_ctrl          //unsigned,   RW,   default = 0;
+//
+// Closing file:  ./audio_acc_reg.h
+//
+//========================================================================
+//  AUDIO EQ CORE - Registers
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe335000
+// -----------------------------------------------
+//
+// Reading file:  ./audio_eqdrc_reg_16ch.h
+//
+#define AEQ_COEF_CNTL_A                            ((0x0000  << 2) + 0xfe335000)
+#define AEQ_COEF_DATA_A                            ((0x0001  << 2) + 0xfe335000)
+#define AEQ_COEF_CNTL_B                            ((0x0002  << 2) + 0xfe335000)
+#define AEQ_COEF_DATA_B                            ((0x0003  << 2) + 0xfe335000)
+#define AEQ_SOFT_RSET                              ((0x0009  << 2) + 0xfe335000)
+//Bit 31:2  reserved
+//Bit  1:1  reg_ctl_rst                       //unsigned,   RW,   default = 0;
+//Bit  0:0  reg_sw_rst                        //unsigned,   RW,   default = 0;
+#define AEQ_TOP_CTRL                               ((0x0010  << 2) + 0xfe335000)
+//Bit 31:1  reserved
+//Bit  0:0  reg_dsp_en                       //unsigned,   RW,   default = 0;
+#define AEQ_STATUS0_CTRL                           ((0x0011  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap0                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status0_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed0                    //unsigned,   RW,   default = 0;
+#define AEQ_STATUS1_CTRL                           ((0x0012  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap1                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status1_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed1                    //unsigned,   RW,   default = 0;
+#define AEQ_STATUS2_CTRL                           ((0x0013  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap2                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status2_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed2                    //unsigned,   RW,   default = 0;
+#define AEQ_STATUS3_CTRL                           ((0x0014  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap3                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status3_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed3                    //unsigned,   RW,   default = 0;
+#define AEQ_STATUS4_CTRL                           ((0x0015  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap4                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status4_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed4                    //unsigned,   RW,   default = 0;
+#define AEQ_STATUS5_CTRL                           ((0x0016  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap5                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status5_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed5                    //unsigned,   RW,   default = 0;
+#define AEQ_STATUS6_CTRL                           ((0x0017  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap6                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status6_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed6                    //unsigned,   RW,   default = 0;
+#define AEQ_STATUS7_CTRL                           ((0x0018  << 2) + 0xfe335000)
+//Bit 31:7  reserved
+//Bit  6:2   reg_eq_tap7                       //unsigned,   RW,   default = 5'h14;
+//Bit  1:1   reg_status7_en                    //unsigned,   RW,   default = 0;
+//Bit  0:0   reg_ed_signed7                    //unsigned,   RW,   default = 0;
+//
+// Closing file:  ./audio_eqdrc_reg_16ch.h
+//
+//========================================================================
+//  AUDIO RESAMPLE_ACC - Registers
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe336000
+// -----------------------------------------------
+//
+// Reading file:  ./RESAMPLE_ACC.h
+//
+#define AUDIO_RSAMP_ACC_CTRL0                      ((0x0000  << 2) + 0xfe336000)
+//Bit   31:3      reserved
+//Bit   2         reg_lock_rst      //unsigned  , default =0;
+//Bit   1         reg_rsamp_rst     //unsigned  , default =0;
+//Bit   0         reg_sw_rst        //unsigned  , default =0;
+#define AUDIO_RSAMP_ACC_CTRL1                      ((0x0001  << 2) + 0xfe336000)
+//Bit   31:27      reg_in_lsb        //unsigned  , default =0;
+//Bit   26         reg_watchdog_en   //unsigned  , default =0;
+//Bit   25         reg_rsamp_rst_sel //unsigned  , default =0;
+//Bit   24         reg_module_bypas  //unsigned  , default =0;
+//Bit   23:18      reg_gclk_ctrl     //unsigned  , default =0;
+//Bit   17:13      reg_in_msb        //unsigned  , default =23;
+//Bit   12         reg_output_en     //unsigned  , default =0;
+//Bit   11         reg_rsamp_en      //unsigned  , default =0;
+//Bit   10         reg_filt_en       //unsigned  , default =0;
+//Bit   9          reg_post_en       //unsigned  , default =0;
+//Bit   8          reg_inp_mux_mode  //unsigned  , default =0;
+//Bit   7:5        reserved          //unsigned  , default =2;
+//Bit   4:0        reg_inp_mux       //unsigned  , default =0;
+#define AUDIO_RSAMP_ACC_CTRL2                      ((0x0002  << 2) + 0xfe336000)
+//Bit 31:30    reserved              //unsigned  , default =0;
+//Bit 29:24    reg_chx_size          //unsigned  , default =2;
+//Bit 23:18    reserved              //unsigned  , default =0;
+//Bit 17:16    reg_scl_step          //unsigned  , default =0; 0: 1/1  1: 1/2  2: 1/4
+//Bit 15:8     reg_filt_tap          //unsigned  , default =63;
+//Bit 7:0      reg_intp_tap          //unsigned  , default =63;
+#define AUDIO_RSAMP_ACC_PHSINIT                    ((0x0003  << 2) + 0xfe336000)
+//Bit   31:28      reserved          //unsigned  , default = 0;
+//Bit   27:0       reg_init_phs      //unsigned  , default = 0;
+#define AUDIO_RSAMP_ACC_PHSSTEP                    ((0x0004  << 2) + 0xfe336000)
+//Bit   31         reserved          //unsigned  , default = 0;
+//Bit   30:0       reg_rsamp_step    //unsigned  , default = 134217728;//'h800_0000
+#define AUDIO_RSAMP_ACC_SHIFT                      ((0x0005  << 2) + 0xfe336000)
+//Bit   31:24       reg_rsft_iir    //unsigned  , default = 23;
+//Bit   23:16       reg_rsft_blnd   //unsigned  , default = 21;
+//Bit   15:8        reg_rsft_sinc   //unsigned  , default = 31;
+//Bit   7:0         reg_rsft_aa     //unsigned  , default = 31;
+#define AUDIO_RSAMP_ACC_ADJ_CTRL0                  ((0x0006  << 2) + 0xfe336000)
+//Bit   31:7        reserved                //unsigned
+//Bit   6           reg_lock_vld_sel        //unsigned , default = 0;
+//Bit   5           reg_loop_dif_clr_en     //unsigned , default = 0;
+//Bit   4           reg_aout_force_en       //unsigned , default = 0;
+//Bit   3           reserved                //unsigned
+//Bit   2           reg_rsamp_adj_out_inv   //unsigned , default = 0;
+//Bit   1           reg_rsamp_adj_force_en  //unsigned , default = 0;
+//Bit   0           reg_rsamp_adj_en        //unsigned , default = 0;
+#define AUDIO_RSAMP_ACC_ADJ_CTRL1                  ((0x0007  << 2) + 0xfe336000)
+//Bit   31:16       reg_rsamp_adj_odet_step     //unsigned , default = 8;
+//Bit   15:0        reg_rsamp_adj_kmax          //unsigned , default = 32768;
+#define AUDIO_RSAMP_ACC_ADJ_SFT                    ((0x0008  << 2) + 0xfe336000)
+//Bit   31:30       reserved                //unsigned , default = 0;
+//Bit   29          reg_rsamp_adj_dif_sel   //unsigned , default = 0;
+//Bit   28:24       reg_rsamp_adj_ki        //unsigned , default = 9;
+//Bit   23:21       reserved                //unsigned , default = 0;
+//Bit   20:16       reg_rsamp_adj_kp        //unsigned , default = 1;
+//Bit   15:13       reserved                //unsigned , default = 0;
+//Bit   12:8        reg_rsamp_adj_ki_sft    //unsigned , default = 6;
+//Bit   7:6         reserved                //unsigned , default = 0;
+//Bit   5:0         reg_rsamp_adj_out_sft   //unsigned , default = 12;
+#define AUDIO_RSAMP_ACC_ADJ_IDET_LEN               ((0x0009  << 2) + 0xfe336000)
+//Bit   31:0       reg_rsamp_adj_idet_len       //unsigned , default = 10000;
+#define AUDIO_RSAMP_ACC_ADJ_FORCE                  ((0x000a  << 2) + 0xfe336000)
+//Bit   31:0       reg_rsamp_adj_force_err      //signed , default = 8;
+#define AUDIO_RSAMP_ACC_ADJ_KI_FORCE               ((0x000b  << 2) + 0xfe336000)
+//Bit   31:0       reg_rsamp_adj_ki_force //signed , default = 0;
+#define AUDIO_RSAMP_ACC_WATCHDOG_THRD              ((0x000c  << 2) + 0xfe336000)
+//Bit   31:0       reg_watchdog_thrd      //signed , default = 32'h1000;
+#define AUDIO_RSAMP_ACC_DBG_INFO                   ((0x000d  << 2) + 0xfe336000)
+//Bit   31:16      reg_aout_force_hi        //unsigned , default = 0;
+//Bit   15         reserved                 //unsigned , default = 0;
+//Bit   14         reg_rsamp_incnt_clr      //unsigned , default = 0;
+//Bit   13         reg_rsamp_incnt_vldsel   //unsigned , default = 0;
+//Bit   12         reg_rsamp_incnt_en       //unsigned , default = 0;
+//Bit   11         reserved                 //unsigned , default = 0;
+//Bit   10         reg_rsamp_outcnt_clr     //unsigned , default = 0;
+//Bit   9          reg_rsamp_outcnt_vldsel  //unsigned , default = 0;
+//Bit   8          reg_rsamp_outcnt_en      //unsigned , default = 0;
+//Bit   7:6        reserved                 //unsigned , default = 0;
+//Bit   5          reg_rsamp_dbgcnt_clr     //unsigned , default = 0;
+//Bit   4          reg_rsamp_dbgcnt_en      //unsigned , default = 0;
+//Bit   3          reg_rsamp_iocnt_sel      //unsigned , default = 0;
+//Bit   2:0        reg_watchdog_rstsel      //unsigned , default = 4;
+#define AUDIO_RSAMP_ACC_AOUT_FORCE                 ((0x000e  << 2) + 0xfe336000)
+//Bit   31:0       reg_aout_force_lo        //unsigned , default = 0;
+#define AUDIO_RSAMP_ACC_IRQ_CTRL                   ((0x000f  << 2) + 0xfe336000)
+//Bit   31:16      reg_irq_thrd             //unsigned , default = 0;
+//Bit   15:12      reserved                 //unsigned , default = 0;
+//Bit   11:8       reg_irq_sel              //unsigned , default = 0;
+//Bit   7:4        reg_irq_clr              //unsigned , default = 0;
+//Bit   3:0        reg_irq_en               //unsigned , default = 0;
+#define AUDIO_RSAMP_ACC_PKG_NUM                    ((0x0018  << 2) + 0xfe336000)
+//Bit   31:0       reg_pkg_num              //unsigned , default = 5000;
+#define AUDIO_RSAMP_ACC_PKG_CTRL                   ((0x0019  << 2) + 0xfe336000)
+//Bit   31:16   reg_tim_out_num             //unsigned , default = 2000;
+//Bit   15:2    reserved                    //unsigned , default = 0;
+//Bit   1       reg_tim_out_en              //unsigned , default = 1;
+//Bit   0       reg_pkg_end_sel             //unsigned , default = 0;
+#define AUDIO_RSAMP_ACC_POST_COEF0                 ((0x0020  << 2) + 0xfe336000)
+//Bit   31:0       reg_post_coef0 //signed  , default = 0;
+#define AUDIO_RSAMP_ACC_POST_COEF1                 ((0x0021  << 2) + 0xfe336000)
+//Bit   31:0       reg_post_coef1 //signed  , default = 0;
+#define AUDIO_RSAMP_ACC_POST_COEF2                 ((0x0022  << 2) + 0xfe336000)
+//Bit   31:0       reg_post_coef2 //signed  , default = 0;
+#define AUDIO_RSAMP_ACC_POST_COEF3                 ((0x0023  << 2) + 0xfe336000)
+//Bit   31:0       reg_post_coef3 //signed  , default = 0;
+#define AUDIO_RSAMP_ACC_POST_COEF4                 ((0x0024  << 2) + 0xfe336000)
+//Bit   31:0       reg_post_coef4 //signed  , default = 0;
+#define AUDIO_RSAMP_ACC_AA_COEF_ADDR               ((0x0030  << 2) + 0xfe336000)
+//Bit   31:0       reg_aa_coef_addr     //unsigned, default = 0;
+#define AUDIO_RSAMP_ACC_AA_COEF_DATA               ((0x0031  << 2) + 0xfe336000)
+//Bit   31:0       reg_aa_coef_data     //signed  , default = 0;
+#define AUDIO_RSAMP_ACC_SINC_COEF_ADDR             ((0x0040  << 2) + 0xfe336000)
+//Bit   31:0       reg_sinc_coef_addr   //unsigned, default = 0;
+#define AUDIO_RSAMP_ACC_SINC_COEF_DATA             ((0x0041  << 2) + 0xfe336000)
+//Bit   31:0       reg_sinc_coef_data   //signed  , default = 0;
+#define AUDIO_RSAMP_ACC_RO_STATUS                  ((0x0050  << 2) + 0xfe336000)
+//Bit   31:0       ro_rsamp_stat  //{din_chx_chk_err,is_idle_st,rsamp_fifo_over_cnt[7:0]}
+#define AUDIO_RSAMP_ACC_RO_ADJ_FREQ                ((0x0051  << 2) + 0xfe336000)
+//Bit   31:0       ro_rsamp_adj_freq
+#define AUDIO_RSAMP_ACC_RO_ADJ_DIFF_BAK            ((0x0052  << 2) + 0xfe336000)
+//Bit   31:0       ro_det_diff_bak
+#define AUDIO_RSAMP_ACC_RO_ADJ_DIFF_DLT            ((0x0053  << 2) + 0xfe336000)
+//Bit   31:0       ro_det_diff_dlt
+#define AUDIO_RSAMP_ACC_RO_ADJ_PHS_ERR             ((0x0054  << 2) + 0xfe336000)
+//Bit   31:0       ro_det_phase_err
+#define AUDIO_RSAMP_ACC_RO_ADJ_KI_OUT              ((0x0055  << 2) + 0xfe336000)
+//Bit   31:0       ro_rsamp_ki_out
+#define AUDIO_RSAMP_ACC_RO_IN_CNT                  ((0x0056  << 2) + 0xfe336000)
+//Bit   31:0       ro_rsamp_in_cnt
+#define AUDIO_RSAMP_ACC_RO_OUT_CNT                 ((0x0057  << 2) + 0xfe336000)
+//Bit   31:0       ro_rsamp_out_cnt
+#define AUDIO_RSAMP_ACC_RO_ADJ_PHS_ERR_VAR         ((0x0058  << 2) + 0xfe336000)
+//Bit   31:0       ro_det_phase_err_var
+//
+// Closing file:  ./RESAMPLE_ACC.h
+//
 //
 // Closing file:  ./REG_LIST_AUDIO_RTL.h
 //
