@@ -1794,6 +1794,7 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 	pconf->timing.vsync_width = ext_lcd->vsync_width;
 	pconf->timing.vsync_bp    = ext_lcd->vsync_bp;
 	pconf->timing.vsync_pol   = ext_lcd->vsync_pol;
+	pconf->timing.ppc         = 1;
 
 	/* fr_adjust_type */
 	temp = ext_lcd->customer_val_0;

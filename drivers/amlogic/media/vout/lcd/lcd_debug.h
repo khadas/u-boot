@@ -263,6 +263,40 @@ static unsigned int lcd_reg_dump_encl_t7_0[] = {
 	LCD_DEBUG_REG_END
 };
 
+struct reg_info_t {
+	char *name;
+	unsigned int reg_offst;
+};
+
+#define MK_REG_INFO(REG_NAME)({.name = #REG_NAME, .reg_offst = REG_NAME})
+
+static unsigned int lcd_reg_dump_encl_t3x_0[] = {
+	VPU_VIU_VENC_MUX_CTRL,
+	ENCL_VIDEO_EN,
+	ENCL_VIDEO_MODE,
+	VPP_4S4P_CTRL,
+	VPU_VENC_DITH,
+	VPU_VENC_CTRL,
+	LCD_LCD_IF_CTRL,
+	LCD_DITH_CTRL,
+	ENCL_VIDEO_VSRC_CTRL,
+	ENCL_VIDEO_MAX_CNT,
+	ENCL_VIDEO_MAX_CNT,
+	ENCL_VIDEO_HAVON_PX_RNG,
+	ENCL_VIDEO_HAVON_PX_RNG,
+	ENCL_VIDEO_VAVON_LN_RNG,
+	ENCL_VIDEO_VAVON_LN_RNG,
+	ENCL_VIDEO_HSO_PX_RNG,
+	ENCL_VIDEO_HSO_PX_RNG,
+	ENCL_VIDEO_VSO_PX_RNG,
+	ENCL_VIDEO_VSO_PX_RNG,
+	ENCL_VIDEO_VSO_LN_RNG,
+	ENCL_VIDEO_VSO_LN_RNG,
+	ENCL_INBUF_CNTL1,
+	ENCL_INBUF_CNTL0,
+	ENCL_VIDEO_GAIN_RGB_CTRL,
+};
+
 static unsigned int lcd_reg_dump_encl_t7_1[] = {
 	VPU_VIU_VENC_MUX_CTRL,
 	ENCL_VIDEO_EN + (0x600 << 2),

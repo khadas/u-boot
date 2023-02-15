@@ -85,6 +85,7 @@ enum lcd_chip_e {
 	LCD_CHIP_C3,
 	LCD_CHIP_T5W,
 	LCD_CHIP_T5M,
+	LCD_CHIP_T3X,
 	LCD_CHIP_MAX,
 };
 
@@ -138,6 +139,7 @@ struct lcd_timing_s {
 	unsigned int div_ctrl;  /* divider settings */
 	unsigned int clk_ctrl;  /* clock settings */
 	unsigned int bit_rate; /* Hz */
+	unsigned int ppc;
 
 	unsigned int ss_level; /* [15:12]: ss_freq, [11:8]: ss_mode,
 				* [7:0]: ss_level

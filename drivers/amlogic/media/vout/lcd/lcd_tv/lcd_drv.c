@@ -731,7 +731,7 @@ void lcd_tv_config_update(struct aml_lcd_drv_s *pdrv)
 
 void lcd_tv_driver_init_pre(struct aml_lcd_drv_s *pdrv)
 {
-	int ret;
+	int ret, ppc = 0;
 
 	LCDPR("[%d]: tv driver init(ver %s): %s\n",
 		pdrv->index,
@@ -741,6 +741,9 @@ void lcd_tv_driver_init_pre(struct aml_lcd_drv_s *pdrv)
 	if (ret)
 		return;
 
+	ppc = env_get_ulong("lcd_debug_ppc", 10, 1);
+	if (ppc)
+		pdrv->config.timing.ppc = ppc;
 	lcd_set_clk(pdrv);
 	lcd_set_venc(pdrv);
 }

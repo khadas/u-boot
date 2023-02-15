@@ -331,6 +331,9 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 	case LCD_CHIP_T3: /* only one pll */
 		lcd_clk_config_chip_init_t3(pdrv, cconf);
 		break;
+	case LCD_CHIP_T3X: /* only one pll */
+		lcd_clk_config_chip_init_t3x(pdrv, cconf);
+		break;
 	case LCD_CHIP_T5W:
 		lcd_clk_config_chip_init_t5w(pdrv, cconf);
 		break;

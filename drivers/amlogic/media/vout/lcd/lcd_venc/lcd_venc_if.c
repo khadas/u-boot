@@ -56,6 +56,7 @@ void lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
 static void lcd_gamma_init(struct aml_lcd_drv_s *pdrv)
 {
 #ifdef CONFIG_AML_LCD_PXP
+	LCDPR("%s PXP bypass\n", __func__);
 	return;
 #endif
 
@@ -87,6 +88,7 @@ void lcd_set_venc(struct aml_lcd_drv_s *pdrv)
 		return;
 	}
 
+	LCDPR("%s\n", __func__);
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 	lcd_venc_op.venc_set(pdrv);
@@ -133,6 +135,9 @@ int lcd_venc_probe(struct aml_lcd_data_s *pdata)
 		break;
 	case LCD_CHIP_C3:
 		ret = lcd_venc_op_init_c3(&lcd_venc_op);
+		break;
+	case LCD_CHIP_T3X:
+		ret = lcd_venc_op_init_t3x(&lcd_venc_op);
 		break;
 	default:
 		ret = lcd_venc_op_init_dft(&lcd_venc_op);
