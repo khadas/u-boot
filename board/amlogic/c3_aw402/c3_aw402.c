@@ -158,7 +158,8 @@ int board_late_init(void)
 		printf("factory reset, need default all uboot env.\n");
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
-
+	board_init_mem();
+/*
 #if !defined(CONFIG_PXP_DDR)	//bypass below operations for pxp
 	run_command("echo upgrade_step $upgrade_step; \
 		if itest ${upgrade_step} == 1; then defenv_reserv; \
@@ -189,7 +190,7 @@ int board_late_init(void)
 	}
 #endif //#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 #endif // #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
-
+*/
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -199,8 +200,8 @@ int board_late_init(void)
 #ifdef CONFIG_AML_CVBS
 	cvbs_init();
 #endif
-	run_command("amlsecurecheck", 0);
-	run_command("update_tries", 0);
+	//run_command("amlsecurecheck", 0);
+	//run_command("update_tries", 0);
 
 	unsigned char chipid[16];
 
@@ -227,7 +228,7 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
-	emmc_quirks();
+	//emmc_quirks();
 	return 0;
 }
 

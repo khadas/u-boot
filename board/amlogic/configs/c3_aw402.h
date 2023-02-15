@@ -74,29 +74,8 @@
 	"loadaddr_kernel=0x05600000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \
-	"panel_type=lcd_1\0" \
-	"outputmode=1080p60hz\0" \
-	"hdmimode=1080p60hz\0" \
-	"colorattribute=444,8bit\0"\
-	"cvbsmode=576cvbs\0" \
-	"display_width=1920\0" \
-	"display_height=1080\0" \
-	"display_bpp=16\0" \
-	"display_color_index=16\0" \
-	"display_layer=osd0\0" \
-	"display_color_fg=0xffff\0" \
-	"display_color_bg=0\0" \
 	"dtb_mem_addr=0x01000000\0" \
 	"fb_addr=0x00300000\0" \
-	"fb_width=1920\0" \
-	"fb_height=1080\0" \
-	"hdmichecksum=0x00000000\0" \
-	"dolby_status=0\0" \
-	"dolby_vision_on=0\0" \
-	"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
-	"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
-	"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
-	"frac_rate_policy=1\0" \
 	"hdr_policy=0\0" \
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
 	"sdcburncfg=aml_sdc_burn.ini\0"\
@@ -105,17 +84,10 @@
 	"loglevel=8\0" \
 	"lock=10101000\0"\
 	"recovery_offset=0\0"\
-	"cvbs_drv=0\0"\
-	"osd_reverse=0\0"\
-	"video_reverse=0\0"\
 	"active_slot=normal\0"\
 	"boot_part=boot\0"\
-	"vendor_boot_part=vendor_boot\0"\
-	"board_logo_part=odm_ext\0" \
-	"board=oppen\0"\
 	"Irq_check_en=0\0"\
 	"common_dtb_load=" CONFIG_DTB_LOAD "\0"\
-	"get_os_type=if store read ${os_ident_addr} ${boot_part} 0 0x1000; then os_ident ${os_ident_addr}; fi\0"\
 	"fatload_dev=usb\0"\
 	"fs_type=""rootfstype=ramfs""\0"\
 	"initargs="\
@@ -134,7 +106,6 @@
 		"setenv bootargs ${initargs} otg_device=${otg_device};"\
 		"\0"\
 	"bootcmd="\
-		"run storage_param;"\
 		"run storeboot_ramdisk;"\
 		"\0"\
 	"switch_bootmode="\
@@ -154,31 +125,9 @@
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
-		"ddr_auto_fast_boot_check 6;"\
-		"run get_os_type;"\
-		"run storage_param;"\
-		"if test ${os_type} = rtos; then "\
-			"setenv loadaddr ${loadaddr_rtos};"\
-			"store read ${loadaddr} ${boot_part} 0 0x300000;"\
-			"bootm ${loadaddr};"\
-		"else if test ${os_type} = kernel; then "\
-			"get_system_as_root_mode;"\
-			"echo system_mode in storeboot: ${system_mode};"\
-			"get_avb_mode;"\
-			"echo active_slot in storeboot: ${active_slot};"\
-			"if test ${system_mode} = 1; then "\
-				"setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
-			"else "\
-				"setenv bootargs ${bootargs} androidboot.force_normal_boot=1;"\
-			"fi;"\
-			"if test ${active_slot} != normal; then "\
-				"setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};"\
-			"fi;"\
-			"if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-			"setenv loadaddr ${loadaddr_kernel};"\
-			"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-		"else echo wrong OS format ${os_type}; fi;fi;"\
-		"echo try upgrade as booting failure; run update;"\
+		"imgread dtb _aml_dtb ${dtb_mem_addr};"\
+		"imgread kernel ${boot_part} ${loadaddr_kernel};"\
+		"store read 0x01a80000 system 0 0x300000;bootm ${loadaddr_kernel};"\
 		"\0" \
 	 "storeboot_ramdisk="\
 		"imgread dtb _aml_dtb ${dtb_mem_addr};"\
@@ -209,118 +158,23 @@
 		"if mmcinfo; then run recovery_from_fat_dev; fi;"\
 		"\0"\
 	"recovery_from_flash="\
-		"echo active_slot: ${active_slot};"\
 		"setenv loadaddr ${loadaddr_kernel};"\
-		"if test ${active_slot} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
-			"if test ${upgrade_step} = 3; then "\
-				"if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
-				"if test ${vendor_boot_mode} = true; then "\
-					"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-				"else "\
-					"if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; wipeisb; bootm ${loadaddr}; fi;"\
-				"fi;"\
-			"else "\
+		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
+		"recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
 		"if imgread dtb recovery ${dtb_mem_addr}; then "\
 			"else echo restore dtb; run common_dtb_load;"\
 		"fi;"\
-			"fi;"\
 		"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-		"else "\
-			"if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-			"if test ${partition_mode} = normal; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
-				"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-			"else "\
-				"if test ${vendor_boot_mode} = true; then "\
-					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
-					"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-				"else "\
-					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
-					"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then wipeisb; bootm ${loadaddr}; fi;"\
-				"fi;"\
-			"fi;"\
-		"fi;"\
 		"\0"\
 	"bcb_cmd="\
-		"get_avb_mode;"\
 		"get_valid_slot;"\
-		"if test ${vendor_boot_mode} = true; then "\
-			"setenv loadaddr_kernel 0x5600000;"\
-			"setenv dtb_mem_addr 0x1000000;"\
-		"fi;"\
-		"if test ${active_slot} != normal; then "\
-			"echo ab mode, read dtb from kernel;"\
-			"setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
-		"fi;"\
 		"\0"\
-	"load_bmp_logo="\
-		"if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
-		"else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
-		"\0"\
-	"init_display="\
-		"get_rebootmode;"\
-		"echo reboot_mode:::: ${reboot_mode};"\
-		"if test ${reboot_mode} = quiescent; then "\
-			"setenv reboot_mode_android ""quiescent"";"\
-			"setenv dolby_status 0;"\
-			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
-			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-			"osd open;osd clear;"\
-		"else if test ${reboot_mode} = recovery_quiescent; then "\
-			"setenv reboot_mode_android ""quiescent"";"\
-			"setenv dolby_status 0;"\
-			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
-			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-			"osd open;osd clear;"\
-		"else "\
-			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
-			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process; \
-				osd open;osd clear;run load_bmp_logo;bmp scale; \
-				vout output ${outputmode}; \
-				dovi set;dovi pkg;vpp hdrpkt;"\
-		"fi;fi;"\
-		"\0"\
-	"storage_param="\
-		"setenv bootargs ${bootargs} ${emmc_quirks}; "\
-		"store param;"\
-		"setenv bootargs ${bootargs} ${mtdbootparts}; "\
-		"\0"\
-	"cmdline_keys="\
-		"setenv region_code US;"\
-		"if keyman init 0x1234; then "\
-			"if keyman read usid ${loadaddr} str; then "\
-				"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-				"setenv serial ${usid}; setenv serial# ${usid};"\
-			"else "\
-				"setenv bootargs ${bootargs} androidboot.serialno=ap222${cpu_id};"\
-				"setenv serial ap222${cpu_id}; setenv serial# ap222${cpu_id};"\
-			"fi;"\
-			"if keyman read region_code ${loadaddr} str; then fi;"\
-			"if keyman read mac ${loadaddr} str; then "\
-				"setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
-			"fi;"\
-			"if keyman read deviceid ${loadaddr} str; then "\
-				"setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
-			"fi;"\
-		"fi;"\
-		"setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
-	"factory_provision init;"\
-	"\0"\
-	"upgrade_key="\
-	"if gpio input GPIOD_2; then "\
-		"echo detect upgrade key; run update;"\
-	"fi;"\
 	"\0"\
 
 /*
 #define CONFIG_PREBOOT  \
 		"run bcb_cmd; "\
 		"run upgrade_check;"\
-		"run init_display;"\
 		"run storeargs;"\
 		"bcb uboot-command;"\
 		"run switch_bootmode;"
@@ -329,7 +183,7 @@
 			"run storeargs;"
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
-#define CONFIG_ENV_SIZE   (16 * 1024)
+#define CONFIG_ENV_SIZE   (8 * 1024)
 //#define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
 
@@ -408,9 +262,7 @@
 	#define CONFIG_EMMC_DDR52_CLK 35000000
 #endif
 #define		CONFIG_PARTITIONS 1
-#if 0
-#define 	CONFIG_SYS_NO_FLASH  1
-#endif
+//#define	CONFIG_SYS_NO_FLASH  1
 
 #if defined CONFIG_MESON_NFC || defined CONFIG_SPI_NAND || defined CONFIG_MTD_SPI_NAND
 	#define CONFIG_SYS_MAX_NAND_DEVICE  2

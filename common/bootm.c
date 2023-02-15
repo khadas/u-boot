@@ -318,13 +318,13 @@ static int read_fdto_partition(void)
 	pr_info("Start read %s partition datas!\n", dtbo_partition);
 	if (store_read(dtbo_partition, 0,
 		sizeof(struct dt_table_header), &hdr) < 0) {
-		pr_info("Fail to read header of DTBO partition\n");
+		pr_err("Fail to read header of DTBO partition\n");
 		return -1;
 	}
 
 #ifdef CONFIG_CMD_DTIMG
 	if (!android_dt_check_header((ulong)&hdr)) {
-		printf("DTBO partition header is incorrect\n");
+		pr_warning("DTBO partition header is incorrect\n");
 		return -1;
 	}
 #endif
@@ -382,14 +382,14 @@ static int do_fdt_overlay(void)
 	char idx[32];
 
 	if (!env_get("dtbo_mem_addr")) {
-		pr_info("No valid dtbo image found\n");
+		pr_err("No valid dtbo image found\n");
 		return -1;
 	}
 
 	dtbo_mem_addr = simple_strtoul(env_get("dtbo_mem_addr"), NULL, 16);
 #ifdef CONFIG_CMD_DTIMG
 	if (!android_dt_check_header(dtbo_mem_addr)) {
-		pr_info("Error: DTBO image header is incorrect\n");
+		pr_err("Error: DTBO image header is incorrect\n");
 		return -1;
 	}
 #endif
@@ -479,7 +479,7 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 	images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
 	images.ft_len = fdt_get_header(dtb_mem_addr, totalsize);
 #endif /* CONFIG_DTB_MEM_ADDR */
-	pr_info("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
+	printf("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 	/* update dtb address, compatible with single dtb and multi dtbs */
@@ -493,7 +493,7 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 		images.ft_addr = ft_addr_bak;
 		images.ft_len = ft_len_bak;
 
-		pr_info("load dtb from 0x%lx ......\n",
+		printf("load dtb from 0x%lx ......\n",
 			(unsigned long)(images.ft_addr));
 #ifdef CONFIG_MULTI_DTB
 		extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
@@ -569,7 +569,7 @@ static void print_decomp_msg(int comp_type, int type, bool is_xip)
 
 	if (comp_type == IH_COMP_NONE)
 #ifndef USE_HOSTCC
-		pr_info("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
+		printf("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
 #else
 		printf("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
 #endif
@@ -742,7 +742,7 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 
 	flush_cache(flush_start, ALIGN(flush_len, ARCH_DMA_MINALIGN));
 
-	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
+	printf("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);
 
 	no_overlap = (os.comp == IH_COMP_NONE && load == image_start);

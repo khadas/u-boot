@@ -233,7 +233,7 @@ static int __abortboot(int bootdelay)
 #ifdef CONFIG_MENUPROMPT
 	printf(CONFIG_MENUPROMPT);
 #else
-	pr_info("Hit any key to stop autoboot: %2d ", bootdelay);
+	printf("Hit any key to stop autoboot: %2d ", bootdelay);
 #endif
 
 	/*
@@ -263,7 +263,7 @@ static int __abortboot(int bootdelay)
 			udelay(2);
 		} while (!abort && get_timer(ts) < 2);
 
-		pr_info("\b\b\b%2d ", bootdelay);
+		printf("\b\b\b%2d ", bootdelay);
 	}
 
 	putc('\n');
