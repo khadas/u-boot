@@ -321,6 +321,20 @@ struct hw_osd_reg_s {
 #define VPP_POST_NUM (VPP_POST_VD_NUM + VPP_POST_OSD_NUM)
 
 #define POST_SLICE_NUM    4
+
+struct slice_info {
+	u32 hsize;     /*slice hsize*/
+	u32 vsize;     /*slice vsize*/
+};
+
+struct vpp_post_info_t {
+	u32 slice_num;   /*valid slice num*/
+	u32 overlap_hsize;
+	u32 vpp_post_blend_hsize;   /*blend out hsize*/
+	u32 vpp_post_blend_vsize;   /*blend out vsize*/
+	struct slice_info slice[POST_SLICE_NUM];
+};
+
 struct vpp_post_blend_s {
 	u32 bld_out_en;
 	u32 bld_out_w;

@@ -4453,7 +4453,12 @@ static void fix_vpu_clk2_default_regs(void)
 	init_done = 1;
 #if defined(AML_S5_DISPLAY)
 	/* default: osd byp dolby */
-	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 0, 1);
+#ifdef CONFIG_AML_DOLBY
+		if (dolby_vision_on)
+			osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x0, 0, 1);
+		else
+#endif
+			osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 0, 1);
 	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 2, 1);
 	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 4, 1);
 	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 6, 1);

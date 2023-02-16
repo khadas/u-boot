@@ -24894,6 +24894,227 @@
 // Closing file:  ./dolby_core1_slice3_reg.h
 //
 //===========================================================================
+
+//===========================================================================
+// -----------------------------------------------
+// REG_BASE:  DOLBY2A_VCBUS_BASE = 0x0b
+// -----------------------------------------------
+//===========================================================================
+//
+// Reading file:  dolby2a_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+#define DOLBY_CORE2A_REG_START                     ((0x0b00  << 2) + 0xff800000)
+#define DOLBY_CORE2A_CTRL                          ((0x0b01  << 2) + 0xff800000)
+#define DOLBY_CORE2A_Metadata_Start                ((0x0b02  << 2) + 0xff800000)
+#define DOLBY_CORE2A_Metadata_End                  ((0x0b03  << 2) + 0xff800000)
+#define DOLBY_CORE2A_Interrupt_Raw                 ((0x0b04  << 2) + 0xff800000)
+#define DOLBY_CORE2A_Interrupt_Enable              ((0x0b05  << 2) + 0xff800000)
+#define DOLBY_CORE2A_CLKGATE_CTRL                  ((0x0b32  << 2) + 0xff800000)
+#define DOLBY_CORE2A_SWAP_CTRL0                    ((0x0b33  << 2) + 0xff800000)
+#define DOLBY_CORE2A_SWAP_CTRL1                    ((0x0b34  << 2) + 0xff800000)
+#define DOLBY_CORE2A_SWAP_CTRL2                    ((0x0b35  << 2) + 0xff800000)
+#define DOLBY_CORE2A_SWAP_CTRL3                    ((0x0b36  << 2) + 0xff800000)
+#define DOLBY_CORE2A_SWAP_CTRL4                    ((0x0b37  << 2) + 0xff800000)
+#define DOLBY_CORE2A_SWAP_CTRL5                    ((0x0b38  << 2) + 0xff800000)
+#define DOLBY_CORE2A_DMA_CTRL                      ((0x0b39  << 2) + 0xff800000)
+#define DOLBY_CORE2A_DMA_STATUS                    ((0x0b3a  << 2) + 0xff800000)
+#define DOLBY_CORE2A_STATUS0                       ((0x0b3b  << 2) + 0xff800000)
+#define DOLBY_CORE2A_STATUS1                       ((0x0b3c  << 2) + 0xff800000)
+#define DOLBY_CORE2A_STATUS2                       ((0x0b3d  << 2) + 0xff800000)
+#define DOLBY_CORE2A_STATUS3                       ((0x0b3e << 2) + 0xff800000)
+#define DOLBY_CORE2A_DMA_PORT                      ((0x0b3f  << 2) + 0xff800000)
+#define DOLBY_CORE2A_AXI2DMA_CTRL0                 ((0x0b40  << 2) + 0xff800000)
+#define DOLBY_CORE2A_AXI2DMA_CTRL1                 ((0x0b41  << 2) + 0xff800000)
+#define DOLBY_CORE2A_AXI2DMA_CTRL2                 ((0x0b42  << 2) + 0xff800000)
+#define DOLBY_CORE2A_AXI2DMA_CTRL3                 ((0x0b43  << 2) + 0xff800000)
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  dolby2a_regs.h
+//
+//===========================================================================
+//===========================================================================
+// -----------------------------------------------
+// REG_BASE:  DOLBY2C_VCBUS_BASE = 0x0d
+// -----------------------------------------------
+//===========================================================================
+//
+// Reading file:  dolby2c_regs.h
+//
+// synopsys translate_off
+// synopsys translate_on
+#define DOLBY_CORE2C_REG_START                     ((0x0d00  << 2) + 0xff800000)
+#define DOLBY_CORE2C_CTRL                          ((0x0d01  << 2) + 0xff800000)
+#define DOLBY_CORE2C_Metadata_Start                ((0x0d02  << 2) + 0xff800000)
+#define DOLBY_CORE2C_Metadata_End                  ((0x0d03  << 2) + 0xff800000)
+#define DOLBY_CORE2C_Interrupt_Raw                 ((0x0d04  << 2) + 0xff800000)
+#define DOLBY_CORE2C_Interrupt_Enable              ((0x0d05  << 2) + 0xff800000)
+#define DOLBY_CORE2C_CLKGATE_CTRL                  ((0x0d32  << 2) + 0xff800000)
+#define DOLBY_CORE2C_SWAP_CTRL0                    ((0x0d33  << 2) + 0xff800000)
+#define DOLBY_CORE2C_SWAP_CTRL1                    ((0x0d34  << 2) + 0xff800000)
+#define DOLBY_CORE2C_SWAP_CTRL2                    ((0x0d35  << 2) + 0xff800000)
+#define DOLBY_CORE2C_SWAP_CTRL3                    ((0x0d36  << 2) + 0xff800000)
+#define DOLBY_CORE2C_SWAP_CTRL4                    ((0x0d37  << 2) + 0xff800000)
+#define DOLBY_CORE2C_SWAP_CTRL5                    ((0x0d38  << 2) + 0xff800000)
+#define DOLBY_CORE2C_DMA_CTRL                      ((0x0d39  << 2) + 0xff800000)
+#define DOLBY_CORE2C_DMA_STATUS                    ((0x0d3a  << 2) + 0xff800000)
+#define DOLBY_CORE2C_STATUS0                       ((0x0d3b  << 2) + 0xff800000)
+#define DOLBY_CORE2C_STATUS1                       ((0x0d3c  << 2) + 0xff800000)
+#define DOLBY_CORE2C_STATUS2                       ((0x0d3d  << 2) + 0xff800000)
+#define DOLBY_CORE2C_STATUS3                       ((0x0d3e  << 2) + 0xff800000)
+#define DOLBY_CORE2C_DMA_PORT                      ((0x0d3f  << 2) + 0xff800000)
+#define DOLBY_CORE2C_AXI2DMA_CTRL0                 ((0x0d40  << 2) + 0xff800000)
+#define DOLBY_CORE2C_AXI2DMA_CTRL1                 ((0x0d41  << 2) + 0xff800000)
+#define DOLBY_CORE2C_AXI2DMA_CTRL2                 ((0x0d42  << 2) + 0xff800000)
+#define DOLBY_CORE2C_AXI2DMA_CTRL3                 ((0x0d43  << 2) + 0xff800000)
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  dolby2c_regs.h
+//
+//===========================================================================
+
+//===========================================================================
+//`include "dolby2b_regs.h"
+//===========================================================================
+// -----------------------------------------------
+// REG_BASE:  DOLBY3_VCBUS_BASE = 0x36
+// -----------------------------------------------
+//===========================================================================
+//
+// Reading file:  dolby3_regs.
+//
+// synopsys translate_off
+// synopsys translate_on
+#define DOLBY_CORE3_REG_START                      ((0x0e00  << 2) + 0xff800000)
+#define DOLBY_CORE3_CTRL                           ((0x0e01  << 2) + 0xff800000)
+#define DOLBY_CORE3_Metadata_Start                 ((0x0e02  << 2) + 0xff800000)
+#define DOLBY_CORE3_Metadata_End                   ((0x0e03  << 2) + 0xff800000)
+#define DOLBY_CORE3_Interrupt_Raw                  ((0x0e04  << 2) + 0xff800000)
+#define DOLBY_CORE3_Interrupt_Enable               ((0x0e05  << 2) + 0xff800000)
+#define DOLBY_CORE3_CLKGATE_CTRL                   ((0x0ef0  << 2) + 0xff800000)
+#define DOLBY_CORE3_SWAP_CTRL0                     ((0x0ef1  << 2) + 0xff800000)
+#define DOLBY_CORE3_SWAP_CTRL1                     ((0x0ef2  << 2) + 0xff800000)
+#define DOLBY_CORE3_SWAP_CTRL2                     ((0x0ef3  << 2) + 0xff800000)
+#define DOLBY_CORE3_SWAP_CTRL3                     ((0x0ef4  << 2) + 0xff800000)
+#define DOLBY_CORE3_SWAP_CTRL4                     ((0x0ef5  << 2) + 0xff800000)
+#define DOLBY_CORE3_SWAP_CTRL5                     ((0x0ef6  << 2) + 0xff800000)
+#define DOLBY_CORE3_SWAP_CTRL6                     ((0x0ef7  << 2) + 0xff800000)
+#define DOLBY_CORE3_DIAG_CTRL                      ((0x0ef8  << 2) + 0xff800000)
+#define DOLBY_CORE3_CRC_CTRL                       ((0x0efb  << 2) + 0xff800000)
+#define DOLBY_CORE3_INPUT_CSC_CRC                  ((0x0efc  << 2) + 0xff800000)
+#define DOLBY_CORE3_OUTPUT_CSC_CRC                 ((0x0efd  << 2) + 0xff800000)
+
+#define SLICE0_META_CTRL0           ((0x0ebe  << 2) + 0xff800000)
+/*Bit 31:16, hsize    default = 0x780	 the whole original hsize for total slices*/
+/*Bit 15:14, clock gate en  default = 0  clk gate control*/
+/*Bit 13:7,  reserved*/
+/*Bit 6, latch manual only default = 0  only latched by manual buf updating*/
+/*Bit 5, manual buf update default = 0*/
+/*Bit 4, meta data finished	default = 0 no affect loghic function, can check the status Bit4 */
+/*Bit 3:0, slice enable  default = 0 meta data scaramble function enable for each slice*/
+#define SLICE0_META_CTRL1           ((0x0ebf  << 2) + 0xff800000)
+/*Bit 31:16, slice1 x_end     default = 0x20f*/
+/*Bit 15:0,  slice1 x_start   default = 0*/
+#define SLICE0_META_CTRL2           ((0x0ec0  << 2) + 0xff800000)
+/*Bit 31:16, slice2 x_end     default = 0x3ef*/
+/*Bit 15:0,  slice2 x_start   default = 0x1b0*/
+#define SLICE0_META_CTRL3           ((0x0ec1  << 2) + 0xff800000)
+/*Bit 31:16, slice3 x_end     default = 0x390*/
+/*Bit 15:0,  slice3 x_start   default = 0x5cf*/
+#define SLICE0_META_CTRL4           ((0x0ec2  << 2) + 0xff800000)
+/*Bit 31:16, slice4 x_end     default = 0x77f*/
+/*Bit 15:0,  slice4 x_start   default = 0x570*/
+
+#define SLICE0_META_CTRL5           ((0x0ec3  << 2) + 0xff800000)
+/*Bit 31:16, slice4 x_end     default = 0x77f*/
+/*Bit 15:0,  slice4 x_start   default = 0x570*/
+
+#define SLICE0_META_CTRL6           ((0x0ec4  << 2) + 0xff800000)
+/*Bit 31:0, reserved*/
+
+#define SLICE0_META_CRC0            ((0x0ec5  << 2) + 0xff800000)
+/*Bit 31:0, meta block0 crc value default = 0xaa0e_0bf8 */
+#define SLICE0_META_CRC1            ((0x0ec6  << 2) + 0xff800000)
+/*Bit 31:0, meta block0 crc value default = 0x1849_e5dd */
+#define SLICE0_META_CRC2            ((0x0ec7  << 2) + 0xff800000)
+/*Bit 31:0, meta block0 crc value default = 0x6305_9575 */
+#define SLICE0_META_CRC3            ((0x0ec8  << 2) + 0xff800000)
+/*Bit 31:0, meta block0 crc value default = 0x458a_10ef*/
+#define SLICE0_META_CRC4            ((0x0ec9  << 2) + 0xff800000)
+/*Bit 31:0, meta block0 crc value default = 0x3014_eec2 */
+#define SLICE0_META_RO              ((0x0eca  << 2) + 0xff800000)
+/*Bit 31:5, reserved*/
+/*Bit 4, set meta for next frame*/
+/*Bit 3, set meta last frame*/
+/*Bit 2:0, reserved*/
+
+#define DOLBY_CORE3_S1_REG_START ((0x0f00  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_CTRL                           ((0x0f01  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_Metadata_Start                 ((0x0f02  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_Metadata_End                   ((0x0f03  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_Interrupt_Raw                  ((0x0f04  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_Interrupt_Enable               ((0x0f05  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_CLKGATE_CTRL                   ((0x0ff0  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_SWAP_CTRL0                     ((0x0ff1  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_SWAP_CTRL1                     ((0x0ff2  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_SWAP_CTRL2                     ((0x0ff3  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_SWAP_CTRL3                     ((0x0ff4  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_SWAP_CTRL4                     ((0x0ff5  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_SWAP_CTRL5                     ((0x0ff6  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_SWAP_CTRL6                     ((0x0ff7  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_DIAG_CTRL                      ((0x0ff8  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_CRC_CTRL                       ((0x0ffb  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_INPUT_CSC_CRC                  ((0x0ffc  << 2) + 0xff000000)
+#define DOLBY_CORE3_S1_OUTPUT_CSC_CRC                 ((0x0ffd  << 2) + 0xff000000)
+
+#define DOLBY_CORE3_S2_REG_START ((0x1200  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_CTRL                           ((0x1201  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_Metadata_Start                 ((0x1202  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_Metadata_End                   ((0x1203  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_Interrupt_Raw                  ((0x1204  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_Interrupt_Enable               ((0x1205  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_CLKGATE_CTRL                   ((0x12f0  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_SWAP_CTRL0                     ((0x12f1  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_SWAP_CTRL1                     ((0x12f2  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_SWAP_CTRL2                     ((0x12f3  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_SWAP_CTRL3                     ((0x12f4  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_SWAP_CTRL4                     ((0x12f5  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_SWAP_CTRL5                     ((0x12f6  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_SWAP_CTRL6                     ((0x12f7  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_DIAG_CTRL                      ((0x12f8  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_CRC_CTRL                       ((0x12fb  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_INPUT_CSC_CRC                  ((0x12fc  << 2) + 0xff000000)
+#define DOLBY_CORE3_S2_OUTPUT_CSC_CRC                 ((0x12fd  << 2) + 0xff000000)
+
+#define DOLBY_CORE3_S3_REG_START ((0x1300  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_CTRL                           ((0x1301  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_Metadata_Start                 ((0x1302  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_Metadata_End                   ((0x1303  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_Interrupt_Raw                  ((0x1304  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_Interrupt_Enable               ((0x1305  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_CLKGATE_CTRL                   ((0x13f0  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_SWAP_CTRL0                     ((0x13f1  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_SWAP_CTRL1                     ((0x13f2  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_SWAP_CTRL2                     ((0x13f3  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_SWAP_CTRL3                     ((0x13f4  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_SWAP_CTRL4                     ((0x13f5  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_SWAP_CTRL5                     ((0x13f6  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_SWAP_CTRL6                     ((0x13f7  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_DIAG_CTRL                      ((0x13f8  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_CRC_CTRL                       ((0x13fb  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_INPUT_CSC_CRC                  ((0x13fc  << 2) + 0xff000000)
+#define DOLBY_CORE3_S3_OUTPUT_CSC_CRC                 ((0x13fd  << 2) + 0xff000000)
+
+// synopsys translate_off
+// synopsys translate_on
+//
+// Closing file:  dolby3_regs.h
+//
+//===========================================================================
+
 //===========================================================================
 //
 // Reading file:  ./vpu_madc_regs.h

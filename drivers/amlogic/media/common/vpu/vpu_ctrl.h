@@ -193,6 +193,16 @@ static unsigned int vpu_pwrctrl_id_table_t3[] = {
 	VPU_PWR_ID_END
 };
 
+static unsigned int vpu_pwrctrl_id_table_s5[] = {
+	PM_VPU_HDMI,
+	PM_VI_CLK1,
+	PM_VI_CLK2,
+#ifdef AML_S5_DISPLAY
+	PM_VPU_DOLBY,
+#endif
+	VPU_PWR_ID_END
+};
+
 /* ******************************************************* */
 /*                 VPU module init table                 */
 /* ******************************************************* */

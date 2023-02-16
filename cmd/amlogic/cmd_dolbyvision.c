@@ -33,7 +33,6 @@ static int do_read_reg(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 	unsigned long tmp_addr = 0;
 
 	tmp_addr = simple_strtoul(argv[1], NULL, 16);
-	dv_read_reg((unsigned int)tmp_addr);
 	printf("addr:%lx, value: %x\n", tmp_addr,
 		dv_read_reg((unsigned int)tmp_addr));
 	return 1;

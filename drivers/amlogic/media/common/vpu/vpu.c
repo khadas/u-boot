@@ -509,7 +509,7 @@ static struct vpu_data_s vpu_data_s5 = {
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
 	.test_reg = vcbus_test_reg,
 
-	.pwrctrl_id_table = vpu_pwrctrl_id_table_t7,
+	.pwrctrl_id_table = vpu_pwrctrl_id_table_s5,
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
