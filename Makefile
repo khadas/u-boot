@@ -1276,6 +1276,10 @@ endif
 ifeq ("$(FASTBOOTMODE)", "1")
 	echo "#define CONFIG_FASTBOOT_WRITING_CMD" \"$(FASTBOOTMODE)\" >> $(version_h)
 endif
+ifeq ("$(GPTMODE)", "1")
+	echo "#define CONFIG_AML_GPT" \"$(GPTMODE)\" >> $(version_h)
+endif
+
 
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)

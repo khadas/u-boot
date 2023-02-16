@@ -19,6 +19,7 @@
 #include <emmc_partitions.h>
 #include <asm/cpu_id.h>
 #include <part_efi.h>
+#include <version.h>
 
 #if (CONFIG_PTBL_MBR)
 	/* cmpare partition name? */
@@ -1088,6 +1089,7 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 		printf("Caution! GPT number had been changed\n");
 	}
 
+	free(gpt_pte);
 	return gpt_changed;
 }
 
@@ -1139,6 +1141,7 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 			partitions[i].name[k] = (char)gpt_pte[i].partition_name[k];
 	}
 
+	free(gpt_pte);
 	return 0;
 }
 
@@ -1149,7 +1152,6 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 	for (i = 0; i < count - 1; i++) {
 		disk_part[i].start = part[i + 1].offset >> 9;
 		strcpy((char *)disk_part[i].name, part[i+1].name);
-		strcpy((char *)disk_part[i].type_guid, part[i+1].name);
 		gen_rand_uuid_str(disk_part[i].uuid, UUID_STR_FORMAT_STD);
 		disk_part[i].bootable = 0;
 		if ( i == (count - 2))
@@ -1186,7 +1188,9 @@ int confirm_gpt(struct mmc *mmc)
 	int ret = 1;
 	disk_partition_t *disk_partition;
 	block_dev_desc_t *dev_desc = &mmc->block_dev;
+	gpt_entry *gpt_pte = NULL;
 
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	/*remove bootloader partition*/
 	dcount = p_iptbl_ept->count - 1;
 	if (dcount < 1)
@@ -1196,6 +1200,8 @@ int confirm_gpt(struct mmc *mmc)
 							dev_desc));
 	if (disk_partition == NULL)
 		return -ENOMEM;
+
+	memset(disk_partition, 0, sizeof(disk_partition_t) * dcount);
 	trans_ept_to_diskpart(p_iptbl_ept, disk_partition);
 
 	str_disk_guid = malloc(UUID_STR_LEN + 1);
@@ -1205,7 +1211,8 @@ int confirm_gpt(struct mmc *mmc)
 	}
 	gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
 
-	if (test_part_efi(&mmc->block_dev) != 0) {
+	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+				gpt_head, &gpt_pte) != 1) {
 		/*gpt is empty write gpt*/
 		ret = gpt_restore(&mmc->block_dev, str_disk_guid, disk_partition, dcount);
 		printf("GPT IS RESTORED %s\n", ret ? "Failed!" : "OK!");
@@ -1223,6 +1230,7 @@ int confirm_gpt(struct mmc *mmc)
 
 	free(str_disk_guid);
 	free(disk_partition);
+	free(gpt_pte);
 	return ret;
 }
 
@@ -1398,6 +1406,7 @@ int mmc_device_init (struct mmc *mmc)
 		}
 	}
 #endif
+
 #ifdef CONFIG_AML_GPT
 	ret = confirm_gpt(mmc);
 #endif

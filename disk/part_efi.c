@@ -25,6 +25,7 @@
 #include <malloc.h>
 #include <part_efi.h>
 #include <linux/compiler.h>
+#include <emmc_partitions.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 #define HAVE_BLOCK_DEVICE
@@ -512,16 +513,9 @@ int gpt_fill_pte(block_dev_desc_t *dev_desc,
 		if (strlen(str_type_guid)) {
 			if (uuid_str_to_bin(str_type_guid, bin_type_guid,
 					    UUID_STR_FORMAT_GUID)) {
-#ifdef CONFIG_AML_GPT
-				char str[7] = {"default"};
-				strcpy(str_type_guid, str);
-				uuid_str_to_bin(str_type_guid, bin_type_guid,
-						UUID_STR_FORMAT_GUID);
-#else
 				printf("Partition no. %d: invalid type guid: %s\n",
 				       i, str_type_guid);
 				return -1;
-#endif
 			}
 		} else {
 			/* default partition type GUID */
@@ -584,7 +578,7 @@ int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
 	gpt_h->first_usable_lba = cpu_to_le64(34);
 	gpt_h->last_usable_lba = cpu_to_le64(dev_desc->lba - 34);
 	gpt_h->partition_entry_lba = cpu_to_le64(2);
-	gpt_h->num_partition_entries = cpu_to_le32(GPT_ENTRY_NUMBERS);
+	gpt_h->num_partition_entries = cpu_to_le32(parts_count);
 	gpt_h->sizeof_partition_entry = cpu_to_le32(sizeof(gpt_entry));
 	gpt_h->header_crc32 = 0;
 	gpt_h->partition_entry_array_crc32 = 0;
