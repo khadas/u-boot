@@ -31,7 +31,7 @@
 
 #define     MAX_DEVICE_NUM                  32
 #define     MAX_DEVICE_NAME_LEN             16
-#define     MAX_MMC_PART_NUM                32
+#define     MAX_MMC_PART_NUM                MAX_PART_NUM
 #define     MAX_MMC_PART_NAME_LEN           16
 
 #define 	MMC_BOOT_PARTITION_SUPPORT		1
