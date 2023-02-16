@@ -148,6 +148,9 @@ int change_vpu_clk(struct vpu_conf_s *vconf, unsigned int vclk);
 int set_vpu_clk(struct vpu_conf_s *vconf, unsigned int vclk);
 int set_vpu_clkb(struct vpu_conf_s *vconf, unsigned int vclk);
 
+#ifdef CONFIG_AMLOGIC_TEE
+unsigned long viu_init_psci_smc(unsigned long flag);
+#endif
 void vpu_mem_pd_init_off(void);
 void vpu_module_init_config(void);
 

@@ -5,9 +5,27 @@
 
 #include <config.h>
 #include <linux/kernel.h>
+#include <linux/arm-smccc.h>
 #include <amlogic/media/vpu/vpu.h>
 #include "vpu_reg.h"
 #include "vpu.h"
+
+#ifdef CONFIG_AMLOGIC_TEE
+//flag:(forward compatible)
+// 0=set vpu sec without debug print
+// 1=set vpu sec with after debug print
+// 2=set vpu sec with before and after debug print
+// 3=only debug print
+unsigned long viu_init_psci_smc(unsigned long flag)
+{
+	struct arm_smccc_res res;
+
+	VPUPR("%s\n", __func__);
+	arm_smccc_smc(0x82000080, flag, 0, 0,
+		      0, 0, 0, 0, &res);
+	return res.a0;
+}
+#endif
 
 void vpu_mem_pd_init_off(void)
 {
@@ -55,7 +73,7 @@ void vpu_module_init_config(void)
 	if (vpu_conf.data->chip_type == VPU_CHIP_T3 ||
 	    vpu_conf.data->chip_type == VPU_CHIP_T5W ||
 		vpu_conf.data->chip_type == VPU_CHIP_T5M)
-		viu_init_psci_smc();
+		viu_init_psci_smc(1);
 #endif
 	/* S5 new add registers */
 	if (vpu_conf.data->chip_type == VPU_CHIP_S5)
