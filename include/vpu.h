@@ -15,5 +15,6 @@ extern int vpu_remove(void);
 extern int vpu_clk_change(int level);
 extern void vpu_clk_get(void);
 extern void vpu_info_print(void);
+void vpu_sec_debug(unsigned int flag);
 
 #endif

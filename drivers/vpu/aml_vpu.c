@@ -1126,3 +1126,12 @@ void vcbus_test(void)
 		printf("\n");
 	}
 }
+
+void vpu_sec_debug(unsigned int flag)
+{
+#ifdef CONFIG_AMLOGIC_TEE
+	viu_init_psci_smc(flag);
+#else
+	VPUERR("%s: no CONFIG_AMLOGIC_TEE\n", __func__);
+#endif
+}

@@ -121,6 +121,9 @@ extern void udelay(unsigned long usec);
 extern int printf(const char *fmt, ...);
 /* ************************************************ */
 
+#ifdef CONFIG_AMLOGIC_TEE
+unsigned long viu_init_psci_smc(unsigned long flag);
+#endif
 extern void vpu_mem_pd_init_off(void);
 extern void vpu_module_init_config(void);
 
