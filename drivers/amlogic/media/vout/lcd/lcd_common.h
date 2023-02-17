@@ -36,7 +36,8 @@
 /* 20221116: add T5W support*/
 /* 20221215: remove unnecessary tcon top reset*/
 /* 20221216: optimize lcd clk code*/
-#define LCD_DRV_VERSION    "20221216"
+/* 20230222: update tcon tee memory debug info*/
+#define LCD_DRV_VERSION    "20230222"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 

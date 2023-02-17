@@ -1282,7 +1282,8 @@ static void lcd_p2p_phy_set_t5m(struct aml_lcd_drv_s *pdrv, int status)
 		p2p_type = p2p_conf->p2p_type & 0x1f;
 		vcm_flag = (p2p_conf->p2p_type >> 5) & 0x1;
 
-		printf("%s: phy->flag=0x%x\n", __func__, phy->flag);
+		if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
+			printf("%s: phy->flag=0x%x\n", __func__, phy->flag);
 
 		switch (p2p_type) {
 		case P2P_CEDS:
@@ -1485,7 +1486,8 @@ static void lcd_p2p_phy_set_t3(struct aml_lcd_drv_s *pdrv, int status)
 		p2p_type = p2p_conf->p2p_type & 0x1f;
 		vcm_flag = (p2p_conf->p2p_type >> 5) & 0x1;
 
-		printf("%s: phy->flag=0x%x\n", __func__, phy->flag);
+		if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
+			printf("%s: phy->flag=0x%x\n", __func__, phy->flag);
 
 		switch (p2p_type) {
 		case P2P_CEDS:

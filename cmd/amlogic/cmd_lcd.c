@@ -272,6 +272,16 @@ static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			else
 				printf("no lcd tcon_data_print\n");
 		}
+	} else if (strcmp(argv[1], "tee") == 0) {
+		if (strcmp(argv[2], "on") == 0)
+			val = 1;
+		else
+			val = 0;
+		i = (unsigned int)simple_strtoul(argv[3], NULL, 10);
+		if (pdrv->tcon_mem_tee_protect)
+			pdrv->tcon_mem_tee_protect(i, val);
+		else
+			printf("no lcd tcon_mem_tee_protect\n");
 	} else if (strcmp(argv[1], "spi") == 0) {
 		if (pdrv->tcon_spi_print)
 			pdrv->tcon_spi_print();

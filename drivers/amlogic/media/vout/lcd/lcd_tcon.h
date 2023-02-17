@@ -33,11 +33,11 @@ struct lcd_tcon_config_s {
 	unsigned int rsv_mem_size;
 	unsigned int axi_size;
 	unsigned int bin_path_size;
+	unsigned int secure_cfg_size;
 	unsigned int vac_size;
 	unsigned int demura_set_size;
 	unsigned int demura_lut_size;
 	unsigned int acc_lut_size;
-	unsigned int secure_handle_size;
 
 	unsigned int *axi_reg;
 	void (*tcon_axi_mem_config)(void);
@@ -50,6 +50,8 @@ struct tcon_rmem_config_s {
 	unsigned int mem_paddr;
 	unsigned char *mem_vaddr;
 	unsigned int mem_size;
+	unsigned int sec_handle;
+	unsigned int sec_protect;
 };
 
 struct tcon_rmem_s {
@@ -62,7 +64,7 @@ struct tcon_rmem_s {
 
 	struct tcon_rmem_config_s *axi_rmem;
 	struct tcon_rmem_config_s bin_path_rmem;
-	struct tcon_rmem_config_s secure_handle_rmem;
+	struct tcon_rmem_config_s secure_cfg_rmem;
 
 	struct tcon_rmem_config_s vac_rmem;
 	struct tcon_rmem_config_s demura_set_rmem;
@@ -96,15 +98,9 @@ struct tcon_mem_map_table_s {
 	unsigned char **data_mem_vaddr;
 };
 
-struct tcon_mem_secure_config_s {
-	unsigned int handle;
-	bool protect;
-};
-
 #define TCON_BIN_VER_LEN    9
 #define MEM_FLAG_MAX
 struct lcd_tcon_local_cfg_s {
-	struct tcon_mem_secure_config_s *secure_cfg;
 	char bin_ver[TCON_BIN_VER_LEN];
 };
 
@@ -183,6 +179,7 @@ struct lcd_tcon_config_s *get_lcd_tcon_config(void);
 struct tcon_rmem_s *get_lcd_tcon_rmem(void);
 struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
 struct lcd_tcon_local_cfg_s *get_lcd_tcon_local_cfg(void);
+int lcd_tcon_mem_tee_protect(int mem_flag, int protect_en);
 
 int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_disable_tl1(struct aml_lcd_drv_s *pdrv);
