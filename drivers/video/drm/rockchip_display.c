@@ -58,7 +58,7 @@ static unsigned long cubic_lut_memory_start;
 static unsigned long memory_end;
 static struct base2_info base_parameter;
 static u32 align_size = PAGE_SIZE;
-
+int khadas_mipi_id = 0;
 /*
  * the phy types are used by different connectors in public.
  * The current version only has inno hdmi phy for hdmi and tve.
@@ -481,90 +481,6 @@ static int display_get_timing_from_dts(struct rockchip_panel *panel,
 	}
 
 	return 0;
-}
-#ifdef CONFIG_DM_I2C
-#define TP_I2C_BUS_NUM 6
-#define TP05_CHIP_ADDR "0x38"
-#define TP10_CHIP_ADDR "0x14"
-static struct udevice *i2c_cur_bus;
-int khadas_mipi_id = 0;
-
-static int cmd_i2c_set_bus_num(unsigned int busnum)
-{
-    struct udevice *bus;
-    int ret;
-
-    ret = uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus);
-    if (ret) {
-        printf("%s: No bus %d\n", __func__, busnum);
-        return ret;
-    }
-    i2c_cur_bus = bus;
-
-    return 0;
-}
-
-static int i2c_get_cur_bus(struct udevice **busp)
-{
-	if (!i2c_cur_bus) {
-		if (cmd_i2c_set_bus_num(TP_I2C_BUS_NUM)) {
-		    printf("Default I2C bus %d not found\n",
-		           TP_I2C_BUS_NUM);
-		    return -ENODEV;
-		}
-	}
-
-    if (!i2c_cur_bus) {
-        puts("No I2C bus selected\n");
-        return -ENODEV;
-    }
-    *busp = i2c_cur_bus;
-
-    return 0;
-}
-
-static int i2c_get_cur_bus_chip(uint chip_addr, struct udevice **devp)
-{
-    struct udevice *bus;
-    int ret;
-
-    ret = i2c_get_cur_bus(&bus);
-    if (ret)
-        return ret;
-
-    return i2c_get_chip(bus, chip_addr, 1, devp);
-}
-#endif
-
-static int kbi_i2c_read(uint reg, const char *cp)
-{
-	int ret;
-	char val[64];
-	uchar   linebuf[1];
-	uchar chip;
-#ifdef CONFIG_DM_I2C
-	struct udevice *dev;
-#endif
-
-
-	chip = simple_strtoul(cp, NULL, 16);
-
-#ifdef CONFIG_DM_I2C
-	ret = i2c_get_cur_bus_chip(chip, &dev);
-	if (!ret)
-		ret = dm_i2c_read(dev, reg, (uint8_t *)linebuf, 1);
-#else
-	ret = i2c_read(chip, reg, 1, linebuf, 1);
-#endif
-
-	if (ret)
-		printf("Error reading the chip: %d\n",ret);
-	else {
-		sprintf(val, "%d", linebuf[0]);
-		ret = simple_strtoul(val, NULL, 10);
-
-	}
-	return ret;
 }
 
 static int display_get_timing(struct display_state *state)
@@ -1842,7 +1758,6 @@ static int rockchip_display_probe(struct udevice *dev)
 	struct device_node *port_node, *vop_node, *ep_node, *port_parent_node;
 	struct public_phy_data *data;
 	bool is_ports_node = false;
-	static bool first_flag = 1;
 
 #if defined(CONFIG_ROCKCHIP_RK3568)
 	rockchip_display_fixup_dts((void *)blob);
@@ -1963,23 +1878,7 @@ static int rockchip_display_probe(struct udevice *dev)
 		s->crtc_state.crtc = crtc;
 		s->crtc_state.crtc_id = get_crtc_id(np_to_ofnode(ep_node), is_ports_node);
 		s->node = node;
-		if(first_flag){
-			khadas_mipi_id = kbi_i2c_read(0xfe,TP05_CHIP_ADDR);
-			printf("TP05 id=0x%x\n",khadas_mipi_id);
-			if(khadas_mipi_id > 0x10){//TS050 = 0x1f
-				khadas_mipi_id = 1;
-			}else{
-				khadas_mipi_id = kbi_i2c_read(0x9e,TP10_CHIP_ADDR);
-				printf("TP10 id=0x%x\n",khadas_mipi_id);
-				if(khadas_mipi_id == 0x00){//TS101
-					khadas_mipi_id = 2;
-				}else {
-					khadas_mipi_id = 0;
-				}
-			}
-			first_flag = 0;
-			printf("hlm khadas_mipi_id=%d\n",khadas_mipi_id);
-		}
+
 		if(s->crtc_state.crtc_id == 0){
 			ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);//0 degrees
 			if (!ret)
