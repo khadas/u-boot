@@ -577,7 +577,11 @@ void *memcpy(void *dest, const void *src, size_t len)
 static void register_global(struct uasan_global *global)
 {
 	size_t aligned_size = round_up(global->size, UASAN_SHADOW_SCALE_SIZE);
+#ifdef CONFIG_SYS_TEXT_BASE
+	const void *rel_beg = global->beg + gd->relocaddr - CONFIG_SYS_TEXT_BASE;
+#else
 	const void *rel_beg = global->beg + gd->relocaddr;
+#endif
 
 	debug("  global beg:%p, size:%ld, rsize:%ld, asize:%ld, rel_beg:%p\n",
 		global->beg, global->size, global->size_with_redzone,
