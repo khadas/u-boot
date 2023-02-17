@@ -31,6 +31,7 @@ enum vpu_chip_e {
 	VPU_CHIP_T5W,  /* 14 */
 	VPU_CHIP_T5M,  /* 15 */
 	VPU_CHIP_A4,
+	VPU_CHIP_T3X,  /* 17 */
 	VPU_CHIP_MAX,
 };
 
@@ -62,6 +63,7 @@ enum vpu_mux_e {
 	FCLK_DIV3,
 	FCLK_DIV5,
 	FCLK_DIV7,
+	FCLK_DIV2P5,
 	MPLL_CLK1,
 	VID_PLL_CLK,
 	VID2_PLL_CLK,

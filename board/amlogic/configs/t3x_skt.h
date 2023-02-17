@@ -232,7 +232,7 @@
 #endif
 
 /* vpu */
-#define AML_VPU_CLK_LEVEL_DFT 7
+#define AML_VPU_CLK_LEVEL_DFT 8
 #define VPU_DEBUG_PRINT 7
 
 /* LCD */

@@ -34,7 +34,10 @@ static unsigned long get_fclk_div_freq(struct vpu_conf_s *vconf, unsigned int mu
 		fclk_div = vconf->data->fclk_div_table + i;
 		if (fclk_div->fclk_id == mux_id) {
 			div = fclk_div->fclk_div;
-			clk_source = ((fclk * 100 / div) + 99) / 100;
+			if (div >= 10)
+				clk_source = ((fclk * 1000 / div) + 99) / 100;
+			else
+				clk_source = ((fclk * 100 / div) + 99) / 100;
 			break;
 		}
 		if (fclk_div->fclk_id == FCLK_DIV_MAX)

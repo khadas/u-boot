@@ -593,6 +593,37 @@ static struct vpu_data_s vpu_data_a4 = {
 	.change_clk = NULL,
 };
 
+static struct vpu_data_s vpu_data_t3x = {
+	.chip_type = VPU_CHIP_T3X,
+	.chip_name = "t3x",
+	.clk_level_dft = CLK_LEVEL_DFT_T3X,
+	.clk_level_max = CLK_LEVEL_MAX_T3X,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
+	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
+	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
+	.test_reg = vcbus_test_reg,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table_t3x,
+
+	.fclk_div_table = fclk_div_table_t3x,
+	.vpu_clk_table = vpu_clk_table,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+	.module_init_config = vpu_module_init_config,
+};
+
 static void vpu_chip_detect(void)
 {
 	unsigned int cpu_type;
@@ -650,6 +681,9 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_A4:
 		vpu_conf.data = &vpu_data_a4;
 		break;
+	case MESON_CPU_MAJOR_ID_T3X:
+		vpu_conf.data = &vpu_data_t3x;
+		break;
 	default:
 		vpu_conf.data = NULL;
 		//vpu_conf.data = &vpu_data_t3;
@@ -705,6 +739,7 @@ static int vpu_check(void)
 	case VPU_CHIP_S5:
 	case VPU_CHIP_T5M:
 	case VPU_CHIP_A4:
+	case VPU_CHIP_T3X:
 		ret = 0;
 		break;
 	default:
