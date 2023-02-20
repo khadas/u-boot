@@ -380,6 +380,10 @@ config ZIRCON_BOOT_IMAGE
 	bool "Build Zircon compatible boot image"
 	default n
 
+config MISC_INIT_R
+	bool "miscellaneous platform-dependent init before board_late_init"
+	default y
+
 if GXB_SKT_V1
 source "board/amlogic/gxb_skt_v1/Kconfig"
 endif

@@ -57,7 +57,8 @@ then
   for file in ${folder_board}/*; do
     temp_file=`basename $file`
     #echo "$temp_file"
-    if [ -d ${folder_board}/${temp_file} ] && [ "$temp_file" != "defconfigs" ] && [ "$temp_file" != "configs" ];then
+    if [ -d ${folder_board}/${temp_file} ] && [ "$temp_file" != "defconfigs" ] && \
+	    [ "$temp_file" != "configs" ] && [ "$temp_file" != "common" ]; then
       #echo "  \c"
       #echo $temp_file
       ARRAY_CFG[$TOTAL_CFG]=$temp_file
