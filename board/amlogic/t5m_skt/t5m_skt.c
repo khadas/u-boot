@@ -485,46 +485,39 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-        char loc_name[64] = {0};
-        unsigned long ddr_size=0;
+	char loc_name[64] = {0};
+	unsigned long ddr_size = 0;
+	int i;
+	cpu_id_t cpu_id = get_cpu_id();
 
-        int i;
-        for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
-                ddr_size += gd->bd->bi_dram[i].size;
-        }
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
+		ddr_size += gd->bd->bi_dram[i].size;
+
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-        ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
 
-        int sipinfo = ((((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) >> 19) & 0x1);
-        if ((sipinfo == 1) && (ddr_size == 0x80000000)) // sip package
-        {
-                strcpy(loc_name, "t3_t982_ar301-2g\0");
-        }
-        else {
-                switch (ddr_size)
-                {
-                        case 0x80000000:
-                                strcpy(loc_name, "t3_t982_ar311-2g\0");
-                                break;
-                        case 0xc0000000:
-                                strcpy(loc_name, "t3_t982_ar311-3g\0");
-                                break;
-                        case 0xe0000000:
-                                strcpy(loc_name, "t3_t982_ar311-4g\0");
-                                break;
-                        case 0x200000000:
-                                strcpy(loc_name, "t3_t982_ar311-8g\0");
-                                break;
-                        default:
-                                strcpy(loc_name, "t3_t982_unsupport");
-                                break;
-                }
-        }
+	switch (ddr_size) {
+	case 0x80000000:
+		if (cpu_id.chip_rev == 0xA)
+			strcpy(loc_name, "t5m-reva_t963d4_ay309-2g\0");
+		else if (cpu_id.chip_rev == 0xB)
+			strcpy(loc_name, "t5m_t963d4_ay309-2g\0");
+		break;
+	case 0xc0000000:
+		if (cpu_id.chip_rev == 0xA)
+			strcpy(loc_name, "t5m-reva_t963d4_ay309-3g\0");
+		else if (cpu_id.chip_rev == 0xB)
+			strcpy(loc_name, "t5m_t963d4_ay309-3g\0");
+		break;
+	default:
+		strcpy(loc_name, "t5m_t963d4_unsupport");
+		break;
+	}
 
-        /* set aml_dt */
-        strcpy(name, loc_name);
-        env_set("aml_dt", loc_name);
+	/* set aml_dt */
+	strcpy(name, loc_name);
+	env_set("aml_dt", loc_name);
 	return 0;
 }
 #endif
