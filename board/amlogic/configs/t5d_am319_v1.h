@@ -138,7 +138,7 @@
         "fs_type=""rootfstype=ramfs""\0"\
 	"disable_ir=0\0"\
         "initargs="\
-            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xffd23000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xffd23000 printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xff6345c4 "\
             "\0"\
         "upgrade_check="\
             "echo upgrade_step=${upgrade_step}; "\

@@ -75,4 +75,6 @@
 
 #define CONFIG_AML_VPU_REG_NEW 1
 
+#define CONFIG_KEY_PRESERVE	1
+
 #endif /* _CPU_H */
