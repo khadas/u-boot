@@ -246,7 +246,8 @@ unsigned int get_ddr_memsize(void)
 #endif
 #else
 	/*auto get ddr size from hardware method*/
-	ddr_size = ((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4;
+	ddr_size = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4) > 0xe0000000 ?
+		0xe0000000 : ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4);
 #endif
 	return ddr_size;
 }
@@ -255,11 +256,12 @@ phys_size_t get_effective_memsize(void)
 {
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+	return ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4) > 0xe0000000 ? 0xe0000000 :
+		(((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4) - CONFIG_SYS_MEM_TOP_HIDE);
 #else
-	return (((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFF80000) << 4);
+	return ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4) > 0xe0000000 ? 0xe0000000 :
+			((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4);
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
-
 }
 
 static struct mm_region bd_mem_map[] = {
@@ -270,9 +272,9 @@ static struct mm_region bd_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0x80000000UL,
-		.phys = 0x80000000UL,
-		.size = 0x80000000UL,
+		.virt = 0xe0000000UL,
+		.phys = 0xe0000000UL,
+		.size = 0x20000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -285,6 +287,13 @@ static struct mm_region bd_mem_map[] = {
 struct mm_region *mem_map = bd_mem_map;
 
 int mach_cpu_init(void) {
+	//update mmu table from bl2 ddr auto detect size
+	unsigned long nddrSize = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4) > 0xe0000000 ?
+		0xe0000000 : ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF80000) << 4);
+
+	if (nddrSize <= 0xe0000000)
+		bd_mem_map[0].size = nddrSize;
+
 	//printf("\nmach_cpu_init\n");
 	return 0;
 }
@@ -459,7 +468,7 @@ int checkhw(char * name)
 		case CONFIG_3G_SIZE:
 			strcpy(loc_name, "sc2_s905x4_ah219-3g\0");
 			break;
-		case CONFIG_DDR_MAX_SIZE:
+		case 0xe0000000:
 			strcpy(loc_name, "sc2_s905x4_ah219-4g\0");
 			break;
 		default:
