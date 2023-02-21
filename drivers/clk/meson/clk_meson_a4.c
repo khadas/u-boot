@@ -57,8 +57,8 @@ static struct meson_div divs[] = {
 
 static struct parm meson_fixed_pll_parm[3] = {
 	{A4_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
-	{A4_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
-	{A4_ANACTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
+	{A4_ANACTRL_FIXPLL_CTRL0, 16, 5}, /* pn */
+	{A4_ANACTRL_FIXPLL_CTRL0, 12, 2}, /* pod */
 };
 
 static struct parm meson_sys_pll_parm[3] = {

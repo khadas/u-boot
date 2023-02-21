@@ -206,9 +206,6 @@ struct spicc_device {
 #define SPI_XFER_NULL_CTL	BIT(13)
 #define SPI_XFER_DUMMY_CTL	BIT(14)
 
-#define CONFIG_SPICC_HW_PINCTRL
-#define CONFIG_SPICC_HW_CLK
-
 static inline void spicc_flush_dcache(uint64_t addr, int sz)
 {
 	flush_dcache_range(addr, addr + sz);
@@ -218,73 +215,6 @@ static inline void spicc_invalidate_dcache(uint64_t addr, int sz)
 {
 	invalidate_dcache_range(addr, addr + sz);
 }
-
-#ifdef CONFIG_SPICC_HW_PINCTRL
-/*
- * GPIOT_11[DQ2]	regC[15:12]
- * GPIOT_12[DQ3]	regC[19:16]
- * GPIOT_13[CLK]	regC[23:20]
- * GPIOT_14[MOSI]	regC[27:24]
- * GPIOT_15[MISO]	regC[31:28]
- * GPIOT_16[SS0]	regD[3:0]
- * GPIOT_17[SS1]	regD[7:4]
- * GPIOT_18[SS2]	regD[11:8]
- */
-static int spicc0_hw_pinctrl_init(void)
-{
-	uint32_t val;
-
-	val = readl(PADCTRL_PIN_MUX_REGC);
-	val &= 0x00000fff;
-	val |= 0x22222000;
-	writel(val, PADCTRL_PIN_MUX_REGC);
-
-	val = readl(PADCTRL_PIN_MUX_REGD);
-	val &= 0xfffffff0;
-	val |= 0x00000002;
-	writel(val, PADCTRL_PIN_MUX_REGD);
-
-	/* DQ2/DQ3/MISO/SS0 pullup */
-	val = readl(PADCTRL_GPIOT_PULL_UP);
-	val |= (1 << 16) | (1 << 15) | (1 << 12) | (1 << 11);
-	writel(val, PADCTRL_GPIOT_PULL_UP);
-
-	val = readl(PADCTRL_GPIOT_PULL_EN);
-	val |= (1 << 16) | (1 << 15) | (1 << 12) | (1 << 11);
-	writel(val, PADCTRL_GPIOT_PULL_EN);
-
-	return 0;
-}
-#endif /* end of CONFIG_SPICC_HW_PINCTRL */
-
-#ifdef CONFIG_SPICC_HW_CLK
-uint32_t spicc_parent_clk_rate[] = {
-	24000000,	/* cts_oscin_clk */
-	166666667,	/* cts_sys_clk */
-	500000000,	/* fclk_div4 */
-	666666667,	/* fclk_div3 */
-	1000000000,	/* fclk_div2 */
-	400000000,	/* fclk_div5 */
-	285714287,	/* fclk_div7 */
-	000000000,	/* gp1_pll_clk */
-};
-
-static int spicc0_hw_clk_init(void)
-{
-	uint32_t val;
-
-	/* [9]: spicc1 gate, [10]: spicc0 gate */
-	val = readl(CLKCTRL_SYS_CLK_EN0_REG1);
-	writel(val | (1 << 10) | (1 << 9), CLKCTRL_SYS_CLK_EN0_REG1);
-
-	val = readl(CLKCTRL_SPICC_CLK_CTRL);
-	val &= 0xffff0000;
-	val |= (5 << 7) | (1 << 6) | (0 << 0);
-	writel(val, CLKCTRL_SPICC_CLK_CTRL);
-
-	return 0;
-}
-#endif /* end of CONFIG_SPICC_HW_CLK */
 
 #ifdef SPICC_DEBUG_EN
 static void spicc_dump_sg(struct spicc_sg_link *sg_table, bool is_tx)
@@ -419,21 +349,12 @@ static int spicc_set_speed(struct udevice *bus, uint speed_hz)
 	struct spicc_device *spicc = dev_get_priv(bus);
 	uint32_t pclk_rate;
 	uint32_t div;
-#ifdef CONFIG_SPICC_HW_CLK
-	uint32_t val;
-#endif
 
 	if (!speed_hz)
 		return 0;
 
 	/* speed = spi_clk rate / (div + 1) */
-#ifdef CONFIG_SPICC_HW_CLK
-	val = readl(CLKCTRL_SPICC_CLK_CTRL);
-	pclk_rate = spicc_parent_clk_rate[(val >> 7) & 0x7];
-	pclk_rate /= (val & 0x3f) + 1;
-#else
 	pclk_rate = clk_get_rate(&spicc->spi_clk);
-#endif
 	div = DIV_ROUND_UP(pclk_rate, speed_hz);
 	if (div)
 		div--;
@@ -925,9 +846,6 @@ static int spicc_probe(struct udevice *bus)
 	 * spi_clk: from clock tree control, using for spi phy;
 	 * sys_clk: from clk81(166MHz), using for others such as apb bus;
 	 */
-#ifdef CONFIG_SPICC_HW_CLK
-	ret = spicc0_hw_clk_init();
-#else
 	if (!clk_get_by_name(bus, "sys_clk", &spicc->sys_clk))
 		clk_enable(&spicc->sys_clk);
 	ret = clk_get_by_name(bus, "spi_clk", &spicc->spi_clk);
@@ -937,11 +855,6 @@ static int spicc_probe(struct udevice *bus)
 	}
 	clk_enable(&spicc->spi_clk);
 	spicc_info("spi_clk rate %lu\n", clk_get_rate(&spicc->spi_clk));
-#endif
-
-#ifdef CONFIG_SPICC_HW_PINCTRL
-	ret = spicc0_hw_pinctrl_init();
-#endif
 
 	spicc->config_data_mode = SPICC_DATA_MODE_MEM;
 	spicc->cfg_spi.d32 = 0;
