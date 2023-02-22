@@ -574,7 +574,7 @@ static void set_hpll_clk_out(unsigned clk, struct hdmitx_dev *hdev)
 		WAIT_FOR_PLL_LOCKED(P_HHI_HDMI_PLL_CNTL0);
 		printk("HPLL: 0x%lx\n", hd_read_reg(P_HHI_HDMI_PLL_CNTL0));
 		break;
-	case 2686200:
+	case 3485000:
 		hd_write_reg(P_HHI_HDMI_PLL_CNTL0, 0x3b0004DF);//2560x1600
 		if (frac_rate)
 			hd_write_reg(P_HHI_HDMI_PLL_CNTL1, 0x0001ffff);
@@ -1012,7 +1012,7 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 		{
 			HDMIV_2560x1600p60hz, GROUP_END
 		},
-		1, VIU_ENCP, 2686200, 1, 1, 1, CLK_UTIL_VID_PLL_DIV_5, 2, 1, 1, -1
+		1, VIU_ENCP, 3485000, 1, 1, 1, CLK_UTIL_VID_PLL_DIV_5, 2, 1, 1, -1
 	},
 	{
 		{
