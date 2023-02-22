@@ -1812,7 +1812,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_GPIOD_OEN,	   (0x0 << 10),		       (0x1 << 10), 0, 0, 0 },
 	/* set pwm a and pwm b pwm e clock rate to 24M, enable them */
 	{ CLKCTRL_PWM_CLK_AB_CTRL, ((0x1 << 8) | (0x1 << 24)), 0xffffffff, 0, 0, 0 },
-	{ CLKCTRL_PWM_CLK_EF_CTRL, ((0x1 << 8), 0xffffffff, 0, 0, 0 },
+	{ CLKCTRL_PWM_CLK_EF_CTRL, (0x1 << 8), 0xffffffff, 0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 GPIOE_2 drive strength to 3 */
 	{ PADCTRL_GPIOE_DS,	   0x3f,			       0x3f,	   0, 0, 0 },
 	/* set GPIOE_0 GPIOE_1 GPIOE_2 mux to pwma pwmb pwme*/
