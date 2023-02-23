@@ -39,6 +39,7 @@
 	"rollback_flag=0\0"\
 	"boot_flag=0\0"\
 	"write_boot=0\0"\
+	"ddr_size=0\0"\
 	"Irq_check_en=0\0"\
 	"recovery_mode=false\0"\
 	"retry_recovery_times=7\0"\
@@ -74,7 +75,8 @@
 		"setenv bootconfig androidboot.selinux=${EnableSelinux} "\
 		"androidboot.firstboot=${firstboot} "\
 		"androidboot.bootloader=${bootloader_version} "\
-		"androidboot.hardware=amlogic ;"\
+		"androidboot.hardware=amlogic "\
+		"androidboot.ddr_size=${ddr_size} ;"\
 		"\0"\
 	"storeboot_base="\
 		"run get_os_type;"\

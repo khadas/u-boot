@@ -24,6 +24,8 @@
 #include "cmd_bootctl_utils.h"
 #include <amlogic/store_wrapper.h>
 
+#include <asm/arch/secure_apb.h>
+
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
@@ -559,6 +561,19 @@ exit:
 	return ret;
 }
 
+static void set_ddr_size(void)
+{
+	char ddr_size_str[32];
+	unsigned int ddr_size = 0;
+
+	memset(ddr_size_str, 0, 32);
+	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF00000) << 4;
+
+	sprintf(ddr_size_str, "%u", ddr_size);
+	printf("ddr_size_str = %s\n", ddr_size_str);
+	env_set("ddr_size", ddr_size_str);
+}
+
 static int do_GetValidSlot(
 	cmd_tbl_t *cmdtp,
 	int flag,
@@ -575,6 +590,8 @@ static int do_GetValidSlot(
 
 	if (argc != 1)
 		return cmd_usage(cmdtp);
+
+	set_ddr_size();
 
 	boot_info_open_partition(miscbuf);
 	boot_info_load(&boot_ctrl, miscbuf);
