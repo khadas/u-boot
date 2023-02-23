@@ -125,14 +125,13 @@ int aml_fixdiv_calc(struct mmc *mmc)
 void aml_sd_cfg_swth(struct mmc *mmc)
 {
 	unsigned sd_emmc_clkc =	0,clk,clk_src,clk_div = 0;
-	unsigned vconf;
+	unsigned int vconf = 0;
 	unsigned bus_width=(mmc->bus_width == 1)?0:mmc->bus_width/4;
 	struct aml_card_sd_info *aml_priv = mmc->priv;
 	struct sd_emmc_global_regs *sd_emmc_reg = aml_priv->sd_emmc_reg;
-	struct sd_emmc_config* sd_emmc_cfg = (struct sd_emmc_config*)&vconf;
+	//struct sd_emmc_config* sd_emmc_cfg = (struct sd_emmc_config*)&vconf;
 	emmc_debug("mmc->clock=%d; clk_div=%d\n",mmc->clock ,clk_div);
 	unsigned int adj = 0;
-
 	/* reset gdelay , gadjust register */
 	sd_emmc_reg->gdelay = 0;
 	sd_emmc_reg->gadjust = 0;
@@ -173,17 +172,16 @@ void aml_sd_cfg_swth(struct mmc *mmc)
 
 
 	sd_emmc_reg->gclock = sd_emmc_clkc;
-	vconf = sd_emmc_reg->gcfg;
+	//vconf = sd_emmc_reg->gcfg;
 
-	sd_emmc_cfg->bus_width = bus_width;    //1bit mode
-	sd_emmc_cfg->bl_len = 9;               //512byte block length
-	sd_emmc_cfg->resp_timeout = 7;         //64 CLK cycle, here 2^8 = 256 clk cycles
-	sd_emmc_cfg->rc_cc = 4;                //1024 CLK cycle, Max. 100mS.
+	vconf = bus_width & 0x3;    //1bit mode
+	vconf |= (9 & 0xf) << 4;               //512byte block length
+	vconf |= (7 & 0xf) << 8 ;         //64 CLK cycle, here 2^8 = 256 clk cycles
+	vconf |= (4 & 0xf) << 12;                //1024 CLK cycle, Max. 100mS.
 #if CONFIG_EMMC_DDR52_EN
-	sd_emmc_cfg->ddr = mmc->ddr_mode;
+	vconf |= (mmc->ddr_mode & 0x1) << 2;
 #endif
 	sd_emmc_reg->gcfg = vconf;
-
 	sd_emmc_para_config(sd_emmc_reg, mmc->clock, aml_priv->sd_emmc_port);
 
 	if (mmc->cfg->ops->calc && (!strcmp(mmc->cfg->name, "SDIO Port C"))) {

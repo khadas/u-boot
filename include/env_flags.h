@@ -39,12 +39,12 @@ enum env_flags_varaccess {
 
 #ifdef CONFIG_CMD_NET
 #ifdef CONFIG_ENV_OVERWRITE
-#define ETHADDR_FLAGS "ethaddr:ma,"
+#define ETHADDR_FLAGS ".ethaddr:ma,"
 #else
 #ifdef CONFIG_OVERWRITE_ETHADDR_ONCE
-#define ETHADDR_FLAGS "ethaddr:mc,"
+#define ETHADDR_FLAGS ".ethaddr:mc,"
 #else
-#define ETHADDR_FLAGS "ethaddr:mo,"
+#define ETHADDR_FLAGS ".ethaddr:mo,"
 #endif
 #endif
 #else
