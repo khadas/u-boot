@@ -34,6 +34,10 @@
 			0xff007164  0xf850 /* 0x1c59 */
 			0xffff  0x0>; /* ending flag */
 	};
+
+	lcd {
+		status = "disabled";
+	};
 };
 
 /* This UART is brought out to the DB9 connector */
@@ -46,7 +50,7 @@
 };
 
 &saradc {
-	status = "okay";
+	status = "disabled";
 };
 
 /* demo for i2c user */
