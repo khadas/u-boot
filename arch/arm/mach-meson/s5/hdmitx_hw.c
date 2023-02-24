@@ -378,7 +378,7 @@ static void hdmitx_set_s5_phypara(enum frl_rate_enum frl_rate, u32 tmds_clk)
 		[FRL_6G4L] = 0x00,
 		[FRL_8G4L] = 0x01,
 		[FRL_10G4L] = 0x0a,
-		[FRL_12G4L] = 0x0b,
+		[FRL_12G4L] = 0x2b,
 	};
 	const u8 drv[] = {
 		[FRL_NONE] = 0x11,
@@ -389,19 +389,36 @@ static void hdmitx_set_s5_phypara(enum frl_rate_enum frl_rate, u32 tmds_clk)
 		[FRL_10G4L] = 0x77,
 		[FRL_12G4L] = 0x77,
 	};
-	u8 rterm = 0; /* this will get from ufuse */
+	const u16 rterm_val[] = {
+		[1] = 0x00,
+		[2] = 0x04,
+		[3] = 0x0c,
+		[4] = 0x1c,
+		[5] = 0x3c,
+		[6] = 0x01,
+		[7] = 0x05,
+		[8] = 0x0d,
+		[9] = 0x1d,
+		[10] = 0x3d,
+		[11] = 0x03,
+		[12] = 0x07,
+		[13] = 0x0f,
+		[14] = 0x1f,
+		[15] = 0x3f,
+	};
+	u8 rterm_efuse = 9; /* this will get from ufuse */
 	struct arm_smccc_res res;
 
-	/* Stage6: enable Rterm */
+	/* Stage6: enable rterm_efuse */
 	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, 0xd8, 16, 8);
 	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, 0x3, 24, 2);
 	arm_smccc_smc(HDCPTX_IOOPR, HDMITX_GET_RTERM, 0, 0, 0, 0, 0, 0, &res);
-	rterm = (unsigned int)((res.a0) & 0xffffffff);
-	rterm = rterm & 0x3f;
-	printf("%s[%d] rterm = %d\n", __func__, __LINE__, rterm);
-	if (!rterm)
-		rterm = 9; /* default value when efuse invalid */
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, rterm, 26, 6);
+	rterm_efuse = (unsigned int)((res.a0) & 0xffffffff);
+	rterm_efuse = rterm_efuse & 0x3f;
+	printf("%s[%d] rterm_efuse = %d\n", __func__, __LINE__, rterm_efuse);
+	if (!rterm_efuse)
+		rterm_efuse = 9; /* default value when efuse invalid */
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, rterm_val[rterm_efuse], 26, 6);
 	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, 0x06, 8, 8);
 	ndelay(10);
 
@@ -411,12 +428,12 @@ static void hdmitx_set_s5_phypara(enum frl_rate_enum frl_rate, u32 tmds_clk)
 	} else {
 		u32 swing = 0;
 
-		if (tmds_clk >= 290000)
+		if (tmds_clk > 300000)
 			swing = 0x90d5;
-		else if (tmds_clk >= 148000)
-			swing = 0x90d4;
+		else if (tmds_clk > 150000)
+			swing = 0x7082;
 		else
-			swing = 0x90d3;
+			swing = 0x5062;
 		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, swing, 0, 16);
 	};
 	ndelay(10);
@@ -434,12 +451,10 @@ static void hdmitx_set_s5_phypara(enum frl_rate_enum frl_rate, u32 tmds_clk)
 	} else {
 		u32 drv = 0;
 
-		if (tmds_clk >= 290000)
+		if (tmds_clk > 300000)
 			drv = 0x17;
-		else if (tmds_clk >= 148000)
-			drv = 0x13;
 		else
-			drv = 0x11;
+			drv = 0x13;
 		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, drv, 16, 8);
 	}
 }
