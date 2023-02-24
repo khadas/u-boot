@@ -101,4 +101,6 @@ like the AES key not ready when secure boot enabled for the first time.
 
 #define CONFIG_KEY_PRESERVE
 
+#define CONFIG_MODIFY_INITRD_HIGH
+
 #endif /* _CPU_H */

@@ -49,6 +49,10 @@
 #include <ramdump.h>
 #endif
 
+#ifdef CONFIG_MODIFY_INITRD_HIGH
+#include <asm/arch/cpu.h>
+#endif
+
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
 
@@ -177,6 +181,9 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
+		#ifdef CONFIG_MODIFY_INITRD_HIGH
+		env_set("initrd_high", "0D000000");
+		#endif
 		if (image_get_magic((image_header_t *)images.os.image_start) == IH_MAGIC) {
 			#ifdef CONFIG_INITRD_HIGH_ADDR
 			env_set("initrd_high", CONFIG_INITRD_HIGH_ADDR);
