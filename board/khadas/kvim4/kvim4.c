@@ -2,7 +2,6 @@
 /*
  * Copyright (c) 2022 Wesion, Inc. All rights reserved.
  */
-
 #include <common.h>
 #include <asm/io.h>
 #include <malloc.h>
@@ -21,6 +20,7 @@
 #include <amlogic/aml_v2_burning.h>
 #include <linux/mtd/partitions.h>
 #include <asm/arch/bl31_apis.h>
+#include <i2c.h>
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
 #endif
@@ -97,31 +97,56 @@ int active_clk(void)
 }
 
 #ifdef CONFIG_AML_LCD
+
 void board_lcd_detect(void)
 {
-	u8 value = 0;
-	int gpio = 138;
 	int ret = 0;
+	u8 value = 0;
+	uchar linebuf[1];
+	struct udevice *bus;
+	struct udevice *dev;
 
-	ret = gpio_request(gpio, "aml_lcd_gpio");
-	if (ret && ret != -EBUSY) {
-		printf("gpio: requesting pin %u failed\n", gpio);
-		return;
+	uclass_get_device_by_seq(UCLASS_I2C, 3, &bus);
+	ret = i2c_get_chip(bus, 0x38, 1, &dev);
+	if (!ret) {
+		ret = dm_i2c_read(dev, 0xfe, linebuf, 1);
+		if (!ret) {
+			printf("TP05 id=0x%x\n", linebuf[0]);
+			if (linebuf[0] > 0x10){//TS050 = 0x1f
+				env_set("panel_type", "mipi_0");
+				value = 1;
+				printf("panel_type : mipi_1");
+			}
+		} else {
+			ret = i2c_get_chip(bus, 0x14, 1, &dev);
+			if (!ret) {
+				ret = dm_i2c_read(dev, 0x9e, linebuf, 1);
+				if (!ret) {
+					printf("TP10 id=0x%x\n", linebuf[0]);
+					if (linebuf[0] == 0x00) {//TS101
+						env_set("panel_type", "mipi_1");
+						value = 1;
+						printf("panel_type : mipi_1");
+					}
+				}
+			}
+		}
+	} else {
+		ret = i2c_get_chip(bus, 0x14, 1, &dev);
+		if (!ret) {
+			ret = dm_i2c_read(dev, 0x9e, linebuf, 1);
+			if (!ret) {
+				printf("TP10 id=0x%x\n", linebuf[0]);
+				if (linebuf[0] == 0x00) {//TS101
+					env_set("panel_type", "mipi_1");
+					value = 1;
+					printf("panel_type : mipi_1");
+				}
+			}
+		}
 	}
-	ret = gpio_direction_input(gpio);
-	if (ret && ret != -EBUSY) {
-		printf("gpio: requesting pin %u failed\n", gpio);
-		return;
-	}
-	udelay(10);
-	value = gpio_get_value(gpio);
-	if (value < 0) {
-		printf("%s: failed to read LCD_RESET status! error: %d\n", __func__, value);
-		return;
-	}
-	printf("LCD_RESET PIN: %d\n", value);
 	env_set_ulong("mipi_lcd_exist", value);
-	gpio_free(gpio);
+	printf("mipi_lcd_exist : %d\n", value);
 }
 #endif /* CONFIG_AML_LCD */
 
