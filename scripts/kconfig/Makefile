@@ -168,18 +168,18 @@ HOST_EXTRACFLAGS += $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags) \
 lxdialog := lxdialog/checklist.o lxdialog/util.o lxdialog/inputbox.o
 lxdialog += lxdialog/textbox.o lxdialog/yesno.o lxdialog/menubox.o
 
-conf-objs	:= conf.o  zconf.tab.o
-mconf-objs     := mconf.o zconf.tab.o $(lxdialog)
-nconf-objs     := nconf.o zconf.tab.o nconf.gui.o
-kxgettext-objs	:= kxgettext.o zconf.tab.o
+conf-objs	:= conf.o  zconf.lab.o
+mconf-objs     := mconf.o zconf.lab.o $(lxdialog)
+nconf-objs     := nconf.o zconf.lab.o nconf.gui.o
+kxgettext-objs	:= kxgettext.o zconf.lab.o
 qconf-cxxobjs	:= qconf.o
-qconf-objs	:= zconf.tab.o
-gconf-objs	:= gconf.o zconf.tab.o
+qconf-objs	:= zconf.lab.o
+gconf-objs	:= gconf.o zconf.lab.o
 
 hostprogs-y := conf nconf mconf kxgettext qconf gconf
 
 clean-files	:= qconf.moc .tmp_qtcheck .tmp_gtkcheck
-clean-files	+= zconf.tab.c zconf.lex.c zconf.hash.c gconf.glade.h
+clean-files	+= zconf.lab.c zconf.lex.c zconf.hash.c gconf.glade.h
 clean-files     += config.pot linux.pot
 
 # Check that we have the required ncurses stuff installed for lxdialog (menuconfig)
@@ -195,7 +195,7 @@ HOST_EXTRACFLAGS += $(shell $(CONFIG_SHELL) $(srctree)/$(src)/check.sh $(HOSTCC)
 
 # generated files seem to need this to find local include files
 HOSTCFLAGS_zconf.lex.o	:= -I$(src)
-HOSTCFLAGS_zconf.tab.o	:= -I$(src)
+HOSTCFLAGS_zconf.lab.o	:= -I$(src)
 
 LEX_PREFIX_zconf	:= zconf
 YACC_PREFIX_zconf	:= zconf
@@ -296,7 +296,7 @@ $(obj)/.tmp_gtkcheck:
 	fi
 endif
 
-$(obj)/zconf.tab.o: $(obj)/zconf.lex.c $(obj)/zconf.hash.c
+$(obj)/zconf.lab.o: $(obj)/zconf.lex.c $(obj)/zconf.hash.c
 
 $(obj)/qconf.o: $(obj)/qconf.moc
 
