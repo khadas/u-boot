@@ -128,7 +128,7 @@ fb_ep_desc(struct usb_gadget *g, struct usb_endpoint_descriptor *fs,
 /*
  * static strings, in UTF-8
  */
-static const char fastboot_name[] = "Android Fastboot";
+static const char fastboot_name[] = "fastboot";
 
 static struct usb_string fastboot_string_defs[] = {
 	[0].s = fastboot_name,
