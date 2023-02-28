@@ -1196,6 +1196,9 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
 
 int lcd_tcon_disable_t5(struct aml_lcd_drv_s *pdrv)
 {
+	/* disable unit(reg_func_enable) timing signal */
+	lcd_tcon_write(0x30e, 0);
+
 	/* disable od ddr_if */
 	lcd_tcon_setb(0x263, 0, 31, 1);
 	mdelay(100);
@@ -1216,6 +1219,9 @@ int lcd_tcon_disable_t5(struct aml_lcd_drv_s *pdrv)
 
 int lcd_tcon_disable_t3(struct aml_lcd_drv_s *pdrv)
 {
+	/* disable unit(reg_func_enable) timing signal */
+	lcd_tcon_write(0x30e, 0);
+
 	/* disable od ddr_if */
 	lcd_tcon_setb(0x263, 0, 31, 1);
 	mdelay(100);
