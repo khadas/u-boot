@@ -1127,6 +1127,9 @@ int lcd_tcon_enable_t5(struct lcd_config_s *pconf)
 
 int lcd_tcon_disable_t5(struct lcd_config_s *pconf)
 {
+	/* disable unit(reg_func_enable) timing signal */
+	lcd_tcon_write(0x30e, 0);
+
 	/* disable od ddr_if */
 	lcd_tcon_setb(0x263, 0, 31, 1);
 	mdelay(100);
