@@ -224,7 +224,7 @@ int board_late_init(void)
 
 	/* load unifykey */
 	run_command("keyman init 0x1234", 0);
-#ifdef CONFIG_PXP_EMULATOR
+#ifndef CONFIG_PXP_EMULATOR
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -240,6 +240,7 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
+#endif
 #endif
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
@@ -279,7 +280,6 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
-#endif
 	return 0;
 }
 
