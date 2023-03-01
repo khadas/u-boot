@@ -252,6 +252,8 @@
 #error CONFIG_SPI_NAND/CONFIG_MTD_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
+#define ADVANCE_DDRFIP_SIZE		0x1c0000
+
 /* #define		CONFIG_AML_SD_EMMC 1 */
 #ifdef CONFIG_AML_SD_EMMC
 	#define		CONFIG_GENERIC_MMC 1
