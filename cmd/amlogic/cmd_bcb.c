@@ -12,6 +12,7 @@
 #include <asm/arch/io.h>
 #include <amlogic/storage.h>
 #include <stdlib.h>
+#include <amlogic/store_wrapper.h>
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -98,16 +99,90 @@ static bool env_command_check(const char *cmd)
     return true;
 }
 
+/**
+ * @usage: write data to storage device for nand flash
+ *
+ * @name: partition name, when it's null the target
+ *        will regards as whole device.
+ * @off: offset to the 0 address of partition/device
+ * @size: the amount of bytes to write
+ * @buf: pointer of source buffer
+ *
+ * @return: result of the operation
+ *          0 = success
+ *          other = fail
+ */
+int nand_store_write(const char *name, loff_t off, size_t size, void *buf)
+{
+	int ret = -1;
+	u64 rc = 0;
+	unsigned char *buffer = NULL;
+
+	rc = store_logic_cap(name);
+	if (rc == 1) {
+		printf("Failed to get partition[%s] size\n", name);
+		return ret;
+	}
+
+	buffer = (unsigned char *)malloc(rc);
+
+	if (!buffer) {
+		printf("ERROR! fail to allocate memory ...\n");
+		goto exit;
+	}
+	memset(buffer, 0, rc);
+
+	/* 1. read all data from the partition table */
+	if (store_read(name, 0, rc, buffer) < 0) {
+		printf("Fail to read %s partition\n", name);
+		goto exit;
+	}
+
+	/* 2. update buffer data */
+	memcpy(buffer + off, buf, size);
+
+	/* 3. erase partition */
+	rc = store_erase(name, 0, 0, 0);
+	if (rc) {
+		printf("Fail erase partition %s\n", name);
+		goto exit;
+	}
+
+	/* 4.write data back to the partitioned table */
+	if (store_write((const char *)name, 0, rc, (unsigned char *)buffer) < 0) {
+		printf("failed to write data to %s.\n", name);
+		goto exit;
+	} else {
+		ret = 0;
+	}
+
+exit:
+	if (buffer)
+		free(buffer);
+
+	return ret;
+}
+
 static int clear_misc_partition(char *clearbuf, int size)
 {
     char *partition = "misc";
 
     memset(clearbuf, 0, size);
-    if (store_write((const char *)partition,
-        0, size, (unsigned char *)clearbuf) < 0) {
-        printf("failed to clear %s.\n", partition);
-        return -1;
-    }
+
+	if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+		if (nand_store_write((const char *)partition, 0,
+				size, (unsigned char *)clearbuf) < 0) {
+			printf("failed to clear %s for nand flash.\n", partition);
+			return -1;
+		}
+	} else {
+		if (store_write((const char *)partition,
+			0, size, (unsigned char *)clearbuf) < 0) {
+			printf("failed to clear %s.\n", partition);
+			return -1;
+		}
+	}
+
 
     return 0;
 }
@@ -171,28 +246,63 @@ static int do_RunBcbCommand(
         printf("Start to write --wipe_data to %s\n", partition);
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--wipe_data", sizeof("recovery\n--wipe_data"));
-        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+			nand_store_write((const char *)partition, 0, sizeof(miscbuf),
+								(unsigned char *)miscbuf);
+		} else {
+			store_write((const char *)partition, 0, sizeof(miscbuf),
+							(unsigned char *)miscbuf);
+		}
     } else if (!memcmp(command_mark, CMD_SYSTEM_CRASH, strlen(command_mark))) {
         printf("Start to write --system_crash to %s\n", partition);
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--system_crash", sizeof("recovery\n--system_crash"));
-        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+			nand_store_write((const char *)partition, 0, sizeof(miscbuf),
+								(unsigned char *)miscbuf);
+		} else {
+			store_write((const char *)partition, 0, sizeof(miscbuf),
+							(unsigned char *)miscbuf);
+		}
     } else if (!memcmp(command_mark, CMD_RESIZE_DATA, strlen(command_mark))) {
         printf("Start to write --resize2fs_data to %s\n", partition);
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--resize2fs_data", sizeof("recovery\n--resize2fs_data"));
-        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+			nand_store_write((const char *)partition, 0, sizeof(miscbuf),
+								(unsigned char *)miscbuf);
+		} else {
+			store_write((const char *)partition, 0, sizeof(miscbuf),
+							(unsigned char *)miscbuf);
+		}
     } else if (!memcmp(command_mark, CMD_FOR_RECOVERY, strlen(CMD_FOR_RECOVERY))) {
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         sprintf(recovery, "%s%s", "recovery\n--", command_mark);
         memcpy(miscbuf+sizeof(command)+sizeof(status), recovery, strlen(recovery));
-        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+			nand_store_write((const char *)partition, 0, sizeof(miscbuf),
+								(unsigned char *)miscbuf);
+		} else {
+			store_write((const char *)partition, 0, sizeof(miscbuf),
+							(unsigned char *)miscbuf);
+		}
         return 0;
     } else if (!memcmp(command_mark, CMD_FASTBOOTD, strlen(command_mark))) {
         printf("write cmd to enter fastbootd \n");
         memcpy(miscbuf, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
         memcpy(miscbuf+sizeof(command)+sizeof(status), "recovery\n--fastboot", sizeof("recovery\n--fastboot"));
-        store_write((const char *)partition, 0, sizeof(miscbuf), (unsigned char *)miscbuf);
+
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+			nand_store_write((const char *)partition, 0, sizeof(miscbuf),
+								(unsigned char *)miscbuf);
+		} else {
+			store_write((const char *)partition, 0, sizeof(miscbuf),
+							(unsigned char *)miscbuf);
+		}
         return 0;
     }
 

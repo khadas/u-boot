@@ -148,7 +148,16 @@ int set_mergestatus_cancel(struct misc_virtual_ab_message *message)
 		message->merge_status = CANCELLED;
 		printf("set message.merge_status CANCELLED\n");
 	}
-	store_write((const char *)partition, SYSTEM_SPACE_OFFSET_IN_MISC, 1024, (unsigned char *)vab_buf);
+
+	if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+		nand_store_write((const char *)partition, SYSTEM_SPACE_OFFSET_IN_MISC,
+							1024, (unsigned char *)vab_buf);
+#endif
+	}	else {
+		store_write((const char *)partition, SYSTEM_SPACE_OFFSET_IN_MISC,
+							1024, (unsigned char *)vab_buf);
+	}
 	return 0;
 }
 

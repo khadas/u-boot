@@ -602,7 +602,15 @@ static void flash(char *cmd_parameter, char *response)
 		memcpy(buffer, &key, sizeof(AvbKey_t));
 		memcpy(buffer + sizeof(AvbKey_t), fastboot_buf_addr, image_size);
 
-		store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			nand_store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+						AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+#endif
+		} else {
+			store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+						AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		}
 
 		fastboot_okay(NULL, response);
 		free(buffer);
@@ -712,7 +720,15 @@ static void erase(char *cmd_parameter, char *response)
 		}
 		memset(buffer, 0, AVB_CUSTOM_KEY_LEN_MAX);
 
-		store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			nand_store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+					AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+#endif
+		} else {
+			store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+					AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		}
 
 		fastboot_okay(NULL, response);
 		free(buffer);
@@ -732,8 +748,15 @@ static void erase(char *cmd_parameter, char *response)
 		}
 		memset(buffer, 0, rc - AVB_CUSTOM_KEY_LEN_MAX);
 
-		store_write((const char *)partition, 0, rc - AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
-
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			nand_store_write((const char *)partition, 0, rc - AVB_CUSTOM_KEY_LEN_MAX,
+								(unsigned char *)buffer);
+#endif
+		} else {
+			store_write((const char *)partition, 0, rc - AVB_CUSTOM_KEY_LEN_MAX,
+								(unsigned char *)buffer);
+		}
 		fastboot_okay(NULL, response);
 		free(buffer);
 		return;

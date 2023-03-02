@@ -23,6 +23,8 @@
 extern int busy_flag;
 extern u32 kMaxFetchSizeDefault;
 
+int nand_store_write(const char *name, loff_t off, size_t size, void *buf);
+
 /**
  * All known commands to fastboot
  */
