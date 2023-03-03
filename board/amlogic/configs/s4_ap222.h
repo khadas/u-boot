@@ -110,7 +110,7 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
-			"setenv bootargs ${bootargs} ${emmc_quirks};"\
+			"setenv bootargs ${bootargs} ${emmc_quirks} kvm-arm.mode=none init_on_alloc=0;"\
             "run cmdline_keys;"\
 			"\0"\
 		"switch_bootmode="\

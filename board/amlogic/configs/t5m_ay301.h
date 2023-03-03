@@ -130,7 +130,7 @@
 	"storeargs="\
 		"get_bootloaderversion;" \
 		"run storeargs_base;"\
-		"setenv bootargs ${bootargs} powermode=${powermode} "\
+		"setenv bootargs ${bootargs} powermode=${powermode} kvm-arm.mode=none init_on_alloc=0 "\
 		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 		"outputmode=${outputmode} gamma=${gamma};"\
 		"run check_connector_type; " \

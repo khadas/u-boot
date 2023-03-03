@@ -165,7 +165,7 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
-			"setenv bootargs ${bootargs} init_on_alloc=0;" \
+			"setenv bootargs ${bootargs} kvm-arm.mode=none init_on_alloc=0;" \
 			"run storeargs_hdmitx;"\
             "run cmdline_keys;"\
 			"run check_connector_type; " \

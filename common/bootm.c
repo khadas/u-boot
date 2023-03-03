@@ -53,9 +53,6 @@
 #include <asm/arch/cpu.h>
 #endif
 
-/* we use this so that we can do without the ctype library */
-#define is_digit(c)	((c) >= '0' && (c) <= '9')
-
 #ifndef USE_HOSTCC
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -880,55 +877,6 @@ static void fixup_silent_linux(void)
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 
-/*
- * memstr - Find the first substring in memory
- * @s1: The string to be searched
- * @s2: The string to search for
- *
- * Similar to and based on strstr(),
- * but strings do not need to be NUL terminated.
- */
-static char *aml_memstr(const char *s1, int l1, const char *s2, int l2)
-{
-	if (!l2)
-		return (char *)s1;
-
-	while (l1 >= l2) {
-		l1--;
-		if (!memcmp(s1, s2, l2)) {
-			/* determine whether it is version number */
-			if (is_digit(*(s1 + 14)))
-				return (char *)s1;
-		}
-		s1++;
-	}
-	return NULL;
-}
-
-static int get_kernel_version(char *paddr, int *major, int *minor)
-{
-	int dot_flag = 0;
-	int pri = 0, sec = 0;
-	char *ver = paddr + 14;
-
-	while (*ver != ' ' && dot_flag < 2) {
-		if (*ver == '.') {
-			dot_flag++;
-			ver++;
-			continue;
-		}
-		if (dot_flag == 0)
-			pri = pri * 10 + (*ver - '0');
-		else
-			sec = sec * 10 + (*ver - '0');
-		ver++;
-	}
-	*major = pri;
-	*minor = sec;
-
-	return 0;
-}
-
 /**
  * Execute selected states of the bootm command.
  *
@@ -960,8 +908,6 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	boot_os_fn *boot_fn;
 	ulong iflag = 0;
 	int ret = 0, need_boot_fn;
-	char *paddr = NULL;
-	int major = 0, minor = 0, os_size;
 
 	images->state |= states;
 
@@ -1043,36 +989,6 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	}
 #endif
 #endif
-
-	os_size = images->os.end - images->os.start;
-	if (images->os.arch == IH_ARCH_ARM)
-		paddr = aml_memstr((char *)images->os.start, os_size, "Linux version", 13);
-	else
-		paddr = aml_memstr((char *)images->os.load,
-				images->os.image_start, "Linux version", 13);
-
-	if (paddr)
-		get_kernel_version(paddr, &major, &minor);
-	if (paddr && (major > 5 || (major == 5 && minor >= 15))) {
-		/* add reboot_mode in bootargs for kernel command line */
-		char *pbootargs = env_get("bootargs");
-
-		if (pbootargs) {
-			int nlen = strlen(pbootargs) + 48;
-			char *pnewbootargs = malloc(nlen);
-
-			if (pnewbootargs) {
-				memset((void *)pnewbootargs, 0, nlen);
-				sprintf(pnewbootargs, "%s kvm-arm.mode=none init_on_alloc=0\n",
-					pbootargs);
-				env_set("bootargs", pnewbootargs);
-				free(pnewbootargs);
-				pnewbootargs = NULL;
-			} else {
-				puts("Error: malloc in pnewbootargs failed!\n");
-			}
-		}
-	}
 
 	/* From now on, we need the OS boot function */
 	if (ret)
