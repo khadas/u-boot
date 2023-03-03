@@ -829,10 +829,10 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 		p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
 	}
 
-	ini_value = IniGetString("lcd_Attr", "fr_auto_disable", "0");
+	ini_value = IniGetString("lcd_Attr", "fr_auto_custom", "0");
 	if (model_debug_flag & DEBUG_LCD)
-		ALOGD("%s, fr_auto_disable is (%s)\n", __func__, ini_value);
-	p_attr->customer.fr_auto_dis = strtoul(ini_value, NULL, 0);
+		ALOGD("%s, fr_auto_custom is (%s)\n", __func__, ini_value);
+	p_attr->customer.fr_auto_cus = strtoul(ini_value, NULL, 0);
 
 	ini_value = IniGetString("lcd_Attr", "frame_rate_min", "0");
 	if (model_debug_flag & DEBUG_LCD)

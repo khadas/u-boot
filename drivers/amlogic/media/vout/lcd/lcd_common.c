@@ -1507,7 +1507,7 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 	pconf->basic.frame_rate_max = *(p + LCD_UKEY_FRAME_RATE_MAX);
 
 	pconf->custom_pinmux = *(p + LCD_UKEY_CUST_PINMUX);
-	pconf->fr_auto_dis = *(p + LCD_UKEY_FR_AUTO_DIS);
+	pconf->fr_auto_cus = *(p + LCD_UKEY_FR_AUTO_CUS);
 
 	/* interface: 20byte */
 	switch (pconf->basic.lcd_type) {
@@ -2487,13 +2487,37 @@ int lcd_vmode_change(struct aml_lcd_drv_s *pdrv)
 		break;
 	case 4: /* hdmi mode */
 		if (((duration_num / duration_den) == 59) ||
-		    ((duration_num / duration_den) == 47) ||
-		    ((duration_num / duration_den) == 119) ||
-		    ((duration_num / duration_den) == 95)) {
+		    ((duration_num / duration_den) == 119)) {
 			/* pixel clk adjust */
 			temp = duration_num;
 			temp = temp * h_period * v_period;
 			pclk = lcd_do_div(temp, duration_den);
+			if (pconf->timing.lcd_clk != pclk)
+				pconf->timing.clk_change = LCD_CLK_PLL_CHANGE;
+		} else if ((duration_num / duration_den) == 47) {
+			/* htotal adjust */
+			temp = pclk;
+			h_period = v_period * 50;
+			h_period = lcd_do_div(temp, h_period);
+			if (pconf->basic.h_period != h_period) {
+				/* check clk adjust */
+				temp = duration_num;
+				temp = temp * h_period * v_period;
+				pclk = lcd_do_div(temp, duration_den);
+			}
+			if (pconf->timing.lcd_clk != pclk)
+				pconf->timing.clk_change = LCD_CLK_PLL_CHANGE;
+		} else if ((duration_num / duration_den) == 95) {
+			/* htotal adjust */
+			temp = pclk;
+			h_period = v_period * 100;
+			h_period = lcd_do_div(temp, h_period);
+			if (pconf->basic.h_period != h_period) {
+				/* check clk adjust */
+				temp = duration_num;
+				temp = temp * h_period * v_period;
+				pclk = lcd_do_div(temp, duration_den);
+			}
 			if (pconf->timing.lcd_clk != pclk)
 				pconf->timing.clk_change = LCD_CLK_PLL_CHANGE;
 		} else {
