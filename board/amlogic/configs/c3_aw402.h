@@ -125,11 +125,13 @@
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
+		"ddr_auto_fast_boot_check 6;"\
 		"imgread dtb _aml_dtb ${dtb_mem_addr};"\
 		"imgread kernel ${boot_part} ${loadaddr_kernel};"\
 		"store read 0x01a80000 system 0 0x300000;bootm ${loadaddr_kernel};"\
 		"\0" \
-	 "storeboot_ramdisk="\
+	"storeboot_ramdisk="\
+		"ddr_auto_fast_boot_check 6;"\
 		"imgread dtb _aml_dtb ${dtb_mem_addr};"\
 		"imgread kernel ${boot_part} ${loadaddr_kernel};"\
 		"store read 0x01a80000 system 0 0x300000;bootm ${loadaddr_kernel};"\
