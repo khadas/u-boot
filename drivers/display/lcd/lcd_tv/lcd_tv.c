@@ -1271,7 +1271,7 @@ static int lcd_config_load_from_unifykey(struct lcd_config_s *pconf)
 		((*(p + LCD_UKEY_PCLK_MAX + 2)) << 16) |
 		((*(p + LCD_UKEY_PCLK_MAX + 3)) << 24));
 	pconf->customer_pinmux = *(p + LCD_UKEY_CUST_PINMUX);
-	pconf->fr_auto_dis = *(p + LCD_UKEY_FR_AUTO_DIS);
+	pconf->fr_auto_cus = *(p + LCD_UKEY_FR_AUTO_CUS);
 	pconf->lcd_basic.frame_rate_min = *(p + LCD_UKEY_FRAME_RATE_MIN);
 	pconf->lcd_basic.frame_rate_max = *(p + LCD_UKEY_FRAME_RATE_MAX);
 

@@ -443,7 +443,8 @@ struct lcd_config_s {
 	struct lcd_duration_s *std_duration;
 	unsigned char pinctrl_ver;
 	unsigned char customer_pinmux;
-	unsigned char fr_auto_dis;
+	unsigned char fr_auto_cus;  //0=follow global setting, 0xff=disable
+	unsigned char fr_auto_flag; //final fr_auto policy
 	struct cus_ctrl_config_s cus_ctrl;
 	struct lcd_pinmux_ctrl_s *lcd_pinmux;
 	unsigned int pinmux_set[LCD_PINMUX_NUM][2];
