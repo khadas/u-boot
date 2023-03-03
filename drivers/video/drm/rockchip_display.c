@@ -23,6 +23,7 @@
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch-rockchip/resource_img.h>
+#include <i2c.h>
 
 #include "bmp_helper.h"
 #include "rockchip_display.h"
@@ -37,6 +38,7 @@
 #include <asm/io.h>
 
 #define DRIVER_VERSION	"v1.0.1"
+#define TP_I2C_BUS_NUM 6
 
 /***********************************************************************
  *  Rockchip UBOOT DRM driver version
@@ -504,8 +506,39 @@ static int display_get_timing_from_dts(struct panel_state *panel_state,
 	struct ofnode_phandle_args args;
 	ofnode dt, timing;
 	int ret;
+	int res = 0;
+	uchar linebuf[1];
+	struct udevice *bus;
+	struct udevice *dev;
 
-	dt = dev_read_subnode(panel->dev, "display-timings");
+	uclass_get_device_by_seq(UCLASS_I2C, TP_I2C_BUS_NUM, &bus);
+	ret = i2c_get_chip(bus, 0x38, 1, &dev);
+	if (!ret) {
+		res = dm_i2c_read(dev, 0xfe, linebuf, 1);
+		if (!res) {
+			printf("TP05 id=0x%x\n", linebuf[0]);
+			if (linebuf[0] > 0x10){//TS050 = 0x1f
+				env_set("lcd_panel","ts050");
+				dt = dev_read_subnode(panel->dev, "display-timings");
+			}
+		}
+	}
+	if(ret || res) {
+		ret = i2c_get_chip(bus, 0x14, 1, &dev);
+		if (!ret) {
+			res = dm_i2c_read(dev, 0x9e, linebuf, 1);
+			if (!res){
+				printf("TP10 id=0x%x\n", linebuf[0]);
+				if (linebuf[0] == 0x00) {//TS101
+					env_set("lcd_panel","ts101");
+					dt = dev_read_subnode(panel->dev, "display-timings1");
+				}
+			} else {
+				env_set("lcd_panel","tsxx");
+			}
+		}
+	}
+
 	if (ofnode_valid(dt)) {
 		ret = ofnode_parse_phandle_with_args(dt, "native-mode", NULL,
 						     0, 0, &args);
