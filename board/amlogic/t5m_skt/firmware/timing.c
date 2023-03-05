@@ -351,8 +351,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 256 + 0,        // cs
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + 128,      //ck
 		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + 128,      //ck
-		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0,              //cke
-		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0,              //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 256,              //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 256,              //cke
 		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 0,              //odt0
 		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 0,              //odt1
 
@@ -1094,8 +1094,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 256 + 0,         // cs
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + 128,      //ck
 		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + 128,      //ck
-		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0,              //cke
-		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0,              //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 256,              //cke
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 256,              //cke
 		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 0,               //odt0
 		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 0,               //odt1
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 64,
@@ -1631,7 +1631,6 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 };
 #endif
 
-
 /* board vmin_value defines */
 #define VMIN_FF_VALUE                           770
 #define VMIN_TT_VALUE                           800
@@ -1787,7 +1786,6 @@ __attribute__ ((section(".misc_param"))) = {
 	{ 0, VMIN_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_1, 0 },
 	{ 0, VMIN_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_2, 0 },
 	{ 0, VMIN_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_3, 0 },
-	/*config vddee and vcck pwm - pwm_a and pwm_b*/
 	/*config vddee and vcck pwm - pwm_a and pwm_b*/
 	/* PWM_A VDDEE_VAL_REG */
 #ifdef CONFIG_PDVFS_ENABLE
