@@ -12,6 +12,7 @@
 #include <asm/arch/mailbox.h>
 #include <asm/arch/cpu_config.h>
 
+extern int check_valid_dts(unsigned char *buffer);
 extern unsigned int get_multi_dt_entry(unsigned long fdt_addr);
 int is_optimus_storage_inited(void);
 
@@ -123,6 +124,8 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
         const uint64_t dtsPartSz = thePart->size;
         DWN_DBG("cfg dtsPartSz %llx for part(%s)\n", dtsPartSz, thePartName);
         if (NAND_PART_SIZE_FULL == dtsPartSz) {return 0;}
+	if ((dtsPartSz >> 32) == 0xffffffffUL) //GPT mode last part
+		return 0;
         if (dtsPartSz > nandPartCap) {
             DWN_ERR("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
                     thePartName, dtsPartSz, nandPartCap);
@@ -738,12 +741,10 @@ int optimus_storage_init(int toErase)
         DWN_WRN("dtb is not loaded yet\n");
     }
     else{
-#ifdef CONFIG_AML_MTD
-        if ( BOOT_NAND_MTD == store_get_type() ) {
-            extern int check_valid_dts(unsigned char *buffer);
-            ret =  check_valid_dts(dtbLoadedAddr);
-        } else
-#endif // #ifdef CONFIG_AML_MTD
+     //can get before store init as not pc mode
+	if (store_get_type() == BOOT_NAND_MTD || store_get_type() == BOOT_SNAND)
+		ret =  check_valid_dts(dtbLoadedAddr);
+	else
 		ret = get_partition_from_dts(is_gpt ? gpt_load_addr : dtbLoadedAddr);
 
         if (ret) {
