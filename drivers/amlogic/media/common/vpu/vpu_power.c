@@ -73,7 +73,7 @@ void vpu_module_init_config(void)
 	if (vpu_conf.data->chip_type == VPU_CHIP_T3 ||
 	    vpu_conf.data->chip_type == VPU_CHIP_T5W ||
 		vpu_conf.data->chip_type == VPU_CHIP_T5M)
-		viu_init_psci_smc(1);
+		viu_init_psci_smc(0);
 #endif
 	/* S5 new add registers */
 	if (vpu_conf.data->chip_type == VPU_CHIP_S5)
