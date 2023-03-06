@@ -34,6 +34,9 @@
 #include <asm/cpu_id.h>
 #include <amlogic/aml_mmc.h>
 #include <errno.h>
+#include <part_efi.h>
+#include <version.h>
+#include <part.h>
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define SD_EMMC_VDDEE_REG (*((volatile unsigned *)(0xff807000 + (0x01 << 2))))
@@ -1182,21 +1185,43 @@ static int amlmmc_read_in_part(int argc, char *const argv[])
 	void *addr_tmp;
 	void *addr_byte;
 	ulong start_blk;
+#ifdef CONFIG_AML_GPT
+	block_dev_desc_t *dev_desc;
+	gpt_entry *gpt_pte = NULL;
+	char	str[128];
+	int ret;
+	bool switch_boot = false;
+#endif
 
 	name = argv[2];
-	dev = find_dev_num_by_partition_name (name);
+
+	if (strcmp(name, "bootloader") == 0)
+		dev = CONFIG_SYS_MMC_BOOT_DEV;
+	else
+		dev = find_dev_num_by_partition_name(name);
+
 	addr = (void *)simple_strtoul(argv[3], NULL, 16);
 	offset = simple_strtoull(argv[4], NULL, 16);
 	size = simple_strtoull(argv[5], NULL, 16);
 
-	if (dev < 0) {
-		printf("Cannot find dev.\n");
-		return 1;
-	}
-
-	mmc = find_mmc_device(dev);
+	mmc = find_mmc_device(1);
 	if (!mmc)
 		return 1;
+
+#ifdef CONFIG_AML_GPT
+	dev_desc = &mmc->block_dev;
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
+
+	/* This function validates AND fills in the GPT header and PTE */
+	if (strcmp(name, "bootloader") == 0 && (is_gpt_valid(dev_desc,
+				GPT_PRIMARY_PARTITION_TABLE_LBA, gpt_head, &gpt_pte) == 1)) {
+		sprintf(str, "amlmmc switch 1 boot0");
+		ret = run_command(str, 0);
+		if (ret == -1)
+			return 1;
+		switch_boot = true;
+	}
+#endif
 
 	get_off_size(mmc, name, offset, size, &blk, &cnt, &sz_byte);
 	mmc_init(mmc);
@@ -1223,6 +1248,18 @@ static int amlmmc_read_in_part(int argc, char *const argv[])
 	   memcpy(addr_byte, addr_tmp, sz_byte);
 	   free(addr_tmp);
 	}
+
+#ifdef CONFIG_AML_GPT
+	if (switch_boot) {
+		sprintf(str, "amlmmc switch 1 user");
+		ret = run_command(str, 0);
+		if (ret != 0) {
+			printf("amlmmc cmd failed\n");
+			return 1;
+		}
+	}
+#endif
+
 	return (n == cnt) ? 0 : 1;
 }
 

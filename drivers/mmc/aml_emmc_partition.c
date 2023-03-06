@@ -1123,7 +1123,9 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 			return 1;
 	}
 
-	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
+	strncpy((char *)partitions, (char *)emmc_partition_table, sizeof(struct partitions));
+
+	for (i = 1; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		if (!is_pte_valid(&gpt_pte[i]))
 			break;
 
