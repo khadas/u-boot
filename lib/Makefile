@@ -120,6 +120,7 @@ endif
 
 obj-y += libavb/
 obj-y += libxbc/
+obj-$(CONFIG_LIBABR) += libabr/
 obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += kvstore.o
 
 obj-$(CONFIG_AML_UASAN) += uasan/

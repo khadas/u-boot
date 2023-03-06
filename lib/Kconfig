@@ -437,5 +437,6 @@ source lib/efi/Kconfig
 source lib/efi_loader/Kconfig
 source lib/optee/Kconfig
 source lib/libxbc/Kconfig
+source lib/libabr/Kconfig
 
 endmenu
