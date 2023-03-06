@@ -1726,6 +1726,8 @@ void vpp_init(void)
 		/* set dummy data default YUV black */
 		vpp_reg_write(VPP_DUMMY_DATA1, 0x108080);
 		/* osd1: rgb->yuv limit , osd2: yuv limit */
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_GXL)
+			vpp_reg_setb(VPP_MISC, 0, 10, 1);
 		set_osd1_rgb2yuv(1);
 	}
 }
