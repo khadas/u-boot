@@ -433,7 +433,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					2004 //MHz. Range: 100-2004
+#define CONFIG_CPU_CLK					1800 //MHz. Range: 100-2004
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
