@@ -21,6 +21,8 @@
 #include <version.h>
 #include <amlogic/aml_efuse.h>
 #include <amlogic/store_wrapper.h>
+#include <fs.h>
+#include <fat.h>
 
 #define AVB_USE_TESTKEY
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
@@ -524,8 +526,366 @@ out:
 	return result;
 }
 
+/* 4K bytes are allocated to store persistent value
+ * The first 4B is the persistent store magic word "@AVB"
+ * It is further divided into 132B slots
+ * Each 132B contains a persistent_value_t structure.
+ */
+#define AVB_PERSISTENT_MISC_OFFSET (2040 * 1024)
+#define AVB_PERSISTENT_SLOT (31)
+/* 4100 */
+#define AVB_PERSISTENT_SIZE (4 + 4 + 132 * AVB_PERSISTENT_SLOT)
+#define AVB_PERSISTENT_MAGIC "@AVB"
+#define AVB_PERSISTENT_VERSION (0x0)
+#define PERSISTENT_NAME_MAX_LEN (64)
+#define PERSISTENT_VALUE_MAX_LEN (64)
+#define PERSISTENT_FILENAME "avb_persist"
+
+#define DEV_NAME                "mmc"
+#define DEV_NO                  (1)
+#define PART_TYPE               "user"
+#define PART_NAME_RSV           "rsv"
+#define PART_NAME_FTY           "factory"
+#define NAND_FTY_MOUNT_PT       "mnt"
+
+struct persistent_value {
+	uint8_t name_length;
+	uint8_t value_length;
+	uint16_t rsv;
+	char name[PERSISTENT_NAME_MAX_LEN];
+	uint8_t value[PERSISTENT_VALUE_MAX_LEN];
+};
+
+static uint8_t *persistent_store(int32_t *is_empty)
+{
+	uint8_t *buf = NULL;
+	int rc = 0;
+	loff_t act_read = 0;
+
+	/* initialize factory partition */
+	rc = run_command("factory_provision init", 0);
+	if (rc) {
+		printf("init factory partition failed\n");
+		return NULL;
+	}
+
+	buf = malloc(AVB_PERSISTENT_SIZE);
+	if (!buf) {
+		printf("failed to allocate buf for persistent store\n");
+		return NULL;
+	}
+	if (fat_read_file(PERSISTENT_FILENAME, buf, 0,
+				AVB_PERSISTENT_SIZE, &act_read)) {
+		printf("failed to read persistent store\n");
+		goto empty;
+	} else {
+		if (act_read != AVB_PERSISTENT_SIZE) {
+			printf("unexpected size: %lld\n", act_read);
+			memset(buf, 0, AVB_PERSISTENT_SIZE);
+			goto empty;
+		}
+	}
+
+empty:
+	if (memcmp(&buf[0], AVB_PERSISTENT_MAGIC, 4)) {
+		printf("empty persistent store, resetting\n");
+		memset(buf, 0, AVB_PERSISTENT_SIZE);
+		memcpy(&buf[0], AVB_PERSISTENT_MAGIC, 4);
+		if (is_empty)
+			*is_empty = 1;
+	} else {
+		if (is_empty)
+			*is_empty = 0;
+	}
+
+	return buf;
+}
+
+static AvbIOResult persistent_test(AvbOps *ops)
+{
+	AvbIOResult ret = AVB_IO_RESULT_OK;
+	static const char case_I[] = "smart wolves";
+	static const char case_II[] = "happy wife";
+	static const char case_III[] = "lion king";
+	char case_I_read[sizeof(case_I)] = {0};
+	char case_II_read[sizeof(case_II)] = {0};
+	char case_III_read[sizeof(case_III)] = {0};
+	size_t out_num_bytes_read = 0;
+
+	ret = ops->write_persistent_value(ops, "persist test case I",
+			sizeof(case_I), (const uint8_t *)case_I);
+	if (ret != AVB_IO_RESULT_OK) {
+		printf("failed to write case I\n");
+		return ret;
+	}
+	ret = ops->write_persistent_value(ops, "persist test case II",
+			sizeof(case_II), (const uint8_t *)case_II);
+	if (ret != AVB_IO_RESULT_OK) {
+		printf("failed to write case II\n");
+		return ret;
+	}
+	ret = ops->write_persistent_value(ops, "persist test case III",
+			sizeof(case_III), (const uint8_t *)case_III);
+	if (ret != AVB_IO_RESULT_OK) {
+		printf("failed to write case III\n");
+		return ret;
+	}
+
+	ret = ops->read_persistent_value(ops, "persist test case I",
+			sizeof(case_I_read), (uint8_t *)case_I_read, &out_num_bytes_read);
+	if (ret != AVB_IO_RESULT_OK) {
+		printf("failed to read case I\n");
+		return ret;
+	}
+	if (out_num_bytes_read == sizeof(case_I_read) &&
+		!strncmp(case_I, case_I_read, sizeof(case_I))) {
+		printf("case I passed\n");
+	} else {
+		printf("case I failed\n");
+	}
+
+	ret = ops->read_persistent_value(ops, "persist test case II",
+			sizeof(case_II_read), (uint8_t *)case_II_read,
+			&out_num_bytes_read);
+	if (ret != AVB_IO_RESULT_OK) {
+		printf("failed to read case II\n");
+		return ret;
+	}
+	if (out_num_bytes_read == sizeof(case_II_read) &&
+		!strncmp(case_II, case_II_read, sizeof(case_II))) {
+		printf("case II passed\n");
+	} else {
+		printf("case II failed\n");
+	}
+
+	ret = ops->read_persistent_value(ops, "persist test case III",
+			sizeof(case_III_read), (uint8_t *)case_III_read,
+			&out_num_bytes_read);
+	if (ret != AVB_IO_RESULT_OK) {
+		printf("failed to read case III\n");
+		return ret;
+	}
+	if (out_num_bytes_read == sizeof(case_III_read) &&
+		!strncmp(case_III, case_III_read, sizeof(case_III))) {
+		printf("case III passed\n");
+	} else {
+		printf("case III failed\n");
+	}
+
+	return ret;
+}
+
+static AvbIOResult write_persistent_to_factory(uint8_t *buf, uint32_t size)
+{
+	int part_num = get_partition_num_by_name(PART_NAME_FTY);
+	char part_name[32] = {0};
+	char cmd[64] = {0};
+
+	if (part_num >= 0)
+		strcpy(part_name, PART_NAME_FTY);
+	else
+		strcpy(part_name, PART_NAME_RSV);
+
+	sprintf(cmd, "fatwrite %s 0x%X:0x%X 0x%08X %s 0x%X", DEV_NAME, DEV_NO,
+			get_partition_num_by_name(part_name),
+			(uint32_t)virt_to_phys((void *)buf), PERSISTENT_FILENAME, size);
+	if (run_command(cmd, 0)) {
+		printf("command[%s] failed\n", cmd);
+		return AVB_IO_RESULT_ERROR_IO;
+	}
+
+	return AVB_IO_RESULT_OK;
+}
+
+static AvbIOResult persistent_wipe(void)
+{
+	uint8_t *buf = NULL;
+	AvbIOResult ret = AVB_IO_RESULT_OK;
+
+	buf = persistent_store(NULL);
+	if (buf) {
+		memset(buf, 0, AVB_PERSISTENT_SIZE);
+		memcpy(&buf[0], AVB_PERSISTENT_MAGIC, 4);
+		*(uint32_t *)&buf[4] = AVB_PERSISTENT_VERSION;
+	} else {
+		return AVB_IO_RESULT_ERROR_IO;
+	}
+
+	ret = write_persistent_to_factory(buf, AVB_PERSISTENT_SIZE);
+
+	free(buf);
+	return ret;
+}
+
+static AvbIOResult persistent_dump(void)
+{
+	uint8_t *buf = NULL;
+	int rc = 0;
+	AvbIOResult ret = AVB_IO_RESULT_OK;
+	char *name = NULL;
+	int i = 0;
+	char cmd[64] = {0};
+	struct persistent_value *persist = NULL;
+
+	buf = persistent_store(NULL);
+	if (buf) {
+		printf("persistent store:\n");
+		/* skip magic word and version */
+		persist = (struct persistent_value *)(buf + 8);
+		for (i = 0; i < AVB_PERSISTENT_SLOT; i++) {
+			printf("%d:\n", i);
+			if (persist[i].name_length) {
+				name = malloc(persist[i].name_length);
+				if (!name) {
+					printf("failed to allocate name\n");
+					goto out;
+				}
+				strncpy(name, persist[i].name,
+					persist[i].name_length);
+				printf("%s\n", name);
+				free(name);
+				printf("length = %d\n",
+					persist[i].value_length);
+				snprintf(cmd, sizeof(cmd),
+					"md.b %p %x", persist[i].value,
+					persist[i].value_length);
+				rc = run_command(cmd, 0);
+				if (rc) {
+					printf("failed to run cmd: %s\n", cmd);
+					ret = AVB_IO_RESULT_ERROR_IO;
+					goto out;
+				}
+			} else {
+				printf("empty slot\n");
+			}
+		}
+	} else {
+		return AVB_IO_RESULT_ERROR_IO;
+	}
+
+out:
+	free(buf);
+	return ret;
+}
+
+AvbIOResult read_persistent_value(AvbOps *ops, const char *name,
+		size_t buffer_size, uint8_t *out_buffer, size_t *out_num_bytes_read)
+{
+	uint8_t *buf = NULL;
+	uint32_t value_found = 0;
+	uint32_t i = 0;
+	struct persistent_value *persist = NULL;
+	AvbIOResult ret = AVB_IO_RESULT_OK;
+	AvbIOResult ret_write = AVB_IO_RESULT_OK;
+	int32_t is_empty = 0;
+
+	if (!out_buffer) {
+		if (!buffer_size)
+			return AVB_IO_RESULT_OK;
+		else
+			return AVB_IO_RESULT_ERROR_IO;
+	}
+
+	buf = persistent_store(&is_empty);
+	if (buf) {
+		/* skip magic word and version */
+		persist = (struct persistent_value *)(buf + 8);
+		for (i = 0; i < AVB_PERSISTENT_SLOT; i++) {
+			if (strlen(name) == persist[i].name_length &&
+					!strncmp(persist[i].name, name, persist[i].name_length)) {
+				if (buffer_size >= persist[i].value_length) {
+					memcpy(out_buffer, persist[i].value,
+						persist[i].value_length);
+					*out_num_bytes_read = persist[i].value_length;
+					ret = AVB_IO_RESULT_OK;
+				} else {
+					ret = AVB_IO_RESULT_ERROR_INSUFFICIENT_SPACE;
+					*out_num_bytes_read = persist[i].value_length;
+				}
+				value_found = 1;
+				break;
+			}
+		}
+		if (!value_found)
+			ret = AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+	} else {
+		ret = AVB_IO_RESULT_ERROR_IO;
+	}
+
+	/* write storage, if empty */
+	if (is_empty) {
+		ret_write = write_persistent_to_factory(buf, AVB_PERSISTENT_SIZE);
+		if (ret_write != AVB_IO_RESULT_OK)
+			printf("failed to write empty persistent data\n");
+	}
+
+	free(buf);
+	return ret;
+}
+
+AvbIOResult write_persistent_value(AvbOps *ops, const char *name,
+		size_t value_size, const uint8_t *value)
+{
+	uint8_t *buf = NULL;
+	struct persistent_value *empty_slot = NULL;
+	uint32_t value_found = 0;
+	uint32_t i = 0;
+	struct persistent_value *persist = NULL;
+	AvbIOResult ret = AVB_IO_RESULT_OK;
+
+	if (value_size > PERSISTENT_VALUE_MAX_LEN)
+		return AVB_IO_RESULT_ERROR_INVALID_VALUE_SIZE;
+	if (strlen(name) > PERSISTENT_NAME_MAX_LEN)
+		return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+
+	buf = persistent_store(NULL);
+	if (buf) {
+		/* skip magic word and version */
+		persist = (struct persistent_value *)(buf + 8);
+		for (i = 0; i < AVB_PERSISTENT_SLOT; i++) {
+			if (!persist[i].name_length) {
+				if (!empty_slot)
+					empty_slot = &persist[i];
+			} else {
+				if (strlen(name) == persist[i].name_length &&
+					!strncmp(persist[i].name, name,
+						persist[i].name_length)) {
+					memset(persist[i].value, 0, sizeof(persist[i].value));
+					memcpy(persist[i].value, value, value_size);
+					persist[i].value_length = value_size;
+					value_found = 1;
+					break;
+				}
+			}
+		}
+		if (!value_found) {
+			if (empty_slot) {
+				empty_slot->name_length = strlen(name);
+				memset(empty_slot->name, 0, sizeof(empty_slot->name));
+				memcpy(empty_slot->name, name, empty_slot->name_length);
+				memset(empty_slot->value, 0, sizeof(empty_slot->value));
+				memcpy(empty_slot->value, value, value_size);
+				empty_slot->value_length = value_size;
+			} else {
+				printf("no more slots\n");
+				ret = AVB_IO_RESULT_ERROR_IO;
+				goto out;
+			}
+		}
+	} else {
+		ret = AVB_IO_RESULT_ERROR_IO;
+		goto out;
+	}
+	ret = write_persistent_to_factory(buf, AVB_PERSISTENT_SIZE);
+
+out:
+	free(buf);
+	return ret;
+}
+
 static int avb_init(void)
 {
+	enum boot_type_e type = store_get_type();
 
 	memset(&avb_ops_, 0, sizeof(AvbOps));
 	avb_ops_.read_from_partition = read_from_partition;
@@ -537,8 +897,13 @@ static int avb_init(void)
 	avb_ops_.read_is_device_unlocked = read_is_device_unlocked;
 	avb_ops_.get_unique_guid_for_partition = get_unique_guid_for_partition;
 	avb_ops_.get_size_of_partition = get_size_of_partition;
-	avb_ops_.read_persistent_value = NULL;
-	avb_ops_.write_persistent_value = NULL;
+	if (type == BOOT_NAND_MTD || type == BOOT_SNAND) {
+		avb_ops_.read_persistent_value = NULL;
+		avb_ops_.write_persistent_value = NULL;
+	} else {
+		avb_ops_.read_persistent_value = read_persistent_value;
+		avb_ops_.write_persistent_value = write_persistent_value;
+	}
 
 	//avb_ops_.user_data = NULL;
 
@@ -580,6 +945,9 @@ int avb_verify(AvbSlotVerifyData** out_data)
 	char *vendor_boot_status = NULL;
 	const char **partition_select = requested_partitions;
 	int i = 0;
+	AvbHashtreeErrorMode hashtree_error_mode =
+		AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE;
+	enum boot_type_e type = store_get_type();
 
 	s1 = env_get("active_slot");
 	if (!s1) {
@@ -620,9 +988,15 @@ int avb_verify(AvbSlotVerifyData** out_data)
 	if (is_device_unlocked() || (upgradestep && (!strcmp(upgradestep, "3"))))
 		flags |= AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR;
 
+	if (type == BOOT_NAND_MTD || type == BOOT_SNAND)
+		hashtree_error_mode =
+			AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE;
+	else
+		hashtree_error_mode =
+			AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO;
+
 	result = avb_slot_verify(&avb_ops_, partition_select, ab_suffix,
-			flags,
-			AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE, out_data);
+			flags, hashtree_error_mode, out_data);
 
 	if (upgradestep && (!strcmp(upgradestep, "3"))) {
 		run_command("setenv bootconfig ${bootconfig} androidboot.vbmeta.avb_version=1.1;",
@@ -675,6 +1049,46 @@ static int do_avb_verify(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		avb_slot_verify_data_free(out_data);
 	}
 
+	return result;
+}
+
+static int do_avb_persist(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int result = 0;
+	uint32_t cmd = 0;
+
+	if (argc != 2) {
+		printf("invalid argc: %d\n", argc);
+		return -1;
+	}
+
+	avb_init();
+
+	if (!strcmp(argv[1], "test")) {
+		cmd = 0;
+	} else if (!strcmp(argv[1], "wipe")) {
+		cmd = 1;
+	} else if (!strcmp(argv[1], "dump")) {
+		cmd = 2;
+	} else {
+		printf("unknown cmd: %s\n", argv[1]);
+		return -1;
+	}
+
+	switch (cmd) {
+	case 0:
+		printf("persist test\n");
+		result = persistent_test(&avb_ops_);
+		break;
+	case 1:
+		printf("persist wipe\n");
+		result = persistent_wipe();
+		break;
+	case 2:
+		printf("persist dump\n");
+		result = persistent_dump();
+		break;
+	}
 	return result;
 }
 
@@ -732,7 +1146,9 @@ uint32_t avb_get_boot_patchlevel_from_vbmeta(AvbSlotVerifyData *data)
 }
 
 static cmd_tbl_t cmd_avb_sub[] = {
-	U_BOOT_CMD_MKENT(verify, 4, 0, do_avb_verify, "", ""),
+	U_BOOT_CMD_MKENT(verify, 0, 0, do_avb_verify, "", ""),
+	U_BOOT_CMD_MKENT(persist, 2, 0, do_avb_persist, "avb persist test/wipe/dump",
+			"avb persist test/wipe/dump"),
 };
 
 static int do_avb_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -740,7 +1156,7 @@ static int do_avb_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	cmd_tbl_t *c;
 	int ret = 0;
 
-	/* Strip off leading 'bmp' command argument */
+	/* Strip off leading 'avb' command argument */
 	argc--;
 	argv++;
 
@@ -758,7 +1174,7 @@ static int do_avb_ops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 
 U_BOOT_CMD(
-		avb, 2, 0, do_avb_ops,
+		avb, 3, 0, do_avb_ops,
 		"avb",
 		"\nThis command will trigger related avb operations\n"
 		);
