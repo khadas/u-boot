@@ -8,7 +8,7 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define CPU_CLK                                 1512
+#define CPU_CLK                                 1800
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
 #define DDR_ID_ACS_ADC   ((3 << 6) | (8))
 
@@ -160,7 +160,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		32, 33, 34, 35
 	},//d0-d31 dm0 dm1 dm2 dm3
 	.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-	.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+	.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 	.cfg_board_SI_setting_ps.PllBypassEn = 0,
 	.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 	.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -455,7 +455,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 33, 34, 35
 		},//d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -819,7 +819,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		},//d0-d31 dm0 dm1 dm2 dm3;
 		#endif
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -1173,7 +1173,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		#endif
 
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -1531,7 +1531,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 33, 34, 35
 		},//d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps.ddr_odt_config =
@@ -1817,7 +1817,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 33, 34, 35
 		},//d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -2099,7 +2099,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 33, 34, 35
 		},//d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		.cfg_board_SI_setting_ps.DRAMFreq = 1176,
+		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,

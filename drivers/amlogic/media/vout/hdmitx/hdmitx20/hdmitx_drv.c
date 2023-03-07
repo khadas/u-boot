@@ -218,7 +218,11 @@ static void ddc_init_(void)
 	hdmitx_wr_reg(HDMITX_DWC_I2CM_CTLINT,   data32);
 
 	data32  = 0;
+#ifdef CONFIG_HIGH_DDC_MODE
+	data32 |= (1    << 3);  /*[  3] i2c_fast_mode: 0=standard mode; 1=fast mode.*/
+#else
 	data32 |= (0    << 3);  /*[  3] i2c_fast_mode: 0=standard mode; 1=fast mode.*/
+#endif
 	hdmitx_wr_reg(HDMITX_DWC_I2CM_DIV,      data32);
 
 	hdmitx_wr_reg(HDMITX_DWC_I2CM_SS_SCL_HCNT_1, 0);

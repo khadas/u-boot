@@ -86,7 +86,7 @@
 				  __func__, __LINE__, ##__VA_ARGS__)
 #else
 #define aml_nand_dbg(fmt, ...)
-#define aml_nand_msg(fmt, ...) printk( fmt "\n",  ##__VA_ARGS__)
+#define aml_nand_msg(fmt, ...) pr_info( fmt "\n",  ##__VA_ARGS__)
 #endif
 
 

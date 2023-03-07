@@ -53,7 +53,7 @@
    That is used for recovery and the bootloader to talk to each other
   */
 #ifndef CONFIG_PXP_DDR
-#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+//#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 #endif// #ifndef CONFIG_PXP_DDR
 
 /* args/envs */
@@ -65,6 +65,7 @@
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
         "hdmimode=1080p60hz\0" \
+        "hdmi_read_edid=0\0" \
         "cvbsmode=576cvbs\0" \
 	"vout_init=enable\0" \
         "display_width=1920\0" \
@@ -97,13 +98,10 @@
 			"run upgrade_check_base;"\
 			"\0"\
 		"storeargs="\
-			"get_bootloaderversion;" \
 			"run storeargs_base;"\
-			"setenv bootargs ${bootargs} ${emmc_quirks};"\
-            "run cmdline_keys;"\
+			"setenv bootargs ${bootargs};"\
 			"\0"\
 		"switch_bootmode="\
-			"get_rebootmode;"\
 			"if test ${reboot_mode} = factory_reset; then "\
 				"run recovery_from_flash;"\
 			"else if test ${reboot_mode} = update; then "\
@@ -145,13 +143,36 @@
 			"run bcb_cmd_base;"\
 			"\0"\
 		"load_bmp_logo="\
-			"run load_bmp_logo_base;"\
+			"if imgread pic logo bootup $loadaddr; then "\
+				"bmp display $bootup_offset; fi;" \
 			"\0"\
 		"init_display="\
-			"run init_display_base;"\
+			"get_rebootmode;"\
+			"echo reboot_mode:::: ${reboot_mode};"\
+			"if test ${reboot_mode} = quiescent; then "\
+				"setenv reboot_mode_android ""quiescent"";"\
+				"setenv dolby_status 0;"\
+				"setenv dolby_vision_on 0;"\
+				"run storeargs;"\
+				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"osd open;osd clear;"\
+			"else if test ${reboot_mode} = recovery_quiescent; then "\
+				"setenv reboot_mode_android ""quiescent"";"\
+				"setenv dolby_status 0;"\
+				"setenv dolby_vision_on 0;"\
+				"run storeargs;"\
+				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"osd open;osd clear;"\
+			"else "\
+				"setenv reboot_mode_android ""normal"";"\
+				"run storeargs;"\
+				"hdmitx hpd;hdmitx get_parse_edid;"\
+				"osd open;osd clear;run load_bmp_logo;"\
+				"bmp scale;vout output ${outputmode};"\
+			"fi;fi;"\
 			"\0"\
 		"storage_param="\
-			"setenv bootargs ${bootargs} ${emmc_quirks}; "\
+			"setenv bootargs ${bootargs}; "\
 			"run storage_param_base;"\
 			"\0"\
 		"cmdline_keys="\
@@ -175,9 +196,6 @@
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
             "run init_display;"\
-            "run storeargs;"\
-	    "run upgrade_key;" \
-            "bcb uboot-command;"\
             "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
@@ -341,7 +359,7 @@
 #define CONFIG_LZO 1
 
 #define CONFIG_FAT_WRITE 1
-#define CONFIG_AML_FACTORY_PROVISION 1
+//#define CONFIG_AML_FACTORY_PROVISION 1
 #define CONFIG_NAND_FACTORY_PROVISION 1
 
 #define CONFIG_AML_WATERMARK 1
@@ -388,6 +406,11 @@
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED
+
+#define CONFIG_HIGH_NAND_SPEED 1
+#define CONFIG_HIGH_DDC_MODE   1
+
+#undef CONFIG_AML_BL33_COMPRESS_ENABLE
 
 #endif
 

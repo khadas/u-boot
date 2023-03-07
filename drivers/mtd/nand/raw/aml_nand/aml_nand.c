@@ -421,9 +421,9 @@ retry_status:
 				/*udelay(200);*/
 			}
 				status[i] = (int)chip->read_byte(mtd);
-			/*printk("s:%x\n", status[i]);*/
+			/*pr_info("s:%x\n", status[i]);*/
 			if ((read_status++ < 3) && (!(status[i] & NAND_STATUS_READY))) {
-				printk("after wirte,read %d status =%d fail\n",
+				pr_info("after wirte,read %d status =%d fail\n",
 					read_status,status[i]);
 				goto retry_status;
 			}
@@ -544,7 +544,7 @@ void aml_nand_base_command(struct aml_nand_chip *aml_chip,
 		if ((command_temp == NAND_CMD_SEQIN)
 		|| (command_temp == NAND_CMD_TWOPLANE_WRITE2)
 		|| (command_temp == NAND_CMD_READ0))
-			printk("plane_page_addr:%x plane_blk_addr:%x cmd:%x\n",
+			pr_info("plane_page_addr:%x plane_blk_addr:%x cmd:%x\n",
 				plane_page_addr, plane_blk_addr, command);
 		*/
 
@@ -772,7 +772,7 @@ void aml_nand_base_command(struct aml_nand_chip *aml_chip,
 
 	case NAND_CMD_RESET:
 		if (!aml_chip->aml_nand_wait_devready(aml_chip, chipnr))
-			printk ("couldn`t found selected chip: %d ready\n",
+			pr_info ("couldn`t found selected chip: %d ready\n",
 				chipnr);
 		chip->cmd_ctrl(mtd,
 			NAND_CMD_STATUS,
@@ -860,7 +860,7 @@ int aml_nand_erase_cmd(struct mtd_info *mtd, int page)
 
 	vt_page_num = (mtd->writesize / (1 << chip->page_shift));
 	vt_page_num *= (1 << pages_per_blk_shift);
-	/* printk("%s() page 0x%x\n", __func__, page);*/
+	/* pr_info("%s() page 0x%x\n", __func__, page);*/
 	if (page % vt_page_num)
 		return 1;
 	/* fixme, skip bootloader */
@@ -954,7 +954,7 @@ int aml_nand_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 
 				if (!aml_chip->aml_nand_wait_devready(aml_chip,
 					i)) {
-				printk ("didn't found selected chip:%dready\n",
+				pr_info ("didn't found selected chip:%dready\n",
 					i);
 					error = -EBUSY;
 					goto exit;
@@ -1058,7 +1058,7 @@ int aml_nand_write_page_raw(struct mtd_info *mtd,
 				buf += nand_page_size;
 
 		if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
-			printk ("didn't found selected chip:%d ready\n",
+			pr_info ("didn't found selected chip:%d ready\n",
 				i);
 			error = -EBUSY;
 			goto exit;
@@ -1138,7 +1138,7 @@ int aml_nand_read_page_hwecc(struct mtd_info *mtd,
 				0, page_addr, i);
 		}
 		if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
-			printk ("read couldn`t found selected chip: %d ready\n",
+			pr_info ("read couldn`t found selected chip: %d ready\n",
 				i);
 			error = -EBUSY;
 			goto exit;
@@ -1179,11 +1179,11 @@ dma_retry_plane0:
 				memset(oob_buf, 0xff, user_byte_num);
 
 				mtd->ecc_stats.failed++;
-				printk("read ecc pl0 failed at page%d chip%d\n",
+				pr_info("read ecc pl0 failed at page%d chip%d\n",
 					page_addr, i);
 			} else {
 			if (aml_chip->ecc_cnt_cur > aml_chip->ecc_cnt_limit) {
-	printk("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d,blk:%d chip%d\n",
+	pr_info("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d,blk:%d chip%d\n",
 				__func__, __LINE__,
 				aml_chip->ecc_cnt_cur, aml_chip->ecc_cnt_limit,
 				page_addr, page_addr >> pages_per_blk_shift, i);
@@ -1230,11 +1230,11 @@ dma_retry_plane1:
 				memset(oob_buf, 0xff, user_byte_num);
 
 				mtd->ecc_stats.failed++;
-				printk("read ecc pl1 failed at page%d chip%d\n",
+				pr_info("read ecc pl1 failed at page%d chip%d\n",
 					page_addr, i);
 			} else {
 			if (aml_chip->ecc_cnt_cur > aml_chip->ecc_cnt_limit) {
-	printk("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d blk:%d chip%d\n",
+	pr_info("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d blk:%d chip%d\n",
 				__func__, __LINE__,
 				aml_chip->ecc_cnt_cur, aml_chip->ecc_cnt_limit,
 				page_addr, page_addr >> pages_per_blk_shift, i);
@@ -1267,7 +1267,7 @@ dma_retry_plane1:
 				}
 				/*memset(buf, 0xff, nand_page_size);*/
 				memset(oob_buf, 0x22, user_byte_num);
-	printk("%s %d read ecc failed here at at page:%d, blk:%d chip[%d]\n",
+	pr_info("%s %d read ecc failed here at at page:%d, blk:%d chip[%d]\n",
 		__func__, __LINE__, page_addr,
 		(page_addr >> pages_per_blk_shift), i);
 				mtd->ecc_stats.failed++;
@@ -1326,7 +1326,7 @@ int aml_nand_write_page_hwecc(struct mtd_info *mtd,
 				(unsigned char *)buf,
 				nand_page_size, aml_chip->bch_mode);
 			if (error) {
-				printk("dma write 1 err at page %x\n",
+				pr_info("dma write 1 err at page %x\n",
 					page_addr);
 				goto exit;
 			}
@@ -1337,7 +1337,7 @@ int aml_nand_write_page_hwecc(struct mtd_info *mtd,
 			buf += nand_page_size;
 
 			if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
-				printk ("write couldn't found chip:%d ready\n",
+				pr_info ("write couldn't found chip:%d ready\n",
 					i);
 				error = -EBUSY;
 				goto exit;
@@ -1351,7 +1351,7 @@ int aml_nand_write_page_hwecc(struct mtd_info *mtd,
 				(u8 *)buf,
 				nand_page_size, aml_chip->bch_mode);
 			if (error) {
-				printk("aml_nand_dma_write 2 err at page %x\n",
+				pr_info("aml_nand_dma_write 2 err at page %x\n",
 					page_addr);
 				goto exit;
 			}
@@ -1371,7 +1371,7 @@ int aml_nand_write_page_hwecc(struct mtd_info *mtd,
 				(unsigned char *)buf,
 				nand_page_size, aml_chip->bch_mode);
 			if (error) {
-				printk("aml_nand_dma_write err at page %x\n",
+				pr_info("aml_nand_dma_write err at page %x\n",
 					page_addr);
 				goto exit;
 			}
@@ -1426,7 +1426,7 @@ int aml_nand_write_page(struct mtd_info *mtd,
 		 * available
 		 */
 		if (status & NAND_STATUS_FAIL) {
-			printk("wr page=0x%x, status =  0x%x\n",
+			pr_info("wr page=0x%x, status =  0x%x\n",
 				page,status);
 			return -EIO;
 		}
@@ -1456,14 +1456,14 @@ int aml_nand_read_oob(struct mtd_info *mtd, struct nand_chip *chip, int page)
 
 	error = aml_nand_read_page_hwecc(mtd, chip, nand_buffer, oob_required, page);
 	if (error) {
-		printk("%s, %d,read oob failed\n", __func__, __LINE__);
+		pr_info("%s, %d,read oob failed\n", __func__, __LINE__);
 	}
 	return error;
 }
 
 int aml_nand_write_oob(struct mtd_info *mtd, struct nand_chip *chip, int page)
 {
-	printk("our host controller`s structure couldn`t support oob write\n");
+	pr_info("our host controller`s structure couldn`t support oob write\n");
 	BUG();
 	return 0;
 }
@@ -1491,12 +1491,12 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 	blk_addr = (int)(ofs >> mtd_erase_shift);
 	if (aml_chip->block_status != NULL) {
 		if (aml_chip->block_status[blk_addr] == NAND_BLOCK_BAD) {
-			printk(" NAND bbt detect Bad block at %llx \n",
+			pr_info(" NAND bbt detect Bad block at %llx \n",
 				(uint64_t)ofs);
 			return EFAULT;
 		}
 		if (aml_chip->block_status[blk_addr] == NAND_FACTORY_BAD) {
-			printk(" NAND bbt detect factory Bad block at %llx \n",
+			pr_info(" NAND bbt detect factory Bad block at %llx \n",
 				(uint64_t)ofs);
 			return FACTORY_BAD_BLOCK_ERROR;  //159  EFAULT
 		} else if (aml_chip->block_status[blk_addr] ==NAND_BLOCK_GOOD)
@@ -1518,7 +1518,7 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 			if (ret == -EUCLEAN)
 				ret = 0;
 			if (ret < 0) {
-				printk("1 NAND detect Bad block:%llx\n",
+				pr_info("1 NAND detect Bad block:%llx\n",
 					(uint64_t)addr);
 				return EFAULT;
 			}
@@ -1529,7 +1529,7 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 					0, aml_oob_ops.ooblen);
 				if (!memcmp(aml_chip->aml_nand_data_buf,
 				aml_oob_ops.oobbuf, aml_oob_ops.ooblen)) {
-					printk("2 NAND detect Bad block:%llx\n",
+					pr_info("2 NAND detect Bad block:%llx\n",
 						(uint64_t)addr);
 					return EFAULT;
 				}
@@ -1691,7 +1691,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 			}
 			chip->ecc.layout->oobfree[0].length *= oobmul;
 			chip->ecc.layout->eccbytes *= oobmul;
-			printk("%s :oobmul=%d,oobfree.length=%d,oob_size=%d\n",
+			pr_info("%s :oobmul=%d,oobfree.length=%d,oob_size=%d\n",
 				__func__,
 				oobmul,
 				chip->ecc.layout->oobfree[0].length,
@@ -1706,7 +1706,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	oobfree = chip->ecc.layout->oobfree;
 	for (i = 0; oobfree[i].length && i < ARRAY_SIZE(chip->ecc.layout->oobfree); i++)
 		chip->ecc.layout->oobavail += oobfree[i].length;
-	printk("oob avail size %d\n", chip->ecc.layout->oobavail);
+	pr_info("oob avail size %d\n", chip->ecc.layout->oobavail);
 	mtd->oobavail = chip->ecc.layout->oobavail;
 	mtd->ecclayout = chip->ecc.layout;
 
@@ -1716,7 +1716,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	aml_chip->aml_nand_data_buf =
 		kzalloc((mtd->writesize + mtd->oobsize), GFP_KERNEL);
 	if (aml_chip->aml_nand_data_buf == NULL) {
-		printk("no memory for flash data buf\n");
+		pr_info("no memory for flash data buf\n");
 		err = -ENOMEM;
 		goto exit_error;
 	}
@@ -1724,7 +1724,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		kzalloc((mtd->writesize / chip->ecc.size) * PER_INFO_BYTE,
 		GFP_KERNEL);
 	if (aml_chip->user_info_buf == NULL) {
-		printk("no memory for flash info buf\n");
+		pr_info("no memory for flash info buf\n");
 		err = -ENOMEM;
 		goto exit_error;
 	}
@@ -1732,14 +1732,14 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 	if (aml_chip->rsv == NULL) {
 		aml_chip->rsv = kzalloc(sizeof (struct meson_rsv_handler_t), GFP_KERNEL);
 			if (aml_chip->rsv == NULL) {
-				printk("no memory for aml_chip rsv\n");
+				pr_info("no memory for aml_chip rsv\n");
 				err = -ENOMEM;
 				goto exit_error;
 			}
 	}
 
 	if (chip->buffers == NULL) {
-		printk("no memory for flash data buf\n");
+		pr_info("no memory for flash data buf\n");
 		err = -ENOMEM;
 		goto exit_error;
 	}
@@ -1764,14 +1764,14 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		aml_chip->block_status =
 			kzalloc((mtd->size >> mtd->erasesize_shift), GFP_KERNEL);
 		if (aml_chip->block_status == NULL) {
-			printk("no memory for flash block status\n");
+			pr_info("no memory for flash block status\n");
 			return -ENOMEM;
 		}
 		memset(aml_chip->block_status, 0, (mtd->size >> mtd->erasesize_shift));
 
 		err = aml_nand_bbt_check(mtd);
 		if (err) {
-			printk("invalid nand bbt\n");
+			pr_info("invalid nand bbt\n");
 			goto exit_error;
 		}
 #ifndef CONFIG_ENV_IS_IN_NAND
@@ -1787,7 +1787,7 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		goto exit_error;
 	}
 
-	printk("%s initialized ok\n", mtd->name);
+	pr_info("%s initialized ok\n", mtd->name);
 	return 0;
 
 exit_error:
@@ -1846,7 +1846,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 
 	data_buf = kzalloc(mtd->writesize, GFP_KERNEL);
 	if (data_buf == NULL) {
-		printk("%s %d malloc failed\n",__func__,__LINE__);
+		pr_info("%s %d malloc failed\n",__func__,__LINE__);
 		return -ENOMEM;
 	}
 
@@ -1854,7 +1854,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 	start_blk = 0;
 	total_blk = (int)(mtd->size >> phys_erase_shift);
 	/* fixme, need  check the total block number avoid mtd->size was changed outside! */
-	printk("scaning flash total block %d\n", total_blk);
+	pr_info("scaning flash total block %d\n", total_blk);
 	do {
 	offset = mtd->erasesize;
 	offset *= start_blk;
@@ -1903,7 +1903,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 					0x00,aml_chip->page_addr, i);
 
 			if (!aml_chip->aml_nand_wait_devready(aml_chip, i))
-				printk ("%s, %d,selected chip%d not ready\n",
+				pr_info ("%s, %d,selected chip%d not ready\n",
 					__func__, __LINE__, i);
 
 				if (aml_chip->ops_mode & AML_CHIP_NONE_RB)
@@ -1933,7 +1933,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 					col0_oob = 0x0;
 				else
 					col0_oob = chip->read_byte(mtd);
-				//printk("col0_oob=%x\n",col0_oob);
+				//pr_info("col0_oob=%x\n",col0_oob);
 
 			} else if (aml_chip->plane_num == 1) {
 
@@ -1949,7 +1949,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 				udelay(2);
 
 			if (!aml_chip->aml_nand_wait_devready(aml_chip, i))
-				printk ("%s, %d,selected chip%d not ready\n",
+				pr_info ("%s, %d,selected chip%d not ready\n",
 					__func__, __LINE__, i);
 
 				if (aml_chip->ops_mode & AML_CHIP_NONE_RB)
@@ -1965,7 +1965,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 			} else
 				col0_data = chip->read_byte(mtd);
 
-				//printk("col0_data =%x\n",col0_data);
+				//pr_info("col0_data =%x\n",col0_data);
 
 			if (aml_chip->mfr_type  != NAND_MFR_SANDISK)
 				aml_chip->aml_nand_command(aml_chip,
@@ -1977,14 +1977,14 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 				col0_oob = 0x0;
 			else
 				col0_oob = chip->read_byte(mtd);
-				//printk("col0_oob =%x\n",col0_oob);
+				//pr_info("col0_oob =%x\n",col0_oob);
 			}
 
 	if ((col0_oob == 0xFF))
 		continue;
 
 	if (col0_oob != 0xFF) {
-		printk("%s:%d factory ship bbt found\n", __func__, __LINE__);
+		pr_info("%s:%d factory ship bbt found\n", __func__, __LINE__);
 
 		if (aml_chip->mfr_type  == NAND_MFR_DOSILICON ||
 		    aml_chip->mfr_type  == NAND_MFR_ATO ||
@@ -1994,8 +1994,8 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 		    aml_chip->mfr_type == NAND_MFR_MACRONIX ||
 		    aml_chip->mfr_type  == NAND_MFR_AMD ||
 		    aml_get_samsung_fbbt_flag()) {
-			printk("col0_data =%x col0_oob =%x\n",col0_data,col0_oob);
-			printk("detect a fbb:%llx blk=%d chip=%d\n",
+			pr_info("col0_data =%x col0_oob =%x\n",col0_data,col0_oob);
+			pr_info("detect a fbb:%llx blk=%d chip=%d\n",
 				(uint64_t)addr, start_blk, i);
 			bad_blk_cnt++;
 			aml_chip->block_status[start_blk] =
@@ -2011,7 +2011,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 				}
 			}
 			if (bad_sandisk_flag ) {
-				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
+				pr_info("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
 				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
@@ -2022,7 +2022,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 
 		if ((aml_chip->mfr_type  == NAND_MFR_SAMSUNG ) ) {
 			if ((col0_oob != 0xFF) && (col0_data != 0xFF)) {
-				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
+				pr_info("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
 				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
@@ -2032,7 +2032,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 
 		if ((aml_chip->mfr_type  == NAND_MFR_TOSHIBA )  ) {
 			if ((col0_oob != 0xFF) && (col0_data != 0xFF)) {
-				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
+				pr_info("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
 				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
@@ -2042,7 +2042,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 
 		if (aml_chip->mfr_type  == NAND_MFR_MICRON ) {
 			if (col0_oob == 0x0) {
-				printk("detect factory Bad block:%llx blk=%d chip=%d\n",
+				pr_info("detect factory Bad block:%llx blk=%d chip=%d\n",
 					(uint64_t)addr, start_blk, i);
 				bad_blk_cnt++;
 				aml_chip->block_status[start_blk] = NAND_FACTORY_BAD;
@@ -2054,7 +2054,7 @@ int aml_nand_scan_shipped_bbt(struct mtd_info *mtd)
 	}
 	} while((++start_blk) < total_blk);
 
-	printk("aml_nand_scan_bbt: factory Bad block bad_blk_cnt=%d\n",
+	pr_info("aml_nand_scan_bbt: factory Bad block bad_blk_cnt=%d\n",
 		bad_blk_cnt);
 	kfree(data_buf);
 	return 0;
@@ -2069,7 +2069,7 @@ int aml_nand_bbt_check(struct mtd_info *mtd)
 
 	ret = meson_rsv_scan(aml_chip->rsv->bbt);
 	if ((ret !=0) && ((ret != (-1)))) {
-		printk("%s %d\n", __func__, __LINE__);
+		pr_info("%s %d\n", __func__, __LINE__);
 		goto exit_error;
 	}
 
@@ -2077,10 +2077,10 @@ int aml_nand_bbt_check(struct mtd_info *mtd)
 	buf = aml_chip->block_status;
 	if (aml_chip->rsv->bbt->valid == 1) {
 		/*read bbt*/
-		printk("%s %d bbt is valid, reading.\n", __func__, __LINE__);
+		pr_info("%s %d bbt is valid, reading.\n", __func__, __LINE__);
 		meson_rsv_read(aml_chip->rsv->bbt, (u_char *)buf);
 	} else {
-		printk("%s %d bbt is invalid, scanning.\n", __func__, __LINE__);
+		pr_info("%s %d bbt is invalid, scanning.\n", __func__, __LINE__);
 		/*no bbt haven't been found, abnormal or clean nand! rebuild*/
 		aml_nand_scan_shipped_bbt(mtd);
 		meson_rsv_bbt_write((u_char *)buf, aml_chip->rsv->bbt->size);
@@ -2101,7 +2101,7 @@ int amlnf_dtb_init_partitions(struct aml_nand_chip *aml_chip)
 
 	dtb_buf = kzalloc(aml_chip->dtbsize, GFP_KERNEL);
 	if (dtb_buf == NULL) {
-		printk("nand malloc for dtb_buf failed\n");
+		pr_info("nand malloc for dtb_buf failed\n");
 		ret = -1;
 		goto exit_err;
 	}
@@ -2110,7 +2110,7 @@ int amlnf_dtb_init_partitions(struct aml_nand_chip *aml_chip)
 	/*parse partitions table */
 	ret = get_partition_from_dts(dtb_buf);
 	if (ret) {
-		printk("%s  get_partition_from_dts failed\n", __func__);
+		pr_info("%s  get_partition_from_dts failed\n", __func__);
 	}
 exit_err:
 	if (dtb_buf) {
