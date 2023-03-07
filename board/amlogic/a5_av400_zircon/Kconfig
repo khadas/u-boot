@@ -31,4 +31,8 @@ config AML_REBOOT
 config ZIRCON_GPT
        bool "enable gpt for zircon"
        default n
+
+config ZIRCON_PARTITIONS
+	bool "Zircon partitions support"
+	default n
 endif
