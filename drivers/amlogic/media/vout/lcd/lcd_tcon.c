@@ -546,18 +546,28 @@ void lcd_tcon_info_print(void)
 		return;
 
 	LCDPR("%s:\n", __func__);
-	printf("core_reg_width:       %d\n"
-		"reg_table_len:        %d\n"
-		"tcon_bin_ver:         %s\n"
-		"tcon_rmem_flag:       %d\n"
-		"rsv_mem addr:         0x%08x\n"
-		"rsv_mem size:         0x%08x\n\n",
+	printf("core_reg_width:  %d\n"
+		"reg_table_len:  %d\n"
+		"tcon_bin_ver:   %s\n"
+		"tcon_rmem_flag: %d\n"
+		"rsv_mem paddr:      0x%08x\n"
+		"rsv_mem size:       0x%08x\n",
 		lcd_tcon_conf->core_reg_width,
 		lcd_tcon_conf->reg_table_len,
 		tcon_local_cfg.bin_ver,
 		tcon_rmem.flag,
 		tcon_rmem.rsv_mem_paddr,
 		tcon_rmem.rsv_mem_size);
+	if (tcon_rmem.bin_path_rmem.mem_size) {
+		printf("bin_path_mem paddr: 0x%08x\n"
+			"bin_path_mem vaddr: 0x%p\n"
+			"bin_path_mem size:  0x%08x\n",
+			tcon_rmem.bin_path_rmem.mem_paddr,
+			tcon_rmem.bin_path_rmem.mem_vaddr,
+			tcon_rmem.bin_path_rmem.mem_size);
+	}
+	printf("\n");
+
 	if (tcon_rmem.flag) {
 		for (i = 0; i < lcd_tcon_conf->axi_bank; i++) {
 			memset(sec_cfg, 0, 30);
@@ -567,99 +577,80 @@ void lcd_tcon_info_print(void)
 			} else {
 				sprintf(sec_cfg, "unprotect");
 			}
-			printf("axi_mem[%d]_paddr:     0x%lx (%s)\n"
-				"axi_mem[%d]_vaddr:     0x%p\n"
-				"axi_mem[%d]_size:      0x%x\n",
+			printf("axi_mem[%d] paddr: 0x%lx (%s)\n"
+				"axi_mem[%d] vaddr: 0x%p\n"
+				"axi_mem[%d] size:  0x%x\n",
 				i, (unsigned long)tcon_rmem.axi_rmem[i].mem_paddr, sec_cfg,
 				i, tcon_rmem.axi_rmem[i].mem_vaddr,
 				i, tcon_rmem.axi_rmem[i].mem_size);
 		}
-	}
-	if (tcon_rmem.bin_path_rmem.mem_size) {
-		printf("bin_path init_load:   %d\n"
-			"bin_path data_flag:   %d\n"
-			"bin_path_mem paddr:   0x%08x\n"
-			"bin_path_mem vaddr:   0x%p\n"
-			"bin_path_mem size:    0x%08x\n\n",
-			tcon_mm_table.init_load,
-			tcon_mm_table.tcon_data_flag,
-			tcon_rmem.bin_path_rmem.mem_paddr,
-			tcon_rmem.bin_path_rmem.mem_vaddr,
-			tcon_rmem.bin_path_rmem.mem_size);
-	}
-	if (tcon_mm_table.version == 0) {
-		if (tcon_rmem.vac_rmem.mem_size) {
-			printf("vac_mem vaddr:        0x%p\n"
-				"vac_mem size:         0x%08x\n",
-				tcon_rmem.vac_rmem.mem_vaddr,
-				tcon_rmem.vac_rmem.mem_size);
-		}
-		if (tcon_rmem.demura_set_rmem.mem_size) {
-			printf("demura_set_mem vaddr: 0x%p\n"
-				"demura_set_mem size:  0x%08x\n",
-				tcon_rmem.demura_set_rmem.mem_vaddr,
-				tcon_rmem.demura_set_rmem.mem_size);
-		}
-		if (tcon_rmem.demura_lut_rmem.mem_size) {
-			printf("demura_lut_mem vaddr: 0x%p\n"
-				"demura_lut_mem size:  0x%08x\n",
-				tcon_rmem.demura_lut_rmem.mem_vaddr,
-				tcon_rmem.demura_lut_rmem.mem_size);
-		}
-		if (tcon_rmem.acc_lut_rmem.mem_size) {
-			printf("acc_lut_mem vaddr:    0x%p\n"
-				"acc_lut_mem size:     0x%08x\n",
-				tcon_rmem.acc_lut_rmem.mem_vaddr,
-				tcon_rmem.acc_lut_rmem.mem_size);
-		}
-	} else {
-		printf("data_mem block_cnt:   %d\n",
-		       tcon_mm_table.block_cnt);
-		for (i = 0; i < tcon_mm_table.block_cnt; i++) {
-			if (tcon_mm_table.data_mem_vaddr[i]) {
-				size = tcon_mm_table.data_mem_vaddr[i][8] |
-				(tcon_mm_table.data_mem_vaddr[i][9] << 8) |
-				(tcon_mm_table.data_mem_vaddr[i][10] << 16) |
-				(tcon_mm_table.data_mem_vaddr[i][11] << 24);
-				printf("data_mem[%d] vaddr:    0x%p\n"
-					"data_mem[%d] size:     0x%08x\n",
-					i, tcon_mm_table.data_mem_vaddr[i],
-					i, size);
+		printf("\n");
+
+		if (tcon_mm_table.version == 0) {
+			if (tcon_rmem.vac_rmem.mem_size) {
+				printf("vac_mem vaddr:        0x%p\n"
+					"vac_mem size:         0x%08x\n",
+					tcon_rmem.vac_rmem.mem_vaddr,
+					tcon_rmem.vac_rmem.mem_size);
+			}
+			if (tcon_rmem.demura_set_rmem.mem_size) {
+				printf("demura_set_mem vaddr: 0x%p\n"
+					"demura_set_mem size:  0x%08x\n",
+					tcon_rmem.demura_set_rmem.mem_vaddr,
+					tcon_rmem.demura_set_rmem.mem_size);
+			}
+			if (tcon_rmem.demura_lut_rmem.mem_size) {
+				printf("demura_lut_mem vaddr: 0x%p\n"
+					"demura_lut_mem size:  0x%08x\n",
+					tcon_rmem.demura_lut_rmem.mem_vaddr,
+					tcon_rmem.demura_lut_rmem.mem_size);
+			}
+			if (tcon_rmem.acc_lut_rmem.mem_size) {
+				printf("acc_lut_mem vaddr:    0x%p\n"
+					"acc_lut_mem size:     0x%08x\n",
+					tcon_rmem.acc_lut_rmem.mem_vaddr,
+					tcon_rmem.acc_lut_rmem.mem_size);
+			}
+		} else {
+			printf("data_mem block_cnt:   %d\n", tcon_mm_table.block_cnt);
+			for (i = 0; i < tcon_mm_table.block_cnt; i++) {
+				if (tcon_mm_table.data_mem_vaddr[i]) {
+					size = *(unsigned int *)&tcon_mm_table.data_mem_vaddr[i][8];
+					printf("data_mem[%d] vaddr: 0x%p\n"
+						"data_mem[%d] size:  0x%08x\n",
+						i, tcon_mm_table.data_mem_vaddr[i], i, size);
+				}
 			}
 		}
 	}
+
 	if (tcon_rmem.bin_path_rmem.mem_vaddr) {
-		size = tcon_rmem.bin_path_rmem.mem_vaddr[4] |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[5] << 8) |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[6] << 16) |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[7] << 24);
-		cnt = tcon_rmem.bin_path_rmem.mem_vaddr[16] |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[17] << 8) |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[18] << 16) |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[19] << 24);
+		size = *(unsigned int *)&tcon_rmem.bin_path_rmem.mem_vaddr[4];
+		cnt = *(unsigned int *)&tcon_rmem.bin_path_rmem.mem_vaddr[16];
 		if (size < (32 + 256 * cnt))
 			return;
 		if (cnt > 32)
 			return;
-		printf("\nbin_path cnt: %d\n", cnt);
+		printf("\nbin_path:  cnt: %d\n"
+			"init_load: %d\n"
+			"data_flag: %d\n",
+			cnt, tcon_mm_table.init_load,
+			tcon_mm_table.tcon_data_flag);
 		for (i = 0; i < cnt; i++) {
 			n = 32 + 256 * i;
-			file_size = tcon_rmem.bin_path_rmem.mem_vaddr[n] |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[n + 1] << 8) |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[n + 2] << 16) |
-			(tcon_rmem.bin_path_rmem.mem_vaddr[n + 3] << 24);
+			file_size = *(unsigned int *)&tcon_rmem.bin_path_rmem.mem_vaddr[n];
 			str = (char *)&tcon_rmem.bin_path_rmem.mem_vaddr[n + 4];
-			printf("bin_path[%d]: size: 0x%x, %s\n", i,
-			       file_size, str);
+			printf("bin[%d]: size: 0x%x, %s\n", i, file_size, str);
 		}
 	}
+
 	if (tcon_rmem.secure_cfg_rmem.mem_vaddr) {
 		data = (unsigned int *)tcon_rmem.secure_cfg_rmem.mem_vaddr;
 		cnt = lcd_tcon_conf->axi_bank;
 		printf("\nsecure_cfg rsv_mem:\n"
-			"paddr:   0x%08x\n"
-			"vaddr:   0x%p\n"
-			"size:    0x%08x\n",
+			"mem_paddr: 0x%08x\n"
+			"mem_vaddr: 0x%p\n"
+			"mem_size:  0x%08x\n",
 			tcon_rmem.secure_cfg_rmem.mem_paddr,
 			tcon_rmem.secure_cfg_rmem.mem_vaddr,
 			tcon_rmem.secure_cfg_rmem.mem_size);
@@ -667,8 +658,8 @@ void lcd_tcon_info_print(void)
 			n = 2 * i;
 			sec_protect = *(data + n);
 			sec_handle = *(data + n + 1);
-			printf("  [%d]: protect: %d, handle: %d\n", i,
-			       sec_protect, sec_handle);
+			printf("  [%d]: protect: %d, handle: %d\n",
+				i, sec_protect, sec_handle);
 		}
 	}
 	printf("\n");
@@ -1960,6 +1951,7 @@ static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv, int lo
 			LCDERR("tcon rsv_mem size 0x%x is not enough, need 0x%x\n",
 				tcon_rmem.rsv_mem_size, lcd_tcon_conf->rsv_mem_size);
 			tcon_rmem.rsv_mem_paddr = 0;
+			tcon_rmem.rsv_mem_size = 0;
 			tcon_rmem.flag = 0;
 		} else {
 			tcon_rmem.flag = 1;
@@ -2103,6 +2095,7 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 	.rsv_mem_size    = 0x00800000, /* 8M */
 	.axi_size        = 0x00500000, /* 5M */
 	.bin_path_size   = 0x00002800, /* 10K */
+	.secure_cfg_size = 0x00000040, /* 64byte */
 	.vac_size        = 0,
 	.demura_set_size = 0,
 	.demura_lut_size = 0,
