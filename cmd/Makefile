@@ -166,6 +166,7 @@ obj-$(CONFIG_CMD_YAFFS2) += yaffs2.o
 obj-$(CONFIG_CMD_SPL) += spl.o
 obj-$(CONFIG_CMD_W1) += w1.o
 obj-$(CONFIG_CMD_ZIP) += zip.o
+obj-$(CONFIG_ZIRCON_ABR) += zircon_boot.o
 obj-$(CONFIG_CMD_ZFS) += zfs.o
 
 obj-$(CONFIG_CMD_DFU) += dfu.o

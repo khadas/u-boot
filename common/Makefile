@@ -154,3 +154,5 @@ obj-y += nocs_seb.o
 
 # zircon commands
 obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += cmd_zircon_bootconfig.o
+obj-$(CONFIG_LIBABR) += zircon_abr.o
+obj-$(CONFIG_ZIRCON_ABR) += zircon_vboot.o

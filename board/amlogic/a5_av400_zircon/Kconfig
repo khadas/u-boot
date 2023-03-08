@@ -35,4 +35,9 @@ config ZIRCON_GPT
 config ZIRCON_PARTITIONS
 	bool "Zircon partitions support"
 	default n
+
+config ZIRCON_ABR
+	bool "Zircon A/B/R support"
+	default n
+
 endif
