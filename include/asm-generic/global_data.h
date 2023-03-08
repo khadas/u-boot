@@ -186,4 +186,6 @@ typedef struct global_data {
 #define GD_FLG_SPL_EARLY_INIT	0x04000 /* Early SPL init is done	   */
 #define GD_FLG_LOG_READY	0x08000 /* Log system is ready for use	   */
 
+#define GD_FLG_CACHE_EN		0x10000 /* Cache enabled                   */
+
 #endif /* __ASM_GENERIC_GBL_DATA_H */

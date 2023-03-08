@@ -109,6 +109,7 @@ static int initr_caches(void)
 {
 	/* Enable caches */
 	enable_caches();
+	gd->flags |= GD_FLG_CACHE_EN;
 	return 0;
 }
 #endif

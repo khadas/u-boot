@@ -48,5 +48,6 @@ void dram_bank_mmu_setup(int bank);
  * alignment.
  */
 #define ARCH_DMA_MINALIGN	CONFIG_SYS_CACHELINE_SIZE
+#define L1_CACHE_SHIFT		(6)
 
 #endif /* _ASM_CACHE_H */

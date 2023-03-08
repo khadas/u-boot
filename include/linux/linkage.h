@@ -115,6 +115,15 @@ name :
 	.size name, . -name
 #endif
 
+/*
+ * SYM_FUNC_START_ALIAS -- use where there are two global names for one
+ * function
+ */
+#ifndef SYM_FUNC_START_ALIAS
+#define SYM_FUNC_START_ALIAS(name)			\
+	SYM_START(name, SYM_L_GLOBAL, SYM_A_ALIGN)
+#endif
+
 /* SYM_FUNC_START -- use for global functions */
 #ifndef SYM_FUNC_START
 /*
@@ -123,6 +132,18 @@ name :
  */
 #define SYM_FUNC_START(name)				\
 	SYM_START(name, SYM_L_GLOBAL, SYM_A_ALIGN)
+#endif
+
+/* SYM_FUNC_START_WEAK -- use for weak functions */
+#ifndef SYM_FUNC_START_WEAK
+#define SYM_FUNC_START_WEAK(name)			\
+	SYM_START(name, SYM_L_WEAK, SYM_A_ALIGN)
+#endif
+
+/* SYM_FUNC_END_ALIAS -- the end of LOCAL_ALIASed or ALIASed function */
+#ifndef SYM_FUNC_END_ALIAS
+#define SYM_FUNC_END_ALIAS(name)			\
+	SYM_END(name, SYM_T_FUNC)
 #endif
 
 /*
