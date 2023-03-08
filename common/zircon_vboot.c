@@ -335,11 +335,11 @@ static AvbIOResult avb_atx_validate_vbmeta_public_key(AvbOps *ops, const uint8_t
 			 * it will boot images signed with both the built-in key
 			 * as well as the custom key
 			 */
-			printf("AVB2 verify with default kpub:%d, vbmeta kpub:%ld\n",
-					avb2_kpub_default_len, public_key_length);
-			if (avb2_kpub_default_len == public_key_length &&
+			printf("AVB2 verify with fuchsia default kpub:%d, vbmeta kpub:%ld\n",
+					avb2_kpub_fuchsia_len, public_key_length);
+			if (avb2_kpub_fuchsia_len == public_key_length &&
 					!avb_safe_memcmp(public_key_data,
-						avb2_kpub_default, public_key_length)) {
+						avb2_kpub_fuchsia, public_key_length)) {
 				*out_is_trusted = true;
 				ret = AVB_IO_RESULT_OK;
 			}

@@ -58,8 +58,8 @@ int zircon_vboot_validate_unlock_credential(AvbAtxUnlockCredential
 		*unlock_credential, bool *out_is_trusted);
 #else
 
-extern const char avb2_kpub_default[];
-extern const int avb2_kpub_default_len;
+extern const char avb2_kpub_fuchsia[];
+extern const int avb2_kpub_fuchsia_len;
 extern const char avb2_kpub_production[];
 extern const int avb2_kpub_production_len;
 
