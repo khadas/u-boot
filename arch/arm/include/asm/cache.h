@@ -46,5 +46,6 @@ void dram_bank_mmu_setup(int bank);
 #else
 #define ARCH_DMA_MINALIGN	64
 #endif
+#define L1_CACHE_SHIFT		(6)
 
 #endif /* _ASM_CACHE_H */

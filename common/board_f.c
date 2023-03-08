@@ -1171,7 +1171,10 @@ void board_init_f(ulong boot_flags)
 	gd_t data;
 
 	gd = &data;
-
+#ifdef CONFIG_ARM64
+	/* clear flags before memset use it */
+	gd->flags = 0;
+#endif
 	/*
 	 * Clear global data before it is accessed at debug print
 	 * in initcall_run_list. Otherwise the debug print probably
