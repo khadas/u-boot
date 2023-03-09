@@ -1114,7 +1114,7 @@ _err_modify_page_info:
 
 int meson_rsv_ddr_para_write(u_char *source, size_t size)
 {
-#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+#if defined(CONFIG_DDR_PARAMETER_SUPPORT) && defined(CONFIG_MTD_SPI_NAND)
 	struct mtd_info *mtd = rsv_handler->ddr_para->mtd;
 	unsigned int pages_shift, ddr_param_page;
 #endif
@@ -1146,7 +1146,7 @@ int meson_rsv_ddr_para_write(u_char *source, size_t size)
 	pr_info("%s %d write 0x%lx bytes to key, ret %d\n",
 		__func__, __LINE__, len > size ? size : len, ret);
 
-#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+#if defined(CONFIG_DDR_PARAMETER_SUPPORT) && defined(CONFIG_MTD_SPI_NAND)
 extern void spinand_page_info_set_ddr_param(int value);
 
 	pages_shift = mtd->erasesize_shift - mtd->writesize_shift;

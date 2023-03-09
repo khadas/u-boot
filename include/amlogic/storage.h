@@ -25,7 +25,6 @@
 
 #define PART_PROTECT_FLAG		BIT(4)
 
-#define CONFIG_DDR_PARAMETER_SUPPORT
 
 enum boot_type_e {
 	BOOT_EMMC = 1,

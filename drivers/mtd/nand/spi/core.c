@@ -675,7 +675,7 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 }
 #endif
 
-#if SPINAND_MESON_INFO_PAGE_V2
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
 void spinand_page_info_set_ddr_param(int value)
 {
 	struct boot_info *info = (struct boot_info *)page_info;
@@ -683,7 +683,9 @@ void spinand_page_info_set_ddr_param(int value)
 	memset(page_info, 0, 4096);
 	info->ddr_param_page = value;
 }
+#endif
 
+#if SPINAND_MESON_INFO_PAGE_V2
 int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 {
 	struct nand_device* dev = mtd_to_nanddev(mtd);
