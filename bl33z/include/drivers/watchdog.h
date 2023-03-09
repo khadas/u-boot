@@ -4,6 +4,7 @@
 #define _BOOT_ROM_WATCHDOG_H
 
 #include "platform_def.h"
+#include "regs.h"
 
 #ifndef BIT
 #define BIT(nr)			(1 << nr)

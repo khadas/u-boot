@@ -6,7 +6,6 @@
 #include <string.h>
 #include <serial.h>
 #include <lz4.h>
-#include <platform_def.h>
 #include <ram_compress.h>
 #include <arch.h>
 #include <stdio.h>
@@ -441,11 +440,7 @@ void print_acs_ramdump_para(struct ram_compress_full *rcf)
 
 unsigned int get_reboot_mode(void)
 {
-	//uint32_t reboot_mode_val = ((readl(AO_RTI_STATUS_REG3)) & 0xf);
-	//serial_puts("REBOOT MODE REG: 0x");
-	//serial_put_hex((unsigned long)AO_SEC_SD_CFG15, 32);
-	//serial_puts("\n");
-	uint32_t reboot_mode_val = ((readl(AO_SEC_SD_CFG15) >> 12) & 0xf);
+	uint32_t reboot_mode_val = ((readl(REG_MDUMP_REBOOT_MODE) >> 12) & 0xf);
 	return reboot_mode_val;
 }
 
@@ -463,7 +458,7 @@ int check_reboot_reason(unsigned long *mem_size)
 	/*
 	 * using sticky register to save memory config and boot status in kernel
 	 */
-	cfg = readl(PREG_STICKY_REG8);
+	cfg = readl(REG_MDUMP_CPUBOOT_STATUS);
 	serial_puts("CFG:0x");
 	serial_put_hex(cfg, 32);
 	serial_puts("\n");
@@ -514,8 +509,8 @@ void save_ramp_dump(unsigned long addr, long size)
 		serial_puts("\n==> RAM COMPRESS Failed, set 0.");
 	}
 
-	writel(addr_tmp, P_AO_SEC_GP_CFG12);
-	writel(size_tmp, P_AO_SEC_GP_CFG13);
+	writel(addr_tmp, REG_MDUMP_COMPRESS_BASE);
+	writel(size_tmp, REG_MDUMP_COMPRESS_SIZE);
 #ifdef CONFIG_ENABLE_DUMP
 	dump_info(addr_tmp, 0x80, "bl31 check COMPRESS DATA");
 #endif

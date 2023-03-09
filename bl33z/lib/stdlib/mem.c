@@ -33,7 +33,8 @@
  */
 
 #include <stddef.h> /* size_t */
-#include <platform_def.h>
+#include "platform_def.h"
+#include "regs.h"
 
 extern void flush_dcache_range(unsigned long, unsigned long);
 extern void inv_dcache_range(unsigned long, unsigned long);

@@ -171,13 +171,12 @@ endif
 .SUFFIXES:
 
 INCLUDES		+=	-Iinclude/bl33z			\
-				-Iplat/${PLAT}/include		\
 				-Iinclude/drivers			\
 				-Iinclude/lib				\
 				-Iinclude/lib/${ARCH}		\
 				-Iinclude/stdlib			\
-				-Iinclude/stdlib/sys
-
+				-Iinclude/stdlib/sys		\
+				-Iinclude/asm/arch-${PLAT}
 
 # Process DEBUG flag
 $(eval $(call assert_boolean,DEBUG))

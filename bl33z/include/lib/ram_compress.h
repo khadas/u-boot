@@ -25,7 +25,8 @@
 #define RETRY_STEP					(2 * 1024 * 1024)
 
 #include <stddef.h>
-#include <platform_def.h>
+#include "platform_def.h"
+#include "regs.h"
 
 /********************************************************************************
  * For reboot mode

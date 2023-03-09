@@ -25,6 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "platform_def.h"
+#include "regs.h"
 
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
@@ -44,7 +45,7 @@
 #define UART_IRQCTL     (4 << 2)
 #define UART_CTRL       (5 << 2)
 
-#define UART_PORT_CONS  AO_UART_WFIFO
+#define UART_PORT_CONS  REG_MDUMP_UART_WFIFO
 
 #define P_UART(uart_base, reg)    	    (uart_base + reg)
 #define P_UART_WFIFO(uart_base)         P_UART(uart_base, UART_WFIFO)

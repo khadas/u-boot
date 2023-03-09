@@ -40,6 +40,7 @@
 #include <cache_v8.h>
 #include "ram_compress.h"
 #include "platform_def.h"
+#include "regs.h"
 
 struct ram_compress_full ram_compress_data = {
 	.store_phy_addr = (void *)CONFIG_COMPRESSED_DATA_ADDR,

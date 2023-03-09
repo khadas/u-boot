@@ -31,7 +31,8 @@
 #include <serial.h>
 #include <io.h>
 #include <stdint.h>
-#include <platform_def.h>
+#include "platform_def.h"
+#include "regs.h"
 
 static int g_serial_disable;
 
@@ -75,7 +76,7 @@ void serial_init(unsigned set)
 		 *	- XTAL clock sel = XTAL / 2
 		 *	- 104 = (24,000,000 / 2) / 115200 (Error = +0.16%)
 		 */
-		writel(readl(P_AO_TIMEBASE_CNTL1) | BIT(0), P_AO_TIMEBASE_CNTL1);
+		writel(readl(REG_MDUMP_TIMEBASE_CNTL) | BIT(0), REG_MDUMP_TIMEBASE_CNTL);
 		writel(104 | UART_CTRL_USE_XTAL_CLK | UART_CTRL_USE_NEW_BAUD_RATE
 				| UART_CTRL_XTAL_CLK_DIV2
 			, P_UART_CTRL(UART_PORT_CONS));
@@ -87,7 +88,7 @@ void serial_init(unsigned set)
 		 *	- XTAL clock sel = XTAL (1)
 		 *	- 13 = 12,000,000 / 921600 (Error = +0.16%)
 		 */
-		writel(readl(P_AO_TIMEBASE_CNTL1) | BIT(0), P_AO_TIMEBASE_CNTL1);
+		writel(readl(REG_MDUMP_TIMEBASE_CNTL) | BIT(0), REG_MDUMP_TIMEBASE_CNTL);
 		writel(13 | UART_CTRL_USE_XTAL_CLK | UART_CTRL_USE_NEW_BAUD_RATE
 				| UART_CTRL_XTAL_CLK_DIV2
 			, P_UART_CTRL(UART_PORT_CONS));
@@ -96,7 +97,7 @@ void serial_init(unsigned set)
 	/*
 	 *	Enable pinmux
 	 */
-	setbits_le32(P_AO_RTI_PINMUX_REG0, 0x11);
+	setbits_le32(REG_MDUMP_SERIAL_PINMUX, 0x11);
 
 	/*
 	 *	Release UART reset signals, enable UART

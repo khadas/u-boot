@@ -8,23 +8,38 @@
 
 #ifndef __AML_REG_H__
 #define __AML_REG_H__
-
-#define ISA_TIMERE                                 ((0x3c62  << 2) + 0xffd00000)
-#define WATCHDOG_CNTL                              ((0x3c34  << 2) + 0xffd00000)
-#define WATCHDOG_TCNT                              ((0x3c36  << 2) + 0xffd00000)
-#define WATCHDOG_RST                               ((0x3c37  << 2) + 0xffd00000)
+/*
+ * all ramdump used regs
+ */
+/*
+ * REG_MDUMP_ISA_TIMERE    use ISA_TIMERE    (SYSCTRL_TIMERE)
+ * REG_MDUMP_WATCHDOG_CNTL use WATCHDOG_CNTL (RESETCTRL_WATCHDOG_CTRL0)
+ * REG_MDUMP_WATCHDOG_TCNT use WATCHDOG_TCNT (RESETCTRL_WATCHDOG_CNT)
+ * REG_MDUMP_WATCHDOG_RST  use WATCHDOG_RST  (RESETCTRL_WATCHDOG_CLR)
+ */
+#define REG_MDUMP_ISA_TIMERE        (volatile uint32_t *)((0x3c62  << 2) + 0xffd00000)
+#define REG_MDUMP_WATCHDOG_CNTL     (volatile uint32_t *)((0x3c34  << 2) + 0xffd00000)
+#define REG_MDUMP_WATCHDOG_TCNT     (volatile uint32_t *)((0x3c36  << 2) + 0xffd00000)
+#define REG_MDUMP_WATCHDOG_RST      (volatile uint32_t *)((0x3c37  << 2) + 0xffd00000)
 
 /*
- * REG_MDUMP_REBOOT_MODE use SYSCTRL_SEC_STATUS_REG2
+ * REG_MDUMP_CPUBOOT_STATUS  use SYSCTRL_STICKY_REG6
+ * REG_MDUMP_COMPRESS_BASE   use SYSCTRL_DEBUG_REG6 (P_AO_SEC_GP_CFG12)
+ * REG_MDUMP_COMPRESS_SIZE   use SYSCTRL_DEBUG_REG7 (P_AO_SEC_GP_CFG13)
+ * REG_MDUMP_REBOOT_MODE     use AO_SEC_SD_CFG15
  */
-#define REG_MDUMP_REBOOT_MODE               (0xff800000 + (0x8f << 2)) /* reboot mode */
+#define REG_MDUMP_CPUBOOT_STATUS    (0xff634400 + (0x76 << 2)) /* boot status */
+#define REG_MDUMP_COMPRESS_BASE     (0xff800000 + (0x2a << 2)) /* ram compress size */
+#define REG_MDUMP_COMPRESS_SIZE     (0xff800000 + (0x2b << 2)) /* ram compress start addrs */
+#define REG_MDUMP_REBOOT_MODE       (0xff800000 + (0x8f << 2)) /* reboot mode */
 
-/* REG_MDUMP_CPUBOOT_STATUS use SYSCTRL_STICKY_REG6
- * REG_MDUMP_COMPRESS_BASE use SYSCTRL_DEBUG_REG6
- * REG_MDUMP_COMPRESS_SIZE use SYSCTRL_DEBUG_REG7
+/*
+ * REG_MDUMP_SERIAL_PINMUX   use P_AO_RTI_PINMUX_REG0 (PADCTRL_PIN_MUX_REG0)
+ * REG_MDUMP_TIMEBASE_CNTL   use P_AO_TIMEBASE_CNTL1 (CLKTREE_TIMEBASE_CTRL1)
+ * REG_MDUMP_UART_WFIFO      use AO_UART_WFIFO (UART_B_WFIFO)
  */
-#define REG_MDUMP_CPUBOOT_STATUS            (0xff634400 + (0x076 << 2)) /* boot status*/
-#define REG_MDUMP_COMPRESS_BASE             (0xff800000 + (0x2a << 2)) /* ram compress size */
-#define REG_MDUMP_COMPRESS_SIZE             (0xff800000 + (0x2b << 2)) /* mdump start addrs */
+#define REG_MDUMP_SERIAL_PINMUX     (0xff800000 + (0x05 << 2))
+#define REG_MDUMP_TIMEBASE_CNTL     (0xff800000 + (0x15 << 2))
+#define REG_MDUMP_UART_WFIFO        ((0x8c00  << 2) + 0xffd00000)
 
 #endif

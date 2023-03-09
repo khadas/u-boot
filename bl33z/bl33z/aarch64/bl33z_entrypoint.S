@@ -29,7 +29,8 @@
  */
 
 #include <arch.h>
-#include <platform_def.h>
+#include "platform_def.h"
+#include "regs.h"
 
 	.globl	bl33z_entrypoint
 	.globl	bl33z_entry
