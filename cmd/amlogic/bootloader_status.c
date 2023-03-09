@@ -125,7 +125,15 @@ static int do_get_bootloader_status(cmd_tbl_t *cmdtp, int flag, int argc, char *
 			" forUpgrade_robustOta forUpgrade_flashType forUpgrade_bootloaderCopies "
 			" forUpgrade_bootloaderIndex forUpgrade_1stBootIndex", 0);
 
-	if (saveenv) run_command("saveenv", 0);
+	if (saveenv) {
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p forUpgrade_robustOta forUpgrade_bootloaderIndex", 0
+			);
+#else
+		run_command("saveenv", 0);
+#endif
+	}
+
 
 	return CMD_RET_SUCCESS;
 }
