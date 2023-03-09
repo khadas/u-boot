@@ -383,7 +383,7 @@ void set_hpll_clk_out(unsigned int clk)
 		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
 		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
 		break;
-	case 489600:
+	case 445800:
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004A3);//1024x600
 		if (frac_rate)
 			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x0001ffff);
@@ -846,7 +846,7 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 		1, VIU_ENCP, 4838400, 4, 4, 1, VID_PLL_DIV_5, 2, 1, 1, -1},
 	{{HDMIV_1024x600p60hz,
 	  GROUP_END},
-		1, VIU_ENCP, 489600, 4, 2, 1, VID_PLL_DIV_5, 1, 2, 2, -1},
+		1, VIU_ENCP, 445800, 4, 2, 1, VID_PLL_DIV_5, 1, 2, 2, -1},
 	{{HDMIV_1024x768p60hz,
 	  GROUP_END},
 		1, VIU_ENCP, 6500000, 4, 2, 1, VID_PLL_DIV_5, 2, 1, 1, -1},
