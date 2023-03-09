@@ -603,6 +603,12 @@ static void get_highest_hdmimode(struct input_hdmi_data *hdmi_data, char *mode)
 		}
 	}
 
+    if (hdmi_data->prxcap->preferred_mode == HDMIV_800x480p60hz)
+		strcpy(value, "800x480p60hz");
+
+    if (hdmi_data->prxcap->preferred_mode == HDMIV_1024x600p60hz)
+		strcpy(value, "1024x600p60hz");
+
 	strcpy(mode, value);
 	printf("set HDMI to highest edid mode: %s\n", mode);
 }
