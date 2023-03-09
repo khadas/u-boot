@@ -134,6 +134,7 @@ then
     BUILD_RESULT=0
     while [ "${BUILD_COUNTER}" -gt "0" ]; do
       BUILD_COUNTER=$((BUILD_COUNTER - 1))
+      set -e
       make distclean
       make $cfg'_defconfig'
       make -j
@@ -180,6 +181,7 @@ then
     then
       for tmp in `seq $BAR_LOOP`;do RESULT=$RESULT'-';done
     fi
+    set -e
     make distclean
     make $cfg'_defconfig'
     make -j
