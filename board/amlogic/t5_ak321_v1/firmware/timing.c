@@ -7,6 +7,8 @@
 #include <asm/arch/timing.h>
 #include <asm/arch/ddr_define.h>
 
+#define NO_USE_DDR_BL33_CODE 0
+
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 {
 		.cfg_board_common_setting.timming_magic 				= 0,
@@ -16,6 +18,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		.cfg_board_common_setting.timming_struct_real_size			= 0,									   //0
 		.cfg_board_common_setting.fast_boot 				= { 0},
 		.cfg_board_common_setting.fast_boot[0]				= 0x1,
+		.cfg_board_common_setting.fast_boot[2]				= (3 << 4),
 		.cfg_board_common_setting.fast_boot[3]				= 0xC6,
 		.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID,
 		.cfg_board_common_setting.board_id					= CONFIG_BOARD_ID_MASK,
@@ -89,15 +92,15 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		.cfg_board_SI_setting_ps[0].PllBypassEn = 0,
 		.cfg_board_SI_setting_ps[0].training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps[0].ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
-		.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_60_OHM,
+		.cfg_board_SI_setting_ps[0].clk_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
 		.cfg_board_SI_setting_ps[0].cs_drv_ohm = DDR_SOC_AC_DRV_60_OHM,
-		.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_60_OHM,
+		.cfg_board_SI_setting_ps[0].ac_drv_ohm = DDR_SOC_AC_DRV_80_OHM,
 		.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_p = DDR_SOC_DATA_DRV_ODT_48_OHM,
 		.cfg_board_SI_setting_ps[0].soc_data_drv_ohm_n = DDR_SOC_DATA_DRV_ODT_48_OHM,
 		.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_p = DDR_SOC_DATA_DRV_ODT_60_OHM,
 		.cfg_board_SI_setting_ps[0].soc_data_odt_ohm_n = DDR_SOC_DATA_DRV_ODT_0_OHM,
 		.cfg_board_SI_setting_ps[0].dram_data_drv_ohm = DDR_DRAM_DDR4_DRV_48_OHM,
-		.cfg_board_SI_setting_ps[0].dram_data_odt_ohm = DDR_DRAM_DDR4_ODT_60_OHM,
+		.cfg_board_SI_setting_ps[0].dram_data_odt_ohm = DDR_DRAM_DDR4_ODT_80_OHM,
 		.cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm = DDR_DRAM_DDR_WR_ODT_0_OHM,
 		.cfg_board_SI_setting_ps[0].dram_ac_odt_ohm = DDR_DRAM_DDR_AC_ODT_0_OHM,
 		.cfg_board_SI_setting_ps[0].dram_data_drv_pull_up_calibration_ohm = DDR_DRAM_LPDDR4_ODT_40_OHM,
@@ -159,22 +162,22 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		.cfg_board_SI_setting_ps[0].ac_trace_delay_org[33] = 0x00000000,// 0
 		.cfg_board_SI_setting_ps[0].ac_trace_delay_org[34] = 0x00000000,// 0
 		.cfg_board_SI_setting_ps[0].ac_trace_delay_org[35] = 0x00000000,// 0
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[0] = 0x00000040 + 100,// 64
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[1] = 0x00000040,// 64
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[2] = 0x000000,// 70
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[0] = 0x0000000,// 64
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[1] = 0x0000000,// 64
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[2] = 0x000000 + 30,// 70
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[3] = 0x00000040,// 64
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[4] = 0x00000040 + 100,// 64
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[4] = 0x0000000,// 64
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[5] = 0x00000040,// 64
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[6] = 0x00000080,// 128
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[6] = 0x00000080 + 0x30,// 128
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[7] = 0x000000c0,// 192
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[8] = 0x000000dc + 50,// 220
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[9] = 0x00000140 + 50,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[10] = 0x00000140,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[11] = 0x00000140,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[12] = 0x0000010e,// 270
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[13] = 0x00000172,// 370
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[13] = 0x00000172 - 50,// 370
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[14] = 0x00000118,// 280
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[15] = 0x00000140 + 50,// 320
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[15] = 0x00000140 + 0,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[16] = 0x000000dc + 50,// 220
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[17] = 0x00000100 + 50,// 256
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[18] = 0x00000140,// 320
@@ -190,7 +193,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[28] = 0x000000c0 + 50,// 192
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[29] = 0x00000140,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[30] = 0x00000140,// 320
-		.cfg_ddr_training_delay_ps[0].ac_trace_delay[31] = 0x00000140,// 320
+		.cfg_ddr_training_delay_ps[0].ac_trace_delay[31] = 0x00000140 - 50,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[32] = 0x00000140,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[33] = 0x00000140,// 320
 		.cfg_ddr_training_delay_ps[0].ac_trace_delay[34] = 0x00000180,// 384
@@ -417,7 +420,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 		.cfg_ddr_training_delay_ps[0].soc_bit_vref[41] = 0x00000032,// 50
 		.cfg_ddr_training_delay_ps[0].soc_bit_vref[42] = 0x00000029,// 41
 		.cfg_ddr_training_delay_ps[0].soc_bit_vref[43] = 0x0000002f,// 47
-		.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x0000001f,// 0
+		.cfg_ddr_training_delay_ps[0].dram_bit_vref[0] = 0x00000016,// 0
 		.cfg_ddr_training_delay_ps[0].dram_bit_vref[1] = 0x00000000,// 0
 		.cfg_ddr_training_delay_ps[0].dram_bit_vref[2] = 0x00000000,// 0
 		.cfg_ddr_training_delay_ps[0].dram_bit_vref[3] = 0x00000000,// 0
@@ -675,6 +678,165 @@ ddr_reg_t __ddr_reg[] = {
 	DDR_DRAM_DDR4_ODT_40_OHM),
 	DDR_TIMMING_TUNE(T963_H9_NTC_EID, cfg_board_SI_setting_ps[0].dram_data_wr_odt_ohm,
 	DDR_DRAM_DDR4_WR_ODT_240_OHM),
+
+	//cfg_board_common_setting.ddr_func = DDR_FUNC,
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].DRAMFreq, 1176),
+	//.cfg_board_common_setting.fast_boot[2]				= (3<<4),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_common_setting.fast_boot[2], 0),
+#if NO_USE_DDR_BL33_CODE
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[0] = (915 - 240) / 15,       // 43 (915-240)/15
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[1] = (915 - 240) / 15,       // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[2] = (915 - 240) / 15,       // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[3] = (915 - 240) / 15,       // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[4] = (915 - 240) / 15,       // 44
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[5] = (915 - 240) / 15,       // 41
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[6] = (915 - 240) / 15,       // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[7] = (915 - 240) / 15,       // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[8] = (915 - 240) / 15,       // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[9] = (915 - 240) / 15,       // 41
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[10] = (915 - 240) / 15,      // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[11] = (915 - 240) / 15,      // 40
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[12] = (915 - 240) / 15,      // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[13] = (915 - 240) / 15,      // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[14] = (915 - 240) / 15,      // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[15] = (915 - 240) / 15,      // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[16] = (915 - 240) / 15,      // 41
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[17] = (915 - 240) / 15,      // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[18] = (915 - 240) / 15,      // 44
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[19] = (915 - 240) / 15,      // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[20] = (915 - 240) / 15,      // 44
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[21] = (915 - 240) / 15,      // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[22] = (915 - 240) / 15,      // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[23] = (915 - 240) / 15,      // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[24] = (915 - 240) / 15,      // 44
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[25] = (915 - 240) / 15,      // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[26] = (915 - 240) / 15,      // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[27] = (915 - 240) / 15,      // 44
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[28] = (915 - 240) / 15,      // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[29] = (915 - 240) / 15,      // 42
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[30] = (915 - 240) / 15,      // 41
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[31] = (915 - 240) / 15,      // 43
+#endif
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[0], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[1], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[2], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[3], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[4], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[5], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[6], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[7], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[8], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[9], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[10], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[11], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[12], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[13], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[14], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[15], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[16], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[17], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[18], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[19], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[20], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[21], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[22], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[23], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[24], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[25], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[26], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[27], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[28], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[29], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[30], 45),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[31], 45),
+
+#if NO_USE_DDR_BL33_CODE
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[32] = 0x0000002b,            // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[33] = 0x0000002b,            // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[34] = 0x0000002b,            // 43
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[35] = 0x00000026,            // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[36] = 0x00000026,            // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[37] = 0x00000035,            // 53
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[38] = 0x00000026,            // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[39] = 0x00000033,            // 51
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[40] = 0x00000026,            // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[41] = 0x00000036,            // 54
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[42] = 0x00000026,            // 38
+	.cfg_ddr_training_delay_ps[0].soc_bit_vref[43] = 0x00000036,            // 54
+#endif
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[32], 0x2b),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[33], 0x2b),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[34], 0x2b),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[35], 0x26),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[36], 0x26),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[37], 0x35),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[38], 0x26),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[39], 0x33),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[40], 0x26),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[41], 0x36),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[42], 0x26),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_ddr_training_delay_ps[0].soc_bit_vref[43], 0x36),
+
+#if NO_USE_DDR_BL33_CODE
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[0] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[1] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[2] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[3] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[4] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[5] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[6] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[7] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[8] = 0x00000180,// 384
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[9] = 0x00000180,// 384
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[10] = 0x00000100,// 256
+#endif
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[0], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[1], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[2], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[3], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[4], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[5], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[6], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[7], 0x80),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[8], 0x180),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[9], 0x180),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[10], 0x100),
+
+	//cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID,
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_common_setting.ddr_func, DDR_FUNC),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[14], (1 << 7) + 15),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[15], (1 << 7) + 10),
+
+	//sip 1.5GB
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_common_setting.fast_boot[2], 0),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_common_setting.ddr_func, DDR_FUNC),
+#if NO_USE_DDR_BL33_CODE
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[0] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[1] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[2] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[3] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[4] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[5] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[6] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[7] = 0x00000080,// 128
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[8] = 0x00000180,// 384
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[9] = 0x00000180,// 384
+	.cfg_board_SI_setting_ps[0].ac_trace_delay_org[10] = 0x00000100,// 256
+#endif
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[0], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[1], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[2], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[3], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[4], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[5], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[6], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[7], 0x80),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[8], 0x180),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_SI_setting_ps[0].ac_trace_delay_org[9], 0x180),
+	DDR_TIMMING_TUNE(T963_H35_SUM_EID,
+		cfg_board_SI_setting_ps[0].ac_trace_delay_org[10], 0x100),
 
 	//ak321,use ADC_CH1,DDR_ID=0;
 	DDR_TIMMING_TUNE(DDR_ADC_CH1 + DDR_ADC_VALUE0,
