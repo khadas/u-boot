@@ -1057,6 +1057,9 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		} else {
 			bootm_argv[3] = NULL;
 		}
+		if (!strcmp(env_get("lcd_panel"), "tsxx")) {
+			run_command("fdt set /dsi@fde20000 status disable", 0);
+		}
 		if (fdtfilefree)
 		    free(fdtfilefree);
 	}
