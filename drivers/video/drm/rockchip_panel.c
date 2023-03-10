@@ -6,6 +6,7 @@
 
 #include <drm/drm_mipi_dsi.h>
 
+#include <i2c.h>
 #include <config.h>
 #include <common.h>
 #include <errno.h>
@@ -24,6 +25,8 @@
 #include "rockchip_crtc.h"
 #include "rockchip_connector.h"
 #include "rockchip_panel.h"
+
+#define TP_I2C_BUS_NUM 6
 
 struct rockchip_cmd_header {
 	u8 data_type;
@@ -396,9 +399,13 @@ static const struct rockchip_panel_funcs rockchip_panel_funcs = {
 static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(dev);
-	const void *data;
+	const void *data = NULL;
 	int len = 0;
-	int ret;
+	int ret = 0;
+	int res = 0;
+	struct udevice *bus;
+	struct udevice *dv;
+	uchar linebuf[1];
 
 	plat->power_invert = dev_read_bool(dev, "power-invert");
 
@@ -413,7 +420,38 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 						MEDIA_BUS_FMT_RBG888_1X24);
 	plat->bpc = dev_read_u32_default(dev, "bpc", 8);
 
-	data = dev_read_prop(dev, "panel-init-sequence", &len);
+	uclass_get_device_by_seq(UCLASS_I2C, TP_I2C_BUS_NUM, &bus);
+	ret = i2c_get_chip(bus, 0x38, 1, &dv);
+	if (!ret) {
+		res = dm_i2c_read(dv, 0xA8, linebuf, 1);
+		if (!res) {
+			printf("TP05 id=0x%x\n", linebuf[0]);
+			if (linebuf[0] == 0x51){//old ts050
+				data = dev_read_prop(dev, "panel-init-sequence", &len);
+				env_set("lcd_panel","ts050");
+			} else if (linebuf[0] == 0x79) {//new ts050
+				data = dev_read_prop(dev, "panel-init-sequence2", &len);
+				env_set("lcd_panel","newts050");
+			}
+		}
+	}
+	if(ret || res) {
+		ret = i2c_get_chip(bus, 0x14, 1, &dv);
+		if (!ret) {
+			res = dm_i2c_read(dv, 0x9e, linebuf, 1);
+			if (!res){
+				printf("TP10 id=0x%x\n", linebuf[0]);
+				if (linebuf[0] == 0x00) {//TS101
+					data = dev_read_prop(dev, "panel-init-sequence", &len);
+					env_set("lcd_panel","ts101");
+				}
+			} else {
+				data = dev_read_prop(dev, "panel-init-sequence", &len);
+				env_set("lcd_panel","tsxx");
+			}
+		}
+	}
+
 	if (data) {
 		plat->on_cmds = calloc(1, sizeof(*plat->on_cmds));
 		if (!plat->on_cmds)
