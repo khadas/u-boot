@@ -421,7 +421,7 @@ static const struct rockchip_panel_funcs rockchip_panel_funcs = {
 static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(dev);
-	const void *data;
+	const void *data = NULL;
 	int len = 0;
 	int ret;
 
@@ -438,7 +438,12 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 						MEDIA_BUS_FMT_RBG888_1X24);
 	plat->bpc = dev_read_u32_default(dev, "bpc", 8);
 
-	data = dev_read_prop(dev, "panel-init-sequence", &len);
+	if (!strcmp(env_get("lcd_panel"), "newts050")){
+		data = dev_read_prop(dev, "panel-init-sequence2", &len);
+	} else {
+		data = dev_read_prop(dev, "panel-init-sequence", &len);
+	}
+
 	if (data) {
 		plat->on_cmds = calloc(1, sizeof(*plat->on_cmds));
 		if (!plat->on_cmds)
@@ -557,7 +562,7 @@ static int rockchip_panel_probe(struct udevice *dev)
 			dm_gpio_set_value(&priv->spi_sdi_gpio, 1);
 			dm_gpio_set_value(&priv->spi_scl_gpio, 1);
 			dm_gpio_set_value(&priv->spi_cs_gpio, 1);
-			dm_gpio_set_value(&priv->reset_gpio, 0);
+		//	dm_gpio_set_value(&priv->reset_gpio, 0);
 		}
 		ret = gpio_request_by_name(dev, "spi-scl-gpios", 0,
 					   &priv->spi_scl_gpio, GPIOD_IS_OUT);
