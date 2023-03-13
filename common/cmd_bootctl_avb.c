@@ -728,6 +728,7 @@ static int do_SetUpdateTries
 	AvbABData info;
 	int slot;
 	bool bootable_a, bootable_b;
+	int update_flag = 0;
 
 	if (has_boot_slot == 0) {
 		printf("device is not ab mode\n");
@@ -752,19 +753,24 @@ static int do_SetUpdateTries
 
 	if (slot == 0) {
 		if (bootable_a) {
-			if (info.slots[0].successful_boot == 0)
+			if (info.slots[0].successful_boot == 0) {
 				info.slots[0].tries_remaining -= 1;
+				update_flag = 1;
+			}
 		}
 	}
 
 	if (slot == 1) {
 		if (bootable_b) {
-			if (info.slots[1].successful_boot == 0)
+			if (info.slots[1].successful_boot == 0) {
 				info.slots[1].tries_remaining -= 1;
+				update_flag = 1;
+			}
 		}
 	}
 
-	boot_info_save(&info, miscbuf);
+	if (update_flag == 1)
+		boot_info_save(&info, miscbuf);
 
 	printf("%s info.roll_flag = %d\n",  __func__, info.roll_flag);
 	if (info.roll_flag == 1)

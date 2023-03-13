@@ -402,7 +402,6 @@
 		"fi;\0" \
 
 #define CONFIG_PREBOOT  \
-	"run bcb_cmd; "\
 	"run factory_reset_poweroff_protect;"\
 	"run upgrade_check;"\
 	/* "run init_display;"\ */\
