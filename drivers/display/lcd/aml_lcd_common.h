@@ -57,7 +57,8 @@
 /* 20230104: update lcd_ctrl and lcd_debug bootargs parameters*/
 /* 20230222: update tcon tee memory debug info*/
 /* 20230303: fix hdmi mode 47hz & 95hz timing*/
-#define LCD_DRV_VERSION    "20230303"
+/* 20230313: update tcon debug info print*/
+#define LCD_DRV_VERSION    "20230313"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
