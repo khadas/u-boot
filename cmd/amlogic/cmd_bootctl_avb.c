@@ -7,6 +7,9 @@
 #include <command.h>
 #include <environment.h>
 #include <malloc.h>
+#ifdef CONFIG_AML_MTD
+#include <linux/mtd/mtd.h>
+#endif
 #include <asm/byteorder.h>
 #include <config.h>
 #include <asm/arch/io.h>
@@ -20,6 +23,8 @@
 #endif
 #include "cmd_bootctl_utils.h"
 #include <amlogic/store_wrapper.h>
+
+extern int nand_store_write(const char *name, loff_t off, size_t size, void *buf);
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -380,15 +385,38 @@ static bool boot_info_save(AvbABData *info, char *miscbuf)
 
 	memcpy(miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, info, AVB_AB_DATA_SIZE);
 	dump_boot_info(info);
-	ret = store_erase((const char *)partition, 0, MISCBUF_SIZE, 0);
-	if (ret) {
-		printf("store erase failed at %s\n", partition);
-		return false;
+
+#ifdef CONFIG_AML_MTD
+	enum boot_type_e device_boot_flag = store_get_type();
+
+	if (device_boot_flag == BOOT_NAND_NFTL || device_boot_flag == BOOT_NAND_MTD ||
+			device_boot_flag == BOOT_SNAND) {
+		int ret = 0;
+
+		ret = run_command("store erase misc 0 0x4000", 0);
+		if (ret != 0) {
+			printf("erase partition misc failed!\n");
+			return false;
+		}
 	}
-	ret = store_logic_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
-	if (ret) {
-		printf("store logic write failed at %s\n", partition);
-		return false;
+#endif
+
+	if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+		ret = nand_store_write((const char *)partition, 0, MISCBUF_SIZE,
+					(unsigned char *)miscbuf);
+		if (ret != 0) {
+			printf("nand_store_write partition misc failed!\n");
+			return false;
+		}
+#endif
+	} else {
+		ret = store_logic_write((const char *)partition, 0, MISCBUF_SIZE,
+				(unsigned char *)miscbuf);
+		if (ret) {
+			printf("store logic write failed at %s\n", partition);
+			return false;
+		}
 	}
 	return true;
 }
@@ -633,6 +661,7 @@ static int do_SetUpdateTries
 	AvbABData info;
 	int slot;
 	bool bootable_a, bootable_b;
+	int update_flag = 0;
 
 	if (has_boot_slot == 0) {
 		printf("device is not ab mode\n");
@@ -654,19 +683,24 @@ static int do_SetUpdateTries
 
 	if (slot == 0) {
 		if (bootable_a) {
-			if (info.slots[0].successful_boot == 0)
+			if (info.slots[0].successful_boot == 0) {
 				info.slots[0].tries_remaining -= 1;
+				update_flag = 1;
+			}
 		}
 	}
 
 	if (slot == 1) {
 		if (bootable_b) {
-			if (info.slots[1].successful_boot == 0)
+			if (info.slots[1].successful_boot == 0) {
 				info.slots[1].tries_remaining -= 1;
+				update_flag = 1;
+			}
 		}
 	}
 
-	boot_info_save(&info, miscbuf);
+	if (update_flag == 1)
+		boot_info_save(&info, miscbuf);
 
 	printf("%s info.roll_flag = %d\n",  __func__, info.roll_flag);
 	if (info.roll_flag == 1)

@@ -318,7 +318,6 @@
 
 #ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_PREBOOT  \
-		"run bcb_cmd; "\
 		"run upgrade_check;"\
 		"run init_display;"\
 		"run storeargs;"\

@@ -527,7 +527,6 @@ int board_late_init(void)
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	if (env_get("outputmode")) {
 		strncpy(outputModePre, env_get("outputmode"), 29);
-		run_command("run bcb_cmd", 0);
 	}
 	run_command("run bcb_cmd", 0);
 		/*add board late init function here*/
