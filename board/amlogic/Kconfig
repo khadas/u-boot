@@ -306,7 +306,7 @@ config A1_T404_NOR_RTOS
 	select SYSTEM_RTOS
 	help
 	  Select A1 AD402 NOR RTOS board config
-	  
+
 config A1_T404_NAND_RTOS
 	bool "A1_T404_NAND_RTOS"
 	select TARGET_A1_T404
@@ -1088,6 +1088,14 @@ config T7_AN400_LPDDR4X
 	help
 	  Select T7 AN400 LPDDR4X config
 
+config T7_AN400_LPDDR4X_DEBIAN
+	bool "T7_AN400_LPDDR4X_DEBIAN"
+	select TARGET_T7_AN400_LPDDR4X_DEBIAN
+	help
+	  Select T7 AN400 LPDDR4X DEBIAN config
+	  it's based in T7 AN400 LPDDR4X
+	  and add debian configs
+
 config T7_AN400_MERCURY
 	bool "T7_AN400_MERCURY"
 	select TARGET_T7_AN400_MERCURY
@@ -1138,6 +1146,10 @@ config TARGET_T7_AN409_DDR4
 config TARGET_T7_AN400_LPDDR4X
 	bool "T7 AN400 lpddr4x board"
 	depends on T7_AN400_LPDDR4X
+
+config TARGET_T7_AN400_LPDDR4X_DEBIAN
+	bool "T7 AN400 lpddr4x debian board"
+	depends on T7_AN400_LPDDR4X_DEBIAN
 
 config TARGET_T7_AN400_MERCURY
         bool "T7 AN400 mercury board"
@@ -1523,6 +1535,8 @@ source "board/amlogic/t7_an408_lpddr4x/Kconfig"
 source "board/amlogic/t7_an409_ddr4/Kconfig"
 
 source "board/amlogic/t7_an400_lpddr4x/Kconfig"
+
+source "board/amlogic/t7_an400_lpddr4x_debian/Kconfig"
 
 source "board/amlogic/t7_an400_mercury/Kconfig"
 

@@ -17,6 +17,7 @@
 
 #include "menu.h"
 #include "cli.h"
+#include <environment.h>
 
 #define MAX_TFTP_PATH_LEN 127
 
@@ -391,8 +392,8 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * for.
 	 */
 	if (pxe_uuid_path(cmdtp, pxefile_addr_r) > 0 ||
-	    pxe_mac_path(cmdtp, pxefile_addr_r) > 0 ||
-	    pxe_ipaddr_paths(cmdtp, pxefile_addr_r) > 0) {
+		pxe_mac_path(cmdtp, pxefile_addr_r) > 0 ||
+		pxe_ipaddr_paths(cmdtp, pxefile_addr_r) > 0) {
 		printf("Config file found\n");
 
 		return 0;
@@ -601,6 +602,62 @@ static int label_localboot(struct pxe_label *label)
 	return run_command_list(localcmd, strlen(localcmd), 0);
 }
 
+static void env_helper(cmd_tbl_t *cmdtp, struct pxe_label *label)
+{
+	char *buf;
+	char *env_file = "uEnv.txt";
+	char *env_addr = env_get("scriptaddr");
+	char *bootfile = env_get("bootfile");
+	char *syslinux = env_get("boot_syslinux_conf");
+	char *pref = NULL;
+	char path[MAX_TFTP_PATH_LEN + 1];
+	unsigned long addr, file_size = 0;
+	int len = 0;
+
+	if (!env_addr)
+		return;
+	if (strict_strtoul(env_addr, 16, &addr) < 0)
+		return;
+
+	memset(path, 0, sizeof(path));
+
+	/*
+	 * resolv right path for both syslinux and pxe variants
+	 */
+	if (bootfile) {
+		len = min(sizeof(path), strlen(bootfile));
+		strncpy(path, bootfile, len);
+	}
+
+	if (syslinux)
+		pref = strstr(path, syslinux);
+
+	if (syslinux && pref)
+		*pref = '\0';
+	else
+		path[0] = '\0';
+
+	if (strlen(path) + strlen(env_file) > MAX_TFTP_PATH_LEN) {
+		printf("path (%s%s) too long, skipping\n", path, env_file);
+		return;
+	}
+
+	strcat(path, env_file);
+
+	if (get_relfile(cmdtp, path, addr) < 0)
+		return;
+	if (from_env("filesize") == NULL)
+		return;
+	if (strict_strtoul(from_env("filesize"), 16, &file_size))
+		return;
+	if (file_size < 1)
+		return;
+
+	printf("Import user vars: %s %ld bytes\n", path, file_size);
+	buf = map_sysmem(addr, 0);
+	himport_r(&env_htab, buf, file_size, '\n', H_NOCLEAR, 0, 0, NULL);
+}
+
 /*
  * Boot according to the contents of a pxe_label.
  *
@@ -678,30 +735,6 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			mac_str[0] = '\0';
 	}
 #endif
-
-	if ((label->ipappend & 0x3) || label->append) {
-		char bootargs[CONFIG_SYS_CBSIZE] = "";
-		char finalbootargs[CONFIG_SYS_CBSIZE];
-
-		if (strlen(label->append ?: "") +
-		    strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
-			printf("bootarg overflow %zd+%zd+%zd+1 > %zd\n",
-			       strlen(label->append ?: ""),
-			       strlen(ip_str), strlen(mac_str),
-			       sizeof(bootargs));
-			return 1;
-		} else {
-			if (label->append)
-				strncpy(bootargs, label->append,
-					sizeof(bootargs));
-			strcat(bootargs, ip_str);
-			strcat(bootargs, mac_str);
-
-			cli_simple_process_macros(bootargs, finalbootargs);
-			env_set("bootargs", finalbootargs);
-			printf("append: %s\n", finalbootargs);
-		}
-	}
 
 	bootm_argv[1] = env_get("kernel_addr_r");
 	/* for FIT, append the configuration identifier */
@@ -807,6 +840,32 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 
 	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
 	buf = map_sysmem(kernel_addr, 0);
+
+	env_helper(cmdtp, label);
+
+	if ((label->ipappend & 0x3) || label->append) {
+		char bootargs[CONFIG_SYS_CBSIZE] = "";
+		char finalbootargs[CONFIG_SYS_CBSIZE];
+
+		if (strlen(label->append ?: "") +
+			strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
+			printf("bootarg overflow %zd+%zd+%zd+1 > %zd\n",
+				   strlen(label->append ?: ""),
+				   strlen(ip_str), strlen(mac_str),
+				   sizeof(bootargs));
+			return 1;
+		}
+
+		if (label->append)
+			strncpy(bootargs, label->append,
+		sizeof(bootargs));
+		strcat(bootargs, ip_str);
+		strcat(bootargs, mac_str);
+
+		cli_simple_process_macros(bootargs, finalbootargs);
+		env_set("bootargs", finalbootargs);
+		printf("append: %s\n", finalbootargs);
+	}
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
 		do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
@@ -1516,7 +1575,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 			return NULL;
 		}
 		if (cfg->default_label &&
-		    (strcmp(label->name, cfg->default_label) == 0))
+			(strcmp(label->name, cfg->default_label) == 0))
 			default_num = label->num;
 
 	}

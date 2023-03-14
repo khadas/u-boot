@@ -84,7 +84,7 @@ int v3tool_buffman_img_verify_sha1sum(unsigned char* vrySum)
         {
             case V3TOOL_PART_IMG_FMT_RAW:
                 {
-                    int thisVryLen = 0;
+					unsigned long thisVryLen = 0;
                     static unsigned long _lastReportTick = 0;
                     if (!vryLen) _lastReportTick = get_timer(0);
                     for (; vryLen < imgTotalLen; vryLen += thisVryLen)
