@@ -759,6 +759,7 @@ int board_late_init(void)
 						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 		/*add board late init function here*/
 		run_command("run bcb_cmd", 0);
+		run_command("kbi check_panel", 0);//kbi check_panel - check TS050 or TS101
 		run_command("kbi check_camera", 0);//kbi check_camera - check OS08A10 or IMX415
 #ifndef DTB_BIND_KERNEL
 		int ret;
