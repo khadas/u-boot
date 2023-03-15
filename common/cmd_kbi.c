@@ -15,10 +15,11 @@
 #include <asm/arch/secure_apb.h>
 #include <asm/u-boot.h>
 #include <asm/saradc.h>
-
+#include <asm/gpio.h>
 #include <asm/arch/bl31_apis.h>
 #include <asm/io.h>
 #include <asm/arch/mailbox.h>
+#include <khadas_tca6408.h>
 
 #define CHIP_ADDR              0x18
 #define CHIP_ADDR_CHAR         "0x18"
@@ -995,8 +996,9 @@ static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 	return ret;
 }
 
+#if  defined(CONFIG_KHADAS_VIM3) || defined(CONFIG_KHADAS_VIM3L)
 #define IMX415_CHIP_ADDR "0x0c"
-int khadas_camera_id = 1;//默认为 OS08A10
+int khadas_camera_id = 1;//default OS08A10
 static int camera_i2c_read(uint reg, const char *cp)
 {
     int ret;
@@ -1022,15 +1024,261 @@ static int do_check_camera(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 	if(khadas_camera_id == 0x00) {// IMX415 = 0x00
 		khadas_camera_id = 2;
 		setenv("khadas_camera_id", "2");
-		printf("khadas camera is IMX415\n");
 	} else {
 		khadas_camera_id = 1;
 		setenv("khadas_camera_id", "1");
-		printf("khadas camera is OS08A10\n");
 	}
-	printf("khadas_camera_id=%d   id=1---OS08A10   id=2---IMX415\n",khadas_camera_id);
+	printf("khadas_camera_id=%d   id=1---is OS08A10   id=2---is IMX415\n",khadas_camera_id);
 	return 0;
 }
+
+static bool get_sda_gpio_level(void)
+{
+	writel(readl(PREG_PAD_GPIO5_EN_N) | (1 << 14), PREG_PAD_GPIO5_EN_N);
+	if (((readl(PREG_PAD_GPIO5_I) & 0x4000) == 0x4000)) {
+		return 1;
+	}
+	return 0;
+}
+
+static void set_gpio_level(int pin, int high)
+{
+	//pin 0: sda 1: scl
+	if (pin == 1)//scl
+	{
+		if (high == 1)
+		{
+			writel(readl(PREG_PAD_GPIO5_O) | (1 << 15), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 15)), PREG_PAD_GPIO5_EN_N);
+		}
+		else
+		{
+			writel(readl(PREG_PAD_GPIO5_O) & (~(1 << 15)), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 15)), PREG_PAD_GPIO5_EN_N);
+		}
+		writel(readl(PERIPHS_PIN_MUX_E) & (~(0xf << 28)), PERIPHS_PIN_MUX_E);
+	}
+	else//sda
+	{
+		if (high == 1)
+		{
+			writel(readl(PREG_PAD_GPIO5_O) | (1 << 14), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 14)), PREG_PAD_GPIO5_EN_N);
+		}
+		else
+		{
+			writel(readl(PREG_PAD_GPIO5_O) & (~(1 << 14)), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 14)), PREG_PAD_GPIO5_EN_N);
+		}
+		writel(readl(PERIPHS_PIN_MUX_E) & (~(0xf << 24)), PERIPHS_PIN_MUX_E);
+	}
+}
+
+#define SW_I2C_DELAY()          udelay(2)
+
+#define SW_I2C_SCL_H()          set_gpio_level(1,1)//TO-DO: set scl pin to high
+#define SW_I2C_SCL_L()          set_gpio_level(1,0)//TO-DO: set scl pin to low
+
+#define SW_I2C_SDA_H()          set_gpio_level(0,1)//TO-DO: set sda pin to high
+#define SW_I2C_SDA_L()          set_gpio_level(0,0)//TO-DO: set sda pin to low
+#define SW_I2C_SDA_IS_H()       get_sda_gpio_level()//TO-DO: get sda pin level
+
+void sw_i2c_start(void)
+{
+	SW_I2C_SDA_H();
+	udelay(50);
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_L();
+	SW_I2C_DELAY();
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+}
+
+void sw_i2c_stop(void)
+{
+	SW_I2C_SCL_H();
+	SW_I2C_SDA_L();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_H();
+	SW_I2C_DELAY();
+}
+
+void sw_i2c_tx_ack(void)
+{
+	SW_I2C_SDA_L();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_H();
+}
+
+void sw_i2c_tx_nack(void)
+{
+	SW_I2C_SDA_H();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+}
+
+uint8_t sw_i2c_rx_ack(void)
+{
+    uint8_t ret = 0;
+    uint16_t ucErrTime = 0;
+
+	SW_I2C_SDA_IS_H();
+	SW_I2C_DELAY();
+    SW_I2C_SCL_H();
+    SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+    while(SW_I2C_SDA_IS_H()) {
+        if((++ucErrTime) > 250) {
+            sw_i2c_stop();
+            return 1;
+        }
+    }
+
+    SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+
+    return ret;
+}
+
+void sw_i2c_tx_byte(uint8_t dat)
+{
+    uint8_t i = 0;
+    uint8_t temp = dat;
+
+
+    for (i = 0; i < 8; i++) {
+        if (temp & 0x80) {
+            SW_I2C_SDA_H();
+        } else {
+            SW_I2C_SDA_L();
+        }
+        SW_I2C_DELAY();
+
+        SW_I2C_SCL_H();
+        SW_I2C_DELAY();
+		SW_I2C_DELAY();
+
+        SW_I2C_SCL_L();
+		SW_I2C_DELAY();
+
+        temp <<= 1;
+    }
+}
+
+uint8_t sw_i2c_rx_byte(void)
+{
+    uint8_t i = 0;
+    uint8_t dat = 0;
+
+    for (i = 0; i < 8; i++) {
+        dat <<= 1;
+
+        SW_I2C_SCL_H();
+        SW_I2C_DELAY();
+		SW_I2C_DELAY();
+
+        if (SW_I2C_SDA_IS_H()) {
+            dat++;
+        }
+
+        SW_I2C_SCL_L();
+		SW_I2C_DELAY();
+		SW_I2C_DELAY();
+    }
+
+    return dat;
+}
+
+void sw_i2c_read(uint8_t device_addr, uint8_t reg_addr, uint8_t dat[], uint8_t len)
+{
+    uint8_t i = 0;
+
+    sw_i2c_start();
+    sw_i2c_tx_byte(device_addr & 0xFE);
+    sw_i2c_rx_ack();
+    sw_i2c_tx_byte(reg_addr);
+    sw_i2c_rx_ack();
+
+    sw_i2c_start();
+    sw_i2c_tx_byte(device_addr | 0x01);
+    sw_i2c_rx_ack();
+
+    for(i = 0; i < len; i++) {
+        dat[i] = sw_i2c_rx_byte();
+        if(i == (len-1)) {
+            sw_i2c_tx_nack();
+        } else {
+            sw_i2c_tx_ack();
+        }
+    }
+    sw_i2c_stop();
+}
+
+
+//#define TP050_CHIP_ADDR "0x38"
+//#define TP101_CHIP_ADDR "0x5d"
+int khadas_mipi_id = 0;//default old TS050
+static int do_check_panel(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	uint8_t dat[1] = {0};
+
+	tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
+	mdelay(5);
+	tca6408_output_set_value((0<<6), (1<<6));
+	mdelay(20);
+	tca6408_output_set_value((1<<6), (1<<6));
+	mdelay(50);
+
+	sw_i2c_read(0x70, 0xA8, dat, 1);
+	khadas_mipi_id = dat[0];
+
+	printf("TP050 id=0x%x\n",khadas_mipi_id);
+	if(khadas_mipi_id == 0x51) {//old TS050
+		khadas_mipi_id = 1;
+		setenv("khadas_mipi_id", "1");
+		//setenv("panel_type", "lcd_1");
+	}else if(khadas_mipi_id == 0x79) {//new TS050
+		khadas_mipi_id = 3;
+		setenv("khadas_mipi_id", "3");
+		//setenv("panel_type", "lcd_3");
+	}else{
+		sw_i2c_read(0xba, 0x9e, dat, 1);
+		khadas_mipi_id = dat[0];
+		printf("TP101 id=0x%x\n",khadas_mipi_id);
+		if(khadas_mipi_id == 0x00){//TS101
+			khadas_mipi_id = 2;
+			setenv("khadas_mipi_id", "2");
+			//setenv("panel_type", "lcd_2");
+		}else {
+			khadas_mipi_id = 0;
+			setenv("khadas_mipi_id", "0");
+			//setenv("panel_type", "lcd_1");
+		}
+	}
+	printf("panel_type=%s   khadas_mipi_id=%d   id=0---default old TS050   id=1,lcd_1---old TS050   id=2,lcd_2---new TS050   id=3,lcd_3---TS101\n",getenv("panel_type"), khadas_mipi_id);
+	return 0;
+}
+#endif
 
 static int get_ircode(char reg)
 {
@@ -1308,12 +1556,13 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(ext_ethernet, 1, 1, do_kbi_ext_ethernet, "", ""),
 	U_BOOT_CMD_MKENT(lcd_reset, 1, 1, do_kbi_lcd_reset, "", ""),
 	U_BOOT_CMD_MKENT(tststatus, 1, 1, do_kbi_tststatus, "", ""),
+	U_BOOT_CMD_MKENT(check_panel, 1, 1, do_check_panel, "", ""),
+	U_BOOT_CMD_MKENT(check_camera, 1, 1, do_check_camera, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(forcebootsd, 1, 1, do_kbi_forcebootsd, "", ""),
 	U_BOOT_CMD_MKENT(wolreset, 1, 1, do_kbi_wolreset, "", ""),
 	U_BOOT_CMD_MKENT(forcereset, 4, 1, do_kbi_forcereset, "", ""),
 	U_BOOT_CMD_MKENT(factorytest, 1, 1, do_kbi_factorytest, "", ""),
-	U_BOOT_CMD_MKENT(check_camera, 1, 1, do_check_camera, "", ""),
 };
 
 static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -1366,7 +1615,6 @@ static char kbi_help_text[] =
 #if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
 		"kbi adc - read adc value\n"
 #endif
-		"kbi check_camera - check OS08A10 or IMX415\n"
 		"kbi powerstate - read power on state\n"
 		"kbi poweroff - power off device\n"
 		"kbi ethmac - read ethernet mac address\n"
@@ -1391,6 +1639,8 @@ static char kbi_help_text[] =
 		"kbi ext_ethernet r - read current ethernet mode\n"
 		"kbi tststatus r - read TST status\n"
 		"kbi tststatus clear - clear TST status\n"
+		"kbi check_camera - check OS08A10 or IMX415\n"
+		"kbi check_panel - check TS050 or TS101\n"
 		"\n"
 #endif
 		"kbi forcebootsd\n"
