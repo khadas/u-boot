@@ -717,7 +717,7 @@ config AMLOGIC_KEY_TYPE
 
 config BL30_SELECT
 	string "a4 BL30 board config"
-	default "a4_pxp"
+		default "a4_pxp"
 
 choice
         prompt "a4 Board"
@@ -728,11 +728,31 @@ config A4_SKT
 		help
 		    Select A4 SKT(XXXX) config
 
+config A4_BA400
+        bool "A4_BA400"
+		select TARGET_A4_BA400
+		help
+		    Select A4 BA400 config
+
+config A4_BA409
+        bool "A4_BA409"
+		select TARGET_A4_BA409
+		help
+		    Select A4 BA409 config
+
 endchoice
 
 config TARGET_A4_SKT
 	bool "A4 SKT board"
 	depends on A4_SKT
+
+config TARGET_A4_BA400
+	bool "A4 BA409 board"
+	depends on A4_BA400
+
+config TARGET_A4_BA409
+	bool "A4 BA409 board"
+	depends on A4_BA409
 
 endif
 
@@ -1613,3 +1633,7 @@ source "board/amlogic/t5m_ay301/Kconfig"
 source "board/amlogic/t5m_ay309/Kconfig"
 
 source "board/amlogic/a4_skt/Kconfig"
+
+source "board/amlogic/a4_ba400/Kconfig"
+
+source "board/amlogic/a4_ba409/Kconfig"
