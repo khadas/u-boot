@@ -41,6 +41,10 @@
 #include <asm/arch/register.h>
 #endif
 
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+#include <initcall.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct tag *params;
@@ -429,6 +433,10 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 #endif
 		extern uint32_t get_time(void);
 		printf("uboot time: %u us\n", get_time());
+	#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+		if (gd->time_print_flag)
+			dump_initcall_time();
+	#endif
 		if (images->os.arch == IH_ARCH_ARM) {
 			pr_info("boot 32bit kernel\n");
 			jump_to_a32_kernel(images->ep, machid, (unsigned long)images->ft_addr);

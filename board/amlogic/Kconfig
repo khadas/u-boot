@@ -109,6 +109,13 @@ config AML_OSCRING
 	help
 		"Support Amlogic chip oscring msr"
 
+config AMLOGIC_TIME_PROFILE
+	bool "profile for uboot time"
+	default y
+	help
+		catch and dump function/commands which cost long time
+		This option should be done with env "setenv time_profile 1"
+
 config SYS_VENDOR
 	string "Vendor name"
 	default "amlogic"

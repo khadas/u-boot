@@ -27,6 +27,11 @@
 #include <amlogic/uasan.h>
 #endif
 
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+uint32_t get_time(void);
+#include <initcall.h>
+#endif
+
 typedef struct global_data {
 	bd_t *bd;
 	unsigned long flags;
@@ -147,6 +152,10 @@ typedef struct global_data {
 	unsigned long shadow_addr;
 	unsigned long shadow_size;
 	unsigned long section_red_zones[SECTION_RED_ZONE_NUM];
+#endif
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	struct init_call_time ict[INITCALL_CNT];
+	unsigned int time_print_flag;
 #endif
 } gd_t;
 #endif

@@ -465,6 +465,17 @@ static int initr_env(void)
 
 	/* Initialize from environment */
 	load_addr = env_get_ulong("loadaddr", 16, load_addr);
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	{
+		char *tmp_env = NULL;
+
+		tmp_env = env_get("time_profile");
+		if (tmp_env && !strcmp(tmp_env, "1")) {
+			gd->time_print_flag = 1;
+			printf("enable time profile print\n");
+		}
+	}
+#endif
 
 	return 0;
 }

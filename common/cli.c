@@ -27,6 +27,10 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int run_command(const char *cmd, int flag)
 {
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	unsigned int tick = get_time();
+	int ret;
+#endif
 #ifndef CONFIG_HUSH_PARSER
 	/*
 	 * cli_run_command can return 0 or 1 for success, so clean up
@@ -41,7 +45,16 @@ int run_command(const char *cmd, int flag)
 
 	if (flag & CMD_FLAG_ENV)
 		hush_flags |= FLAG_CONT_ON_NEWLINE;
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	ret = parse_string_outer(cmd, hush_flags);
+	tick = get_time() - tick;
+	if (tick > 1000 && gd->time_print_flag) {
+		printf("\n ---long cmd, time:%5d, cmd:%s\n", tick, cmd);
+	}
+	return ret;
+#else
 	return parse_string_outer(cmd, hush_flags);
+#endif
 #endif
 }
 
