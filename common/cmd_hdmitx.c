@@ -306,6 +306,22 @@ static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
 		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
 }
 
+static void hdmitx_config_csc_en(struct hdmitx_dev *hdev)
+{
+	if (!hdev)
+		return;
+
+	if (getenv("config_csc_en")) {
+		if (strncmp("0", getenv("config_csc_en"), 1) == 0)
+			hdev->config_csc_en = 0;
+		else
+			hdev->config_csc_en = 1;
+		printf("config_csc_en:%d\n", hdev->config_csc_en);
+	} else {
+		hdev->config_csc_en = 0;
+	}
+}
+
 static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	if (argc < 1)
@@ -415,6 +431,7 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		 * driver will pass it to kernel, and do
 		 * mode setting again when vout init in kernel
 		 */
+		hdmitx_config_csc_en(&hdmitx_device);
 		hdmi_tx_set(&hdmitx_device);
 	}
 	return CMD_RET_SUCCESS;

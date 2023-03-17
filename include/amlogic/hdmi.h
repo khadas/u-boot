@@ -313,6 +313,12 @@ enum block_type {
 	#define YCC_RANGE_FUL           1
 	#define YCC_RANGE_RSVD          2
 
+#define CONFIG_CSC (CMD_CONF_OFFSET + 0x1000 + 0x05)
+#define CSC_Y444_8BIT 0x1
+#define CSC_Y422_12BIT 0x2
+#define CSC_RGB_8BIT 0x3
+#define CSC_UPDATE_AVI_CS 0x10
+
 struct hdr_info {
 	unsigned int hdr_sup_eotf_sdr:1;
 	unsigned int hdr_sup_eotf_hdr:1;
@@ -656,6 +662,7 @@ struct hdmitx_dev {
 	enum mode_type hdmi_current_tunnel_mode;
 	/* Add dongle_mode, clock, phy may be different from mbox */
 	unsigned int dongle_mode;
+	bool config_csc_en;
 };
 
 #define MODE_LEN	32
