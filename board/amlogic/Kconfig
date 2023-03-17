@@ -1200,12 +1200,6 @@ config T3_T965D4
 	help
 	  Select T3 T965D4(XXXX) config
 
-config T3_T963D4
-	bool "T3_T963D4"
-	select TARGET_T3_T963D4
-	help
-	  Select T3 T963D4(XXXX) config
-
 endchoice
 
 config TARGET_T3_SKT
@@ -1219,10 +1213,6 @@ config TARGET_T3_T982
 config TARGET_T3_T965D4
 	bool "T3 T965D4 board"
 	depends on T3_T965D4
-
-config TARGET_T3_T963D4
-	bool "T3 T963D4 board"
-	depends on T3_T963D4
 
 endif
 
@@ -1540,8 +1530,6 @@ source "board/amlogic/t3_skt/Kconfig"
 source "board/amlogic/t3_t982/Kconfig"
 
 source "board/amlogic/t3_t965d4/Kconfig"
-
-source "board/amlogic/t3_t963d4/Kconfig"
 
 source "board/amlogic/c3_skt/Kconfig"
 
