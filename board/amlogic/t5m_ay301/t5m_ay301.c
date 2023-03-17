@@ -132,7 +132,6 @@ int board_init(void)
 {
 	printf("board init\n");
 
-	get_stick_reboot_flag();
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
@@ -163,6 +162,8 @@ int board_late_init(void)
 {
 	char outputModePre[30] = {};
 	char outputModeCur[30] = {};
+
+	get_stick_reboot_flag();
 
 	printf("board late init\n");
 
