@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
+#include <amlogic/storage.h>
 
 static const char*  const temp_for_compile[] = {"__test1","__test2","__test3",NULL};
 extern const char * const _env_args_reserve_[0] __attribute__((weak, alias("temp_for_compile")));
@@ -127,15 +128,14 @@ U_BOOT_CMD_COMPLETE(
 );
 
 /*
- * update_env_part, depends on env export/import and saveenv
- * flow:
- *	1> save argv env list value to malloc memory
- *	2> back env with env export
- *	3> load env from flash(env part) to memory
- *	4> modify env list with saved value list
- *	5> saveenv to update the env part
- *	6> restore env with env import
- *	7> free the malloc memory
+ * update_env_part, update env in flash
+ *  usage: update_env_part <options -f/-s/-p> env1 env2 env3 ...
+ *   Just add/update/delete env in flash, not replace all env like saveenv
+ *   updaete include any of add/update/delete
+ *  Reasons to replace saveenv with update_env_part
+ *    >>Usually only save env u need, not include others like bootdelay
+ *    >>Most cases, we need update env iff changed, and need speed up as save env to flash cost time
+ *    todo: check not arg duplicated in argv
  */
 #if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
 static int do_update_env_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -145,14 +145,17 @@ static int do_update_env_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	int silent	= 0;//don't tell empty env, 0 will print which env isnot exist
 	int force	= 0;//when 1, even no all env list exist will update env part
 	int print	= 0;//print env name/value after update env part
-	int allEnvEmpty = 1;
-	int need_update_env = 0;
-	const int MAX_ENV_PART = CONFIG_ENV_SIZE;
-	const int UPDATE_ENV_SZ = CONFIG_ENV_SIZE;//env export -b will always need CONFIG_ENV_SIZE
-	const int BUF_SZ = MAX_ENV_PART + UPDATE_ENV_SZ;
+	const int BUF_SZ = CONFIG_ENV_SIZE * 2;
 	char *env_part_buf = NULL;
-	char *env_val_buf  = NULL;
-	char cmd_buf[128];
+	char *new_env_buf = NULL;
+	env_t *ep = NULL;
+	unsigned char *pdata = NULL;
+	uint32_t crc;
+	uint32_t n_env_in_flash = 0;//0 if all env not in flash, argc -1 if all env in flash
+	int need_update_env = 0;
+	const char *env_end = NULL;//current last kv's \0
+	unsigned long env_len = 0;
+	unsigned int save_buf = 0;//1 if need save new_env_buf
 
 	if (argc < 2) {
 		MsgP("Need at least one env specify to update\n");
@@ -180,133 +183,288 @@ static int do_update_env_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	}
 	for (i = 1; i < argc; ++i) {
 		if (env_get(argv[i])) {
-			allEnvEmpty = false;
 			continue;
 		}
-		if (!force) {
-			MsgP("env %s NOT exist, so cannot update flash env\n", argv[i]);
+		if (!force) {//force mode allow update env part even some env not exist
+			MsgP("env %s NOT exist and not -f, so cannot update flash env\n", argv[i]);
 			return CMD_RET_FAILURE;
 		}
-	}
-	if (allEnvEmpty) {
-		MsgP("All ENVs empty NOT need update flash\n");
-		return CMD_RET_FAILURE;
 	}
 	env_part_buf = malloc(BUF_SZ);
 	if (!env_part_buf) {
 		errorP("Fail malloc buf sz 0x%x\n", BUF_SZ);
 		return CMD_RET_FAILURE;
 	}
-	env_val_buf = env_part_buf + MAX_ENV_PART;
-	memset(env_part_buf, 0, BUF_SZ);
+	new_env_buf = env_part_buf + CONFIG_ENV_SIZE;
 
-	//#1, backup current total env and specified env list
-	MsgP("argc %d, argv %s\n", argc, argv[1]);
-	env_set("_update_env_list", argv[1]);
-	for (i = 2; i < argc; ++i) {
-		if (!env_get(argv[i]))
-			continue;
+	//#1> record env list need to update
+	debugP("argc %d, argv[1] %s\n", argc, argv[1]);
+	env_set("_update_env_list", NULL);
+	for (i = 1; i < argc; ++i) {
 		env_set("_temp_env_", argv[i]);
-		run_command("setenv _update_env_list ${_update_env_list} ${_temp_env_}", 0);
+		run_command("env set _update_env_list ${_update_env_list} ${_temp_env_}", 0);
 	}
-	if (!silent)
+	env_set("_temp_env_", NULL);
+	if (!silent) //print env list which updated in part env if not same
 		MsgP("_update_env_list: %s\n", env_get("_update_env_list"));
-	sprintf(cmd_buf, "env export -s %x -t %p ${_update_env_list}", UPDATE_ENV_SZ, env_val_buf);
-	MsgP("run cmd: %s\n", cmd_buf);
-	if (run_command(cmd_buf, 0)) {
-		errorP("Fail in backup env list\n");
+
+	//#2> read env and check if valid
+	if (store_get_type() == BOOT_NONE) {
+		errorP("env_storage: must init before load\n");
 		ret = CMD_RET_FAILURE; goto _update_env_part_err;
 	}
-	//2> back env with env export
-	sprintf(cmd_buf, "env export -s %x -t %p", MAX_ENV_PART, env_part_buf);
-	MsgP("run cmd: %s\n", cmd_buf);
-	if (run_command(cmd_buf, 0)) {
-		errorP("Fail in backup env buf, errno %d\n", errno);
+	if (store_rsv_read(RSV_ENV, BUF_SZ, env_part_buf)) {
+		errorP("fail read env from storage\n");
 		ret = CMD_RET_FAILURE; goto _update_env_part_err;
+	} else {
+		ep = (env_t *)env_part_buf;
+		pdata = ep->data;
+		memcpy(&crc, &ep->crc, sizeof(crc));
+		if (crc32(0, pdata, ENV_SIZE) != crc) {
+			errorP("bad CRC in storage, so directly save all env to storage\n");
+			ret = env_save();
+			goto _update_env_part_err;
+		}
 	}
-	if (print)
-		run_command("printenv ${_update_env_list}", 0);
 
-	/*3> load env from flash(env part) to memory */
-	env_relocate();
-	if (!silent)
-		MsgP("reloaded env from flash\n");
+	//#3> parse storage env and check if need update, most cases true
+	//compare if all env vars are same in flash
+	//case 1: usr env and store env both exist, but value not same (include usr env val empty)
+	//case 2: usr env not exist on store, but usr env val not empty
+	if (!pdata) {
+		errorP("err pdata\n");
+		ret = CMD_RET_FAILURE; goto _update_env_part_err;
+	} else {
+		const char *current_kv = (char *)pdata;//env1=val\0
+		unsigned int n_same_env = 0;
+		const char *kvsep = "=";
 
-	//3.1 compare if all env vars are same in flash
-	for (i = 1; i < argc && !need_update_env; ++i) {
-		char *env_name = argv[i];
-		char *flash_env_val = env_get(env_name);
-		char *export_val_buf = env_val_buf;
-		int env_name_len, input_val_len;
+		//3.1>get the true end postion
+		for (env_end = (char *)pdata; env_end < (char *)pdata + ENV_SIZE;) {
+			const char *p =
+				env_end + strnlen(env_end, (char *)pdata + ENV_SIZE - env_end);
 
-		for (; !need_update_env && export_val_buf; ) {
-			debugP("val buf: %s\n", export_val_buf);
-			export_val_buf = strstr(export_val_buf, env_name);
-			if (!export_val_buf) {
-				if (!silent)
-					MsgP("skip no val input env[%s]\n", env_name);
+			if (*p != '\0') {
+				errorP("env need end with 0 but %c\n", *p);
+				ret = CMD_RET_FAILURE; goto _update_env_part_err;
+			}
+			if (++p - (char *)pdata >= ENV_SIZE) {
+				env_end = --p;
 				break;
 			}
-			env_name_len = strlen(env_name);
-			export_val_buf += env_name_len;
-			if (*export_val_buf == '=') {//found it
-				char *input_env_val = export_val_buf + 1;
-				char *end_env = strstr(input_env_val, "\n");
-				int flash_val_len = 0;
+			if (*p == '\0') {
+				env_end = --p;
+				break;
+			}
+			env_end = p;
+		}
+		env_len = env_end - (char *)pdata;
+		if (*env_end || env_len < 1024) {
+			errorP("too short env or env end %c err\n", *env_end);
+			ret = CMD_RET_FAILURE; goto _update_env_part_err;
+		}
+		debugP("part env addr 0x%p, end 0x%p, sz %lx\n",
+		       env_part_buf, env_end, env_end - env_part_buf);
 
-				debugP("env:%s has input val\n", env_name);
-				if (!end_env) {
-					errorP("invalid env val buf\n");
-					ret = CMD_RET_FAILURE; goto _update_env_part_err;
-				}
-				if (!flash_env_val) {
-					MsgP("no env[%s] in flash, need update\n", env_name);
+		//3.2> check if NOT need update flash, which is most used case
+		for (; current_kv < env_end; current_kv += strlen(current_kv) + 1) {
+			const char *s_env_v = strpbrk(current_kv, kvsep);//storage env value
+
+			if (!s_env_v) {
+				errorP("err env in storage, not k=v fmt\n%s\n", current_kv);
+				ret = CMD_RET_FAILURE; goto _update_env_part_err;
+			}
+			++s_env_v;//skip '='
+			//case 1, usr val == storage env val, skip
+			//case 2, usr val empty, del it if exist in storage
+			//case 2, usr val not empty, del it if exist in storage, append new to end
+			for (i = 1; i < argc; ++i) {
+				const char *usr_env = argv[i];
+				const char *usr_env_val = env_get(usr_env);
+
+				if (strncmp(current_kv, usr_env, s_env_v - current_kv - 1))
+					continue;
+				//Found key
+				++n_env_in_flash;
+				if (!usr_env_val) {//need delete env in flash
+					MsgP("store env %s need remove\n", usr_env);
 					need_update_env = 1;
 					break;
 				}
-				flash_val_len = strlen(flash_env_val);
-				input_val_len = end_env - input_env_val;
-				debugP("env val: old %s, new %s\n", flash_env_val, input_env_val);
-				if (flash_val_len != input_val_len) {
-					MsgP("update env part as env[%s] len diff\n", env_name);
+				if (strcmp(usr_env_val, s_env_v)) {//need modify env in flash
+					MsgP("store env %s need modify\n", usr_env);
 					need_update_env = 1;
-				} else if (strncmp(flash_env_val, input_env_val, flash_val_len)) {
-					MsgP("update env part as env[%s] val diff\n", env_name);
-					need_update_env = 1;
-				} else {
-					if (!silent)
-						MsgP("env[%s]: input val = flash val\n", env_name);
+					break;
 				}
-
-				break;
+				debugP("store env %s NOT need update\n", usr_env);
+				++n_same_env;
 			}
 		}
+		if (!need_update_env) {//old user env not changed
+			need_update_env = n_same_env < argc - 1;
+			debugP("usr env num %d, not need update %d\n", argc - 1, n_same_env);
+		}
+		//if all env not in flash, not need update if all env not exist
+		if (n_env_in_flash == 0) {//all env not in flash
+			int all_env_empty = 1;//all env not exist in flash, and in memory
+
+			for (i = 1; i < argc && all_env_empty; ++i)
+				if (env_get(argv[i]))
+					all_env_empty = 0;
+			if (all_env_empty)
+				if (!silent)
+					MsgP("all env not exist in env and flash\n");
+			need_update_env = !all_env_empty;
+		}
 	}
 
-	if (need_update_env) {
-		/*4>modify env list with saved value list */
-		sprintf(cmd_buf, "env import -t %p", env_val_buf);
-		run_command(cmd_buf, 0);
-		if (!silent)
-			MsgP("Update env in flash\n");
+	if (print)
+		run_command("printenv ${_update_env_list}", 0);
+	env_set("_update_env_list", NULL);
+	if (!need_update_env) {
+		MsgP("all env NOT need update\n");
+		ret = CMD_RET_SUCCESS; goto _update_env_part_err;
+	}
 
-		/*5> saveenv to update the env part */
-		ret = env_save();
-		if (ret) {
-			errorP("Fail in save env part, ret %d\n", ret);
+	if (!n_env_in_flash) {//append all env to last as all not in env part
+		char *new_end = (char *)env_end;
+		unsigned int left_len = CONFIG_ENV_SIZE - env_len;
+
+		for (i = 1; i < argc && left_len > 0; ++i) {
+			char *usr_env = argv[i];
+			char *val = env_get(usr_env);
+			int cp_len = 0;
+
+			if (!val)
+				continue;
+			if (!silent)
+				MsgP("append new env %s\n", usr_env);
+			cp_len = strlcpy(++new_end, usr_env, left_len);//cp key
+			new_end += cp_len, left_len -= cp_len;
+			*new_end = '=', --left_len;//cpy '='
+			cp_len = strlcpy(++new_end, val, left_len) + 1;//cp val
+			new_end += cp_len, left_len -= cp_len;
+		}
+		if (left_len == CONFIG_ENV_SIZE - env_len) {
+			errorP("exception\n");
 			ret = CMD_RET_FAILURE; goto _update_env_part_err;
 		}
-	} else {
-		MsgP("All env value is same in flash, NOT need update\n");
+		env_len = CONFIG_ENV_SIZE - left_len;
+		env_end = env_part_buf + env_len;
+
+		save_buf = 0; goto _update_env_save_;
+	} else {//not all env in flash
+	//copy flash env to new buf, and skip env need modify/delete
+		const char *current_kv = (char *)pdata;//env1=val\0
+		const char *kvsep = "=";
+		char *new_kv = new_env_buf;
+		unsigned int new_env_len = 0;
+		int env_need_update = 0;
+
+		memset(new_env_buf, 0, CONFIG_ENV_SIZE);
+		save_buf = 1;
+
+		/* 1, if current k=v\0 not in usr input list, just copy it to new buffer
+		 * 2, else if in input list but no value, skip it
+		 * 3, else if value not change, just copy it to new buffer
+		 * 4, else if in the usr input list but value changed, use input key value instead
+		 */
+		for (; current_kv < env_end; current_kv += strlen(current_kv) + 1) {
+			const char *s_env_v = strpbrk(current_kv, kvsep);//storage env value
+			const char *next = NULL;//next k=v
+			int s_env_v_len = 1;
+			unsigned int kv_len = 0;
+
+			if (!s_env_v) {
+				errorP("err env in flash, not k=v fmt\n%s\n", current_kv);
+				ret = CMD_RET_FAILURE; goto _update_env_part_err;
+			}
+			++s_env_v;//skip '='
+			s_env_v_len = strnlen(s_env_v, env_end - s_env_v);
+			next = s_env_v + s_env_v_len + 1;//next k=v\0
+			for (i = 1; i < argc; ++i) {
+				const char *usr_env = argv[i];
+
+				if (!usr_env)
+					continue;//disposed
+				if (!strncmp(current_kv, usr_env, s_env_v - current_kv - 1))
+					break;
+			}
+			kv_len = (unsigned long)(next - current_kv);
+			if (i == argc) {//this store env not in user input, so not need change
+				memcpy(new_kv, current_kv, kv_len);
+				new_kv += kv_len;
+				new_env_len += kv_len;
+			} else {
+				const char *usr_env = argv[i];
+				const char *usr_env_val = env_get(usr_env);
+
+				if (!usr_env_val) {//2, in the input list but no value
+					MsgP("store env %s will removed\n", usr_env);
+					env_need_update = 1;
+					continue;
+				} else if (!strcmp(usr_env_val, s_env_v)) {//in input && not change
+					MsgP("store env %s not need changed\n", usr_env);
+					memcpy(new_kv, current_kv, kv_len);
+					new_kv += kv_len;
+					new_env_len += kv_len;
+				} else {//4, in the list and value changed
+					unsigned int cp_len = kv_len - 1 - s_env_v_len;
+
+					MsgP("store env %s DO need changed\n", usr_env);
+					env_need_update = 1;
+					memcpy(new_kv, current_kv, cp_len);//copy k=
+					new_kv += cp_len;
+					new_env_len += cp_len;
+
+					cp_len = strlen(usr_env_val) + 1;
+					memcpy(new_kv, usr_env_val, cp_len);//copy k=
+					new_kv += cp_len;
+					new_env_len += cp_len;
+				}
+				//argv[i] = NULL;//mark as disposed
+				*((char **)argv + i) = NULL;//mark as disposed
+			}
+		} //end to traverse all flash env
+
+		for (i = 1; i < argc; ++i) {
+			const char *usr_env = argv[i];
+			char *usr_env_val = usr_env ? env_get(usr_env) : NULL;
+			unsigned int left_len = 0;
+
+			if (!usr_env)
+				continue;
+			if (!usr_env_val) {
+				MsgP("new env %s NULL so skip\n", usr_env);
+			} else {
+				env_need_update = 1;
+				left_len = CONFIG_ENV_SIZE - new_env_len - 1;
+				snprintf(new_kv, left_len, "%s=%s", usr_env, usr_env_val);
+				MsgP("new store env %s\n", new_kv);
+				new_kv += strnlen(new_kv, left_len) + 1;
+			}
+		}
+		if (!env_need_update) {
+			MsgP("store env same, new env NULL, so not need update\n");
+			ret = CMD_RET_SUCCESS; goto _update_env_part_err;
+		}
 	}
 
-	/*6> restore env with env import */
-	sprintf(cmd_buf, "env import -d -t %p", env_part_buf);
-	ret = run_command(cmd_buf, 0);
-	if (ret) {
-		errorP("Fail in restore backup env\n");
+_update_env_save_:
+	ep = (env_t *)(env_part_buf + save_buf * CONFIG_ENV_SIZE);
+	pdata = ep->data;
+	debugP("crc before update 0x%x\n", ep->crc);
+
+	//ep->crc = crc32(0, pdata, ENV_SIZE);//not work...
+	crc = crc32(0, pdata, ENV_SIZE);
+	memcpy(&ep->crc, &crc, sizeof(crc));
+	if (!silent)
+		MsgP("new env part crc 0x%x\n", ep->crc);
+	if (store_rsv_write(RSV_ENV, CONFIG_ENV_SIZE, ep)) {
+		errorP("Fail to update env part\n");
 		ret = CMD_RET_FAILURE; goto _update_env_part_err;
 	}
+	debugP("ok update env addr 0x%p\n", env_part_buf);
 
 _update_env_part_err:
 	free(env_part_buf);
