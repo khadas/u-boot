@@ -518,6 +518,8 @@ pll_set_t __pll_setting = {
 	.nCFGTAddr              = AML_BL2_TMASTER_DDR_ADDR,
 #endif
 	.low_console_baud		= CONFIG_LOW_CONSOLE_BAUD,
+
+	.key_preserve			= CONFIG_KEY_PRESERVE,
 };
 
 #if 0
