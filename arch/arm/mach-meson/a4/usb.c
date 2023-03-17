@@ -20,8 +20,11 @@
 #include <asm-generic/gpio.h>
 
 #define PHY20_RESET_LEVEL_BIT	8
+#define PHY21_RESET_LEVEL_BIT	9
+#define PHY22_RESET_LEVEL_BIT	7
 #define	USB_RESET_BIT			4
 #define USB_2_DRD_BIT 10
+#define USB2H_BIT 11
 
 #define USB2_PHY_PLL_OFFSET_40	(0x09400414)
 #define USB2_PHY_PLL_OFFSET_44	(0x927E0000)
@@ -42,9 +45,9 @@
 #define PHY_20_BASE 0xfe03c000
 #define PHY_COMP_BASE 0xfe03a000
 #define RESET_BASE 0xFE002000
+#define RESET_LEVEL_BASE 0xFE002040
 
-#define AMLOGIC_CTR_COUNT		(0x1)
-#define MESON_CPU_MAJOR_ID_A5_TMPE 0xFF
+#define AMLOGIC_CTR_COUNT		(0x2)
 
 struct ctr_info {
 	struct phy usb_phys[4];
@@ -162,10 +165,12 @@ void usb_reset(unsigned int reset_addr, int bit)
 
 static void usb_enable_phy_pll(u32 base_addr)
 {
-	if (base_addr == PHY_20_BASE) {
-		*(volatile uint32_t *)(unsigned long)
-			RESETCTRL_RESET0_LEVEL |= (1 << PHY20_RESET_LEVEL_BIT);
-	}
+	*(uint32_t *)(unsigned long)
+		RESET_LEVEL_BASE |= (1 << PHY20_RESET_LEVEL_BIT);
+	*(uint32_t *)(unsigned long)
+		RESET_LEVEL_BASE |= (1 << PHY21_RESET_LEVEL_BIT);
+	*(uint32_t *)(unsigned long)
+		RESET_LEVEL_BASE |= (1 << PHY22_RESET_LEVEL_BIT);
 }
 
 void set_usb_pll(uint32_t phy2_pll_base)
@@ -234,6 +239,14 @@ int usb2_phy_init(struct phy *phy)
 
 		udelay(500);
 		priv->usbphy_reset_bit[0] = PHY20_RESET_LEVEL_BIT;
+	} else {
+		debug("priv->reset_addr is 0x%x\n", priv->reset_addr);
+		*(unsigned int *)(unsigned long)priv->reset_addr =
+			(1 << USB2H_BIT) | (1 << USB_RESET_BIT);
+
+		udelay(500);
+		priv->usbphy_reset_bit[0] = PHY21_RESET_LEVEL_BIT;
+		priv->usbphy_reset_bit[1] = PHY22_RESET_LEVEL_BIT;
 	}
 
 	for (i = 0; i < priv->u2_port_num; i++) {
