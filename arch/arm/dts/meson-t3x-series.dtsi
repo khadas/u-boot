@@ -325,24 +325,48 @@
 		};
 
 		spicc0: spi@fe050000 {
-			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe050000 0x0 0x58>;
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050000 0x0 0x38>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
 		};
 
-		spicc1: spi@fe052000 {
-			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe052000 0x0 0x58>;
+		spicc1: spi@fe050100 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050100 0x0 0x38>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
 		};
 
-		spicc2: spi@fe054000 {
-			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xfe054000 0x0 0x58>;
+		spicc2: spi@fe050200 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050200 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spicc3: spi@fe050300 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050300 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spicc4: spi@fe050400 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050400 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spicc5: spi@fe050500 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050500 0x0 0x38>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";

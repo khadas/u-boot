@@ -20,6 +20,9 @@
 		spi1 = &spicc0;
 		spi2 = &spicc1;
 		spi3 = &spicc2;
+		spi4 = &spicc3;
+		spi5 = &spicc4;
+		spi6 = &spicc5;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -255,19 +258,16 @@
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc0_pins_h>;
-	cs-gpios = <&gpio GPIOH_8 GPIO_ACTIVE_HIGH>;
 };
 
 &spicc1 {	//for UWB/LocalDimm
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins>;
-	cs-gpios = <&gpio GPIOH_22 GPIO_ACTIVE_HIGH>;
+	pinctrl-0 = <&spicc1_pins_h>;
 };
 
 &spicc2 {
 	status = "disabled";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc2_pins_c>;
-	cs-gpios = <&gpio GPIOC_3 GPIO_ACTIVE_HIGH>;
 };
