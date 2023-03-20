@@ -755,6 +755,20 @@ int store_gpt_erase(void)
 	return store->gpt_erase();
 }
 
+int store_boot_copy_enable(int index)
+{
+	struct storage_t *store = store_get_current();
+
+	if (!store) {
+		pr_info("%s %d please init storage device first\n",
+			__func__, __LINE__);
+		return -1;
+	}
+	if (!store->boot_copy_enable)
+		return -1;
+	return store->boot_copy_enable(index);
+}
+
 u32 store_rsv_size(const char *name)
 {
 	struct storage_t *store = store_get_current();
@@ -1472,6 +1486,42 @@ static int do_store_gpt_erase(cmd_tbl_t *cmdtp,
 	return CMD_RET_USAGE;
 }
 
+/*
+ * Check whether the current boot can be written
+ * ret: 0 disable; 1: enable
+ */
+static int do_store_boot_copy_enable(cmd_tbl_t *cmdtp,
+			 int flag, int argc, char * const argv[])
+{
+	enum boot_type_e medium_type = store_get_type();
+	struct storage_t *store = store_get_current();
+	int ret = 0, index;
+
+	if (!store) {
+		pr_info("%s %d please init your storage device first!\n",
+			__func__, __LINE__);
+		return CMD_RET_USAGE;
+	}
+
+	if (unlikely(argc != 3))
+		return CMD_RET_USAGE;
+
+	if (medium_type != BOOT_EMMC) {
+		printf("%s %d not eMMC boot\n",
+			__func__, __LINE__);
+		return CMD_RET_USAGE;
+	}
+
+	index = simple_strtoul(argv[2], NULL, 16);
+	if (store->boot_copy_enable) {
+		ret = store->boot_copy_enable(index);
+		return ret;
+	}
+
+	printf("boot copy enable is not prepared\n");
+	return CMD_RET_USAGE;
+}
+
 static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
 			    int flag, int argc, char * const argv[])
 {
@@ -1569,6 +1619,7 @@ static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(boot_erase, 4, 0, do_store_boot_erase, "", ""),
 	U_BOOT_CMD_MKENT(rsv, 6, 0, do_store_rsv_ops, "", ""),
 	U_BOOT_CMD_MKENT(param, 2, 0, do_store_param_ops, "", ""),
+	U_BOOT_CMD_MKENT(boot_copy_enable, 3, 0, do_store_boot_copy_enable, "", ""),
 };
 
 static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -1673,5 +1724,7 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	turn on/off the rsv info protection\n"
 	"	name must't null\n"
 	"store param\n"
-	"	transfer bl2e/x ddrfip devfip size to kernel in such case like sc2"
+	"	transfer bl2e/x ddrfip devfip size to kernel in such case like sc2\n"
+	"store boot_copy_enable [boot_index]\n"
+	"   check bootloader_x whether enable\n"
 );
