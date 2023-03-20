@@ -462,6 +462,17 @@ static int initr_env(void)
 #endif /* CONFIG_SYS_EXTBDINFO */
 
 	TE(__func__);
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	{
+		char *tmp_env = NULL;
+
+		tmp_env = getenv("time_profile");
+		if (tmp_env && !strcmp(tmp_env, "1")) {
+			gd->time_print_flag = 1;
+			printf("enable time profile print\n");
+		}
+	}
+#endif
 
 	return 0;
 }

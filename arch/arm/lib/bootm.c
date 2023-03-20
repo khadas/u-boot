@@ -39,6 +39,10 @@
 #include <asm/arch/secure_apb.h>
 #endif
 
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+#include <initcall.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct tag *params;
@@ -330,6 +334,10 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 		do_nonsec_virt_switch();
 		gd->flags &= ~GD_FLG_SILENT;
 		printf("uboot time: %u us\n", get_time());
+	#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+		if (gd->time_print_flag)
+			dump_initcall_time();
+	#endif
 		if (images->os.arch == IH_ARCH_ARM)
 			jump_to_a32_kernel(images->ep, machid, (unsigned long)images->ft_addr);
 		else

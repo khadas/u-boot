@@ -14,6 +14,9 @@
 #include <linux/ctype.h>
 #include <asm/arch/timer.h>
 
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+DECLARE_GLOBAL_DATA_PTR;
+#endif
 /*
  * Use puts() instead of printf() to avoid printf buffer overflow
  * for long help messages
@@ -510,6 +513,9 @@ enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
 {
 	enum command_ret_t rc = CMD_RET_SUCCESS;
 	cmd_tbl_t *cmdtp;
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	unsigned int time;
+#endif
 
 	/* Look up command in command table */
 	cmdtp = find_cmd(argv[0]);
@@ -538,7 +544,25 @@ enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
 	if (!rc) {
 		if (ticks)
 			*ticks = get_timer(0);
+	#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+		time = get_time();
+	#endif
 		rc = cmd_call(cmdtp, flag, argc, argv);
+	#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+		time = get_time() - time;
+		if (time > 1000 && gd->time_print_flag) {
+			const char *sym;
+			unsigned long base;
+			unsigned long size;
+			unsigned long faddr = (unsigned long)cmdtp->cmd - gd->reloc_off;
+
+			sym = symbol_lookup(faddr, &base, &size);
+			if (sym)
+				printf("\n ---long cmd function, t:%5d, fun:%s\n", time, sym);
+			else
+				printf("\n ---long cmd function, t:%5d, fun:%p\n", time, cmdtp->cmd);
+		}
+	#endif
 		if (ticks)
 			*ticks = get_timer(*ticks);
 		*repeatable &= cmdtp->repeatable;

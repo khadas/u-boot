@@ -384,6 +384,13 @@ config MISC_INIT_R
 	bool "miscellaneous platform-dependent init before board_late_init"
 	default y
 
+config AMLOGIC_TIME_PROFILE
+	bool "profile for uboot time"
+	default y
+	help
+		catch and dump function/commands which cost long time
+		This option should be done with env "setenv time_profile 1"
+
 if GXB_SKT_V1
 source "board/amlogic/gxb_skt_v1/Kconfig"
 endif
