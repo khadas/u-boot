@@ -12,8 +12,8 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  900	    //VCCK power up voltage
-#define AML_VDDEE_INIT_VOLTAGE    830       // VDDEE power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  980	    //VCCK power up voltage
+#define AML_VDDEE_INIT_VOLTAGE    840       // VDDEE power up voltage
 
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE

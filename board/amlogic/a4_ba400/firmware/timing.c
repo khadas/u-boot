@@ -11,6 +11,15 @@
 #define CPU_CLK                                 1512
 #define DSU_CLK                                 1200
 
+/* board vmin_value defines */
+#define VMIN_FF_VALUE                           770
+#define VMIN_TT_VALUE                           800
+#define VMIN_SS_VALUE                           810
+/* board vddee_value defines */
+#define VDDEE_FF_VALUE                          0x8000a
+#define VDDEE_TT_VALUE                          0x8000a
+#define VDDEE_SS_VALUE                          0x8000a
+
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
 #define DDR_ID_ACS_ADC   ((3 << 6) | (8))
 
@@ -2293,11 +2302,15 @@ bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
+	/* config vmin_ft value */
+	{ 0, VMIN_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_1, 0 },
+	{ 0, VMIN_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_2, 0 },
+	{ 0, VMIN_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_3, 0 },
 	/* config vddee and vcck pwm - pwm_e and pwm_f*/
 #ifdef CONFIG_PDVFS_ENABLE
-	{ PWMEF_PWM_A, 0x4000e, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0 },
-	{ PWMEF_PWM_A, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0 },
-	{ PWMEF_PWM_A, 0xb0007, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0 },
+	{ PWMEF_PWM_A, VDDEE_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0 },
+	{ PWMEF_PWM_A, VDDEE_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0 },
+	{ PWMEF_PWM_A, VDDEE_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0 },
 #else
 	{ PWMEF_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0},
 #endif
