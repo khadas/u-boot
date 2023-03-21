@@ -618,6 +618,7 @@ U_BOOT_DEVICES(meson_pwm) = {
 
 #if (defined (CONFIG_AML_LCD) && defined(CONFIG_TCA6408))
 // detect whether the LCD is exist
+extern int khadas_mipi_id;
 void board_lcd_detect(void)
 {
     u8 mask = 0, value = 0;
@@ -633,6 +634,10 @@ void board_lcd_detect(void)
        printf("%s: failed to read LCD_RESET status! error: %d\n", __func__, ret);
        return;
     }
+
+	if (khadas_mipi_id == 2) {//TS101
+		value = 1;
+	}
 
     printf("LCD_RESET PIN: %d\n", value);
     setenv_ulong("lcd_exist", value);
