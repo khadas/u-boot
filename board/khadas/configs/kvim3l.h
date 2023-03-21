@@ -103,10 +103,10 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=3080000\0"\
-        "panel_type=lcd_1\0" \
-	"lcd_ctrl=0x00000000\0" \
+	    "lcd_ctrl=0x00000000\0" \
+        "ts050_output=panel\0" \
+        "ts101_output=panel\0" \
         "nativeui=disable\0" \
-        "outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
         "colorattribute=444,8bit\0"\
         "cvbsmode=576cvbs\0" \
@@ -164,7 +164,7 @@
         "storeargs="\
             "get_bootloaderversion;" \
             "setenv bootargs ${initargs} ${fs_type} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2}, vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} nativeui=${nativeui} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} hwver=${hwver} spi_state=${spi_state} fusb302_state=${fusb302_state} factory_mac=${factory_mac} lcd_exist=${lcd_exist} ext_board_exist=${ext_board_exist}; "\
-	"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
+	        "setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\
         "switch_bootmode="\
@@ -338,6 +338,28 @@
                "setenv bootargs ${bootargs} wol_enable=0;"\
             "fi;"\
             "\0"\
+        "check_panel="\
+				"fdt addr ${dtb_mem_addr}; "\
+				"if test ${khadas_mipi_id} = 1; then "\
+					"echo check old TS050 panel;"\
+                    "outputmode=$ts050_output;"\
+                    "setenv outputmode ${ts050_output};"\
+					"fdt set /soc/cbus@ffd00000/i2c@1c000/gt9xx@5d status disable;"\
+					"fdt set /soc/cbus@ffd00000/i2c@1c000/ft5336@38 status okay;"\
+				"else if test ${khadas_mipi_id} = 2; then "\
+					"echo check TS101 panel;"\
+                    "outputmode=$ts101_output;"\
+                    "setenv outputmode ${ts101_output};"\
+					"fdt set /soc/cbus@ffd00000/i2c@1c000/gt9xx@5d status okay;"\
+					"fdt set /soc/cbus@ffd00000/i2c@1c000/ft5336@38 status disable;"\
+                "else if test ${khadas_mipi_id} = 3; then "\
+					"echo check new TS050 panel;"\
+                    "outputmode=$ts050_output;"\
+                    "setenv outputmode ${ts050_output};"\
+					"fdt set /soc/cbus@ffd00000/i2c@1c000/gt9xx@5d status disable;"\
+					"fdt set /soc/cbus@ffd00000/i2c@1c000/ft5336@38 status okay;"\
+                "fi;fi;fi;"\
+			"\0"\
         "display_config="\
              "fdt addr ${dtb_mem_addr}; "\
              "if test ${lcd_exist} = 0; then "\
@@ -364,8 +386,9 @@
                 "kbi usid noprint;"\
                 "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
                 "setenv serial ${usid};"\
-		"kbi ethmac noprint;"\
-		"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
+		        "kbi ethmac noprint;"\
+		        "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
+                "setenv bootargs ${bootargs} khadas_mipi_id=${khadas_mipi_id};"\
             "fi;"\
             "\0"\
 		"ext_ethernet_change="\
@@ -396,7 +419,7 @@
                 "run recovery_from_flash;"\
             "fi;"\
             "\0"\
-	"irremote_update="\
+	    "irremote_update="\
 		"if irkey 2500000 0xe31cfb04 0xb748fb04; then "\
 			"echo read irkey ok!; " \
 		"if itest ${irkey_value} == 0xe31cfb04; then " \
@@ -409,6 +432,7 @@
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run burn_mac;"\
+            "run check_panel;"\
             "run factory_reset_poweroff_protect;"\
             "run upgrade_check;"\
             "run init_display;"\
@@ -444,8 +468,14 @@
 /* buffer rotate for portrait screen */
 #define CONFIG_SINGLE_LOGO \
 	"setenv outputmode panel;setenv display_layer osd0;"\
-	"setenv fb_height 1920; setenv fb_width 1080;"\
-	"vout output panel;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
+    "if test ${khadas_mipi_id} = 2; then "\
+        "setenv fb_width 1920; setenv fb_height 1200;"\
+        "setenv display_width 1920;setenv display_height 1200;"\
+        "vout output panel;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+    "else "\
+	    "setenv fb_height 1920; setenv fb_width 1080;"\
+	    "vout output panel;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
+    "fi;"\
 	"\0"\
 
 //#define CONFIG_ENV_IS_NOWHERE  1

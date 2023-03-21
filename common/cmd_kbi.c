@@ -1256,11 +1256,11 @@ static int do_check_panel(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	if(khadas_mipi_id == 0x51) {//old TS050
 		khadas_mipi_id = 1;
 		setenv("khadas_mipi_id", "1");
-		//setenv("panel_type", "lcd_1");
+		setenv("panel_type", "lcd_1");
 	}else if(khadas_mipi_id == 0x79) {//new TS050
 		khadas_mipi_id = 3;
 		setenv("khadas_mipi_id", "3");
-		//setenv("panel_type", "lcd_3");
+		setenv("panel_type", "lcd_3");
 	}else{
 		sw_i2c_read(0xba, 0x9e, dat, 1);
 		khadas_mipi_id = dat[0];
@@ -1268,14 +1268,14 @@ static int do_check_panel(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		if(khadas_mipi_id == 0x00){//TS101
 			khadas_mipi_id = 2;
 			setenv("khadas_mipi_id", "2");
-			//setenv("panel_type", "lcd_2");
+			setenv("panel_type", "lcd_2");
 		}else {
 			khadas_mipi_id = 0;
 			setenv("khadas_mipi_id", "0");
-			//setenv("panel_type", "lcd_1");
+			setenv("panel_type", "lcd_1");
 		}
 	}
-	printf("panel_type=%s   khadas_mipi_id=%d   id=0---default old TS050   id=1,lcd_1---old TS050   id=2,lcd_2---new TS050   id=3,lcd_3---TS101\n",getenv("panel_type"), khadas_mipi_id);
+	printf("panel_type=%s   khadas_mipi_id=%d   id=0---default old_TS050   id=1,lcd_1---old_TS050   id=2,lcd_2---TS101   id=3,lcd_3---new_TS050\n",getenv("panel_type"), khadas_mipi_id);
 	return 0;
 }
 #endif
@@ -1640,7 +1640,7 @@ static char kbi_help_text[] =
 		"kbi tststatus r - read TST status\n"
 		"kbi tststatus clear - clear TST status\n"
 		"kbi check_camera - check OS08A10 or IMX415\n"
-		"kbi check_panel - check TS050 or TS101\n"
+		"kbi check_panel - check old_TS050 or TS101 or new_TS050\n"
 		"\n"
 #endif
 		"kbi forcebootsd\n"
