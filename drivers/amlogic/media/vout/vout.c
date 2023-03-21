@@ -528,6 +528,7 @@ static struct vinfo_s vout_info = {
 	.vd_color_bg = 0,
 	.cmap = NULL,                /* Pointer to the colormap */
 	.priv = NULL,                /* Pointer to driver-specific data */
+	.cur_enc_ppc = 1,
 };
 
 static int vout_conf_check(void)
@@ -631,6 +632,7 @@ static void vout_vmode_init(void)
 		width = pdrv->config.basic.h_active;
 		height = pdrv->config.basic.v_active;
 		field_height = pdrv->config.basic.v_active;
+		vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
 		break;
 #endif
 	default:

@@ -63,6 +63,8 @@ static void lcd_gamma_init(struct aml_lcd_drv_s *pdrv)
 #ifdef CONFIG_AML_VPP
 	lcd_wait_vsync(pdrv);
 	vpp_disable_lcd_gamma_table(pdrv->index);
+	if (pdrv->data->chip_type == LCD_CHIP_T3X)
+		return;
 
 	vpp_init_lcd_gamma_table(pdrv->index);
 

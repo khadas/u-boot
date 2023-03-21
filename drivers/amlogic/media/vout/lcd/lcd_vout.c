@@ -645,6 +645,7 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 
 	pdrv->boot_ctrl.lcd_type = pdrv->config.basic.lcd_type;
 	pdrv->boot_ctrl.lcd_bits = pdrv->config.basic.lcd_bits;
+	pdrv->boot_ctrl.ppc = pdrv->config.timing.ppc;
 	switch (pdrv->config.basic.lcd_type) {
 	case LCD_RGB:
 		pdrv->boot_ctrl.advanced_flag =
@@ -675,6 +676,7 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	val |= (pdrv->boot_ctrl.advanced_flag & 0xff) << 8;
 	val |= (pdrv->boot_ctrl.custom_pinmux & 0x1) << 16;
 	val |= (pdrv->boot_ctrl.init_level & 0x3) << 18;
+	val |= (pdrv->boot_ctrl.ppc & 0xf) << 24;
 	sprintf(ctrl_str, "0x%08x", val);
 
 	if (strlen(pdrv->config.basic.model_name) > 0) {

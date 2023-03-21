@@ -375,6 +375,12 @@ static void lcd_set_phy_dig_div(struct aml_lcd_drv_s *pdrv)
 	lcd_reset_setb(RESETCTRL_RESET1_LEVEL, 1, bit_rst, 1);
 	udelay(10);
 
+	//sel encl clk and phy clk src for disp path 1
+	if (pdrv->index == 1 && cconf->data->clk1_path_sel == 0)
+		lcd_combo_dphy_setb(COMBO_DPHY_CNTL0, 1, 5, 1);// disp0 clk form tcon_pll0
+	else
+		lcd_combo_dphy_setb(COMBO_DPHY_CNTL0, 0, 5, 1);// disp1 clk form tcon_pll1
+
 	// Enable dphy clock
 	lcd_combo_dphy_setb(reg_dphy_tx_ctrl1, 1, 0, 1);
 
@@ -500,6 +506,7 @@ static void lcd_clk_set_t7(struct aml_lcd_drv_s *pdrv)
 	}
 }
 
+/* tcon run base clk, include register access */
 static void lcd_set_tcon_clk_t3(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
@@ -599,71 +606,6 @@ static void lcd_set_vid_pll_div_t3(struct aml_lcd_drv_s *pdrv)
 	lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 1, 19, 1);
 }
 
-__maybe_unused static void lcd_set_vid_pll_div_t3x(struct aml_lcd_drv_s *pdrv)
-{
-	struct lcd_clk_config_s *cconf;
-	unsigned int shift_val, shift_sel;
-	int i;
-
-	cconf = get_lcd_clk_config(pdrv);
-	if (!cconf)
-		return;
-
-	if (lcd_debug_print_flag & LCD_DBG_PR_ADV2)
-		LCDPR("[%d]: %s\n", pdrv->index, __func__);
-
-	if (cconf->pll_id == 0) {
-		/* only crt_video valid for clk path1 */
-		lcd_clk_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
-		lcd_clk_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 19, 1);
-		udelay(5);
-		return;
-	} else if (cconf->pll_id == 1) {
-		lcd_clk_setb(COMBO_DPHY_VID_PLL1_DIV, 0, 15, 1);
-		lcd_clk_setb(COMBO_DPHY_VID_PLL1_DIV, 0, 19, 1);
-		udelay(5);
-	}
-
-	i = 0;
-	while (lcd_clk_div_table[i][0] != CLK_DIV_SEL_MAX) {
-		if (cconf->div_sel == lcd_clk_div_table[i][0])
-			break;
-		i++;
-	}
-	if (lcd_clk_div_table[i][0] == CLK_DIV_SEL_MAX)
-		LCDERR("[%d]: invalid clk divider\n", pdrv->index);
-	shift_val = lcd_clk_div_table[i][1];
-	shift_sel = lcd_clk_div_table[i][2];
-
-	if (shift_val == 0xffff) { /* if divide by 1 */
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 1, 18, 1);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 18, 1);
-	} else {
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 0, 18, 1);
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 0, 20, 1);/*div8_25*/
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 0, 16, 2);
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 0, 15, 1);
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 0, 0, 15);
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, shift_sel, 16, 2);
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 1, 15, 1);
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, shift_val, 0, 15);
-		//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 0, 15, 1);
-
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 18, 1);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 20, 1);/*div8_25*/
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 16, 2);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 0, 15);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, shift_sel, 16, 2);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 15, 1);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, shift_val, 0, 15);
-		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
-	}
-	/* Enable the final output clock */
-	//lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 1, 19, 1);
-	lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 19, 1);
-}
-
 static void lcd_clk_set_t3(struct aml_lcd_drv_s *pdrv)
 {
 	if (pdrv->index == 0) /* tcon_clk invalid for lcd1 */
@@ -672,12 +614,13 @@ static void lcd_clk_set_t3(struct aml_lcd_drv_s *pdrv)
 	lcd_set_vid_pll_div_t3(pdrv);
 }
 
-__maybe_unused static void lcd_clk_set_t3x(struct aml_lcd_drv_s *pdrv)
+static void lcd_clk_set_t3x(struct aml_lcd_drv_s *pdrv)
 {
 	if (pdrv->index == 0) /* tcon_clk invalid for lcd1 */
 		lcd_set_tcon_clk_t3(pdrv);
-	lcd_set_pll_t3(pdrv);
-	lcd_set_vid_pll_div_t3x(pdrv);
+	lcd_set_pll_t7(pdrv);
+	lcd_set_phy_dig_div(pdrv);
+	lcd_set_vid_pll_div_t7(pdrv);
 }
 
 static void lcd_set_vclk_crt(struct aml_lcd_drv_s *pdrv)
@@ -1649,7 +1592,7 @@ static struct lcd_clk_data_s lcd_clk_data_t3x = {
 	.set_ss_level = lcd_set_pll_ss_level,
 	.set_ss_advance = lcd_set_pll_ss_advance,
 	.clk_ss_enable = lcd_pll_ss_enable,
-	.clk_set = lcd_clk_set_t3,
+	.clk_set = lcd_clk_set_t3x,
 	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_disable = lcd_clk_disable,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,

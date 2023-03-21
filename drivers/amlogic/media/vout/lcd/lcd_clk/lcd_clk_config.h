@@ -52,6 +52,7 @@ struct lcd_clk_data_s {
 	unsigned int xd_out_fmax;
 
 	unsigned char vclk_sel;
+	unsigned char clk1_path_sel;//display 1 clk path sel tcon_pll0/1
 	int enc_clk_msr_id;
 	struct lcd_clk_ctrl_s *pll_ctrl_table;
 

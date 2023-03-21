@@ -115,6 +115,9 @@ int lcd_phy_config_init(struct aml_lcd_data_s *pdata)
 	case LCD_CHIP_C3:
 		lcd_phy_ctrl = lcd_phy_config_init_c3(pdata);
 		break;
+	case LCD_CHIP_T3X:
+		lcd_phy_ctrl = lcd_phy_config_init_t3x(pdata);
+		break;
 	default:
 		break;
 	}

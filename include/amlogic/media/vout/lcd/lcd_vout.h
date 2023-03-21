@@ -500,6 +500,7 @@ struct lcd_boot_ctrl_s {
 	unsigned char advanced_flag;
 	unsigned char custom_pinmux;
 	unsigned char init_level;
+	unsigned char ppc;//4bits
 };
 
 /*

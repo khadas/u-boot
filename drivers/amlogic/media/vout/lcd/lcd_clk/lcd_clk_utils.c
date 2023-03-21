@@ -499,7 +499,7 @@ void lcd_clk_generate_dft(struct aml_lcd_drv_s *pdrv)
 	unsigned int clk_div_sel, xd, tcon_div_sel = 0, phy_div = 1;
 	unsigned int od1, od2, od3;
 	unsigned int bit_rate_max = 0, bit_rate_min = 0, tmp;
-	unsigned int tmp_div;
+	unsigned int tmp_div, lvds_dual_port;
 	int done;
 
 	cconf = get_lcd_clk_config(pdrv);
@@ -548,7 +548,11 @@ void lcd_clk_generate_dft(struct aml_lcd_drv_s *pdrv)
 		}
 		break;
 	case LCD_LVDS:
-		clk_div_sel = CLK_DIV_SEL_7;
+		lvds_dual_port = pdrv->config.control.lvds_cfg.dual_port & 0x1;
+		if (pdrv->data->chip_type == LCD_CHIP_T3X && lvds_dual_port)
+			clk_div_sel = CLK_DIV_SEL_3p5;
+		else
+			clk_div_sel = CLK_DIV_SEL_7;
 		xd = 1;
 		clk_div_out = cconf->fout * xd;
 		if (clk_div_out > cconf->data->div_out_fmax)

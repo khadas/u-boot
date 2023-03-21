@@ -747,6 +747,7 @@ static int handle_lcd_timming(struct lcd_attr_s *p_attr)
 static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 {
 	const char *ini_value = NULL;
+	unsigned char ppc = 1;
 
 	ini_value = IniGetString("lcd_Attr", "fr_adjust_type", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -762,6 +763,12 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, clk_auto_gen is (%s)\n", __func__, ini_value);
 	p_attr->customer.clk_auto_gen = strtoul(ini_value, NULL, 0);
+
+	ini_value = IniGetString("lcd_Attr", "ppc_mode", "1");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, ppc_mode  is (%s)\n", __func__, ini_value);
+	ppc = strtoul(ini_value, NULL, 1);
+	p_attr->customer.clk_auto_gen |= ((ppc & 0xf) << 4);
 
 	ini_value = IniGetString("lcd_Attr", "pixel_clk", "0");
 	if (model_debug_flag & DEBUG_LCD)

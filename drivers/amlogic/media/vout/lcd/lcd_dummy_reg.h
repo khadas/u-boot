@@ -1975,3 +1975,30 @@
 #ifndef HHI_VID_CLK0_CTRL2
 #define HHI_VID_CLK0_CTRL2              0x0a4
 #endif
+
+#ifndef VBO_SLICE_CTRL
+#define VBO_SLICE_CTRL                             ((0x1980  << 2) + 0xff800000)
+#endif
+
+#ifndef VBO_RGN_CTRL
+#define VBO_RGN_CTRL                               ((0x1981  << 2) + 0xff800000)
+#endif
+#ifndef VBO_RGN_HSIZE
+#define VBO_RGN_HSIZE                              ((0x1982  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_HSO_PRE_PX_RNG
+#define ENCL_VIDEO_HSO_PRE_PX_RNG                  ((0x14f0  << 2) + 0xff800000)
+#endif
+#ifndef ENCL_VIDEO_VSO_PRE_PX_RNG
+#define ENCL_VIDEO_VSO_PRE_PX_RNG                  ((0x14f1  << 2) + 0xff800000)
+#endif
+#ifndef ENCL_VIDEO_VSO_PRE_LN_RNG
+#define ENCL_VIDEO_VSO_PRE_LN_RNG                  ((0x14f2  << 2) + 0xff800000)
+#endif
+#ifndef VBO_CTRL
+#define VBO_CTRL                                   ((0x1960  << 2) + 0xff800000)
+#endif
+#ifndef VBO_FSM_HOLDER
+#define VBO_FSM_HOLDER                             ((0x1975  << 2) + 0xff800000)
+#endif
