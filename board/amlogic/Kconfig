@@ -734,6 +734,12 @@ config A4_BA400
 		help
 		    Select A4 BA400 config
 
+config A4_BA400_ZIRCON
+		bool "A4_BA400_ZIRCON"
+		select TARGET_A4_BA400_ZIRCON
+		help
+			Select A4 BA400 ZIRCON config
+
 config A4_BA409
         bool "A4_BA409"
 		select TARGET_A4_BA409
@@ -749,6 +755,10 @@ config TARGET_A4_SKT
 config TARGET_A4_BA400
 	bool "A4 BA409 board"
 	depends on A4_BA400
+
+config TARGET_A4_BA400_ZIRCON
+	bool "A4 BA400 ZIRCON board"
+	depends on A4_BA400_ZIRCON
 
 config TARGET_A4_BA409
 	bool "A4 BA409 board"
@@ -1635,5 +1645,7 @@ source "board/amlogic/t5m_ay309/Kconfig"
 source "board/amlogic/a4_skt/Kconfig"
 
 source "board/amlogic/a4_ba400/Kconfig"
+
+source "board/amlogic/a4_ba400_zircon/Kconfig"
 
 source "board/amlogic/a4_ba409/Kconfig"
