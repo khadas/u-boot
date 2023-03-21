@@ -425,7 +425,7 @@
 /* osd */
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
-#define AML_T7_DISPLAY
+#define AML_S5_DISPLAY
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

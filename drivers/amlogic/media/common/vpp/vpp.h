@@ -133,5 +133,14 @@ struct matrix_s {
 #ifndef VPP2_MATRIX_EN_CTRL
 #define VPP2_MATRIX_EN_CTRL                        0x59dd
 #endif
+#ifndef L_GAMMA_CNTL_PORT
+#define L_GAMMA_CNTL_PORT                          0x1900
+#endif
+#ifndef L_GAMMA_DATA_PORT
+#define L_GAMMA_DATA_PORT                          0x1901
+#endif
+#ifndef L_GAMMA_ADDR_PORT
+#define L_GAMMA_ADDR_PORT                          0x1902
+#endif
 
 #endif

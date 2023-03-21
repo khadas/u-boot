@@ -1064,7 +1064,8 @@ static int get_vpp_slice_num(const struct vinfo_s *info)
 	else
 		slice_num = 1;
 #else
-	slice_num = info->cur_enc_ppc;
+	if (info->cur_enc_ppc)
+		slice_num = info->cur_enc_ppc;
 #endif
 	return slice_num;
 }

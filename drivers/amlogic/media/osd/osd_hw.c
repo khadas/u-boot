@@ -1198,7 +1198,8 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X)
 		postbld_src3_sel = 4;
 
 	/* for s5_display, OSDx to din(x+1) */
@@ -4339,7 +4340,8 @@ void osd_init_hw_viux(u32 index)
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X)
 		osd_hw.mif_linear = 1;
 }
 #else
@@ -4433,6 +4435,7 @@ static void set_vpp_super_position(void)
 #define PREBLD_SR0_VD1_SCALER		(1 << 1)
 #define DNLP_SR1_CM			        (1 << 3)
 
+#ifndef AML_S5_DISPLAY
 	if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_G12A) ||
 		(osd_get_chip_type() == MESON_CPU_MAJOR_ID_G12B) ||
 		 (osd_get_chip_type() == MESON_CPU_MAJOR_ID_SM1))
@@ -4440,6 +4443,7 @@ static void set_vpp_super_position(void)
 	else if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_TL1) ||
 		(osd_get_chip_type() >= MESON_CPU_MAJOR_ID_TM2))
 		osd_reg_set_mask(VPP_MISC, DNLP_SR1_CM);
+#endif
 }
 
 static void fix_vpu_clk2_default_regs(void)
@@ -4873,7 +4877,8 @@ void osd_init_hw(void)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X)
 		osd_hw.mif_linear = 1;
 
 	return;
