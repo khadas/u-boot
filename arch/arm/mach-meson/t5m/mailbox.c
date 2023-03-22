@@ -102,7 +102,7 @@ void mhu_get_payload(uintptr_t mboxpl, uint32_t mboxwr, void *message, uint32_t 
 	if (size == 0)
 		return;
 	memcpy(message, (void *)(long)(mboxwr + MHU_DATA_OFFSET), size);
-	memset((void *)(long)mboxwr, 0, MHU_PAYLOAD_SIZE);
+	mbclean(mboxwr, MHU_PAYLOAD_SIZE);
 }
 
 void mhu_message_send(uint32_t mboxset, uint32_t command, uint32_t size)
