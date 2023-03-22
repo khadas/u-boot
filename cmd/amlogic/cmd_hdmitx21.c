@@ -24,6 +24,13 @@ static void dump_full_edid(const unsigned char *buf)
 	blk_no = buf[126] + 1;
 	if (blk_no > 4)
 		blk_no = 4;
+
+	if (blk_no == 2)
+		if (buf[128 + 4] == 0xe2 && buf[128 + 5] == 0x78)
+			blk_no = buf[128 + 6] + 1;
+	if (blk_no > EDID_BLK_NO)
+		blk_no = EDID_BLK_NO;
+
 	printf("dump EDID rawdata\n");
 	printf("  ");
 	for (i = 0; i < blk_no * EDID_BLK_SIZE; i++)

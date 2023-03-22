@@ -599,7 +599,7 @@ struct parse_cr {
 	const char *name;
 };
 
-#define EDID_BLK_NO	4
+#define EDID_BLK_NO	8
 #define EDID_BLK_SIZE	128
 struct hdmi_format_para {
 	enum hdmi_vic vic;

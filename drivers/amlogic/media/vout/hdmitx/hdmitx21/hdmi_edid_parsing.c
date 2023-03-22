@@ -50,6 +50,7 @@
 #define TAG_CVT_TIMING_CODES 0xF8
 #define TAG_ESTABLISHED_TIMING_III 0xF7
 #define TAG_DUMMY_DES 0x10
+#define EDID_MAX_BLOCK 8
 
 static bool _is_y420_vic(enum hdmi_vic vic);
 
@@ -951,6 +952,14 @@ unsigned int hdmi_edid_parsing(unsigned char *edid_buf, struct rx_cap *prxcap)
 	 *	return 0;
 	 */
 
+	/* HF-EEODB */
+	if (blockcount == 1)
+		if (edid_buf[128 + 4] == 0xe2 && edid_buf[128 + 5] == 0x78)
+			blockcount = edid_buf[128 + 6];
+	/* limit cta_block_count to EDID_MAX_BLOCK - 1 */
+	if (blockcount > EDID_MAX_BLOCK - 1)
+		blockcount = EDID_MAX_BLOCK - 1;
+
 	idx[0] = EDID_DETAILED_TIMING_DES_BLOCK0_POS;
 	idx[1] = EDID_DETAILED_TIMING_DES_BLOCK1_POS;
 	idx[2] = EDID_DETAILED_TIMING_DES_BLOCK2_POS;
@@ -1457,7 +1466,6 @@ enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 	return vic;
 }
 
-#define EDID_MAX_BLOCK 4
 static bool hdmitx_check_edid_all_zeros(unsigned char *buf)
 {
 	unsigned int i = 0, j = 0;
