@@ -101,6 +101,7 @@ int active_clk(void)
 void board_lcd_detect(void)
 {
 	int ret = 0;
+	int res = 0;
 	u8 value = 0;
 	uchar linebuf[1];
 	struct udevice *bus;
@@ -109,42 +110,35 @@ void board_lcd_detect(void)
 	uclass_get_device_by_seq(UCLASS_I2C, 3, &bus);
 	ret = i2c_get_chip(bus, 0x38, 1, &dev);
 	if (!ret) {
-		ret = dm_i2c_read(dev, 0xfe, linebuf, 1);
-		if (!ret) {
+		res = dm_i2c_read(dev, 0xA8, linebuf, 1);
+		if (!res) {
 			printf("TP05 id=0x%x\n", linebuf[0]);
-			if (linebuf[0] > 0x10){//TS050 = 0x1f
+			if (linebuf[0] == 0x51) {//old ts050
 				env_set("panel_type", "mipi_0");
 				value = 1;
-				printf("panel_type : mipi_1");
-			}
-		} else {
-			ret = i2c_get_chip(bus, 0x14, 1, &dev);
-			if (!ret) {
-				ret = dm_i2c_read(dev, 0x9e, linebuf, 1);
-				if (!ret) {
-					printf("TP10 id=0x%x\n", linebuf[0]);
-					if (linebuf[0] == 0x00) {//TS101
-						env_set("panel_type", "mipi_1");
-						value = 1;
-						printf("panel_type : mipi_1");
-					}
-				}
+				printf("panel_type : mipi_0\n");
+			} else if (linebuf[0] == 0x79) {//new ts050
+				env_set("panel_type", "mipi_2");
+				value = 1;
+				printf("panel_type : mipi_2\n");
 			}
 		}
-	} else {
+	}
+	if (ret || res) {
 		ret = i2c_get_chip(bus, 0x14, 1, &dev);
 		if (!ret) {
-			ret = dm_i2c_read(dev, 0x9e, linebuf, 1);
-			if (!ret) {
+			res = dm_i2c_read(dev, 0x9e, linebuf, 1);
+			if (!res) {
 				printf("TP10 id=0x%x\n", linebuf[0]);
 				if (linebuf[0] == 0x00) {//TS101
 					env_set("panel_type", "mipi_1");
 					value = 1;
-					printf("panel_type : mipi_1");
+					printf("panel_type : mipi_1\n");
 				}
 			}
 		}
 	}
+
 	env_set_ulong("mipi_lcd_exist", value);
 	printf("mipi_lcd_exist : %d\n", value);
 }
