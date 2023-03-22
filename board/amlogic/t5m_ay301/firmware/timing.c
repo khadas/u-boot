@@ -58,7 +58,7 @@
  */
 
 #define  CACLU_CLK_DDR0   1464
-#define  CACLU_CLK_DDR1   1584       // 600 //1176 //1320 //1464 //1584 //1800 //792 //912 //1008
+#define  CACLU_CLK_DDR1   1512       // 600 //1176 //1320 //1464 //1584 //1800 //792 //912 //1008
 #define  CONFIG_BOARD_TIMMING
 
 #define ENABLE_T5M_SKT_BOARD 1  //SKT AY309 6layer 4pcs ddr4
