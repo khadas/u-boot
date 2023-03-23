@@ -4,6 +4,8 @@
  *
  */
 #include <common.h>
+#include <dm/uclass.h>
+#include <wdt.h>
 #include <linux/mtd/partitions.h>
 #include <nand.h>
 #include <part.h>
@@ -73,6 +75,34 @@ static const dcfg_arm_psci_driver_t psci_driver = {
 
 static const dcfg_arm_generic_timer_driver_t timer_driver = {
 	.irq_phys = 30,
+};
+
+// Declared in <arch/arm/include/asm/arch-a4/register.h>
+#define WDT_CTRL RESETCTRL_WATCHDOG_CTRL0
+#define WDT_PET RESETCTRL_WATCHDOG_CLR
+
+#define WATCHDOG_TIMEOUT_SECONDS 5
+#define SECONDS_TO_NANOSECONDS 1000000000LL
+
+static const dcfg_generic_32bit_watchdog_t wdt_driver = {
+	.pet_action = {
+		.addr = WDT_PET,
+		.clr_mask = 0xffffffff,
+		.set_mask = 0x00000000,
+	},
+	.enable_action = {
+		.addr = WDT_CTRL,
+		.clr_mask = 0x00000000,
+		.set_mask = 0x00040000,
+	},
+	.disable_action = {
+		.addr = WDT_CTRL,
+		.clr_mask = 0x00040000,
+		.set_mask = 0x00000000,
+	},
+	.watchdog_period_nsec =
+		WATCHDOG_TIMEOUT_SECONDS * SECONDS_TO_NANOSECONDS,
+	.flags = KDRV_GENERIC_32BIT_WATCHDOG_FLAG_ENABLED,
 };
 
 static const zbi_platform_id_t platform_id = {
@@ -400,6 +430,22 @@ failed:
 	printf("MAC address parsing failed for \"%s\"\n", env_get("ethaddr"));
 }
 
+#define WATCHDOG_DEV_NAME "watchdog"
+static void start_meson_watchdog(void)
+{
+	struct udevice *wdt_dev;
+	int ret = uclass_get_device_by_name(UCLASS_WDT, WATCHDOG_DEV_NAME,
+					    &wdt_dev);
+	if (ret < 0) {
+		printf("failed to get meson watchdog\n");
+		return;
+	}
+
+	printf("starting meson watchdog\n");
+	wdt_start(wdt_dev, WATCHDOG_TIMEOUT_SECONDS * 1000, 0);
+	wdt_reset(wdt_dev);
+}
+
 int zircon_preboot(zbi_header_t *zbi)
 {
 	// allocate crashlog save area before 0x5f800000-0x60000000 reserved area
@@ -422,6 +468,9 @@ int zircon_preboot(zbi_header_t *zbi)
 			sizeof(psci_driver));
 	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_ARM_GENERIC_TIMER, &timer_driver,
 			sizeof(timer_driver));
+	//enable hw_watchdog
+	zircon_append_boot_item(zbi, ZBI_TYPE_KERNEL_DRIVER, KDRV_GENERIC_32BIT_WATCHDOG,
+			&wdt_driver, sizeof(wdt_driver));
 	zircon_append_boot_item(zbi, ZBI_TYPE_CMDLINE, 0, BOOTLOADER_VERSION,
 			strlen(BOOTLOADER_VERSION) + 1);
 	// add platform ID
@@ -433,5 +482,9 @@ int zircon_preboot(zbi_header_t *zbi)
 	add_cpu_topology(zbi);
 	add_reboot_reason(zbi);
 	add_eth_mac_address(zbi);
+
+	if (wdt_driver.flags & KDRV_GENERIC_32BIT_WATCHDOG_FLAG_ENABLED)
+		start_meson_watchdog();
+
 	return 0;
 }
