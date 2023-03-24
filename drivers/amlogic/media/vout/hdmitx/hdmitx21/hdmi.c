@@ -64,7 +64,8 @@ int hdmi_avi_infoframe_init(struct hdmi_avi_infoframe *frame)
 static int hdmi_avi_infoframe_check_only(const struct hdmi_avi_infoframe *frame)
 {
 	if (frame->type != HDMI_INFOFRAME_TYPE_AVI ||
-	    frame->version != 2 ||
+	    frame->version < 2 ||
+	    frame->version > 4 ||
 	    frame->length != HDMI_AVI_INFOFRAME_SIZE)
 		return -EINVAL;
 
