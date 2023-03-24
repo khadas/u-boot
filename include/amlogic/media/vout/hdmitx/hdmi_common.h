@@ -633,6 +633,7 @@ struct hdmi_support_mode {
 #define MODE_LEN	32
 #define VESA_MAX_TIMING 64
 
+/* below default ENV is not used, just for backup */
 #define DEFAULT_OUTPUTMODE_ENV		"1080p60hz"
 #define DEFAULT_HDMIMODE_ENV		"1080p60hz"
 #define DEFAULT_COLORATTRIBUTE_ENV	"444,8bit"

@@ -78,7 +78,7 @@
 	"otg_device=1\0" \
 	"panel_type=mipi_0\0" \
 	"outputmode=panel\0" \
-	"hdmimode=1080p60hz\0" \
+	"hdmimode=none\0" \
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0" \
 	"display_width=1920\0" \

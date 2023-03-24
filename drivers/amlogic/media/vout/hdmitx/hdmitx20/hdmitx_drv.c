@@ -751,17 +751,12 @@ int hdmi_tx_set(struct hdmitx_dev *hdev)
 	int ret = 0;
 
 	unsigned char checksum[11];
-	char *p_tmp;
 	aml_audio_init();  /* Init audio hw firstly */
 	hdmitx_hw_init();
 	ddc_init_();
 	ret = hdmitx_set_hw(hdev);
 	/* add audio */
 	hdmitx_set_audmode(hdev);
-	//kernel will determine output mode on its own
-	p_tmp = env_get("outputmode");
-	if (NULL != p_tmp)
-		env_set("hdmimode", p_tmp);
 
 	/* null char needed to terminate the string
 	   otherwise garbage in checksum logopara */

@@ -816,6 +816,9 @@ static void get_hdmi_outputmode(struct input_hdmi_data *hdmi_data, char *mode)
 			struct hdmitx_dev, RXCap);
 
     /* Fall back to 480p if EDID can't be parsed */
+    /* actually won't go into this edid parsing decision
+     * as it will be decided outside
+     */
 	if (!edid_parsing_ok(hdev)) {
 		strcpy(mode, DEFAULT_HDMI_MODE);
 		printf("EDID parsing error detected\n");
@@ -1233,14 +1236,26 @@ void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 
 	if (!hdev || !data)
 		return;
-
+	/* 1."hdmimode" is used to save user manually selected mode,
+	 * note that if auto best mode is on, it means no user manual
+	 * operation. then this env will be default "none" or NULL
+	 * 2."user_colorattribute" is used to save user manually
+	 * selected color space/depth.
+	 * while
+	 * 3."outputmode" is used to save the actual output hdmi mode
+	 * 4."colorattribute" is used to save the actual output color space/depth
+	 */
 	hdmimode = env_get("hdmimode");
-	colorattribute = env_get("colorattribute");
+	colorattribute = env_get("user_colorattribute");
 
-	if (!hdmimode)
-		hdmimode = DEFAULT_HDMIMODE_ENV;
-	if (!colorattribute)
-		colorattribute = DEFAULT_COLORATTRIBUTE_ENV;
+	/* the default value here is just an init value in
+	 * case the env is null. if it's null/none, it will
+	 * select the auto best mode/color by policy
+	 */
+	if (!hdmimode || !strcmp(hdmimode, "none"))
+		hdmimode = DEFAULT_HDMI_MODE;
+	if (!colorattribute || !strcmp(colorattribute, "none"))
+		colorattribute = DEFAULT_COLOR_FORMAT;
 	strcpy(data->ubootenv_hdmimode, hdmimode);
 	strcpy(data->ubootenv_colorattribute, colorattribute);
 	data->ubootenv_dv_type = get_ubootenv_dv_type();

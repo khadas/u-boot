@@ -64,7 +64,7 @@
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
         "outputmode=panel\0" \
-        "hdmimode=1080p60hz\0" \
+	"hdmimode=none\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \

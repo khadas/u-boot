@@ -169,9 +169,8 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 static void save_default_720p(void)
 {
-	env_set("hdmimode", "720p60hz");
-	env_set("outputmode", "720p60hz");
-	env_set("colorattribute", "rgb,8bit");
+	env_set("outputmode", DEFAULT_HDMI_MODE);
+	env_set("colorattribute", DEFAULT_COLOR_FORMAT);
 }
 
 static void hdmitx_mask_rx_info(struct hdmitx_dev *hdev)
@@ -277,8 +276,9 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			/* Not find VIC */
 			printf("Not find '%s' mapped VIC\n", argv[1]);
 			return CMD_RET_FAILURE;
-		} else
+		} else {
 			printf("set hdmitx VIC = %d\n", hdev->vic);
+		}
 		if (!hdev->para) {
 			printf("null hdmitx para\n");
 			return CMD_RET_FAILURE;
@@ -847,6 +847,12 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	scene_output_info_t scene_output_info;
 	struct hdmi_format_para *para = NULL;
 	bool mode_support = false;
+	/* hdmi_mode / colorattribute may be null or "none".
+	 * if either is null or "none", it means user not
+	 * selected manually, and need to select the best
+	 * mode or colorattribute by policy
+	 */
+	bool no_manual_output = false;
 
 	if (!hdev) {
 		printf("null hdmitx dev\n");
@@ -863,14 +869,16 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 
 	/* check if the tv has changed or anything wrong */
 	store_checkvalue = (unsigned char*)env_get("hdmichecksum");
-	colorattribute = env_get("colorattribute");
+	/* get user selected output mode/color */
+	colorattribute = env_get("user_colorattribute");
 	hdmimode = env_get("hdmimode");
 
 	if (!store_checkvalue)
 		store_checkvalue = def_cksum;
 
-	printf("read hdmichecksum: %s, hdmimode: %s, colorattribute: %s\n",
-	       store_checkvalue, hdmimode, colorattribute);
+	printf("read hdmichecksum: %s, user hdmimode: %s, colorattribute: %s\n",
+	       store_checkvalue, hdmimode ? hdmimode : "null",
+	       colorattribute ? colorattribute : "null");
 
 	for (i = 0; i < 4; i++) {
 		if (('0' <= store_checkvalue[i * 2 + 2]) && (store_checkvalue[i * 2 + 2] <= '9'))
@@ -902,21 +910,32 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		printf("TV is the same, checksum: %s\n", hdev->RXCap.checksum);
 	}
 
-	/* check current mode+colorattr support or not */
-	para = hdmi_tst_fmt_name(hdmimode, colorattribute);
-	if (hdmitx_edid_check_valid_mode(hdev, para))
-		mode_support = true;
+	/* check user have selected both mode/color or not */
+	if (!hdmimode || !strcmp(hdmimode, "none") ||
+		!colorattribute || !strcmp(colorattribute, "none"))
+		no_manual_output = true;
 	else
-		mode_support = false;
+		no_manual_output = false;
 
-	/* two cases need to go with uboot mode select policy:
+	if (!no_manual_output) {
+		/* check current user selected mode + color support or not */
+		para = hdmi_tst_fmt_name(hdmimode, colorattribute);
+		if (hdmitx_edid_check_valid_mode(hdev, para))
+			mode_support = true;
+		else
+			mode_support = false;
+	}
+	/* three cases need to decide output by uboot mode select policy:
 	 * 1.TV changed
-	 * 2.TV not changed, but current mode(set by sysctrl/hwc)
-	 * not supportted by uboot (probably means mode select policy or
-	 * edid parse between sysctrl and uboot have some gap)
-	 * then need to find proper output mode with uboot policy.
+	 * 2.either hdmimode or colorattribute is NULL or "none",
+	 * which means that user have not slected mode or colorattribute,
+	 * and need to select the auto best mode or best colorattribute.
+	 * 3.user selected mode not supportted by uboot (probably
+	 * means mode select policy or edid parse between sysctrl and
+	 * uboot have some gap), then need to find proper output mode
+	 * with uboot policy.
 	 */
-	if (hdev->RXCap.edid_changed || !mode_support) {
+	if (hdev->RXCap.edid_changed || no_manual_output || !mode_support) {
 		/* find proper mode if EDID changed */
 		scene_process(hdev, &scene_output_info);
 		env_set("hdmichecksum", hdev->RXCap.checksum);
@@ -926,7 +945,6 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 			 * EDID read OK, systemcontrol will recover the hdmi
 			 * mode from env, to avoid keep the default hdmi output
 			 */
-			env_set("hdmimode", scene_output_info.final_displaymode);
 			env_set("outputmode",
 			       scene_output_info.final_displaymode);
 			env_set("colorattribute",
@@ -955,6 +973,9 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		printf("update outputmode: %s\n", env_get("outputmode"));
 		printf("update colorattribute: %s\n", env_get("colorattribute"));
 		printf("update hdmichecksum: %s\n", env_get("hdmichecksum"));
+	} else {
+		env_set("outputmode", hdmimode);
+		env_set("colorattribute", colorattribute);
 	}
 	hdev->vic = hdmi_get_fmt_vic(env_get("outputmode"));
 	hdev->para = hdmi_get_fmt_paras(hdev->vic);
