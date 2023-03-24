@@ -20,6 +20,7 @@ run get_rebootmode  //set reboot_mode env with current mode
 int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uint32_t reboot_mode_val;
+	char *quiescent_env_bk;
 
 	reboot_mode_val = ((readl(AO_SEC_SD_CFG15) >> 12) & 0x7f);
 	//this step prevent the reboot mode val stored in sticky register lost
@@ -98,11 +99,23 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		}
 		case AMLOGIC_QUIESCENT_REBOOT:
 		{
+			env_set("quiescent_env_bk", "quiescent");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+			run_command("update_env_part -p quiescent_env_bk;", 0);
+#else
+			run_command("defenv_reserv; saveenv;", 0);
+#endif
 			env_set("reboot_mode","quiescent");
 			break;
 		}
 		case AMLOGIC_RECOVERY_QUIESCENT_REBOOT:
 		{
+			env_set("quiescent_env_bk", "recovery_quiescent");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+			run_command("update_env_part -p quiescent_env_bk;", 0);
+#else
+			run_command("defenv_reserv; saveenv;", 0);
+#endif
 			env_set("reboot_mode","recovery_quiescent");
 			break;
 		}
@@ -133,6 +146,32 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		}
 	}
 #endif
+
+	quiescent_env_bk = env_get("quiescent_env_bk");
+	if (quiescent_env_bk &&
+		((strcmp(quiescent_env_bk, "quiescent") == 0) ||
+		(strcmp(quiescent_env_bk, "recovery_quiescent") == 0))) {
+		printf("quiescent_env_bk: %s\n", quiescent_env_bk);
+		switch (reboot_mode_val) {
+		case AMLOGIC_COLD_BOOT:
+		case AMLOGIC_KERNEL_PANIC:
+		case AMLOGIC_WATCHDOG_REBOOT: {
+				printf("set reboot_mode %s\n", quiescent_env_bk);
+				env_set("reboot_mode", quiescent_env_bk);
+				break;
+			}
+		default: {
+				printf("clear quiescent_env_bk\n");
+				env_set("quiescent_env_bk", "0");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+				run_command("update_env_part -p quiescent_env_bk;", 0);
+#else
+				run_command("defenv_reserv; saveenv;", 0);
+#endif
+				break;
+			}
+		}
+	}
 
 #if defined(CONFIG_AML_RPMB)
 	run_command("rpmb_state",0);
