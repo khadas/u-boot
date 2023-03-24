@@ -111,6 +111,8 @@ static void hdmi_hwp_init(void)
 	hdmitx21_wr_reg(reg, data32);
 	hdmitx21_wr_reg(AON_CYP_CTL_IVCTX, 2);
 	hdmitx21_set_reg_bits(PCLK2TMDS_MISC0_IVCTX, 0, 0, 2); /* Original DE generation logic */
+	/*Control signals for repeat count */
+	hdmitx21_set_reg_bits(HBLANK_REKEY_CONTROL_IVCTX, 1, 6, 1);
 	hdmitx21_set_reg_bits(GCP_CNTL_IVCTX, 1, 0, 1);
 	// clear avmute
 	hdmitx21_set_reg_bits(GCP_AUTO_GEN_IVCTX, 2, 2, 2);
