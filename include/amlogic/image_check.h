@@ -5,6 +5,7 @@
 
 #ifndef __IMAGE_CHECK_H__
 #define __IMAGE_CHECK_H__
+#include <asm/arch/cpu.h>
 
 #define AML_SECURE_BOOT_ERR_NONE         0
 #define AML_SECURE_BOOT_ERR_KEY         -1
@@ -30,7 +31,10 @@ typedef struct {
 #define MAX_RSANUMBYTES ((MAX_RSA_KEY_SIZE) / 8)
 #define MAX_RSANUMWORDS (MAX_RSANUMBYTES / sizeof(u32))
 
-#define SBOOT_BL2_ENCRYPT_KEYSLOT	134
+#if !defined(SBOOT_KEYSLOT_BASE)
+#define SBOOT_KEYSLOT_BASE		128
+#endif
+#define SBOOT_BL2_ENCRYPT_KEYSLOT	(SBOOT_KEYSLOT_BASE + 6)
 #define SBOOT_BL2_ENCRYPT_KEY_LEN	32	// AES256
 
 /* RSA public key definition */

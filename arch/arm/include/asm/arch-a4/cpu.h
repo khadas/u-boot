@@ -80,4 +80,6 @@
 
 #define CONFIG_KEY_PRESERVE
 
+#define SBOOT_KEYSLOT_BASE		32
+
 #endif /* _CPU_H */
