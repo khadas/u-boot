@@ -806,10 +806,50 @@ ddr_reg_t __ddr_reg[] = {
 
 	//cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID,
 	DDR_TIMMING_TUNE(T963_H9_SUM_EID, cfg_board_common_setting.ddr_func, DDR_FUNC),
+
+#if NO_USE_DDR_BL33_CODE
+	//ak301 reserve_training_parameter
+	.cfg_ddr_training_delay_ps[0].reserve_training_parameter = {
+		(0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 5,
+		(1 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 0,  (0 << 7) | 5,
+		(1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 10, (1 << 7) | 10,
+		(1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 15, (1 << 7) | 15,
+	},
+#endif
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[0], 0),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[1], 0),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[2], 0),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[3], (0 << 7) + 5),
+
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[4], 0),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[5], 0),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[6], 0),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[7], (0 << 7) + 5),
+
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[8], (1 << 7) + 15),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[9], (1 << 7) + 15),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[10], (1 << 7) + 10),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[11], (1 << 7) + 10),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[12], (1 << 7) + 15),
+	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[13], (1 << 7) + 15),
 	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
 		cfg_ddr_training_delay_ps[0].reserve_training_parameter[14], (1 << 7) + 15),
 	DDR_TIMMING_TUNE(T963_H9_SUM_EID,
-		cfg_ddr_training_delay_ps[0].reserve_training_parameter[15], (1 << 7) + 10),
+		cfg_ddr_training_delay_ps[0].reserve_training_parameter[15], (1 << 7) + 15),
 
 	//sip 1.5GB
 	DDR_TIMMING_TUNE(T963_H35_SUM_EID, cfg_board_common_setting.fast_boot[2], 0),
