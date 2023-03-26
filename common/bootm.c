@@ -45,7 +45,9 @@
 
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
 
-#if defined(CONFIG_MDUMP_COMPRESS) || defined(CONFIG_SUPPORT_BL33Z)
+#if defined(CONFIG_MDUMP_COMPRESS) || \
+	((defined CONFIG_SUPPORT_BL33Z) && \
+	(defined CONFIG_FULL_RAMDUMP))
 #include <ramdump.h>
 #endif
 
@@ -924,7 +926,9 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (!ret && (states & BOOTM_STATE_FINDOTHER))
 		ret = bootm_find_other(cmdtp, flag, argc, argv);
 
-#if defined(CONFIG_MDUMP_COMPRESS) || defined(CONFIG_SUPPORT_BL33Z)
+#if defined(CONFIG_MDUMP_COMPRESS) || \
+	((defined CONFIG_SUPPORT_BL33Z) && \
+	(defined CONFIG_FULL_RAMDUMP))
 	check_ramdump();
 #endif
 

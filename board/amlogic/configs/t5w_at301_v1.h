@@ -809,5 +809,8 @@
 //DDR address to contain info from BL2 to BL3X
 //#define  AML_BL2_TMASTER_DDR_ADDR  (0x3000000)
 
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
+
 #define CONFIG_AML_KASLR_SEED
 #endif

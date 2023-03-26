@@ -197,6 +197,16 @@ then
   done
 fi
 
+# check bl33z for kernel ramdump
+if [ -d "./bl33z" ]; then
+  cd ./bl33z
+  ./check.sh
+  cd -
+
+  # print again
+  echo -e $RESULT
+fi
+
 echo -e "#################### END ###################\n"
 
 exit $FAIL_COUNTER

@@ -742,7 +742,7 @@ void __weak enable_caches(void)
 	dcache_enable();
 }
 
-#ifdef CONFIG_SUPPORT_BL33Z
+#ifdef CONFIG_FULL_RAMDUMP
 void load_bl33z(void)
 {
 		unsigned long bl33z_entry = (unsigned long)_end;

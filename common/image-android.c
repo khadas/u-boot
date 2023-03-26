@@ -120,7 +120,7 @@ static ulong android_image_get_kernel_addr(const  boot_img_hdr_t *hdr)
 	 *
 	 * Otherwise, we will return the actual value set by the user.
 	 */
-#ifndef CONFIG_SUPPORT_BL33Z
+#if (defined CONFIG_SUPPORT_BL33Z) && (defined CONFIG_FULL_RAMDUMP)
 	if (hdr->kernel_addr == ANDROID_IMAGE_DEFAULT_KERNEL_ADDR)
 		return (ulong)hdr + hdr->page_size;
 

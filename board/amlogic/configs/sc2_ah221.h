@@ -384,5 +384,8 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
+
 #endif
 

@@ -410,6 +410,9 @@
 #define CONFIG_HIGH_NAND_SPEED 1
 #define CONFIG_HIGH_DDC_MODE   1
 
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
+
 #undef CONFIG_AML_BL33_COMPRESS_ENABLE
 
 #endif

@@ -156,7 +156,7 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
-#ifdef CONFIG_SUPPORT_BL33Z
+#ifdef CONFIG_FULL_RAMDUMP
 	. = ALIGN(4096);
 #endif
 

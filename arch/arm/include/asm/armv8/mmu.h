@@ -131,7 +131,7 @@ struct mm_region {
 	u64 attrs;
 };
 
-#ifdef CONFIG_SUPPORT_BL33Z
+#ifdef CONFIG_FULL_RAMDUMP
 void load_bl33z(void);
 #endif
 extern struct mm_region *mem_map;

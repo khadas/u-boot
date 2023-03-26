@@ -369,7 +369,6 @@ void check_ramdump(void)
 			} else {
 				ramdump_env_setup(0, 0);
 			}
-#ifdef CONFIG_SUPPORT_BL33Z
 			//ramdump bl33z
 			printf("%s, fdt: rsvmem ramdump_bl33z enable.\n", __func__);
 			run_command("fdt set /reserved-memory/ramdump_bl33z status okay", 0);
@@ -378,7 +377,6 @@ void check_ramdump(void)
 						ddr_scramble_reg);
 			printf("set_scramble: %s\n", str);
 			run_command(str, 0);
-#endif
 		}
 	}
 }

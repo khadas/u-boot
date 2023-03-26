@@ -388,8 +388,10 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 
-/* config for ramdump */
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 //#define CONFIG_MDUMP_COMPRESS 1
+
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED
 
