@@ -92,11 +92,7 @@
 /* XHCI PHY register structure */
 #define PHY_REGISTER_SIZE	0x20
 
-#define USB_POC7(poc)       ((poc) >> 7 & 1)
-#define POC_USB_CHANNEL_C(poc)  (!USB_POC7(poc))
-
-#define CEG_UDC_1_BASE        (u64)((POC_USB_CHANNEL_C(*(u32 *)\
-	((0x0060  << 2) + 0xfe010000)) ? 0xfe350000 : 0xfe310000))
+#define CEG_UDC_1_BASE       0xFE3B0000
 
 struct phy_aml_usb2_priv {
 	unsigned int base_addr;
@@ -260,4 +256,5 @@ void set_usb_pll(uint32_t phy2_pll_base);
 int usb_save_phy_dev (unsigned int number, struct phy *phy);
 int usb2_phy_init (struct phy *phy);
 void usb_device_mode_init(int phy_num);
+int m31_phy_init(unsigned int phy_num);
 #endif
