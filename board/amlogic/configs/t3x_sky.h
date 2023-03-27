@@ -21,6 +21,7 @@
 #define __BOARD_CFG_H__
 
 #include <asm/arch/cpu.h>
+#include <amlogic/base_env.h>
 
 /*
  * platform power init config
@@ -74,6 +75,7 @@
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
+       CONFIG_EXTRA_ENV_SETTINGS_BASE \
 		"firstboot=1\0"\
 		"silent=1\0"\
 		"upgrade_step=0\0"\
@@ -89,6 +91,7 @@
 		"lcd_debug=0x00000000\0" \
 		"outputmode=1080p60hz\0" \
 		"hdmimode=1080p60hz\0" \
+		"connector_type=LVDS-A\0" \
 		"cvbsmode=576cvbs\0" \
 		"vout_init=disable\0" \
 		"model_name=FHD2HDMI\0" \
@@ -100,7 +103,7 @@
 		"display_layer=osd0\0" \
 		"display_color_fg=0xffff\0" \
 		"display_color_bg=0\0" \
-		"dtb_mem_addr=0x01000000\0" \
+		"dtb_mem_addr=0x6000000\0" \
 		"fb_addr=0x00300000\0" \
 		"fb_width=1920\0" \
 		"fb_height=1080\0" \
@@ -127,6 +130,186 @@
 		"board_logo_part=odm_ext\0" \
 		"boot_flag=0\0"\
 		"logic_addr=0x0\0" \
+		"edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
+		"edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
+		"edid_select=0\0" \
+		"port_map=0x4321\0" \
+		"cec_fun=0x2F\0" \
+		"cec_ac_wakeup=1\0" \
+	"check_connector_type="\
+		"setenv bootconfig ${bootconfig} androidboot.connector_type=${connector_type};"\
+		"\0"\
+	"initargs="\
+		"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 "\
+			"no_console_suspend earlycon=aml-uart,0xfe07a000 "\
+	    "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
+	    "\0"\
+	"upgrade_check="\
+			"run upgrade_check_base;"\
+			"\0"\
+	"storeargs="\
+		"get_bootloaderversion;" \
+		"run storeargs_base;"\
+		"setenv bootargs ${bootargs} powermode=${powermode} "\
+		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+		"outputmode=${outputmode};"\
+		"run check_connector_type; "\
+		"run cmdline_keys;"\
+		"\0"\
+	"cec_init="\
+		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
+		"if test ${cec_ac_wakeup} = 1; then "\
+			"cec ${logic_addr} ${cec_fun}; "\
+			"if test ${edid_select} = 1111; then "\
+				"hdmirx init ${port_map} ${edid_20_dir}; "\
+			"else "\
+				"hdmirx init ${port_map} ${edid_14_dir}; "\
+			"fi;"\
+		"fi;"\
+		"\0"\
+	"ffv_freeze_action="\
+		"run cec_init;"\
+		"setenv ffv_freeze on;"\
+		"setenv bootargs ${bootargs} ffv_freeze=on"\
+		"\0"\
+	"cold_boot_normal_check="\
+		"setenv bootargs ${bootargs} ffv_freeze=off; "\
+		/*"run try_auto_burn;uboot wake up "*/\
+		"if test ${powermode} = on; then "\
+			/*"run try_auto_burn; "*/\
+		"else if test ${powermode} = standby; then "\
+			"run cec_init;"\
+			"systemoff; "\
+		"else if test ${powermode} = last; then "\
+			"echo suspend=${suspend}; "\
+			"if test ${suspend} = off; then "\
+				/*"run try_auto_burn; "*/\
+			"else if test ${suspend} = on; then "\
+				"run cec_init;"\
+				"systemoff; "\
+			"else if test ${suspend} = shutdown; then "\
+				"run cec_init;"\
+				"systemoff; "\
+			"fi; fi; fi; "\
+		"fi; fi; fi; "\
+		"\0"\
+	"switch_bootmode="\
+		"setenv ffv_freeze off;"\
+		"echo reboot_mode : ${reboot_mode};"\
+		"if test ${reboot_mode} = factory_reset; then "\
+				"run recovery_from_flash;"\
+		"else if test ${reboot_mode} = update; then "\
+				"run update;"\
+		"else if test ${reboot_mode} = quiescent; then "\
+				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+		"else if test ${reboot_mode} = recovery_quiescent; then "\
+				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"run recovery_from_flash;"\
+		"else if test ${reboot_mode} = cold_boot; then "\
+			"echo cold boot: ffv_wake=${ffv_wake} "\
+			"powermode=${powermode} suspend=${suspend};"\
+			"if test ${ffv_wake} = on; then "\
+				"if test ${powermode} = on; then "\
+					"setenv bootargs ${bootargs} ffv_freeze=off; "\
+				"else if test ${powermode} = standby; then "\
+					"run ffv_freeze_action; "\
+				"else if test ${powermode} = last; then "\
+					"if test ${suspend} = off; then "\
+						"setenv bootargs ${bootargs} ffv_freeze=off; "\
+					"else if test ${suspend} = on; then "\
+						"run ffv_freeze_action; "\
+					"else if test ${suspend} = shutdown; then "\
+						"run ffv_freeze_action; "\
+					"fi; fi; fi; "\
+				"fi; fi; fi; "\
+			"else "\
+				"run cold_boot_normal_check;"\
+			"fi; "\
+		"else if test ${reboot_mode} = ffv_reboot; then "\
+			"if test ${ffv_wake} = on; then "\
+				"run ffv_freeze_action; "\
+			"fi; "\
+		"else if test ${reboot_mode} = fastboot; then "\
+			"fastboot 1;"\
+		"fi;fi;fi;fi;fi;fi;fi;"\
+		"\0" \
+	"reset_suspend="\
+		"if test ${ffv_freeze} != on; then "\
+			"if test ${suspend} = on || test ${suspend} = shutdown; then "\
+				"setenv suspend off;"\
+				"saveenv;"\
+			"fi;"\
+		"fi;"\
+		"\0" \
+		"storeboot="\
+			"run storeboot_base;"\
+			"\0"\
+		"update="\
+			"run update_base;"\
+			"\0"\
+		"enter_fastboot="\
+			"fastboot 1;"\
+			"\0"\
+		"recovery_from_fat_dev="\
+			"run recovery_from_fat_dev_base;"\
+			"\0"\
+		"recovery_from_udisk="\
+			"run recovery_from_udisk_base;"\
+			"\0"\
+		"recovery_from_sdcard="\
+			"run recovery_from_sdcard_base;"\
+			"\0"\
+		"recovery_from_flash="\
+			"run recovery_from_flash_base;"\
+			"\0"\
+		"bcb_cmd="\
+			"run bcb_cmd_base;"\
+			"\0"\
+		"load_bmp_logo="\
+			"run load_bmp_logo_base;"\
+			"\0"\
+	"init_display="\
+		"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
+		"\0"\
+	"check_display="\
+		"echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
+		"if test ${reboot_mode} = ffv_reboot; then "\
+			"if test ${ffv_wake} = on; then "\
+				"echo ffv reboot no display; "\
+			"else "\
+				"run init_display; "\
+			"fi; "\
+		"else if test ${reboot_mode} = cold_boot; then "\
+			"if test ${powermode} = on; then "\
+				"echo powermode : ${powermode} ,need to init_display; "\
+				"run init_display; "\
+			"else if test ${powermode} = last; then "\
+				"if test ${suspend} = off; then "\
+					"echo suspend : ${suspend} ,need to init_display; "\
+					"run init_display; "\
+				"fi; "\
+			"fi;fi; "\
+		"else "\
+			"echo reboot_mode is normal;"\
+			"run init_display; "\
+		"fi;fi; "\
+		"\0"\
+		"cmdline_keys="\
+			"setenv usid t965d4${cpu_id};"\
+			"run cmdline_keys_base;"\
+			"\0"\
+	"upgrade_key="\
+		"if gpio input GPIOD_3; then "\
+			"echo detect upgrade key;"\
+			"if test ${boot_flag} = 0; then "\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
+			"else if test ${boot_flag} = 1; then "\
+				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
+			"else "\
+				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
+			"fi;fi;"\
+		"fi;"\
 		"\0"\
 
 #ifndef CONFIG_PXP_EMULATOR
@@ -141,6 +324,7 @@
             "bcb uboot-command;" \
 	"run switch_bootmode;" \
 	"run reset_suspend;"
+#define CONFIG_BOOTCOMMAND "run storeboot"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
