@@ -20,6 +20,8 @@
 */
 
 #include <common.h>
+#include <asm/gpio.h>
+#include <khadas_tca6408.h>
 #include <malloc.h>
 #include <errno.h>
 #include <environment.h>
@@ -67,7 +69,197 @@
 #endif
 #include <asm/arch/timer.h>
 
+#define SW_I2C_DELAY() udelay(2)
+#define SW_I2C_SCL_H() set_gpio_level(1,1) //TO-DO: set scl pin to high
+#define SW_I2C_SCL_L() set_gpio_level(1,0) //TO-DO: set scl pin to low
+#define SW_I2C_SDA_H() set_gpio_level(0,1) //TO-DO: set sda pin to high
+#define SW_I2C_SDA_L() set_gpio_level(0,0) //TO-DO: set sda pin to low
+#define SW_I2C_SDA_IS_H() get_sda_gpio_level() //TO-DO: get sda pin level
+
 DECLARE_GLOBAL_DATA_PTR;
+
+static bool get_sda_gpio_level(void)
+{
+	writel(readl(PREG_PAD_GPIO5_EN_N) | (1 << 14), PREG_PAD_GPIO5_EN_N);
+	if (((readl(PREG_PAD_GPIO5_I) & 0x4000) == 0x4000)) {
+		return 1;
+	}
+	return 0;
+}
+
+static void set_gpio_level(int pin, int high)
+{
+	//pin 0: sda 1: scl
+	if (pin == 1){ //scl
+		if (high == 1) {
+			writel(readl(PREG_PAD_GPIO5_O) | (1 << 15), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 15)), PREG_PAD_GPIO5_EN_N);
+		} else {
+			writel(readl(PREG_PAD_GPIO5_O) & (~(1 << 15)), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 15)), PREG_PAD_GPIO5_EN_N);
+		}
+		writel(readl(PERIPHS_PIN_MUX_E) & (~(0xf << 28)), PERIPHS_PIN_MUX_E);
+	} else { //sda
+		if (high == 1) {
+			writel(readl(PREG_PAD_GPIO5_O) | (1 << 14), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 14)), PREG_PAD_GPIO5_EN_N);
+		} else {
+			writel(readl(PREG_PAD_GPIO5_O) & (~(1 << 14)), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 14)), PREG_PAD_GPIO5_EN_N);
+		}
+		writel(readl(PERIPHS_PIN_MUX_E) & (~(0xf << 24)), PERIPHS_PIN_MUX_E);
+	}
+}
+
+void sw_i2c_start(void)
+{
+	SW_I2C_SDA_H();
+	udelay(50);
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_L();
+	SW_I2C_DELAY();
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+}
+
+void sw_i2c_stop(void)
+{
+	SW_I2C_SCL_H();
+	SW_I2C_SDA_L();
+
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_H();
+	SW_I2C_DELAY();
+}
+
+void sw_i2c_tx_ack(void)
+{
+	SW_I2C_SDA_L();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_H();
+}
+
+void sw_i2c_tx_nack(void)
+{
+	SW_I2C_SDA_H();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+}
+
+uint8_t sw_i2c_rx_ack(void)
+{
+	uint8_t ret = 0;
+	uint16_t ucErrTime = 0;
+
+	SW_I2C_SDA_IS_H();
+	SW_I2C_DELAY();
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	while(SW_I2C_SDA_IS_H()){
+		if((++ucErrTime) > 250) {
+			sw_i2c_stop();
+			return 1;
+		}
+	}
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+
+	return ret;
+}
+
+void sw_i2c_tx_byte(uint8_t dat)
+{
+	uint8_t i = 0;
+	uint8_t temp = dat;
+
+	for (i = 0; i < 8; i++) {
+		if (temp & 0x80) {
+			SW_I2C_SDA_H();
+		} else {
+			SW_I2C_SDA_L();
+		}
+		SW_I2C_DELAY();
+
+		SW_I2C_SCL_H();
+		SW_I2C_DELAY();
+		SW_I2C_DELAY();
+
+		SW_I2C_SCL_L();
+		SW_I2C_DELAY();
+
+		temp <<= 1;
+	}
+}
+
+uint8_t sw_i2c_rx_byte(void)
+{
+	uint8_t i = 0;
+	uint8_t dat = 0;
+
+	for (i = 0; i < 8; i++) {
+		dat <<= 1;
+
+		SW_I2C_SCL_H();
+		SW_I2C_DELAY();
+		SW_I2C_DELAY();
+
+		if (SW_I2C_SDA_IS_H()) {
+			dat++;
+		}
+
+		SW_I2C_SCL_L();
+		SW_I2C_DELAY();
+		SW_I2C_DELAY();
+	}
+	return dat;
+}
+
+void sw_i2c_read(uint8_t device_addr, uint8_t reg_addr, uint8_t dat[], uint8_t len)
+{
+	uint8_t i = 0;
+	sw_i2c_start();
+	sw_i2c_tx_byte(device_addr & 0xFE);
+	sw_i2c_rx_ack();
+	sw_i2c_tx_byte(reg_addr);
+	sw_i2c_rx_ack();
+
+	sw_i2c_start();
+	sw_i2c_tx_byte(device_addr | 0x01);
+	sw_i2c_rx_ack();
+
+	for (i = 0; i < len; i++) {
+		dat[i] = sw_i2c_rx_byte();
+		if (i == (len-1))
+		{
+			sw_i2c_tx_nack();
+		} else {
+			sw_i2c_tx_ack();
+		}
+	}
+	sw_i2c_stop();
+}
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
@@ -612,20 +804,33 @@ U_BOOT_DEVICES(meson_pwm) = {
 // detect whether the LCD is exist
 void board_lcd_detect(void)
 {
-	u8 mask = 0, value = 0;
-	int ret = 0;
+	u8 value = 0;
+	uchar linebuf[1] = {0};
+	tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
+	mdelay(5);
+	tca6408_output_set_value((0<<6), (1<<6));
+	mdelay(20);
+	tca6408_output_set_value((1<<6), (1<<6));
+	mdelay(50);
+
+		sw_i2c_read(0x70,0xA8,linebuf,1);
+		if (linebuf[0] == 0x51) {//old TS050
+			setenv("panel_type", "lcd_0");
+			value = 1;
+		} else if (linebuf[0] == 0x79) {//new TS050
+			setenv("panel_type", "lcd_1");
+			value = 1;
+		} else {
+			sw_i2c_read(0xba,0x9e,linebuf,1);
+			if (linebuf[0] == 0x00) {//TS101
+				setenv("panel_type", "lcd_2");
+				value = 1;
+			}
+		}
 
 	// detect RESET pin
 	// if the LCD is connected, the RESET pin will be plll high
 	// if the LCD is not connected, the RESET pin will be low
-	mask = TCA_LCD_RESET_MASK;
-
-	ret = tca6408_get_value(&value, mask);
-	if (ret) {
-		printf("%s: failed to read LCD_RESET status! error: %d\n", __func__, ret);
-
-		return;
-	}
 
 	printf("LCD_RESET PIN: %d\n", value);
 	setenv_ulong("lcd_exist", value);

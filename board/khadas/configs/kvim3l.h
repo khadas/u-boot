@@ -254,8 +254,13 @@
                 "hdmitx edid;"\
                 "hdmitx hpd;"\
                 "if test ${lcd_exist} = 1 && test ${outputmode} = panel; then "\
-                    "setenv fb_width 1088;"\
-                    "setenv fb_height 1920;"\
+                    "if test ${panel_type} = lcd_2; then "\
+                        "setenv fb_width 1920;"\
+                        "setenv fb_height 1200;"\
+                    "else "\
+                        "setenv fb_width 1088;"\
+                        "setenv fb_height 1920;"\
+                    "fi;"\
                 "fi;"\
                 "osd open;"\
                 "osd clear;"\
