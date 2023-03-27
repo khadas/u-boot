@@ -177,9 +177,9 @@ int board_init(void)
 int board_late_init(void)
 {
 	char outputModePre[30] = {};
-#ifdef CONFIG_PXP_EMULATOR
+//#ifdef CONFIG_PXP_EMULATOR
 	char outputModeCur[30] = {};
-#endif
+//#endif
 	printf("board late init\n");
 
 	/* ****************************************************
