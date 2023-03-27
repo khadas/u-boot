@@ -170,6 +170,9 @@ int board_init(void)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
 
+	/* set GPIO_TEST_N to 1 (TEST_N set to high), enable usb 5v voltage */
+	run_command("gpio set gpio_test_n0", 1);
+
 	return 0;
 #endif
 }
