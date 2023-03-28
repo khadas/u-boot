@@ -1,16 +1,16 @@
-if TARGET_T3X_SKT
+if TARGET_T3X_SKY
 
 config SYS_SOC
 	default "t3x"
 
 config SYS_BOARD
-	default "t3x_skt"
+	default "t3x_sky"
 
 config SYS_VENDOR
 	default "amlogic"
 
 config SYS_CONFIG_NAME
-	default "t3x_skt"
+	default "t3x_sky"
 
 config DTB_BIND_KERNEL
     bool "load dtb from boot part but not flash rsv"

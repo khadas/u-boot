@@ -1330,16 +1330,16 @@ config AMLOGIC_KEY_TYPE
 
 config BL30_SELECT
 	string "T3X BL30 board config"
-	default "t3x_skt"
+	default "t3x_bc309"
 
 choice
 	prompt "T3X Board"
 
-config T3X_SKT
-	bool "T3X_SKT"
-	select TARGET_T3X_SKT
+config T3X_SKY
+	bool "T3X_SKY"
+	select TARGET_T3X_SKY
 	help
-		Select T3X SKT(XXXX) config
+		Select T3X SKY(XXXX) config
 
 config T3X_BC302
 	bool "T3X_BC302"
@@ -1354,9 +1354,9 @@ config T3X_BC309
 		Select T3X BC309 config
 endchoice
 
-config TARGET_T3X_SKT
-	bool "T3X SKT board"
-	depends on T3X_SKT
+config TARGET_T3X_SKY
+	bool "T3X SKY board"
+	depends on T3X_SKY
 
 config TARGET_T3X_BC302
 	bool "T3X BC302 board"
@@ -1710,7 +1710,7 @@ source "board/amlogic/a4_ba400_zircon/Kconfig"
 
 source "board/amlogic/a4_ba409/Kconfig"
 
-source "board/amlogic/t3x_skt/Kconfig"
+source "board/amlogic/t3x_sky/Kconfig"
 source "board/amlogic/t3x_bc302/Kconfig"
 source "board/amlogic/t3x_bc309/Kconfig"
 

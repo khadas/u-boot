@@ -5,8 +5,8 @@
 
 /dts-v1/;
 
-#include "meson-t3x-skt.dtsi"
-#include "meson-t3x_skt-panel.dtsi"
+#include "meson-t3x-sky.dtsi"
+#include "meson-t3x_sky-panel.dtsi"
 
 / {
 	compatible = "amlogic,t3x-pxp", "amlogic,t3x-txxx", "amlogic,meson-t3x";
