@@ -960,15 +960,6 @@ unsigned int hdmi_edid_parsing(unsigned char *edid_buf, struct rx_cap *prxcap)
 	if (blockcount > EDID_MAX_BLOCK - 1)
 		blockcount = EDID_MAX_BLOCK - 1;
 
-	idx[0] = EDID_DETAILED_TIMING_DES_BLOCK0_POS;
-	idx[1] = EDID_DETAILED_TIMING_DES_BLOCK1_POS;
-	idx[2] = EDID_DETAILED_TIMING_DES_BLOCK2_POS;
-	idx[3] = EDID_DETAILED_TIMING_DES_BLOCK3_POS;
-	for (i = 0; i < 4; i++) {
-		if ((edid_buf[idx[i]]) && (edid_buf[idx[i] + 1]))
-			edid_dtd_parsing(prxcap, &edid_buf[idx[i]]);
-	}
-
 	if (blockcount == 0)
 		prxcap->IEEEOUI = 0;
 
@@ -999,6 +990,15 @@ unsigned int hdmi_edid_parsing(unsigned char *edid_buf, struct rx_cap *prxcap)
 		pr_info("hdmitx: edid: change preferred_mode from %d to %d\n",
 			prxcap->preferred_mode,	prxcap->VIC[0]);
 		prxcap->preferred_mode = prxcap->VIC[0];
+	}
+
+	idx[0] = EDID_DETAILED_TIMING_DES_BLOCK0_POS;
+	idx[1] = EDID_DETAILED_TIMING_DES_BLOCK1_POS;
+	idx[2] = EDID_DETAILED_TIMING_DES_BLOCK2_POS;
+	idx[3] = EDID_DETAILED_TIMING_DES_BLOCK3_POS;
+	for (i = 0; i < 4; i++) {
+		if ((edid_buf[idx[i]]) && (edid_buf[idx[i] + 1]))
+			edid_dtd_parsing(prxcap, &edid_buf[idx[i]]);
 	}
 
 	return 1;

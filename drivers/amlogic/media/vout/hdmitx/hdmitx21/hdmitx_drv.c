@@ -932,7 +932,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		h_unstable = is_deep_htotal_frac(0, h_total, cs, cd);
 		pr_info("%s[%d] frl_mode %d htotal %d cs %d cd %d h_unstable %d\n",
 			__func__, __LINE__, is_frl_mode(), h_total, cs, cd, h_unstable);
-		if (!h_unstable) {
+		if (!h_unstable && hdev->chip_type > MESON_CPU_ID_T7) {
 			while (loop--) {
 				hdmitx21_set_reg_bits(INTR2_SW_TPI_IVCTX, 0, 1, 1);
 				mdelay(1);
