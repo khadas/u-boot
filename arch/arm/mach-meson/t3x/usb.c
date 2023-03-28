@@ -322,6 +322,10 @@ int usb2_phy_tuning(uint32_t phy2_pll_base, int port)
 int m31_phy_init(unsigned int phy_num)
 {
 	if (phy_num == 0) {
+#ifdef CONFIG_T3X_BC309
+		run_command("gpio set GPIOM_21", 0);
+		udelay(1000);
+#endif
 		*(unsigned int *)(unsigned long)M31_PHY_0_BASE = M31_SETTING;
 		//udelay(20);
 		//usb_reset(RESET_BASE, USB_RESET_BIT);
@@ -331,6 +335,10 @@ int m31_phy_init(unsigned int phy_num)
 		usb_reset(RESET_BASE, CRG_U3DRD_0_RESET_LEVEL_BIT);
 		udelay(20);
 	} else if (phy_num == 1) {
+#ifdef CONFIG_T3X_BC309
+		run_command("gpio set GPIOM_23", 0);
+		udelay(1000);
+#endif
 		*(unsigned int *)(unsigned long)M31_PHY_1_BASE = M31_SETTING;
 		udelay(20);
 		usb_reset(RESET_BASE, M31_1_RESET_LEVEL_BIT | M31_1_UTMI_RESET_LEVEL_BIT);
