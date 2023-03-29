@@ -103,7 +103,7 @@
 		"display_layer=osd0\0" \
 		"display_color_fg=0xffff\0" \
 		"display_color_bg=0\0" \
-		"dtb_mem_addr=0x6000000\0" \
+		"dtb_mem_addr=0x1000000\0" \
 		"fb_addr=0x00300000\0" \
 		"fb_width=1920\0" \
 		"fb_height=1080\0" \
