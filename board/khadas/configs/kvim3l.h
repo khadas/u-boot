@@ -342,22 +342,25 @@
 				"fdt addr ${dtb_mem_addr}; "\
 				"if test ${khadas_mipi_id} = 1; then "\
 					"echo check old TS050 panel;"\
-                    "outputmode=$ts050_output;"\
-                    "setenv outputmode ${ts050_output};"\
+                    "outputmode2=$ts050_output;"\
+                    "setenv outputmode2 ${ts050_output};"\
 					"fdt set /soc/cbus@ffd00000/i2c@1c000/gt9xx@5d status disable;"\
 					"fdt set /soc/cbus@ffd00000/i2c@1c000/ft5336@38 status okay;"\
+                    "fdt set /fb display_size_default <0x00000438 0x00000780 0x00000438 0x00000f00 0x00000020>;"\
 				"else if test ${khadas_mipi_id} = 2; then "\
 					"echo check TS101 panel;"\
-                    "outputmode=$ts101_output;"\
-                    "setenv outputmode ${ts101_output};"\
+                    "outputmode2=$ts101_output;"\
+                    "setenv outputmode2 ${ts101_output};"\
 					"fdt set /soc/cbus@ffd00000/i2c@1c000/gt9xx@5d status okay;"\
 					"fdt set /soc/cbus@ffd00000/i2c@1c000/ft5336@38 status disable;"\
+                    "fdt set /fb display_size_default <0x00000780 0x000004b0 0x00000780 0x00000960 0x00000020>;"\
                 "else if test ${khadas_mipi_id} = 3; then "\
 					"echo check new TS050 panel;"\
-                    "outputmode=$ts050_output;"\
-                    "setenv outputmode ${ts050_output};"\
+                    "outputmode2=$ts050_output;"\
+                    "setenv outputmode2 ${ts050_output};"\
 					"fdt set /soc/cbus@ffd00000/i2c@1c000/gt9xx@5d status disable;"\
 					"fdt set /soc/cbus@ffd00000/i2c@1c000/ft5336@38 status okay;"\
+                    "fdt set /fb display_size_default <0x00000438 0x00000780 0x00000438 0x00000f00 0x00000020>;"\
                 "fi;fi;fi;"\
 			"\0"\
         "display_config="\
@@ -459,22 +462,34 @@
  * logo2: bootup_rotate_secondary.bmp (for portrait screen)
  */
 #define CONFIG_DUAL_LOGO \
-	"setenv outputmode $hdmimode;setenv display_layer osd0;"\
-	"vout output $hdmimode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
-	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
-	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout2 output panel;"\
-	"\0"\
+    "setenv outputmode 1080p60hz;setenv display_layer osd0;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+    "if test ${khadas_mipi_id} = 2; then "\
+        "setenv fb_width 1790; setenv fb_height 1050;"\
+        "setenv display_width 1920;setenv display_height 1200;"\
+        "setenv outputmode2 ${ts101_output};setenv display_layer viu2_osd0;"\
+	    "vout2 prepare ${outputmode2};osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout2 output ${outputmode2};"\
+    "else "\
+        "setenv fb_width 1920;setenv fb_height 1080;"\
+        "setenv display_width 1920;setenv display_height 1080;"\
+	    "setenv outputmode2 ${ts050_output};setenv display_layer viu2_osd0;"\
+	    "vout2 prepare ${outputmode2};osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout2 output ${outputmode2};"\
+    "fi;"\
+    "\0"\
 
 /* buffer rotate for portrait screen */
 #define CONFIG_SINGLE_LOGO \
-	"setenv outputmode panel;setenv display_layer osd0;"\
+	"setenv display_layer osd0;"\
     "if test ${khadas_mipi_id} = 2; then "\
+        "setenv outputmode ${ts101_output};"\
         "setenv fb_width 1920; setenv fb_height 1200;"\
         "setenv display_width 1920;setenv display_height 1200;"\
-        "vout output panel;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+        "vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
     "else "\
-	    "setenv fb_height 1920; setenv fb_width 1080;"\
-	    "vout output panel;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
+        "setenv outputmode ${ts050_output};"\
+	    "setenv fb_width 1080;setenv fb_height 1920;"\
+        "setenv display_width 1080;setenv display_height 1920;"\
+	    "vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
     "fi;"\
 	"\0"\
 
