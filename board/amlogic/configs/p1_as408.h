@@ -117,7 +117,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000"\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 scramble_reg=0x0xfe02e030 "\
             " loglevel=7"\
             "\0"\
         "upgrade_check="\

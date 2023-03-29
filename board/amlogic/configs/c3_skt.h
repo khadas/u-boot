@@ -121,7 +121,7 @@
 	"fs_type=""rootfstype=ramfs""\0"\
 	"initargs="\
 	"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml_uart,0xfe07a000 "\
-	"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+	"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 "\
 	"\0"\
 	"upgrade_check="\
 	"echo recovery_status=${recovery_status};"\

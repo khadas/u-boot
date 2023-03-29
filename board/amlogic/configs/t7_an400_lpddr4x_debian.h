@@ -172,7 +172,7 @@
 			"console=ttyS0,921600 console=tty0 no_console_suspend "\
 			"earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
 			"amlogic_board=t7_an400_lpddr4x_debian boot_source=${boot_source} "\
-			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
+			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0x0xfe02e030 "\
 			"\0"\
 		"upgrade_check="\
 			"echo recovery_status=${recovery_status};"\
