@@ -224,8 +224,15 @@ int temp_read_entry(void)
 		case 0x1:
 			printf("---- CPU ----\n");
 			read_temperature(1, TS_CPU_CFG_REG1, TS_CPU_STAT0);
-			printf("---- TOP ----\n");
-			read_temperature(2, TS_TOP_CFG_REG1, TS_TOP_STAT0);
+			printf("---- GPU ----\n");
+			read_temperature(2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+			printf("---- VPU ----\n");
+			read_temperature(3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+			printf("---- DOS ----\n");
+			read_temperature(4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
+			printf("---- NNA ----\n");
+			pwr_ctrl_psci_smc(20, 1);
+			read_temperature(5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
 			printf("read the thermal\n");
 		break;
 		case 0x3:
@@ -255,19 +262,28 @@ int temp_trim_entry(int tempbase, int tempver)
 	switch (tempver) {
 	case 0x84:
 		r1p1_temp_trim(tempbase, tempver, 1, TS_CPU_CFG_REG1, TS_CPU_STAT0);
-		r1p1_temp_trim(tempbase, tempver, 2, TS_TOP_CFG_REG1, TS_TOP_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
 		tsensor_tz_calibration(SENSOR_VERSION_TYPE, 0);
 		printf("triming the thermal by bbt-sw\n");
 	break;
 	case 0x85:
 		r1p1_temp_trim(tempbase, tempver, 1, TS_CPU_CFG_REG1, TS_CPU_STAT0);
-		r1p1_temp_trim(tempbase, tempver, 2, TS_TOP_CFG_REG1, TS_TOP_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
 		tsensor_tz_calibration(SENSOR_VERSION_TYPE, 1);
 		printf("triming the thermal by bbt-ops\n");
 	break;
 	case 0x87:
 		r1p1_temp_trim(tempbase, tempver, 1, TS_CPU_CFG_REG1, TS_CPU_STAT0);
-		r1p1_temp_trim(tempbase, tempver, 2, TS_TOP_CFG_REG1, TS_TOP_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 2, TS_GPU_CFG_REG1, TS_GPU_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 3, TS_VPU_CFG_REG1, TS_VPU_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 4, TS_DOS_CFG_REG1, TS_DOS_STAT0);
+		r1p1_temp_trim(tempbase, tempver, 5, TS_NNA_CFG_REG1, TS_NNA_STAT0);
 		tsensor_tz_calibration(SENSOR_VERSION_TYPE, 3);
 		printf("triming the thermal by slt\n");
 	break;
@@ -300,4 +316,3 @@ int temp_cooling_entry(void)
 #endif
 	return 0;
 }
-
