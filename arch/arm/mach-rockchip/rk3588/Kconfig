@@ -6,6 +6,12 @@ config TARGET_EVB_RK3588
 	help
 	  RK3588 EVB is a evaluation board for Rockchp RK3588.
 
+config TARGET_KEDGE2
+	bool "Khadas Edge2"
+	select BOARD_LATE_INIT
+	help
+	  Khadas Edge2
+
 config SYS_SOC
 	default "rockchip"
 
@@ -13,5 +19,6 @@ config SYS_MALLOC_F_LEN
 	default 0x400
 
 source board/rockchip/evb_rk3588/Kconfig
+source board/khadas/kedge2/Kconfig
 
 endif
