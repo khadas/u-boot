@@ -62,6 +62,7 @@ CONFIG_CMD_DTIMG=y
 # CONFIG_CMD_UNZIP is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_FPGA is not set
+CONFIG_CMD_GPIO=y
 CONFIG_CMD_GPT=y
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
