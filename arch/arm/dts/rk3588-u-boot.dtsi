@@ -166,7 +166,7 @@
 &sdmmc {
 	bus-width = <4>;
 	u-boot,dm-spl;
-	cd-gpios = <&gpio0 RK_PA4 GPIO_ACTIVE_HIGH>;
+//	cd-gpios = <&gpio0 RK_PA4 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
