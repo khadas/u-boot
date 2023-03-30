@@ -87,6 +87,7 @@ __weak int set_armclk_rate(void)
 
 __weak int rk_board_init(void)
 {
+	run_command("gpio set 130", 0);//GPIO4_A2 vcc 5v
 	return 0;
 }
 
