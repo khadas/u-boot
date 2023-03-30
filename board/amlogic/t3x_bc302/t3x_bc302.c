@@ -512,23 +512,23 @@ int checkhw(char *name)
 	int sipinfo = ((((readl(SYSCTRL_SEC_STATUS_REG4)) & 0xFFFF0000) >> 19) & 0x1);
 	if ((sipinfo == 1) && (ddr_size == 0x80000000)) // sip package
 	{
-		strcpy(loc_name, "t3_t982_ar301-2g\0");
+		strcpy(loc_name, "t3x_t968d4_bc302-2g\0");
 	} else {
 		switch (ddr_size) {
 		case 0x80000000:
-			strcpy(loc_name, "t3_t982_ar311-2g\0");
+			strcpy(loc_name, "t3x_t968d4_bc302-2g\0");
 			break;
 		case 0xc0000000:
-			strcpy(loc_name, "t3_t982_ar311-3g\0");
+			strcpy(loc_name, "t3x_t968d4_bc302-3g\0");
 			break;
 		case 0xe0000000:
-			strcpy(loc_name, "t3_t982_ar311-4g\0");
+			strcpy(loc_name, "t3x_t968d4_bc302\0");
 			break;
 		case 0x200000000:
-			strcpy(loc_name, "t3_t982_ar311-8g\0");
+			strcpy(loc_name, "t3x_t968d4_bc302-8g\0");
 			break;
 		default:
-			strcpy(loc_name, "t3_t982_unsupport");
+			strcpy(loc_name, "t3x_t968d4_unsupport");
 			break;
 		}
 	}
