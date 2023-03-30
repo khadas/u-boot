@@ -21,6 +21,7 @@ static struct hdmitx_dev hdmitx_device;
 static void hdmitx_set_phy(struct hdmitx_dev *hdev);
 static void hdmitx_set_div40(bool div40);
 static void hdmitx21_dither_config(struct hdmitx_dev *hdev);
+static enum frl_rate_enum get_current_frl_rate(void);
 
 struct hdmitx_dev *get_hdmitx21_device(void)
 {
@@ -41,7 +42,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void hdmitx_set_hw(struct hdmitx_dev *hdev);
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev);
-static bool is_frl_mode(void);
 
 static void hdmi_hwp_init(void)
 {
@@ -917,7 +917,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 #ifdef CONFIG_AML_VOUT
 	info->cur_enc_ppc = 1;
 	if (info && hdev->chip_type >= MESON_CPU_ID_S5) {
-		if (hdmitx21_rd_reg(HDMITX_TOP_BIST_CNTL) & (1 << 19))
+		if (get_current_frl_rate())
 			info->cur_enc_ppc = 4;
 	}
 #endif
@@ -930,8 +930,8 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		int loop = 20;
 
 		h_unstable = is_deep_htotal_frac(0, h_total, cs, cd);
-		pr_info("%s[%d] frl_mode %d htotal %d cs %d cd %d h_unstable %d\n",
-			__func__, __LINE__, is_frl_mode(), h_total, cs, cd, h_unstable);
+		pr_info("%s[%d] frl_rate %d htotal %d cs %d cd %d h_unstable %d\n",
+			__func__, __LINE__, get_current_frl_rate(), h_total, cs, cd, h_unstable);
 		if (!h_unstable && hdev->chip_type > MESON_CPU_ID_T7) {
 			while (loop--) {
 				hdmitx21_set_reg_bits(INTR2_SW_TPI_IVCTX, 0, 1, 1);
@@ -1158,9 +1158,14 @@ static void hdmitx_set_div40(bool div40)
 	hdmitx21_wr_reg(SCRCTL_IVCTX, (1 << 5) | !!div40);
 }
 
-static bool is_frl_mode(void)
+static enum frl_rate_enum get_current_frl_rate(void)
 {
-	return !!(hdmitx21_rd_reg(HDMITX_TOP_BIST_CNTL) & (1 << 19));
+	u8 rate = hdmitx21_rd_reg(FRL_LINK_RATE_CONFIG_IVCTX) & 0xf;
+
+	if (rate >= FRL_RATE_MAX)
+		rate = FRL_NONE;
+
+	return rate;
 }
 
 #define NUM_INT_VSYNC   INT_VEC_VIU1_VSYNC
@@ -1185,6 +1190,7 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	u32 active_lines = 1080; // Number of active lines per field
 	u8 scrambler_en = 0;
 	u32 aud_n = 6144; // ACR N
+	const static u32 frl_aud_n[] = {0, 5760, 6048, 6048, 6048, 5184, 4752};
 	// 0=I2S 2-channel; 1=I2S 4 x 2-channel; 2=channel 0/1, 4/5 valid.
 	// 2=audio sample packet; 7=one bit audio; 8=DST audio packet; 9=HBR audio packet.
 	u8 audio_packet_type = 2;
@@ -1247,6 +1253,8 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	data32 |= (1 << 5);  // [  5] reg_hdmi2_on
 	data32 |= (scrambler_en & 0x01 << 0);  // [ 0] scrambler_en.
 	hdmitx21_wr_reg(SCRCTL_IVCTX, data32 & 0xff);
+
+	hdmitx21_set_reg_bits(FRL_LINK_RATE_CONFIG_IVCTX, hdev->frl_rate, 0, 4);
 
 	hdmitx21_wr_reg(CLK_DIV_CNTRL_IVCTX, hdev->frl_rate ? 0 : 1);
 	//hdmitx21_wr_reg(H21TXSB_PKT_PRD_IVCTX, 0x1);
@@ -1358,6 +1366,9 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	//ACR_CTRL  bit[3]:reg_no_mclk_ctsgen_sel_pclk. bit[0]: make hw_cts_hw_sw_sel = 0
 	hdmitx21_wr_reg(ACR_CTRL_IVCTX, 0x02);
 	hdmitx21_set_reg_bits(ACR_CTS_CLK_DIV_IVCTX, hdev->frl_rate ? 1 : 0, 4, 1);
+	/* in uboot, the audio is fixed as 48k, 2ch, PCM */
+	if (hdev->frl_rate && hdev->frl_rate < FRL_RATE_MAX)
+		aud_n = frl_aud_n[hdev->frl_rate];
 	hdmitx21_wr_reg(N_SVAL1_IVCTX, (aud_n >> 0) & 0xff); //N_SVAL1
 	hdmitx21_wr_reg(N_SVAL2_IVCTX, (aud_n >> 8) & 0xff); //N_SVAL2
 	hdmitx21_wr_reg(N_SVAL3_IVCTX, (aud_n >> 16) & 0xff); //N_SVAL3
