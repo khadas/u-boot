@@ -1632,13 +1632,13 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #endif
 
 /* board vmin_value defines */
-#define VMIN_FF_VALUE                           770
-#define VMIN_TT_VALUE                           800
-#define VMIN_SS_VALUE                           810
+#define VMIN_FF_VALUE                           790
+#define VMIN_TT_VALUE                           820
+#define VMIN_SS_VALUE                           840
 /* board vddee_value defines */
-#define VDDEE_FF_VALUE                          0x8000a
-#define VDDEE_TT_VALUE                          0x8000a
-#define VDDEE_SS_VALUE                          0x8000a
+#define VDDEE_FF_VALUE                          0xa0008
+#define VDDEE_TT_VALUE                          0x7000b
+#define VDDEE_SS_VALUE                          0x5000d
 
 board_clk_set_t __board_clk_setting
 __attribute__ ((section(".clk_param"))) = {
