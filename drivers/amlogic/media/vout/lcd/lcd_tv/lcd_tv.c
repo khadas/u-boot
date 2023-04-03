@@ -16,9 +16,15 @@
 /* ************************************************** *
    lcd mode function
  * ************************************************** */
-#define ACTIVE_FRAME_RATE_CNT     3
-#define LCD_STD_FRAME_RATE_MAX    5
+#define ACTIVE_FRAME_RATE_CNT     12
+#define LCD_STD_FRAME_RATE_MAX    12
 static struct lcd_duration_s lcd_std_fr[] = {
+	{144, 144,    1,    0},
+	{120, 120,    1,    0},
+	{119, 120000, 1001, 1},
+	{100, 100,    1,    0},
+	{96,  96,     1,    0},
+	{95,  96000,  1001, 1},
 	{60,  60,     1,    0},
 	{59,  60000,  1001, 1},
 	{50,  50,     1,    0},
@@ -34,7 +40,7 @@ static struct lcd_duration_s lcd_std_fr_high[] = {
 	{100, 100,    1,    0},
 	{96,  96,     1,    0},
 	{95,  96000,  1001, 1},
-	{120, 120,    1,    0}
+	{120, 120,    1,    0},
 };
 
 struct lcd_vmode_info_s {
@@ -53,8 +59,6 @@ enum lcd_vmode_e {
 	LCD_VMODE_1080P,
 	LCD_VMODE_2160P,
 	LCD_VMODE_3840_1080P,
-	LCD_VMODE_2160P120,
-	LCD_VMODE_2160P144,
 	LCD_VMODE_MAX,
 };
 
@@ -105,15 +109,6 @@ static struct lcd_vmode_info_s lcd_vmode_info[] = {
 		.duration          = lcd_std_fr_high,
 	},
 	{
-		.name              = "3840x2160p",
-		.mode              = VMODE_LCD,
-		.width             = 3840,
-		.height            = 2160,
-		.frame_rate        = 120,
-		.frac              = 0,
-		.duration          = lcd_std_fr_high,
-	},
-	{
 		.name              = "invalid",
 		.mode              = VMODE_INIT_NULL,
 		.width             = 1920,
@@ -127,20 +122,13 @@ static struct lcd_vmode_info_s lcd_vmode_info[] = {
 static int lcd_output_vmode_init(struct aml_lcd_drv_s *pdrv)
 {
 	int i, count = ARRAY_SIZE(lcd_vmode_info) - 1;
-	unsigned int frame_rate = 60, lcd_clk, h_period, v_period;
 
 	if (!pdrv)
 		return -1;
 
-	lcd_clk = pdrv->config.timing.lcd_clk;
-	h_period = pdrv->config.basic.h_period;
-	v_period = pdrv->config.basic.v_period;
-	frame_rate = lcd_clk < 200 ? lcd_clk : lcd_clk / h_period / v_period;
-
 	for (i = 0; i < count; i++) {
 		if (pdrv->config.basic.h_active == lcd_vmode_info[i].width &&
-		    pdrv->config.basic.v_active == lcd_vmode_info[i].height &&
-		    frame_rate == lcd_vmode_info[i].frame_rate) {
+		    pdrv->config.basic.v_active == lcd_vmode_info[i].height) {
 			pdrv->output_vmode = i;
 			pdrv->std_duration = lcd_vmode_info[i].duration;
 			return 0;

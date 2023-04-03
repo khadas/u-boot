@@ -1575,10 +1575,10 @@ static struct lcd_clk_data_s lcd_clk_data_t3x = {
 	.pll_ref_fmin = PLL_FREF_MIN,
 	.pll_vco_fmax = PLL_VCO_MAX_TM2,
 	.pll_vco_fmin = PLL_VCO_MIN_TM2,
-	.pll_out_fmax = CLK_DIV_IN_MAX_TL1,
+	.pll_out_fmax = 3700 * 1000,
 	.pll_out_fmin = PLL_VCO_MIN_TL1 / 16,
-	.div_in_fmax = CLK_DIV_IN_MAX_TL1,
-	.div_out_fmax = CRT_VID_CLK_IN_MAX_TL1,
+	.div_in_fmax = 3700 * 1000,
+	.div_out_fmax = 720 * 1000,
 	.xd_out_fmax = ENCL_CLK_IN_MAX_TL1,
 
 	.vclk_sel = 0,

@@ -767,7 +767,7 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 	ini_value = IniGetString("lcd_Attr", "ppc_mode", "1");
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, ppc_mode  is (%s)\n", __func__, ini_value);
-	ppc = strtoul(ini_value, NULL, 1);
+	ppc = strtoul(ini_value, NULL, 0);
 	p_attr->customer.clk_auto_gen |= ((ppc & 0xf) << 4);
 
 	ini_value = IniGetString("lcd_Attr", "pixel_clk", "0");

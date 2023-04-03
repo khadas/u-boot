@@ -29,7 +29,6 @@ static int lcd_vbyone_check(int lane_num, int region, int slice, int byte_mode)
 		return -1;
 	if (lane_num % region)
 		return -1;
-	LCDPR("%s local 5\n", __func__);
 	if (byte_mode != 3 && byte_mode != 4)
 		return -1;
 	return 0;
@@ -84,12 +83,16 @@ static int lcd_vbyone_lanes_set(unsigned int offset, int lane_num, int byte_mode
 static int lcd_vbyone_lanes_set_t3x(unsigned int offset, int lane_num, int byte_mode,
 				int region_num, int slice, int ppc, int hsize, int vsize)
 {
-	int sublane_num, orgn_sub, orgns_num;
-	int p2s_mode;
+	int sublane_num, orgn_sub, orgns_num, slice_lane_num;
+	unsigned int p2s_mode, pre_hact;
 
-	LCDPR("byte_mode=%d, lane_num=%d, region_num=%d slice=%d\n",
-			byte_mode, lane_num, region_num, slice);
-	if (lcd_vbyone_check(lane_num, region_num, slice, byte_mode))
+	if (slice == 0)
+		slice = 1;
+	if (region_num == 0)
+		return -1;
+
+	slice_lane_num = lane_num / slice;
+	if (lcd_vbyone_check(slice_lane_num, region_num, slice, byte_mode))
 		return -1;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
@@ -97,10 +100,8 @@ static int lcd_vbyone_lanes_set_t3x(unsigned int offset, int lane_num, int byte_
 			byte_mode, lane_num, region_num, slice);
 	}
 
-	LCDPR("byte_mode=%d, lane_num=%d, region_num=%d slice=%d\n",
-			byte_mode, lane_num, region_num, slice);
-	sublane_num = lane_num * slice / region_num; /* lane num in each region */
-	lcd_vcbus_setb(VBO_LANES + offset, (lane_num - 1), 0, 3);
+	sublane_num = slice_lane_num * slice / region_num; /* lane num in each region */
+	lcd_vcbus_setb(VBO_LANES + offset, (slice_lane_num - 1), 0, 3);
 	lcd_vcbus_setb(VBO_LANES + offset, (1 << slice) - 1, 4, 4);// group en
 	lcd_vcbus_setb(VBO_LANES + offset, byte_mode - 1, 11, 2);
 	lcd_vcbus_write(VBO_ACT_VSIZE + offset, vsize);
@@ -115,13 +116,14 @@ static int lcd_vbyone_lanes_set_t3x(unsigned int offset, int lane_num, int byte_
 				 region_num == 8 ? 3 : 0;
 
 	lcd_vcbus_setb(VBO_RGN_CTRL + offset, slice >> 1, 0, 2);
-	lcd_vcbus_setb(VBO_RGN_CTRL + offset, orgns_num, 4, 2);//output region number
+	lcd_vcbus_setb(VBO_RGN_CTRL + offset, orgns_num, 4, 3);//output region number
 	lcd_vcbus_setb(VBO_RGN_CTRL + offset, orgn_sub, 8, 2);
-	lcd_vcbus_setb(VBO_RGN_CTRL + offset, lane_num == 4, 10, 1);//1 for every group to 4 lanes
+	lcd_vcbus_setb(VBO_RGN_CTRL + offset, slice_lane_num == 4, 10, 1);
 	lcd_vcbus_setb(VBO_RGN_CTRL + offset, 0, 16, 8);//hblank for read line buf
 
+	pre_hact = hsize / slice * 4 / 5;
 	lcd_vcbus_setb(VBO_RGN_HSIZE + offset, hsize / slice, 0, 12);//input pixels for each slice
-	lcd_vcbus_setb(VBO_RGN_HSIZE + offset, hsize / slice, 16, 12);//first line pre-read pixels
+	lcd_vcbus_setb(VBO_RGN_HSIZE + offset, pre_hact, 16, 12);//first line pre-read pixels
 
 	p2s_mode = ppc == 2 && slice == 2 ? 0 :
 			   ppc == 2 && slice == 1 ? 1 : 2;

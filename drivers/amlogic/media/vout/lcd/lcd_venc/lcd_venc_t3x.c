@@ -26,8 +26,10 @@ unsigned int __cal_h_timing_to_reg(unsigned int origin, unsigned int ppc)
 static inline
 unsigned int __lcd_round_inc(unsigned int base, unsigned int val, unsigned int round_const)
 {
-	base += val;
-	return base <= round_const ? base : base % round_const;
+	unsigned int res;
+
+	res = base + val;
+	return res < round_const ? res : res % round_const;
 }
 
 static void lcd_venc_wait_vsync(struct aml_lcd_drv_s *pdrv)
@@ -78,7 +80,7 @@ struct lcd_enc_test_t lcd_enc_tst[] = {
 
 static int lcd_venc_pattern(struct aml_lcd_drv_s *pdrv, unsigned int num)
 {
-	__maybe_unused unsigned int hstart, vstart, width, offset, height, ppc, step;
+	unsigned int hstart, vstart, width, offset, height, ppc, step;
 
 	if (num >= LCD_ENC_TST_NUM_MAX)
 		return -1;
@@ -135,17 +137,15 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 	struct lcd_config_s *pconf = &pdrv->config;
 	unsigned int h_period, v_period, hstart, hend, vstart, vend;
 	unsigned int hs_hs_addr, hs_he_addr, vs_hs_addr, vs_he_addr, vs_vs_addr, vs_ve_addr;
-	unsigned int offset, offset1;
+	unsigned int offset;
 	unsigned int pre_de_vs, pre_de_ve, pre_de_hs, pre_de_he;
-	unsigned int ppc, temp;
-	__maybe_unused unsigned int vx_mode = 0, in_slice = 1, out_region = 1, lane_count = 8;
-	__maybe_unused unsigned int pre_hm, p2s_hm, pre_hact, p2s_hm_dly, p2s_px_dly;
-	__maybe_unused unsigned int hde_px_bgn, hde_px_end;
-	__maybe_unused unsigned int vde_ln_bgn, vde_ln_end;
-	__maybe_unused unsigned int hso_px_bgn, hso_px_end;
-	__maybe_unused unsigned int vso_px_bgn, vso_px_end;
-	__maybe_unused unsigned int vso_ln_bgn, vso_ln_end;
-	__maybe_unused unsigned int hact, ht, vtm1, htm1;
+	unsigned int ppc, slice, p2s_px_dly;
+	unsigned int hde_px_bgn, hde_px_end;
+	unsigned int vde_ln_bgn, vde_ln_end;
+	unsigned int hso_px_bgn, hso_px_end;
+	unsigned int vso_px_bgn, vso_px_end;
+	unsigned int vso_ln_bgn, vso_ln_end;
+	unsigned int hact, ht, vt;
 
 	LCDPR("%s\n", __func__);
 	ppc = pconf->timing.ppc;//must check zero in init place
@@ -153,7 +153,7 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 
 	LCDPR("hstart=%d, hend=%d\n", pconf->timing.hstart, pconf->timing.hend);
 	hstart = __cal_h_timing_to_reg(pconf->timing.hstart, ppc);
-	hend = (pconf->timing.hend + 1) / ppc - 2;
+	hend = __cal_h_timing_to_reg(pconf->timing.hend + 1, ppc) - 1;
 	hde_px_bgn = hstart;
 	hde_px_end = hend;
 	LCDPR("hstart=%d, hend=%d, dif=%d\n", hstart, hend, hend - hstart);
@@ -165,9 +165,8 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 
 	h_period = pconf->basic.h_period;
 	v_period = pconf->basic.v_period;
-	ht = h_period;
-	htm1 = h_period - 1;
-	vtm1 = v_period - 1;
+	ht = h_period / ppc;
+	vt = v_period;
 	hact = hde_px_end - hde_px_bgn + 1;
 
 	hs_hs_addr = __cal_h_timing_to_reg(pconf->timing.hs_hs_addr, ppc);
@@ -220,66 +219,34 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, pre_de_hs / ppc, 16, 16);
 		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset,   (pre_de_he / ppc) - 1, 0, 16);
 	} else if (pconf->basic.lcd_type == LCD_VBYONE) {
-		lane_count = pdrv->config.control.vbyone_cfg.lane_count; /* 8 */
-		out_region = pdrv->config.control.vbyone_cfg.region_num; /* 2 */
-		if (lane_count > 8) {
-			in_slice = 2;
-			vx_mode = 0;//2p2s
-		} else {
-			in_slice = 1;
-			if (ppc == 2)
-				vx_mode = 1;//2p1s
-			else
-				vx_mode = 2;
-		}
-		pre_hm = (out_region - in_slice == 1) ? 1 :
-				 (out_region - in_slice == 2) ? 2 :
-				 (in_slice - out_region == 1) ? 1 : 0;
+		slice = pdrv->config.control.vbyone_cfg.lane_count > 8 ? 2 : 1;
+		p2s_px_dly = hact  + ((slice == 2) ? hact / 2 : 0);// p2s_hm_dly + hact;
 
-		p2s_hm = vx_mode;
+		vde_ln_bgn = __lcd_round_inc(vde_ln_bgn, (hde_px_bgn + p2s_px_dly) / ht, vt);
+		vde_ln_end = __lcd_round_inc(vde_ln_end, (hde_px_end + p2s_px_dly) / ht, vt);
+		hde_px_bgn = __lcd_round_inc(hde_px_bgn, p2s_px_dly, ht);
+		hde_px_end = __lcd_round_inc(hde_px_end + 1, p2s_px_dly, ht);
+		hso_px_bgn = __lcd_round_inc(hso_px_bgn, p2s_px_dly, ht);
+		hso_px_end = __lcd_round_inc(hso_px_end, p2s_px_dly, ht);
+		vso_ln_bgn = __lcd_round_inc(vso_ln_bgn, (vso_px_bgn + p2s_px_dly) / ht, vt);
+		vso_ln_end = __lcd_round_inc(vso_ln_end, (vso_px_end + p2s_px_dly) / ht, vt);
+		vso_px_bgn = __lcd_round_inc(vso_px_bgn, p2s_px_dly, ht);
+		vso_px_end = __lcd_round_inc(vso_px_end, p2s_px_dly, ht);
 
-		temp = (pre_hm == 0) ? 1 : (pre_hm == 1) ? 3 : 4;
-		pre_hact = (hend - hstart) * temp / 5;
-		p2s_hm_dly = (p2s_hm == 0) ? hact / 2 + 30 :
-					 (p2s_hm == 1) ? 30 : 25;
+		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, hde_px_bgn, 16, 16);
+		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, hde_px_end, 0, 16);
 
-		p2s_px_dly = hact;// p2s_hm_dly + hact;
+		lcd_vcbus_setb(ENCL_VIDEO_V_PRE_DE_LN_RNG + offset, vde_ln_bgn, 16, 16);
+		lcd_vcbus_setb(ENCL_VIDEO_V_PRE_DE_LN_RNG + offset, vde_ln_end, 0, 16);
 
-		vde_ln_bgn = __lcd_round_inc(vde_ln_bgn, (hde_px_bgn + p2s_px_dly) / ht, vtm1);
-		vde_ln_end = __lcd_round_inc(vde_ln_end, (hde_px_end + p2s_px_dly) / ht, vtm1);
-		hde_px_bgn = __lcd_round_inc(hde_px_bgn, p2s_px_dly, htm1);
-		hde_px_end = __lcd_round_inc(hde_px_end, p2s_px_dly, htm1);
-		hso_px_bgn = __lcd_round_inc(hso_px_bgn, p2s_px_dly, htm1);
-		hso_px_end = __lcd_round_inc(hso_px_end, p2s_px_dly, htm1);
-		vso_ln_bgn = __lcd_round_inc(vso_ln_bgn, (vso_px_bgn + p2s_px_dly) / ht, vtm1);
-		vso_ln_end = __lcd_round_inc(vso_ln_end, (vso_px_end + p2s_px_dly) / ht, vtm1);
-		vso_px_bgn = __lcd_round_inc(vso_px_bgn, p2s_px_dly, htm1);
-		vso_px_end = __lcd_round_inc(vso_px_end, p2s_px_dly, htm1);
-
-		//lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, hde_px_bgn, 16, 16);
-		//lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, hde_px_end, 0, 16);
-		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, 0x1116, 16, 16);
-		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, 0xee6, 0, 16);
-
-		//lcd_vcbus_setb(ENCL_VIDEO_V_PRE_DE_LN_RNG + offset, vde_ln_bgn, 16, 16);
-		//lcd_vcbus_setb(ENCL_VIDEO_V_PRE_DE_LN_RNG + offset, vde_ln_end, 0, 16);
-		lcd_vcbus_setb(ENCL_VIDEO_V_PRE_DE_LN_RNG + offset, 0x57, 16, 16);
-		lcd_vcbus_setb(ENCL_VIDEO_V_PRE_DE_LN_RNG + offset, 0x8c7, 0, 16);
-
-		//lcd_vcbus_setb(ENCL_VIDEO_HSO_PRE_PX_RNG + offset, hso_px_bgn, 16, 16);
-		//lcd_vcbus_setb(ENCL_VIDEO_HSO_PRE_PX_RNG + offset, hso_px_end, 0, 16);
-		lcd_vcbus_setb(ENCL_VIDEO_HSO_PRE_PX_RNG + offset, 0xf22, 16, 16);
-		lcd_vcbus_setb(ENCL_VIDEO_HSO_PRE_PX_RNG + offset, 0xf42, 0, 16);
+		lcd_vcbus_setb(ENCL_VIDEO_HSO_PRE_PX_RNG + offset, hso_px_bgn, 16, 16);
+		lcd_vcbus_setb(ENCL_VIDEO_HSO_PRE_PX_RNG + offset, hso_px_end, 0, 16);
 
 		lcd_vcbus_setb(ENCL_VIDEO_VSO_PRE_PX_RNG + offset, vso_px_bgn, 16, 16);
 		lcd_vcbus_setb(ENCL_VIDEO_VSO_PRE_PX_RNG + offset, vso_px_end, 0, 16);
 
 		lcd_vcbus_setb(ENCL_VIDEO_VSO_PRE_LN_RNG + offset, vso_ln_bgn, 16, 16);
 		lcd_vcbus_setb(ENCL_VIDEO_VSO_PRE_LN_RNG + offset, vso_ln_end, 0, 16);
-
-		offset1 = pdrv->index == 1 ? 0x500 : 0x0;
-		lcd_vcbus_write(VBO_SLICE_CTRL + offset1, 0 << 24 | 0 << 20 | vx_mode << 14 | hact);
-		lcd_vcbus_write(VBO_RGN_HSIZE + offset1, pre_hact << 16 | hact);
 	} else if (pconf->basic.lcd_type == LCD_LVDS) {
 		lcd_vcbus_setb(LCD_LCD_IF_CTRL + offset, 1, 28, 3);//rgb pol
 	}
@@ -297,8 +264,8 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 {
 	unsigned int reg_disp_viu_ctrl, offset, offset1;
-	unsigned int frm_hsize, reg_data, vpp0_ppc_num;
-	unsigned int ppc;
+	unsigned int frm_hsize, reg_data;//, vpp0_ppc_num;
+	//unsigned int ppc;
 	struct lcd_config_s *pconf = &pdrv->config;
 
 	if (!pconf) {
@@ -309,9 +276,8 @@ static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 		LCDERR("null pdrv\n");
 		return;
 	}
-	ppc = pconf->timing.ppc;
+	//ppc = pconf->timing.ppc;
 	offset = pdrv->data->offset_venc[pdrv->index];
-	LCDPR("%s\n", __func__);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN + offset, 0);
 	lcd_venc_set_timing(pdrv);
@@ -320,9 +286,9 @@ static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 	if (pdrv->index == 0) {
 		reg_data  = lcd_vcbus_read(ENCL_VIDEO_HAVON_PX_RNG);
 		frm_hsize = (reg_data & 0xFFFF) - ((reg_data >> 16) & 0xFFFF) + 1;
-		vpp0_ppc_num  = lcd_vcbus_read(VPP_4S4P_CTRL) & 3;	//2: 1ppc, 1: 2ppc, 0: 4ppc
+		//vpp0_ppc_num  = lcd_vcbus_read(VPP_4S4P_CTRL) & 3;	//2: 1ppc, 1: 2ppc, 0: 4ppc
 		//s2p enable, only for venc0
-		lcd_vcbus_setb(VPU_VENC_DITH, vpp0_ppc_num == 2 && ppc == 2, 31, 1);
+		//lcd_vcbus_setb(VPU_VENC_DITH, vpp0_ppc_num == 1 && ppc == 2, 31, 1);
 		lcd_vcbus_setb(VPU_VENC_DITH, frm_hsize, 0,  13); //hsize
 	}
 

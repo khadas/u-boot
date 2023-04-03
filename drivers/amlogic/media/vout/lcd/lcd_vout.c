@@ -677,6 +677,7 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	val |= (pdrv->boot_ctrl.custom_pinmux & 0x1) << 16;
 	val |= (pdrv->boot_ctrl.init_level & 0x3) << 18;
 	val |= (pdrv->boot_ctrl.ppc & 0xf) << 24;
+	LCDPR("%s boot ppc=%d, val=0x%x\n", __func__, pdrv->boot_ctrl.ppc, val);
 	sprintf(ctrl_str, "0x%08x", val);
 
 	if (strlen(pdrv->config.basic.model_name) > 0) {

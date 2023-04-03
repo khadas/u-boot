@@ -499,7 +499,7 @@ void lcd_clk_generate_dft(struct aml_lcd_drv_s *pdrv)
 	unsigned int clk_div_sel, xd, tcon_div_sel = 0, phy_div = 1;
 	unsigned int od1, od2, od3;
 	unsigned int bit_rate_max = 0, bit_rate_min = 0, tmp;
-	unsigned int tmp_div, lvds_dual_port;
+	unsigned int tmp_div, lvds_dual_port, ppc;
 	int done;
 
 	cconf = get_lcd_clk_config(pdrv);
@@ -507,7 +507,8 @@ void lcd_clk_generate_dft(struct aml_lcd_drv_s *pdrv)
 		return;
 
 	done = 0;
-	cconf->fout = pconf->timing.lcd_clk / 1000; /* kHz */
+	ppc = pdrv->config.timing.ppc;
+	cconf->fout = pconf->timing.lcd_clk / 1000 / ppc; /* kHz */
 	cconf->err_fmin = MAX_ERROR;
 
 	if (cconf->fout > cconf->data->xd_out_fmax) {
