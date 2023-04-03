@@ -179,6 +179,14 @@ config MESON_A4
 	select DM_SERIAL
 	help
 		Support Amlogic Meson A4
+
+config MESON_TXHD2
+	bool "TXHD2"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson TXHD2
 endchoice
 
 config SYS_MALLOC_F_LEN

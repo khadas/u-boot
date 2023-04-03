@@ -18,8 +18,8 @@
 
 /* Local Headers */
 #include "osd_log.h"
-#include "osd_io.h"
 #include "osd_hw.h"
+#include "osd_io.h"
 
 #define OSD_TEST_DURATION 500
 

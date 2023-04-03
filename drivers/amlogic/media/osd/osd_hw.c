@@ -21,13 +21,12 @@
 #endif
 #include <amlogic/fb.h>
 #include <video_fb.h>
-#include <asm/arch/register.h>
 
 /* Local Headers */
 #include "osd_canvas.h"
 #include "osd_log.h"
-#include "osd_io.h"
 #include "osd_hw.h"
+#include "osd_io.h"
 #include "osd_hw_def.h"
 #include "osd_fb.h"
 #include "vpp.h"

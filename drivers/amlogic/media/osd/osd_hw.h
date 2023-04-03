@@ -6,6 +6,7 @@
 #ifndef _OSD_HW_H_
 #define _OSD_HW_H_
 
+#include <asm/arch/register.h>
 #include "osd.h"
 
 #define REG_OFFSET (0x20)
