@@ -1819,6 +1819,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_PIN_MUX_REGD,	   (0x1 << 0),		       (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGD,	   (0x1 << 4),		       (0xf << 4), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGD,	   (0x1 << 8),		       (0xf << 8), 0, 0, 0 },
+	{ PADCTRL_GPIOM_PULL_EN,   (0x1 << 28),		       (0x1 << 28), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000
