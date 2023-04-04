@@ -34,6 +34,8 @@
 #include <image.h>
 #include <version.h>
 
+#include <amlogic/unlz4_android.h>
+
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 #include <ext_common.h>
 #endif
@@ -694,6 +696,13 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		size_t size = unc_len;
 
 		ret = ulz4fn(image_buf, image_len, load_buf, &size);
+		image_len = size;
+		break;
+	}
+	case IH_COMP_LZ4_ANDROID: {
+		size_t size = unc_len;
+
+		ret = unlz4(image_buf, image_len, load_buf, &size);
 		image_len = size;
 		break;
 	}

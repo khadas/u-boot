@@ -178,6 +178,7 @@ static const table_entry_t uimage_comp[] = {
 	{	IH_COMP_LZMA,	"lzma",		"lzma compressed",	},
 	{	IH_COMP_LZO,	"lzo",		"lzo compressed",	},
 	{	IH_COMP_LZ4,	"lz4",		"lz4 compressed",	},
+	{	IH_COMP_LZ4_ANDROID, "lz4",	"lz4 compressed android",	},
 	{	-1,		"",		"",			},
 };
 
