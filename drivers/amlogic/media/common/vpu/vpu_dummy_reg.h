@@ -71,6 +71,16 @@
 #define VPU_VOUT_DTH_DATA                          ((0x0103  << 2) + 0xfe350000)
 #endif
 
+#ifndef VPU_VOUT_BLEND_DUMDATA_A4
+#define VPU_VOUT_BLEND_DUMDATA_A4                     ((0x0041  << 2) + 0xfe340000)
+#endif
+#ifndef VPP_VD1_MATRIX_OFFSET0_1_A4
+#define VPP_VD1_MATRIX_OFFSET0_1_A4                   ((0x0179  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_DTH_DATA_A4
+#define VPU_VOUT_DTH_DATA_A4                          ((0x0403  << 2) + 0xfe340000)
+#endif
+
 #ifndef VPU_RDARB_MODE_L2C1
 #define VPU_RDARB_MODE_L2C1                        ((0x279d  << 2) + 0xff000000)
 #endif
@@ -161,6 +171,10 @@
 
 #ifndef CLKCTRL_VOUTENC_CLK_CTRL
 #define CLKCTRL_VOUTENC_CLK_CTRL                   ((0x0046  << 2) + 0xfe000000)
+#endif
+
+#ifndef CLKCTRL_VOUTENC_CLK_CTRL_A4
+#define CLKCTRL_VOUTENC_CLK_CTRL_A4                 ((0x0081  << 2) + 0xfe000000)
 #endif
 
 #ifndef PWRCTRL_PWR_ACK0

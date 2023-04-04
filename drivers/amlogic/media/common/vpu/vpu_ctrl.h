@@ -90,6 +90,12 @@ static unsigned int vcbus_test_reg_c3[VCBUS_REG_CNT_MAX] = {
 	VPU_VOUT_DTH_DATA,
 };
 
+static unsigned int vcbus_test_reg_a4[VCBUS_REG_CNT_MAX] = {
+	VPU_VOUT_BLEND_DUMDATA_A4,
+	VPP_VD1_MATRIX_OFFSET0_1_A4,
+	VPU_VOUT_DTH_DATA_A4,
+};
+
 /* ******************************************************* */
 /*              VPU memory power down table                */
 /* ******************************************************* */
