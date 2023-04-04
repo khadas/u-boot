@@ -168,6 +168,7 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
+			"setenv bootargs ${bootargs} nn_adj_vol=${nn_adj_vol};"\
 			"run storeargs_hdmitx;"\
 			"run cmdline_keys;"\
 			"\0"\

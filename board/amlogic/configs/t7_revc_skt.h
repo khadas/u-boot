@@ -132,6 +132,7 @@
         "storeargs="\
             "get_bootloaderversion;" \
             "setenv bootargs ${initargs} otg_device=${otg_device} "\
+		"nn_adj_vol=${nn_adj_vol} "\
                 "logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable "\
                 "panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
                 "panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\

@@ -186,6 +186,7 @@
 			"get_bootloaderversion;" \
 			"get_rebootmode;"\
 			"setenv bootargs ${initargs} otg_device=${otg_device} "\
+				"nn_adj_vol=${nn_adj_vol} "\
 				"logo=${display_layer},loaded,${fb_addr} powermode=${powermode} "\
 				"vout=${outputmode},enable "\
 				"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
@@ -546,6 +547,7 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"setenv bootargs ${initargs} otg_device=${otg_device} "\
+			"nn_adj_vol=${nn_adj_vol} "\
 			"logo=${display_layer},loaded,${fb_addr} "\
 			"vout=${outputmode},${vout_init} panel_type=${panel_type} "\
 			"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\

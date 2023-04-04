@@ -106,6 +106,7 @@
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
 			"setenv bootargs ${bootargs} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+			"nn_adj_vol=${nn_adj_vol} "\
 			"outputmode=${outputmode};"\
             "run cmdline_keys;"\
             "\0"\

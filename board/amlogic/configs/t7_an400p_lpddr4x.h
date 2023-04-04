@@ -122,6 +122,7 @@
 		"get_bootloaderversion;" \
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} lcd_ctrl=${lcd_ctrl} "\
+		"nn_adj_vol=${nn_adj_vol} "\
 		"lcd_debug=${lcd_debug} "\
 		"panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} "\
 		"panel2_type=${panel2_type} "\
