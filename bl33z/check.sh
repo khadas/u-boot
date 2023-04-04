@@ -9,10 +9,31 @@ arry=(${arry//' '/})
 echo "AML SOC LIST: ${arry[*]}"
 RESULT=$RESULT'\n'"--------------------------------------------\n"
 RESULT=$RESULT"############## Aml RAMDUMP bl33z.bin #############\n"
-RESULT=$RESULT"Amlogic bl33/v2019 SoC: "${arry[*]}'\n'
+#RESULT=$RESULT"Amlogic bl33/v2019 SoC: "${arry[*]}'\n'
 
 skiped=("a1" "c1" "c2" "c3" "g12a" "g12b" "sm1" "t5w")
 echo "AML SOC SKIP: ${skiped[*]}"
+
+if [ ! -z "$1" ]; then
+	echo "Compile bl33z only for: $1"
+	filter=`echo $1 | cut -d '_' -f 1`
+
+	if [[ "${skiped[@]}"  =~ "$filter" ]]; then
+		RESULT=$RESULT"Soc ("$filter") is in skip list, skip."'\n'
+	elif [[ "${arry[@]}"  =~ "$filter" ]]; then
+		rm -fr ./build/*
+		make PLAT=$filter
+		if [ $? != 0 ]; then
+			RESULT=$RESULT"$TOTAL_CFG."'\t'$filter'\t\033[41;37m--- build failed\033[0m\n'
+		else
+			RESULT=$RESULT"$TOTAL_CFG."'\t'$filter'\t--- build pass\t\n'
+		fi
+	else
+		RESULT=$RESULT"Soc ("$filter") is not in support list, skip."'\n'
+	fi
+	echo -e $RESULT
+	exit 0
+fi
 
 for((i=0;i<${#skiped[@]};i++)); do
 	for((j=0;j<${#arry[@]};j++)); do

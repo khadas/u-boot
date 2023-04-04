@@ -81,6 +81,7 @@ then
 fi
 
 echo "************************ START *************************"
+echo "TOTAL_CFG=$TOTAL_CFG, argv1 = $1"
 
 # compile check start
 # RESULT store compile result
@@ -200,11 +201,8 @@ fi
 # check bl33z for kernel ramdump
 if [ -d "./bl33z" ]; then
   cd ./bl33z
-  ./check.sh
+  ./check.sh $filter
   cd -
-
-  # print again
-  echo -e $RESULT
 fi
 
 echo -e "#################### END ###################\n"
