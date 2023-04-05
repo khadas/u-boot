@@ -1057,7 +1057,7 @@ typedef struct board_common_setting {
 	//
 	unsigned short	org_tdqs2dq;
 	unsigned char	reserve1_test[2];
-	unsigned int	ddr_dmc_remap[5];
+	unsigned int	ddr_dmc_remap[6];
 	unsigned char	lpddr34_ca_remap[4];
 	unsigned char	ddr_dq_remap[36];
 	unsigned char	ac_pinmux[DWC_AC_PINMUX_TOTAL]; //24 35
@@ -7835,7 +7835,7 @@ int do_ddr_display_s5_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 		       ddr_set_t_p->cfg_board_common_setting.reserve1_test[count],
 		       ddr_set_t_p->cfg_board_common_setting.reserve1_test[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.reserve1_test[count]));
-	for (count = 0; count < 5; count++)
+	for (count = 0; count < 6; count++)
 		printf("\n.cfg_board_common_setting.ddr_dmc_remap[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.ddr_dmc_remap[count],

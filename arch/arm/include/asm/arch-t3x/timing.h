@@ -297,7 +297,7 @@ typedef struct board_common_setting {
 	//
 	unsigned short	org_tdqs2dq;
 	unsigned char	reserve1_test[2];
-	unsigned int	ddr_dmc_remap[5];
+	unsigned int	ddr_dmc_remap[6];
 	unsigned char	lpddr34_ca_remap[4];
 	unsigned char	ddr_dq_remap[36];
 unsigned	char	ac_pinmux[30];
