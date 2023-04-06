@@ -205,6 +205,8 @@ struct spicc_device {
 #define SPI_XFER_DC_LEVEL	BIT(12)		/* dc bit level */
 #define SPI_XFER_NULL_CTL	BIT(13)
 #define SPI_XFER_DUMMY_CTL	BIT(14)
+#define SPI_XFER_NO_TX		BIT(15)
+#define SPI_XFER_NO_RX		BIT(16)
 
 static inline void spicc_flush_dcache(uint64_t addr, int sz)
 {
@@ -397,6 +399,8 @@ static void spicc_import_config(struct spicc_device *spicc, unsigned long flags)
 	spicc->cfg_bus.b.half_duplex_en = !!(flags & SPI_XFER_HALF_DUPLEX_EN);
 	spicc->cfg_bus.b.null_ctl = !!(flags & SPI_XFER_NULL_CTL);
 	spicc->cfg_bus.b.dummy_ctl = !!(flags & SPI_XFER_DUMMY_CTL);
+	spicc->cfg_bus.b.ss_leading_gap = 1;
+	spicc->cfg_bus.b.read_turn_around = 0;
 }
 
 static int spicc_xfer_pio(struct spicc_device *spicc, const void *tx_buf,
@@ -654,7 +658,7 @@ static int spicc_config_desc_one_transfer(struct spicc_device *spicc,
 		desc->cfg_start.b.block_size = spicc->bytes_per_word & 0x7;
 		desc->cfg_start.b.block_num = blocks;
 
-		if (tx_addr) {
+		if (tx_addr && !(xfer->flags & SPI_XFER_NO_TX)) {
 			desc->cfg_start.b.op_mode = SPICC_OP_MODE_WRITE;
 			desc->cfg_start.b.tx_data_mode = spicc->config_data_mode;
 			if (spicc->config_data_mode == SPICC_DATA_MODE_SG)
@@ -666,7 +670,7 @@ static int spicc_config_desc_one_transfer(struct spicc_device *spicc,
 			tx_addr += len;
 		}
 
-		if (rx_addr) {
+		if (rx_addr && !(xfer->flags & SPI_XFER_NO_RX)) {
 			desc->cfg_start.b.op_mode = SPICC_OP_MODE_READ;
 			desc->cfg_start.b.rx_data_mode = spicc->config_data_mode;
 			desc->cfg_bus.b.read_turn_around = SPICC_READ_TURN_AROUND_DEFAULT;
@@ -710,9 +714,9 @@ static struct spicc_descriptor *spicc_create_desc_table
 	}
 
 	desc = kcalloc(desc_num, sizeof(*desc), GFP_KERNEL);
-	desc_bk = desc;
 	if (!desc_num || !desc)
 		return NULL;
+	desc_bk = desc;
 
 	/* default */
 	spicc->cfg_start.b.tx_data_mode = SPICC_DATA_MODE_NONE;
@@ -732,11 +736,12 @@ static struct spicc_descriptor *spicc_create_desc_table
 
 static void spicc_destroy_desc_table(struct spicc_descriptor *desc_table)
 {
-	struct spicc_descriptor *desc = desc_table;
+	struct spicc_descriptor *desc;
 
-	if (!desc)
+	if (!desc_table)
 		return;
 
+	desc = desc_table;
 	while (1) {
 		if (desc->tx_sg && desc->cfg_start.b.tx_data_mode == SPICC_DATA_MODE_SG)
 			free(desc->tx_sg);
@@ -748,7 +753,7 @@ static void spicc_destroy_desc_table(struct spicc_descriptor *desc_table)
 		desc++;
 	}
 
-	free(desc_table);
+	kfree(desc_table);
 }
 
 static int spicc_xfer_desc(struct spicc_device *spicc,
@@ -817,8 +822,12 @@ static int spicc_xfer(struct udevice *dev, unsigned int bitlen,
 	} else {
 		desc_table = spicc_create_desc_table(spicc, spicc->xfer,
 						     spicc->xfer_num);
-		ret = spicc_xfer_desc(spicc, desc_table);
-		spicc_destroy_desc_table(desc_table);
+		if (desc_table) {
+			ret = spicc_xfer_desc(spicc, desc_table);
+			spicc_destroy_desc_table(desc_table);
+		} else {
+			ret = -ENOMEM;
+		}
 	}
 
 	spicc_sem_up_write(spicc);
@@ -833,7 +842,7 @@ static int spicc_probe(struct udevice *bus)
 	int ret;
 
 	spicc->base = (void __iomem *)dev_read_addr(bus);
-	spicc_info("addr base 0x%p\n", spicc->base);
+	spicc_info("base 0x%p\n", spicc->base);
 
 #ifdef CONFIG_SECURE_POWER_CONTROL
 	if (!dev_read_u32(bus, "pm-id", &spicc->pm_id)) {
@@ -854,7 +863,7 @@ static int spicc_probe(struct udevice *bus)
 		return ret;
 	}
 	clk_enable(&spicc->spi_clk);
-	spicc_info("spi_clk rate %lu\n", clk_get_rate(&spicc->spi_clk));
+	spicc_info("spi_clk %luMHz\n", clk_get_rate(&spicc->spi_clk));
 
 	spicc->config_data_mode = SPICC_DATA_MODE_MEM;
 	spicc->cfg_spi.d32 = 0;
@@ -873,7 +882,303 @@ static int spicc_probe(struct udevice *bus)
 	return ret;
 }
 
-static const struct udevice_id spicc_of_match[] = {
+//#define SPICC_NOR_TEST
+#ifdef SPICC_NOR_TEST
+#define SPICC_NOR_TEST_WRITING
+#define NOR_CMD_RDID	0x9F
+#define NOR_CMD_WREN	0x06
+#define NOR_CMD_WRDI	0x04
+#define NOR_CMD_SE	0x20
+#define NOR_CMD_PP	0x02
+#define NOR_CMD_QPP	0x32
+#define NOR_CMD_READ	0x03
+#define NOR_CMD_FREAD	0x0B
+#define NOR_CMD_DREAD	0x3B
+#define NOR_CMD_QREAD	0x6B
+#define NOR_CMD_RDSR1	0x05
+#define NOR_CMD_WRSR1	0x01
+#define NOR_SR1_WIP	BIT(0)
+#define NOR_SR1_WEL	BIT(1)
+#define NOR_CMD_RDSR2	0x35
+#define NOR_CMD_WRSR2	0x31
+#define NOR_SR2_QE	BIT(1)
+
+static int spicc_nor_read_id(struct spi_slave *slave, uint8_t *id_buf)
+{
+	uint8_t cmd = NOR_CMD_RDID;
+
+	spi_xfer(slave, 8, &cmd, 0, SPI_XFER_BEGIN);
+	return spi_xfer(slave, 24, 0, id_buf, SPI_XFER_END);
+}
+
+static int spicc_nor_rdsr(struct spi_slave *slave, uint8_t cmd, uint8_t *sta)
+{
+	uint8_t dout[2], din[2];
+	int ret;
+
+	dout[0] = cmd;
+	dout[1] = 0;
+	ret = spi_xfer(slave, 16, dout, din, SPI_XFER_ONCE);
+	*sta = din[1];
+
+	return ret;
+}
+
+static int spicc_nor_wrsr(struct spi_slave *slave, uint8_t cmd, uint8_t sta)
+{
+	uint8_t dout[2];
+
+	dout[0] = cmd;
+	dout[1] = sta;
+	return spi_xfer(slave, 16, dout, 0, SPI_XFER_ONCE);
+}
+
+#define POLLING_PERIOD_US	100
+static int spicc_nor_wait(struct spi_slave *slave, int ms)
+{
+	int retry = ms * 1000 / POLLING_PERIOD_US;
+	uint8_t sta;
+	int ret;
+
+	while (retry--) {
+		ret = spicc_nor_rdsr(slave, NOR_CMD_RDSR1, &sta);
+		if (ret < 0)
+			return ret;
+		if (!(sta & NOR_SR1_WIP))
+			return 0;
+		udelay(POLLING_PERIOD_US);
+	}
+
+	return -ETIMEDOUT;
+}
+
+static inline int spicc_nor_cmd(struct spi_slave *slave, uint8_t cmd)
+{
+	return spi_xfer(slave, 8, &cmd, 0, SPI_XFER_ONCE);
+}
+
+static int spicc_nor_qe(struct spi_slave *slave, bool enable)
+{
+	uint8_t sta;
+	int ret;
+
+	ret = spicc_nor_rdsr(slave, NOR_CMD_RDSR2, &sta);
+	if (ret < 0)
+		return ret;
+
+	ret = spicc_nor_cmd(slave, NOR_CMD_WREN);
+	if (ret < 0)
+		return ret;
+
+	if (enable)
+		sta |= NOR_SR2_QE;
+	else
+		sta &= ~NOR_SR2_QE;
+	ret = spicc_nor_wrsr(slave, NOR_CMD_WRSR2, sta);
+	if (ret < 0)
+		return ret;
+
+	return spicc_nor_wait(slave, 1000);
+}
+
+#ifdef SPICC_NOR_TEST_WRITING
+static int spicc_nor_write(struct spi_slave *slave,
+			     uint8_t cmd, uint32_t addr,
+			     uint8_t *buf, int len)
+{
+	uint8_t dout[4];
+	unsigned long flags;
+	int ret;
+
+	ret = spicc_nor_cmd(slave, NOR_CMD_WREN);
+	if (ret < 0) {
+		printf("SE-WREN failed %d\n", ret);
+		return ret;
+	}
+
+	dout[0] = NOR_CMD_SE;
+	dout[1] = (addr >> 16) & 0xff;
+	dout[2] = (addr >> 8) & 0xff;
+	dout[3] = (addr >> 0) & 0xff;
+	ret = spi_xfer(slave, 32, dout, 0, SPI_XFER_ONCE);
+	if (ret < 0) {
+		printf("SE failed %d\n", ret);
+		return ret;
+	}
+
+	ret = spicc_nor_wait(slave, 1000);
+	if (ret < 0) {
+		printf("SE wait failed %d\n", ret);
+		return ret;
+	}
+
+	/* PP */
+	ret = spicc_nor_cmd(slave, NOR_CMD_WRDI);
+	if (ret < 0) {
+		printf("SE-WRDI failed %d\n", ret);
+		return ret;
+	}
+
+	ret = spicc_nor_cmd(slave, NOR_CMD_WREN);
+	if (ret < 0) {
+		printf("PP-WREN failed %d\n", ret);
+		return ret;
+	}
+
+	if (cmd == NOR_CMD_QPP) {
+		flags = FIELD_PREP(SPI_XFER_LANE, SPICC_QUAD_SPI);
+		ret = spicc_nor_qe(slave, 1);
+		if (ret < 0) {
+			printf("PP-QE1 failed %d\n", ret);
+			return ret;
+		}
+	} else {
+		flags = FIELD_PREP(SPI_XFER_LANE, SPICC_SINGLE_SPI);
+	}
+
+	dout[0] = cmd;
+	ret = spi_xfer(slave, 32, dout, 0, SPI_XFER_BEGIN);
+	ret = spi_xfer(slave, len * 8, buf, 0, flags | SPI_XFER_END);
+	if (ret < 0) {
+		printf("PP failed %d\n", ret);
+		return ret;
+	}
+
+	ret = spicc_nor_wait(slave, 1000);
+	if (ret < 0) {
+		printf("PP wait failed %d\n", ret);
+		return ret;
+	}
+
+	if (cmd == NOR_CMD_QPP) {
+		ret = spicc_nor_qe(slave, 0);
+		if (ret < 0) {
+			printf("PP-QE0 failed %d\n", ret);
+			return ret;
+		}
+	}
+
+	return spicc_nor_cmd(slave, NOR_CMD_WRDI);
+}
+#endif
+
+static int spicc_nor_read(struct spi_slave *slave,
+			  uint8_t cmd, uint32_t addr,
+			  uint8_t *buf, int len)
+{
+	uint8_t dout[5];
+	unsigned long flags;
+	bool dummy;
+	int ret;
+
+	if (cmd == NOR_CMD_DREAD) {
+		flags = FIELD_PREP(SPI_XFER_LANE, SPICC_DUAL_SPI);
+		dummy = 1;
+	} else if (cmd == NOR_CMD_QREAD) {
+		ret = spicc_nor_qe(slave, 1);
+		if (ret < 0) {
+			printf("QREAD-QE1 failed %d\n", ret);
+			return ret;
+		}
+		flags = FIELD_PREP(SPI_XFER_LANE, SPICC_QUAD_SPI);
+		dummy = 1;
+	} else {
+		flags = FIELD_PREP(SPI_XFER_LANE, SPICC_SINGLE_SPI);
+		dummy = 0;
+	}
+
+	dout[0] = cmd;
+	dout[1] = (addr >> 16) & 0xff;
+	dout[2] = (addr >> 8) & 0xff;
+	dout[3] = (addr >> 0) & 0xff;
+	dout[4] = 0;
+	ret = spi_xfer(slave, dummy ? 40 : 32, dout, 0, SPI_XFER_BEGIN);
+	ret = spi_xfer(slave, len * 8, 0, buf, flags | SPI_XFER_END);
+	if (ret < 0) {
+		printf("READ(0x%x) failed %d\n", cmd, ret);
+		return ret;
+	}
+
+	if (cmd == NOR_CMD_QREAD) {
+		ret = spicc_nor_qe(slave, 0);
+		if (ret < 0)
+			printf("QREAD-QE0 failed %d\n", ret);
+	}
+
+	return ret;
+}
+
+static void spicc_print_buffer(uint8_t *buf, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		printf("%02X", buf[i]);
+	printf("\n");
+}
+
+void spicc_nor_test(int bus, int cs, int speed, uint32_t addr, int len)
+{
+	struct spi_slave *slave;
+	struct udevice *dev;
+	char name[30], *str;
+	uint8_t *buf;
+
+	snprintf(name, sizeof(name), "generic_%d:%d", bus, cs);
+	str = strdup(name);
+	if (!str)
+		return;
+
+	if (spi_get_bus_and_cs(bus, cs, speed, 0, "spi_generic_drv",
+			       str, &dev, &slave))
+		return;
+
+	slave->wordlen = 8;
+	if (spi_claim_bus(slave)) {
+		spi_release_bus(slave);
+		return;
+	}
+
+	buf = malloc(len);
+	if (!buf) {
+		spi_release_bus(slave);
+		return;
+	}
+
+	printf("RDID\n");
+	if (!spicc_nor_read_id(slave, buf))
+		spicc_print_buffer(buf, 3);
+
+#ifdef SPICC_NOR_TEST_WRITING
+	printf("SE-PP(0x02)\n");
+	//{0x01, 0xfe, 0x23, 0xdc, 0x45, 0xba, 0x67, 0x98}
+	for (int i = 0; i < len; i++)
+		buf[i] = i;
+	if (!spicc_nor_write(slave, NOR_CMD_PP, addr, buf, len))
+		spicc_print_buffer(buf, len);
+#endif
+
+	printf("READ(03h)\n");
+	memset(buf, 0, len);
+	if (!spicc_nor_read(slave, NOR_CMD_READ, addr, buf, len))
+		spicc_print_buffer(buf, len);
+
+	printf("DREAD(3bh)\n");
+	memset(buf, 0, len);
+	if (!spicc_nor_read(slave, NOR_CMD_DREAD, addr, buf, len))
+		spicc_print_buffer(buf, len);
+
+	printf("QREAD(6bh)\n");
+	memset(buf, 0, len);
+	if (!spicc_nor_read(slave, NOR_CMD_QREAD, addr, buf, len))
+		spicc_print_buffer(buf, len);
+
+	spi_release_bus(slave);
+	free(buf);
+}
+#endif /* end of SPICC_NOR_TEST */
+
+static const struct udevice_id spicc_v2_of_match[] = {
 	{
 		.compatible	= "amlogic,meson-a4-spicc",
 		.data		= 0,
@@ -881,7 +1186,7 @@ static const struct udevice_id spicc_of_match[] = {
 	{ /* sentinel */ }
 };
 
-static const struct dm_spi_ops spicc_ops = {
+static const struct dm_spi_ops spicc_v2_ops = {
 	.claim_bus = spicc_claim_bus,
 	.release_bus = spicc_release_bus,
 	.xfer = spicc_xfer,
@@ -893,9 +1198,9 @@ static const struct dm_spi_ops spicc_ops = {
 U_BOOT_DRIVER(spicc_v2) = {
 	.name = "spicc_v2",
 	.id = UCLASS_SPI,
-	.of_match = spicc_of_match,
+	.of_match = spicc_v2_of_match,
 	.priv_auto_alloc_size = sizeof(struct spicc_device),
 	.per_child_auto_alloc_size = sizeof(struct spi_slave),
-	.ops = &spicc_ops,
+	.ops = &spicc_v2_ops,
 	.probe = spicc_probe,
 };
