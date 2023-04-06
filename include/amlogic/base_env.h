@@ -19,7 +19,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS_BASE \
 	"firstboot=1\0"\
 	"upgrade_step=0\0"\
-	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
 	"loadaddr_rtos=0x00001000\0"\
@@ -40,7 +39,6 @@
 	"boot_flag=0\0"\
 	"write_boot=0\0"\
 	"ddr_size=0\0"\
-	"Irq_check_en=0\0"\
 	"recovery_mode=false\0"\
 	"retry_recovery_times=7\0"\
 	"androidboot.dtbo_idx=0\0"\
@@ -70,8 +68,7 @@
 		"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
 		"cvbsmode=${cvbsmode} config_csc_en=${config_csc_en} "\
 		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
-		"irq_check_en=${Irq_check_en}  "\
-		"jtag=${jtag} disable_ir=${disable_ir};"\
+		"disable_ir=${disable_ir};"\
 		"setenv bootconfig androidboot.selinux=${EnableSelinux} "\
 		"androidboot.firstboot=${firstboot} "\
 		"androidboot.bootloader=${bootloader_version} "\
