@@ -1516,7 +1516,11 @@ static int eqos_start(struct udevice *dev)
 
 	/* Set up descriptors */
 
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+	memset_non_cache(eqos->descs, 0, EQOS_DESCRIPTORS_SIZE);
+#else
 	memset(eqos->descs, 0, EQOS_DESCRIPTORS_SIZE);
+#endif
 
 	for (i = 0; i < EQOS_DESCRIPTORS_RX; i++) {
 		struct eqos_desc *rx_desc = &(eqos->rx_descs[i]);

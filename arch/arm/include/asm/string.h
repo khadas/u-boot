@@ -70,6 +70,7 @@ void *memmove(void *, const void *, __kernel_size_t);
 #ifndef __HAVE_ARCH_MEMSET
 #define __HAVE_ARCH_MEMSET
 void *memset(void *, int, __kernel_size_t);
+void *memset_non_cache(void *, int, __kernel_size_t);
 #endif
 #ifndef __HAVE_ARCH_MEMCMP
 #define __HAVE_ARCH_MEMCMP
