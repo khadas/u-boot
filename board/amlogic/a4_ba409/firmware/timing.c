@@ -16,9 +16,10 @@
 #define VMIN_TT_VALUE                           800
 #define VMIN_SS_VALUE                           810
 /* board vddee_value defines */
-#define VDDEE_FF_VALUE                          0x8000a
-#define VDDEE_TT_VALUE                          0x8000a
-#define VDDEE_SS_VALUE                          0x8000a
+/* 0x5000d=0.84V */
+#define VDDEE_FF_VALUE                          0x5000d
+#define VDDEE_TT_VALUE                          0x5000d
+#define VDDEE_SS_VALUE                          0x5000d
 
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
 #define DDR_ID_ACS_ADC   ((3 << 6) | (8))
