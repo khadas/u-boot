@@ -3179,7 +3179,13 @@ static void osd_update_color_mode(u32 index)
 		data32 |= osd_hw.fb_gem[index].canvas_idx << 16;
 		if (!osd_hw.rotate[index].on_off)
 			data32 |= OSD_DATA_LITTLE_ENDIAN << 15;
-		data32 |= osd_hw.color_info[index]->hw_colormat << 2;
+
+		/* after t3x, color matrix rgb565 changed */
+		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_T3X  &&
+			osd_hw.color_info[index]->color_index == 16)
+			data32 |= 2 << 2;
+		else
+			data32 |= osd_hw.color_info[index]->hw_colormat << 2;
 		if (osd_get_chip_type() < MESON_CPU_MAJOR_ID_GXTVBB) {
 			if (osd_hw.color_info[index]->color_index
 				< COLOR_INDEX_YUV_422)
