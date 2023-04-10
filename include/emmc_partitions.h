@@ -28,7 +28,7 @@
 
 #define     MAX_DEVICE_NUM                  32
 #define     MAX_DEVICE_NAME_LEN             16
-#define     MAX_MMC_PART_NUM                32
+#define     MAX_MMC_PART_NUM                128
 #define     MAX_MMC_PART_NAME_LEN           16
 
 #ifndef CONFIG_AML_MMC_INHERENT_PART
