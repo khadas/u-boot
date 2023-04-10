@@ -12,7 +12,6 @@
 #include <asm/arch/mailbox.h>
 #include <asm/arch/cpu_config.h>
 
-extern int check_valid_dts(unsigned char *buffer);
 extern unsigned int get_multi_dt_entry(unsigned long fdt_addr);
 int is_optimus_storage_inited(void);
 
@@ -740,18 +739,19 @@ int optimus_storage_init(int toErase)
     if (!_dtb_is_loaded) {
         DWN_WRN("dtb is not loaded yet\n");
     }
-    else{
-     //can get before store init as not pc mode
-	if (store_get_type() == BOOT_NAND_MTD || store_get_type() == BOOT_SNAND)
-		ret =  check_valid_dts(dtbLoadedAddr);
-	else
-		ret = get_partition_from_dts(is_gpt ? gpt_load_addr : dtbLoadedAddr);
+	if (_dtb_is_loaded && is_gpt) {
+		DWN_MSG("to check dtb\n");
+		if (check_valid_dts(dtbLoadedAddr) < 0) {
+			DWN_ERR("Fail in check dtb valid\n");
+			return -__LINE__;
+		}
+	}
 
-        if (ret) {
+	ret = get_partition_from_dts(is_gpt ? gpt_load_addr : dtbLoadedAddr);
+	if (ret) {
 		DWN_ERR("Failed at check part table\n");
 		return __LINE__;
-        }
-    }
+	}
 
     ret = store_init(1);
     if (ret <= 0) {

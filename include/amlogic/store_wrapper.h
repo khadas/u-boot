@@ -6,6 +6,7 @@
 #ifndef __STORE_WRAPPER_H__
 #define __STORE_WRAPPER_H__
 #include <amlogic/storage.h>
+int check_valid_dts(unsigned char *buffer);
 
 //logic write/read, if not MTD, same as store_write
 int store_logic_write(const char *name, loff_t off, size_t size, void *buf);

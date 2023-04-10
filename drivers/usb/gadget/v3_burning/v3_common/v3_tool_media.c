@@ -604,6 +604,12 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 		if (ret)
 			FB_WRN("Failed at check dts\n");
 	} else if (gptImgSz) {
+		if (dtbImgSz > 0) {
+			FB_MSG("to check dtb\n");
+			ret = check_valid_dts(dtbLoadedAddr);
+			if (ret < 0)
+				FBS_EXIT(_ACK, "Fail at check dtb\n");
+		}
 		if (get_partition_from_dts(gptLoadedAddr))
 			FBS_EXIT(_ACK, "Fail at check gpt\n");
 		else
