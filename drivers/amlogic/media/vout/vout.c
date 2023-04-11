@@ -262,6 +262,14 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
+	{ /* VMODE_1024x600p60hz */
+        .name              = "1024x600p60hz",
+        .mode              = VMODE_1024x600p60hz,
+        .width             = 1024,
+        .height            = 600,
+        .viu_color_fmt     = VPP_CM_YUV,
+        .viu_mux           = VIU_MUX_ENCP,
+	},
 	{ /* VMODE_1024x768p60hz */
 		.name              = "1024x768p60hz",
 		.mode              = VMODE_1024x768p60hz,
@@ -673,6 +681,16 @@ static int get_window_axis(int *axis)
 		axis[1] = getenv_int("panel_y", def_y);
 		axis[2] = getenv_int("panel_w", def_w);
 		axis[3] = getenv_int("panel_h", def_h);
+	} else if (strncmp(mode, "800x480p",8) == 0) {
+		axis[0] = getenv_int("800x480p_x", def_x);
+		axis[1] = getenv_int("800x480p_y", def_y);
+		axis[2] = getenv_int("800x480p_w", def_w);
+		axis[3] = getenv_int("800x480p_h", def_h);
+	} else if (strncmp(mode, "1024x600p",9) == 0) {
+		axis[0] = getenv_int("1024x600p_x", def_x);
+		axis[1] = getenv_int("1024x600p_y", def_y);
+		axis[2] = getenv_int("1024x600p_w", def_w);
+		axis[3] = getenv_int("1024x600p_h", def_h);
 	} else {
 		axis[0] = getenv_int("1080p_x", def_x);
 		axis[1] = getenv_int("1080p_y", def_y);

@@ -227,6 +227,21 @@ void set_hpll_clk_out(unsigned int clk)
 		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
 		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
 		break;
+	case 4761600:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004C2);//800x480
+		if (frac_rate)
+			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x0001cccc);
+		else
+			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00018000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
 	case 4455000:
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004b9);
 		if (frac_rate)
@@ -252,6 +267,21 @@ void set_hpll_clk_out(unsigned int clk)
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270008);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
+		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);
+		pr_info("HPLL: 0x%x\n", hd_read_reg(P_ANACTRL_HDMIPLL_CTRL0));
+		break;
+	case 4115866:
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL0, 0x3b0004A3);//1024x600
+		if (frac_rate)
+			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x0001ffff);
+		else
+			hd_write_reg(P_ANACTRL_HDMIPLL_CTRL1, 0x00018000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL5, 0x39270000);
 		hd_write_reg(P_ANACTRL_HDMIPLL_CTRL6, 0x50540000);
 		hd_set_reg_bits(P_ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
 		WAIT_FOR_PLL_LOCKED(P_ANACTRL_HDMIPLL_CTRL0);

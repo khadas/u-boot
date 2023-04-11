@@ -314,6 +314,7 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMI_720x480p60_4x3, "480p60hz_4x3", 0},
 	{HDMI_720x576i50_4x3, "576i50hz_4x3", 0},
 	{HDMI_720x480i60_4x3, "480i60hz_4x3", 0},
+	{HDMIV_800x480p60hz,  "800x480p60hz", 0},
 	{HDMIV_1440x2560p60hz, "1440x2560p60hz", 0},
 	{HDMIV_3440x1440p60hz, "3440x1440p60hz", 0},
 	{HDMIV_2400x1200p90hz, "2400x1200p90hz", 0},
@@ -2262,7 +2263,7 @@ static void hdmi_tvenc_vesa_set(enum hdmi_vic vic)
 
 static void hdmi_tvenc_set(enum hdmi_vic vic)
 {
-	if ((vic & HDMITX_VESA_OFFSET) == HDMITX_VESA_OFFSET) {
+	if (vic >= HDMITX_VESA_OFFSET) {
 		/* VESA modes setting */
 		hdmi_tvenc_vesa_set(vic);
 		return;
