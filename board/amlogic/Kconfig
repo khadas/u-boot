@@ -567,6 +567,12 @@ config S4_AP2327
 	help
 		Select S4 AP2327(XXXX) config
 
+config S4_BF201
+	bool "S4_BF201"
+	select TARGET_S4_BF201
+	help
+		Select S4 BF201(XXXX) config
+
 endchoice
 
 config TARGET_S4_SKT
@@ -616,6 +622,10 @@ config TARGET_S4_AP232
 config TARGET_S4_AP2327
 	bool "S4 AP2327 board"
 	depends on S4_AP2327
+
+config TARGET_S4_BF201
+	bool "S4 BF201 board"
+	depends on S4_BF201
 
 config TARGET_S4_AP229_S905C3ENG
 	bool "S4 AP229 S905C3ENG board"
@@ -1585,6 +1595,8 @@ source "board/amlogic/s4_ap229/Kconfig"
 source "board/amlogic/s4_aq222/Kconfig"
 
 source "board/amlogic/s4_aq2432/Kconfig"
+
+source "board/amlogic/s4_bf201/Kconfig"
 
 source "board/amlogic/s4_aq229/Kconfig"
 
