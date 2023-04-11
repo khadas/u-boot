@@ -223,7 +223,7 @@
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
 			"run storeargs;"\
-			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
+			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;hdmitx edid;"\
 			"dovi process;watermark_init;osd open;osd clear;run load_bmp_logo;"\
 			"bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
 		"fi;fi;"\
