@@ -394,9 +394,9 @@
 	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
 #endif
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
-	#define CONFIG_IPADDR          192.168.31.196          /* Our ip address */
+	#define CONFIG_IPADDR          192.168.31.200          /* Our ip address */
 	#define CONFIG_GATEWAYIP       192.168.31.1           /* Our getway ip address */
-	#define CONFIG_SERVERIP        192.168.31.199        /* Tftp server ip address */
+	#define CONFIG_SERVERIP        192.168.31.230        /* Tftp server ip address */
 	#define CONFIG_NETMASK         255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 
