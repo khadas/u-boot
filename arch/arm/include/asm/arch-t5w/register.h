@@ -460,6 +460,8 @@
 // -----------------------------------------------
 // CBUS_BASE:  PWM_GH_CBUS_BASE = 0x84
 // -----------------------------------------------
+#define PWM_PWM_C                                  ((0x6800  << 2) + 0xffd00000)
+#define PWM_PWM_D                                  ((0x6801  << 2) + 0xffd00000)
 #define PWM_PWM_G                                  ((0x8400  << 2) + 0xffd00000)
 #define PWM_PWM_H                                  ((0x8401  << 2) + 0xffd00000)
 #define PWM_MISC_REG_GH                            ((0x8402  << 2) + 0xffd00000)

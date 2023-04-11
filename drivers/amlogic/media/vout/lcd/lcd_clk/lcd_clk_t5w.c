@@ -483,7 +483,7 @@ static struct lcd_clk_data_s lcd_clk_data_t5w = {
 	.xd_out_fmax = ENCL_CLK_IN_MAX_TL1,
 
 	.vclk_sel = 0,
-	.enc_clk_msr_id = 9,
+	.enc_clk_msr_id = 6,
 	.pll_ctrl_table = pll_ctrl_table_tl1,
 
 	.ss_support = 1,
