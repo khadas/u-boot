@@ -398,7 +398,7 @@ static int write_boot0(void)
 		return -1;
 	}
 
-	iRet = store_boot_write("bootloader", 0, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
+	iRet = store_boot_write("bootloader", 1, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
 	if (iRet) {
 		printf("Failed to write boot0\n");
 		free(buffer);
