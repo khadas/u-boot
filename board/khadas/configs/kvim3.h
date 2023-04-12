@@ -497,23 +497,6 @@
     "fi;"\
     "\0"\
 
-/* for portrait panel, recovery always displays on panel */
-#define CONFIG_RECOVERY_DUAL_LOGO \
-    "setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
-    "vout2 prepare $outputmode2;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout2 output $outputmode2;"\
-    "if test ${khadas_mipi_id} = 2; then "\
-        "setenv fb_width 1790; setenv fb_height 1050;"\
-        "setenv display_width 1920;setenv display_height 1200;"\
-        "setenv outputmode ${ts101_output};setenv display_layer osd0;"\
-        "vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
-    "else "\
-        "setenv fb_width 1080; setenv fb_height 1920;"\
-        "setenv display_width 1080;setenv display_height 1920;"\
-        "setenv outputmode ${ts050_output};setenv display_layer osd0;"\
-        "vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
-    "fi;"\
-    "\0"\
-
 /* buffer rotate for portrait screen */
 #define CONFIG_SINGLE_LOGO \
     "setenv display_layer osd0;"\
