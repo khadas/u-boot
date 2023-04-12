@@ -298,7 +298,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 			if (rc == AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX) {
 				if (has_boot_slot == 1) {
-					wrnP("ab mode\n");
+					printf("ab mode\n");
 					update_rollback();
 					env_set("write_boot", "0");
 					run_command("saveenv", 0);
