@@ -242,6 +242,7 @@ int lcd_venc_op_init_c3(struct lcd_venc_op_s *venc_op)
 		return -1;
 
 	venc_op->wait_vsync = NULL;
+	venc_op->get_max_lcnt = NULL;
 	venc_op->venc_debug_test = lcd_venc_debug_test;
 	venc_op->venc_set_timing = NULL;
 	venc_op->venc_set = lcd_venc_set;

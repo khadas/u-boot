@@ -75,6 +75,7 @@ enum bl_off_policy_e {
 
 struct bl_pwm_config_s {
 	unsigned int index;
+	unsigned int drv_index;
 	enum bl_pwm_method_e pwm_method;
 	enum bl_pwm_port_e pwm_port;
 	unsigned int level_max;

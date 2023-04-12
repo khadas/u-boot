@@ -79,6 +79,7 @@ void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv);
 
 /* lcd venc */
 void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv);
+unsigned int lcd_get_max_line_cnt(struct aml_lcd_drv_s *pdrv);
 void lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num);
 void lcd_set_venc_timing(struct aml_lcd_drv_s *pdrv);
 void lcd_set_venc(struct aml_lcd_drv_s *pdrv);

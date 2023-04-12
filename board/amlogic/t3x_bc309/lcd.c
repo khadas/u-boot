@@ -204,44 +204,6 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	10,10,Rsv_val},
 
-	{/* 1920*1080*/
-	"mlvds_0",LCD_MLVDS,8,
-	/* basic timing */
-	1920,1080,2200,1125,44,148,0,5,36,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* minilvds_attr */
-	6,0x76543210,0xba98,0x660,0,0,0x3,0x0,Rsv_val,Rsv_val,
-	NULL, NULL,
-	/* power step */
-	lcd0_power_on_step, lcd0_power_off_step,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
-	{/* 1366*768*/
-	"mlvds_1",LCD_MLVDS,8,
-	/* basic timing */
-	1366,768,1560,806,56,64,0,3,28,0,
-	/* clk_attr */
-	2,0,1,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	/* minilvds_attr */
-	6,0x76543210,0xba98,0x660,0,0,0x3,0x0,Rsv_val,Rsv_val,
-	NULL, NULL,
-	/* power step */
-	lcd0_power_on_step, lcd0_power_off_step,
-	/* backlight */
-	60,255,10,128,128,
-	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
-	10,10,Rsv_val},
-
 	{.panel_type = "invalid"},
 };
 
@@ -250,11 +212,6 @@ static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 		.name = "lcd_vbyone_pin", //GPIOH_0/8
 		.pinmux_set = {{0x7, 0x44}, {LCD_PINMUX_END, 0x0}},
 		.pinmux_clr = {{0x7, 0xff}, {LCD_PINMUX_END, 0x0}},
-	},
-	{
-		.name = "lcd_minilvds_pin", //GPIOH_0~6
-		.pinmux_set = {{7, 0x01111111}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{7, 0x0fffffff}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "lcd_p2p_pin", //GPIOH_0~6
