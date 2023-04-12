@@ -239,6 +239,72 @@ static void do_nonsec_virt_switch(void)
 }
 #endif
 
+/*
+ * kernel 5.15 limit boot env number to 32, there are lots of unused/default
+ * zero envs which may cause boot failed in kernel. So remove these envs
+ */
+static void fix_bootargs(void)
+{
+	static char const *remove_list[] = {
+		"dolby_vision_on=",
+		"hdr_policy=",
+		"hdr_priority=",
+		"osd_reverse=",
+		"disable_ir=",
+		"lcd_debug=",
+		"recovery_offset=",
+		"hdmi_read_edid=",
+	};
+	int i, len, rlen, find;
+	char *cmdline, *p, *q;
+	char buf[64];
+	unsigned long value;
+
+	cmdline = env_get("bootargs");
+	if (!cmdline)
+		return;
+
+	p      = cmdline;
+	debug("bootargs:%s\n", cmdline);
+	while (*p) {
+		/* get an arg */
+		q = strchr(p, ' ');
+		if (!q)
+			break;
+		rlen = strlen(q);
+		find = 0;
+		/* match remove args */
+		for (i = 0; i < ARRAY_SIZE(remove_list); i++) {
+			len = strlen(remove_list[i]);
+			if (!memcmp(p, remove_list[i], len)) {
+				/* copy this env to temp buffer and check it's value */
+				memset(buf, 0, sizeof(buf));
+				memcpy(buf, p, q - p);
+				if (buf[len] == ' ') { /* empty one */
+					find = 1;
+				} else {
+					value = -1UL;
+					str2long(buf + len, &value);
+					if (!value)
+						find = 1;
+				}
+				if (find) {
+					memmove(p, q + 1, rlen);
+					pr_info("remove env:%s\n", buf);
+					break;
+				}
+			}
+		}
+		if (find)
+			continue;
+		else
+			p = q + 1;
+	}
+	debug("new boot args:%s\n", cmdline);
+	/* update env */
+	env_set("bootargs", cmdline);
+}
+
 /* Subcommand: PREP */
 static void boot_prep_linux(bootm_headers_t *images)
 {
@@ -499,6 +565,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 int do_bootm_linux(int flag, int argc, char * const argv[],
 		   bootm_headers_t *images)
 {
+	fix_bootargs();
 	/* No need for those on ARM */
 	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
 		return -1;
