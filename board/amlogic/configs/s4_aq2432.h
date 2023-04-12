@@ -196,6 +196,7 @@
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
             "run init_display;"\
+	    "run storeargs;"\
             "run switch_bootmode;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
