@@ -326,7 +326,7 @@
 		clkc: clock-controller@0 {
 			compatible = "amlogic,txhd2-clkc";
 			#clock-cells = <1>;
-			reg = <0x0 0xff646000 0x0 0x82e8>;
+			reg = <0x0 0xff63c000 0x0 0xc4094>;
 			clocks = <&xtal>;
 			clock-names = "xtal";
 		};

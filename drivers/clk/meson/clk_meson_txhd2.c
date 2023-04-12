@@ -10,7 +10,7 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>
-#include <dt-bindings/clock/t5w-clkc.h>
+#include <dt-bindings/clock/txhd2-clkc.h>
 #include "clk_meson.h"
 
 /* change it later */
@@ -18,13 +18,9 @@
 
 /* clk81 gates, sys_clk */
 static struct meson_gate gates[] = {
-	{CLKID_SPICC_A_GATE, T5W_CLKCTRL_SPICC_CLK_CTRL, 6},
-	{CLKID_SPICC_B_GATE, T5W_CLKCTRL_SPICC_CLK_CTRL, 22},
-	{CLKID_SPICC_C_GATE, T5W_CLKCTRL_SPICC_CLK_CTRL1, 6},
-	{CLKID_SAR_ADC_GATE, T5W_CLKCTRL_SAR_CLK_CTRL0, 8},
-	{CLKID_SD_EMMC_A_GATE, T5W_CLKCTRL_SD_EMMC_CLK_CTRL, 7},
-	{CLKID_SD_EMMC_B_GATE, T5W_CLKCTRL_SD_EMMC_CLK_CTRL, 23},
-	{CLKID_SD_EMMC_C_GATE, T5W_CLKCTRL_NAND_CLK_CTRL, 7},
+	{CLKID_SPICC_A_GATE, TXHD2_CLKCTRL_SPICC_CLK_CTRL, 6},
+	{CLKID_SAR_ADC_GATE, TXHD2_CLKCTRL_SAR_CLK_CTRL0, 8},
+	{CLKID_SD_EMMC_C_GATE, TXHD2_CLKCTRL_NAND_CLK_CTRL, 7},
 };
 
 static unsigned int spicc_parents[] = {CLKID_XTAL, CLKID_SYS_CLK,
@@ -38,48 +34,36 @@ CLKID_FCLK_DIV3, CLKID_UNREALIZED, CLKID_UNREALIZED,
 CLKID_UNREALIZED, CLKID_UNREALIZED, CLKID_GP0_PLL};
 
 static struct meson_mux muxes[] = {
-	{CLKID_SPICC_A_MUX, T5W_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7,
+	{CLKID_SPICC_A_MUX, TXHD2_CLKCTRL_SPICC_CLK_CTRL, 7,  0x7,
 		spicc_parents, ARRAY_SIZE(spicc_parents)},
-	{CLKID_SPICC_B_MUX, T5W_CLKCTRL_SPICC_CLK_CTRL, 23,  0x7,
-		spicc_parents, ARRAY_SIZE(spicc_parents)},
-	{CLKID_SPICC_C_MUX, T5W_CLKCTRL_SPICC_CLK_CTRL1, 7,  0x7,
-		spicc_parents, ARRAY_SIZE(spicc_parents)},
-	{CLKID_SARADC_MUX, T5W_CLKCTRL_SAR_CLK_CTRL0, 9, 0x3,
+	{CLKID_SARADC_MUX, TXHD2_CLKCTRL_SAR_CLK_CTRL0, 9, 0x3,
 		saradc_parents, ARRAY_SIZE(saradc_parents)},
-	{CLKID_SD_EMMC_A_MUX, T5W_CLKCTRL_SD_EMMC_CLK_CTRL, 9, 0x7,
-		sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
-	{CLKID_SD_EMMC_B_MUX, T5W_CLKCTRL_SD_EMMC_CLK_CTRL, 25, 0x7,
-		sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
-	{CLKID_SD_EMMC_C_MUX, T5W_CLKCTRL_NAND_CLK_CTRL, 9, 0x7,
+	{CLKID_SD_EMMC_C_MUX, TXHD2_CLKCTRL_NAND_CLK_CTRL, 9, 0x7,
 		sd_emmc_parents, ARRAY_SIZE(sd_emmc_parents)},
 };
 
 static struct meson_div divs[] = {
-	{CLKID_SPICC_A_DIV, T5W_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_A_MUX},
-	{CLKID_SPICC_B_DIV, T5W_CLKCTRL_SPICC_CLK_CTRL, 16, 6, CLKID_SPICC_B_MUX},
-	{CLKID_SPICC_C_DIV, T5W_CLKCTRL_SPICC_CLK_CTRL1, 0, 6, CLKID_SPICC_C_MUX},
-	{CLKID_SARADC_DIV, T5W_CLKCTRL_SAR_CLK_CTRL0, 0, 8, CLKID_SARADC_MUX},
-	{CLKID_SD_EMMC_A_DIV, T5W_CLKCTRL_SD_EMMC_CLK_CTRL, 0, 7, CLKID_SD_EMMC_A_MUX},
-	{CLKID_SD_EMMC_B_DIV, T5W_CLKCTRL_SD_EMMC_CLK_CTRL, 16, 7, CLKID_SD_EMMC_B_MUX},
-	{CLKID_SD_EMMC_C_DIV, T5W_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
+	{CLKID_SPICC_A_DIV, TXHD2_CLKCTRL_SPICC_CLK_CTRL, 0, 6, CLKID_SPICC_A_MUX},
+	{CLKID_SARADC_DIV, TXHD2_CLKCTRL_SAR_CLK_CTRL0, 0, 8, CLKID_SARADC_MUX},
+	{CLKID_SD_EMMC_C_DIV, TXHD2_CLKCTRL_NAND_CLK_CTRL, 0, 7, CLKID_SD_EMMC_C_MUX},
 };
 
 static struct parm meson_fixed_pll_parm[3] = {
-	{T5W_ANACTRL_FIXPLL_CTRL0, 0, 8}, /* pm */
-	{T5W_ANACTRL_FIXPLL_CTRL0, 10, 5}, /* pn */
-	{T5W_ANACTRL_FIXPLL_CTRL0, 16, 2}, /* pod */
+	{TXHD2_HHI_FIX_PLL_CNTL0, 0, 9}, /* pm */
+	{TXHD2_HHI_FIX_PLL_CNTL0, 10, 5}, /* pn */
+	{TXHD2_HHI_FIX_PLL_CNTL0, 16, 2}, /* pod */
 };
 
 static struct parm meson_sys_pll_parm[3] = {
-	{T5W_ANACTRL_SYSPLL_CTRL0, 0, 8}, /* pm */
-	{T5W_ANACTRL_SYSPLL_CTRL0, 10, 5}, /* pn */
-	{T5W_ANACTRL_SYSPLL_CTRL0, 16, 3}, /* pod */
+	{TXHD2_HHI_SYS_PLL_CNTL0, 0, 9}, /* pm */
+	{TXHD2_HHI_SYS_PLL_CNTL0, 16, 2}, /* pn */
+	{TXHD2_HHI_SYS_PLL_CNTL0, 12, 3}, /* pod */
 };
 
 static struct parm meson_gp0_pll_parm[3] = {
-	{T5W_ANACTRL_GP0PLL_CTRL0, 0, 8}, /* pm */
-	{T5W_ANACTRL_GP0PLL_CTRL0, 10, 5}, /* pn */
-	{T5W_ANACTRL_GP0PLL_CTRL0, 16, 3}, /* pod */
+	{TXHD2_HHI_GP0_PLL_CNTL0, 0, 9}, /* pm */
+	{TXHD2_HHI_GP0_PLL_CNTL0, 16, 2}, /* pn */
+	{TXHD2_HHI_GP0_PLL_CNTL0, 12, 2}, /* pod */
 };
 
 static int meson_clk_enable(struct clk *clk)
@@ -233,12 +217,12 @@ static int meson_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id meson_clk_ids[] = {
-	{ .compatible = "amlogic,t5w-clkc" },
+	{ .compatible = "amlogic,txhd2-clkc" },
 	{ }
 };
 
 U_BOOT_DRIVER(meson_clk) = {
-	.name		= "meson-clk-t5w",
+	.name		= "meson-clk-txhd2",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct meson_clk),

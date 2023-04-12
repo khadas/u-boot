@@ -246,24 +246,6 @@
 	clock-names = "xtal", "adc_mux", "adc_div", "adc_gate";
 };
 
-&sd_emmc_a {
-	clocks = <&clkc CLKID_SD_EMMC_A_MUX>,
-		    <&clkc CLKID_SD_EMMC_A_DIV>,
-			<&clkc CLKID_SD_EMMC_A_GATE>,
-			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_XTAL>;
-			clock-names = "mux", "div", "gate", "clkin", "xtal";
-};
-
-&sd_emmc_b {
-	clocks = <&clkc CLKID_SD_EMMC_B_MUX>,
-		    <&clkc CLKID_SD_EMMC_B_DIV>,
-			<&clkc CLKID_SD_EMMC_B_GATE>,
-			<&clkc CLKID_FCLK_DIV2>,
-			<&clkc CLKID_XTAL>;
-			clock-names = "mux", "div", "gate", "clkin", "xtal";
-};
-
 &sd_emmc_c {
 	clocks = <&clkc CLKID_SD_EMMC_C_MUX>,
 			<&clkc CLKID_SD_EMMC_C_DIV>,
@@ -289,24 +271,6 @@
 	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
 	assigned-clock-rates = <0>, <200000000>;
 	//pm-id = PM_SPICC0;
-};
-
-&spicc1 {
-	clocks = <&clkc CLKID_SPICC_B_DIV>, <&clkc CLKID_SPICC_B_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_B_MUX>, <&clkc CLKID_SPICC_B_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
-	//pm-id = PM_SPICC1;
-};
-
-&spicc2 {
-	clocks = <&clkc CLKID_SPICC_C_DIV>, <&clkc CLKID_SPICC_C_GATE>;
-	clock-names = "async", "async-gate";
-	assigned-clocks = <&clkc CLKID_SPICC_C_MUX>, <&clkc CLKID_SPICC_C_DIV>;
-	assigned-clock-parents = <&clkc CLKID_FCLK_DIV2>;
-	assigned-clock-rates = <0>, <200000000>;
-	//pm-id = PM_SPICC2;
 };
 
 &pinctrl_aobus {
