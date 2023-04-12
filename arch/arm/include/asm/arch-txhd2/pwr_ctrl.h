@@ -9,11 +9,11 @@
 #define PWR_ON    1
 #define PWR_OFF   0
 #define PM_ETH		5
+
 enum pm_e {
-	PM_DOS_HEVC = 2,
-	PM_DOS_VDEC = 3,
-	PM_VPU_HDMI = 5,
-	PM_DEMOD = 11,
+	PM_VPU,
+	PM_DOS_HEVC,
+	PM_DEMOD,
 };
 
 #define PM_MAX (PM_DEMOD + 1)

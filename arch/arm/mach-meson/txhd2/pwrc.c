@@ -4,16 +4,7 @@
  */
 
 char *domain_name[] = {
-	"",
-	"",
+	"PM_VPU",
 	"PM_DOS_HEVC",
-	"PM_DOS_VDEC",
-	"",
-	"PM_VPU_HDMI",
-	"",
-	"",
-	"",
-	"",
-	"",
 	"PM_DEMOD",
 };
