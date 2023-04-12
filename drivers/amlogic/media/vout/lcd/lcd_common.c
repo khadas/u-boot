@@ -2065,6 +2065,8 @@ int lcd_get_config(char *dt_addr, int load_id, struct aml_lcd_drv_s *pdrv)
 		ret = lcd_config_load_from_bsp(pdrv);
 	if (ret)
 		return -1;
+	if (pdrv->index)
+		pdrv->config.timing.ppc = 1;
 
 	lcd_config_load_print(pdrv);
 	lcd_pinmux_load_config(pdrv);

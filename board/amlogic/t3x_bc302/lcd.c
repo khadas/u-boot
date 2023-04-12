@@ -95,7 +95,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	/* basic timing */
 	3840, 2160, 4400, 2250, 33, 477, 0, 6, 81, 0,
 	/* clk_attr */
-	2, 0, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	2, 0, 1, 60, 2, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	/* vbyone_attr */
 	8, 2, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	NULL, NULL,
@@ -114,7 +114,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	/* basic timing */
 	3840, 2160, 4400, 2250, 33, 477, 0, 6, 81, 0,
 	/* clk_attr */
-	2, 0, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	2, 0, 1, 60, 2, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	/* vbyone_attr */
 	8, 1, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	NULL, NULL,
@@ -147,10 +147,10 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	10, 10, Rsv_val},
 
-	{/*public 2-region vx1 : 3840x2160@120hz 16lane */
+	{/*public 2-region vx1 : 3840x2160@144hz 16lane */
 	"vbyone_3", LCD_VBYONE, 10,
 	/* basic timing */
-	3840, 2160, 4096, 2250, 32, 200, 0, 6, 65, 0,
+	3840, 2160, 4096, 2235, 32, 200, 0, 6, 50, 0,
 	/* clk_attr */
 	2, 0, 1, 144, 2, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	/* vbyone_attr */
@@ -397,18 +397,37 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 	{/*public 2-region vx1 : 3840x2160@60hz 8lane */
 	"vbyone_0", LCD_VBYONE, 10,
 	/* basic timing */
-	1920,1080,2200,1125,44,148,0,5,36,0,
+	3840, 2160, 4400, 2250, 33, 477, 0, 6, 81, 0,
 	/* clk_attr */
-	2, 0, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	2, 0, 1, 60, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	/* vbyone_attr */
-	4, 1, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	8, 2, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	NULL, NULL,
 	/* power step */
 	lcd1_power_on_step, lcd1_power_off_step,
 	/* backlight */
 	60, 255, 10, 128, 128,
 	BL_CTRL_MAX, 0, 1, 0, 200, 200,
-	BL_PWM_POSITIVE, BL_PWM_F, 180, 100, 25, 1, 0,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	10, 10, Rsv_val},
+
+	{/*public 1-region vx1 : 3840x2160@60hz 8lane */
+	"vbyone_1", LCD_VBYONE, 10,
+	/* basic timing */
+	3840, 2160, 4400, 2250, 33, 477, 0, 6, 81, 0,
+	/* clk_attr */
+	2, 0, 1, 60, 1, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	/* vbyone_attr */
+	8, 1, 4, 4, 0x7, 0x1, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
+	NULL, NULL,
+	/* power step */
+	lcd1_power_on_step, lcd1_power_off_step,
+	/* backlight */
+	60, 255, 10, 128, 128,
+	BL_CTRL_MAX, 0, 1, 0, 200, 200,
+	BL_PWM_POSITIVE, BL_PWM_E, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	10, 10, Rsv_val},
@@ -418,9 +437,9 @@ struct ext_lcd_config_s ext_lcd1_config[LCD_NUM_MAX] = {
 
 static struct lcd_pinmux_ctrl_s lcd1_pinmux_ctrl[LCD_PINMX_MAX] = {
 	{
-		.name = "lcd_vbyone_pin", //GPIOH_9/10
-		.pinmux_set = {{0x8, 0x440}, {LCD_PINMUX_END, 0x0}},
-		.pinmux_clr = {{0x8, 0xff0}, {LCD_PINMUX_END, 0x0}},
+		.name = "lcd_vbyone_pin", //GPIOH_2/3
+		.pinmux_set = {{0x7, 0x4400}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{0x7, 0xff00}, {LCD_PINMUX_END, 0x0}},
 	},
 	{
 		.name = "invalid",

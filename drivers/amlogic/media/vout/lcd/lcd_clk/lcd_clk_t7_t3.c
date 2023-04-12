@@ -1652,6 +1652,7 @@ void lcd_clk_config_chip_init_t3x(struct aml_lcd_drv_s *pdrv, struct lcd_clk_con
 	case 1:
 		cconf->data->enc_clk_msr_id = 221;
 		cconf->pll_id = 1;
+		cconf->pll_offset = (0x5 << 2);
 		break;
 	case 0:
 	default:

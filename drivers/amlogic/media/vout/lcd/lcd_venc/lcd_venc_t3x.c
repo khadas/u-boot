@@ -65,17 +65,17 @@ struct lcd_enc_test_t {
 };
 
 struct lcd_enc_test_t lcd_enc_tst[] = {
-	/*       tst_mode,   Y/B, Cb/G,   Cr/R,  tst_en,  vfifo_en  rgbin*/
+	/*       tst_mode,   Y/R, Cb/G,   Cr/B,  tst_en,  vfifo_en  rgbin*/
 	{"0-none",      0, 0x200, 0x200,  0x200,   0,      1,        1},
 	{"1-Color Bar", 1, 0x200, 0x200,  0x200,   1,      0,        0},  /* 1 */
 	{"2-Thin Line", 2, 0x200, 0x200,  0x200,   1,      0,        0},  /* 2 */
 	{"3-Dot Grid",  3, 0x200, 0x200,  0x200,   1,      0,        0},  /* 3 */
-	{"4-X icon",    4, 0x200, 0x200,  0x200,   1,      0,        0},  /* 4 */
-	{"5-Gray",      0, 0x1ff, 0x1ff,  0x1ff,   1,      0,        1},  /* 5 */
-	{"6-Red",       0, 0x3ff, 0x000,  0x000,   1,      0,        1},  /* 6 */
-	{"7-Green",     0, 0x000, 0x3ff,  0x000,   1,      0,        1},  /* 7 */
-	{"8-Blue",      0, 0x000, 0x000,  0x3ff,   1,      0,        1},  /* 8 */
-	{"9-Black",     0, 0x000, 0x000,  0x000,   1,      0,        1},  /* 9 */
+	{"4-Gray",      0, 0x1ff, 0x1ff,  0x1ff,   1,      0,        1},  /* 4 */
+	{"5-Red",       0, 0x3ff, 0x000,  0x000,   1,      0,        1},  /* 5 */
+	{"6-Green",     0, 0x000, 0x3ff,  0x000,   1,      0,        1},  /* 6 */
+	{"7-Blue",      0, 0x000, 0x000,  0x3ff,   1,      0,        1},  /* 7 */
+	{"8-Black",     0, 0x000, 0x000,  0x000,   1,      0,        1},  /* 8 */
+	{"9-X icon",    4, 0x200, 0x200,  0x200,   1,      0,        0},  /* 9 */
 };
 
 static int lcd_venc_pattern(struct aml_lcd_drv_s *pdrv, unsigned int num)
@@ -92,18 +92,19 @@ static int lcd_venc_pattern(struct aml_lcd_drv_s *pdrv, unsigned int num)
 	vstart = pdrv->config.timing.vstart;
 	height = pdrv->config.basic.v_active;
 
-	if (num == 4) {
+	if (num == 9) {
 		width = pdrv->config.basic.h_active / ppc;
 		step = width * 256 / height;
 		lcd_vcbus_setb(ENCL_TST_DATA + offset, step, 10, 10);//px step
 		lcd_vcbus_setb(ENCL_TST_DATA + offset, 0, 0, 10);//X line width
+		lcd_vcbus_setb(ENCL_TST_DATA + offset, 0x200, 20, 10);//color Y/R
 		lcd_vcbus_setb(ENCL_TST_EN + offset, 1, 12, 2);//rectangle width
 		hstart -= 1;
 	} else {
 		width = pdrv->config.basic.h_active / ppc / 8 - 1;
-		lcd_vcbus_setb(ENCL_TST_DATA + offset, lcd_enc_tst[num].y, 20, 10);//color Y/B
+		lcd_vcbus_setb(ENCL_TST_DATA + offset, lcd_enc_tst[num].y, 20, 10);//color Y/R
 		lcd_vcbus_setb(ENCL_TST_DATA + offset, lcd_enc_tst[num].cb, 10, 10);//color cb/G
-		lcd_vcbus_setb(ENCL_TST_DATA + offset, lcd_enc_tst[num].cr, 0, 10);//color cb/G
+		lcd_vcbus_setb(ENCL_TST_DATA + offset, lcd_enc_tst[num].cr, 0, 10);//color cr/B
 		hstart -= 2;
 	}
 
@@ -147,16 +148,14 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 	unsigned int vso_ln_bgn, vso_ln_end;
 	unsigned int hact, ht, vt;
 
-	LCDPR("%s\n", __func__);
 	ppc = pconf->timing.ppc;//must check zero in init place
 	offset = pdrv->data->offset_venc[pdrv->index];
+	LCDPR("%s, ppc=%d\n", __func__, ppc);
 
-	LCDPR("hstart=%d, hend=%d\n", pconf->timing.hstart, pconf->timing.hend);
 	hstart = __cal_h_timing_to_reg(pconf->timing.hstart, ppc);
 	hend = __cal_h_timing_to_reg(pconf->timing.hend + 1, ppc) - 1;
 	hde_px_bgn = hstart;
 	hde_px_end = hend;
-	LCDPR("hstart=%d, hend=%d, dif=%d\n", hstart, hend, hend - hstart);
 
 	vstart = pconf->timing.vstart;
 	vend = pconf->timing.vend;
@@ -219,7 +218,7 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset, pre_de_hs / ppc, 16, 16);
 		lcd_vcbus_setb(ENCL_VIDEO_H_PRE_DE_PX_RNG + offset,   (pre_de_he / ppc) - 1, 0, 16);
 	} else if (pconf->basic.lcd_type == LCD_VBYONE) {
-		slice = pdrv->config.control.vbyone_cfg.lane_count > 8 ? 2 : 1;
+		slice = ppc;
 		p2s_px_dly = hact  + ((slice == 2) ? hact / 2 : 0);// p2s_hm_dly + hact;
 
 		vde_ln_bgn = __lcd_round_inc(vde_ln_bgn, (hde_px_bgn + p2s_px_dly) / ht, vt);

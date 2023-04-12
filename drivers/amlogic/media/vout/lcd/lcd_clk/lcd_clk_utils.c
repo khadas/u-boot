@@ -508,6 +508,7 @@ void lcd_clk_generate_dft(struct aml_lcd_drv_s *pdrv)
 
 	done = 0;
 	ppc = pdrv->config.timing.ppc;
+	LCDPR("%s ppc=%d\n", __func__, ppc);
 	cconf->fout = pconf->timing.lcd_clk / 1000 / ppc; /* kHz */
 	cconf->err_fmin = MAX_ERROR;
 

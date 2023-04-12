@@ -106,9 +106,9 @@ static int lcd_vbyone_lanes_set_t3x(unsigned int offset, int lane_num, int byte_
 	lcd_vcbus_setb(VBO_LANES + offset, byte_mode - 1, 11, 2);
 	lcd_vcbus_write(VBO_ACT_VSIZE + offset, vsize);
 
-	orgn_sub = lane_num == 8 ? (sublane_num == 4 ? 3 : 2) :
-			   lane_num == 4 ? (sublane_num == 1 ? 1 : 2) :
-			   lane_num == 2 ? (sublane_num == 1 ? 0 : 2) : 2;
+	orgn_sub = slice_lane_num == 8 ? (sublane_num == 4 ? 3 : 2) :
+			   slice_lane_num == 4 ? (sublane_num == 1 ? 1 : 2) :
+			   slice_lane_num == 2 ? (sublane_num == 1 ? 0 : 2) : 2;
 
 	orgns_num = region_num == 1 ? 0 :
 				 region_num == 2 ? 1 :
@@ -133,6 +133,10 @@ static int lcd_vbyone_lanes_set_t3x(unsigned int offset, int lane_num, int byte_
 
 	lcd_vcbus_setb(VBO_CTRL + offset, 2, 16, 4);
 	lcd_vcbus_setb(VBO_CTRL + offset, 1, 0, 1);//enable
+	if (lane_num == 8 && slice == 2) {
+		lcd_vcbus_write(P2P_CH_SWAP0, 0xba983210);
+		lcd_vcbus_write(P2P_CH_SWAP1, 0xfedc7654);
+	}
 
 	return 0;
 }
@@ -173,11 +177,12 @@ void lcd_vbyone_enable(struct aml_lcd_drv_s *pdrv)
 	lcd_vcbus_setb(VBO_VIN_CTRL + offset, vin_bpp, 11, 2);
 
 	if (pdrv->data->chip_type == LCD_CHIP_T3X) {
-		slice = (lane_count > 8) ? 2 : 1;
 		ppc = pdrv->config.timing.ppc;
+		slice = ppc;
 		lcd_vbyone_lanes_set_t3x(offset, lane_count, byte_mode, region_num,
 			slice, ppc, hsize, vsize);
 	} else {
+		slice = 1;
 		lcd_vbyone_lanes_set(offset, lane_count, byte_mode, region_num, hsize, vsize);
 	}
 
