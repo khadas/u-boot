@@ -7004,6 +7004,17 @@ uint32_t ddr_training_reg_rw(ddr_set_ps0_only_t *p_ddrs, char index,
 			//DDR_X32_F0_AD30	DDR_X32_F0_A930
 			reg_add_coarse = 0;
 			reg_add_fine = 0;
+			reg_add_coarse_bit_mask = 0;
+			reg_add_fine_bit_mask = 0;
+			if (sub_index < 2)	{
+				reg_add_fine =
+					(add_base +
+					 ((ps << 16) |
+					  (0x1 << 12) |
+					  ((0) << 13) |
+					  (0x028)));
+				reg_add_fine_bit_mask = (~(0x7f << ((sub_index) * 8 + 16)));
+			}
 			if (index == DMC_TEST_WINDOW_INDEX_DRAM_VREF_RO) {
 				reg_add_coarse = 0;
 				reg_add_fine =
@@ -7014,9 +7025,9 @@ uint32_t ddr_training_reg_rw(ddr_set_ps0_only_t *p_ddrs, char index,
 					  (0xa60 + (((sub_index % (9 * sub_ch_mask0)) /
 						     9) * (8)) +
 					   (0) + (((sub_index % 9) / 4) * 4))));
+				reg_add_coarse_bit_mask = 0;
+				reg_add_fine_bit_mask = (~(0x7f << (((sub_index % 9) % 4) * 8)));
 			}
-			reg_add_coarse_bit_mask = 0;
-			reg_add_fine_bit_mask = (~(0x7f << (((sub_index % 9) % 4) * 8)));
 		}
 	}
 
@@ -7320,6 +7331,8 @@ void ddr_read_write_training_all_delay_value(ddr_set_ps0_only_t *p_ddrs,
 				      &board_phase_setting_p->soc_bit_vref0[0], print);
 	ddr_read_write_training_value(p_ddrs, WINDOW_TEST_SOC_VREF_DAC1, read_write, ps,
 				      &board_phase_setting_p->soc_bit_vref1[0], print);
+	ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_DRAM_VREF, read_write, ps,
+				      &board_phase_setting_p->dram_vref[0], print);
 	//ddr_read_write_training_value(p_ddrs,
 	// DMC_TEST_SOC_VREF_DFE_DAC2, read_write, ps,
 	//	&(board_phase_setting_p->soc_bit_vref2, print);
@@ -8231,8 +8244,8 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		       rd_reg((p_ddr_base->preg_sticky_reg0) + (argc_count << 2)));
 		argc_count++;
 	}
-	dcache_disable();
-	dcache_enable();
+	//dcache_disable();
+	//dcache_enable();
 	//if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) ||
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) ||
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
@@ -8240,8 +8253,9 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
 	//    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
 	printf("reset...\n");
-	run_command("reset", 0);
 	run_command("reboot", 0);
+	run_command("reset", 0);
+	//run_command("reboot", 0);
 	//} else {
 	//	//G12A/G12B/SM1/TL1/TM2//(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
 	//	printf("reboot...\n");
@@ -8626,9 +8640,9 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		writel((0), p_ddr_base->ddr_dmc_asr_address);
 		// run_command("dcache off", 0);
 		// run_command("dcache on", 0);
-		dcache_disable();
-		dcache_enable();
-		printf("\n cache off on");
+		//dcache_disable();
+		//dcache_enable();
+		//printf("\n cache off on");
 		switch (ddr_test_cmd) {
 		case (DDR_TEST_CMD__NONE):
 		{

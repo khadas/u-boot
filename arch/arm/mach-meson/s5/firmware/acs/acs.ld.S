@@ -50,10 +50,6 @@ SECTIONS
 	{
 		*(.ddr_param*)
 	}
-	.ddr_2acs_index :
-	{
-		*(.ddr_2acs_index*)
-	}
 	.ddr_2acs_data :
 	{
 		*(.ddr_2acs_data*)
