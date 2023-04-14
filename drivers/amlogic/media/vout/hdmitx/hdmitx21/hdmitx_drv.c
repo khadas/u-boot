@@ -950,9 +950,10 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	}
 	hdmitx_set_phy(hdev);
 	hdmitx_dfm_cfg(0, 0);
+	hdev->flt_train_st = 0;
 	if (hdev->chip_type >= MESON_CPU_ID_S5) {
 		if (hdev->RXCap.max_frl_rate)
-			hdmitx_frl_training_main(hdev->frl_rate);
+			hdev->flt_train_st = hdmitx_frl_training_main(hdev->frl_rate);
 	}
 	if (hdev->pxp_mode)
 		return; /* skip in pxp */
@@ -1242,6 +1243,8 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	hdmi_drm_infoframe_set(NULL);
 	hdmi_vend_infoframe_rawset(NULL, NULL);
 
+	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 1, 0, 1);
+	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 0, 0, 1);
 	data8 = 0;
 	data8 |= (dp_color_depth & 0x03); // [1:0]color depth. 00:8bpp;01:10bpp;10:12bpp;11:16bpp
 	data8 |= (((dp_color_depth != 4) ? 1 : 0) << 7);  // [7]  deep color enable bit
@@ -1256,6 +1259,8 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 
 	hdmitx21_set_reg_bits(FRL_LINK_RATE_CONFIG_IVCTX, hdev->frl_rate, 0, 4);
 
+	hdmitx21_wr_reg(SW_RST_IVCTX, 0); // default value
+	hdmitx21_wr_reg(HT_DIG_CTL22_PHY_IVCTX, 0);
 	hdmitx21_wr_reg(CLK_DIV_CNTRL_IVCTX, hdev->frl_rate ? 0 : 1);
 	//hdmitx21_wr_reg(H21TXSB_PKT_PRD_IVCTX, 0x1);
 	//hdmitx21_wr_reg(HOST_CTRL2_IVCTX, 0x80); //INT active high

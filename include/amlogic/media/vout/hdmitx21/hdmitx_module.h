@@ -40,6 +40,7 @@ struct hdmitx_dev {
 	enum hdmi_vic vic;
 	enum frl_rate_enum frl_rate;
 	u8 tx_max_frl_rate; /* configure in dts file */
+	bool flt_train_st; /* 0 means FLT train failed */
 	u32 dsc_en;
 	unsigned int frac_rate_policy;
 	unsigned int mode420;
@@ -64,7 +65,7 @@ u32 calc_tmds_bandwidth(u32 pixel_freq, enum hdmi_colorspace cs,
 	enum hdmi_color_depth cd);
 enum frl_rate_enum hdmitx21_select_frl_rate(bool dsc_en, enum hdmi_vic vic,
 	enum hdmi_colorspace cs, enum hdmi_color_depth cd);
-void hdmitx_frl_training_main(enum frl_rate_enum frl_rate);
+bool hdmitx_frl_training_main(enum frl_rate_enum frl_rate);
 int hdmitx21_read_edid(u8 *_rx_edid);
 void scdc21_rd_sink(u8 adr, u8 *val);
 void scdc21_wr_sink(u8 adr, u8 val);

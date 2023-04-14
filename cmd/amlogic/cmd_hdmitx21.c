@@ -256,6 +256,13 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		 * mode setting again when vout init in kernel
 		 */
 		hdmitx21_set(hdev);
+		if (hdev->frl_rate && !hdev->flt_train_st) {
+			/* FLT training failed, need go to tmds mode */
+			printf("hdmitx frl training failed, set tmds mode\n");
+			run_command("setenv hdmimode 1080p60hz", 0);
+			run_command("setenv colorattribute 422,12bit", 0);
+			run_command("run init_display_base", 0);
+		}
 	}
 	return CMD_RET_SUCCESS;
 }
