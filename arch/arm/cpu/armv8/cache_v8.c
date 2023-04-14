@@ -133,6 +133,7 @@ void dcache_enable(void)
 	}
 
 	set_sctlr(get_sctlr() | CR_C);
+	gd->flags |= GD_FLG_CACHE_EN;
 }
 
 void dcache_disable(void)
@@ -146,6 +147,7 @@ void dcache_disable(void)
 		return;
 
 	set_sctlr(sctlr & ~(CR_C|CR_M));
+	gd->flags &= ~GD_FLG_CACHE_EN;
 
 	__asm_flush_dcache_all();
 	flush_l3_cache();
