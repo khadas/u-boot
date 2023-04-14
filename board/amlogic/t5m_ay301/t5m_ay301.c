@@ -508,6 +508,9 @@ int checkhw(char * name)
 		else if (cpu_id.chip_rev == 0xB)
 			strcpy(loc_name, "t5m_t963d4_ay301-3g\0");
 		break;
+	case 0xe0000000:
+		strcpy(loc_name, "t5m_t963d4_ay301-4g\0");
+		break;
 	default:
 		strcpy(loc_name, "t5m_t963d4_unsupport");
 		break;
