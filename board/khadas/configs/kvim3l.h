@@ -465,7 +465,7 @@
     "setenv outputmode 1080p60hz;setenv display_layer osd0;"\
 	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
     "if test ${khadas_mipi_id} = 2; then "\
-        "setenv fb_width 1790; setenv fb_height 1050;"\
+        "setenv fb_width 1780; setenv fb_height 1040;"\
         "setenv display_width 1920;setenv display_height 1200;"\
         "setenv outputmode2 ${ts101_output};setenv display_layer viu2_osd0;"\
 	    "vout2 prepare ${outputmode2};osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout2 output ${outputmode2};"\
