@@ -1714,6 +1714,9 @@ endif
 ifeq ("$(BOOTCTRLMODE)", "1")
 	echo "#define CONFIG_CMD_BOOTCTOL_VAB" \"$(BOOTCTRLMODE)\" >> $(version_h)
 endif
+ifeq ("$(ABUPDATE)", "y")
+	echo "#define CONFIG_AB_UPDATE" >> $(version_h)
+endif
 ifeq ("$(FASTBOOTMODE)", "1")
 	echo "#define CONFIG_FASTBOOT_WRITING_CMD" \"$(FASTBOOTMODE)\" >> $(version_h)
 endif

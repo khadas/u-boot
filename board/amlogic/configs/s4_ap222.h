@@ -388,7 +388,11 @@
 
 /* unify build for generate encrypted bootloader "u-boot.bin.encrypt" */
 #define CONFIG_AML_CRYPTO_UBOOT   1
-//#define CONFIG_AML_SIGNED_UBOOT   1
+
+#ifdef CONFIG_AB_UPDATE
+#define CONFIG_AML_SIGNED_UBOOT   1
+#endif
+
 /* unify build for generate encrypted kernel image
    SRC : "board/amlogic/(board)/boot.img"
    DST : "fip/boot.img.encrypt" */
@@ -399,7 +403,9 @@
 #define CONFIG_FIP_IMG_SUPPORT  1
 
 /* config ramdump to debug kernel panic */
+#ifndef CONFIG_AB_UPDATE
 #define CONFIG_FULL_RAMDUMP
+#endif
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED
