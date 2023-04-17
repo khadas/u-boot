@@ -9189,6 +9189,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		argc_count++;
 	}
 	dcache_disable();
+	dcache_enable();
 	if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_A1 ||
 		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_C1 ||
 		p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_C2 ||
