@@ -912,16 +912,16 @@
 				extern_init = <0xff>;
 				/* power step: type,index,value,delay(ms) */
 				power_on_step = <
-						4 1 1 60
-						4 0 1 10
-						4 0 0 10
-						4 0 1 10
+						0 0 1 60
+						0 1 1 10
+						0 1 0 10
+						0 1 1 10
 						2 0 0 0
 						0xff 0 0 0>;
 				power_off_step = <
 						2 0 0 0
-						4 0 0 0
-						4 1 0 20
+						0 1 0 0
+						0 0 0 20
 						0xff 0 0 0>;
 				backlight_index = <0>;
 			};
