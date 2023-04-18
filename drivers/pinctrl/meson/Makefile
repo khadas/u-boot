@@ -23,3 +23,4 @@ obj-$(CONFIG_PINCTRL_MESON_T5W)		+= pinctrl-meson-t5w.o
 obj-$(CONFIG_PINCTRL_MESON_T5M)		+= pinctrl-meson-t5m.o
 obj-$(CONFIG_PINCTRL_MESON_A4)		+= pinctrl-meson-a4.o
 obj-$(CONFIG_PINCTRL_MESON_T3X)		+= pinctrl-meson-t3x.o
+obj-$(CONFIG_PINCTRL_MESON_TXHD2)	+= pinctrl-meson-txhd2.o

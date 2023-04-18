@@ -74,52 +74,19 @@
 		logo_addr = "0x3f800000";
 	};
 
-	pinctrl_aobus: pinctrl@ff800014 {
+	pinctrl_aobus: pinctrl@ff800014{
 		compatible = "amlogic,meson-txhd2-aobus-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		gpio_ao: ao-bank@ff800014 {
-			reg = <0x0 0xff800014 0x0 0x8>,
-					<0x0 0xff800024 0x0 0x14>,
-					<0x0 0xff80001c 0x0 0x8>;
-			reg-names = "mux", "gpio", "ds";
+		gpio_ao: ao-bank@ff800014{
+			reg = <0x0 0xff800014 0x0 0x008>,
+			      <0x0 0xff800024 0x0 0x014>;
+			reg-names = "mux","gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_aobus 0 0 13>;
-		};
-	};
-
-	pinctrl_analog: pinctrl@ff63448c {
-		compatible = "amlogic,meson-txhd2-analog-pinctrl";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		gpio_analog: analog-bank@ff63448c {
-			reg = <0x0 0xff64e08c 0x0 0x4>,
-					<0x0 0xff63448c 0x0 0x8>;
-			reg-names = "mux", "gpio";
-			gpio-controller;
-			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_analog 0 0 3>;
-		};
-	};
-
-	pinctrl_test: pinctrl@ff80035c {
-		compatible = "amlogic,meson-txhd2-testn-pinctrl";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		gpio_test: test-bank@ff80035c {
-			reg = <0x0 0xff80035c 0x0 0x4>,
-					<0x0 0xff80035c 0x0 0x4>;
-			reg-names = "mux", "gpio";
-			gpio-controller;
-			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_test 0 0 1>;
+			gpio-ranges = <&pinctrl_aobus 0 0 14>;
 		};
 	};
 
@@ -195,17 +162,14 @@
 		ranges;
 
 		gpio: banks@2c0 {
-			reg = <0x0 0x2c0 0x0 0xb0>,
-					<0x0 0x0e8 0x0 0x18>,
-					<0x0 0x120 0x0 0x18>,
-					<0x0 0x040 0x0 0x4c>;
-			reg-names = "mux",
-				"pull",
-				"pull-enable",
-				"gpio";
+			reg = <0x0 0x2c0 0x0 0x040>,
+			      <0x0 0x0e8 0x0 0x018>,
+			      <0x0 0x120 0x0 0x018>,
+			      <0x0 0x040 0x0 0x04c>;
+			reg-names = "mux", "pull", "pull-enable", "gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_periphs 0 0 118>;
+			gpio-ranges = <&pinctrl_periphs 0 0 66>;
 		};
 	};
 

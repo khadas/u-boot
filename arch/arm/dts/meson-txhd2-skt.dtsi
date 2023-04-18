@@ -158,7 +158,7 @@
 
 /* eMMC */
 &sd_emmc_c {
-	status = "okay";
+	status = "disabled";
 	pinctrl-0 = <&emmc_pins>;
 	pinctrl-names = "default";
 
@@ -270,8 +270,8 @@
 };
 
 &spifc {
-	status = "okay";
-	cs-gpios = <&gpio GPIOB_13 GPIO_ACTIVE_HIGH>;
+	status = "disabled";
+	// cs-gpios = <&gpio GPIOB_13 GPIO_ACTIVE_HIGH>;
 	spi-flash@0 {
 		status = "okay";
 	};
@@ -286,9 +286,9 @@
 
 &spicc1 {	//for UWB/LocalDimm
 	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc1_pins>;
-	cs-gpios = <&gpio GPIOH_22 GPIO_ACTIVE_HIGH>;
+	// pinctrl-names = "default";
+	// pinctrl-0 = <&spicc1_pins>;
+	// cs-gpios = <&gpio GPIOH_22 GPIO_ACTIVE_HIGH>;
 };
 
 &spicc2 {

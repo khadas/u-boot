@@ -161,4 +161,12 @@ config PINCTRL_MESON_T3X
 	select PINCTRL_MESON_AXG_PMX
 	select PINCONF_MESON_G12A
 
+config PINCTRL_MESON_TXHD2
+	bool "Amlogic Meson TXHD2 SoC pinctrl driver"
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	select PINCTRL_MESON
+	select PINCTRL_MESON_AXG_PMX
+	select PINCONF_MESON_G12A
+
 endif
