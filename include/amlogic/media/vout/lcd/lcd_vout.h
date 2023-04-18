@@ -61,7 +61,7 @@ extern unsigned int lcd_debug_print_flag;
 #define PRE_DE_DELAY                8
 
 #define LCD_PINMUX_END          0xff
-#define LCD_PINMUX_NUM          15
+#define LCD_PINMUX_NUM          22
 
 /* **********************************
  * global control define
@@ -86,6 +86,7 @@ enum lcd_chip_e {
 	LCD_CHIP_T5W,
 	LCD_CHIP_T5M,
 	LCD_CHIP_T3X,
+	LCD_CHIP_A4,
 	LCD_CHIP_MAX,
 };
 

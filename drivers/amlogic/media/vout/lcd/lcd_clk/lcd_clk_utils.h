@@ -60,6 +60,7 @@ void lcd_clk_config_chip_init_tm2(struct aml_lcd_drv_s *pdrv, struct lcd_clk_con
 void lcd_clk_config_chip_init_t5(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf);
 void lcd_clk_config_chip_init_t5d(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf);
 void lcd_clk_config_chip_init_t5w(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf);
+void lcd_clk_config_chip_init_a4(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf);
 void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf);
 
 /* ****************************************************
@@ -69,7 +70,7 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 extern unsigned long lcd_encl_clk_check_std;
 extern unsigned long lcd_fifo_clk_check_std;
 extern unsigned int lcd_prbs_flag, lcd_prbs_performed, lcd_prbs_err;
-int lcd_prbs_clk_check(unsigned long encl_clk, int encl_msr_id,
-			      unsigned long fifo_clk, int fifo_msr_id,
-			      unsigned int cnt);
+int lcd_prbs_clk_check(unsigned long encl_clk, int encl_msr_id, unsigned long fifo_clk,
+					int fifo_msr_id, unsigned int c);
+unsigned long lcd_abs(long a, long b);
 #endif

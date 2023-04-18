@@ -527,8 +527,7 @@ static int lcd_pinmux_load_rgb(struct lcd_pinmux_ctrl_s *pinmux, struct lcd_conf
 			break;
 		if (strncmp(pinmux->name, "invalid", 7) == 0)
 			break;
-		if (strncmp(pinmux->name, propname,
-				strlen(propname)) == 0) {
+		if (strncmp(pinmux->name, propname, strlen(propname)) == 0) {
 			for (j = 0; j < LCD_PINMUX_NUM; j++) {
 				if (pinmux->pinmux_set[j][0] == LCD_PINMUX_END)
 					break;

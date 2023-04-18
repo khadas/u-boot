@@ -54,8 +54,6 @@ int lcd_phy_probe(struct aml_lcd_drv_s *pdrv)
 	pdrv->phy_set = NULL;
 	return 0;
 #endif
-	LCDPR("RAN %s\n", __func__);
-
 	if (!lcd_phy_ctrl)
 		return 0;
 

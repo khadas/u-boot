@@ -166,6 +166,16 @@ static struct aml_lcd_data_s lcd_data_t3x = {
 	.offset_venc = {0x0, (0x100 << 2), 0},
 	.offset_venc_if = {0x0, (0x500 << 2), 0},
 	.offset_venc_data = {0x0, (0x100 << 2), 0},
+};
+
+static __maybe_unused struct aml_lcd_data_s lcd_data_a4 = {
+	.chip_type = LCD_CHIP_A4,
+	.chip_name = "a4",
+	.rev_type = 0,
+	.drv_max = 1,
+	.offset_venc = {0},
+	.offset_venc_if = {0},
+	.offset_venc_data = {0},
 	.dft_conf = {NULL, NULL, NULL},
 };
 
@@ -216,6 +226,9 @@ static void lcd_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_T3X:
 		lcd_data = &lcd_data_t3x;
+		break;
+	case MESON_CPU_MAJOR_ID_A4:
+		lcd_data = &lcd_data_a4;
 		break;
 	default:
 		lcd_data = NULL;

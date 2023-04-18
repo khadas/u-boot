@@ -340,6 +340,9 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 	case LCD_CHIP_C3:
 		lcd_clk_config_chip_init_c3(pdrv, cconf);
 		break;
+	case LCD_CHIP_A4:
+		lcd_clk_config_chip_init_a4(pdrv, cconf);
+		break;
 	default:
 		LCDPR("[%d]: %s: invalid chip type\n", pdrv->index, __func__);
 		return;
@@ -379,6 +382,9 @@ int aml_lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int ms, unsigned int 
 	struct lcd_clk_config_s *cconf;
 
 	cconf = get_lcd_clk_config(pdrv);
+	if (!cconf)
+		return 0;
+
 	if (cconf->data->prbs_test)
 		cconf->data->prbs_test(pdrv, ms, mode_flag);
 	return 0;

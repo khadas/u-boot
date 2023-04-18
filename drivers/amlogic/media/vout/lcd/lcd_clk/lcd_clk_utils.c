@@ -68,7 +68,7 @@ static const unsigned int tcon_div_table[5] = {1, 2, 4, 8, 16};
 /* **********************************
  * lcd controller operation
  * **********************************/
-static inline unsigned long lcd_abs(long a, long b)
+inline unsigned long lcd_abs(long a, long b)
 {
 	return (a >= b) ? (a - b) : (b - a);
 }

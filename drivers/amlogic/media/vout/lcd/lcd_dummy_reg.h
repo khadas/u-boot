@@ -2002,3 +2002,28 @@
 #ifndef VBO_FSM_HOLDER
 #define VBO_FSM_HOLDER                             ((0x1975  << 2) + 0xff800000)
 #endif
+/* A4 */
+#ifndef VPU_VOUT_BIST_SEL
+#define VPU_VOUT_BIST_SEL                          ((0x0452  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_CLRBAR_CFG
+#define VPU_VOUT_CLRBAR_CFG                        ((0x0451  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BIST_HIGH
+#define VPU_VOUT_BIST_HIGH                         ((0x0453  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BIST_CFG_YUV
+#define VPU_VOUT_BIST_CFG_YUV                      ((0x0450  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_INT_CTRL
+#define VPU_VOUT_INT_CTRL                          ((0x0401  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BLEND_SIZE
+#define VPU_VOUT_BLEND_SIZE                        ((0x0042  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BLEND_CTRL
+#define VPU_VOUT_BLEND_CTRL                        ((0x0040  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BLEND_DUMDATA
+#define VPU_VOUT_BLEND_DUMDATA                     ((0x0041  << 2) + 0xfe340000)
+#endif
