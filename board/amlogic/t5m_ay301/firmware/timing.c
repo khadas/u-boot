@@ -156,6 +156,10 @@ uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
 	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
+//		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[0], (0 << 7) | 2),
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[1], (0 << 7) | 2),
 
 	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH4, DDR_ADC_VALUE1),
 	//DDR1-1GB-16bit,DDR0-x
@@ -298,53 +302,31 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		},
 
 		.cfg_board_common_setting.ddr_dq_remap = {
-			0,
-			1,
-			2,
-			3,
-			4,
-			5,
-			6,
-			32,
-			7,
-			8,
-			9,
-			10,
-			11,
-			12,
-			13,
-			14,
-			33,
-			15,
-			16,
-			17,
-			18,
-			19,
-			20,
-			21,
-			22,
-			23,
-			34,
-			24,
-			25,
-			26,
-			27,
-			28,
-			29,
-			30,
-			31,
-			35,
+			0, 1, 2, 3, 4, 5, 6, 32, 7,
+			8, 9, 10, 11, 12, 13, 14, 33, 15,
+			16, 17, 18, 19, 20, 21, 22, 23, 34,
+			24, 25, 26, 27, 28, 29, 30, 31, 35,
 		},
 		//.cfg_board_common_setting.ddr_dq_remap= {
 		// 3, 0, 2, 1, 4, 6, 5, 7,  14, 12, 13, 15,
-		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
+		.cfg_ddr_training_delay_ps.reserve_para = {
+			//cs0 write dqs,lane0-lane3
+			(1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8,
+			//cs1 write dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs0 read dqs,lane0-lane3
+			(1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16,
+			//cs1 read dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		},
+//		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = 0,//(1 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[1] = 0,//(0 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = (1 << 7) | 0x5,
@@ -1047,42 +1029,10 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		},
 #ifdef CONFIG_BOARD_TIMMING
 		.cfg_board_common_setting.ddr_dq_remap = {
-			4,
-			0,
-			5,
-			1,
-			6,
-			3,
-			7,
-			2,
-			32,
-			12,
-			10,
-			14,
-			9,
-			13,
-			8,
-			11,
-			33,
-			15,
-			16,
-			17,
-			18,
-			19,
-			20,
-			21,
-			22,
-			34,
-			23,
-			24,
-			25,
-			26,
-			27,
-			28,
-			29,
-			30,
-			35,
-			31,
+			4, 0, 5, 1, 6, 3, 7, 2, 32,
+			12, 10, 14, 9, 13, 8, 11, 33, 15,
+			16, 17, 18, 19, 20, 21, 22, 34, 23,
+			24, 25, 26, 27, 28, 29, 30, 35, 31,
 		},
 #endif
 
@@ -1090,14 +1040,24 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//3, 0, 2, 1, 4, 6, 5, 7,  14, 12, 13, 15,
 		.cfg_ddr_training_delay_ps.tx_offset[0] = (0 << 7) | 0x0,
 		.cfg_ddr_training_delay_ps.rx_offset[0] = (0 << 7) | 0x0,
-		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
+		.cfg_ddr_training_delay_ps.reserve_para = {
+			//cs0 write dqs,lane0-lane3
+			(1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8,
+			//cs1 write dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs0 read dqs,lane0-lane3
+			(1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16,
+			//cs1 read dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		},
+		//.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = 0,//(1 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[1] = 0,//(0 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = (1 << 7) | 0x5,
