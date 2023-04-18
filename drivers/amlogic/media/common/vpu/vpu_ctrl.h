@@ -25,6 +25,11 @@
 #define CLK_LEVEL_DFT_T5D     3
 #define CLK_LEVEL_MAX_T5D     6
 
+/* TXHD2 */
+/* freq max=400M, default=400M */
+#define CLK_LEVEL_DFT_TXHD2     5
+#define CLK_LEVEL_MAX_TXHD2     6
+
 /* C3 */
 /* freq max=333M, default=333M */
 #define CLK_LEVEL_DFT_C3      4
