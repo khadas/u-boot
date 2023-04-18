@@ -97,6 +97,8 @@ like the AES key not ready when secure boot enabled for the first time.
 */
 //#define CONFIG_AML_EFUSE_GEN_AES_ONLY 1
 
+#define CONFIG_KEY_PRESERVE
+
 #define CONFIG_AVB2_KPUB_FROM_FIP 1
 
 #endif /* _CPU_H */
