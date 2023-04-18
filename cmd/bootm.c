@@ -262,25 +262,23 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	printf("avb2: %s\n", avb_s);
 	if (strcmp(avb_s, "1") == 0) {
-		AvbSlotVerifyData* out_data;
+		AvbSlotVerifyData *out_data = NULL;
 		char *bootargs = NULL;
 		char *newbootargs = NULL;
 		const char *bootstate_o = "androidboot.verifiedbootstate=orange";
 		const char *bootstate_g = "androidboot.verifiedbootstate=green";
 		const char *bootstate = NULL;
 		uint8_t vbmeta_digest[AVB_SHA256_DIGEST_SIZE];
-		rc = avb_verify(&out_data);
-		printf("avb verification: locked = %d, result = %d\n", !is_device_unlocked(), rc);
+
 		if (is_device_unlocked()) {
-			if (rc != AVB_SLOT_VERIFY_RESULT_OK &&
-					rc != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION &&
-					rc != AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX &&
-					rc != AVB_SLOT_VERIFY_RESULT_ERROR_IO &&
-					rc != AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED) {
-				avb_slot_verify_data_free(out_data);
-				return rc;
-			}
+			printf("unlock state, ignore the avb check\n");
+			run_command("setenv bootconfig ${bootconfig} "\
+			"androidboot.verifiedbootstate=orange", 0);
 		} else {
+			printf("lock state, need avb check\n");
+			rc = avb_verify(&out_data);
+			printf("avb verification: locked = %d, result = %d\n",
+						!is_device_unlocked(), rc);
 			if (rc == AVB_SLOT_VERIFY_RESULT_OK) {
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 				uint32_t i = 0;
@@ -311,14 +309,6 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				avb_slot_verify_data_free(out_data);
 				return rc;
 			}
-		}
-
-		if (rc == AVB_SLOT_VERIFY_RESULT_ERROR_IO) {
-			const int is_dev_unlocked = is_device_unlocked();
-
-			if (is_dev_unlocked)
-				run_command("setenv bootconfig ${bootconfig} "\
-				"androidboot.verifiedbootstate=orange", 0);
 		}
 
 		bootargs = env_get("bootconfig");
