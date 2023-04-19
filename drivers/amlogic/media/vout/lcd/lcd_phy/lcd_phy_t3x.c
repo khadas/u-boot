@@ -11,100 +11,83 @@
 
 static struct lcd_phy_ctrl_s *phy_ctrl_p;
 
-static unsigned int p2p_low_common_phy_ch_tl1 = 0x000b000b;
-static unsigned int lvds_vx1_p2p_phy_ch_tl1 = 0x00020002;
-
 /*
  *    chreg: channel ctrl
  *    bypass: 1=bypass
  *    mode: 1=normal mode, 0=low common mode
  *    ckdi: clk phase for minilvds
  */
-static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, struct phy_config_s *phy, int status,
+static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv,
+				struct phy_config_s *phy,
+				int status, uint32_t flag,
 				int bypass, unsigned int mode, unsigned int ckdi)
 {
 	unsigned int cntl_vinlp_pi = 0, cntl_ckdi = 0;
-	unsigned int data = 0, chreg = 0, chctl = 0;
+	unsigned int data = 0, chreg, chctl = 0;
 	unsigned int amp = 0;
 	int i = 0;
+	uint8_t bit;
+
+	uint32_t preem_reg[8] = {
+		ANACTRL_DIF_PHY_CNTL1, ANACTRL_DIF_PHY_CNTL2,
+		ANACTRL_DIF_PHY_CNTL3, ANACTRL_DIF_PHY_CNTL4,
+		ANACTRL_DIF_PHY_CNTL6, ANACTRL_DIF_PHY_CNTL7,
+		ANACTRL_DIF_PHY_CNTL8, ANACTRL_DIF_PHY_CNTL9,
+	};
+	uint32_t amp_reg[8] = {
+		ANACTRL_DIF_PHY_CNTL10, ANACTRL_DIF_PHY_CNTL11,
+		ANACTRL_DIF_PHY_CNTL12, ANACTRL_DIF_PHY_CNTL13,
+		ANACTRL_DIF_PHY_CNTL14, ANACTRL_DIF_PHY_CNTL15,
+		ANACTRL_DIF_PHY_CNTL16, ANACTRL_DIF_PHY_CNTL17,
+	};
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
 
+	chreg = phy_ctrl_p->ctrl_bit_on ? 0x0 : 0x1;
+
 	if (status) {
-		chreg |= ((phy_ctrl_p->ctrl_bit_on << 16) |
-			  (phy_ctrl_p->ctrl_bit_on << 0));
 		if ((phy->flag & (1 << 13)) == 0) {
 			for (i = 0; i < 16; i++)
 				phy->lane[i].amp = 0x7;
 		}
 
 		if (bypass)
-			chctl |= ((1 << 18) | (1 << 2));
+			chctl = 1 << 2;
 
 		if (mode) {
-			chreg |= lvds_vx1_p2p_phy_ch_tl1;
+			chreg |= 0x0002;
 			cntl_vinlp_pi = 0x00070000;
 		} else {
-			chreg |= p2p_low_common_phy_ch_tl1;
+			chreg |= 0x000b;
 			if (phy->weakly_pull_down)
-				chreg &= ~((1 << 19) | (1 << 3));
+				chreg &= ~(1 << 3);
 			cntl_vinlp_pi = 0x000e0000;
 		}
 		cntl_ckdi = ckdi | 0x80000000;
+		phy_ctrl_p->lane_lock |= flag;
+		lcd_ana_write(ANACTRL_DIF_PHY_CNTL19, cntl_vinlp_pi);
+		lcd_ana_write(ANACTRL_DIF_PHY_CNTL20, cntl_ckdi);
 	} else {
-		if (phy_ctrl_p->ctrl_bit_on)
-			data = 0;
-		else
-			data = 1;
-		chreg |= ((data << 16) | (data << 0));
-		cntl_vinlp_pi = 0;
-		cntl_ckdi = 0;
-		lcd_ana_write(ANACTRL_DIF_PHY_CNTL18, 0);
+		phy_ctrl_p->lane_lock &= ~flag;
+		if (!phy_ctrl_p->lane_lock) {
+			lcd_ana_write(ANACTRL_DIF_PHY_CNTL19, 0);
+			lcd_ana_write(ANACTRL_DIF_PHY_CNTL20, 0);
+			lcd_ana_write(ANACTRL_DIF_PHY_CNTL18, 0);
+		}
 	}
 
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL19, cntl_vinlp_pi);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL20, cntl_ckdi);
-
-	data = ((phy->lane[0].preem & 0xff) << 8 | (phy->lane[1].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL1, chreg | data);
-	amp = ((phy->lane[0].amp & 0x7) << 3 | (phy->lane[1].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL10, chctl | amp);
-
-	data = ((phy->lane[2].preem & 0xff) << 8 | (phy->lane[3].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL2, chreg | data);
-	amp = ((phy->lane[2].amp & 0x7) << 3 | (phy->lane[3].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL11, chctl | amp);
-
-	data = ((phy->lane[4].preem & 0xff) << 8 | (phy->lane[5].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL3, chreg | data);
-	amp = ((phy->lane[4].amp & 0x7) << 3 | (phy->lane[5].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL12, chctl | amp);
-
-	data = ((phy->lane[6].preem & 0xff) << 8 | (phy->lane[7].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL4, chreg | data);
-	amp = ((phy->lane[6].amp & 0x7) << 3 | (phy->lane[7].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL13, chctl | amp);
-
-	data = ((phy->lane[8].preem & 0xff) << 8 | (phy->lane[9].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL6, chreg | data);
-	amp = ((phy->lane[8].amp & 0x7) << 3 | (phy->lane[9].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, chctl | amp);
-
-	data = ((phy->lane[10].preem & 0xff) << 8 | (phy->lane[11].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL7, chreg | data);
-	amp = ((phy->lane[10].amp & 0x7) << 3 | (phy->lane[11].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, chctl | amp);
-
-	data = ((phy->lane[12].preem & 0xff) << 8 | (phy->lane[13].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL8, chreg | data);
-	amp = ((phy->lane[12].amp & 0x7) << 3 | (phy->lane[13].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL16, chctl | amp);
-
-	data = ((phy->lane[14].preem & 0xff) << 8 | (phy->lane[15].preem & 0xff) << 24);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL9, chreg | data);
-	amp = ((phy->lane[14].amp & 0x7) << 3 | (phy->lane[15].amp & 0x7) << 19);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL17, chctl | amp);
+	i = 0;
+	while (i < 16) {
+		if (flag & (1 << i)) {
+			bit = i % 2 ? 16 : 0;
+			data = (phy->lane[i].preem & 0xff) << 8 | chreg;
+			amp = (phy->lane[i].amp & 0x7) << 3 | chctl;
+			lcd_ana_setb(preem_reg[i / 2], data, bit, 16);
+			lcd_ana_setb(amp_reg[i / 2], amp, bit, 16);
+		}
+		i++;
+	}
 }
 
 static void lcd_phy_common_update(struct phy_config_s *phy, unsigned int com_data)
@@ -132,32 +115,62 @@ static void lcd_phy_common_update(struct phy_config_s *phy, unsigned int com_dat
 static void lcd_lvds_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 {
 	struct phy_config_s *phy = &pdrv->config.phy_cfg;
-	unsigned int com_data = 0;
+	unsigned int com_data = 0, flag;
+
+	if (pdrv->index) {
+		LCDERR("invalid drv_index %d for lvds\n", pdrv->index);
+		return;
+	}
+
+	flag = pdrv->config.control.lvds_cfg.dual_port ? 0x3ff : 0x1f;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
 
 	if (status) {
+		if ((phy_ctrl_p->lane_lock & flag) &&
+			((phy_ctrl_p->lane_lock & flag) != flag)) {
+			LCDERR("phy lane already locked: 0x%x, invalid 0x%x\n",
+				phy_ctrl_p->lane_lock, flag);
+			return;
+		}
+		phy_ctrl_p->lane_lock |= flag;
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			LCDPR("vswing_level=0x%x\n", phy->vswing_level);
 
 		com_data = 0xff2027e0 | phy->vswing;
 		lcd_phy_common_update(phy, com_data);
-		lcd_phy_cntl_set(pdrv, phy, status, 1, 1, 0);
+		lcd_phy_cntl_set(pdrv, phy, status, flag, 1, 1, 0);
 	} else {
-		lcd_phy_cntl_set(pdrv, phy, status, 1, 0, 0);
+		lcd_phy_cntl_set(pdrv, phy, status, flag, 1, 0, 0);
 	}
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("phy lane_lock: 0x%x\n", phy_ctrl_p->lane_lock);
 }
 
 static void lcd_vbyone_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 {
 	struct phy_config_s *phy = &pdrv->config.phy_cfg;
-	unsigned int com_data = 0;
+	unsigned int com_data = 0, flag;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
 
+	if (pdrv->index)
+		flag = 0xff << 8;
+	else
+		flag = pdrv->config.control.vbyone_cfg.lane_count == 16 ? 0xffff : 0xff;
+
 	if (status) {
+		if ((phy_ctrl_p->lane_lock & flag) &&
+			((phy_ctrl_p->lane_lock & flag) != flag)) {
+			LCDERR("phy lane already locked: 0x%x, invalid 0x%x\n",
+				phy_ctrl_p->lane_lock, flag);
+			return;
+		}
+		phy_ctrl_p->lane_lock |= flag;
+
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDPR("vswing_level=0x%x, ext_pullup=%d\n",
 			      phy->vswing_level, phy->ext_pullup);
@@ -168,26 +181,33 @@ static void lcd_vbyone_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 		else
 			com_data = 0xf02027a0 | phy->vswing;
 		lcd_phy_common_update(phy, com_data);
-		lcd_phy_cntl_set(pdrv, phy, status, 1, 1, 0);
+		lcd_phy_cntl_set(pdrv, phy, status, flag, 1, 1, 0);
 	} else {
-		lcd_phy_cntl_set(pdrv, phy, status, 1, 0, 0);
+		lcd_phy_cntl_set(pdrv, phy, status, flag, 1, 0, 0);
 	}
 }
 
 static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 {
 	unsigned int p2p_type, vcm_flag;
-	struct p2p_config_s *p2p_conf;
+	struct p2p_config_s *p2p_conf = &pdrv->config.control.p2p_cfg;
 	struct phy_config_s *phy = &pdrv->config.phy_cfg;
 	unsigned int com_data = 0;
 	unsigned int mode = 1;  //1-normal mode, 0-low common mode
+	uint32_t flag = 0xffff;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
 
-	p2p_conf = &pdrv->config.control.p2p_cfg;
-
 	if (status) {
+		if ((phy_ctrl_p->lane_lock & flag) &&
+			((phy_ctrl_p->lane_lock & flag) != flag)) {
+			LCDERR("phy lane already locked: 0x%x, invalid 0x%x\n",
+				phy_ctrl_p->lane_lock, flag);
+			return;
+		}
+		phy_ctrl_p->lane_lock |= flag;
+
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 			LCDPR("vswing_level=0x%x, ext_pullup=%d\n",
 			      phy->vswing_level, phy->ext_pullup);
@@ -225,9 +245,9 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 		}
 
 		lcd_phy_common_update(phy, com_data);
-		lcd_phy_cntl_set(pdrv, phy, status, 1, mode, 0);
+		lcd_phy_cntl_set(pdrv, phy, status, flag, 1, mode, 0);
 	} else {
-		lcd_phy_cntl_set(pdrv, phy, status, 1, 0, 0);
+		lcd_phy_cntl_set(pdrv, phy, status, flag, 1, 0, 0);
 	}
 }
 

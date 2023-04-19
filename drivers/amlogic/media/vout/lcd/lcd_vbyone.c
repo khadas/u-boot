@@ -321,9 +321,9 @@ void lcd_vbyone_cdr_training_hold(struct aml_lcd_drv_s *pdrv, int flag)
 
 	offset = pdrv->data->offset_venc[pdrv->index];
 	if (pdrv->data->chip_type == LCD_CHIP_T3X)
-		reg = VBO_FSM_HOLDER_H + offset;
-	else
 		reg = VBO_FSM_HOLDER + offset;
+	else
+		reg = VBO_FSM_HOLDER_H + offset;
 
 	if (flag) {
 		LCDPR("[%d]: ctrl_flag for cdr_training_hold\n", pdrv->index);

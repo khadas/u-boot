@@ -306,7 +306,7 @@ int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 	char *propdata, *p, snode[10];
 	const char *str;
 	unsigned int temp;
-	int i, j;
+	int i;
 
 	if (pdrv->index == 0)
 		sprintf(snode, "/lcd");
@@ -390,8 +390,9 @@ int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 			i++;
 		}
 	}
-	for (j = i; j < LCD_CPU_GPIO_NUM_MAX; j++)
-		strcpy(pconf->power.cpu_gpio[j], "invalid");
+
+	for (; i < LCD_CPU_GPIO_NUM_MAX; i++)
+		strcpy(pconf->power.cpu_gpio[i], "invalid");
 
 #endif
 	return 0;
@@ -402,7 +403,7 @@ int lcd_base_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 	struct lcd_dft_config_s *dft_conf;
 	unsigned int temp;
 	char (*lcd_gpio)[LCD_CPU_GPIO_NAME_MAX];
-	int i, j;
+	int i;
 
 	dft_conf = pdrv->data->dft_conf[pdrv->index];
 	if (!dft_conf) {
@@ -439,8 +440,9 @@ int lcd_base_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 		strcpy(pdrv->config.power.cpu_gpio[i], lcd_gpio[i]);
 		i++;
 	}
-	for (j = i; j < LCD_CPU_GPIO_NUM_MAX; j++)
-		strcpy(pdrv->config.power.cpu_gpio[j], "invalid");
+
+	for (; i < LCD_CPU_GPIO_NUM_MAX; i++)
+		strcpy(pdrv->config.power.cpu_gpio[i], "invalid");
 
 	return 0;
 }

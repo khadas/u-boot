@@ -662,7 +662,8 @@ static void lcd_vbyone_control_off(struct aml_lcd_drv_s *pdrv)
 	unsigned int reg_dphy_tx_ctrl0, reg_dphy_tx_ctrl1;
 
 	lcd_vbyone_disable(pdrv);
-	if (pdrv->data->chip_type == LCD_CHIP_T7) {
+	if (pdrv->data->chip_type == LCD_CHIP_T7 ||
+		pdrv->data->chip_type == LCD_CHIP_T3X) {
 		switch (pdrv->index) {
 		case 0:
 			reg_dphy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0;
@@ -680,7 +681,7 @@ static void lcd_vbyone_control_off(struct aml_lcd_drv_s *pdrv)
 		/* disable fifo */
 		lcd_combo_dphy_setb(reg_dphy_tx_ctrl1, 0, 6, 2);
 		/* disable lane */
-		lcd_combo_dphy_setb(reg_dphy_tx_ctrl0, 0, 16, 8);
+		lcd_combo_dphy_setb(reg_dphy_tx_ctrl0, 0, 16, 16);
 	} else if (pdrv->data->chip_type == LCD_CHIP_T3) {
 		switch (pdrv->index) {
 		case 0:

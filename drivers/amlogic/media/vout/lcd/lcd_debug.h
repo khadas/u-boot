@@ -274,7 +274,6 @@ static unsigned int lcd_reg_dump_encl_t3x_0[] = {
 	VPU_VIU_VENC_MUX_CTRL,
 	ENCL_VIDEO_EN,
 	ENCL_VIDEO_MODE,
-	VPP_4S4P_CTRL,
 	VPU_VENC_DITH,
 	VPU_VENC_CTRL,
 	LCD_LCD_IF_CTRL,
@@ -289,6 +288,26 @@ static unsigned int lcd_reg_dump_encl_t3x_0[] = {
 	ENCL_INBUF_CNTL1,
 	ENCL_INBUF_CNTL0,
 	ENCL_VIDEO_GAIN_RGB_CTRL,
+};
+
+static unsigned int lcd_reg_dump_encl_t3x_1[] = {
+	VPU_VIU_VENC_MUX_CTRL,
+	ENCL_VIDEO_EN + (0x100 << 2),
+	ENCL_VIDEO_MODE + (0x100 << 2),
+	VPU_VENC_DITH,
+	VPU_VENC_CTRL + (0x600 << 2),
+	LCD_LCD_IF_CTRL + (0x600 << 2),
+	LCD_DITH_CTRL + (0x600 << 2),
+	ENCL_VIDEO_VSRC_CTRL + (0x100 << 2),
+	ENCL_VIDEO_MAX_CNT + (0x100 << 2),
+	ENCL_VIDEO_HAVON_PX_RNG + (0x100 << 2),
+	ENCL_VIDEO_VAVON_LN_RNG + (0x100 << 2),
+	ENCL_VIDEO_HSO_PX_RNG + (0x100 << 2),
+	ENCL_VIDEO_VSO_PX_RNG + (0x100 << 2),
+	ENCL_VIDEO_VSO_LN_RNG + (0x100 << 2),
+	ENCL_INBUF_CNTL1 + (0x100 << 2),
+	ENCL_INBUF_CNTL0 + (0x100 << 2),
+	ENCL_VIDEO_GAIN_RGB_CTRL + (0x100 << 2),
 };
 
 static unsigned int lcd_reg_dump_encl_t7_1[] = {

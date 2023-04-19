@@ -459,6 +459,15 @@ static void lcd_reg_print_vbyone(struct aml_lcd_drv_s *pdrv)
 	reg = VBO_INSGN_CTRL + offset;
 	printf("VBO_INSGN_CTRL      [0x%04x] = 0x%08x\n",
 	       reg, lcd_vcbus_read(reg));
+	reg = LCD_PORT_SWAP + offset;
+	printf("LCD_PORT_SWAP        [0x%04x] = 0x%08x\n",
+	       reg, lcd_vcbus_read(reg));
+	reg = P2P_CH_SWAP0 + offset;
+	printf("P2P_CH_SWAP0        [0x%04x] = 0x%08x\n",
+	       reg, lcd_vcbus_read(reg));
+	reg = P2P_CH_SWAP1 + offset;
+	printf("P2P_CH_SWAP1        [0x%04x] = 0x%08x\n",
+	       reg, lcd_vcbus_read(reg));
 }
 
 #ifdef CONFIG_AML_LCD_TCON
@@ -1308,7 +1317,7 @@ static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3x_0 = {
 static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3x_1 = {
 	.reg_pll_table = lcd_reg_dump_pll_t7_1,
 	.reg_clk_table = lcd_reg_dump_clk_t7_1,
-	.reg_encl_table = lcd_reg_dump_encl_t7_1,
+	.reg_encl_table = lcd_reg_dump_encl_t3x_1,
 	.reg_pinmux_table = lcd_reg_dump_pinmux_t3,
 };
 

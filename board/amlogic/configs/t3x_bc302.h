@@ -93,6 +93,7 @@
 		"loadaddr_kernel=0x03080000\0"\
 		"otg_device=1\0" \
 		"panel_type=lvds_1\0" \
+		"panel1_type=vbyone_1\0" \
 		"panel_name=null\0" \
 		"lcd_ctrl=0x00000000\0" \
 		"lcd_debug=0x00000000\0" \
@@ -102,6 +103,7 @@
 		"cvbsmode=576cvbs\0" \
 		"vout_init=disable\0" \
 		"model_name=FHD2HDMI\0" \
+		"model1_name=UHD_1RG\0" \
 		"gamma=0\0" \
 		"display_width=1920\0" \
 		"display_height=1080\0" \
@@ -160,8 +162,8 @@
 		"get_bootloaderversion;" \
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} powermode=${powermode} "\
-		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-		"outputmode=${outputmode};"\
+		"lcd_ctrl=${lcd_ctrl} lcd1_ctrl=${lcd1_ctrl}  lcd_debug=${lcd_debug} "\
+		"outputmode=${outputmode}; panel1_type=${panel1_type};"\
 		"run check_connector_type; "\
 		"run cmdline_keys;"\
 		"\0"\

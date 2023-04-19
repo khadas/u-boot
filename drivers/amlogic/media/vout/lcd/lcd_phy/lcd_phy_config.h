@@ -10,7 +10,6 @@
 struct lcd_phy_ctrl_s {
 	unsigned int lane_lock;
 	unsigned int ctrl_bit_on;
-
 	unsigned int (*phy_vswing_level_to_val)(struct aml_lcd_drv_s *pdrv, unsigned int level);
 	unsigned int (*phy_preem_level_to_val)(struct aml_lcd_drv_s *pdrv, unsigned int level);
 	void (*phy_set_lvds)(struct aml_lcd_drv_s *pdrv, int status);
