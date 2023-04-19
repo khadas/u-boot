@@ -448,7 +448,7 @@
 		"dv_fw_addr=0xa00000\0"\
 		"otg_device=1\0" \
 		"panel_type=vbyone_0\0" \
-		"panel1_type=vbyone_1\0" \
+		"panel1_type=vbyone_2\0" \
 		"panel2_type=lvds_1\0" \
 		"lcd_ctrl=0x00000000\0" \
 		"lcd1_ctrl=0x00000000\0" \
