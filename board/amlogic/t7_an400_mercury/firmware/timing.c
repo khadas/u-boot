@@ -42,7 +42,7 @@
  *
  */
 
-#define ENABLE_LPDDR4X_MODE 1
+#define         ENABLE_LPDDR4X_MODE             1
 
 #define         AN_408_DDR0_1G_DDR1_0G          0
 #define         AN_408_DDR0_2G_DDR1_0G          1
@@ -56,7 +56,7 @@
 #define DDR_SIZE_TYPE_1         AN_408_DDR0_2G_DDR1_2G
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
-		{
+		{//ddr0
 		//.fast_boot[0]=0x000000fd,// 253
 		.board_id = CONFIG_BOARD_ID_MASK,
 		.version = 1,
@@ -233,7 +233,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//enable slt 4 DRAMFreq test;{0x0,0x0},disable slt 4 DRAMFreq test;
 		.fast_boot[0] = 0,
 		.ac_pinmux = { 2, 3, 1, 0, 5, 4, 0, 0, 0, 0,
-		  1, 3,			       5,	2,	 4, 0, 0, 0, 0 },
+		  1, 3,	5, 2, 4, 0, 0, 0, 0 },
 
 		.dfi_pinmux = {
 		1,
@@ -265,7 +265,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		},
 		},
 
-		{
+		{//ddr1
 		//.fast_boot[0]=0x000000fd,// 253
 		.board_id = CONFIG_BOARD_ID_MASK,
 		.version = 1,
@@ -380,9 +380,10 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//compatibility with 1rank and 2rank
 		//targeting rank 0. [3:0] is used
 		//for write ODT [7:4] is used for //read ODT
-		.dfi_odt_config = 0x0d0d, //use 0d0d compatibility with 1rank and 2rank
-		.PllBypassEn = 0,                       //bit0-ps0,bit1-ps1
-		.ddr_rdbi_wr_enable = 0x2,              //bit 0 read-dbi,bit 1 write dbi
+		.dfi_odt_config = 0x0d0d,
+		//use 0d0d compatibility with 1rank and 2rank  //0808
+		.PllBypassEn = 0, //bit0-ps0,bit1-ps1
+		.ddr_rdbi_wr_enable = 0x2, //bit 0 read-dbi,bit 1 write dbi
 		.clk_drv_ohm = 40,
 		.cs_drv_ohm = 40,
 		.ac_drv_ohm = 40,
@@ -390,8 +391,9 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.soc_data_drv_ohm_n = 40,
 		.soc_data_odt_ohm_p = 40,
 		.soc_data_odt_ohm_n = 40,
-		.dram_data_drv_ohm = 40, //ddr4 sdram only 34 or 48, skt board use 34 better
-		.dram_data_odt_ohm = 40,                //60,
+		.dram_data_drv_ohm = 40, //48, //34,
+		//ddr4 sdram only 34 or 48, skt board use 34 better
+		.dram_data_odt_ohm = 40, //60,
 		.dram_ac_odt_ohm = 240,
 		.soc_clk_slew_rate = 0x1ff,
 		.soc_cs_slew_rate = 0x1ff,
@@ -410,7 +412,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		[3] = (24 | 25 << 5 | 26 << 10 | 27 << 15 | 28 << 20 | 29 << 25),
 		[4] = (30 | 12 << 5 | 13 << 10 | 14 << 15 | 0 << 20 | 0 << 25),
 		},
-		.ddr_lpddr34_ca_remap = { 00,			   00 },
+		.ddr_lpddr34_ca_remap = { 00, 00 },
 		.ddr_lpddr34_dq_remap = { 4, 6,	5, 0, 7, 1, 2, 3,
 		  15, 11,			13,	 14,	  12, 9,  8,  10,
 		  21, 19,			22,	 16,	  18, 17, 23, 20,
@@ -468,6 +470,165 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		0,
 		},
 		},
+};
+
+#define DDR0_2G_DDR1_1G_DDR_ID        3//ddr id = 3
+#define DDR0_2G_DDR1_2G_DDR_ID        5//ddr id = 5
+#define DDR0_3G_DDR1_3G_RANK01_DDR_ID 7//ddr id = 7
+#define DDR0_4G_DDR1_4G_RANK01_DDR_ID 9//ddr id = 9
+#define DDR_RESV_CHECK_ID_ENABLE   0Xfe
+#define SAR_ADC_DDR_ID_BASE   0
+#define SAR_ADC_DDR_ID_STEP   80
+#define DDR_TIMMING_OFFSET(X) (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->X))
+#define DDR_TIMMING_OFFSET_SIZE(X) sizeof(((ddr_set_t *)(0))->X)
+#define DDR_TIMMING_TUNE_TIMMING0(DDR_ID, PARA, VALUE) {DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE}
+#define DDR_TIMMING_TUNE_TIMMING1(DDR_ID, PARA, VALUE) {DDR_ID, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE}
+bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
+		{ 0, 0, 0xffffffff, 0, 0, 0 },
+
+		DDR_TIMMING_TUNE_TIMMING0
+			(DDR0_2G_DDR1_1G_DDR_ID,
+			dram_ch0_size_MB,
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_2G_DDR1_1G_DDR_ID,
+				dram_ch1_size_MB,
+				(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_2G_DDR1_2G_DDR_ID,
+				dram_ch0_size_MB,
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_2G_DDR1_2G_DDR_ID,
+				dram_ch1_size_MB,
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_3G_DDR1_3G_RANK01_DDR_ID,
+				dram_ch0_size_MB,
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_3G_DDR1_3G_RANK01_DDR_ID,
+				dram_ch1_size_MB,
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_3G_DDR1_3G_RANK01_DDR_ID,
+				DisabledDbyte[0],
+				0x00),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_3G_DDR1_3G_RANK01_DDR_ID,
+				DisabledDbyte[1],
+				0x00),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_3G_DDR1_3G_RANK01_DDR_ID,
+				DisabledDbyte[0],
+				0x00),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_3G_DDR1_3G_RANK01_DDR_ID,
+				DisabledDbyte[1],
+				0x00),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				dram_ch0_size_MB,
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				dram_ch1_size_MB,
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				DRAMFreq[0],
+				1848),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				DRAMFreq[0],
+				1848),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				cfg_ddr_training_delay_ps[0].dram_bit_vref[0],
+				0x8),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				cfg_ddr_training_delay_ps[0].dram_bit_vref[0],
+				0x8),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				dram_data_odt_ohm,
+				60),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				dram_data_odt_ohm,
+				60),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				training_offset,
+				((0x1 << 7) | (2 << 4))),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				training_offset,
+				((0x1 << 7) | (3 << 4))),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				DisabledDbyte[0],
+				0x00),
+
+		DDR_TIMMING_TUNE_TIMMING0
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				DisabledDbyte[1],
+				0x00),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				DisabledDbyte[0],
+				0x00),
+
+		DDR_TIMMING_TUNE_TIMMING1
+				(DDR0_4G_DDR1_4G_RANK01_DDR_ID,
+				DisabledDbyte[1],
+				0x00)
 };
 
 board_clk_set_t __board_clk_setting
@@ -810,129 +971,6 @@ __attribute__ ((section(".clk_param"))) = {
 #else
 #error "VDD_DDR val out of range\n"
 #endif
-
-#define AN_400_DDR4X0_2G_DDR4X1_1G        3
-#define AN_400_DDR4X0_2G_DDR4X1_2G        5
-#define AN_400_DDR4X0_3G_DDR4X1_3G        7
-#define AN_400_DDR4X0_4G_DDR4X0_4G        9
-#define DDR_RESV_CHECK_ID_ENABLE   0Xfe
-#define SAR_ADC_DDR_ID_BASE   0
-#define SAR_ADC_DDR_ID_STEP   80
-#define DDR_TIMMING_OFFSET(X) (unsigned int)(unsigned long)(&(((ddr_set_t *)(0))->X))
-#define DDR_TIMMING_OFFSET_SIZE(X) sizeof(((ddr_set_t *)(0))->X)
-#define DDR_TIMMING_TUNE_TIMMING0(DDR_ID, PARA, VALUE) { \
-	DDR_ID, DDR_TIMMING_OFFSET(PARA), VALUE, DDR_TIMMING_OFFSET_SIZE(PARA), \
-	0, DDR_RESV_CHECK_ID_ENABLE }
-#define DDR_TIMMING_TUNE_TIMMING1(DDR_ID, PARA, VALUE) { \
-	DDR_ID, sizeof(ddr_set_t) + DDR_TIMMING_OFFSET(PARA), VALUE, \
-	DDR_TIMMING_OFFSET_SIZE(PARA), 0, DDR_RESV_CHECK_ID_ENABLE }
-bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
-		{ 0, 0, 0xffffffff, 0, 0, 0 },
-
-		DDR_TIMMING_TUNE_TIMMING0
-			(AN_400_DDR4X0_2G_DDR4X1_1G,
-			dram_ch0_size_MB,
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_2G_DDR4X1_1G,
-				dram_ch1_size_MB,
-				(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_2G_DDR4X1_2G,
-				dram_ch0_size_MB,
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_2G_DDR4X1_2G,
-				dram_ch1_size_MB,
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_3G_DDR4X1_3G,
-				dram_ch0_size_MB,
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_3G_DDR4X1_3G,
-				dram_ch1_size_MB,
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_3G_DDR4X1_3G,
-				DisabledDbyte[0],
-				0x00),
-
-		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_3G_DDR4X1_3G,
-				DisabledDbyte[1],
-				0x00),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_3G_DDR4X1_3G,
-				DisabledDbyte[0],
-				0x00),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_3G_DDR4X1_3G,
-				DisabledDbyte[1],
-				0x00),
-
-		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
-				dram_ch0_size_MB,
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
-				dram_ch1_size_MB,
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-				(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-
-		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
-				DisabledDbyte[0],
-				0x00),
-
-		DDR_TIMMING_TUNE_TIMMING0
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
-				DisabledDbyte[1],
-				0x00),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
-				DisabledDbyte[0],
-				0x00),
-
-		DDR_TIMMING_TUNE_TIMMING1
-				(AN_400_DDR4X0_4G_DDR4X0_4G,
-				DisabledDbyte[1],
-				0x00)
-};
 
 /* for PWM use */
 /*
