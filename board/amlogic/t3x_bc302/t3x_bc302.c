@@ -140,7 +140,6 @@ int board_init(void)
 	clrbits_le32(RESETCTRL_WATCHDOG_CTRL0, (0x1 << 18));
 	return 0;
 #else
-	get_stick_reboot_flag();
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
@@ -184,6 +183,7 @@ int board_late_init(void)
 	char outputModeCur[30] = {};
 //#endif
 	printf("board late init\n");
+	get_stick_reboot_flag();
 
 	/* ****************************************************
 	 * 1.setup bootup resource
