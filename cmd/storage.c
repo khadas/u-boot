@@ -474,7 +474,7 @@ int store_init(u32 init_flag)
 	return record;
 }
 
-static struct storage_t *store_get_current(void)
+struct storage_t *store_get_current(void)
 {
 	return current;
 }

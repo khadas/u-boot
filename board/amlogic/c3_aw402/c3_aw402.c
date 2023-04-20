@@ -23,6 +23,7 @@
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/aml_mtd.h>
 #include <amlogic/aml_mmc.h>
+#include <amlogic/storage.h>
 
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
@@ -109,9 +110,28 @@ void board_init_mem(void)
 #endif
 }
 
+static void ddr_save_fastboot_para(void)
+{
+	unsigned long addr = 0x1210400UL;
+	char str[128] = {};
+	extern struct storage_t *store_get_current(void);
+
+	if (!memcmp((void *)addr, "DDRPARAMS", 8)) { // match tag
+		if (!store_get_current()) {
+			sprintf(str, "store init");
+			run_command(str, 0);
+		}
+		printf("get ddr params\n");
+		printf("\nstore rsv write ddr-parameter 0x%08lx 0x%08x\n", addr + 8, 2048);
+		sprintf(str, "store rsv write ddr-parameter 0x%08lx 0x%08x\n", addr + 8, 2048);
+		run_command(str, 0);
+	}
+}
+
 int board_init(void)
 {
 	printf("board init\n");
+	ddr_save_fastboot_para();
 
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
