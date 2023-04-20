@@ -52,6 +52,7 @@
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pwm/meson.h>
 #include <dt-bindings/clock/s5-clkc.h>
+#include <dt-bindings/input/meson_rc.h>
 
 / {
 	interrupt-parent = <&gic>;
@@ -256,13 +257,6 @@
 				status = "disabled";
 			};
 
-			ir: ir@8040 {
-				compatible = "amlogic,meson-gx-ir", "amlogic,meson-gxbb-ir";
-				reg = <0x0 0x8040 0x0 0x40>;
-				interrupts = <GIC_SPI 196 IRQ_TYPE_EDGE_RISING>;
-				status = "disabled";
-			};
-
 			reset: reset-controller@1000 {
 				compatible = "amlogic,meson-gx-reset", "amlogic,meson-gxbb-reset";
 				reg = <0x0 0x01000 0x0 0x1000>;
@@ -285,6 +279,14 @@
 				pinctrl-0=<&jtag_a_pins>;
 				pinctrl-1=<&jtag_b_pins>;
 			};
+		};
+
+		ir: meson-ir {
+			compatible = "amlogic, meson-ir";
+			reg = <0x0 0xfe084040 0x44 0x0>, /*Multi-format IR controller*/
+			      <0x0 0xfe084000 0x20 0x0>; /*Legacy IR controller*/
+			protocol = <REMOTE_TYPE_NEC>;
+			status = "disabled";
 		};
 
 		periphs: periphs@ff634000 {
