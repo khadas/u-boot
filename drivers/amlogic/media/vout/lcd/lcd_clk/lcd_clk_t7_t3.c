@@ -375,12 +375,6 @@ static void lcd_set_phy_dig_div(struct aml_lcd_drv_s *pdrv)
 	lcd_reset_setb(RESETCTRL_RESET1_LEVEL, 1, bit_rst, 1);
 	udelay(10);
 
-	//sel encl clk and phy clk src for disp path 1
-	if (pdrv->index == 1 && cconf->data->clk1_path_sel == 0)
-		lcd_combo_dphy_setb(COMBO_DPHY_CNTL0, 1, 5, 1);// disp0 clk form tcon_pll0
-	else
-		lcd_combo_dphy_setb(COMBO_DPHY_CNTL0, 0, 5, 1);// disp1 clk form tcon_pll1
-
 	// Enable dphy clock
 	lcd_combo_dphy_setb(reg_dphy_tx_ctrl1, 1, 0, 1);
 
