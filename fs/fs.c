@@ -806,6 +806,27 @@ int do_fs_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 
 	return CMD_RET_SUCCESS;
 }
+
+int do_fs_type(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct fstype_info *info;
+
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (fs_set_blk_dev(argv[1], argv[2], FS_TYPE_ANY))
+		return 1;
+
+	info = fs_get_info(fs_type);
+
+	if (argc == 4)
+		setenv(argv[3], info->name);
+	else
+		setenv("%s\n", info->name);
+
+	return CMD_RET_SUCCESS;
+}
+
 int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	  int fstype)
 {

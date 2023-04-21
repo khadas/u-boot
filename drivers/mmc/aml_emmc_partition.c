@@ -20,9 +20,6 @@
 #include <asm/cpu_id.h>
 #include <part_efi.h>
 
-/* using mbr*/
-#define CONFIG_PTBL_MBR	(0)
-
 #if (CONFIG_PTBL_MBR)
 	/* cmpare partition name? */
 	#define CONFIG_CMP_PARTNAME	(0)

@@ -13,7 +13,7 @@
 #define BOOTENV_SHARED_BLKDEV_BODY(devtypel) \
 		"if " #devtypel " dev ${devnum}; then " \
 			"setenv devtype " #devtypel "; " \
-			"run scan_dev_for_boot; " \
+			"run scan_dev_for_boot_part; " \
 		"fi\0"
 
 #define BOOTENV_SHARED_BLKDEV(devtypel) \
@@ -165,26 +165,29 @@
 	BOOTENV_BOOT_TARGETS \
 	"bootpart=1\0" \
 	\
+	"boot_syslinux_conf=extlinux/extlinux.conf\0" \
 	"boot_extlinux="                                                  \
-		"sysboot ${devtype} ${devnum}:${bootpart} any "           \
-			"${scriptaddr} ${prefix}extlinux/extlinux.conf\0" \
+		"sysboot ${devtype} ${devnum}:${distro_bootpart} any "    \
+			"${scriptaddr} ${prefix}${boot_syslinux_conf}\0"  \
 	\
 	"scan_dev_for_extlinux="                                          \
-		"if test -e ${devtype} ${devnum}:${bootpart} "            \
-				"${prefix}extlinux/extlinux.conf; then "  \
-			"echo Found ${prefix}extlinux/extlinux.conf; "    \
+		"if test -e ${devtype} "                                  \
+				"${devnum}:${distro_bootpart} "           \
+				"${prefix}${boot_syslinux_conf}; then "   \
+			"echo Found ${prefix}${boot_syslinux_conf}; "     \
 			"run boot_extlinux; "                             \
 			"echo SCRIPT FAILED: continuing...; "             \
 		"fi\0"                                                    \
 	\
 	"boot_a_script="                                                  \
-		"load ${devtype} ${devnum}:${bootpart} "                  \
+		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${scriptaddr} ${prefix}${script}; "              \
 		"source ${scriptaddr}\0"                                  \
 	\
 	"scan_dev_for_scripts="                                           \
 		"for script in ${boot_scripts}; do "                      \
-			"if test -e ${devtype} ${devnum}:${bootpart} "    \
+			"if test -e ${devtype} "                          \
+					"${devnum}:${distro_bootpart} "   \
 					"${prefix}${script}; then "       \
 				"echo Found U-Boot script "               \
 					"${prefix}${script}; "            \
@@ -194,10 +197,22 @@
 		"done\0"                                                  \
 	\
 	"scan_dev_for_boot="                                              \
-		"echo Scanning ${devtype} ${devnum}...; "                 \
+		"echo Scanning ${devtype} "                               \
+				"${devnum}:${distro_bootpart}...; "       \
 		"for prefix in ${boot_prefixes}; do "                     \
 			"run scan_dev_for_extlinux; "                     \
 			"run scan_dev_for_scripts; "                      \
+		"done\0"                                                  \
+	\
+	"scan_dev_for_boot_part="                                         \
+		"part list ${devtype} ${devnum} -bootable devplist; "     \
+		"echo ${devplist}; "  \
+		"for distro_bootpart in ${devplist}; do "                 \
+			"if fstype ${devtype} "                           \
+					"${devnum}:${distro_bootpart} "   \
+					"bootfstype; then "               \
+				"run scan_dev_for_boot; "                 \
+			"fi; "                                            \
 		"done\0"                                                  \
 	\
 	BOOT_TARGET_DEVICES(BOOTENV_DEV)                                  \
