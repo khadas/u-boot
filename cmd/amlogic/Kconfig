@@ -2,6 +2,7 @@ menu "Amlogic commands"
 
 config AML_RPMB
 	depends on OPTEE
+	depends on MMC
 	bool "support RPMB set in bootargs"
 	default y
 	help

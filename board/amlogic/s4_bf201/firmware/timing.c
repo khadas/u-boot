@@ -2508,7 +2508,7 @@ __attribute__ ((section(".misc_param"))) = {
 };
 
 #define DEV_FIP_SIZE 0x300000
-#define DDR_FIP_SIZE 0x40000
+#define DDR_FIP_SIZE 0
 /* for all the storage parameter */
 storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common					={

@@ -414,7 +414,5 @@
 /* config ramdump to debug kernel panic */
 #define CONFIG_FULL_RAMDUMP
 
-#undef CONFIG_AML_BL33_COMPRESS_ENABLE
-
 #endif
 
