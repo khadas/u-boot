@@ -29,12 +29,6 @@ static void cec_init(int logic_addr, unsigned char fun_cfg)
 	writel(tmp, SYSCTRL_STATUS_REG1);
 	printf("cec func:%#x, parm:%#x\n", readl(SYSCTRL_STATUS_REG0),
 		readl(SYSCTRL_STATUS_REG1));
-	printf("%s :%d,%#x\n", __func__, logic_addr, fun_cfg);
-	/*cec_hw_init(logic_addr, fun_cfg);*/
-	writel(fun_cfg, P_AO_DEBUG_REG0);
-	writel(logic_addr, AO_DEBUG_REG1);
-	printf("cec func:%#x, parm:%#x\n", readl(P_AO_DEBUG_REG0),
-		readl(AO_DEBUG_REG1));
 #endif
 }
 
