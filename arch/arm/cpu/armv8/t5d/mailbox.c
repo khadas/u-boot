@@ -14,6 +14,47 @@
 
 //DEFINE_BAKERY_LOCK(mhu_lock);
 
+#define aml_writel32(value, reg)	writel(value, reg)
+#define aml_readl32(reg)		readl(reg)
+
+static inline void mbwrite(uintptr_t to, void *from, long count)
+{
+	int i = 0;
+	int len = count / 4 + (count % 4);
+	u32 *p = from;
+
+	while (len > 0) {
+		aml_writel32(p[i], to + (4 * i));
+		len--;
+		i++;
+	}
+}
+
+static inline void mbclean(uintptr_t to, long count)
+{
+	int i = 0;
+	int len = count / 4 + (count % 4);
+
+	while (len > 0) {
+		aml_writel32(0, to + (4 * i));
+		len--;
+		i++;
+	}
+}
+
+static inline void mbread(void *to, uintptr_t from, long count)
+{
+	int i = 0;
+	int len = count / 4 + (count % 4);
+	u32 *p = to;
+
+	while (len > 0) {
+		p[i] = aml_readl32(from + (4 * i));
+		len--;
+		i++;
+	}
+}
+
 void open_scp_log(unsigned int channel)
 {
 	printf("[BL33]: mbox no open_scp_log\n");
@@ -98,8 +139,8 @@ void mhu_build_payload(uintptr_t mboxpl_addr, void *message, uint32_t size)
                 printf("[BL33]: scpi send input size error\n");
                 return;
         }
-        memset((void *)mboxpl_addr, 0, MHU_PAYLOAD_SIZE);
-        memcpy((char *)mboxpl_addr + MHU_DATA_OFFSET, message, size);
+	mbclean(mboxpl_addr, MHU_PAYLOAD_SIZE);
+	mbwrite(mboxpl_addr + MHU_DATA_OFFSET, message, size);
 }
 
 void mhu_get_payload(uintptr_t mboxpl_addr, void *message, uint32_t size)
@@ -109,8 +150,8 @@ void mhu_get_payload(uintptr_t mboxpl_addr, void *message, uint32_t size)
                 printf("[BL33]: scpi revsize input size error\n");
                 return;
         }
-        memcpy(message, (char *)mboxpl_addr + MHU_DATA_OFFSET, size);
-        memset((void *)mboxpl_addr, 0, MHU_PAYLOAD_SIZE);
+	mbread(message, mboxpl_addr + MHU_DATA_OFFSET, size);
+	mbclean(mboxpl_addr, MHU_PAYLOAD_SIZE);
 }
 
 uint32_t mhu_message_wait(uintptr_t mboxstat_addr)
@@ -124,7 +165,7 @@ uint32_t mhu_message_wait(uintptr_t mboxstat_addr)
 
 void mhu_message_end(uintptr_t mboxpl_addr)
 {
-        memset((void *)mboxpl_addr, 0x0, MHU_PAYLOAD_SIZE);
+	mbclean(mboxpl_addr, MHU_PAYLOAD_SIZE);
 
         //bakery_lock_release(&mhu_lock);
 }

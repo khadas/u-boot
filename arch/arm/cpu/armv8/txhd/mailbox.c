@@ -54,6 +54,22 @@ static unsigned int *scp_mb_payload[] = {
 	(unsigned int *)(P_SHARE_SRAM_BASE + MHU_HIGH_SCP_TO_AP_PAYLOAD),
 };
 
+#define aml_writel32(value, reg)	writel(value, reg)
+#define aml_readl32(reg)		readl(reg)
+
+static inline void mbwrite(uintptr_t to, void *from, long count)
+{
+	int i = 0;
+	int len = count / 4 + (count % 4);
+	u32 *p = from;
+
+	while (len > 0) {
+		aml_writel32(p[i], to + (4 * i));
+		len--;
+		i++;
+	}
+}
+
 static void mb_message_start(unsigned int priority)
 {
 	while (readl(ap_mb_stat[priority]) != 0)
@@ -114,7 +130,7 @@ static void scpi_send_block(unsigned int command,
 {
 	mb_init(priority);
 	mb_message_start(priority);
-	memcpy(ap_mb_payload[priority], message, message_size);
+	mbwrite((uintptr_t)ap_mb_payload[priority], message, message_size);
 	mb_message_send(command, priority);
 	mb_message_wait(priority);
 	mb_message_end(priority);
