@@ -1897,7 +1897,13 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_PIN_MUX_REGD,	   (0x1 << 0),		       (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGD,	   (0x1 << 4),		       (0xf << 4), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGD,	   (0x1 << 8),		       (0xf << 8), 0, 0, 0 },
+
+	/* According to vlsi & hardware, when GPIOM_29 use as input function, need to set:
+	 * 1.Receive enable bit=1, for GPIOM_29,this bit is in PADCTRL_GPIOM_PULL_EN bit28
+	 * 2.DS=0, PADCTRL_GPIOM_DS_EXT bit26-27 to 0(DS=3 if set to output and freq < 50Mhz)
+	 */
 	{ PADCTRL_GPIOM_PULL_EN,   (0x1 << 28),		       (0x1 << 28), 0, 0, 0 },
+	{ PADCTRL_GPIOM_DS_EXT,    (0 << 26),		       (0x3 << 26), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000
