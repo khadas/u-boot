@@ -641,20 +641,20 @@ ddr_reg_t __ddr_reg[] = {
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
 	/* eg: PWM init */
-	/* PWM_A VDDEE_VAL_REG */
-	{ PWMAB_PWM_A,		       VDDEE_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
-	/* PWM_B VCCK_VAL_REG */
-	{ PWMAB_PWM_B,		       VCCK_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
+	/* PWM_A VCCK_VAL_REG */
+	{ PWMAB_PWM_A,		       VCCK_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
+	/* PWMAO_B VDDEE_VAL_REG */
+	{ AO_PWM_PWM_B,	       VDDEE_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
 	/*pwm needs to support full-height or full-low output*/
+	{PWMAB_MISC_REG_AB,	((1 << 0) | (1 << 15) | (1 << 28)), ((1 << 0) | (1 << 15) | (1 << 28)), 0, BL2_INIT_STAGE_1, 0},
 #ifdef PWM_CONSTANT_OUT
-	{PWMAB_MISC_REG_AB,	((3 << 0) | (1 << 15) | (1 << 23) | (1 << 28)),  0xffffffff, 0, BL2_INIT_STAGE_1, 0},
+	{AO_PWM_MISC_REG_AB,	((1 << 1) | (1 << 23) | (1 << 29)), ((1 << 1) | (1 << 23) | (1 << 29))), 0, BL2_INIT_STAGE_1, 0},
 #else
-	{PWMAB_MISC_REG_AB,	((3 << 0) | (1 << 15) | (1 << 23)), 0xffffffff, 0, BL2_INIT_STAGE_1, 0},
+	{AO_PWM_MISC_REG_AB,	((1 << 1) | (1 << 23)), ((1 << 1) | (1 << 23)), 0, BL2_INIT_STAGE_1, 0},
 #endif
-	/* SET GPIOE_0 GPIOE_1 DS to 3 */
-	{ AO_PAD_DS_B,		       (0xF << 0),			   (0xF << 0),	 0, BL2_INIT_STAGE_1, 0 },
-	/* MUX GPIOE_0 to PWM_A GPIOE_1 to PWM_B */
-	{ AO_RTI_PINMUX_REG1,	       ((1 << 16) | (1 << 20)),		   (0xFF << 16), 0, BL2_INIT_STAGE_1, 0 },
+	/* MUX GPIOAO_9 to PWMAO_B GPIOZ5 to PWM_A */
+	{ AO_RTI_PINMUX_REG1,	       (4 << 4),		   (0xF << 4), 0, BL2_INIT_STAGE_1, 0 },
+	{ PERIPHS_PIN_MUX_4,	       (1 << 20),		   (0xF << 20), 0, BL2_INIT_STAGE_1, 0 },
 	/* Enable VCCK SET GPIOD_10 HIGH */
 	{ AO_RTI_PINMUX_REG1,	       (0 << 8),			   (0xF << 8),	 0, BL2_INIT_STAGE_1, 0 },
 	{ AO_GPIO_O_EN_N,	       (0 << 10),			   (1 << 10),	 0, BL2_INIT_STAGE_1, 0 },
