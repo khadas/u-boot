@@ -367,6 +367,8 @@ static const char *disp_mode_t[] = {
 	NULL
 };
 
+static bool hdmi_sink_disp_mode_sup(struct input_hdmi_data *hdmi_data, char *disp_mode);
+
 static bool is_best_outputmode(void)
 {
 	char *is_bestmode = env_get("is.bestmode");
@@ -682,6 +684,42 @@ static void update_dv_attr(struct input_hdmi_data *hdmi_data, char *dv_attr)
 	printf("dv_type :%d dv_attr:%s", dv_type, dv_attr);
 }
 
+static bool is_dv_support_mode(struct input_hdmi_data *hdmi_data, char *mode)
+{
+	bool valid = false;
+	struct dv_info *dv = NULL;
+	char dv_displaymode[MODE_LEN] = {0};
+
+	if (!hdmi_data || !mode)
+		return false;
+
+	dv = &hdmi_data->prxcap->dv_info;
+	/* maximum DV mode */
+	if (dv->sup_2160p60hz == 1)
+		strcpy(dv_displaymode, DV_MODE_4K2K60HZ);
+	else
+		strcpy(dv_displaymode, DV_MODE_4K2K30HZ);
+
+	if (!hdmi_sink_disp_mode_sup(hdmi_data, mode))
+		return false;
+
+	if (!strcmp(mode, MODE_1080P100HZ)) {
+		if (dv->sup_1080p120hz)
+			valid = true;
+	} else if (!strcmp(mode, MODE_1080P100HZ)) {
+		if (dv->sup_1080p120hz)
+			valid = true;
+	} else if ((resolve_resolution_value(mode, RESOLUTION_PRIORITY) <
+		resolve_resolution_value(dv_displaymode, RESOLUTION_PRIORITY)) &&
+		(strcmp(mode, "480p") && strcmp(mode, "576p") &&
+		strcmp(mode, "smpte") && strcmp(mode, "4096") &&
+		!strstr(mode, "i"))) {
+		/* sync with system, don't support DV under some mode, refer to SWPL-83949 */
+		valid = true;
+	}
+	return valid;
+}
+
 static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
 	char *final_displaymode)
 {
@@ -696,13 +734,24 @@ static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
 
 	strcpy(cur_outputmode, hdmi_data->ubootenv_hdmimode);
 	dv = &hdmi_data->prxcap->dv_info;
+	/* maximum DV mode */
 	if (dv->sup_2160p60hz == 1)
 		strcpy(dv_displaymode, DV_MODE_4K2K60HZ);
 	else
 		strcpy(dv_displaymode, DV_MODE_4K2K30HZ);
 
 	if (is_best_outputmode()) {
-		if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
+		if (dv->parity) {
+			/* TV support dolby vision 2160p60hz case */
+			if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
+				if (dv_type == DOLBY_VISION_LL_RGB)
+					strcpy(final_displaymode, DV_MODE_1080P);
+				else
+					strcpy(final_displaymode, DV_MODE_4K2K60HZ);
+			} else {
+				strcpy(final_displaymode, DV_MODE_1080P);
+			}
+		} else if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
 			if (dv_type == DOLBY_VISION_LL_RGB)
 				strcpy(final_displaymode, DV_MODE_1080P);
 			 else
@@ -717,13 +766,21 @@ static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
 		}
 	} else {
 		/* if current disp_mode is outside of maximum dv disp_mode */
-		if ((resolve_resolution_value(cur_outputmode, RESOLUTION_PRIORITY) >
-		     resolve_resolution_value(dv_displaymode, RESOLUTION_PRIORITY)) ||
-		    (strstr(cur_outputmode, "smpte") != NULL) ||
-		    (strstr(cur_outputmode, "i") != NULL))
-			strcpy(final_displaymode, dv_displaymode);
-		else
+		if (!is_dv_support_mode(hdmi_data, cur_outputmode)) {
+			if (!strcmp(dv_displaymode, MODE_4K2K30HZ) ||
+				!strcmp(dv_displaymode, MODE_4K2K25HZ) ||
+				!strcmp(dv_displaymode, MODE_4K2K24HZ)) {
+				/* TV support dolby vision support 2160p30/25/24hz
+				 * prefer 1080p
+				 */
+				strcpy(final_displaymode, MODE_1080P);
+			} else {
+				/* use maximum DV mode */
+				strcpy(final_displaymode, dv_displaymode);
+			}
+		} else {
 			strcpy(final_displaymode, cur_outputmode);
+		}
 	}
 
 	printf("final_displaymode:%s, cur_outputmode:%s, dv_displaymode:%s",

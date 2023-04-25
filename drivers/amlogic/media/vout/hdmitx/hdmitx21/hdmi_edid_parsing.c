@@ -250,6 +250,9 @@ static void edid_parsingvendspec(struct rx_cap *prxcap,
 				dv->tminPQ = dat[pos] >> 3;
 				pos++;
 				dv->Interface = dat[pos] & 0x3;
+				dv->parity = (dat[pos] >> 2) & 0x1;
+				/* if parity = 0, then not support > 60hz nor 8k */
+				dv->sup_1080p120hz = dv->parity;
 				dv->tmaxPQ = dat[pos] >> 3;
 				pos++;
 				dv->sup_10b_12b_444 = ((dat[pos] & 0x1) << 1) |

@@ -394,11 +394,12 @@ struct dv_info {
 	uint32_t ieeeoui;
 	uint8_t ver; /* 0 or 1 or 2*/
 	uint8_t length;/*ver1: 15 or 12*/
-
-	uint8_t sup_yuv422_12bit:1;
 	/* if as 0, then support RGB tunnel mode */
-	uint8_t sup_2160p60hz:1;
+	uint8_t sup_yuv422_12bit:1;
 	/* if as 0, then support 2160p30hz */
+	uint8_t sup_2160p60hz:1;
+	/* if equals 0, then don't support 1080p100/120hz */
+	u8 sup_1080p120hz:1;
 	uint8_t sup_global_dimming:1;
 	uint16_t Rx;
 	uint16_t Ry;
@@ -420,6 +421,7 @@ struct dv_info {
 	uint8_t sup_backlight_control:1;/*only ver2*/
 	uint8_t backlt_min_luma;/*only ver2*/
 	uint8_t Interface;/*only ver2*/
+	u8 parity:1;/*only ver2*/
 	uint8_t sup_10b_12b_444;/*only ver2*/
 	uint8_t support_DV_RGB_444_8BIT;
 	uint8_t support_LL_YCbCr_422_12BIT;

@@ -473,6 +473,9 @@ static int check_tv_support_dv(struct hdmitx_dev *hdmitx_device)
 			printf("check_tv_support_dv: 4k60 dovi NOT supported\n");
 			return 0;
 		}
+	} else if (strstr(outputmode, "100hz") || strstr(outputmode, "120hz")) {
+		if (!dv_info->sup_1080p120hz)
+			return 0;
 	} else if (!check_outputmode()) {
 		/* currently all sink not support 4k100/120 and 8k dv */
 	    /*in the future, some new flag in vsvdb will be used to judge dv cap*/
