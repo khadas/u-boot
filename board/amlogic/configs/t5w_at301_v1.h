@@ -364,8 +364,27 @@
             "fi;"\
             "\0"\
         "init_display="\
-		"watermark_init;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;vout output ${outputmode}"\
-            "\0"\
+		"get_rebootmode;"\
+		"echo reboot_mode:::: ${reboot_mode};"\
+		"if test ${reboot_mode} = quiescent; then "\
+			"setenv dolby_status 0;"\
+			"setenv dolby_vision_on 0;"\
+			"run storeargs;"\
+			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"osd open;osd clear;"\
+		"else if test ${reboot_mode} = recovery_quiescent; then "\
+			"setenv dolby_status 0;"\
+			"setenv dolby_vision_on 0;"\
+			"run storeargs;"\
+			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"osd open;osd clear;"\
+		"else "\
+			"run storeargs;"\
+			"watermark_init;osd open;osd clear;"\
+			"imgread pic logo bootup $loadaddr;bmp display $bootup_offset;"\
+			"bmp scale;vout output ${outputmode}"\
+		"fi;fi;"\
+		"\0"\
         "check_display="\
             "if test ${reboot_mode} = cold_boot; then "\
                 "if test ${powermode} = standby; then "\
@@ -450,7 +469,7 @@
 #define CONFIG_PREBOOT  \
 	"run factory_reset_poweroff_protect;"\
 	"run upgrade_check;"\
-	/* "run init_display;"\ */\
+	"run init_display;"\
 	"run check_display;"\
 	"run storeargs;"\
 	"bcb uboot-command;"\

@@ -248,8 +248,25 @@
 			"run load_bmp_logo_base;"\
 			"\0"\
 	"init_display="\
-		"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
-		"\0"\
+	"get_rebootmode;"\
+	"echo reboot_mode:::: ${reboot_mode};"\
+	"if test ${reboot_mode} = quiescent; then "\
+		"setenv dolby_status 0;"\
+		"setenv dolby_vision_on 0;"\
+		"run storeargs;"\
+		"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+		"osd open;osd clear;"\
+	"else if test ${reboot_mode} = recovery_quiescent; then "\
+		"setenv dolby_status 0;"\
+		"setenv dolby_vision_on 0;"\
+		"run storeargs;"\
+		"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+		"osd open;osd clear;"\
+	"else "\
+		"run storeargs;"\
+		"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"fi;fi;"\
+	"\0"\
 	"check_display="\
 		"echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
 		"if test ${reboot_mode} = ffv_reboot; then "\
@@ -292,7 +309,7 @@
 
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
-	/* "run init_display;"\ */\
+	"run init_display;"\
 	"get_rebootmode;"\
 	"run check_display;"\
 	"run storeargs;"\
