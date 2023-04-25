@@ -53,6 +53,9 @@
 #define CONFIG_FAT_WRITE 1
 //#define CONFIG_AML_FACTORY_PROVISION 1
 
+#define CONFIG_AML_DEV_ID
+#define CONFIG_SUPPORT_EMMC_RPMB  1
+
 #define CONFIG_AML_WATERMARK 1
 
 /* Bootloader Control Block function
