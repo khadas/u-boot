@@ -1676,6 +1676,8 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_YUV422);
 				hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_FUL);
 			}
+			if (hdmi_vic_4k_flag)
+				hdmi_avi_infoframe_config(CONF_AVI_VIC, vic);
 			hdev->dv_en = 1;
 		}
 		/*Dolby Vision low-latency case*/
@@ -1699,13 +1701,27 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmi_avi_infoframe_config(CONF_AVI_CS, HDMI_COLORSPACE_YUV422);
 				hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			}
+			if (hdmi_vic_4k_flag)
+				hdmi_avi_infoframe_config(CONF_AVI_VIC, vic);
 			hdev->dv_en = 1;
 		} else { /*SDR case*/
 			if (hdmi_vic_4k_flag) {
+				VEN_HB[2] = 0x5;
 				VEN_DB1[0] = 0x03;
 				VEN_DB1[1] = 0x0c;
 				VEN_DB1[2] = 0x00;
+				VEN_DB1[3] = 0x20;
+				if (vic == HDMI_95_3840x2160p30_16x9)
+					VEN_DB1[4] = 0x1;
+				else if (vic == HDMI_94_3840x2160p25_16x9)
+					VEN_DB1[4] = 0x2;
+				else if (vic == HDMI_93_3840x2160p24_16x9)
+					VEN_DB1[4] = 0x3;
+				else if (vic == HDMI_98_4096x2160p24_256x135)
+					VEN_DB1[4] = 0x4;
 				hdmi_vend_infoframe_rawset(VEN_HB, db1);
+				/* clear vic from AVI*/
+				hdmi_avi_infoframe_config(CONF_AVI_VIC, 0);
 			} else {
 				hdmi_vend_infoframe_rawset(NULL, NULL);
 			}
@@ -1725,6 +1741,8 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 {
 	unsigned char VEN_HB[3] = {0x81, 0x01, 0x1b};
 	unsigned char VEN_DB[28] = {0x00};
+	struct hdmitx_dev *hdev = &hdmitx_device;
+	unsigned int vic = hdev->vic;
 
 	if (!data || !flag) {
 		pr_info("%s: null vsif\n", __func__);
@@ -1768,6 +1786,11 @@ void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 
 	hdmi_vend_infoframe_rawset(VEN_HB, VEN_DB);
 	hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);
+	if (vic == HDMI_95_3840x2160p30_16x9 ||
+	vic == HDMI_94_3840x2160p25_16x9 ||
+	vic == HDMI_93_3840x2160p24_16x9 ||
+	vic == HDMI_98_4096x2160p24_256x135)
+		hdmi_avi_infoframe_config(CONF_AVI_VIC, vic);
 }
 
 static void hdmitx_set_phy(struct hdmitx_dev *hdev)

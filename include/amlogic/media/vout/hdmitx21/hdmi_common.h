@@ -561,6 +561,7 @@ enum avi_component_conf {
 	CONF_AVI_BT2020,
 	CONF_AVI_Q01,
 	CONF_AVI_YQ01,
+	CONF_AVI_VIC,
 	CONF_AVI_RGBYCC_INDIC,
 };
 
