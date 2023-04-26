@@ -19,6 +19,9 @@ static void lcd_venc_wait_vsync(struct aml_lcd_drv_s *pdrv)
 	int line_cnt, line_cnt_previous;
 	int i = 0;
 
+#ifdef CONFIG_AML_LCD_PXP
+	return;
+#endif
 	line_cnt = 0x1fff;
 	line_cnt_previous = lcd_vcbus_getb(ENCL_INFO_READ, 16, 13);
 	while (i++ < LCD_WAIT_VSYNC_TIMEOUT) {

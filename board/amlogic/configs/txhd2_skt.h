@@ -84,11 +84,11 @@
         "upgrade_step=0\0"\
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
-        "model_name=FHD2HDMI\0" \
-        "panel_type=lvds_1\0" \
+		"model_name=FHD2HDMI\0" \
+		"panel_type=mipi_0\0" \
 		"panel_name=null\0" \
-        "lcd_ctrl=0x00000000\0" \
-        "outputmode=1080p60hz\0" \
+		"lcd_ctrl=0x00000000\0" \
+		"outputmode=panel\0" \
         "hdmimode=1080p60hz\0" \
         "cvbsmode=576cvbs\0" \
 	"vout_init=disable\0" \
@@ -462,7 +462,7 @@
 //#define CONFIG_BOOTCOMMAND "echo bootcomand"
 #endif //CONFIG_PXP_EMULATOR
 
-//#define CONFIG_ENV_IS_NOWHERE  1
+#define CONFIG_ENV_IS_NOWHERE  1
 
 #ifndef CONFIG_PXP_EMULATOR
 //#define CONFIG_ENV_IS_NOWHERE  1

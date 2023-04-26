@@ -182,6 +182,17 @@ static __maybe_unused struct aml_lcd_data_s lcd_data_a4 = {
 	.dft_conf = {NULL, NULL, NULL},
 };
 
+static struct aml_lcd_data_s lcd_data_txhd2 = {
+	.chip_type = LCD_CHIP_TXHD2,
+	.chip_name = "txhd2",
+	.rev_type = 0,
+	.drv_max = 1,
+	.offset_venc = {0x0},
+	.offset_venc_if = {0x0},
+	.offset_venc_data = {0x0},
+	.dft_conf = {NULL, NULL, NULL},
+};
+
 static void lcd_chip_detect(void)
 {
 #if 1
@@ -233,17 +244,20 @@ static void lcd_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_A4:
 		lcd_data = &lcd_data_a4;
 		break;
+	case MESON_CPU_MAJOR_ID_TXHD2:
+		lcd_data = &lcd_data_txhd2;
+		break;
 	default:
 		lcd_data = NULL;
 		return;
 	}
 	lcd_data->rev_type = rev_type;
 #else
-	lcd_data = &lcd_data_t7;
+	lcd_data = &lcd_data_txhd2;
 #endif
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDPR("check chip: %d %s\n",
-		      lcd_data->chip_type, lcd_data->chip_name);
+			lcd_data->chip_type, lcd_data->chip_name);
 	}
 }
 
@@ -792,6 +806,11 @@ static int lcd_config_probe(void)
 #else
 	dt_addr = (char *)0x01000000;
 #endif
+
+#ifdef CONFIG_AML_LCD_PXP
+	dt_addr = (char *)0x06000000;
+#endif
+
 #ifdef CONFIG_OF_LIBFDT
 	if (fdt_check_header(dt_addr) < 0) {
 		LCDERR("check dts: %s, load default lcd parameters\n",

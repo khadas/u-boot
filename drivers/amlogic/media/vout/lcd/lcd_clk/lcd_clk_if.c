@@ -249,14 +249,16 @@ void lcd_set_clk(struct aml_lcd_drv_s *pdrv)
 	if (!cconf)
 		return;
 
+#ifdef CONFIG_AML_LCD_PXP
+	if (cconf->data->vclk_crt_set)
+		cconf->data->vclk_crt_set(pdrv);
+	return;
+#endif
 lcd_set_clk_retry:
 	if (cconf->data->clk_set)
 		cconf->data->clk_set(pdrv);
 	if (cconf->data->vclk_crt_set)
 		cconf->data->vclk_crt_set(pdrv);
-#ifdef CONFIG_AML_LCD_PXP
-	return;
-#endif
 	mdelay(10);
 
 	while (lcd_clk_msr_check(cconf->data->enc_clk_msr_id, (cconf->fout / 1000))) {
@@ -333,6 +335,7 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 		lcd_clk_config_chip_init_t5(pdrv, cconf);
 		break;
 	case LCD_CHIP_T5D:
+	case LCD_CHIP_TXHD2:
 		lcd_clk_config_chip_init_t5d(pdrv, cconf);
 		break;
 	case LCD_CHIP_T7:
