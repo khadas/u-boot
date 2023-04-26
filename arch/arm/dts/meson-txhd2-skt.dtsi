@@ -158,7 +158,7 @@
 
 /* eMMC */
 &sd_emmc_c {
-	status = "disabled";
+	status = "okay";
 	pinctrl-0 = <&emmc_pins>;
 	pinctrl-names = "default";
 
@@ -193,7 +193,7 @@
 
 /* nand */
 &nand {
-	status = "okay";
+	status = "disabled";
 	pinctrl-names = "default", "nand_cs_only";
 	pinctrl-0 = <&all_nand_pins>;
 	pinctrl-1 = <&nand_cs_pins>;

@@ -476,14 +476,14 @@
 
 	emmc_pins: emmc {
 		mux {
-			groups = "emmc_nand_d0",
-				"emmc_nand_d1",
-				"emmc_nand_d2",
-				"emmc_nand_d3",
-				"emmc_nand_d4",
-				"emmc_nand_d5",
-				"emmc_nand_d6",
-				"emmc_nand_d7",
+			groups = "emmc_d0",
+				"emmc_d1",
+				"emmc_d2",
+				"emmc_d3",
+				"emmc_d4",
+				"emmc_d5",
+				"emmc_d6",
+				"emmc_d7",
 				"emmc_clk",
 				"emmc_cmd";
 			function = "emmc";
@@ -491,7 +491,7 @@
 			input-enable;
 		};
 		mux1 {
-			groups = "emmc_nand_ds";
+			groups = "emmc_ds";
 			function = "emmc";
 			input-enable;
 			bias-pull-down;
