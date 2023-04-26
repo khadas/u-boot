@@ -27,6 +27,7 @@
 #include <asm/byteorder.h>
 #include <amlogic/hdmi.h>
 #include <amlogic/dolby_vision.h>
+#include <amlogic/edid-decode.h>
 #ifdef CONFIG_AML_LCD
 #include <amlogic/aml_lcd.h>
 #endif
@@ -153,32 +154,59 @@ static void dump_full_edid(const unsigned char *buf)
 	}
 }
 
+/* 500ms for each retry, total 10 retry */
+#define EDID_RETRY_WAITTIME 500
 static int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	unsigned int tmp_addr = 0;
-	unsigned char edid_addr = 0;
-	unsigned char st = 0;
+	unsigned int byte_num = 0;
+	unsigned char blk_no = 1;
+	unsigned char count = 0;
+	struct hdmitx_dev *hdev = &hdmitx_device;
 
-	memset(edid_raw_buf, 0, ARRAY_SIZE(edid_raw_buf));
-	if (argc < 2)
-		return cmd_usage(cmdtp);
-	if (strcmp(argv[1], "read") == 0) {
-		tmp_addr = simple_strtoul(argv[2], NULL, 16);
-		if (tmp_addr > 0xff)
-			return cmd_usage(cmdtp);
-		edid_addr = tmp_addr;
-		/* read edid raw data */
-		/* current only support read 1 byte edid data */
-		st = hdmitx_device.HWOp.read_edid(
-			&edid_raw_buf[edid_addr & 0xf8], edid_addr & 0xf8, 8);
-		printf("edid[0x%02x]: 0x%02x\n", edid_addr,
-			edid_raw_buf[edid_addr]);
-		if (0) /* Debug only */
-			dump_edid_raw_8bytes(&edid_raw_buf[edid_addr & 0xf8]);
-		if (!st)
-			printf("edid read failed\n");
+	if (!hdev) {
+		printf("null hdmitx dev\n");
+		return CMD_RET_FAILURE;
 	}
-	return st;
+	memset(edid_raw_buf, 0, ARRAY_SIZE(edid_raw_buf));
+	if (argc < 1)
+		return cmd_usage(cmdtp);
+	if (!hdev->HWOp.get_hpd_state()) {
+		printf("HDMI cable is NOT connected\n");
+		return CMD_RET_FAILURE;
+	}
+READ_EDID:
+	/* get edid data */
+	while (byte_num < 128 * blk_no) {
+		hdev->HWOp.read_edid(&edid_raw_buf[byte_num], byte_num & 0x7f, byte_num / 128);
+		if (byte_num == 120) {
+			blk_no = edid_raw_buf[126] + 1;
+			if (blk_no > 4)
+				blk_no = 4; /* MAX Read Blocks 4 */
+			}
+		byte_num += 8;
+	}
+
+	if (0)
+		printf("edid read failed\n");
+	else {
+#ifdef DEBUG_DUMPEDID
+		/* dump all raw data */
+		dump_full_edid(edid_raw_buf);
+#endif
+		/* parsing edid data */
+		if (-EDID_ERR_RETRY == parse_edid(edid_raw_buf, blk_no, count)) {
+			printf("hdmitx: read edid fails.. retry..\n");
+			mdelay(EDID_RETRY_WAITTIME);
+			count++;
+			goto READ_EDID;
+		}
+
+		/* select best resolution */
+		setenv("hdmimode", select_best_resolution());
+		setenv("vout", getenv("hdmimode"));
+		setenv("outputmode", getenv("hdmimode"));
+	}
+	return CMD_RET_SUCCESS;
 }
 
 static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
