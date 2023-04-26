@@ -1382,11 +1382,11 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 		lcd_debug_info_if_mlvds.reg_dump_interface =
 			lcd_reg_print_tcon_t3;
 		lcd_debug_info_if_mlvds.reg_dump_phy =
-			lcd_reg_print_phy_analog_t3;
+			lcd_reg_print_phy_analog_t7;
 		lcd_debug_info_if_p2p.reg_dump_interface =
 			lcd_reg_print_tcon_t3;
 		lcd_debug_info_if_p2p.reg_dump_phy =
-			lcd_reg_print_phy_analog_t3;
+			lcd_reg_print_phy_analog_t7;
 #endif
 		break;
 

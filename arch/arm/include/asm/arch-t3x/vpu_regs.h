@@ -9,7 +9,7 @@
 #define __INC_AML_VPU_REG_H__
 
 /*tcon*/
-#define REG_TCON_APB_BASE                          (0xfe3b0000L)
+#define REG_TCON_APB_BASE                          (0xfe380000L)
 #define TCON_CORE_REG_START                        0x0000
 #define TCON_CTRL_TIMING_BASE                      0x01b0
 #define TCON_TOP_CTRL                              0x2000

@@ -159,6 +159,60 @@ static void lcd_vbyone_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 	}
 }
 
+static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
+{
+	unsigned int p2p_type, vcm_flag;
+	struct p2p_config_s *p2p_conf;
+	struct phy_config_s *phy = &pdrv->config.phy_cfg;
+	unsigned int com_data = 0;
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
+		LCDPR("%s: %d\n", __func__, status);
+
+	p2p_conf = &pdrv->config.control.p2p_cfg;
+
+	if (status) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+			LCDPR("vswing_level=0x%x, ext_pullup=%d\n",
+			      phy->vswing_level, phy->ext_pullup);
+		}
+		p2p_type = p2p_conf->p2p_type & 0x1f;
+		vcm_flag = (p2p_conf->p2p_type >> 5) & 0x1;
+
+		switch (p2p_type) {
+		case P2P_CEDS:
+		case P2P_CMPI:
+		case P2P_ISP:
+		case P2P_EPI:
+			com_data = 0xff2027a0 | phy->vswing;
+			break;
+		case P2P_CHPI: /* low common mode */
+		case P2P_CSPI:
+		case P2P_USIT:
+			if (p2p_type == P2P_CHPI)
+				phy->weakly_pull_down = 1;
+
+			if (vcm_flag) /* 580mV */
+				com_data = 0xe0600272;
+			else /* default 385mV */
+				com_data = 0xfe60027f;
+
+			/* vswing */
+			com_data &= ~(0xf);
+			com_data |= phy->vswing;
+			break;
+		default:
+			LCDERR("%s: invalid p2p_type %d\n", __func__, p2p_type);
+			return;
+		}
+
+		lcd_phy_common_update(phy, com_data);
+		lcd_phy_cntl_set(pdrv, phy, status, 1, 1, 0);
+	} else {
+		lcd_phy_cntl_set(pdrv, phy, status, 1, 0, 0);
+	}
+}
+
 static struct lcd_phy_ctrl_s lcd_phy_ctrl_t3x = {
 	.lane_lock = 0,
 	.ctrl_bit_on = 1,
@@ -167,7 +221,7 @@ static struct lcd_phy_ctrl_s lcd_phy_ctrl_t3x = {
 	.phy_set_lvds = lcd_lvds_phy_set,
 	.phy_set_vx1 = lcd_vbyone_phy_set,
 	.phy_set_mlvds = NULL,
-	.phy_set_p2p = NULL,
+	.phy_set_p2p = lcd_p2p_phy_set,
 	.phy_set_mipi = NULL,
 	.phy_set_edp = NULL,
 };

@@ -678,7 +678,20 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 
 	pdrv->boot_ctrl.lcd_type = pdrv->config.basic.lcd_type;
 	pdrv->boot_ctrl.lcd_bits = pdrv->config.basic.lcd_bits;
-	pdrv->boot_ctrl.ppc = pdrv->config.timing.ppc;
+	pdrv->boot_ctrl.clk_mode = pdrv->config.timing.clk_mode;
+	pdrv->boot_ctrl.base_frame_rate = pdrv->config.timing.base_frame_rate;
+	switch (pdrv->config.timing.ppc) {
+	case 2:
+		pdrv->boot_ctrl.ppc = LCD_VENC_2PPC;
+		break;
+	case 4:
+		pdrv->boot_ctrl.ppc = LCD_VENC_4PPC;
+		break;
+	case 1:
+	default:
+		pdrv->boot_ctrl.ppc = LCD_VENC_1PPC;
+		break;
+	}
 	switch (pdrv->config.basic.lcd_type) {
 	case LCD_RGB:
 		pdrv->boot_ctrl.advanced_flag =
@@ -696,7 +709,9 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	pdrv->boot_ctrl.init_level = env_get_ulong("lcd_init_level", 10, 0);
 
 	/*
-	 *bit[31:20]: reserved
+	 *bit[31:23]: base frame rate
+	 *bit[23:22]: clk_mode
+	 *bit[21:20]: ppc
 	 *bit[19:18]: lcd_init_level
 	 *bit[17]: reserved
 	 *bit[16]: custom pinmux flag
@@ -709,8 +724,18 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	val |= (pdrv->boot_ctrl.advanced_flag & 0xff) << 8;
 	val |= (pdrv->boot_ctrl.custom_pinmux & 0x1) << 16;
 	val |= (pdrv->boot_ctrl.init_level & 0x3) << 18;
-	val |= (pdrv->boot_ctrl.ppc & 0xf) << 24;
-	LCDPR("%s boot ppc=%d, val=0x%x\n", __func__, pdrv->boot_ctrl.ppc, val);
+	val |= (pdrv->boot_ctrl.ppc & 0x3) << 20;
+	val |= (pdrv->boot_ctrl.clk_mode & 0x3) << 22;
+	val |= (pdrv->boot_ctrl.base_frame_rate & 0xff) << 24;
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
+		LCDPR("[%d]: %s: ppc=%d, clk_mode=%d, base_fr=%d, bootctrl val=0x%x\n",
+			pdrv->index, __func__,
+			pdrv->config.timing.ppc,
+			pdrv->config.timing.clk_mode,
+			pdrv->config.timing.base_frame_rate, val);
+	}
+
 	sprintf(ctrl_str, "0x%08x", val);
 
 	if (strlen(pdrv->config.basic.model_name) > 0) {
@@ -827,16 +852,16 @@ static int lcd_config_probe(void)
 					load_id_temp &= ~(1 << 4);
 			}
 
-			lcd_clk_config_probe(pdrv);
 			ret = lcd_get_config(dt_addr, load_id_temp, pdrv);
 			if (ret) {
 				lcd_driver_remove(i);
 				continue;
 			}
+			lcd_clk_config_probe(pdrv);
 			lcd_phy_probe(pdrv);
 			lcd_debug_probe(pdrv);
-			lcd_update_ctrl_bootargs(pdrv);
 			lcd_mode_init(pdrv);
+			lcd_update_ctrl_bootargs(pdrv);
 		}
 	} else {
 		for (i = 0; i < lcd_data->drv_max; i++) {
@@ -859,16 +884,16 @@ static int lcd_config_probe(void)
 					load_id_temp &= ~(1 << 4);
 			}
 
-			lcd_clk_config_probe(pdrv);
 			ret = lcd_get_config(dt_addr, load_id_temp, pdrv);
 			if (ret) {
 				lcd_driver_remove(i);
 				continue;
 			}
+			lcd_clk_config_probe(pdrv);
 			lcd_phy_probe(pdrv);
 			lcd_debug_probe(pdrv);
-			lcd_update_ctrl_bootargs(pdrv);
 			lcd_mode_init(pdrv);
+			lcd_update_ctrl_bootargs(pdrv);
 		}
 	}
 

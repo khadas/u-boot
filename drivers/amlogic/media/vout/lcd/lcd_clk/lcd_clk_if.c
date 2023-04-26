@@ -299,9 +299,20 @@ void lcd_clk_config_print(struct aml_lcd_drv_s *pdrv)
 
 void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf)
 {
-	cconf->pll_id = 0;
-	cconf->pll_offset = 0;
-	cconf->fin = FIN_FREQ;
+	unsigned int i;
+	struct lcd_clk_config_s *pclk_conf;
+	unsigned int clk_mode = pdrv->config.timing.clk_mode;
+	unsigned int loop_num = 1;
+
+	if (clk_mode == LCD_CLK_MODE_INDEPENDENCE)
+		loop_num = 2;
+
+	for (i = 0; i < loop_num; i++) {
+		pclk_conf = &cconf[i];
+		pclk_conf->pll_id = 0;
+		pclk_conf->pll_offset = 0;
+		pclk_conf->fin = FIN_FREQ;
+	}
 	switch (pdrv->data->chip_type) {
 	case LCD_CHIP_G12A:
 	case LCD_CHIP_SM1:
@@ -361,9 +372,14 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 void lcd_clk_config_probe(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
+	unsigned int size = sizeof(struct lcd_clk_config_s);
+	unsigned int clk_mode = pdrv->config.timing.clk_mode;
+
+	if (clk_mode == LCD_CLK_MODE_INDEPENDENCE)
+		size = 2 * sizeof(struct lcd_clk_config_s);
 
 	if (!pdrv->clk_conf) {
-		cconf = (struct lcd_clk_config_s *)malloc(sizeof(struct lcd_clk_config_s));
+		cconf = (struct lcd_clk_config_s *)malloc(size);
 		if (!cconf) {
 			LCDERR("[%d]: %s: Not enough memory\n", pdrv->index, __func__);
 			return;
@@ -372,7 +388,7 @@ void lcd_clk_config_probe(struct aml_lcd_drv_s *pdrv)
 	} else {
 		cconf = (struct lcd_clk_config_s *)pdrv->clk_conf;
 	}
-	memset(cconf, 0, sizeof(struct lcd_clk_config_s));
+	memset(cconf, 0, size);
 
 	lcd_clk_config_chip_init(pdrv, cconf);
 }

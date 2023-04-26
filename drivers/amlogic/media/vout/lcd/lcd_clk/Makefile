@@ -4,5 +4,6 @@ obj-$(CONFIG_AML_LCD) += lcd_clk_g12.o
 obj-$(CONFIG_AML_LCD) += lcd_clk_t5w.o
 obj-$(CONFIG_AML_LCD) += lcd_clk_t7_t3.o
 obj-$(CONFIG_AML_LCD) += lcd_clk_tl1_tm2_t5_t5d.o
+obj-$(CONFIG_AML_LCD) += lcd_clk_t3x.o
 obj-$(CONFIG_AML_LCD) += lcd_clk_utils.o
 obj-$(CONFIG_AML_LCD) += lcd_clk_if.o

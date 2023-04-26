@@ -747,7 +747,7 @@ static int handle_lcd_timming(struct lcd_attr_s *p_attr)
 static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 {
 	const char *ini_value = NULL;
-	unsigned char ppc = 1;
+	unsigned char clk_auto, clk_mode, ppc, custom_pinmux;
 
 	ini_value = IniGetString("lcd_Attr", "fr_adjust_type", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -762,13 +762,13 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 	ini_value = IniGetString("lcd_Attr", "clk_auto_gen", "1");
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, clk_auto_gen is (%s)\n", __func__, ini_value);
-	p_attr->customer.clk_auto_gen = strtoul(ini_value, NULL, 0);
+	clk_auto = strtoul(ini_value, NULL, 0);
 
-	ini_value = IniGetString("lcd_Attr", "ppc_mode", "1");
+	ini_value = IniGetString("lcd_Attr", "clk_mode", "0");
 	if (model_debug_flag & DEBUG_LCD)
-		ALOGD("%s, ppc_mode  is (%s)\n", __func__, ini_value);
-	ppc = strtoul(ini_value, NULL, 0);
-	p_attr->customer.clk_auto_gen |= ((ppc & 0xf) << 4);
+		ALOGD("%s, clk_mode is (%s)\n", __func__, ini_value);
+	clk_mode = strtoul(ini_value, NULL, 0);
+	p_attr->customer.custom_val0 = ((clk_mode & 0xf) << 4) | (clk_auto & 0xf);
 
 	ini_value = IniGetString("lcd_Attr", "pixel_clk", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -828,13 +828,19 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 	ini_value = IniGetString("lcd_Attr", "custom_pinmux", "0");
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, custom_pinmux is (%s)\n", __func__, ini_value);
-	p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
-	if (p_attr->customer.custom_pinmux == 0) {
+	custom_pinmux = strtoul(ini_value, NULL, 0);
+	if (custom_pinmux == 0) {
 		ini_value = IniGetString("lcd_Attr", "customer_value_9", "0");
 		if (model_debug_flag & DEBUG_LCD)
 			ALOGD("%s, customer_value_9 is (%s)\n", __func__, ini_value);
-		p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
+		custom_pinmux = strtoul(ini_value, NULL, 0);
 	}
+
+	ini_value = IniGetString("lcd_Attr", "ppc_mode", "1");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, ppc_mode is (%s)\n", __func__, ini_value);
+	ppc = strtoul(ini_value, NULL, 0);
+	p_attr->customer.custom_val1 = ((ppc & 0xf) << 4) | (custom_pinmux & 0xf);
 
 	ini_value = IniGetString("lcd_Attr", "fr_auto_custom", "0");
 	if (model_debug_flag & DEBUG_LCD)

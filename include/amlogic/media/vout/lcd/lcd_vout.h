@@ -133,13 +133,15 @@ struct lcd_timing_s {
 	unsigned char fr_adjust_type; /* 0=clock, 1=htotal, 2=vtotal */
 	unsigned char clk_change; /* internal used */
 	unsigned int lcd_clk;   /* pixel clock(unit: Hz) */
-	unsigned int lcd_clk_dft; /* internal used */
-	unsigned int h_period_dft; /* internal used */
-	unsigned int v_period_dft; /* internal used */
+	unsigned int base_pixel_clk; /* internal used */
+	unsigned int base_h_period;  /* internal used */
+	unsigned int base_v_period;  /* internal used */
+	unsigned int base_frame_rate; /* internal used */
 	unsigned int pll_ctrl;  /* pll settings */
 	unsigned int div_ctrl;  /* divider settings */
 	unsigned int clk_ctrl;  /* clock settings */
 	unsigned int bit_rate; /* Hz */
+	unsigned int clk_mode;  /* 0=dependence mode, 1=independence mode */
 	unsigned int ppc;
 
 	unsigned int ss_level; /* [15:12]: ss_freq, [11:8]: ss_mode,
@@ -486,8 +488,15 @@ struct lcd_duration_s {
 #define LCD_INIT_LEVEL_NORMAL         0
 #define LCD_INIT_LEVEL_PWR_OFF        1
 #define LCD_INIT_LEVEL_KERNEL_ON      2
+
+#define LCD_VENC_1PPC                 0
+#define LCD_VENC_2PPC                 1
+#define LCD_VENC_4PPC                 2
+
 /*
- *bit[31:20]: reserved
+ *bit[31:24]: base_frame_rate
+ *bit[23:22]: clk_mode
+ *bit[21:20]: ppc
  *bit[19:18]: lcd_init_level
  *bit[17]: reserved
  *bit[16]: custom pinmux flag
@@ -501,7 +510,9 @@ struct lcd_boot_ctrl_s {
 	unsigned char advanced_flag;
 	unsigned char custom_pinmux;
 	unsigned char init_level;
-	unsigned char ppc;//4bits
+	unsigned char ppc;
+	unsigned char clk_mode;
+	unsigned char base_frame_rate;
 };
 
 /*

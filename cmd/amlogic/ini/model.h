@@ -124,7 +124,7 @@ struct lcd_timming_s {
 struct lcd_customer_s {
 	unsigned char fr_adjust_type;
 	unsigned char ss_level;
-	unsigned char clk_auto_gen;
+	unsigned char custom_val0;
 	unsigned int pixel_clk;
 	unsigned short h_period_min;
 	unsigned short h_period_max;
@@ -136,7 +136,7 @@ struct lcd_customer_s {
 	unsigned char vlock_val_1;
 	unsigned char vlock_val_2;
 	unsigned char vlock_val_3;
-	unsigned char custom_pinmux;
+	unsigned char custom_val1;
 	unsigned char fr_auto_cus;
 	unsigned char frame_rate_min;
 	unsigned char frame_rate_max;

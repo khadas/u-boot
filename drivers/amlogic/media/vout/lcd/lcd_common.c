@@ -894,7 +894,8 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 
 	propdata = (char *)fdt_getprop(dt_addr, child_offset, "ppc_mode", NULL);
 	if (!propdata) {
-		LCDERR("[%d]: failed to get ppc_mode, set dft 1\n", pdrv->index);
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+			LCDPR("[%d]: no ppc_mode, set dft 1\n", pdrv->index);
 		pconf->timing.ppc = 1;
 	} else {
 		pconf->timing.ppc = (unsigned short)(be32_to_cpup((u32 *)propdata));
@@ -930,6 +931,15 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 			pconf->timing.lcd_clk = 60;
 			LCDPR("[%d]: lcd_clk is 0, default to 60Hz\n", pdrv->index);
 		}
+	}
+
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "clk_mode", NULL);
+	if (!propdata) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+			LCDERR("[%d]: no clk_mode\n", pdrv->index);
+		pconf->timing.clk_mode = 0;
+	} else {
+		pconf->timing.clk_mode = (unsigned char)(be32_to_cpup((u32 *)propdata));
 	}
 
 	switch (pconf->basic.lcd_type) {
@@ -1485,8 +1495,8 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 	/* customer: 31byte */
 	pconf->timing.fr_adjust_type = *(p + LCD_UKEY_FR_ADJ_TYPE);
 	pconf->timing.ss_level = *(p + LCD_UKEY_SS_LEVEL);
-	val = *(p + LCD_UKEY_CLK_AUTO_GEN);
-	pconf->timing.ppc = (val >> 4) & 0xf;
+	val = *(p + LCD_UKEY_CUST_VAL0);
+	pconf->timing.clk_mode = (val >> 4) & 0xf;
 	pconf->timing.clk_auto = val & 0xf;
 	pconf->timing.lcd_clk = (*(p + LCD_UKEY_PCLK) |
 		((*(p + LCD_UKEY_PCLK + 1)) << 8) |
@@ -1496,8 +1506,6 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 		pconf->timing.lcd_clk = 60;
 		LCDPR("[%d]: lcd_clk is 0, default to 60Hz\n", pdrv->index);
 	}
-	if (pconf->timing.ppc == 0)
-		pconf->timing.ppc = 1;
 	pconf->basic.h_period_min = (*(p + LCD_UKEY_H_PERIOD_MIN) |
 		((*(p + LCD_UKEY_H_PERIOD_MIN + 1)) << 8));
 	pconf->basic.h_period_max = (*(p + LCD_UKEY_H_PERIOD_MAX) |
@@ -1517,7 +1525,10 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 	pconf->basic.frame_rate_min = *(p + LCD_UKEY_FRAME_RATE_MIN);
 	pconf->basic.frame_rate_max = *(p + LCD_UKEY_FRAME_RATE_MAX);
 
-	pconf->custom_pinmux = *(p + LCD_UKEY_CUST_PINMUX);
+	val = *(p + LCD_UKEY_CUST_VAL1);
+	pconf->timing.ppc = (val >> 4) & 0xf;
+	pconf->custom_pinmux = val & 0xf;
+
 	pconf->fr_auto_cus = *(p + LCD_UKEY_FR_AUTO_CUS);
 
 	/* interface: 20byte */
@@ -2210,6 +2221,7 @@ void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv)
 	struct lcd_config_s *pconf = &pdrv->config;
 	unsigned int bit_rate, pclk;
 	unsigned int lcd_bits, lane_num;
+	unsigned int clk_mode;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
@@ -2217,15 +2229,39 @@ void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv)
 	lcd_bits = pconf->basic.lcd_bits;
 	lane_num = pconf->control.p2p_cfg.lane_num;
 	pclk = pconf->timing.lcd_clk / 1000;
+	clk_mode = pconf->timing.clk_mode;
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		LCDPR("clk_mode=%d (%s)\n", clk_mode,
+			(clk_mode == LCD_CLK_MODE_DEPENDENCE) ?
+			"dependence" : "independence");
+	}
 	switch (pconf->control.p2p_cfg.p2p_type) {
 	case P2P_CEDS:
-		if (pclk >= 600000)
-			bit_rate = pclk * 3 * lcd_bits / lane_num;
-		else
+	case P2P_EPI:
+		if (clk_mode == LCD_CLK_MODE_DEPENDENCE) {
+			if (pclk >= 600000)
+				bit_rate = pclk * 3 * lcd_bits / lane_num;
+			else
+				bit_rate = pclk * (3 * lcd_bits + 4) / lane_num;
+		} else {
 			bit_rate = pclk * (3 * lcd_bits + 4) / lane_num;
+		}
 		break;
 	case P2P_CHPI: /* 8/10 coding */
 		bit_rate = (pclk * 3 * lcd_bits * 10 / 8) / lane_num;
+		break;
+	case P2P_CSPI:
+	case P2P_ISP:
+	case P2P_CMPI:
+		if (clk_mode == LCD_CLK_MODE_DEPENDENCE) {
+			if (pclk >= 600000)
+				bit_rate = pclk * 3 * lcd_bits / lane_num;
+			else  /* 8/9 coding */
+				bit_rate = (pclk * 3 * lcd_bits * 9 / 8) / lane_num;
+		} else {
+			/* 8/9 coding */
+			bit_rate = (pclk * 3 * lcd_bits * 9 / 8) / lane_num;
+		}
 		break;
 	default:
 		bit_rate = pclk * 3 * lcd_bits / lane_num;
@@ -2338,9 +2374,11 @@ void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv)
 	}
 
 	//save default config
-	pconf->timing.lcd_clk_dft = pconf->timing.lcd_clk;
-	pconf->timing.h_period_dft = pconf->basic.h_period;
-	pconf->timing.v_period_dft = pconf->basic.v_period;
+	pconf->timing.base_pixel_clk = pconf->timing.lcd_clk;
+	pconf->timing.base_h_period = pconf->basic.h_period;
+	pconf->timing.base_v_period = pconf->basic.v_period;
+	pconf->timing.base_frame_rate =
+		pconf->timing.sync_duration_num / pconf->timing.sync_duration_den;
 }
 
 void lcd_timing_init_config(struct lcd_config_s *pconf)
@@ -2351,8 +2389,8 @@ void lcd_timing_init_config(struct lcd_config_s *pconf)
 	unsigned short hstart, hend, vstart, vend;
 	unsigned short h_delay = 0;
 
-	h_period = pconf->basic.h_period;
-	v_period = pconf->basic.v_period;
+	h_period = pconf->timing.base_h_period;
+	v_period = pconf->timing.base_v_period;
 	h_active = pconf->basic.h_active;
 	v_active = pconf->basic.v_active;
 	hsync_bp = pconf->timing.hsync_bp;
@@ -2402,9 +2440,9 @@ int lcd_vmode_change(struct aml_lcd_drv_s *pdrv)
 	struct lcd_config_s *pconf = &pdrv->config;
 	unsigned char type = pconf->timing.fr_adjust_type;
 	 /* use default value to avoid offset */
-	unsigned int pclk = pconf->timing.lcd_clk_dft;
-	unsigned int h_period = pconf->timing.h_period_dft;
-	unsigned int v_period = pconf->timing.v_period_dft;
+	unsigned int pclk = pconf->timing.base_pixel_clk;
+	unsigned int h_period = pconf->timing.base_h_period;
+	unsigned int v_period = pconf->timing.base_v_period;
 	unsigned int pclk_min = pconf->basic.lcd_clk_min;
 	unsigned int pclk_max = pconf->basic.lcd_clk_max;
 	unsigned int duration_num = pconf->timing.sync_duration_num;

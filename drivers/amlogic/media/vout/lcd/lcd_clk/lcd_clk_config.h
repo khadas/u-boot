@@ -110,4 +110,10 @@ struct lcd_clk_config_s { /* unit: kHz */
 	struct lcd_clk_data_s *data;
 };
 
+enum lcd_clk_mode_e {
+	LCD_CLK_MODE_DEPENDENCE = 0,  /* pclk and phy use same pll */
+	LCD_CLK_MODE_INDEPENDENCE,    /* pclk and phy use different pll */
+	LCD_CLK_MODE_MAX,
+};
+
 #endif
