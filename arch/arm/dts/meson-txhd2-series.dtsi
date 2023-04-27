@@ -387,9 +387,9 @@
 			status = "disabled";
 		};
 
-		i2c4: i2c@fe06e000 {
+		i2c_AO: i2c@ff805000 {
 			compatible = "amlogic,meson-i2c";
-			reg = <0x0 0xfe06e000 0x0 0x24>;
+			reg = <0x0 0xff805000 0x0 0x24>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
