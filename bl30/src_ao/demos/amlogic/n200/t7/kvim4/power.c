@@ -136,13 +136,13 @@ void str_power_on(int shutdown_flag)
 
 	shutdown_flag = shutdown_flag;
 	/***power on vcc_5v***/
-	ret = xGpioSetDir(GPIOH_1,GPIO_DIR_OUT);
+	ret = xGpioSetDir(GPIOH_4,GPIO_DIR_OUT);
 	if (ret < 0) {
 		printf("vcc_5v set gpio dir fail\n");
 		return;
 	}
 
-	ret = xGpioSetValue(GPIOH_1,GPIO_LEVEL_HIGH);
+	ret = xGpioSetValue(GPIOH_4,GPIO_LEVEL_HIGH);
 	if (ret < 0) {
 		printf("vcc_5v set gpio val fail\n");
 		return;
@@ -246,13 +246,13 @@ void str_power_off(int shutdown_flag)
 		}
 	}
 	/***power off vcc_5v***/
-	ret = xGpioSetDir(GPIOH_1,GPIO_DIR_OUT);
+	ret = xGpioSetDir(GPIOH_4,GPIO_DIR_OUT);
 	if (ret < 0) {
 		printf("vcc_5v set gpio dir fail\n");
 		return;
 	}
 
-	ret= xGpioSetValue(GPIOH_1,GPIO_LEVEL_LOW);
+	ret= xGpioSetValue(GPIOH_4,GPIO_LEVEL_LOW);
 	if (ret < 0) {
 		printf("vcc_5v set gpio val fail\n");
 		return;
