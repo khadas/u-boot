@@ -588,6 +588,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   bool is_main_vbmeta;
   bool look_for_vbmeta_footer;
   AvbVBMetaData* vbmeta_image_data = NULL;
+	bool is_device_unlocked;
 
   ret = AVB_SLOT_VERIFY_RESULT_OK;
 
@@ -1003,17 +1004,20 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     switch (desc.tag) {
       case AVB_DESCRIPTOR_TAG_HASH: {
         AvbSlotVerifyResult sub_ret;
-        sub_ret = load_and_verify_hash_partition(ops,
+		//Amlogic modify for unlock device get boot patchlevel
+		if ((ops->read_is_device_unlocked(ops, &is_device_unlocked) == AVB_IO_RESULT_OK &&
+			!is_device_unlocked)) {
+			sub_ret = load_and_verify_hash_partition(ops,
                                                  requested_partitions,
                                                  ab_suffix,
                                                  allow_verification_error,
                                                  descriptors[n],
                                                  slot_data);
-        if (sub_ret != AVB_SLOT_VERIFY_RESULT_OK) {
-          ret = sub_ret;
-          if (!allow_verification_error || !result_should_continue(ret)) {
-            goto out;
-          }
+			if (sub_ret != AVB_SLOT_VERIFY_RESULT_OK) {
+				ret = sub_ret;
+				if (!allow_verification_error || !result_should_continue(ret))
+					goto out;
+			}
         }
       } break;
 

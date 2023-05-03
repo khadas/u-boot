@@ -153,6 +153,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* add reboot_mode in bootargs for kernel command line */
 	char *pbootargs = env_get("bootargs");
 	char *preboot_mode = env_get("reboot_mode");
+
 	bootloader_wp_check();
 
 	if (pbootargs && preboot_mode) {
@@ -272,6 +273,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		if (is_device_unlocked()) {
 			printf("unlock state, ignore the avb check\n");
+			rc = avb_verify(&out_data);
 			run_command("setenv bootconfig ${bootconfig} "\
 			"androidboot.verifiedbootstate=orange", 0);
 		} else {

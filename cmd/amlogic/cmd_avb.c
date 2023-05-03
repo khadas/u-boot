@@ -1120,12 +1120,20 @@ uint32_t avb_get_boot_patchlevel_from_vbmeta(AvbSlotVerifyData *data)
 
 				ret = avb_property_lookup(p->vbmeta_data,
 					p->vbmeta_size,
+					"com.android.build.init_boot.security_patch",
+					0,
+					&len);
+				if (ret)
+					break;
+
+				ret = avb_property_lookup(p->vbmeta_data,
+					p->vbmeta_size,
 					"com.android.build.boot.security_patch",
 					0,
 					&len);
-
 				if (ret)
 					break;
+
 //				else
 //					printf("not found com.android.build.boot.
 //					security_patch,len = %d\n", (int)len);
