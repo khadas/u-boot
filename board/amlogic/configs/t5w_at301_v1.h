@@ -244,7 +244,7 @@
                     "run ffv_freeze_action; "\
                 "fi; "\
             "else if test ${reboot_mode} = fastboot; then "\
-                "fastboot;"\
+				"fastboot 1;"\
             "fi;fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "reset_suspend="\
@@ -256,7 +256,7 @@
             "fi;"\
             "\0" \
         "enter_fastboot="\
-            "fastboot 0;"\
+			"fastboot 1;"\
             "\0"\
         "storeboot="\
             "if test ${reboot_mode} = normal; then "\
@@ -447,7 +447,7 @@
             "if gpio input GPIOAO_3; then "\
 			"echo detect upgrade key;"\
 			"if test ${boot_flag} = 0; then "\
-				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot;"\
+				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
 			"else if test ${boot_flag} = 1; then "\
 				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
 			"else "\
