@@ -686,7 +686,12 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 			FB_MSG("remain bootloader as nocs scs chip\n");
 			ret = usb_burn_erase_data(1);
 		} else {
-			ret = store_erase(NULL, 0, 0, 0);
+			if (v3tool_work_mode_get() == V3TOOL_WORK_MODE_USB_PRODUCE) {
+				ret = store_erase(NULL, 0, 0, 0);
+			} else {
+				FB_MSG("remain bootloader as not usb boot\n");
+				ret = usb_burn_erase_data(1);
+			}
 		}
 		if (ret)
 			FBS_EXIT(_ACK, "Fail in erase flash, ret[%d]\n", ret);
