@@ -9842,8 +9842,10 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl & (~(1 << 31)));
 		writel((0), p_ddr_base->ddr_dmc_apd_address);
 		writel((0), p_ddr_base->ddr_dmc_asr_address);
-		run_command("dcache off", 0);
-		run_command("dcache on", 0);
+		// run_command("dcache off", 0);
+		// run_command("dcache on", 0);
+		dcache_disable();
+		dcache_enable();
 		printf("\n cache off on");
 		switch (ddr_test_cmd) {
 		case (DDR_TEST_CMD__NONE):
