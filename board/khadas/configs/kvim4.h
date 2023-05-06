@@ -708,18 +708,7 @@
             "\0"\
         "init_display="\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-			"if test ${khadas_mipi_id} = 1 || test ${khadas_mipi_id} = 3; then "\
-				"osd open;osd clear;"\
-				"setenv fb_width 1080;setenv fb_height 1920;"\
-				"setenv display_width 1080;setenv display_height 1920;"\
-				"setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
-			"else if test ${khadas_mipi_id} = 2; then "\
-				"osd open;osd clear;run load_bmp_logo;bmp scale;"\
-				"setenv fb_width 1920;setenv fb_height 1200;"\
-				"setenv display_width 1920;setenv display_height 1200;"\
-				"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-			"else "\
-			"fi;fi;"\
+			"run CONFIG_DUAL_LOGO; "\
             "setenv outputmode2 ${hdmimode};"\
             "osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
@@ -794,6 +783,8 @@
 */
 #define CONFIG_DUAL_LOGO \
     "setenv outputmode2 ${hdmimode};"\
+	"setenv fb_width 1920;setenv fb_height 1080;"\
+	"setenv fb_width 1920;setenv fb_height 1080;"\
     "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
     "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
 	"if test ${khadas_mipi_id} = 1 || test ${khadas_mipi_id} = 3; then "\
@@ -814,6 +805,8 @@
 /* dual logo, factory_reset boot, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
     "setenv outputmode2 ${hdmimode};"\
+	"setenv fb_width 1920;setenv fb_height 1080;"\
+	"setenv fb_width 1920;setenv fb_height 1080;"\
     "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
     "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
 	"if test ${khadas_mipi_id} = 1 || test ${khadas_mipi_id} = 3; then "\
@@ -839,12 +832,12 @@
         "setenv display_width 1080;setenv display_height 1920;"\
         "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
 	"else if test ${khadas_mipi_id} = 2; then "\
-		"osd open;osd clear;run load_bmp_logo;bmp scale;"\
+		"osd open;osd clear;"\
         "setenv fb_width 1920;setenv fb_height 1200;"\
         "setenv display_width 1920;setenv display_height 1200;"\
 		"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
 	"else "\
-		"osd open;osd clear;run load_bmp_logo;bmp scale;"\
+		"osd open;osd clear;"\
         "setenv fb_width 1920;setenv fb_height 1080;"\
         "setenv display_width 1920;setenv display_height 1080;"\
         "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
