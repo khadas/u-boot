@@ -737,7 +737,7 @@ void scene_process(struct hdmitx_dev *hdev,
 
 	/* 2. dolby vision scene process */
 	/* only for tv support dv and box enable dv */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
+	if (is_dv_preference(hdev)) {
 		dolbyvision_scene_process(&hdmidata, scene_output_info);
 	} else if (is_dolby_enabled()) {
 		/* for enable dolby vision core when
@@ -753,10 +753,15 @@ void scene_process(struct hdmitx_dev *hdev,
 	}
 	/* 3.sdr scene process */
 	/* decide final display mode and deepcolor */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev))
-		; /* do nothing */
-	else
+	if (is_dv_preference(hdev)) {
+		/* do nothing
+		 * already done above, just sync with sysctrl
+		 */
+	} else if (is_hdr_preference(hdev)) {
+		hdr_scene_process(&hdmidata, scene_output_info);
+	} else {
 		sdr_scene_process(&hdmidata, scene_output_info);
+	}
 	/* not find outputmode and use default mode */
 	if (strlen(scene_output_info->final_displaymode) == 0)
 		strcpy(scene_output_info->final_displaymode, DEFAULT_HDMI_MODE);

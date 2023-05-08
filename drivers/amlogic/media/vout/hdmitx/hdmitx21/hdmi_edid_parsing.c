@@ -50,9 +50,256 @@
 #define TAG_CVT_TIMING_CODES 0xF8
 #define TAG_ESTABLISHED_TIMING_III 0xF7
 #define TAG_DUMMY_DES 0x10
+
 #define EDID_MAX_BLOCK 8
 
 static bool _is_y420_vic(enum hdmi_vic vic);
+static int hdmitx_edid_search_IEEEOUI(unsigned char *buf)
+{
+	int i;
+
+	for (i = 0; i < 0x180 - 2; i++) {
+		if (buf[i] == 0x03 && buf[i + 1] == 0x0c &&
+		    buf[i + 2] == 0x00)
+			return 1;
+	}
+	return 0;
+}
+
+/* check EDID strictly */
+static int edid_check_valid(unsigned char *buf)
+{
+	unsigned int chksum = 0;
+	unsigned int i = 0;
+
+	/* check block 0 first 8 bytes */
+	if (buf[0] != 0 && buf[7] != 0)
+		return 0;
+	for (i = 1; i < 7; i++) {
+		if (buf[i] != 0xff)
+			return 0;
+	}
+
+	/* check block 0 checksum */
+	for (chksum = 0, i = 0; i < 0x80; i++)
+		chksum += buf[i];
+
+	if ((chksum & 0xff) != 0)
+		return 0;
+
+	/* check Extension flag at block 0 */
+	/* for DVI: there may be >= 0 cta block,
+	 * so it's normal to have only basic block
+	 */
+	if (buf[0x7e] == 0)
+		return 1;
+
+	/* check block 1 extension tag */
+	if (!(buf[0x80] == 0x2 || buf[0x80] == 0xf0))
+		return 0;
+
+	/* check block 1 checksum */
+	for (chksum = 0, i = 0x80; i < 0x100; i++)
+		chksum += buf[i];
+
+	if ((chksum & 0xff) != 0)
+		return 0;
+
+	return 1;
+}
+
+/* check the checksum for each sub block */
+static int _check_edid_blk_chksum(unsigned char *block)
+{
+	unsigned int chksum = 0;
+	unsigned int i = 0;
+
+	for (chksum = 0, i = 0; i < 0x80; i++)
+		chksum += block[i];
+	if ((chksum & 0xff) != 0)
+		return 0;
+	else
+		return 1;
+}
+
+/* check the first edid block */
+static int _check_base_structure(unsigned char *buf)
+{
+	unsigned int i = 0;
+
+	/* check block 0 first 8 bytes */
+	if (buf[0] != 0 && buf[7] != 0)
+		return 0;
+
+	for (i = 1; i < 7; i++) {
+		if (buf[i] != 0xff)
+			return 0;
+	}
+
+	if (_check_edid_blk_chksum(buf) == 0)
+		return 0;
+
+	return 1;
+}
+
+/*
+ * check the EDID validatiy
+ * base structure: header, checksum
+ * extension: the first non-zero byte, checksum
+ */
+static int check_dvi_hdmi_edid_valid(unsigned char *buf)
+{
+	int i;
+	int blk_cnt = buf[0x7e] + 1;
+
+	/* limit blk_cnt to EDID_BLK_NO  */
+	if (blk_cnt > EDID_BLK_NO)
+		blk_cnt = EDID_BLK_NO;
+
+	/* check block 0 */
+	if (_check_base_structure(&buf[0]) == 0)
+		return 0;
+
+	if (blk_cnt == 1)
+		return 1;
+
+	/* check extension block 1 and more */
+	for (i = 1; i < blk_cnt; i++) {
+		if (buf[i * 0x80] == 0)
+			return 0;
+		if (_check_edid_blk_chksum(&buf[i * 0x80]) == 0)
+			return 0;
+	}
+
+	return 1;
+}
+
+/*
+ * check EDID buf contains valid block numbers
+ */
+static unsigned int hdmitx_edid_check_valid_blocks(unsigned char *buf)
+{
+	unsigned int valid_blk_no = 0;
+	unsigned int i = 0, j = 0;
+	unsigned int tmp_chksum = 0;
+
+	for (j = 0; j < EDID_MAX_BLOCK; j++) {
+		for (i = 0; i < 128; i++)
+			tmp_chksum += buf[i + j * 128];
+		if (tmp_chksum != 0) {
+			valid_blk_no++;
+			if ((tmp_chksum & 0xff) == 0)
+				printf("check sum valid\n");
+			else
+				printf("check sum invalid\n");
+		}
+		tmp_chksum = 0;
+	}
+	return valid_blk_no;
+}
+
+/*
+ * if the EDID is invalid, then set the fallback mode
+ * Resolution & RefreshRate:
+ *   1920x1080p60hz 16:9
+ *   1280x720p60hz 16:9 (default)
+ *   720x480p 16:9
+ * ColorSpace: RGB
+ * ColorDepth: 8bit
+ */
+static void edid_set_fallback_mode(struct rx_cap *prxcap)
+{
+	if (!prxcap)
+		return;
+
+	/* EDID extended blk chk error, set the 720p60, rgb,8bit */
+	prxcap->IEEEOUI = HDMI_IEEEOUI;
+	prxcap->Max_TMDS_Clock1 = 0x1e; /* 150MHZ / 5 */
+	prxcap->native_Mode = 0; /* only RGB */
+	prxcap->dc_y444 = 0; /* only 8bit */
+	prxcap->VIC_count = 0x3;
+	prxcap->VIC[0] = HDMI_16_1920x1080p60_16x9;
+	prxcap->VIC[1] = HDMI_4_1280x720p60_16x9;
+	prxcap->VIC[2] = HDMI_3_720x480p60_16x9;
+	prxcap->native_VIC = HDMI_4_1280x720p60_16x9;
+}
+
+/* add default VICs for all zeroes case */
+static void hdmitx_edid_set_default_vic(struct rx_cap *prxcap)
+{
+	prxcap->VIC_count = 0x2;
+	prxcap->VIC[0] = HDMI_3_720x480p60_16x9;
+	prxcap->VIC[1] = HDMI_4_1280x720p60_16x9;
+	prxcap->native_VIC = HDMI_3_720x480p60_16x9;
+	/* hdmitx_device->vic_count = prxcap->VIC_count; */
+	printf("set default vic\n");
+}
+
+static void _edid_parse_base_structure(struct rx_cap *prxcap,
+	unsigned char *EDID_buf)
+{
+	unsigned char checksum;
+	unsigned char zero_numbers;
+	unsigned char cta_block_count;
+	int i;
+
+	/* skip parsing base block, DTD will be parsed later */
+	cta_block_count = EDID_buf[0x7E];
+
+	if (cta_block_count == 0) {
+		printf("EDID BlockCount=0\n");
+		/* DVI case judgement: only contains one block and
+		 * checksum valid
+		 */
+		checksum = 0;
+		zero_numbers = 0;
+		for (i = 0; i < 128; i++) {
+			checksum += EDID_buf[i];
+			if (EDID_buf[i] == 0)
+				zero_numbers++;
+		}
+		printf("edid blk0 checksum:%d ext_flag:%d\n",
+			checksum, EDID_buf[0x7e]);
+		if ((checksum & 0xff) == 0)
+			prxcap->IEEEOUI = 0;
+		else
+			prxcap->IEEEOUI = HDMI_IEEEOUI;
+		if (zero_numbers > 120)
+			prxcap->IEEEOUI = HDMI_IEEEOUI;
+		hdmitx_edid_set_default_vic(prxcap);
+	}
+}
+
+/* if edid block 0 are all zeros, then consider RX as HDMI device */
+static int edid_zero_data(unsigned char *buf)
+{
+	int sum = 0;
+	int i = 0;
+
+	for (i = 0; i < 128; i++)
+		sum += buf[i];
+
+	if (sum == 0)
+		return 1;
+	else
+		return 0;
+}
+
+static void dump_dtd_info(struct dtd *t)
+{
+	return; /* debug only */
+	printf("%s[%d]\n", __func__, __LINE__);
+#define PR(a) pr_info("%s %d\n", #a, t->a)
+	PR(pixel_clock);
+	PR(h_active);
+	PR(h_blank);
+	PR(v_active);
+	PR(v_blank);
+	PR(h_sync_offset);
+	PR(h_sync);
+	PR(v_sync_offset);
+	PR(v_sync);
+}
 
 static int edid_parsingdrmstaticblock(struct rx_cap *prxcap,
 	unsigned char *buf)
@@ -378,6 +625,8 @@ next:
 		prxcap->dtd_idx++;
 		if (t->vic < HDMITX_VESA_OFFSET)
 			store_cea_idx(prxcap, t->vic);
+	} else {
+		dump_dtd_info(t);
 	}
 }
 
@@ -695,7 +944,7 @@ static void hdmitx_parse_ifdb(struct rx_cap *prxcap, u8 *blockbuf)
 	}
 }
 
-static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
+static int hdmitx_edid_cta_block_parse(struct rx_cap *prxcap,
 	unsigned char *blockbuf)
 {
 	unsigned char offset, end;
@@ -715,8 +964,8 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 	else if (blockbuf[0] != 0x02)
 		return -1; /* not a CEA BLOCK. */
 	end = blockbuf[2]; /* CEA description. */
-	prxcap->native_Mode = blockbuf[3];
-	prxcap->number_of_dtd += blockbuf[3] & 0xf;
+	prxcap->native_Mode = blockbuf[1] >= 2 ? blockbuf[3] : 0;
+	prxcap->number_of_dtd += blockbuf[1] >= 2 ? (blockbuf[3] & 0xf) : 0;
 	/* bit 5 (YCBCR 4:4:4) = 1 if sink device supports YCBCR 4:4:4
 	 * in addition to RGB;
 	 * bit 4 (YCBCR 4:2:2) = 1 if sink device supports YCBCR 4:2:2
@@ -724,7 +973,7 @@ static int hdmitx_edid_block_parse(struct rx_cap *prxcap,
 	 */
 	prxcap->pref_colorspace = blockbuf[3] & 0x30;
 
-	prxcap->native_VIC = 0xff;
+	/* prxcap->native_VIC = 0xff; */
 	if (end > 127)
 		return 0;
 	for (offset = 4 ; offset < end ; ) {
@@ -939,45 +1188,33 @@ static void check_dv_truly_support(struct rx_cap *prxcap, struct dv_info *dv)
  */
 unsigned int hdmi_edid_parsing(unsigned char *edid_buf, struct rx_cap *prxcap)
 {
-	int i, j;
-	int blockcount = edid_buf[126];
+	int i;
 	int idx[4];
-	unsigned char CheckSum;
 	struct dv_info *dv = &prxcap->dv_info;
+	unsigned char cta_block_count;
 
 	/* Clear all parsing data */
 	memset(prxcap, 0, sizeof(struct rx_cap));
 	prxcap->IEEEOUI = 0x000c03; /* Default is HDMI device */
 
-	/* If edid data corrupted, no parse */
-	/*
-	 * if (check_dvi_hdmi_edid_valid(edid_buf) == 0)
-	 *	return 0;
-	 */
+	if (check_dvi_hdmi_edid_valid(edid_buf) == 0) {
+		edid_set_fallback_mode(prxcap);
+		printf("set fallback mode\n");
+		return 0;
+	}
+	if (_check_base_structure(edid_buf))
+		_edid_parse_base_structure(prxcap, edid_buf);
 
+	cta_block_count = edid_buf[0x7E];
 	/* HF-EEODB */
-	if (blockcount == 1)
-		if (edid_buf[128 + 4] == 0xe2 && edid_buf[128 + 5] == 0x78)
-			blockcount = edid_buf[128 + 6];
+	if (edid_buf[128 + 4] == 0xe2 && edid_buf[128 + 5] == 0x78)
+		cta_block_count = edid_buf[128 + 6];
 	/* limit cta_block_count to EDID_MAX_BLOCK - 1 */
-	if (blockcount > EDID_MAX_BLOCK - 1)
-		blockcount = EDID_MAX_BLOCK - 1;
-
-	if (blockcount == 0)
-		prxcap->IEEEOUI = 0;
-
-	for (i = 1; i <= blockcount; i++) {
-		if (blockcount > 1 && i == 1) {
-			CheckSum = 0;   /* ignore the block1 data */
-		} else {
-			for (j = 0, CheckSum = 0 ; j < 128 ; j++) {
-				CheckSum += edid_buf[i * 128 + j];
-				CheckSum &= 0xFF;
-			}
-			if (CheckSum == 0)
-				edid_montorcapable861(prxcap, edid_buf[i * 128 + 3]);
-		}
-		hdmitx_edid_block_parse(prxcap, &edid_buf[i * 128]);
+	if (cta_block_count > EDID_MAX_BLOCK - 1)
+		cta_block_count = EDID_MAX_BLOCK - 1;
+	for (i = 1; i <= cta_block_count; i++) {
+		if (edid_buf[i * 0x80] == 0x02)
+			hdmitx_edid_cta_block_parse(prxcap, &edid_buf[i * 0x80]);
 	}
 	check_dv_truly_support(prxcap, dv);
 /*
@@ -1004,6 +1241,34 @@ unsigned int hdmi_edid_parsing(unsigned char *edid_buf, struct rx_cap *prxcap)
 			edid_dtd_parsing(prxcap, &edid_buf[idx[i]]);
 	}
 
+	if (hdmitx_edid_search_IEEEOUI(&edid_buf[128])) {
+		prxcap->IEEEOUI = HDMI_IEEEOUI;
+		printf("find IEEEOUT\n");
+	} else {
+		prxcap->IEEEOUI = 0x0;
+		printf("not find IEEEOUT\n");
+	}
+
+	/* strictly DVI device judgement */
+	/* valid EDID & no audio tag & no IEEEOUI */
+	if (edid_check_valid(&edid_buf[0]) &&
+		!hdmitx_edid_search_IEEEOUI(&edid_buf[128])) {
+		prxcap->IEEEOUI = 0x0;
+		printf("sink is DVI device\n");
+	} else {
+		prxcap->IEEEOUI = HDMI_IEEEOUI;
+	}
+	if (edid_zero_data(edid_buf))
+		prxcap->IEEEOUI = HDMI_IEEEOUI;
+
+	if (!hdmitx_edid_check_valid_blocks(&edid_buf[0])) {
+		prxcap->IEEEOUI = HDMI_IEEEOUI;
+		printf("Invalid edid, consider RX as HDMI device\n");
+	}
+
+	/* if edid block0 are all zeroes, or no VIC, set default vic */
+	if (edid_zero_data(edid_buf) || prxcap->VIC_count == 0)
+		hdmitx_edid_set_default_vic(prxcap);
 	return 1;
 }
 
@@ -1506,66 +1771,24 @@ enum hdmi_vic hdmitx_edid_get_VIC(struct hdmitx_dev *hdev,
 	return vic;
 }
 
-static bool hdmitx_check_edid_all_zeros(unsigned char *buf)
-{
-	unsigned int i = 0, j = 0;
-	unsigned int chksum = 0;
-
-	for (j = 0; j < EDID_MAX_BLOCK; j++) {
-		chksum = 0;
-		for (i = 0; i < 128; i++)
-			chksum += buf[i + j * 128];
-		if (chksum != 0)
-			return false;
-	}
-	return true;
-}
-
-static bool hdmitx_edid_header_invalid(unsigned char *buf)
-{
-	bool base_blk_invalid = false;
-	bool ext_blk_invalid = false;
-	bool ret = false;
-	int i = 0;
-
-	if (buf[0] != 0 || buf[7] != 0) {
-		base_blk_invalid = true;
-	} else {
-		for (i = 1; i < 7; i++) {
-			if (buf[i] != 0xff) {
-				base_blk_invalid = true;
-				break;
-			}
-		}
-	}
-	/* judge header strictly, only if both header invalid */
-	if (buf[0x7e] > 0) {
-		if (buf[0x80] != 0x2 && buf[0x80] != 0xf0)
-			ext_blk_invalid = true;
-		ret = base_blk_invalid && ext_blk_invalid;
-	} else {
-		ret = base_blk_invalid;
-	}
-
-	return ret;
-}
 
 static bool hdmitx_edid_notify_ng(unsigned char *buf)
 {
 	if (!buf)
 		return true;
+	return check_dvi_hdmi_edid_valid(buf) == 0;
 	/* notify EDID NG to systemcontrol */
-	if (hdmitx_check_edid_all_zeros(buf)) {
-		printf("ERR: edid all zero\n");
-		return true;
-	} else if ((buf[0x7e] > 3) &&
-		hdmitx_edid_header_invalid(buf)) {
-		printf("ERR: edid header invalid\n");
-		return true;
-	}
+	/* if (hdmitx_check_edid_all_zeros(buf)) { */
+		/* printf("ERR: edid all zero\n"); */
+		/* return true; */
+	/* } else if ((buf[0x7e] > 3) && */
+		/* hdmitx_edid_header_invalid(buf)) { */
+		/* printf("ERR: edid header invalid\n"); */
+		/* return true; */
+	/* } */
 	/* may extend NG case here */
 
-	return false;
+	/* return false; */
 }
 
 bool edid_parsing_ok(struct hdmitx_dev *hdev)
