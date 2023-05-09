@@ -337,49 +337,39 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "factory",
 	.offset = 0,
-	.size = 8 * SZ_1M,
+	.size = 3 * SZ_1M,
 	/* MESON_IGNORE_ERASE_CHIP will ignore store erase.chip */
 	.mask_flags = MESON_IGNORE_ERASE_CHIP,
 },
 {
 	.name = "tee",
 	.offset = 0,
-	.size = 8 * SZ_1M,
+	.size = 3 * SZ_1M,
 },
 {
 	.name = "logo",
 	.offset = 0,
-	.size = 2 * SZ_1M,
-},
-{
-	.name = "misc",
-	.offset = 0,
-	.size = 8 * SZ_1M,
+	.size = 1 * SZ_256K,
 },
 {
 	.name = "recovery",
 	.offset = 0,
-	.size = 32 * SZ_1M,
+	.size = 20 * SZ_1M,
 },
 {
 	.name = "boot",
 	.offset = 0,
-	.size = 34 * SZ_1M,
+	.size = 15 * SZ_1M,
 },
 {
 	.name = "system",
 	.offset = 0,
-	.size = 224 * SZ_1M,
-},
-{
-	.name = "vendor",
-	.offset = 0,
-	.size = 16 * SZ_1M,
+	.size = 48 * SZ_1M,
 },
 {
 	.name = "vbmeta",
 	.offset = 0,
-	.size = 1 * SZ_1M,
+	.size = 1 * SZ_256K,
 },
 /* last partition get the rest capacity */
 {
