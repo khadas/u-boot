@@ -49,8 +49,6 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		case AMLOGIC_FACTORY_RESET_REBOOT:
 		{
 			setenv("reboot_mode","factory_reset");
-			//if ota upgrade, need change factory_reset to update
-			run_command("aml_bcb", 0);
 			break;
 		}
 		case AMLOGIC_UPDATE_REBOOT:
