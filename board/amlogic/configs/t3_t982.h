@@ -323,7 +323,7 @@
 
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
-	"run init_display;"\
+	/*"run init_display;"*/\
 	"get_rebootmode;"\
 	"run check_display;"\
 	"run storeargs;"\
