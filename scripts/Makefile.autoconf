@@ -68,17 +68,17 @@ include/autoconf.mk include/autoconf.mk.dep: include/config.h
 # support amlogic config folder and customer folder
 
 # 1st. this is old u-boot config file folder
-config_file=$(shell echo "$(srctree)/include/configs/$(CONFIG_SYS_BOARD).h")
+config_file=$(shell echo "$(srctree)/include/configs/$(CONFIG_SYS_CONFIG_NAME).h")
 ifneq ($(config_file), $(wildcard $(config_file)))
 
 # 2nd. this is amlogic config file folder
-config_file=$(shell echo "$(srctree)/board/amlogic/configs/$(CONFIG_SYS_BOARD).h")
+config_file=$(shell echo "$(srctree)/board/amlogic/configs/$(CONFIG_SYS_CONFIG_NAME).h")
 ifneq ($(config_file), $(wildcard $(config_file)))
 
 # 3rd. this is amlogic customer config folder
-config_file=$(shell echo "$(srctree)/customer/board/configs/$(CONFIG_SYS_BOARD).h")
+config_file=$(shell echo "$(srctree)/customer/board/configs/$(CONFIG_SYS_CONFIG_NAME).h")
 ifneq ($(config_file), $(wildcard $(config_file)))
-$(error $(shell echo "Error: Can not find $(CONFIG_SYS_BOARD).h"))
+$(error $(shell echo "Error: Can not find $(CONFIG_SYS_CONFIG_NAME).h"))
 endif
 endif
 endif

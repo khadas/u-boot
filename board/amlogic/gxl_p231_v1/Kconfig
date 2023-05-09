@@ -17,6 +17,6 @@ config SYS_SOC
 	default "gxl"
 
 config SYS_CONFIG_NAME
-	default "gxl_p231_v1"
+	default "gxm_q201_v1"
 
 endif
