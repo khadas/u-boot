@@ -29,9 +29,8 @@
 #define AML_VDD_CPUA_INIT_VOLTAGE		999		// VCCK A power up voltage
 #define AML_VDD_CPUB_INIT_VOLTAGE		999		// VCCK B power up voltage
 #define AML_VDDGPU_INIT_VOLTAGE			840		// VDDGPU power up voltage
-#define AML_VDDNPU_INIT_VOLTAGE			840		// VDDNPU power up voltage
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Bootloader Control Block function
@@ -111,7 +110,6 @@
         "dv_fw_dir=/oem/firmware/dovi_fw.bin\0" \
         "frac_rate_policy=1\0" \
         "hdr_policy=0\0" \
-        "hdr_priority=2\0" \
         "hdmi_read_edid=1\0" \
         "usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
         "fdt_high=0x20000000\0"\
@@ -138,7 +136,7 @@
 	"disable_ir=0\0"\
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\
@@ -298,7 +296,7 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;setenv colorattribute 444,8bit;dovi process;watermark_init;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
+                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;watermark_init;vout output ${outputmode};osd open;osd clear;run load_bmp_logo;bmp scale;dovi set;dovi pkg;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
 	"storage_param="\
@@ -338,7 +336,6 @@
 
 #ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_PREBOOT  \
-	"run bcb_cmd; "\
 	"run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
@@ -514,6 +511,8 @@
 
 #define CONFIG_FAT_WRITE 1
 #define CONFIG_AML_FACTORY_PROVISION 1
+
+#define CONFIG_AML_WATERMARK 1
 
 /* Cache Definitions */
 /* #define CONFIG_SYS_DCACHE_OFF */

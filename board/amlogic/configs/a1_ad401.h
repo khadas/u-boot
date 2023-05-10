@@ -16,7 +16,7 @@
 #define AML_VDDEE_SLEEP_VOLTAGE  731     // VDDEE suspend voltage
 
 /* configs for CEC */
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */

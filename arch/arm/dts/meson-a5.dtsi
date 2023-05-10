@@ -123,7 +123,6 @@
 //	clocks = <&clkc CLKID_ETH_CORE>,
 //		 <&clkc CLKID_FCLK_DIV2>,
 //		 <&clkc CLKID_MPLL2>;
-//	clock-names = "stmmaceth", "clkin0", "clkin1";
 
 	mdio0: mdio {
 		#address-cells = <1>;

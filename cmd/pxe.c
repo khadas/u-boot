@@ -394,8 +394,8 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * for.
 	 */
 	if (pxe_uuid_path(cmdtp, pxefile_addr_r) > 0 ||
-	    pxe_mac_path(cmdtp, pxefile_addr_r) > 0 ||
-	    pxe_ipaddr_paths(cmdtp, pxefile_addr_r) > 0) {
+		pxe_mac_path(cmdtp, pxefile_addr_r) > 0 ||
+		pxe_ipaddr_paths(cmdtp, pxefile_addr_r) > 0) {
 		printf("Config file found\n");
 
 		return 0;
@@ -619,7 +619,6 @@ static int label_localboot(struct pxe_label *label)
 
 	return run_command_list(localcmd, strlen(localcmd), 0);
 }
-
 
 /*
  * Loads fdt overlays specified in 'fdtoverlays'.
@@ -938,7 +937,6 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			mac_str[0] = '\0';
 	}
 #endif
-
 
 	bootm_argv[1] = env_get("kernel_addr_r");
 	/* for FIT, append the configuration identifier */
@@ -1850,7 +1848,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 			return NULL;
 		}
 		if (cfg->default_label &&
-		    (strcmp(label->name, cfg->default_label) == 0))
+			(strcmp(label->name, cfg->default_label) == 0))
 			default_num = label->num;
 
 	}

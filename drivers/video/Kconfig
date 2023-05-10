@@ -135,7 +135,7 @@ config NO_FB_CLEAR
 	  loads takes over the screen.  This, for example, can be used to
 	  keep splash image on screen until grub graphical boot menu starts.
 
-source "drivers/video/fonts/Kconfig"
+#source "drivers/video/fonts/Kconfig"
 
 config VIDCONSOLE_AS_LCD
 	bool "Use 'vidconsole' when 'lcd' is seen in stdout"

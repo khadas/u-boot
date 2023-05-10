@@ -22,7 +22,7 @@
 #define AML_VDDCORE_INIT_EFUSE_BASE_V0LT		680
 
 /* configs for CEC */
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */

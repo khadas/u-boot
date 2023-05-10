@@ -21,6 +21,7 @@
 #endif
 #include <amlogic/fb.h>
 #include <video_fb.h>
+#include <asm/arch/register.h>
 
 /* Local Headers */
 #include "osd_canvas.h"
@@ -60,9 +61,6 @@ extern GraphicDevice fb_gdev;
 static void independ_path_default_regs(void);
 static void fix_vpu_clk2_default_regs(void);
 static int pi_enable;
-#ifdef AML_S5_DISPLAY
-#define SLICE_NUM 4
-#endif
 
 struct fb_layout_s fb_layout[OSD_MAX];
 
@@ -510,7 +508,7 @@ static unsigned int osd_filter_coefs_bilinear[] = { /* 2 point bilinear	coef1 */
 	0x00443c00, 0x00423e00, 0x00404000
 };
 
-static unsigned int osd_filter_coefs_2point_binilear[] = {
+static unsigned int osd_filter_coefs_2point_bilinear[] = {
 	/* 2 point bilinear, bank_length == 2	coef2 */
 	0x80000000, 0x7e020000, 0x7c040000, 0x7a060000, 0x78080000, 0x760a0000,
 	0x740c0000, 0x720e0000, 0x70100000, 0x6e120000, 0x6c140000, 0x6a160000,
@@ -588,7 +586,7 @@ static unsigned int *filter_table[] = {
 	osd_filter_coefs_bicubic_sharp,
 	osd_filter_coefs_bicubic,
 	osd_filter_coefs_bilinear,
-	osd_filter_coefs_2point_binilear,
+	osd_filter_coefs_2point_bilinear,
 	osd_filter_coefs_3point_triangle_sharp,
 	osd_filter_coefs_3point_triangle,
 	osd_filter_coefs_4point_triangle,
@@ -1198,7 +1196,9 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 		reg_offset = 8;
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		postbld_src3_sel = 4;
 
 	/* for s5_display, OSDx to din(x+1) */
@@ -1319,7 +1319,6 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 			     height  << 16 | width);
 	VSYNCOSD_WR_MPEG_REG(OSD_BLEND_DOUT1_SIZE,
 			     height  << 16 | width);
-	osd_logi("%s osd_blend_dout0_size(%d, %d)\n", __func__, width, height);
 #endif
 
 #ifndef AML_S5_DISPLAY
@@ -1380,14 +1379,12 @@ void osd_update_blend(struct pandata_s *disp_data)
 #ifdef AML_S5_DISPLAY
 	blend_width = osd_hw.free_dst_data[0].x_end - osd_hw.free_dst_data[0].x_start + 1;
 	blend_height = osd_hw.free_dst_data[0].y_end - osd_hw.free_dst_data[0].y_start + 1;
-	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_H,
-			osd_hw.free_dst_data[0].x_end << 16 | osd_hw.free_dst_data[0].x_start);
-	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_V,
-			osd_hw.free_dst_data[0].y_end << 16 | osd_hw.free_dst_data[0].y_start);
+	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_H, (blend_width - 1) << 16);
+	osd_reg_write(VIU_OSD_BLEND_DIN1_SCOPE_V, (blend_height - 1) << 16);
 	osd_reg_write(VIU_OSD_BLEND_BLEND0_SIZE,
-			blend_height << 16 | blend_width);
+			blend_height << 16 | ALIGN(blend_width, 4));
 	osd_reg_write(OSD_BLEND_DOUT0_SIZE,
-			blend_height << 16 | blend_width);
+			blend_height << 16 | ALIGN(blend_width, 4));
 #endif
 	/* setting blend scope */
 	osd_reg_write(VPP_OSD1_BLD_H_SCOPE,
@@ -1516,6 +1513,7 @@ void osd_setup_hw(u32 index,
 	u32 w = (color->bpp * xres_virtual + 7) >> 3;
 	static int is_blend_set;
 	u32 fb_len;
+	char cmd[64];
 
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
 		if (index >= OSD2) {
@@ -1596,6 +1594,10 @@ void osd_setup_hw(u32 index,
 					      CANVAS_ADDR_NOWRAP, CANVAS_BLKMODE_LINEAR);
 #endif
 		}
+		snprintf(cmd, sizeof(cmd), "setenv fb_addr 0x%x",
+			 osd_hw.fb_gem[index].addr);
+		run_command(cmd, 0);
+
 		osd_logd("osd[%d] canvas.idx =0x%x\n",
 			 index, osd_hw.fb_gem[index].canvas_idx);
 		osd_logd("osd[%d] canvas.addr=0x%x\n",
@@ -1605,7 +1607,7 @@ void osd_setup_hw(u32 index,
 		osd_logd("osd[%d] canvas.height=%d\n",
 			 index, osd_hw.fb_gem[index].height);
 	}
-	/* osd blank only control by /sys/class/graphcis/fbx/blank */
+	/* osd blank only control by /sys/class/graphics/fbx/blank */
 #if 0
 	if (osd_hw.enable[index] == DISABLE) {
 		osd_hw.enable[index] = ENABLE;
@@ -1736,7 +1738,7 @@ void osd2_setup_hw(u32 index,
 		osd_logd("osd[%d] canvas.height=%d\n",
 			 index, osd_hw.fb_gem[index].height);
 	}
-	/* osd blank only control by /sys/class/graphcis/fbx/blank */
+	/* osd blank only control by /sys/class/graphics/fbx/blank */
 
 	if (memcmp(&pan_data, &osd_hw.pandata[index],
 		   sizeof(struct pandata_s)) != 0 ||
@@ -1999,7 +2001,6 @@ void osd_set_free_scale_axis_hw(u32 index, s32 x0, s32 y0, s32 x1, s32 y1)
 	osd_hw.free_scale_data[index].y_start = y0;
 	osd_hw.free_scale_data[index].x_end = x1;
 	osd_hw.free_scale_data[index].y_end = y1;
-	osd_logi("osd_hw.free_scale_data: %d, %d, %d, %d\n", x0, x1, y0, y1);
 }
 
 void osd_get_scale_axis_hw(u32 index, s32 *x0, s32 *y0, s32 *x1, s32 *y1)
@@ -2076,7 +2077,6 @@ void osd_set_window_axis_hw(u32 index, s32 x0, s32 y0, s32 x1, s32 y1)
 	}
 	osd_hw.free_dst_data[index].x_start = x0;
 	osd_hw.free_dst_data[index].x_end = x1;
-	osd_logi("osd_hw.free_dst_data: %d,%d,%d,%d\n",x0,x1,y0,y1);
 #if defined(CONFIG_FB_OSD2_CURSOR)
 	osd_hw.cursor_dispdata[index].x_start = x0;
 	osd_hw.cursor_dispdata[index].x_end = x1;
@@ -2105,10 +2105,6 @@ void osd_set_window_axis_hw(u32 index, s32 x0, s32 y0, s32 x1, s32 y1)
 				osd_hw.free_dst_data[index].y_start + h / 2 - 1;
 		}
 	}
-	osd_logi("vmode = %d, pi_enable = %d\n", vmode, pi_enable);
-	osd_logi("osd_hw.free_dst_data: %d,%d,%d,%d\n",
-		osd_hw.free_dst_data[index].x_start, osd_hw.free_dst_data[index].x_end,
-		osd_hw.free_dst_data[index].y_start, osd_hw.free_dst_data[index].y_end);
 }
 
 void osd_get_block_windows_hw(u32 index, u32 *windows)
@@ -2141,7 +2137,7 @@ void osd_enable_3d_mode_hw(u32 index, u32 enable)
 {
 	osd_hw.mode_3d[index].enable = enable;
 	if (enable) {
-		/* when disable 3d mode ,we should return to stardard state. */
+		/* when disable 3d mode ,we should return to standard state. */
 		osd_hw.mode_3d[index].left_right = OSD_LEFT;
 		osd_hw.mode_3d[index].l_start = osd_hw.pandata[index].x_start;
 		osd_hw.mode_3d[index].l_end = (osd_hw.pandata[index].x_end +
@@ -3821,7 +3817,7 @@ static void wr_slice_vpost(int reg_addr, int val, int slice_idx)
 	reg_offset = slice_idx == 0 ? 0 :
 		slice_idx == 1 ? 0x100 :
 		slice_idx == 2 ? 0x700 : 0x1900;
-	reg_addr_tmp = reg_addr + reg_offset;
+	reg_addr_tmp = reg_addr + reg_offset * 4;
 	VSYNCOSD_WR_MPEG_REG(reg_addr_tmp, val);
 };
 
@@ -3833,7 +3829,7 @@ static void wr_reg_bits_slice_vpost(int reg_addr, int val, int start, int len, i
 	reg_offset = slice_idx == 0 ? 0 :
 		slice_idx == 1 ? 0x100 :
 		slice_idx == 2 ? 0x700 : 0x1900;
-	reg_addr_tmp = reg_addr + reg_offset;
+	reg_addr_tmp = reg_addr + reg_offset * 4;
 	VSYNCOSD_WR_MPEG_REG_BITS(reg_addr_tmp, val, start, len);
 };
 
@@ -4055,7 +4051,11 @@ static void viu2_osd1_update_disp_3d_mode(void)
 void osd_hist_enable(u32 osd_index)
 {
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
+#ifndef AML_S5_DISPLAY
 		VSYNCOSD_WR_MPEG_REG(VI_HIST_CTRL, 0x1801);
+#else
+		VSYNCOSD_WR_MPEG_REG(VI_HIST_CTRL, 0x3001);
+#endif
 	} else {
 		if (OSD1 == osd_index) {
 			VSYNCOSD_WR_MPEG_REG(VI_HIST_CTRL, 0x1801);
@@ -4249,7 +4249,8 @@ void osd_init_hw_viux(u32 index)
 	data32 |= 0xff << 6;
 	osd_reg_write(hw_osd_reg_array[index].osd_ctrl_stat2, data32);
 
-	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.path_ctrl_independ = 1;
 
 	if (index == VIU2_OSD1) {
@@ -4337,7 +4338,8 @@ void osd_init_hw_viux(u32 index)
 
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.mif_linear = 1;
 }
 #else
@@ -4451,7 +4453,12 @@ static void fix_vpu_clk2_default_regs(void)
 	init_done = 1;
 #if defined(AML_S5_DISPLAY)
 	/* default: osd byp dolby */
-	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 0, 1);
+#ifdef CONFIG_AML_DOLBY
+		if (dolby_vision_on)
+			osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x0, 0, 1);
+		else
+#endif
+			osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 0, 1);
 	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 2, 1);
 	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 4, 1);
 	osd_reg_set_bits(OSD_DOLBY_BYPASS_EN, 0x1, 6, 1);
@@ -4565,12 +4572,55 @@ static void independ_path_default_regs(void)
 	osd_reg_write(VPP2_BLEND_DUMMY_ALPHA, 0xffffffff);
 }
 
+static void switch_osd_to_dmcx(u32 dmc_num)
+{
+	static int init;
+	u32 val = 0;
+
+	if (init)
+		return;
+
+	init = 1;
+
+	osd_logd("%s, dmc%d\n", __func__, dmc_num);
+	if (dmc_num == 1) {
+		/* OSD1->vpp_arb1 */
+		val |= 1 << 20;
+		/* OSD2->vpp_arb1 */
+		val |= 1 << 21;
+		/* OSD3->vpp_arb1 */
+		val |= 1 << 24;
+		/* OSD4->vpp_arb1 */
+		val |= 1 << 25;
+		/* mali afbcd->vpp_arb1 */
+		val |= 1 << 27;
+		osd_reg_write(VPP_RDARB_MODE, val);
+
+		/* vpp_arb1->vpu arb read2 */
+		osd_reg_set_bits(VPU_RDARB_MODE_L2C1, 0, 16, 1);
+		osd_reg_set_bits(VPU_RDARB_MODE_L2C1, 1, 17, 1);
+	} else {
+		osd_reg_write(VPP_RDARB_MODE, 0);
+		osd_reg_set_bits(VPU_RDARB_MODE_L2C1, 0, 16, 1);
+	}
+}
+
 void osd_init_hw(void)
 {
 	u32 group, idx, data32, data2, holdline = 8, reverse_val = 0;
 	char *osd_reverse;
 	struct vinfo_s *info = NULL;
 	char *s;
+
+	/* T5M RevA, switch osd to dmc1
+	 * T5M RevB, switch osd to dmc0
+	 */
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T5M) {
+		if (get_cpu_id().chip_rev == MESON_CPU_CHIP_REVISION_A)
+			switch_osd_to_dmcx(1);
+		else
+			switch_osd_to_dmcx(0);
+	}
 
 	osd_reverse = env_get("osd_reverse");
 	for (group = 0; group < HW_OSD_COUNT; group++)
@@ -4588,7 +4638,9 @@ void osd_init_hw(void)
 		osd_reg_write(VPP_POSTBLEND_H_SIZE, info->width);
 	osd_vpu_power_on();
 
-	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3)
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
+		osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.path_ctrl_independ = 1;
 
 #ifdef AML_S5_DISPLAY
@@ -4819,7 +4871,9 @@ void osd_init_hw(void)
 		osd_hw.shift_line = 0;
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
 		osd_hw.mif_linear = 1;
 
 	return;

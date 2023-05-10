@@ -112,6 +112,7 @@ void board_init_mem(void) {
 
 int board_init(void)
 {
+	unsigned long board_id = 0;
 	printf("board init\n");
 
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
@@ -130,7 +131,12 @@ int board_init(void)
 	active_clk();
 	#endif
 #endif
-	run_command("gpio set GPIOH_7", 0);
+	board_id = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xff00) >> 8);
+	printf("board_id is %ld\n", board_id);
+	if (board_id == 2)
+		run_command("gpio set GPIOH_10", 0); //T215
+	else
+		run_command("gpio set GPIOH_7", 0);
 #ifdef CONFIG_AML_HDMITX20
 	hdmitx_set_hdmi_5v();
 	hdmitx_init();
@@ -153,7 +159,7 @@ int board_late_init(void)
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
-	run_command("run bcb_cmd", 0);
+	//run_command("run bcb_cmd", 0);
 
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
@@ -188,7 +194,7 @@ int board_late_init(void)
 #ifdef CONFIG_AML_CVBS
 	cvbs_init();
 #endif
-	run_command("amlsecurecheck", 0);
+	//run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
 
 	unsigned char chipid[16];
@@ -216,7 +222,6 @@ int board_late_init(void)
 	} else {
 		env_set("cpu_id", "1234567890");
 	}
-	emmc_quirks();
 	return 0;
 }
 
@@ -364,7 +369,7 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "system",
 	.offset = 0,
-	.size = 288 * SZ_1M,
+	.size = 224 * SZ_1M,
 },
 {
 	.name = "vendor",
@@ -438,25 +443,41 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 int checkhw(char *name)
 {
 	char loc_name[64] = {0};
-	unsigned long ddr_size = 0;
+	unsigned long ddr_size = 0, board_id = 0;
 	int i;
+
+	board_id = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xff00) >> 8);
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		ddr_size += gd->bd->bi_dram[i].size;
-	printf("ddr_size is %lx\n", ddr_size);
-	
+
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
+#endif
+
+	printf("ddr_size is %lx; board id is %ld\n", ddr_size, board_id);
+
 	switch (ddr_size) {
 	case 0x20000000:
-		strcpy(loc_name, "s4_s805c3_aq2432-512m\0");
+		if (board_id == 2)
+			strcpy(loc_name, "s4d_s805c3_t215-512m\0");
+		else
+			strcpy(loc_name, "s4d_s805c3_aq2432-512m\0");
 		break;
 	case 0x40000000:
-		strcpy(loc_name, "s4_s805c3_aq2432-1g\0");
+		if (board_id == 2)
+			strcpy(loc_name, "s4d_s805c3_t215-1g\0");
+		else
+			strcpy(loc_name, "s4d_s805c3_aq2432-1g\0");
 		break;
 	case 0x60000000:
-		strcpy(loc_name, "s4_s805c3_aq2432-1.5g\0");
+		if (board_id == 2)
+			strcpy(loc_name, "s4d_s805c3_t215-1.5g\0");
+		else
+			strcpy(loc_name, "s4d_s805c3_aq2432-1.5g\0");
 		break;
 	default:
-		strcpy(loc_name, "s4_s805c3_unsupport");
+		strcpy(loc_name, "s4d_s805c3_unsupport");
 		break;
 	}
 

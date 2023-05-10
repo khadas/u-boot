@@ -20,7 +20,9 @@
 /* v20210428: add s4d support */
 /* v20220503: add c3 support */
 /* v20220517: add s5 support */
-#define VPU_VERSION	"v20220517"
+/* v20221025: add t5m support */
+#define VPU_VERSION	"v20221025"
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -296,6 +298,39 @@ static struct vpu_data_s vpu_data_t5d = {
 	.change_clk = change_vpu_clk,
 };
 
+static struct vpu_data_s vpu_data_t5w = {
+	.chip_type = VPU_CHIP_T5W,
+	.chip_name = "t5w",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = HHI_VPU_CLK_CTRL,
+	.vpu_clkb_reg = HHI_VPU_CLKB_CTRL,
+	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
+	.vid_clk_reg = HHI_VID_CLK_CNTL2,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
+};
+
 static struct vpu_data_s vpu_data_t7 = {
 	.chip_type = VPU_CHIP_T7,
 	.chip_name = "t7",
@@ -474,7 +509,7 @@ static struct vpu_data_s vpu_data_s5 = {
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
 	.test_reg = vcbus_test_reg,
 
-	.pwrctrl_id_table = vpu_pwrctrl_id_table_t7,
+	.pwrctrl_id_table = vpu_pwrctrl_id_table_s5,
 
 	.fclk_div_table = fclk_div_table_g12a,
 	.vpu_clk_table = vpu_clk_table,
@@ -490,6 +525,72 @@ static struct vpu_data_s vpu_data_s5 = {
 	.power_on = vpu_power_on_new,
 	.power_off = vpu_power_off_new,
 	.module_init_config = vpu_module_init_config,
+};
+
+static struct vpu_data_s vpu_data_t5m = {
+	.chip_type = VPU_CHIP_T5M,
+	.chip_name = "t5m",
+	.clk_level_dft = CLK_LEVEL_DFT_G12A,
+	.clk_level_max = CLK_LEVEL_MAX_G12A,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
+	.vpu_clkb_reg = CLKCTRL_VPU_CLKB_CTRL,
+	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
+	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
+};
+
+static struct vpu_data_s vpu_data_a4 = {
+	.chip_type = VPU_CHIP_A4,
+	.chip_name = "a4",
+	.clk_level_dft = CLK_LEVEL_DFT_C3,
+	.clk_level_max = CLK_LEVEL_MAX_C3,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = CLKCTRL_VOUTENC_CLK_CTRL_A4,
+	.vpu_clkb_reg = VPU_REG_END,
+	.vapb_clk_reg = VPU_REG_END,
+	.vid_clk_reg = VPU_REG_END,
+
+	.pwrctrl_id_table = NULL,
+
+	.fclk_div_table = fclk_div_table_c3,
+	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg_a4,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = NULL,
+	.power_off = vpu_power_off_c3,
+	.mem_pd_init_off = NULL,
+	.module_init_config = NULL,
+	.change_clk = NULL,
 };
 
 static void vpu_chip_detect(void)
@@ -522,6 +623,9 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_T5D:
 		vpu_conf.data = &vpu_data_t5d;
 		break;
+	case MESON_CPU_MAJOR_ID_T5W:
+		vpu_conf.data = &vpu_data_t5w;
+		break;
 	case MESON_CPU_MAJOR_ID_T7:
 		vpu_conf.data = &vpu_data_t7;
 		break;
@@ -539,6 +643,12 @@ static void vpu_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_S5:
 		vpu_conf.data = &vpu_data_s5;
+		break;
+	case MESON_CPU_MAJOR_ID_T5M:
+		vpu_conf.data = &vpu_data_t5m;
+		break;
+	case MESON_CPU_MAJOR_ID_A4:
+		vpu_conf.data = &vpu_data_a4;
 		break;
 	default:
 		vpu_conf.data = NULL;
@@ -586,12 +696,15 @@ static int vpu_check(void)
 	case VPU_CHIP_SC2:
 	case VPU_CHIP_T5:
 	case VPU_CHIP_T5D:
+	case VPU_CHIP_T5W:
 	case VPU_CHIP_T7:
 	case VPU_CHIP_S4:
 	case VPU_CHIP_T3:
 	case VPU_CHIP_S4D:
 	case VPU_CHIP_C3:
 	case VPU_CHIP_S5:
+	case VPU_CHIP_T5M:
+	case VPU_CHIP_A4:
 		ret = 0;
 		break;
 	default:
@@ -761,4 +874,13 @@ void vcbus_test(void)
 		}
 		printf("\n");
 	}
+}
+
+void vpu_sec_debug(unsigned int flag)
+{
+#ifdef CONFIG_AMLOGIC_TEE
+	viu_init_psci_smc(flag);
+#else
+	VPUERR("%s: no CONFIG_AMLOGIC_TEE\n", __func__);
+#endif
 }

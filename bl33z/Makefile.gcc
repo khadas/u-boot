@@ -171,13 +171,12 @@ endif
 .SUFFIXES:
 
 INCLUDES		+=	-Iinclude/bl33z			\
-				-Iplat/${PLAT}/include		\
 				-Iinclude/drivers			\
 				-Iinclude/lib				\
 				-Iinclude/lib/${ARCH}		\
 				-Iinclude/stdlib			\
-				-Iinclude/stdlib/sys
-
+				-Iinclude/stdlib/sys		\
+				-Iinclude/asm/arch-${PLAT}
 
 # Process DEBUG flag
 $(eval $(call assert_boolean,DEBUG))
@@ -409,7 +408,7 @@ endef
 
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
-# end up with a line-feed characer at the end of the last c filename.
+# end up with a line-feed character at the end of the last c filename.
 # Also bare this issue in mind if extending the list of supported filetypes.
 define SOURCES_TO_OBJS
 	$(notdir $(patsubst %.c,%.o,$(filter %.c,$(1)))) \

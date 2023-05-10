@@ -18,6 +18,11 @@
 const char hex_asc[] = "0123456789abcdef";
 const char hex_asc_upper[] = "0123456789ABCDEF";
 
+#ifdef CONFIG_AML_UASAN
+/* select HEXDUMP if UASAN enabled */
+#define CONFIG_HEXDUMP
+#endif
+
 #ifdef CONFIG_HEXDUMP
 /**
  * hex_dump_to_buffer - convert a blob of data to "hex ASCII" in memory

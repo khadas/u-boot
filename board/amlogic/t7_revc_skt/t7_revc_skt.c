@@ -217,6 +217,18 @@ int board_late_init(void)
 	}
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
+
+	/* The board id is used to determine if the NN needs to adjust voltage */
+	switch (readl(SYSCTRL_SEC_STATUS_REG4) >> 8 & 0xff) {
+	case 2:
+		/* The NN needs to adjust the voltage */
+		env_set_ulong("nn_adj_vol", 1);
+		break;
+	default:
+		/* The NN does not need to adjust the voltage */
+		env_set_ulong("nn_adj_vol", 0);
+	}
+
 	return 0;
 }
 

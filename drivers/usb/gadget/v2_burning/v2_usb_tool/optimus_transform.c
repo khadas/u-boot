@@ -223,10 +223,11 @@ int optimus_working (const char *cmd, char* buff)
     {
 #ifndef CONFIG_CMD_CPU_TEMP
         ret = __LINE__;
+	sprintf(buff + 7, "cpu temp control cmd NOT supported.\n");//7 == strlen("failed")
 #else
         ret = 0;
+	sprintf(buff + 7, "cpu temp control cmd DO supported.\n");//7 == strlen("failed")
 #endif// #ifdef CONFIG_CMD_CPU_TEMP
-        sprintf(buff + 7, "cpu temp control cmd %s supported.\n", ret ? "NOT" : "DO");//7 == strlen("failed")
     }
     else if(!strcmp(optCmd, "tempcontrol"))
     {

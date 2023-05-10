@@ -103,6 +103,17 @@ static struct aml_lcd_data_s lcd_data_t5d = {
 	.dft_conf = {NULL, NULL, NULL},
 };
 
+static struct aml_lcd_data_s lcd_data_t5w = {
+	.chip_type = LCD_CHIP_T5W,
+	.chip_name = "t5w",
+	.rev_type = 0,
+	.drv_max = 1,
+	.offset_venc = {0},
+	.offset_venc_if = {0},
+	.offset_venc_data = {0},
+	.dft_conf = {NULL, NULL, NULL},
+};
+
 static struct aml_lcd_data_s lcd_data_t7 = {
 	.chip_type = LCD_CHIP_T7,
 	.chip_name = "t7",
@@ -136,6 +147,16 @@ static struct aml_lcd_data_s lcd_data_c3 = {
 	.dft_conf = {NULL, NULL, NULL},
 };
 
+static struct aml_lcd_data_s lcd_data_t5m = {
+	.chip_type = LCD_CHIP_T5M,
+	.chip_name = "t5m",
+	.rev_type = 0,
+	.drv_max = 1,
+	.offset_venc = {0x0},
+	.offset_venc_if = {0x0},
+	.offset_venc_data = {0x0},
+	.dft_conf = {NULL, NULL, NULL},
+};
 static void lcd_chip_detect(void)
 {
 #if 1
@@ -166,6 +187,9 @@ static void lcd_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_T5D:
 		lcd_data = &lcd_data_t5d;
 		break;
+	case MESON_CPU_MAJOR_ID_T5W:
+		lcd_data = &lcd_data_t5w;
+		break;
 	case MESON_CPU_MAJOR_ID_T7:
 		lcd_data = &lcd_data_t7;
 		break;
@@ -174,6 +198,9 @@ static void lcd_chip_detect(void)
 		break;
 	case MESON_CPU_MAJOR_ID_C3:
 		lcd_data = &lcd_data_c3;
+		break;
+	case MESON_CPU_MAJOR_ID_T5M:
+		lcd_data = &lcd_data_t5m;
 		break;
 	default:
 		lcd_data = NULL;
@@ -689,7 +716,6 @@ static int lcd_config_probe(void)
 #else
 	dt_addr = (char *)0x01000000;
 #endif
-
 #ifdef CONFIG_OF_LIBFDT
 	if (fdt_check_header(dt_addr) < 0) {
 		LCDERR("check dts: %s, load default lcd parameters\n",
@@ -1250,7 +1276,7 @@ int aml_lcd_driver_prbs(int index, unsigned int ms, unsigned int mode_flag)
 	if (!pdrv)
 		return 0;
 
-	return lcd_prbs_test(pdrv, ms, mode_flag);
+	return aml_lcd_prbs_test(pdrv, ms, mode_flag);
 }
 
 void aml_lcd_driver_unifykey_dump(int index, unsigned int flag)

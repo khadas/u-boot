@@ -100,6 +100,16 @@ SECTIONS
 	}
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
+#ifdef CONFIG_AML_UASAN
+	/* uasan global register */
+	.init_array :
+	{
+		__init_array_start = .;
+		KEEP(*(.init_array))
+		__init_array_end = .;
+	}
+#endif
+
 	. = ALIGN(8);
 	.data : {
 		*(.data*)
@@ -146,7 +156,7 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
-#ifdef CONFIG_SUPPORT_BL33Z
+#ifdef CONFIG_FULL_RAMDUMP
 	. = ALIGN(4096);
 #endif
 

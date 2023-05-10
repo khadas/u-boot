@@ -164,7 +164,7 @@ int do_jtagon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return -1;
 	}
 
-	if (misc_ioctl(jtag_devp, JTAG_EANBLE, &jtag_id) < 0) {
+	if (misc_ioctl(jtag_devp, JTAG_ENABLE, &jtag_id) < 0) {
 		printf("failed to enable jtag.\n");
 		return -1;
 	}

@@ -23,7 +23,7 @@ static int usb_start_count = 0;
 
 //step 1: get script file size, and get script file contents
 //step 2: read image file
-//"Usage: usb_update partiton image_file_path [imgFmt, verifyFile]\n"   //usage
+//"Usage: usb_update partition image_file_path [imgFmt, verifyFile]\n"   //usage
 int do_usb_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     int rcode = 0;

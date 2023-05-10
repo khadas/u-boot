@@ -211,7 +211,7 @@ union nand_core_clk_t {
 #define	NAND_CHIP_TYPE_SLC		(0x1<<9)
 #define	NAND_CHIP_TYPE_TLC		(0x2<<9)
 
-#define	NAND_CHIP_AYSNC_MODE		(0x0<<12)
+#define	NAND_CHIP_ASYNC_MODE		(0x0<<12)
 #define	NAND_CHIP_TOGGLE_MODE		(0x1<<12)
 #define	NAND_CHIP_SLC_MODE		(0x1<<13)
 
@@ -688,7 +688,7 @@ struct nand_flash {
 *mulit-chip 0
 *serial-chip available
 *multi-plane
-*sigle-plane
+*single-plane
 */
 struct chip_ops_para {
 	u32 page_addr;
@@ -919,7 +919,7 @@ extern void nand_get_chip(void *aml_chip);
 extern void nand_release_chip(void *aml_chip);
 extern int aml_key_init(struct amlnand_chip *aml_chip);
 extern int aml_secure_init(struct amlnand_chip *aml_chip);
-extern unsigned int aml_info_checksum(unsigned char *data, int lenth);
+extern unsigned int aml_info_checksum(unsigned char *data, int length);
 extern int amlnand_info_init(struct amlnand_chip *aml_chip,
 	u8 *info,
 	u8 *buf,

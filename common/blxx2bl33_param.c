@@ -37,7 +37,7 @@ struct param_e *param_of(int type)
 #endif
 
 	for (; param && param->type; param = next_entry(param)) {
-		if (param->type == STORAGE_PARAM_TPYE)
+		if (param->type == STORAGE_PARAM_TYPE)
 			return param;
 	}
 	printf("ERROR %s(Type=%d) not found\n", __func__, type);

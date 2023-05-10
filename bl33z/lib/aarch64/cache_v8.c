@@ -34,6 +34,7 @@
 #include <io.h>
 #include "ram_compress.h"
 #include "platform_def.h"
+#include "regs.h"
 
 void set_pgtable_section(u64 *page_table, u64 index, u64 section,
 						 u64 memory_type)
@@ -60,7 +61,7 @@ static void mmu_setup(unsigned long ddr_size)
 	}
 
 	/* Setup an identity-mapping for all RAM space */
-	unsigned long nTotal = readl(PREG_STICKY_REG8) & AMLOGIC_USERAM_MASK;
+	unsigned long nTotal = readl(REG_MDUMP_CPUBOOT_STATUS) & AMLOGIC_USERAM_MASK;
 	nTotal = ((nTotal - 1) / 512 + 1) * 512;
 
 	serial_puts("\naml log : DDR size is ");

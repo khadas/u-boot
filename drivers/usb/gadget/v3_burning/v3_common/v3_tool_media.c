@@ -36,6 +36,8 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
 
 		FB_DBG("cfg partSzInBytes %llx for part(%s)\n", partSzInBytes, thePartName);
 		if (NAND_PART_SIZE_FULL == partSzInBytes) {return 0;}
+		if ((partSzInBytes >> 32) == 0xffffffffUL) //GPT mode last part
+			return 0;
 		if (partSzInBytes > nandPartCap) {
 			FB_EXIT("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
 					thePartName, partSzInBytes, nandPartCap);
@@ -100,6 +102,7 @@ static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const ch
 	int iCopy = 0, ret = 0;
 	const int bootCpyNum = store_boot_copy_num(bootName);
 	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+	const enum boot_type_e medium_type = store_get_type();
 	unsigned char *flash_boot = NULL;
 
 	FB_MSG("[%s] CpyNum %d, bootCpySz 0x%x\n", bootName, bootCpyNum, bootCpySz);
@@ -159,6 +162,11 @@ static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const ch
 	} while (0);
 
 	for (; iCopy < bootCpyNum; ++iCopy) {
+		if (medium_type == BOOT_EMMC)
+			if (!store_boot_copy_enable(iCopy)) {
+				FB_MSG("skip not EN cpy%d\n", iCopy);
+				continue;
+			}
 		ret = store_boot_write(bootName, iCopy, binSz, flash_boot ? flash_boot : dataBuf);
 		if (ret) FBS_EXIT(_ACK, "FAil in program[%s] at copy[%d]\n", bootName, iCopy);
 	}
@@ -175,6 +183,7 @@ static int _bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz, const ch
 	int iCopy = 0, ret = 0;
 	const int bootCpyNum = store_boot_copy_num(bootName);
 	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+	const enum boot_type_e medium_type = store_get_type();
 
 	FB_MSG("[%s] CpyNum %d, bootCpySz 0x%x\n", bootName, bootCpyNum, bootCpySz);
 	if (binSz + off > bootCpySz)
@@ -187,6 +196,11 @@ static int _bootloader_write(u8 *dataBuf, unsigned off, unsigned binSz, const ch
 	}
 
 	for (; iCopy < bootCpyNum; ++iCopy) {
+		if (medium_type == BOOT_EMMC)
+			if (!store_boot_copy_enable(iCopy)) {
+				FB_MSG("skip not EN cpy%d\n", iCopy);
+				continue;
+			}
 		ret = store_boot_write(bootName, iCopy, binSz, dataBuf);
 		if (ret)
 			FBS_EXIT(_ACK, "FAil in program[%s] at copy[%d]\n", bootName, iCopy);
@@ -308,8 +322,10 @@ static int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* 
 	int iCopy = 0;
 	const int bootCpyNum = store_boot_copy_num(bootName);
 	const int bootCpySz  = (int)store_boot_copy_size(bootName);
+	const enum boot_type_e medium_type = store_get_type();
 	int validCpyNum = bootCpyNum;//at least valid cpy num
 	int actVldCpyNum = 0;//actual valid copy num
+	int ret = 0;
 
 #if CONFIG_NAND_BL2_VALID_NUM
 	if (!strcmp("bl2", bootName))
@@ -328,7 +344,14 @@ static int _bootloader_read(u8* pBuf, unsigned off, unsigned binSz, const char* 
 
 	for (iCopy = 0; iCopy < bootCpyNum; ++iCopy) {
 		void* dataBuf = iCopy ? pBuf + binSz : pBuf;
-		int ret = store_boot_read(bootName, iCopy, binSz, dataBuf);
+
+		if (medium_type == BOOT_EMMC)
+			if (!store_boot_copy_enable(iCopy)) {
+				FB_MSG("skip not EN cpy%d\n", iCopy);
+				--validCpyNum;
+				continue;
+			}
+		ret = store_boot_read(bootName, iCopy, binSz, dataBuf);
 		if (ret) {
 			FB_ERR("Fail to read boot[%s] at copy[%d]\n", bootName, iCopy);
 			continue;

@@ -230,6 +230,8 @@ static void lcd_venc_set_timing(struct aml_lcd_drv_s *pdrv)
 		lcd_vcbus_write(ENCL_INBUF_CNTL0 + offset, 0x200);
 		break;
 	case LCD_CHIP_T3:
+	case LCD_CHIP_T5W:
+	case LCD_CHIP_T5M:
 		lcd_vcbus_write(ENCL_INBUF_CNTL1 + offset,
 				(4 << 13) | (pconf->basic.h_active - 1));
 		lcd_vcbus_write(ENCL_INBUF_CNTL0 + offset, 0x200);

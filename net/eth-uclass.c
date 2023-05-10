@@ -547,7 +547,11 @@ static int eth_post_probe(struct udevice *dev)
 
 	eth_get_efuse_mac(dev);
 	if (is_valid_ethaddr(pdata->enetaddr)) {
-		eth_env_set_enetaddr_by_index("eth", ARP_HLEN,
+		sprintf((char *)env_str, "%02x:%02x:%02x:%02x:%02x:%02x", pdata->enetaddr[0],
+					pdata->enetaddr[1], pdata->enetaddr[2], pdata->enetaddr[3],
+					pdata->enetaddr[4], pdata->enetaddr[5]);
+		env_set("ethaddr", (const char *)env_str);
+		eth_env_set_enetaddr_by_index("eth", dev->seq,
 					      pdata->enetaddr);
 	} else {
 #if defined MAC_ADDR_NEW

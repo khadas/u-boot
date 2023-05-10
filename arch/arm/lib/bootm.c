@@ -41,6 +41,10 @@
 #include <asm/arch/register.h>
 #endif
 
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+#include <initcall.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct tag *params;
@@ -71,7 +75,12 @@ void arch_lmb_reserve(struct lmb *lmb)
 	debug("## Current stack ends at 0x%08lx ", sp);
 
 	/* adjust sp by 4K to be safe */
+#ifdef CONFIG_AML_UASAN
+	/* 4K is not enough if enabled UASAN */
+	sp -= UASAN_STACK_SIZE;
+#else
 	sp -= 4096;
+#endif
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		if (sp < gd->bd->bi_dram[bank].start)
 			continue;
@@ -423,7 +432,11 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 #endif
 #endif
 		extern uint32_t get_time(void);
-		pr_info("uboot time: %u us\n", get_time());
+		printf("uboot time: %u us\n", get_time());
+	#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+		if (gd->time_print_flag)
+			dump_initcall_time();
+	#endif
 		if (images->os.arch == IH_ARCH_ARM) {
 			pr_info("boot 32bit kernel\n");
 			jump_to_a32_kernel(images->ep, machid, (unsigned long)images->ft_addr);

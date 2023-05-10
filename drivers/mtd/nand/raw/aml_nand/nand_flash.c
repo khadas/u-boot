@@ -490,6 +490,18 @@ struct aml_nand_flash_dev aml_nand_flash_ids[] = {
 		0,
 		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE )},
 
+	{"4Gib MT29F4G08ABAFA",
+		{NAND_MFR_MICRON, 0xdc, 0x80, 0xA6, 0x62},
+		4096,
+		512,
+		0x40000,
+		224,
+		1,
+		16,
+		15,
+		0,
+		(NAND_TIMING_MODE5 | NAND_ECC_BCH8_MODE)},
+
 	{"4Gib MT29F4G08ABAEA",
 		{NAND_MFR_MICRON, 0xdc, 0x90, 0xA6, 0x54},
 		4096,
@@ -987,7 +999,7 @@ void display_para_page(struct parameter_page para_page,unsigned long log_level)
 
 	if (1 == log_level) {
 		printk("The parameter value is show as following list,"
-			"please refer to ONFI SPEC for more infomation.\n");
+			"please refer to ONFI SPEC for more information.\n");
 		printk("index val index val index val index val ");
 		for (i = 0; i < sizeof(para_page); i++, buf++) {
 			if (!(i % 4))
@@ -1377,7 +1389,7 @@ static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	mtd->oobsize = valid_chip_num * aml_type->oobsize;
 	mtd->size = valid_chip_num * chip->chipsize;
 
-	/* overide bootloader's size considering info page */
+	/* override bootloader's size considering info page */
 	/* fixme, need -1 for each copies? */
 	if (!strncmp((char*)plat->name,
 		NAND_BOOT_NAME, strlen((const char*)NAND_BOOT_NAME)))

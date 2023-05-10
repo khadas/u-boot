@@ -398,6 +398,24 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
+	{ /* VMODE_1920x1080p100hz */
+		.name              = "1920x1080p100hz",
+		.mode              = VMODE_1920x1080p100hz,
+		.width             = 1920,
+		.height            = 1080,
+		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_1920x1080p120hz */
+		.name              = "1920x1080p120hz",
+		.mode              = VMODE_1920x1080p120hz,
+		.width             = 1920,
+		.height            = 1080,
+		.field_height      = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
 	{ /* VMODE_1920x1200p60hz */
 		.name              = "1920x1200p60hz",
 		.mode              = VMODE_1920x1200p60hz,
@@ -435,6 +453,69 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.mode              = VMODE_3840x1080p100hz,
 		.width             = 3840,
 		.height            = 1080,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_3840x2160p100hz */
+		.name              = "3840x2160p100hz",
+		.mode              = VMODE_3840x2160p100hz,
+		.width             = 3840,
+		.height            = 2160,
+		.field_height      = 2160,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_3840x2160p120hz */
+		.name              = "3840x2160p120hz",
+		.mode              = VMODE_3840x2160p120hz,
+		.width             = 3840,
+		.height            = 2160,
+		.field_height      = 2160,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_7680x4320p24hz */
+		.name              = "7680x4320p24hz",
+		.mode              = VMODE_7680x4320p24hz,
+		.width             = 7680,
+		.height            = 4320,
+		.field_height      = 4320,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_7680x4320p25hz */
+		.name              = "7680x4320p25hz",
+		.mode              = VMODE_7680x4320p25hz,
+		.width             = 7680,
+		.height            = 4320,
+		.field_height      = 4320,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_7680x4320p30hz */
+		.name              = "7680x4320p30hz",
+		.mode              = VMODE_7680x4320p30hz,
+		.width             = 7680,
+		.height            = 4320,
+		.field_height      = 4320,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_7680x4320p50hz */
+		.name              = "7680x4320p50hz",
+		.mode              = VMODE_7680x4320p50hz,
+		.width             = 7680,
+		.height            = 4320,
+		.field_height      = 4320,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+	{ /* VMODE_7680x4320p60hz */
+		.name              = "7680x4320p60hz",
+		.mode              = VMODE_7680x4320p60hz,
+		.width             = 7680,
+		.height            = 4320,
+		.field_height      = 4320,
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	}
@@ -661,6 +742,11 @@ static int get_window_axis(int *axis)
 		axis[1] = getenv_int("1080p_y", def_y);
 		axis[2] = getenv_int("1080p_w", def_w);
 		axis[3] = getenv_int("1080p_h", def_h);
+	} else if (strncmp(mode, "1920x1080p", 10) == 0) {
+		axis[0] = getenv_int("1920x1080p_x", def_x);
+		axis[1] = getenv_int("1920x1080p_y", def_y);
+		axis[2] = getenv_int("1920x1080p_w", def_w);
+		axis[3] = getenv_int("1920x1080p_h", def_h);
 	} else if (strncmp(mode, "2160p", 5) == 0) {
 		axis[0] = getenv_int("2160p_x", def_x);
 		axis[1] = getenv_int("2160p_y", def_y);
@@ -676,6 +762,16 @@ static int get_window_axis(int *axis)
 		axis[1] = getenv_int("3840x1080p_y", def_y);
 		axis[2] = getenv_int("3840x1080p_w", def_w);
 		axis[3] = getenv_int("3840x1080p_h", def_h);
+	} else if (strncmp(mode, "3840x2160p", 10) == 0) {
+		axis[0] = getenv_int("3840x2160p_x", def_x);
+		axis[1] = getenv_int("3840x2160p_y", def_y);
+		axis[2] = getenv_int("3840x2160p_w", def_w);
+		axis[3] = getenv_int("3840x2160p_h", def_h);
+	} else if (strncmp(mode, "7680x4320p", 10) == 0) {
+		axis[0] = getenv_int("7680x4320p_x", def_x);
+		axis[1] = getenv_int("7680x4320p_y", def_y);
+		axis[2] = getenv_int("7680x4320p_w", def_w);
+		axis[3] = getenv_int("7680x4320p_h", def_h);
 	} else if (strncmp(mode, "panel",5) == 0) {
 		axis[0] = getenv_int("panel_x", def_x);
 		axis[1] = getenv_int("panel_y", def_y);
@@ -981,6 +1077,7 @@ void vout_probe(void)
 		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
 		break;
 	case MESON_CPU_MAJOR_ID_T3:
+	case MESON_CPU_MAJOR_ID_T5M:
 		vout_conf = &vout_config_dual_t3;
 		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
 		break;

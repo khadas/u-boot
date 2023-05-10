@@ -1416,9 +1416,9 @@ static struct hdmi_format_para fmt_para_vesa_1024x768p60_4x3 = {
 	.progress_mode = 1,
 	.scrambler_en = 0,
 	.tmds_clk_div40 = 0,
-	.tmds_clk = 79500,
+	.tmds_clk = 65000,
 	.timing = {
-		.pixel_freq = 79500,
+		.pixel_freq = 65000,
 		.h_freq = 48360,
 		.v_freq = 60004,
 		.vsync_polarity = 1,
@@ -1539,9 +1539,9 @@ static struct hdmi_format_para fmt_para_vesa_1280x800p60_8x5 = {
 	.progress_mode = 1,
 	.scrambler_en = 0,
 	.tmds_clk_div40 = 0,
-	.tmds_clk = 83500,
+	.tmds_clk = 71000,
 	.timing = {
-		.pixel_freq = 83500,
+		.pixel_freq = 71000,
 		.h_freq = 49380,
 		.v_freq = 59910,
 		.vsync_polarity = 1,
@@ -2293,7 +2293,7 @@ void hdmi_parse_attr(struct hdmi_format_para *para, char const *name)
 }
 
 /*
- * Paramter 'name' can be 1080p60hz, or 1920x1080p60hz
+ * Parameter 'name' can be 1080p60hz, or 1920x1080p60hz
  * or 3840x2160p60hz, 2160p60hz
  * or 3840x2160p60hz420, 2160p60hz420 (Y420 mode)
  */

@@ -18,7 +18,7 @@
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */
@@ -172,7 +172,6 @@
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
@@ -383,6 +382,9 @@
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
 #define CONFIG_FIP_IMG_SUPPORT  1
+
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED

@@ -8,8 +8,17 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define CPU_CLK                                 1512
-#define DSU_CLK                                 1200
+#define CPU_CLK                                 1920
+#define DSU_CLK                                 1500  /* c3 does not have dsu */
+
+/* board vmin_value defines */
+#define VMIN_FF_VALUE                           770
+#define VMIN_TT_VALUE                           800
+#define VMIN_SS_VALUE                           830
+/* board vddee_value defines */
+#define VDDEE_FF_VALUE                          0x8000a
+#define VDDEE_TT_VALUE                          0x5000d
+#define VDDEE_SS_VALUE                          0x20010
 
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
 #define DDR_ID_ACS_ADC   ((3 << 6) | (8))
@@ -17,10 +26,6 @@
 #define DDR_RESV_CHECK_ID_ENABLE  0Xfe
 #define SAR_ADC_DDR_ID_BASE   0
 #define SAR_ADC_DDR_ID_STEP   80
-#define CARMEL_BOARD_1G_1G_ADC_ID   \
-	SAR_ADC_DDR_ID_BASE + SAR_ADC_DDR_ID_STEP	//85  0-125 step 0
-#define CARMEL_BOARD_2G_1G_ADC_ID   \
-	SAR_ADC_DDR_ID_BASE + SAR_ADC_DDR_ID_STEP + SAR_ADC_DDR_ID_STEP	//167 126-200 step 1
 #define DDR_TIMMING_OFFSET(X)  \
 	(unsigned int)(unsigned long)(&(((ddr_set_ps0_only_t *)(0))->X))
 #define DDR_TIMMING_OFFSET_SIZE(X) sizeof(((ddr_set_ps0_only_t *)(0))->X)
@@ -130,9 +135,11 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.timming_struct_version = 0,
 	.cfg_board_common_setting.timming_struct_org_size = sizeof(ddr_set_ps0_only_t),
 	.cfg_board_common_setting.timming_struct_real_size = 0,
-	.cfg_board_common_setting.fast_boot = { 0, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
+	.cfg_board_common_setting.fast_boot = { 0x1, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
 	.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID |
 		DDR_FUNC_CONFIG_DFE_FUNCTION,
+	//.cfg_board_common_setting.ddr_func = DDR_FUNC |
+	//	DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
 	.cfg_board_common_setting.DramType = CONFIG_DDR_TYPE_DDR4,
 	.cfg_board_common_setting.dram_rank_config = CONFIG_DDR0_32BIT_RANK0_CH0,
@@ -188,8 +195,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
 	.cfg_board_SI_setting_ps.dfe_offset = 0,
 	.cfg_board_SI_setting_ps.vref_ac_permil = 0,
-	.cfg_board_SI_setting_ps.vref_soc_data_permil = 0,
-	.cfg_board_SI_setting_ps.vref_dram_data_permil = 0,
+	.cfg_board_SI_setting_ps.vref_soc_data_permil = 680,
+	.cfg_board_SI_setting_ps.vref_dram_data_permil = 700,
 	.cfg_board_SI_setting_ps.max_core_timmming_frequency = 0,
 	.cfg_board_SI_setting_ps.training_phase_parameter = {0},
 	.cfg_board_SI_setting_ps.ac_trace_delay_org = {
@@ -208,110 +215,262 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		384, 384, 384, 384,
 		},
 
-	.cfg_ddr_training_delay_ps.write_dqs_delay[0]  = 341,
-	.cfg_ddr_training_delay_ps.write_dqs_delay[1]  = 341,
-	.cfg_ddr_training_delay_ps.write_dqs_delay[2]  = 346,
-	.cfg_ddr_training_delay_ps.write_dqs_delay[3]  = 346,
-	.cfg_ddr_training_delay_ps.write_dqs_delay[4]  = 341,
-	.cfg_ddr_training_delay_ps.write_dqs_delay[5]  = 341,
-	.cfg_ddr_training_delay_ps.write_dqs_delay[6]  = 341,
-	.cfg_ddr_training_delay_ps.write_dqs_delay[7]  = 341,
-
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[0]  = 415,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[1]  = 410,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[2]  = 417,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[3]  = 401,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[4]  = 423,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[5]  = 402,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[6]  = 405,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[7]  = 407,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[8]  = 410,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[9]  = 417,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[10]  = 383,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[11]  = 419,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[12]  = 386,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[13]  = 418,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[14]  = 400,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[15]  = 412,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[16]  = 401,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[17]  = 404,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[18]  = 409,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[19]  = 380,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[20]  = 422,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[21]  = 379,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[22]  = 423,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[23]  = 393,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[24]  = 400,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[25]  = 376,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[26]  = 397,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[27]  = 416,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[28]  = 397,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[29]  = 419,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[30]  = 397,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[31]  = 397,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[32]  = 378,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[33]  = 395,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[34]  = 375,
-	.cfg_ddr_training_delay_ps.write_dq_bit_delay[35]  = 396,
-
-	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[0]  = 281,
-	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[1]  = 279,
-	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[2]  = 279,
-	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[3]  = 283,
-
-	//20220806,when aw419 enable DFE,read_dqs_delay[2]must set 170,138 cause low max frequency
-	.cfg_ddr_training_delay_ps.read_dqs_delay[0]  = 170,//123,
-	.cfg_ddr_training_delay_ps.read_dqs_delay[1]  = 170,//127,
-	.cfg_ddr_training_delay_ps.read_dqs_delay[2]  = 170,//138,
-	.cfg_ddr_training_delay_ps.read_dqs_delay[3]  = 170,//129,
-
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[0]	= 69,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[1]	= 53,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[2]	= 68,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[3]	= 53,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[4]	= 85,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[5]	= 57,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[6]	= 65,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[7]	= 55,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[8]	= 63,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[9]	= 80,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[10]  = 50,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[11]  = 84,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[12]  = 50,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[13]  = 83,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[14]  = 57,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[15]  = 83,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[16]  = 56,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[17]  = 67,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[18]  = 83,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[19]  = 55,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[20]  = 97,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[21]  = 52,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[22]  = 102,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[23]  = 67,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[24]  = 91,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[25]  = 55,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[26]  = 75,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[27]  = 87,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[28]  = 63,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[29]  = 98,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[30]  = 61,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[31]  = 74,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[32]  = 49,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[33]  = 72,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[34]  = 45,
-	.cfg_ddr_training_delay_ps.read_dq_bit_delay[35]  = 68,
-
-		//total 72
-	.cfg_ddr_training_delay_ps.soc_bit_vref = {
-		0,  40, 40, 40, 40, 40, 40, 40,
-		40, 40, 40, 40, 40, 40, 40, 40,
-		40, 40, 40, 40, 40, 40, 40, 40,
-		40, 40, 40, 40, 40, 40, 40, 40,
-		40, 40, 40, 40, 40, 48, 40, 48,
-		40, 48, 40, 48
-	},
-		//total 44
+	.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 0x00000164,// 356
+	.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 0x00000169,// 361
+	.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 0x0000016e,// 366
+	.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 0x00000169,// 361
+	.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 0x00000155,// 341
+	.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 0x00000155,// 341
+	.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 0x00000155,// 341
+	.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 0x00000155,// 341
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[0] = 0x000001b1,// 433
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[1] = 0x000001a3,// 419
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[2] = 0x000001b1,// 433
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[3] = 0x0000019a,// 410
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[4] = 0x000001b9,// 441
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[5] = 0x0000019f,// 415
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[6] = 0x000001a1,// 417
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[7] = 0x000001a3,// 419
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[8] = 0x000001a7,// 423
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[9] = 0x000001b9,// 441
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[10] = 0x0000018e,// 398
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[11] = 0x000001bc,// 444
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[12] = 0x00000191,// 401
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[13] = 0x000001b5,// 437
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[14] = 0x0000019f,// 415
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[15] = 0x000001b0,// 432
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[16] = 0x0000019f,// 415
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[17] = 0x000001a6,// 422
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[18] = 0x000001af,// 431
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[19] = 0x00000192,// 402
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[20] = 0x000001be,// 446
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[21] = 0x00000191,// 401
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[22] = 0x000001bf,// 447
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[23] = 0x000001a1,// 417
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[24] = 0x000001a8,// 424
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[25] = 0x0000018d,// 397
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[26] = 0x000001a4,// 420
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[27] = 0x000001b6,// 438
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[28] = 0x0000019f,// 415
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[29] = 0x000001c1,// 449
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[30] = 0x000001a0,// 416
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[31] = 0x000001a0,// 416
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[32] = 0x0000018b,// 395
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[33] = 0x000001a1,// 417
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[34] = 0x00000186,// 390
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[35] = 0x000001a1,// 417
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[36] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[37] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[38] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[39] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[40] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[41] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[42] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[43] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[44] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[45] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[46] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[47] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[48] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[49] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[50] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[51] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[52] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[53] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[54] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[55] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[56] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[57] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[58] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[59] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[60] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[61] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[62] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[63] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[64] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[65] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[66] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[67] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[68] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[69] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[70] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.write_dq_bit_delay[71] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[0] = 0x00000285,// 645
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[1] = 0x00000286,// 646
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[2] = 0x0000028c,// 652
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[3] = 0x0000028e,// 654
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[4] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[5] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[6] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_gate_delay[7] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_delay[0] = 0x00000075,// 117
+	.cfg_ddr_training_delay_ps.read_dqs_delay[1] = 0x0000008a,// 138
+	.cfg_ddr_training_delay_ps.read_dqs_delay[2] = 0x00000085,// 133
+	.cfg_ddr_training_delay_ps.read_dqs_delay[3] = 0x0000007f,// 127
+	.cfg_ddr_training_delay_ps.read_dqs_delay[4] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_delay[5] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_delay[6] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dqs_delay[7] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[0] = 0x00000042,// 66
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[1] = 0x00000035,// 53
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[2] = 0x0000003e,// 62
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[3] = 0x00000032,// 50
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[4] = 0x0000005c,// 92
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[5] = 0x00000036,// 54
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[6] = 0x00000040,// 64
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[7] = 0x00000033,// 51
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[8] = 0x0000003d,// 61
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[9] = 0x0000005a,// 90
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[10] = 0x00000034,// 52
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[11] = 0x0000005d,// 93
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[12] = 0x00000035,// 53
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[13] = 0x0000005a,// 90
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[14] = 0x00000039,// 57
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[15] = 0x00000058,// 88
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[16] = 0x0000003c,// 60
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[17] = 0x00000048,// 72
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[18] = 0x00000051,// 81
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[19] = 0x00000031,// 49
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[20] = 0x00000062,// 98
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[21] = 0x0000002e,// 46
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[22] = 0x00000061,// 97
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[23] = 0x00000039,// 57
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[24] = 0x00000057,// 87
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[25] = 0x00000030,// 48
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[26] = 0x00000046,// 70
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[27] = 0x00000058,// 88
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[28] = 0x00000039,// 57
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[29] = 0x00000060,// 96
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[30] = 0x00000035,// 53
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[31] = 0x00000047,// 71
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[32] = 0x0000002d,// 45
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[33] = 0x00000047,// 71
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[34] = 0x0000002e,// 46
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[35] = 0x00000041,// 65
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[36] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[37] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[38] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[39] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[40] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[41] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[42] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[43] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[44] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[45] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[46] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[47] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[48] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[49] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[50] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[51] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[52] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[53] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[54] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[55] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[56] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[57] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[58] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[59] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[60] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[61] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[62] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[63] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[64] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[65] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[66] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[67] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[68] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[69] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[70] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.read_dq_bit_delay[71] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref[0] = 0x00000021,// 33
+	.cfg_ddr_training_delay_ps.soc_bit_vref[1] = 0x0000001f,// 31
+	.cfg_ddr_training_delay_ps.soc_bit_vref[2] = 0x0000001f,// 31
+	.cfg_ddr_training_delay_ps.soc_bit_vref[3] = 0x00000024,// 36
+	.cfg_ddr_training_delay_ps.soc_bit_vref[4] = 0x0000001f,// 31
+	.cfg_ddr_training_delay_ps.soc_bit_vref[5] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[6] = 0x00000021,// 33
+	.cfg_ddr_training_delay_ps.soc_bit_vref[7] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[8] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[9] = 0x00000021,// 33
+	.cfg_ddr_training_delay_ps.soc_bit_vref[10] = 0x00000023,// 35
+	.cfg_ddr_training_delay_ps.soc_bit_vref[11] = 0x0000001d,// 29
+	.cfg_ddr_training_delay_ps.soc_bit_vref[12] = 0x00000023,// 35
+	.cfg_ddr_training_delay_ps.soc_bit_vref[13] = 0x0000001d,// 29
+	.cfg_ddr_training_delay_ps.soc_bit_vref[14] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[15] = 0x00000023,// 35
+	.cfg_ddr_training_delay_ps.soc_bit_vref[16] = 0x0000001f,// 31
+	.cfg_ddr_training_delay_ps.soc_bit_vref[17] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[18] = 0x0000001d,// 29
+	.cfg_ddr_training_delay_ps.soc_bit_vref[19] = 0x00000025,// 37
+	.cfg_ddr_training_delay_ps.soc_bit_vref[20] = 0x0000001e,// 30
+	.cfg_ddr_training_delay_ps.soc_bit_vref[21] = 0x00000024,// 36
+	.cfg_ddr_training_delay_ps.soc_bit_vref[22] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[23] = 0x0000001c,// 28
+	.cfg_ddr_training_delay_ps.soc_bit_vref[24] = 0x0000001d,// 29
+	.cfg_ddr_training_delay_ps.soc_bit_vref[25] = 0x00000022,// 34
+	.cfg_ddr_training_delay_ps.soc_bit_vref[26] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[27] = 0x00000021,// 33
+	.cfg_ddr_training_delay_ps.soc_bit_vref[28] = 0x0000001f,// 31
+	.cfg_ddr_training_delay_ps.soc_bit_vref[29] = 0x0000001e,// 30
+	.cfg_ddr_training_delay_ps.soc_bit_vref[30] = 0x00000021,// 33
+	.cfg_ddr_training_delay_ps.soc_bit_vref[31] = 0x00000022,// 34
+	.cfg_ddr_training_delay_ps.soc_bit_vref[32] = 0x00000024,// 36
+	.cfg_ddr_training_delay_ps.soc_bit_vref[33] = 0x00000022,// 34
+	.cfg_ddr_training_delay_ps.soc_bit_vref[34] = 0x00000021,// 33
+	.cfg_ddr_training_delay_ps.soc_bit_vref[35] = 0x00000020,// 32
+	.cfg_ddr_training_delay_ps.soc_bit_vref[36] = 0x00000026,// 38
+	.cfg_ddr_training_delay_ps.soc_bit_vref[37] = 0x0000002f,// 47
+	.cfg_ddr_training_delay_ps.soc_bit_vref[38] = 0x00000026,// 38
+	.cfg_ddr_training_delay_ps.soc_bit_vref[39] = 0x0000002f,// 47
+	.cfg_ddr_training_delay_ps.soc_bit_vref[40] = 0x00000026,// 38
+	.cfg_ddr_training_delay_ps.soc_bit_vref[41] = 0x0000002b,// 43
+	.cfg_ddr_training_delay_ps.soc_bit_vref[42] = 0x00000026,// 38
+	.cfg_ddr_training_delay_ps.soc_bit_vref[43] = 0x0000002f,// 47
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[0] = 0x0000002d,// 45
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[1] = 0x0000002b,// 43
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[2] = 0x0000002b,// 43
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[3] = 0x00000030,// 48
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[4] = 0x0000002b,// 43
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[5] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[6] = 0x0000002d,// 45
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[7] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[8] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[9] = 0x0000002d,// 45
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[10] = 0x0000002f,// 47
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[11] = 0x00000029,// 41
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[12] = 0x0000002f,// 47
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[13] = 0x00000029,// 41
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[14] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[15] = 0x0000002f,// 47
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[16] = 0x0000002b,// 43
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[17] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[18] = 0x00000029,// 41
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[19] = 0x00000031,// 49
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[20] = 0x0000002a,// 42
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[21] = 0x00000030,// 48
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[22] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[23] = 0x00000028,// 40
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[24] = 0x00000029,// 41
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[25] = 0x0000002e,// 46
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[26] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[27] = 0x0000002d,// 45
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[28] = 0x0000002b,// 43
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[29] = 0x0000002a,// 42
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[30] = 0x0000002d,// 45
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[31] = 0x0000002e,// 46
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[32] = 0x00000030,// 48
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[33] = 0x0000002e,// 46
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[34] = 0x0000002d,// 45
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[35] = 0x0000002c,// 44
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[36] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[37] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[38] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[39] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[40] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[41] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[42] = 0x00000000,// 0
+	.cfg_ddr_training_delay_ps.soc_bit_vref_dac1[43] = 0x00000000,// 0
 	.cfg_ddr_training_delay_ps.dram_bit_vref = {
 		0,  32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32,
@@ -319,8 +478,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32
 	},
-	//total 36
-
+//total 36
+// #if 1
 	.cfg_ddr_training_delay_ps.reserve_training_parameter = {
 		//cs0 write dqs,lane0-lane3
 		(0 << 7) | 5, (0 << 7) | 0, (0 << 7) | 5, (0 << 7) | 0,
@@ -333,6 +492,24 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//cs1 read dqs,lane0-lane3
 		(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
 	},
+// #endif
+
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[0] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[1] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[2] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[3] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[4] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[5] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[6] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[7] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[8] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[9] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[10] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[11] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[12] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[13] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[14] = 0x00000000,// 0
+// .cfg_ddr_training_delay_ps.reserve_training_parameter[15] = 0x00000000,// 0
 },
 #endif
 };
@@ -473,13 +650,25 @@ __attribute__ ((section(".clk_param"))) = {
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
+	/* bit0 in flag, 1: enable bl22, 0: disable bl22 */
+	{ 0, 0, 0xffffffff, 0, 1, 0 },
 };
 
 /* gpio/pinmux/pwm init */
 register_ops_t __bl2_ops_reg[MAX_REG_OPS_ENTRIES]
 __attribute__ ((section(".misc_param"))) = {
+	/* config vmin value */
+	{ 0, VMIN_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_1, 0 },
+	{ 0, VMIN_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_2, 0 },
+	{ 0, VMIN_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VMIN_FLAG_3, 0 },
 	/* config vddee and vcck pwm - pwm_a and pwm_b*/
-	{ PWMAB_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0 },
+#ifdef CONFIG_PDVFS_ENABLE
+	{ PWMAB_PWM_A, VDDEE_SS_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDEE_FLAG_1, 0 },
+	{ PWMAB_PWM_A, VDDEE_TT_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDEE_FLAG_2, 0 },
+	{ PWMAB_PWM_A, VDDEE_FF_VALUE, 0xffffffff, 0, BL2_INIT_STAGE_VDDEE_FLAG_3, 0 },
+#else
+	{ PWMAB_PWM_A,		   VDDEE_VAL_REG, 0xffffffff, 0, 0, 0},
+#endif
 	{ PWMAB_PWM_B,		   VCCK_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMAB_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
 				(0x3 << 0) | (0x1 << 15) | (0x1 << 23), 0, 0, 0 },
@@ -513,7 +702,7 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 		/* page size get from info page, not used here */
 		.setup_data.spi_nand_page_size = 2048,
 		/* planes per lun get from info page, not used here */
-		.reserved.spi_nand_planes_per_lun = (1 << 0) | (64 << 8) | (0x3b << 16),
+		.reserved.spi_nand_planes_per_lun = (1 << 0) | (96 << 8) | (0x3b << 16),
 		.reserved_area_blk_cnt = 48,
 		.page_per_block = 64,
 		.use_param_page_list = 0,

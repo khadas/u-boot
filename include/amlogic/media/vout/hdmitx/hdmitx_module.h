@@ -37,6 +37,7 @@ struct hdmitx_dev {
 	/* Add dongle_mode, clock, phy may be different from mbox */
 	unsigned int dongle_mode;
 	unsigned char limit_res_1080p;
+	bool config_csc_en;
 };
 
 struct hdmitx_dev *hdmitx_get_hdev(void);
@@ -100,6 +101,7 @@ bool is_hdmi_mode(char *mode);
 
 /* the hdmitx output limits to 1080p */
 bool is_hdmitx_limited_1080p(void);
+bool is_vic_over_limited_1080p(enum hdmi_vic vic);
 
 #ifndef printk
 #define printk printf

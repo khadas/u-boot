@@ -35,6 +35,5 @@
 
 #define PM_MAX		26
 
-unsigned long viu_init_psci_smc(void);
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);
 unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain);

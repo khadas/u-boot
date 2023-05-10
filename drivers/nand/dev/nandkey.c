@@ -72,7 +72,7 @@ exit:
 }
 
 /*
- * This funcion reads the u-boot keyionment variables.
+ * This function reads the u-boot key environment variables.
  * The f_pos points directly to the key location.
  */
 static int nand_key_read(struct aml_keybox_provider_s * provider, u8 * buf, int len, int flags)

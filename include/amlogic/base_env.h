@@ -19,11 +19,10 @@
 #define CONFIG_EXTRA_ENV_SETTINGS_BASE \
 	"firstboot=1\0"\
 	"upgrade_step=0\0"\
-	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
 	"loadaddr_rtos=0x00001000\0"\
-	"loadaddr_kernel=0x03080000\0"\
+	"loadaddr_kernel=0x03000000\0"\
 	"fb_addr=0x00300000\0" \
 	"dolby_status=0\0" \
 	"dolby_vision_on=0\0" \
@@ -39,7 +38,7 @@
 	"rollback_flag=0\0"\
 	"boot_flag=0\0"\
 	"write_boot=0\0"\
-	"Irq_check_en=0\0"\
+	"ddr_size=0\0"\
 	"recovery_mode=false\0"\
 	"retry_recovery_times=7\0"\
 	"androidboot.dtbo_idx=0\0"\
@@ -69,12 +68,12 @@
 		"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
 		"cvbsmode=${cvbsmode} "\
 		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
-		"irq_check_en=${Irq_check_en}  "\
-		"jtag=${jtag} disable_ir=${disable_ir};"\
+		"disable_ir=${disable_ir};"\
 		"setenv bootconfig androidboot.selinux=${EnableSelinux} "\
 		"androidboot.firstboot=${firstboot} "\
 		"androidboot.bootloader=${bootloader_version} "\
-		"androidboot.hardware=amlogic ;"\
+		"androidboot.hardware=amlogic "\
+		"androidboot.ddr_size=${ddr_size} ;"\
 		"\0"\
 	"storeboot_base="\
 		"run get_os_type;"\
@@ -86,7 +85,6 @@
 		"else if test ${os_type} = kernel; then "\
 			"get_system_as_root_mode;"\
 			"echo system_mode in storeboot: ${system_mode};"\
-			"get_avb_mode;"\
 			"echo active_slot in storeboot: ${active_slot};"\
 			"if test ${system_mode} = 1; then "\
 				"setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
@@ -167,9 +165,7 @@
 			"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
 			"else "\
 				"if test ${vendor_boot_mode} = true; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
-				"recovery_part=${recovery_part} "\
-				"recovery_offset=${recovery_offset};"\
+				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
 				"setenv bootconfig ${bootconfig} "\
 					"androidboot.slot_suffix=${active_slot};"\
 				"if imgread kernel ${boot_part} ${loadaddr}; then "\
@@ -190,7 +186,7 @@
 		"get_avb_mode;"\
 		"get_valid_slot;"\
 		"if test ${vendor_boot_mode} = true; then "\
-			"setenv loadaddr_kernel 0x3080000;"\
+			"setenv loadaddr_kernel 0x3000000;"\
 			"setenv dtb_mem_addr 0x1000000;"\
 		"fi;"\
 		"if test ${active_slot} != normal; then "\

@@ -170,20 +170,24 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
+	//default uboot env need before anyone use it
+	if (env_get("default_env")) {
+		printf("factory reset, need default all uboot env.\n");
+		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
+	}
+
 #ifdef CONFIG_AML_HDMITX21
 	printf("hdmitx21_init\n");
 	hdmitx21_init();
 	hdmitx21_chip_type_init(MESON_CPU_ID_S5);
 #endif
 #ifdef CONFIG_PXP_EMULATOR
-#ifdef CONFIG_AML_HDMITX21
-	hdmitx21_pxp_init(1); /* for pxp only */
-#endif
 	return 0;
 #else
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
+	run_command("run bcb_cmd", 0);
 
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
@@ -215,6 +219,36 @@ int board_late_init(void)
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
+
+	run_command("amlsecurecheck", 0);
+	run_command("update_tries", 0);
+
+	unsigned char chipid[16];
+
+	memset(chipid, 0, 16);
+
+	if (get_chip_id(chipid, 16) != -1) {
+		char chipid_str[32];
+		int i, j;
+		char buf_tmp[4];
+
+		memset(chipid_str, 0, 32);
+
+		char *buff = &chipid_str[0];
+
+		for (i = 0, j = 0; i < 12; ++i) {
+			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
+			if (strcmp(buf_tmp, "00") != 0) {
+				sprintf(buff + j, "%02x", chipid[15 - i]);
+				j = j + 2;
+			}
+		}
+		env_set("cpu_id", chipid_str);
+		printf("buff: %s\n", buff);
+	} else {
+		env_set("cpu_id", "1234567890");
+	}
+
 	return 0;
 #endif
 }
@@ -287,8 +321,20 @@ int ft_board_setup(void *blob, bd_t *bd)
 int checkhw(char *name)
 {
 	char dtb_name[64] = {0};
+	cpu_id_t cpu_id = get_cpu_id();
 
-	strcpy(dtb_name, "s5_ax201_s928x");
+	switch (cpu_id.chip_rev) {
+	case 0xA:
+		strcpy(dtb_name, "s5_s928x_ax201\0");
+		break;
+	case 0xB:
+		strcpy(dtb_name, "s5_s928x_ax201-v2\0");
+		break;
+	default:
+		strcpy(dtb_name, "s5_s928x_ax201-unsupport\0");
+		break;
+	}
+
 	strcpy(name, dtb_name);
 	env_set("aml_dt", dtb_name);
 	return 0;

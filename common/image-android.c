@@ -21,11 +21,7 @@ static bool _read_in_bootconfig(struct vendor_boot_img_hdr *boot_info, uint32_t 
 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
 
-#ifdef CONFIG_SUPPORT_BL33Z
-#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x2880000
-#else
-#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x1080000
-#endif
+#define ANDROIDR_IMAGE_KERNEL_DECOMPRESS_LOAD_ADDR	0x1800000
 
 static const unsigned char gzip_magic[] = {
 	0x1f, 0x8b
@@ -124,13 +120,13 @@ static ulong android_image_get_kernel_addr(const  boot_img_hdr_t *hdr)
 	 *
 	 * Otherwise, we will return the actual value set by the user.
 	 */
-#ifndef CONFIG_SUPPORT_BL33Z
+#if (defined CONFIG_SUPPORT_BL33Z) && (defined CONFIG_FULL_RAMDUMP)
+	return 0x1880000;
+#else
 	if (hdr->kernel_addr == ANDROID_IMAGE_DEFAULT_KERNEL_ADDR)
 		return (ulong)hdr + hdr->page_size;
 
 	return hdr->kernel_addr;
-#else
-	return 0x1880000;
 #endif
 }
 
@@ -790,6 +786,9 @@ static bool _read_in_bootconfig(struct vendor_boot_img_hdr *boot_info, uint32_t 
 
 	// Need to update the size after adding parameters
 	boot_info->vendor_bootconfig_size = bootconfig_size;
+#else
+	printf("--- copy bootconfig to bootargs ---\n");
+	copy_bootconfig_to_cmdline();
 #endif
 	return true;
 }

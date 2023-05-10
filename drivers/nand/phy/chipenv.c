@@ -17,11 +17,11 @@ extern int  amlnf_erase_ops(uint64_t off,
 /* fixme, */
 extern int info_disprotect;
 extern int amlnf_dtb_read(u8 *buf, int len);
-extern int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth);
+extern int amlnf_key_read(u8 * buf, int len, uint32_t *actual_length);
 extern int amlnf_env_read(u8 *buf, int len);
 
 extern int amlnf_dtb_save(u8 *buf, int len);
-extern int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth);
+extern int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length);
 extern int amlnf_env_save(u8 *buf, int len);
 
 extern int amlnf_dtb_erase(void);
@@ -266,7 +266,7 @@ void reset_amlchip_member(struct amlnand_chip *aml_chip)
 }
 #endif /* AML_NAND_UBOOT */
 
-u32 aml_info_checksum(u8 *data, int lenth)
+u32 aml_info_checksum(u8 *data, int length)
 {
 	u32 checksum;
 	u8 *pdata;
@@ -275,7 +275,7 @@ u32 aml_info_checksum(u8 *data, int lenth)
 	checksum = 0;
 	pdata = (u8 *)data;
 
-	for (i = 0; i < lenth; i++)
+	for (i = 0; i < length; i++)
 		checksum += pdata[i];
 
 	return checksum;
@@ -1980,7 +1980,7 @@ get_free_blk:
 		}
 		/*
 		add 'flash->blocksize > 0x40000' here,nand flash which blocksize
-		is smaller than 256KB(slc flash) shoudn't write again.
+		is smaller than 256KB(slc flash) shouldn't write again.
 		*/
 		if ((arg_info->arg_type == FULL_PAGE) && (flash->blocksize > 0x40000)) {
 			if (write_page_cnt == 0) {
@@ -2583,13 +2583,13 @@ int amlnand_init_block_status(struct amlnand_chip *aml_chip)
 #ifdef AML_NAND_UBOOT
 static int confirm_dev_para(struct dev_para*dev_para_cmp,struct amlnf_partition *config_init,int dev_flag)
 {
-	int ret =0, j=0,partiton_num=0;
+	int ret =0, j=0,partition_num=0;
 	struct amlnf_partition *partition = NULL;
 	struct amlnf_partition * partition_ptr =NULL;
 
 	for (j = 0; j < MAX_NAND_PART_NUM; j++) {
 		partition = &(config_init[j]);
-		partition_ptr =& (dev_para_cmp->partitions[partiton_num]);
+		partition_ptr =& (dev_para_cmp->partitions[partition_num]);
 		if (partition->mask_flags == dev_flag) {
 			if (memcmp(partition_ptr->name, partition->name, strlen(partition->name))) {
 				aml_nand_msg("nand partition table changed: partition->name: from %s  to %s",partition_ptr->name,partition->name);
@@ -2606,14 +2606,14 @@ static int confirm_dev_para(struct dev_para*dev_para_cmp,struct amlnf_partition 
 				ret = -1;
 				break;
 			}
-			partiton_num ++;
+			partition_num ++;
 		}else if(partition == NULL){
 			break;
 		}
 	}
 
-	if (dev_para_cmp->nr_partitions != partiton_num) {
-		aml_nand_msg("nand dev %s : nr_partitions num changed from %d to %d",dev_para_cmp->name,dev_para_cmp->nr_partitions,partiton_num);
+	if (dev_para_cmp->nr_partitions != partition_num) {
+		aml_nand_msg("nand dev %s : nr_partitions num changed from %d to %d",dev_para_cmp->name,dev_para_cmp->nr_partitions,partition_num);
 		ret = -1;
 	}
 
@@ -2622,19 +2622,19 @@ static int confirm_dev_para(struct dev_para*dev_para_cmp,struct amlnf_partition 
 
 static void init_dev_para(struct dev_para*dev_para_ptr,struct amlnf_partition *config_init, int dev_flag)
 {
-	int j=0,partiton_num=0;
+	int j=0,partition_num=0;
 	struct amlnf_partition *partition = NULL;
 	struct amlnf_partition * partition_ptr =NULL;
 
 	for (j = 0; j < MAX_NAND_PART_NUM; j++) {
 		//printf("%s, j = %d\n", __func__, j);
 		partition = &(config_init[j]);
-		partition_ptr =& (dev_para_ptr->partitions[partiton_num]);
+		partition_ptr =& (dev_para_ptr->partitions[partition_num]);
 		if (partition->mask_flags == dev_flag) {
 			memcpy(partition_ptr->name, partition->name, strlen( partition->name));
 			partition_ptr->size = partition->size;
 			partition_ptr->mask_flags = partition->mask_flags;
-			partiton_num ++;
+			partition_num ++;
 			aml_nand_dbg("init_dev_para : partition->name %s ", partition->name);
 			aml_nand_dbg("init_dev_para : partition->size %llx", partition->size);
 			aml_nand_dbg("init_dev_para : partition->mask_flags %d", partition->mask_flags);
@@ -2642,9 +2642,8 @@ static void init_dev_para(struct dev_para*dev_para_ptr,struct amlnf_partition *c
 			break;
 		}
 	}
-	dev_para_ptr->nr_partitions = partiton_num;
-	aml_nand_msg("partition-> partiton_num %d",partiton_num);
-
+	dev_para_ptr->nr_partitions = partition_num;
+	aml_nand_msg("partition-> partition_num %d",partition_num);
 	return;
 }
 static void amlnand_get_dev_num(struct amlnand_chip *aml_chip,struct amlnf_partition *config_init)
@@ -3570,7 +3569,7 @@ uint32_t amlnf_get_rsv_size(const char *name)
 int amlnf_read_rsv(const char *name, size_t size, void *buf)
 {
 	char ret = 0;
-	uint32_t actual_lenth = 0;
+	uint32_t actual_length = 0;
 
 	if (strcmp(name, "dtb") == 0) {
 		ret = amlnf_dtb_read((u8 *)buf, (int)size);
@@ -3578,10 +3577,10 @@ int amlnf_read_rsv(const char *name, size_t size, void *buf)
 			aml_nand_msg("nand read dtd failed");
 
 	} else if (strcmp(name, "key") == 0) {
-		ret = amlnf_key_read((u8 *)buf, (int)size, &actual_lenth);
+		ret = amlnf_key_read((u8 *)buf, (int)size, &actual_length);
 		if (ret < 0)
 			aml_nand_msg("nand read key failed");
-		aml_nand_msg("key real size: %d",(u32)actual_lenth);
+		aml_nand_msg("key real size: %d",(u32)actual_length);
 
 	} else if (strcmp(name, "env") == 0) {
 		ret = amlnf_env_read((u8 *)buf, (int)size);
@@ -3617,7 +3616,7 @@ int amlnf_read_rsv(const char *name, size_t size, void *buf)
 int amlnf_write_rsv(const char *name, size_t size, void *buf)
 {
 	char ret = 0;
-	uint32_t actual_lenth = 0;
+	uint32_t actual_length = 0;
 
 	if (strcmp(name, "dtb") == 0) {
 		ret = amlnf_dtb_save((u8 *)buf, (int)size);
@@ -3625,10 +3624,10 @@ int amlnf_write_rsv(const char *name, size_t size, void *buf)
 			aml_nand_msg("nand write dtd failed");
 
 	} else if (strcmp(name, "key") == 0) {
-		ret = amlnf_key_write((u8 *)buf, (int)size, &actual_lenth);
+		ret = amlnf_key_write((u8 *)buf, (int)size, &actual_length);
 		if (ret < 0)
 			aml_nand_msg("nand write key failed");
-		aml_nand_msg("key real size: %d",(u32)actual_lenth);
+		aml_nand_msg("key real size: %d",(u32)actual_length);
 
 	} else if (strcmp(name, "env") == 0) {
 		ret = amlnf_env_save((u8 *)buf, (int)size);
@@ -3925,7 +3924,7 @@ int  shipped_bbt_invalid_ops(struct amlnand_chip *aml_chip)
 		*/
 		if (flash->id[0] == NAND_MFR_SANDISK) {
 			/*
-			set info_disprotect variant wich DISPROTECT_FBBT
+			set info_disprotect variant with DISPROTECT_FBBT
 			to skip env_protect erea.
 			*/
 			info_disprotect |= DISPROTECT_FBBT;

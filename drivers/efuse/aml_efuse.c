@@ -10,8 +10,8 @@
 
 #include <common.h>
 #include <asm/arch/io.h>
-#include <amlogic/aml_efuse.h>
 #include <asm/arch/secure_apb.h>
+#include <amlogic/aml_efuse.h>
 
 //weak function for EFUSE license query
 //all following functions are defined with "weak" for customization of each SoC

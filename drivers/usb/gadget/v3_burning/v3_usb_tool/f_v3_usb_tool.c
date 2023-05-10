@@ -1125,6 +1125,7 @@ static int _mwrite_cmd_parser(const int argc, char* argv[], char* ack)
 		return -__LINE__;
 	}
 	printf("Flash 0x%08llx Bytes %s img to %s:%s at off 0x%llx\n", imgSize, imgFmt, media, partition, partOff);
+	env_set_hex("mwrite_size", imgSize);
 
 	return ret;
 }

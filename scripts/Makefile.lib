@@ -131,6 +131,16 @@ _c_flags += $(if $(patsubst n%,, \
 		$(CFLAGS_KASAN))
 endif
 
+#
+# Enable address sanitizer flags for kernel except some files or directories
+# we don't want to check (depends on variables KASAN_SANITIZE_obj.o, KASAN_SANITIZE)
+#
+ifeq ($(CONFIG_AML_UASAN),y)
+_c_flags += $(if $(patsubst n%,, \
+		$(UASAN_SANITIZE_$(basetarget).o)$(UASAN_SANITIZE)y), \
+		$(CFLAGS_UASAN))
+endif
+
 # If building the kernel in a separate objtree expand all occurrences
 # of -Idir to -I$(srctree)/dir except for absolute paths (starting with '/').
 

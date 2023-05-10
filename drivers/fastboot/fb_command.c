@@ -47,6 +47,7 @@ static void okay(char *, char *);
 static void getvar(char *, char *);
 static void reboot_bootloader(char *, char *);
 static void reboot_fastboot(char *, char *);
+static void reboot_recovery(char *, char *);
 
 #ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void download(char *, char *);
@@ -67,7 +68,7 @@ static void snapshot_update_cmd(char *, char *);
 #endif
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
-extern int is_partition_logical(char* parition_name);
+extern int is_partition_logical(char* partition_name);
 #endif
 
 static const struct {
@@ -89,6 +90,10 @@ static const struct {
 	[FASTBOOT_COMMAND_REBOOT_FASTBOOT] =  {
 		.command = "reboot-fastboot",
 		.dispatch = reboot_fastboot
+	},
+	[FASTBOOT_COMMAND_REBOOT_RECOVERY] =  {
+		.command = "reboot-recovery",
+		.dispatch = reboot_recovery
 	},
 	[FASTBOOT_COMMAND_REBOOT] =  {
 		.command = "reboot",
@@ -485,6 +490,13 @@ static void flash(char *cmd_parameter, char *response)
 		struct blk_desc *dev_desc;
 		int erase_flag = 0;
 
+		rc = store_part_size("bootloader_a");
+		if (rc != -1) {
+			fastboot_mmc_erase("bootloader_a", response);
+			fastboot_mmc_flash_write("bootloader_a", fastboot_buf_addr, image_size,
+				response);
+		}
+
 		/* the max size of bootloader.img is 4M, we reserve 128k for gpt.bin
 		 * so we put gpt.bin at offset 0x3DFE00
 		 * 0 ~ 512 bootloader secure boot, we don't care it here.
@@ -502,7 +514,7 @@ static void flash(char *cmd_parameter, char *response)
 		if (is_valid_gpt_buf(dev_desc, fastboot_buf_addr + 0x3DFE00)) {
 			printf("printf normal bootloader.img, no gpt partition table\n");
 		} else {
-			printf("find gpt parition table, update it\n"
+			printf("find gpt partition table, update it\n"
 				"and write bootloader to boot0/boot1\n");
 
 			erase_flag = check_gpt_part(dev_desc, fastboot_buf_addr + 0x3DFE00);
@@ -590,7 +602,15 @@ static void flash(char *cmd_parameter, char *response)
 		memcpy(buffer, &key, sizeof(AvbKey_t));
 		memcpy(buffer + sizeof(AvbKey_t), fastboot_buf_addr, image_size);
 
-		store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			nand_store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+						AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+#endif
+		} else {
+			store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+						AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		}
 
 		fastboot_okay(NULL, response);
 		free(buffer);
@@ -700,7 +720,15 @@ static void erase(char *cmd_parameter, char *response)
 		}
 		memset(buffer, 0, AVB_CUSTOM_KEY_LEN_MAX);
 
-		store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX, AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			nand_store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+					AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+#endif
+		} else {
+			store_write((const char *)partition, rc - AVB_CUSTOM_KEY_LEN_MAX,
+					AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
+		}
 
 		fastboot_okay(NULL, response);
 		free(buffer);
@@ -720,8 +748,15 @@ static void erase(char *cmd_parameter, char *response)
 		}
 		memset(buffer, 0, rc - AVB_CUSTOM_KEY_LEN_MAX);
 
-		store_write((const char *)partition, 0, rc - AVB_CUSTOM_KEY_LEN_MAX, (unsigned char *)buffer);
-
+		if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+			nand_store_write((const char *)partition, 0, rc - AVB_CUSTOM_KEY_LEN_MAX,
+								(unsigned char *)buffer);
+#endif
+		} else {
+			store_write((const char *)partition, 0, rc - AVB_CUSTOM_KEY_LEN_MAX,
+								(unsigned char *)buffer);
+		}
 		fastboot_okay(NULL, response);
 		free(buffer);
 		return;
@@ -1238,6 +1273,17 @@ static void reboot_bootloader(char *cmd_parameter, char *response)
  * @response: Pointer to fastboot response buffer
  */
 static void reboot_fastboot(char *cmd_parameter, char *response)
+{
+	fastboot_okay(NULL, response);
+}
+
+/**
+ * reboot_recovery() - Sets reboot recovery flag.
+ *
+ * @cmd_parameter: Pointer to command parameter
+ * @response: Pointer to fastboot response buffer
+ */
+static void reboot_recovery(char *cmd_parameter, char *response)
 {
 	fastboot_okay(NULL, response);
 }

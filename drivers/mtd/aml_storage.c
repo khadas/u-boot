@@ -809,7 +809,7 @@ static u8 mtd_store_boot_copy_num(const char *part_name)
 			if (medium_type == BOOT_SNOR)
 				return CONFIG_NOR_TPL_COPY_NUM;
 		} else
-			return g_ssp.boot_bakups;
+			return g_ssp.boot_backups;
 	} else {
 		if (!strcmp(part_name, BOOT_LOADER))
 			return boot_num_get();

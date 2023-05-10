@@ -61,8 +61,9 @@ int keymanage_efuse_write(const char *keyname, const void* keydata, unsigned int
 
 		sprintf(_cmdbuf, "efuse %s %p", SECURE_BOOT_KEY_NAME, keydata);
 		ret = run_command(_cmdbuf, 0);
-		if (ret)
+		if (ret) {
 			KM_ERR("FAil in cmd:%s\n", _cmdbuf);
+		}
 	} else {
 		ret = efuse_usr_api_write_key(keyname,  keydata, datalen);
 	}

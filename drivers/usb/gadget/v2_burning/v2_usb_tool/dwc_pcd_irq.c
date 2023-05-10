@@ -113,7 +113,7 @@ static void pcd_setup( pcd_struct_t *_pcd )
     {
         /* handle non-standard (class/vendor) requests in the gadget driver */
         //do_gadget_setup(_pcd, &ctrl );
-        DBG("Vendor requset\n");
+        DBG("Vendor request\n");
 #if (defined AML_USB_BURN_TOOL)
         do_vendor_request(_pcd, &ctrl );
         dwc_otg_ep_req_start(_pcd,0);
@@ -530,7 +530,7 @@ static void handle_in_ep_timeout_intr(uint32_t _epnum)
         gintmsk_data_t intr_mask = {0};
 
 
-        /* Disable the NP Tx Fifo Empty Interrrupt */
+        /* Disable the NP Tx Fifo Empty Interrupt */
 
 	intr_mask.b.nptxfempty = 1;
 	dwc_modify_reg32( DWC_REG_GINTMSK, intr_mask.d32, 0);
@@ -966,7 +966,7 @@ do { \
                             DBG("EP%d OUT AHB Error\n", epnum);
 				CLEAR_OUT_EP_INTR(epnum,ahberr);
                     }
-                    /* Setup Phase Done (contorl EPs) */
+                    /* Setup Phase Done (control EPs) */
                     if ( doepint.b.setup ) {
                             handle_ep0( 0 );
 				CLEAR_OUT_EP_INTR(epnum,setup);
@@ -1040,7 +1040,7 @@ do { \
 
 
                                 /* Disable the NP Tx FIFO Empty
-                                 * Interrrupt */
+                                 * Interrupt */
                                 intr_mask.b.nptxfempty = 1;
                                 dwc_modify_reg32( DWC_REG_GINTMSK, intr_mask.d32, 0);
 

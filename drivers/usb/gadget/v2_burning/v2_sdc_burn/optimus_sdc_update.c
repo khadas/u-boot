@@ -241,7 +241,7 @@ _finish:
 
 //step 1: get script file size, and get script file contents
 //step 2: read image file
-//"Usage: sdc_update partiton image_file_path [imgFmt, verifyFile]\n"   //usage
+//"Usage: sdc_update partition image_file_path [imgFmt, verifyFile]\n"   //usage
 int do_sdc_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     int rcode = 0;

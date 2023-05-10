@@ -129,6 +129,7 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 					if (num_bytes > valid_data) {
 						memcpy(buffer, tmp_buf + drop_bytes, valid_data);
 						num_bytes -= valid_data;
+						buffer = (uint8_t *)buffer + valid_data;
 					} else {
 						memcpy(buffer, tmp_buf + drop_bytes, num_bytes);
 						num_bytes = 0;
@@ -136,13 +137,18 @@ static AvbIOResult read_from_partition(AvbOps *ops, const char *partition, int64
 					offset = align + NAND_PAGE_SIZE;
 					free(tmp_buf);
 				}
-				if (num_bytes > 0)
-					rc = store_logic_read(partition, offset, num_bytes, buffer);
+				if (num_bytes > 0) {
+					rc = store_logic_read(partition, offset,
+							num_bytes, buffer);
+					printf("Failed to read");
+					printf("%zdB from part[%s] at %lld\n",
+							num_bytes, partition, offset);
+				}
 			} else {
 				rc = store_logic_read(partition, 0, num_bytes, buffer);
 			}
 		} else {
-			rc = store_read(partition, offset, num_bytes, buffer);
+			rc = store_logic_read(partition, offset, num_bytes, buffer);
 		}
 
 		if (rc) {
@@ -164,6 +170,8 @@ static AvbIOResult write_to_partition(AvbOps *ops, const char *partition,
 	int rc = 0;
 	uint64_t part_bytes = 0;
 	AvbIOResult result = AVB_IO_RESULT_OK;
+	const char *recovery = "recovery";
+	enum boot_type_e type = store_get_type();
 
 	if (ops->get_size_of_partition(ops, partition, &part_bytes) != AVB_IO_RESULT_OK) {
 		result = AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -176,9 +184,18 @@ static AvbIOResult write_to_partition(AvbOps *ops, const char *partition,
 
 	if (!strcmp(partition, "dt_a") || !strcmp(partition, "dt_b") ||
 			!strcmp(partition, "dt")) {
-		if (offset)
-			return AVB_IO_RESULT_ERROR_IO;
-		/* rc = store_dtb_rw((void *)buffer, num_bytes, 1); */
+		if (offset) {
+			result = AVB_IO_RESULT_ERROR_IO;
+			goto out;
+		}
+		if (type == BOOT_NAND_MTD || type == BOOT_SNAND) {
+			rc = store_rsv_erase("dtb");
+			if (rc) {
+				printf("Failed to write dtb\n");
+				result = AVB_IO_RESULT_ERROR_IO;
+				goto out;
+			}
+		}
 		rc = store_rsv_write("dtb", num_bytes, (void *)buffer);
 		if (rc) {
 			printf("Failed to write dtb\n");
@@ -193,9 +210,44 @@ static AvbIOResult write_to_partition(AvbOps *ops, const char *partition,
 		if (!strcmp(partition, "recovery_a") ||
 				!strcmp(partition, "recovery_b") ||
 				!strcmp(partition, "recovery"))
-			rc = store_write("recovery", offset, num_bytes, (unsigned char *)buffer);
-		else
-			rc = store_write(partition, offset, num_bytes, (unsigned char *)buffer);
+			partition = recovery;
+
+		if (type == BOOT_NAND_MTD || type == BOOT_SNAND) {
+			uint8_t *local_buf =  NULL;
+			uint32_t local_size = 0;
+
+			local_size = (offset + num_bytes + NAND_PAGE_SIZE - 1);
+			local_size = local_size / NAND_PAGE_SIZE *
+				NAND_PAGE_SIZE;
+			local_buf = malloc(local_size);
+			if (!local_buf) {
+				printf("Failed local buf: %u\n", local_size);
+				result = AVB_IO_RESULT_ERROR_OOM;
+				goto out;
+			}
+			rc = store_logic_read(partition, 0, local_size,
+					local_buf);
+			if (rc) {
+				printf("Failed to read to local buf\n");
+				result = AVB_IO_RESULT_ERROR_IO;
+				free(local_buf);
+				goto out;
+			}
+			memcpy(local_buf + offset, buffer, num_bytes);
+			rc = store_erase(partition, 0, local_size, 0);
+			if (rc) {
+				printf("Failed to erase: %s %u\n",
+						partition, local_size);
+				result = AVB_IO_RESULT_ERROR_IO;
+				free(local_buf);
+				goto out;
+			}
+			rc = store_logic_write(partition, 0, local_size, local_buf);
+			free(local_buf);
+		} else {
+			rc = store_logic_write(partition, offset, num_bytes,
+					(unsigned char *)buffer);
+		}
 		if (rc) {
 			printf("Failed to write %zdB from part[%s] at %lld\n",
 					num_bytes, partition, offset);
@@ -246,7 +298,7 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops, const char *partit
 static AvbIOResult get_size_of_partition(AvbOps *ops, const char *partition,
 		uint64_t *out_size_num_bytes)
 {
-	int rc = 0;
+	uint64_t rc = 0;
 
 	if (!strcmp(partition, "dt_a") || !strcmp(partition, "dt_b") ||
 			!strcmp(partition, "dt")) {
@@ -256,9 +308,9 @@ static AvbIOResult get_size_of_partition(AvbOps *ops, const char *partition,
 		if (!strcmp(partition, "recovery_a") ||
 				!strcmp(partition, "recovery_b") ||
 				!strcmp(partition, "recovery"))
-			rc = store_part_size("recovery");
+			rc = store_logic_cap("recovery");
 		else
-			rc = store_part_size(partition);
+			rc = store_logic_cap(partition);
 		if (rc == 1) {
 			printf("Failed to get partition[%s] size\n", partition);
 			return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
@@ -287,7 +339,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 	char *keybuf = NULL;
 	char *partition = "misc";
 	AvbKey_t key;
-	int size = 0;
+	u64 size = 0;
 #if CONFIG_AVB2_KPUB_FROM_FIP
 	int result = 0;
 #endif
@@ -320,9 +372,13 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 		keybuf = (char *)malloc(AVB_CUSTOM_KEY_LEN_MAX);
 		if (keybuf) {
 			memset(keybuf, 0, AVB_CUSTOM_KEY_LEN_MAX);
-			size = store_part_size(partition);
+			size = store_logic_cap(partition);
 			if (size != 1) {
-				if (store_read((const char *)partition,
+				/* no need workaround for nand. The size is 4K multiple,
+				 * and AVB_CUSTOM_KEY_LEN_MAX is 4K.  The offset will lay on
+				 * 4K boundary.
+				 */
+				if (store_logic_read((const char *)partition,
 							size - AVB_CUSTOM_KEY_LEN_MAX,
 							AVB_CUSTOM_KEY_LEN_MAX,
 							(unsigned char *)keybuf) >= 0)  {
@@ -358,7 +414,7 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 	} else {
 		printf("AVB2 verify with production kpub:%d, vbmeta kpub:%ld\n",
 				avb2_kpub_production_len, public_key_length);
-		if (avb2_kpub_default_len == public_key_length &&
+		if (avb2_kpub_production_len == public_key_length &&
 				!avb_safe_memcmp(public_key_data,
 					avb2_kpub_production, public_key_length)) {
 			*out_is_trusted = true;

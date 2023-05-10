@@ -10,7 +10,7 @@ menuconfig AML_V3_FACTORY_BURN
 if AML_V3_FACTORY_BURN
 
 config AML_NO_USB_MODULE
-    bool "bl33 with full usb function"
+    bool "bl33 without full usb function"
     default n
 
 config AML_V3_USB_TOOl

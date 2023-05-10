@@ -19,7 +19,7 @@
 
 extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 extern struct hw_controller *controller;
-/* provide a policy that calculate the bakups of bootloader */
+/* provide a policy that calculate the backups of bootloader */
 int get_boot_num(struct mtd_info *mtd, size_t rwsize)
 {
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);

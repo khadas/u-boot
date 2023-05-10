@@ -7,6 +7,9 @@
 #include <command.h>
 #include <environment.h>
 #include <malloc.h>
+#ifdef CONFIG_AML_MTD
+#include <linux/mtd/mtd.h>
+#endif
 #include <asm/byteorder.h>
 #include <config.h>
 #include <asm/arch/io.h>
@@ -22,10 +25,15 @@
 #include "cmd_bootctl_wrapper.h"
 #endif
 #include "cmd_bootctl_utils.h"
+#include <amlogic/store_wrapper.h>
+
+#include <asm/arch/secure_apb.h>
 
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
+
+extern int nand_store_write(const char *name, loff_t off, size_t size, void *buf);
 
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 
@@ -433,6 +441,7 @@ bool boot_info_load_normalAB(AvbABData *out_info, char *miscbuf)
 static bool boot_info_save(bootloader_control *info, char *miscbuf)
 {
 	char *partition = "misc";
+	int ret = 0;
 
 	printf("save boot-info\n");
 	info->crc32_le = vab_crc32((const uint8_t *)info,
@@ -440,7 +449,39 @@ static bool boot_info_save(bootloader_control *info, char *miscbuf)
 
 	memcpy(miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, info, sizeof(bootloader_control));
 	dump_boot_info(info);
-	store_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
+
+#ifdef CONFIG_AML_MTD
+	enum boot_type_e device_boot_flag = store_get_type();
+
+	if (device_boot_flag == BOOT_NAND_NFTL || device_boot_flag == BOOT_NAND_MTD ||
+			device_boot_flag == BOOT_SNAND) {
+		int ret = 0;
+
+		ret = run_command("store erase misc 0 0x4000", 0);
+		if (ret != 0) {
+			printf("erase partition misc failed!\n");
+			return false;
+		}
+	}
+#endif
+
+	if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+		ret = nand_store_write((const char *)partition, 0, MISCBUF_SIZE,
+					(unsigned char *)miscbuf);
+		if (ret != 0) {
+			printf("nand_store_write partition misc failed!\n");
+			return false;
+		}
+#endif
+	} else {
+		ret = store_logic_write((const char *)partition, 0, MISCBUF_SIZE,
+				(unsigned char *)miscbuf);
+		if (ret) {
+			printf("store logic write failed at %s\n", partition);
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -548,6 +589,19 @@ exit:
 	return ret;
 }
 
+static void set_ddr_size(void)
+{
+	char ddr_size_str[32];
+	unsigned int ddr_size = 0;
+
+	memset(ddr_size_str, 0, 32);
+	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF00000) << 4;
+
+	sprintf(ddr_size_str, "%u", ddr_size);
+	printf("ddr_size_str = %s\n", ddr_size_str);
+	env_set("ddr_size", ddr_size_str);
+}
+
 static int do_GetValidSlot(
 	cmd_tbl_t *cmdtp,
 	int flag,
@@ -564,6 +618,8 @@ static int do_GetValidSlot(
 
 	if (argc != 1)
 		return cmd_usage(cmdtp);
+
+	set_ddr_size();
 
 	boot_info_open_partition(miscbuf);
 	boot_info_load(&boot_ctrl, miscbuf);
@@ -827,6 +883,7 @@ static int do_SetUpdateTries(
 	int slot;
 	int ret = -1;
 	bool nocs_mode = false;
+	int update_flag = 0;
 
 	if (has_boot_slot == 0) {
 		printf("device is not ab mode\n");
@@ -848,19 +905,24 @@ static int do_SetUpdateTries(
 
 	if (slot == 0) {
 		if (bootable_a) {
-			if (boot_ctrl.slot_info[0].successful_boot == 0)
+			if (boot_ctrl.slot_info[0].successful_boot == 0) {
 				boot_ctrl.slot_info[0].tries_remaining -= 1;
+				update_flag = 1;
+			}
 		}
 	}
 
 	if (slot == 1) {
 		if (bootable_b) {
-			if (boot_ctrl.slot_info[1].successful_boot == 0)
+			if (boot_ctrl.slot_info[1].successful_boot == 0) {
 				boot_ctrl.slot_info[1].tries_remaining -= 1;
+				update_flag = 1;
+			}
 		}
 	}
 
-	boot_info_save(&boot_ctrl, miscbuf);
+	if (update_flag == 1)
+		boot_info_save(&boot_ctrl, miscbuf);
 
 	printf("do_SetUpdateTries boot_ctrl.roll_flag = %d\n", boot_ctrl.roll_flag);
 	if (boot_ctrl.roll_flag == 1) {
@@ -968,6 +1030,30 @@ static int do_GetAvbMode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	return 0;
 }
 
+int do_UpdateDt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	char *update_dt = env_get("update_dt");
+	char *part_changed = env_get("part_changed");
+
+	printf("update_dt %s, part_changed: %s\n", update_dt, part_changed);
+	if (update_dt && (!strcmp(update_dt, "1"))) {
+		printf("write dtb\n");
+		run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0);
+		run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+
+		env_set("update_dt", "0");
+		run_command("saveenv", 0);
+
+		if (part_changed && (!strcmp(part_changed, "1"))) {
+			env_set("part_changed", "0");
+			run_command("saveenv", 0);
+
+			run_command("reset", 0);
+		}
+	}
+	return 0;
+}
+
 #endif /* CONFIG_BOOTLOADER_CONTROL_BLOCK */
 
 #ifdef CONFIG_UNIFY_BOOTLOADER
@@ -1034,5 +1120,11 @@ U_BOOT_CMD(
 	"get_avb_mode",
 	"\nThis command will get avb mode\n"
 	"So you can execute command: get_avb_mode"
+);
+U_BOOT_CMD
+(update_dt, 1,	0, do_UpdateDt,
+	"update_dt",
+	"\nThis command will update dt\n"
+	"So you can execute command: update_dt"
 );
 #endif

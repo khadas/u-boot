@@ -83,6 +83,8 @@ enum lcd_chip_e {
 	LCD_CHIP_T7,
 	LCD_CHIP_T3,
 	LCD_CHIP_C3,
+	LCD_CHIP_T5W,
+	LCD_CHIP_T5M,
 	LCD_CHIP_MAX,
 };
 
@@ -457,7 +459,8 @@ struct lcd_config_s {
 	unsigned char retry_enable_flag;
 	unsigned char retry_enable_cnt;
 	unsigned char custom_pinmux;
-	unsigned char fr_auto_dis;
+	unsigned char fr_auto_cus;  //0=follow global setting, 0xff=disable
+	unsigned char fr_auto_flag; //final fr_auto policy
 	unsigned int backlight_index;
 	struct lcd_basic_s basic;
 	struct lcd_timing_s timing;
@@ -583,6 +586,7 @@ struct aml_lcd_drv_s {
 			       unsigned int flag);
 	unsigned int (*tcon_table_read)(unsigned int addr);
 	unsigned int (*tcon_table_write)(unsigned int addr, unsigned int val);
+	int (*tcon_mem_tee_protect)(int mem_flag, int protect_en);
 #endif
 	void *debug_info_reg;
 	void *debug_info_if;

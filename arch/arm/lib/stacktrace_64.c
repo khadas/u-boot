@@ -14,9 +14,10 @@ void print_symbol(unsigned long addr, unsigned long offset)
 	sym = symbol_lookup(faddr, &base, &end);
 	if (sym) {
 		size = end - base;
-		printf("[<%016lx>]%s+0x%lx/0x%lx\n", addr, sym, addr-(base+offset), size);
+		printf("[<%016lx>] %s+0x%lx/0x%lx\n", addr, sym,
+			addr - (base + offset), size);
 	} else {
-		printf("[<%016lx>]%s\n", addr, "N/A");
+		printf("[<%016lx>] %s\n", addr, "N/A");
 	}
 }
 

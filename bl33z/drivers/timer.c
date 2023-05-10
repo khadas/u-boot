@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <timer.h>
 
-#define P_EE_TIMER_E		P_ISA_TIMERE
+#define P_EE_TIMER_E		REG_MDUMP_ISA_TIMERE
 
 uint32_t time_start;
 uint32_t time_end;

@@ -2495,7 +2495,7 @@ static void crg_reg_dump(struct crg_gadget_dev *crg_udc)
 	debug("status[0x%p]=0x%x\n", &uccr->status, reg_read(&uccr->status));
 }
 
-static int crg_gadget_stop(struct usb_gadget *g)
+int crg_gadget_stop(struct usb_gadget *g)
 {
 	struct crg_gadget_dev *crg_udc;
 
@@ -3602,3 +3602,4 @@ void dwc_otg_power_off_phy_fb(void)
 {
 	return;
 }
+

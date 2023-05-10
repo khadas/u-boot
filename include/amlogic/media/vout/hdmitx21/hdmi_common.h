@@ -15,6 +15,11 @@
 
 #define HDMI_PACKET_TYPE_GCP 0x3
 
+#define VESA_MAX_TIMING 64
+/* refer to hdmi2.1 table 7-36, 32 VIC support y420 */
+#define Y420_VIC_MAX_NUM 32
+
+#define HDMITX_VESA_OFFSET 0x300
 /* Little-Endian format */
 enum scdc_addr {
 	SINK_VER = 0x01,
@@ -205,6 +210,8 @@ enum hdmi_vic {
 	HDMI_VIC_END,
 };
 
+#define HDMI_0_UNKNOWN HDMI_UNKNOWN
+
 enum hdmi_phy_para {
 	HDMI_PHYPARA_6G = 1, /* 2160p60hz 444 8bit */
 	HDMI_PHYPARA_4p5G, /* 2160p50hz 420 12bit */
@@ -213,6 +220,17 @@ enum hdmi_phy_para {
 	HDMI_PHYPARA_LT3G, /* 1080p60hz 444 12bit */
 	HDMI_PHYPARA_DEF = HDMI_PHYPARA_LT3G,
 	HDMI_PHYPARA_270M, /* 480p60hz 444 8bit */
+};
+
+enum frl_rate_enum {
+	FRL_NONE = 0,
+	FRL_3G3L = 1,
+	FRL_6G3L = 2,
+	FRL_6G4L = 3,
+	FRL_8G4L = 4,
+	FRL_10G4L = 5,
+	FRL_12G4L = 6,
+	FRL_RATE_MAX = 7,
 };
 
 /* CEA TIMING STRUCT DEFINITION */
@@ -438,6 +456,7 @@ struct rx_cap {
 	unsigned int native_Mode;
 	/*video*/
 	unsigned int VIC[VIC_MAX_NUM];
+	unsigned int y420_vic[Y420_VIC_MAX_NUM];
 	unsigned int VIC_count;
 	unsigned int native_VIC;
 	/*vendor*/
@@ -460,6 +479,7 @@ struct rx_cap {
 	unsigned int dc_30bit_420:1;
 	unsigned int dc_36bit_420:1;
 	unsigned int dc_48bit_420:1;
+	enum frl_rate_enum max_frl_rate;
 	unsigned char edid_version;
 	unsigned char edid_revision;
 	unsigned int ColorDeepSupport;
@@ -490,6 +510,10 @@ struct rx_cap {
 	unsigned char bitmap_length;
 	unsigned char y420_all_vic;
 	unsigned char y420cmdb_bitmap[Y420CMDB_MAX];
+	/* for DV cts */
+	bool ifdb_present;
+	/* IFDB, currently only use below node */
+	u8 additional_vsif_num;
 };
 
 enum color_attr_type {
@@ -569,7 +593,7 @@ struct parse_cr {
 	const char *name;
 };
 
-#define EDID_BLK_NO	4
+#define EDID_BLK_NO	8
 #define EDID_BLK_SIZE	128
 struct hdmi_format_para {
 	char *sname; /* link to timing.sname or name */
@@ -644,7 +668,6 @@ struct hdmi_support_mode {
 
 #define HDMI_IEEEOUI 0x000C03
 #define MODE_LEN	32
-#define VESA_MAX_TIMING 64
 
 #define DEFAULT_OUTPUTMODE_ENV		"1080p60hz"
 #define DEFAULT_HDMIMODE_ENV		"1080p60hz"
@@ -704,6 +727,7 @@ enum hdcptx_oprcmd {
 	HDCP22_SET_TOPO,
 	HDCP22_GET_TOPO,
 	CONF_ENC_IDX, /* 0: get idx; 1: set idx */
+	HDMITX_GET_RTERM, /* get the rterm value */
 };
 
 #endif

@@ -192,7 +192,7 @@ CFLAGS			+= 	-Wno-unused
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
 
-OCFLAGS		+= -j .dev_header -j .generic_param -j .clk_param \
+O_CFLAGS		+= -j .dev_header -j .generic_param -j .clk_param \
 			   -j .misc_param -j .store_param -j .ddr_param \
 			   -j .ddr_2acs_index -j .ddr_2acs_data \
 			   --gap-fill 0x0
@@ -340,7 +340,7 @@ endef
 
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
-# end up with a line-feed characer at the end of the last c filename.
+# end up with a line-feed character at the end of the last c filename.
 # Also bare this issue in mind if extending the list of supported filetypes.
 define SOURCES_TO_OBJS
 	$(notdir $(patsubst %.c,%.o,$(filter %.c,$(1)))) \
@@ -376,7 +376,7 @@ $(DUMP) : $(ELF)
 
 $(BIN) : $(ELF)
 	@echo "  BIN     $$@"
-	$$(Q)$$(OC) $$(OCFLAGS) -O binary $$< $$@.tmp
+	$$(Q)$$(OC) $$(O_CFLAGS) -O binary $$< $$@.tmp
 	@dd if=/dev/zero of=$$@ bs=4096 count=1
 	@dd if=$$@.tmp of=$$@ conv=notrunc && rm -f $$@.tmp
 	@echo

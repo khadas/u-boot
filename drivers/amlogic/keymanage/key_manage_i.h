@@ -18,7 +18,7 @@
 
 #define KM_DBG(fmt ...)     //printf("[KM]Dbg:"fmt)
 #define KM_MSG(fmt ...)     pr_info("[KM]Msg:" fmt)
-#define KM_ERR(fmt ...)     pr_err("[KM]Error:f[%s]L%d:", __func__, __LINE__); pr_err(fmt)
+#define KM_ERR(fmt ...)     do {pr_err("[KM]Err:L%d:", __LINE__); pr_err(fmt); } while (0)
 
 int _keyman_hex_ascii_to_buf(const char* input, char* buf, const unsigned bufSz);
 int _keyman_buf_to_hex_ascii(const uint8_t* pdata, const unsigned dataLen, char* fmtStr/*pr if NULL*/, int fmtSize);

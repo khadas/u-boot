@@ -17,7 +17,7 @@
 /*if CONFIG_PDVFS_ENABLE is defined, AML_VCCK_INIT_VOLTAGE will be invalid*/
 #define CONFIG_PDVFS_ENABLE
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Bootloader Control Block function

@@ -30,7 +30,6 @@
 #define CC_PARAM_CHECK_ERROR_NEED_UPDATE_PARAM        (-1)
 #define CC_PARAM_CHECK_ERROR_NOT_NEED_UPDATE_PARAM    (-2)
 
-#ifdef CONFIG_AML_LCD
 #define DEBUG_NORMAL        (1 << 0)
 #define DEBUG_LCD           (1 << 1)
 #define DEBUG_LCD_EXTERN    (1 << 2)
@@ -40,6 +39,7 @@
 #define DEBUG_LCD_OPTICAL   BIT(7)
 static int model_debug_flag;
 
+#ifdef CONFIG_AML_LCD
 static int glcd_dcnt, glcd_ext_dcnt, gbl_dcnt, glcd_optical_dcnt;
 static int g_lcd_pwr_on_seq_cnt, g_lcd_pwr_off_seq_cnt;
 #ifdef CONFIG_AML_LCD_BL_LDIM
@@ -829,10 +829,10 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 		p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
 	}
 
-	ini_value = IniGetString("lcd_Attr", "fr_auto_disable", "0");
+	ini_value = IniGetString("lcd_Attr", "fr_auto_custom", "0");
 	if (model_debug_flag & DEBUG_LCD)
-		ALOGD("%s, fr_auto_disable is (%s)\n", __func__, ini_value);
-	p_attr->customer.fr_auto_dis = strtoul(ini_value, NULL, 0);
+		ALOGD("%s, fr_auto_custom is (%s)\n", __func__, ini_value);
+	p_attr->customer.fr_auto_cus = strtoul(ini_value, NULL, 0);
 
 	ini_value = IniGetString("lcd_Attr", "frame_rate_min", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -2435,6 +2435,19 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 		strncpy(p_misc->outputmode, ini_value, 63);
 		snprintf(buf, 63, "setenv outputmode2 %s", p_misc->outputmode);
 		run_command(buf, 0);
+	}
+
+	ini_value = IniGetString("panel_misc", "connector_type", "null");
+	if (model_debug_flag & DEBUG_MISC)
+		ALOGD("%s, connector_type is (%s)\n", __func__, ini_value);
+	if (strcmp(ini_value, "null")) {
+		strncpy(p_misc->connector_type, ini_value,
+			sizeof(p_misc->connector_type) - 1);
+		p_misc->connector_type[sizeof(p_misc->connector_type) - 1] = '\0';
+		snprintf(buf, 63, "setenv connector_type %s", p_misc->connector_type);
+		run_command(buf, 0);
+	} else {
+		run_command("setenv connector_type null", 0);
 	}
 
 	ini_value = IniGetString("panel_misc", "panel_reverse", "null");
@@ -4199,7 +4212,8 @@ int handle_model_list(void)
 
 		model = env_get(str);
 		if (!model) {
-			ALOGD("%s, no %s\n", __func__, str);
+			if (model_debug_flag & DEBUG_NORMAL)
+				ALOGD("%s, no %s\n", __func__, str);
 			continue;
 		}
 		printf("current %s: %s\n", str, model);
@@ -4238,7 +4252,8 @@ int handle_model_sum(void)
 
 		model = env_get(str);
 		if (!model) {
-			ALOGD("%s, no %s\n", __func__, str);
+			if (model_debug_flag & DEBUG_NORMAL)
+				ALOGD("%s, no %s\n", __func__, str);
 			continue;
 		}
 		ret = parse_model_sum(i, get_model_sum_path(i), model);

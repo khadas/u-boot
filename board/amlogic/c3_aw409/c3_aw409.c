@@ -37,6 +37,10 @@
 #include <amlogic/media/vout/aml_cvbs.h>
 #endif
 
+#ifdef CONFIG_AML_LCD
+#include <amlogic/media/vout/lcd/aml_lcd.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void sys_led_init(void)
@@ -198,6 +202,9 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_CVBS
 	cvbs_init();
+#endif
+#ifdef CONFIG_AML_LCD
+	lcd_probe();
 #endif
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);

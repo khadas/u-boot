@@ -182,6 +182,7 @@ int board_late_init(void)
 
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+	run_command("run bcb_cmd", 0);
 	board_init_mem();
 
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
@@ -201,8 +202,10 @@ int board_late_init(void)
 	 * 2.use bootup resource after setup
 	 * ****************************************************
 	 */
-	if (env_get("outputmode"))
-		strcpy(outputModePre, env_get("outputmode"));
+	char *outputmode_str = env_get("outputmode");
+
+	if (outputmode_str)
+		strlcpy(outputModePre, outputmode_str, 30);
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -234,13 +237,15 @@ int board_late_init(void)
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
 
-	if (env_get("outputmode")) {
-		strcpy(outputModeCur, env_get("outputmode"));
-	}
+	outputmode_str = env_get("outputmode");
 
-	if (strcmp(outputModeCur,outputModePre)) {
-		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
-		run_command("saveenv", 0);
+	if (outputmode_str) {
+		strlcpy(outputModeCur, outputmode_str, 30);
+		if (strcmp(outputModeCur, outputModePre)) {
+			printf("uboot outputMode change saveenv old:%s - new:%s\n",
+				outputModePre, outputModeCur);
+			run_command("saveenv", 0);
+		}
 	}
 
 	unsigned char chipid[16];
@@ -280,14 +285,10 @@ phys_size_t get_effective_memsize(void)
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
 	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
-	return ddr_size
+	return ddr_size;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
@@ -501,20 +502,19 @@ int checkhw(char * name)
         else {
                 switch (ddr_size)
                 {
-                        case 0x80000000:
+			case 0x80000000UL:
                                 strcpy(loc_name, "t3_t963d4_ar311-2g\0");
                                 break;
-                        case 0xc0000000:
+			case 0xc0000000UL:
                                 strcpy(loc_name, "t3_t963d4_ar311-3g\0");
                                 break;
-                        case 0xe0000000:
+			case 0x100000000UL:
                                 strcpy(loc_name, "t3_t963d4_ar311-4g\0");
                                 break;
-
-                        case 0x200000000:
+			case 0x200000000UL:
                                 strcpy(loc_name, "t3_t963d4_ar311-8g\0");
                                 break;
-                        default:
+			default:
                                 strcpy(loc_name, "t3_t963d4_unsupport");
                                 break;
                 }

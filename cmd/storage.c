@@ -195,7 +195,7 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 {
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
-	uint64_t align_size, reserved_size = 0, cal_copy = ssp->boot_bakups;
+	uint64_t align_size, reserved_size = 0, cal_copy = ssp->boot_backups;
 	uint8_t i;
 
 	align_size = ALIGN_SIZE;
@@ -274,6 +274,9 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			       nIndex, name, offPayload, szPayload);
 		}
 		boot_entry[BOOT_AREA_BB1ST].size = ssp->boot_entry[BOOT_AREA_BB1ST].size;
+	#ifdef ADVANCE_DDRFIP_SIZE
+		ssp->boot_entry[BOOT_AREA_DDRFIP].size = ADVANCE_DDRFIP_SIZE;
+	#endif
 		boot_entry[BOOT_AREA_DDRFIP].size = ssp->boot_entry[BOOT_AREA_DDRFIP].size;
 		boot_entry[BOOT_AREA_DEVFIP].size = ssp->boot_entry[BOOT_AREA_DEVFIP].size;
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
@@ -346,7 +349,7 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 
 	memset(ssp, 0, sizeof(struct storage_startup_parameter));
 	if (!usb_boot) {
-		storage_param_e = param_of(STORAGE_PARAM_TPYE);
+		storage_param_e = param_of(STORAGE_PARAM_TYPE);
 		if (!storage_param_e)
 			return -1;
 		memcpy(ssp, storage_param_e->data,
@@ -364,23 +367,23 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 		ssp->boot_device = current->type;
 		switch (ssp->boot_device) {
 		case BOOT_EMMC:
-			ssp->boot_bakups = storage_get_emmc_boot_seqs();
+			ssp->boot_backups = storage_get_emmc_boot_seqs();
 			break;
 		case BOOT_SNOR:
 			if (IS_FEAT_EN_4BL2_SNOR())
-				ssp->boot_bakups = 4;
+				ssp->boot_backups = 4;
 			else if (IS_FEAT_DIS_NBL2_SNOR())
-				ssp->boot_bakups = 1;
+				ssp->boot_backups = 1;
 			else
-				ssp->boot_bakups = 2; /* Default 2 backup, consistent with rom */
+				ssp->boot_backups = 2; /* Default 2 backup, consistent with rom */
 			break;
 		case BOOT_SNAND:
 			if (IS_FEAT_EN_8BL2_SNAND())
-				ssp->boot_bakups = 8;
+				ssp->boot_backups = 8;
 			else if (IS_FEAT_DIS_NBL2_SNAND())
-				ssp->boot_bakups = 1;
+				ssp->boot_backups = 1;
 			else
-				ssp->boot_bakups = 4; /* Default 4 backup, consistent with rom */
+				ssp->boot_backups = 4; /* Default 4 backup, consistent with rom */
 			sip->snasp.pagesize = current->info.write_unit;
 			sip->snasp.pages_per_eraseblock =
 			current->info.erase_unit / current->info.write_unit;
@@ -394,11 +397,11 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 			break;
 		case BOOT_NAND_NFTL:
 		case BOOT_NAND_MTD:
-			ssp->boot_bakups = 8;
+			ssp->boot_backups = 8;
 			if (IS_FEAT_DIS_8BL2_NAND())
-				ssp->boot_bakups = 4;
+				ssp->boot_backups = 4;
 			if (IS_FEAT_DIS_NBL2_NAND())
-				ssp->boot_bakups = 1;
+				ssp->boot_backups = 1;
 			sip->nsp.page_size =  current->info.write_unit;
 			sip->nsp.block_size = current->info.erase_unit;
 			sip->nsp.pages_per_block =
@@ -418,7 +421,7 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 
 	printf("boot_device:%d\n", ssp->boot_device);
 	printf("boot_seq:%d\n", ssp->boot_seq);
-	printf("boot_bakups:%d\n", ssp->boot_bakups);
+	printf("boot_backups:%d\n", ssp->boot_backups);
 	printf("rebuild_id :%d\n", *need_build);
 
 	return 0;
@@ -750,6 +753,20 @@ int store_gpt_erase(void)
 	if (!store->gpt_erase)
 		return 1;
 	return store->gpt_erase();
+}
+
+int store_boot_copy_enable(int index)
+{
+	struct storage_t *store = store_get_current();
+
+	if (!store) {
+		pr_info("%s %d please init storage device first\n",
+			__func__, __LINE__);
+		return -1;
+	}
+	if (!store->boot_copy_enable)
+		return -1;
+	return store->boot_copy_enable(index);
 }
 
 u32 store_rsv_size(const char *name)
@@ -1211,7 +1228,7 @@ static int bl2x_mode_check_header(p_payload_info_t pInfo)
 	int sz_payload = 0;
 	uint64_t align_size = 1;
 	struct storage_startup_parameter *ssp = &g_ssp;
-	uint64_t cal_copy = ssp->boot_bakups;
+	uint64_t cal_copy = ssp->boot_backups;
 
 	printf("\naml log : info parse...\n");
 	printf("\tsztimes : %s\n",hdr->szTimeStamp);
@@ -1271,7 +1288,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 		tpl_cpynum = CONFIG_NOR_TPL_COPY_NUM;
 
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
-		bl2_cpynum = ssp->boot_bakups;
+		bl2_cpynum = ssp->boot_backups;
 	} else	{
 		bootloader_maxsize = bl2_size + tpl_per_size;
 		bl2_cpynum = CONFIG_BL2_COPY_NUM;
@@ -1469,6 +1486,42 @@ static int do_store_gpt_erase(cmd_tbl_t *cmdtp,
 	return CMD_RET_USAGE;
 }
 
+/*
+ * Check whether the current boot can be written
+ * ret: 0 disable; 1: enable
+ */
+static int do_store_boot_copy_enable(cmd_tbl_t *cmdtp,
+			 int flag, int argc, char * const argv[])
+{
+	enum boot_type_e medium_type = store_get_type();
+	struct storage_t *store = store_get_current();
+	int ret = 0, index;
+
+	if (!store) {
+		pr_info("%s %d please init your storage device first!\n",
+			__func__, __LINE__);
+		return CMD_RET_USAGE;
+	}
+
+	if (unlikely(argc != 3))
+		return CMD_RET_USAGE;
+
+	if (medium_type != BOOT_EMMC) {
+		printf("%s %d not eMMC boot\n",
+			__func__, __LINE__);
+		return CMD_RET_USAGE;
+	}
+
+	index = simple_strtoul(argv[2], NULL, 16);
+	if (store->boot_copy_enable) {
+		ret = store->boot_copy_enable(index);
+		return ret;
+	}
+
+	printf("boot copy enable is not prepared\n");
+	return CMD_RET_USAGE;
+}
+
 static int do_store_rsv_ops(cmd_tbl_t *cmdtp,
 			    int flag, int argc, char * const argv[])
 {
@@ -1566,6 +1619,7 @@ static cmd_tbl_t cmd_store_sub[] = {
 	U_BOOT_CMD_MKENT(boot_erase, 4, 0, do_store_boot_erase, "", ""),
 	U_BOOT_CMD_MKENT(rsv, 6, 0, do_store_rsv_ops, "", ""),
 	U_BOOT_CMD_MKENT(param, 2, 0, do_store_param_ops, "", ""),
+	U_BOOT_CMD_MKENT(boot_copy_enable, 3, 0, do_store_boot_copy_enable, "", ""),
 };
 
 static int do_store(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -1670,5 +1724,7 @@ U_BOOT_CMD(store, CONFIG_SYS_MAXARGS, 1, do_store,
 	"	turn on/off the rsv info protection\n"
 	"	name must't null\n"
 	"store param\n"
-	"	transfer bl2e/x ddrfip devfip size to kernel in such case like sc2"
+	"	transfer bl2e/x ddrfip devfip size to kernel in such case like sc2\n"
+	"store boot_copy_enable [boot_index]\n"
+	"   check bootloader_x whether enable\n"
 );

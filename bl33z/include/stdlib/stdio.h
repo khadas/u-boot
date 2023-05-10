@@ -47,7 +47,6 @@
 #include <sys/_null.h>
 #include <sys/_types.h>
 #include <serial.h>
-#include <platform_def.h>
 
 #ifndef _SIZE_T_DECLARED
 typedef	__size_t	size_t;

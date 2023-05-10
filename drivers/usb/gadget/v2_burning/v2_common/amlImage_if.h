@@ -106,7 +106,7 @@ int image_item_read(HIMAGE hImg, HIMAGEITEM hItem, void* pBuf, const __u32 wantS
 int image_item_seek(HIMAGE , HIMAGEITEM , __s64 , __u32 );
 
 unsigned image_item_get_first_cluster_size(HIMAGE hImg, HIMAGEITEM hItem);
-unsigned image_get_cluster_size(HIMAGEITEM hImg);//Assert read offset and read size is multiple size of thsi unit
+unsigned image_get_cluster_size(HIMAGEITEM hImg);//Assert read offset and read size is multiple size of this unit
 
 int get_item_name(HIMAGE hImg, int itemId, const char** main_type, const char** sub_type);
 

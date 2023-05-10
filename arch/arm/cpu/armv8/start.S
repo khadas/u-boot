@@ -61,7 +61,7 @@ _bss_end_ofs:
 
 reset:
 	/* Allow the board to save important registers */
-#ifdef CONFIG_SUPPORT_BL33Z
+#if (defined CONFIG_SUPPORT_BL33Z) && (defined CONFIG_FULL_RAMDUMP)
 	/* jump to bl33z */
 	bl	load_bl33z
 #endif

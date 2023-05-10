@@ -22,7 +22,7 @@
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR        secondary_boot_func
 
 /* Serial config */
@@ -95,6 +95,7 @@
 		"vout3=${outputmode3},enable " \
 		"lcd1_ctrl=${lcd1_ctrl} panel2_type=${panel2_type} lcd2_ctrl=${lcd2_ctrl} "\
 		"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority};"\
+		"setenv bootargs ${bootargs} ${fbargs};"\
 		"\0"\
 	"init_display_hdmitx="\
 		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
@@ -158,7 +159,7 @@
 			"no_console_suspend earlycon=aml-uart,0xfe078000 "\
 			"ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
 			"ramoops.console_size=0x4000 loop.max_part=4 clk_ignore_unused "\
-			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
+			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0x0xfe02e030 "\
 			"meson_clk.ignore_pll_init=1"\
 			"\0"\
 		"upgrade_check="\
@@ -167,6 +168,7 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
+			"setenv bootargs ${bootargs} nn_adj_vol=${nn_adj_vol};"\
 			"run storeargs_hdmitx;"\
 			"run cmdline_keys;"\
 			"\0"\
@@ -317,7 +319,6 @@
 			"\0"
 
 #define CONFIG_PREBOOT  \
-			"run bcb_cmd; "\
 			"run upgrade_check;"\
 			"run check_display;"\
 			"run storeargs;"\
@@ -329,6 +330,7 @@
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \
+	/* logo3 */ \
 	"setenv outputmode3 ${hdmimode};"\
 	"setenv display_layer viu3_osd0;"\
 	"setenv fb_width 1280;setenv fb_height 800;"\
@@ -336,6 +338,9 @@
 	"osd open;osd clear;imgread pic logo bootup_land $loadaddr;"\
 	"bmp display $bootup_land_offset;"\
 	"bmp scale;vout3 output ${outputmode3};"\
+	"setenv fbargs fb_width3=${fb_width} fb_height3=${fb_height} "\
+	"display_bpp3=${display_bpp} fb_addr3=${fb_addr} ;"\
+	/* logo2 */ \
 	"setenv display_layer viu2_osd0;"\
 	"setenv fb_width 1280;setenv fb_height 800;"\
 	"setenv outputmode2 panel1;"\
@@ -343,10 +348,15 @@
 	"imgread pic logo bootup_land $loadaddr;"\
 	"bmp display $bootup_land_offset;"\
 	"vout2 output ${outputmode2};bmp scale;"\
+	"setenv fbargs ${fbargs} fb_width2=${fb_width} fb_height2=${fb_height} "\
+	"display_bpp2=${display_bpp} fb_addr2=${fb_addr} ;"\
+	/* logo1 */ \
 	"setenv display_layer osd0;"\
 	"setenv fb_width 800;setenv fb_height 1280;"\
 	"osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;"\
 	"bmp scale;vout output ${outputmode};vpp hdrpkt;"\
+	"setenv fbargs ${fbargs} fb_width=${fb_width} fb_height=${fb_height} "\
+	"display_bpp=${display_bpp} fb_addr=${fb_addr} ;"\
 	"\0"\
 
 #define CONFIG_RECOVERY_DUAL_LOGO CONFIG_DUAL_LOGO
@@ -365,11 +375,11 @@
 /* running in sram */
 //#define UBOOT_RUN_IN_SRAM
 #ifdef UBOOT_RUN_IN_SRAM
-#define CONFIG_SYS_INIT_SP_ADDR                (0x00200000)
+#define CONFIG_SYS_INIT_SP_ADDR                (0x00300000)
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN                (256 * 1024)
 #else
-#define CONFIG_SYS_INIT_SP_ADDR                (0x00200000)
+#define CONFIG_SYS_INIT_SP_ADDR                (0x00300000)
 #define CONFIG_SYS_MALLOC_LEN                (96 * 1024 * 1024)
 #endif
 
@@ -547,6 +557,9 @@
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
 #define CONFIG_FIP_IMG_SUPPORT  1
+
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED

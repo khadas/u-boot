@@ -69,31 +69,68 @@
 #define MIPI_DSI_TOP_MEAS_STAT_VS1             (0x18fb)
 #define MIPI_DSI_TOP_INTR_CNTL_STAT            (0x18fc)
 #define MIPI_DSI_TOP_MEM_PD                    (0x18fd)
+/* #ifndef MIPI_DSI_REGISTER */
+#endif
 
 /*=============    MIPI_DSI_PHY   ********* */
+#ifndef MIPI_DSI_PHY_CTRL
 #define MIPI_DSI_PHY_CTRL                                  (0xff640000 + (0x000 << 2))
+#endif
+#ifndef MIPI_DSI_CHAN_CTRL
 #define MIPI_DSI_CHAN_CTRL                                 (0xff640000 + (0x001 << 2))
+#endif
+#ifndef MIPI_DSI_CHAN_STS
 #define MIPI_DSI_CHAN_STS                                  (0xff640000 + (0x002 << 2))
+#endif
+#ifndef MIPI_DSI_CLK_TIM
 #define MIPI_DSI_CLK_TIM                                   (0xff640000 + (0x003 << 2))
+#endif
+#ifndef MIPI_DSI_HS_TIM
 #define MIPI_DSI_HS_TIM                                    (0xff640000 + (0x004 << 2))
+#endif
+#ifndef MIPI_DSI_LP_TIM
 #define MIPI_DSI_LP_TIM                                    (0xff640000 + (0x005 << 2))
 #define MIPI_DSI_ANA_UP_TIM                                (0xff640000 + (0x006 << 2))
+#endif
+#ifndef MIPI_DSI_INIT_TIM
 #define MIPI_DSI_INIT_TIM                                  (0xff640000 + (0x007 << 2))
+#endif
+#ifndef MIPI_DSI_WAKEUP_TIM
 #define MIPI_DSI_WAKEUP_TIM                                (0xff640000 + (0x008 << 2))
+#endif
+#ifndef MIPI_DSI_LPOK_TIM
 #define MIPI_DSI_LPOK_TIM                                  (0xff640000 + (0x009 << 2))
+#endif
+#ifndef MIPI_DSI_LP_WCHDOG
 #define MIPI_DSI_LP_WCHDOG                                 (0xff640000 + (0x00a << 2))
+#endif
+#ifndef MIPI_DSI_ANA_CTRL
 #define MIPI_DSI_ANA_CTRL                                  (0xff640000 + (0x00b << 2))
+#endif
+#ifndef MIPI_DSI_CLK_TIM1
 #define MIPI_DSI_CLK_TIM1                                  (0xff640000 + (0x00c << 2))
+#endif
+#ifndef MIPI_DSI_TURN_WCHDOG
 #define MIPI_DSI_TURN_WCHDOG                               (0xff640000 + (0x00d << 2))
+#endif
+#ifndef MIPI_DSI_ULPS_CHECK
 #define MIPI_DSI_ULPS_CHECK                                (0xff640000 + (0x00e << 2))
+#endif
+#ifndef MIPI_DSI_TEST_CTRL0
 #define MIPI_DSI_TEST_CTRL0                                (0xff640000 + (0x00f << 2))
+#endif
+#ifndef MIPI_DSI_TEST_CTRL1
 #define MIPI_DSI_TEST_CTRL1                                (0xff640000 + (0x010 << 2))
-
+#endif
+#ifndef HHI_MIPI_CNTL0
 #define HHI_MIPI_CNTL0                                     (0xff63c000 + (0x00 << 2))
+#endif
+#ifndef HHI_MIPI_CNTL1
 #define HHI_MIPI_CNTL1                                     (0xff63c000 + (0x01 << 2))
+#endif
+#ifndef HHI_MIPI_CNTL2
 #define HHI_MIPI_CNTL2                                     (0xff63c000 + (0x02 << 2))
-
-#endif /* #ifndef MIPI_DSI_REGISTER */
+#endif
 
 #ifndef HHI_GP0_PLL_CNTL
 #define HHI_GP0_PLL_CNTL                                   (0xff63c000 + (0x010 << 2))
@@ -1631,6 +1668,12 @@
 #ifndef PERIPHS_PIN_MUX_0
 #define PERIPHS_PIN_MUX_0 PADCTRL_PIN_MUX_REG0
 #endif
+#ifndef PERIPHS_PIN_MUX_5
+#define PERIPHS_PIN_MUX_5 0x5
+#endif
+#ifndef PERIPHS_PIN_MUX_6
+#define PERIPHS_PIN_MUX_6 0x5
+#endif
 #ifndef PERIPHS_PIN_MUX_7
 #define PERIPHS_PIN_MUX_7 0x5
 #endif
@@ -1820,4 +1863,15 @@
 #endif
 #ifndef PM_EDP1
 #define PM_EDP1 0xff
+#endif
+
+/* T5W */
+#ifndef HHI_VIID_CLK0_DIV
+#define HHI_VIID_CLK0_DIV		0x0a0
+#endif
+#ifndef HHI_VIID_CLK0_CTRL
+#define HHI_VIID_CLK0_CTRL		0x0a1
+#endif
+#ifndef HHI_VID_CLK0_CTRL2
+#define HHI_VID_CLK0_CTRL2              0x0a4
 #endif

@@ -387,6 +387,110 @@ static int reserve_round_4k(void)
 	return 0;
 }
 
+#ifdef CONFIG_AML_UASAN
+static void record_section_red_zone(unsigned long addr)
+{
+	int i;
+
+	uasan_poison_object(addr,
+			    MEM_SECTION_RED_ZONE_SIZE,
+			    UASAN_PAGE_REDZONE);
+	for (i = 0; i < SECTION_RED_ZONE_NUM; i++) {
+		if (!gd->section_red_zones[i]) {
+			gd->section_red_zones[i] = addr;
+			return;
+		}
+	}
+	printf("[UASAN] red zone section full, ignore addr:%lx\n", addr);
+}
+
+static void uasan_global_init(void)
+{
+	ctor_fn_t *fn = (ctor_fn_t *)__init_array_start;
+
+	for (; fn < (ctor_fn_t *)__init_array_end; fn++) {
+		debug("%s, fn:%lx, func:%lx\n",
+		      __func__, (unsigned long)fn, (unsigned long)*fn);
+		(*fn)();
+	}
+}
+
+static int reserve_uasan(void)
+{
+	int i;
+	unsigned long used_size, size;
+	unsigned long addr;
+
+	/*
+	 * check if malloc size  + hide top is larger than 256MB, reserve 10MB
+	 * for uboot code size/bss/stacks
+	 */
+#ifdef CONFIG_SYS_MEM_TOP_HIDE
+	BUILD_BUG_ON(CONFIG_SYS_MEM_TOP_HIDE +
+		     CONFIG_SYS_MALLOC_LEN + sizeof(*gd) >=
+		     (0x10000000 - 0x00A00000));
+#else
+	BUILD_BUG_ON(CONFIG_SYS_MALLOC_LEN + sizeof(*gd) >=
+		     (0x10000000 - 0x00A00000));
+#endif
+
+	/* pad last red zone */
+	addr = gd->start_addr_sp - UASAN_STACK_SIZE - MEM_SECTION_RED_ZONE_SIZE;
+	if (addr < gd->ram_top - UASAN_UBOOT_SIZE) {
+		printf("[UASAN] ERROR: used memory overlap with shadow\n");
+		return -1;
+	}
+	gd->use_mem_end = addr;
+	printf("[UASAN] reserve [%08lx - %08lx] for stack\n",
+		addr, gd->start_addr_sp);
+	record_section_red_zone(addr);
+
+	used_size        = gd->ram_top - gd->start_addr_sp +
+			   UASAN_STACK_SIZE + MEM_SECTION_RED_ZONE_SIZE;
+	gd->use_mem_size = used_size;
+
+	/* clear all shadows */
+	size = UASAN_UBOOT_SIZE >> UASAN_SHADOW_SCALE_SHIFT;
+	gd->shadow_size  = size;
+#ifdef CONFIG_SYS_MEM_TOP_HIDE
+	gd->phy_mem_low  = gd->ram_top - UASAN_UBOOT_SIZE + CONFIG_SYS_MEM_TOP_HIDE;
+	gd->phy_mem_high = gd->ram_top + CONFIG_SYS_MEM_TOP_HIDE;
+#else
+	gd->phy_mem_low  = gd->ram_top - UASAN_UBOOT_SIZE;
+	gd->phy_mem_high = gd->ram_top;
+#endif
+	gd->shadow_addr = gd->phy_mem_low - size;
+
+	printf("[UASAN] memory: %08lx - %08lx\n", gd->use_mem_end, gd->ram_top);
+	printf("[UASAN] shadow: %08lx - %08lx\n", gd->shadow_addr,
+		gd->shadow_addr + size);
+
+	/* 2, clear shadow first */
+	__memset((void *)gd->shadow_addr, 0, gd->shadow_size);
+
+	/* 3, initialize red-zones */
+	for (i = 0; i < SECTION_RED_ZONE_NUM; i++) {
+		if (gd->section_red_zones[i]) {
+			addr = mem_to_shadow((void *)gd->section_red_zones[i]);
+			size = MEM_SECTION_RED_ZONE_SIZE >>
+			       UASAN_SHADOW_SCALE_SHIFT;
+			if (addr) {
+				__memset((void *)addr, UASAN_PAGE_REDZONE, size);
+				printf("[UASAN] red zone: %08lx - %08lx\n",
+					addr, addr + size);
+			}
+		}
+	}
+
+	/* 4, create shadow for globals */
+	uasan_global_init();
+
+	gd->uasan_enabled = 1;
+	printf("[UASAN] Enable UASAN\n");
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_ARM
 __weak int reserve_mmu(void)
 {
@@ -409,6 +513,13 @@ __weak int reserve_mmu(void)
 	 */
 	gd->arch.tlb_allocated = gd->arch.tlb_addr;
 #endif
+#endif
+#ifdef CONFIG_AML_UASAN
+	/* insert red zone */
+	printf("\n[UASAN] reserve [%08lx - %08lx] for mmu\n",
+	       gd->relocaddr, gd->relocaddr + gd->arch.tlb_size);
+	gd->relocaddr -= MEM_SECTION_RED_ZONE_SIZE;
+	record_section_red_zone(gd->relocaddr);
 #endif
 
 	return 0;
@@ -477,6 +588,13 @@ static int reserve_uboot(void)
 	}
 
 	gd->start_addr_sp = gd->relocaddr;
+#ifdef CONFIG_AML_UASAN
+	/* insert red zone */
+	printf("[UASAN] reserve [%08lx - %08lx] for uboot\n",
+		gd->start_addr_sp, gd->relocaddr + gd->mon_len);
+	gd->start_addr_sp -= MEM_SECTION_RED_ZONE_SIZE;
+	record_section_red_zone(gd->start_addr_sp);
+#endif
 
 	return 0;
 }
@@ -487,6 +605,13 @@ static int reserve_malloc(void)
 	gd->start_addr_sp = gd->start_addr_sp - TOTAL_MALLOC_LEN;
 	debug("Reserving %dk for malloc() at: %08lx\n",
 	      TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
+#ifdef CONFIG_AML_UASAN
+	printf("[UASAN] reserve [%08lx - %08lx] for malloc\n",
+		gd->start_addr_sp, gd->start_addr_sp + TOTAL_MALLOC_LEN);
+	/* insert red zone */
+	gd->start_addr_sp -= MEM_SECTION_RED_ZONE_SIZE;
+	record_section_red_zone(gd->start_addr_sp);
+#endif
 	return 0;
 }
 
@@ -499,6 +624,13 @@ static int reserve_board(void)
 		memset(gd->bd, '\0', sizeof(bd_t));
 		debug("Reserving %zu Bytes for Board Info at: %08lx\n",
 		      sizeof(bd_t), gd->start_addr_sp);
+	#ifdef CONFIG_AML_UASAN
+		printf("[UASAN] reserve [%08lx - %08lx] for board\n",
+			gd->start_addr_sp, gd->start_addr_sp + sizeof(bd_t));
+		/* insert red zone */
+		gd->start_addr_sp -= MEM_SECTION_RED_ZONE_SIZE;
+		record_section_red_zone(gd->start_addr_sp);
+	#endif
 	}
 	return 0;
 }
@@ -517,6 +649,13 @@ static int reserve_global_data(void)
 	gd->new_gd = (gd_t *)map_sysmem(gd->start_addr_sp, sizeof(gd_t));
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
 	      sizeof(gd_t), gd->start_addr_sp);
+#ifdef CONFIG_AML_UASAN
+	printf("[UASAN] reserve [%08lx - %08lx] for global_data\n",
+		gd->start_addr_sp, gd->start_addr_sp + sizeof(gd_t));
+	/* insert red zone */
+	gd->start_addr_sp -= MEM_SECTION_RED_ZONE_SIZE;
+	record_section_red_zone(gd->start_addr_sp);
+#endif
 	return 0;
 }
 
@@ -734,8 +873,8 @@ static int setup_reloc(void)
 #endif
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
-	pr_info("Relocation Offset is: %08lx\n", gd->reloc_off);
-	pr_info("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
+	printf("Relocation Offset is: %08lx\n", gd->reloc_off);
+	printf("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
 	      gd->relocaddr, (ulong)map_to_sysmem(gd->new_gd),
 	      gd->start_addr_sp);
 
@@ -963,6 +1102,9 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_bloblist,
 	reserve_arch,
 	reserve_stacks,
+#ifdef CONFIG_AML_UASAN
+	reserve_uasan,
+#endif
 	dram_init_banksize,
 	show_dram_config,
 #if defined(CONFIG_M68K) || defined(CONFIG_MIPS) || defined(CONFIG_PPC) || \

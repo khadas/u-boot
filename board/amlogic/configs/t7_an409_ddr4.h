@@ -22,7 +22,7 @@
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Bootloader Control Block function
@@ -105,7 +105,7 @@
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
-			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
+			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0x0xfe02e030 "\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -124,6 +124,7 @@
 		"get_bootloaderversion;" \
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+		"nn_adj_vol=${nn_adj_vol} "\
 		"panel1_type=${panel1_type} lcd1_ctrl=${lcd1_ctrl} "\
 		"panel2_type=${panel2_type} "\
 		"lcd2_ctrl=${lcd2_ctrl} outputmode=${outputmode};"\
@@ -194,7 +195,6 @@
 		"\0"\
 
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
@@ -215,11 +215,11 @@
 /* running in sram */
 //#define UBOOT_RUN_IN_SRAM
 #ifdef UBOOT_RUN_IN_SRAM
-#define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
+#define CONFIG_SYS_INIT_SP_ADDR				(0x00300000)
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN				(256*1024)
 #else
-#define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
+#define CONFIG_SYS_INIT_SP_ADDR				(0x00300000)
 #define CONFIG_SYS_MALLOC_LEN				(96*1024*1024)
 #endif
 
@@ -416,6 +416,9 @@
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
 #define CONFIG_FIP_IMG_SUPPORT  1
+
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED

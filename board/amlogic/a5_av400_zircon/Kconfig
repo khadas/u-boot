@@ -27,4 +27,17 @@ config AML_REBOOT
        default y
        help
          support uboot reboot cmd
+
+config ZIRCON_GPT
+       bool "enable gpt for zircon"
+       default n
+
+config ZIRCON_PARTITIONS
+	bool "Zircon partitions support"
+	default n
+
+config ZIRCON_ABR
+	bool "Zircon A/B/R support"
+	default n
+
 endif

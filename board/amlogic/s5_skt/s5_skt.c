@@ -176,14 +176,12 @@ int board_late_init(void)
 	hdmitx21_chip_type_init(MESON_CPU_ID_S5);
 #endif
 #ifdef CONFIG_PXP_EMULATOR
-#ifdef CONFIG_AML_HDMITX21
-	hdmitx21_pxp_init(1); /* for pxp only */
-#endif
 	return 0;
 #else
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
+	run_command("run bcb_cmd", 0);
 
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {

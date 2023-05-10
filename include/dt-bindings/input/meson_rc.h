@@ -8,7 +8,7 @@
 
 /**
  *GXM GXL GXTVBB TXL platform integrated with two IR controllers.
- *1. legacy IR contoller(Only support NEC and Time Measurement)
+ *1. legacy IR controller(Only support NEC and Time Measurement)
  *2. multi-format IR controller
  *
  *There are multiple decode mode based on two IR controllers.

@@ -20,6 +20,9 @@ ifdef CONFIG_BOOT_RETRY_TIME
 obj-y += bootretry.o
 endif
 
+UASAN_SANITIZE_board_f.o := n
+UASAN_SANITIZE_dlmalloc.o := n
+
 # # boards
 obj-y += board_f.o
 obj-y += board_r.o
@@ -142,7 +145,7 @@ obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
 
 obj-$(CONFIG_AVB_VERIFY) += avb_verify.o
 ifdef_any_of = $(filter-out undefined,$(foreach v,$(1),$(origin $(v))))
-ifneq ($(call ifdef_any_of,CONFIG_MDUMP_COMPRESS CONFIG_SUPPORT_BL33Z),)
+ifneq ($(call ifdef_any_of,CONFIG_MDUMP_COMPRESS CONFIG_FULL_RAMDUMP),)
 obj-y += ramdump.o
 endif
 
@@ -151,3 +154,5 @@ obj-y += nocs_seb.o
 
 # zircon commands
 obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += cmd_zircon_bootconfig.o
+obj-$(CONFIG_LIBABR) += zircon_abr.o
+obj-$(CONFIG_ZIRCON_ABR) += zircon_vboot.o

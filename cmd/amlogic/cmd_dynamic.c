@@ -510,7 +510,7 @@ static int ValidateMetadataHeader(LpMetadataHeader* header) {
         printf("Logical partition metadata has invalid table bounds.\n");
         return -1;
     }*/
-    // Check that table entry sizes can accomodate their respective structs. If
+    // Check that table entry sizes can match their respective structs. If
     // table sizes change, these checks will have to be adjusted.
     if (header->partitions.entry_size != sizeof(LpMetadataPartition)) {
         printf("Logical partition metadata has invalid partition table entry size.\n");
@@ -699,13 +699,14 @@ ERR:
 
 }
 
-int is_partition_logical(char* parition_name) {
+int is_partition_logical(char *partition_name)
+{
     run_command("readMetadata", 0);
     PartitionList* node = part_list;
     while (NULL != node)
     {
         //printf("name: %s\n",node->name);
-        if (strcmp(node->name, parition_name) == 0)
+        if (strcmp(node->name, partition_name) == 0)
             return 0;
         node = node->next;
     }

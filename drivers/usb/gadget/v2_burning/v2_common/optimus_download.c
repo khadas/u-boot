@@ -12,6 +12,7 @@
 #include <asm/arch/mailbox.h>
 #include <asm/arch/cpu_config.h>
 
+extern int check_valid_dts(unsigned char *buffer);
 extern unsigned int get_multi_dt_entry(unsigned long fdt_addr);
 int is_optimus_storage_inited(void);
 
@@ -40,6 +41,7 @@ int v2_key_command(const int argc, char * const argv[], char *info)
 #endif// #ifndef CONFIG_USB_BURNING_TOOL
 
 static unsigned long _dtb_is_loaded = 0;
+static unsigned long _gpt_is_loaded;
 
 #define IMG_VERIFY_ALG_NONE     0 //not need to verify
 #define IMG_VERIFY_ALG_SHA1SUM  1
@@ -115,13 +117,15 @@ static int _assert_logic_partition_cap(const char* thePartName, const uint64_t n
     if (NULL == part_table) return 0;
     if (!strcmp("1", thePartName)) return 0;
 
-    for (thePart = part_table; partIndex < 36; ++thePart, ++partIndex)
+	for (thePart = part_table; partIndex < MAX_PART_NUM; ++thePart, ++partIndex)
     {
         if (memcmp(thePartName, thePart->name, strnlen(thePartName, MAX_PART_NAME_LEN))) continue;
 
         const uint64_t dtsPartSz = thePart->size;
         DWN_DBG("cfg dtsPartSz %llx for part(%s)\n", dtsPartSz, thePartName);
         if (NAND_PART_SIZE_FULL == dtsPartSz) {return 0;}
+	if ((dtsPartSz >> 32) == 0xffffffffUL) //GPT mode last part
+		return 0;
         if (dtsPartSz > nandPartCap) {
             DWN_ERR("partSz of logic part(%s): sz dts %llx > Sz flash %llx\n",
                     thePartName, dtsPartSz, nandPartCap);
@@ -444,7 +448,14 @@ static u32 optimus_storage_write(struct ImgBurnInfo* pDownInfo, u64 addrOrOffset
                 memcpy(dtbLoadAddr, srcDownDtb, dataSz);
                 DWN_MSG("load dt.img to 0x%p, sz=0x%x\n", dtbLoadAddr, dataSz);
                 _dtb_is_loaded = dataSz;
-            }
+		} else if (!strcmp("gpt", pDownInfo->partName)) {
+			unsigned char *gpt_load_addr = (unsigned char *)V2_GPT_LOAD_ADDR;
+			unsigned char *src_gpt = (unsigned char *)data;
+
+			memcpy(gpt_load_addr, src_gpt, dataSz);
+			DWN_MSG("load gpt.bin to 0x%p, sz=0x%x\n", gpt_load_addr, dataSz);
+			_gpt_is_loaded = dataSz;
+		}
 
             burnSz = dataSz;
         }
@@ -712,6 +723,8 @@ int optimus_storage_init(int toErase)
     int ret = 0;
     char* cmd = NULL;
     unsigned char* dtbLoadedAddr = (unsigned char*)OPTIMUS_DTB_LOAD_ADDR;
+	unsigned char *gpt_load_addr = (unsigned char *)V2_GPT_LOAD_ADDR;
+	const int is_gpt = _gpt_is_loaded;
 
     if (_disk_intialed_ok) {//To assert only actual disk intialed once
         DWN_MSG("Disk inited but init again!!!\n");
@@ -728,17 +741,15 @@ int optimus_storage_init(int toErase)
         DWN_WRN("dtb is not loaded yet\n");
     }
     else{
-#ifdef CONFIG_AML_MTD
-        if ( BOOT_NAND_MTD == store_get_type() ) {
-            extern int check_valid_dts(unsigned char *buffer);
-            ret =  check_valid_dts(dtbLoadedAddr);
-        } else
-#endif // #ifdef CONFIG_AML_MTD
-        ret = get_partition_from_dts(dtbLoadedAddr);
+     //can get before store init as not pc mode
+	if (store_get_type() == BOOT_NAND_MTD || store_get_type() == BOOT_SNAND)
+		ret =  check_valid_dts(dtbLoadedAddr);
+	else
+		ret = get_partition_from_dts(is_gpt ? gpt_load_addr : dtbLoadedAddr);
 
         if (ret) {
-            DWN_ERR("Failed at check dts\n");
-            return __LINE__;
+		DWN_ERR("Failed at check part table\n");
+		return __LINE__;
         }
     }
 
@@ -784,6 +795,10 @@ int optimus_storage_init(int toErase)
     }
 
     if (toErase > 0) {
+	if (!is_gpt) {
+		DWN_MSG("erase gpt for dtb part mode\n");
+		store_gpt_erase();
+	}
         ret = store_erase(NULL, 0, 0, 0);
         if (ret) {
             DWN_ERR("Fail in erase flash,ret %d\n", ret);

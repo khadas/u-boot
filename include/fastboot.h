@@ -23,6 +23,8 @@
 extern int busy_flag;
 extern u32 kMaxFetchSizeDefault;
 
+int nand_store_write(const char *name, loff_t off, size_t size, void *buf);
+
 /**
  * All known commands to fastboot
  */
@@ -31,6 +33,7 @@ enum {
 	FASTBOOT_COMMAND_CONTINUE,
 	FASTBOOT_COMMAND_REBOOT_BOOTLOADER,
 	FASTBOOT_COMMAND_REBOOT_FASTBOOT,
+	FASTBOOT_COMMAND_REBOOT_RECOVERY,
 	FASTBOOT_COMMAND_REBOOT,
 	FASTBOOT_COMMAND_BOOT,
 #ifdef CONFIG_FASTBOOT_WRITING_CMD

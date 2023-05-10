@@ -265,6 +265,18 @@ int board_late_init(void)
 	}
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
+
+	/* The board id is used to determine if the NN needs to adjust voltage */
+	switch (readl(SYSCTRL_SEC_STATUS_REG4) >> 8 & 0xff) {
+	case 2:
+		/* The NN needs to adjust the voltage */
+		env_set_ulong("nn_adj_vol", 1);
+		break;
+	default:
+		/* The NN does not need to adjust the voltage */
+		env_set_ulong("nn_adj_vol", 0);
+	}
+
 	return 0;
 }
 
@@ -275,14 +287,10 @@ phys_size_t get_effective_memsize(void)
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
 	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
-	return ddr_size
+	return ddr_size;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
@@ -308,13 +316,19 @@ static struct mm_region bd_mem_map[] = {
 	{
 		.virt = 0x00000000UL,
 		.phys = 0x00000000UL,
-		.size = 0xe0000000UL,
+		.size = 0x05100000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xe0000000UL,
-		.phys = 0xe0000000UL,
-		.size = 0x20000000UL,
+		.virt = 0x09000000UL,
+		.phys = 0x09000000UL,
+		.size = 0x77000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -334,9 +348,12 @@ int mach_cpu_init(void) {
 				(((readl(SYSCTRL_SEC_STATUS_REG4)) &
 				0xFFFFFFFF0000) << 4));
 
-
-	if ( nddrSize <= 0xe0000000 )
-		bd_mem_map[0].size = nddrSize;
+	if (nddrSize >= 0xe0000000) {
+		bd_mem_map[1].size = 0xe0000000UL - bd_mem_map[1].phys;
+		bd_mem_map[2].virt = 0xe0000000UL;
+		bd_mem_map[2].phys = 0xe0000000UL;
+		bd_mem_map[2].size = 0x20000000UL;
+	}
 
 #endif
 	return 0;
@@ -484,13 +501,10 @@ const struct mtd_partition *get_partition_table(int *partitions)
 #ifdef CONFIG_MULTI_DTB
 phys_size_t get_ddr_memsize(void)
 {
-	phys_size_t ddr_size = env_get_hex("board_ddr_size", 0);
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
 
-	if (!ddr_size) {
-		ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
-		printf("init board ddr size  %llx\n", ddr_size);
-		env_set_hex("board_ddr_size", ddr_size);
-	}
+	printf("init board ddr size  %llx\n", ddr_size);
+	env_set_hex("board_ddr_size", ddr_size);
 	return ddr_size;
 }
 #endif
@@ -498,56 +512,51 @@ phys_size_t get_ddr_memsize(void)
 int checkhw(char * name)
 {
 #ifdef CONFIG_MULTI_DTB
-	char *p_aml_dt = env_get("aml_dt");
 	cpu_id_t cpu_id;
 
-	printf("checkhw aml_dt:%s\n", p_aml_dt);
-	if (!p_aml_dt) {
-		char loc_name[64] = {0};
-		phys_size_t ddr_size = get_ddr_memsize();
-		cpu_id = get_cpu_id();
+	char loc_name[64] = {0};
+	phys_size_t ddr_size = get_ddr_memsize();
 
-		switch (ddr_size) {
-		case CONFIG_T7_4G_SIZE:
-			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				#ifdef CONFIG_HDMITX_ONLY
-				strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
-				#else
-				strcpy(loc_name, "t7_a311d2_an400\0");
-				#endif
-			} else if (cpu_id.chip_rev == 0xC) {
-				#ifdef CONFIG_HDMITX_ONLY
-				strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only\0");
-				#else
-				strcpy(loc_name, "t7c_a311d2_an400-4g\0");
-				#endif
-			}
-			break;
-		case CONFIG_T7_8G_SIZE:
-			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "t7_a311d2_an400-8g\0");
-			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400-8g\0");
-				//
-			}
-			break;
-		default:
-			printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
-			printf("set default t7_a311d2_an400\n");
-			if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
-				strcpy(loc_name, "t7_a311d2_an400\0");
-			} else if (cpu_id.chip_rev == 0xC) {
-				strcpy(loc_name, "t7c_a311d2_an400-4g\0");
-				//
-			}
-			break;
+	cpu_id = get_cpu_id();
+
+	switch (ddr_size) {
+	case CONFIG_T7_4G_SIZE:
+		if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+			#ifdef CONFIG_HDMITX_ONLY
+			strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
+			#else
+			strcpy(loc_name, "t7_a311d2_an400\0");
+			#endif
+		} else if (cpu_id.chip_rev == 0xC) {
+			#ifdef CONFIG_HDMITX_ONLY
+			strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only-4g\0");
+			#else
+			strcpy(loc_name, "t7c_a311d2_an400-4g\0");
+			#endif
 		}
-		printf("init aml_dt to %s\n", loc_name);
-		strcpy(name, loc_name);
-		env_set("aml_dt", loc_name);
-	} else {
-		strcpy(name, env_get("aml_dt"));
+		break;
+	case CONFIG_T7_8G_SIZE:
+		if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+			strcpy(loc_name, "t7_a311d2_an400-8g\0");
+		} else if (cpu_id.chip_rev == 0xC) {
+			strcpy(loc_name, "t7c_a311d2_an400-8g\0");
+			//
+		}
+		break;
+	default:
+		printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
+		printf("set default t7_a311d2_an400\n");
+		if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+			strcpy(loc_name, "t7_a311d2_an400\0");
+		} else if (cpu_id.chip_rev == 0xC) {
+			strcpy(loc_name, "t7c_a311d2_an400-4g\0");
+			//
+		}
+		break;
 	}
+	printf("init aml_dt to %s\n", loc_name);
+	strcpy(name, loc_name);
+	env_set("aml_dt", loc_name);
 #else
 	env_set("aml_dt", "t7_a311d2_an400\0");
 #endif

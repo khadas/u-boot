@@ -114,7 +114,7 @@ typedef struct _PMU_SMB_LPDDR4_2D_t {
 	//
 	// For example to set Vref at 0.25*VDDQ, set this field to 0x20.
 	//
-	// For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedances, terminations, and series resistance present in the system.
+	// For digital simulation, any legal value can be used. For silicon, the users must calculate the analytical Vref by using the impedance, terminations, and series resistance present in the system.
 	uint8_t Lp4Misc;	// Byte offset 0x0d, CSR Addr 0x54006, Direction=In
 	// Lp4 specific options for training.
 	//

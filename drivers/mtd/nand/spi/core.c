@@ -624,6 +624,8 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 	return ret ? ret : max_bitflips;
 }
 
+u_char page_info[4096];
+
 /* add for meson info_page */
 #if SPINAND_MESON_INFO_PAGE
 bool spinand_is_info_page(struct nand_device *nand, int page)
@@ -673,6 +675,16 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 }
 #endif
 
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+void spinand_page_info_set_ddr_param(int value)
+{
+	struct boot_info *info = (struct boot_info *)page_info;
+
+	memset(page_info, 0, 4096);
+	info->ddr_param_page = value;
+}
+#endif
+
 #if SPINAND_MESON_INFO_PAGE_V2
 int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 {
@@ -680,7 +692,9 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 	struct spinand_device *spinand = mtd_to_spinand(mtd);
 	struct boot_info *boot_info = (struct boot_info *)buf;
 	u32 page_per_bbt, i;
-
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+	unsigned int pages_shift, ddr_param_page;
+#endif
 	memcpy(boot_info->magic, SPINAND_MAGIC, strlen(SPINAND_MAGIC));
 	boot_info->version = SPINAND_INFO_VER;
 	page_per_bbt = (mtd->size >> (mtd->erasesize_shift + mtd->writesize_shift));
@@ -701,11 +715,23 @@ int spinand_set_info_page(struct mtd_info *mtd, void *buf)
 			boot_info->dev_cfg.bus_width = 1;
 	}
 
-	for (i = 0; i < sizeof(struct boot_info) - 4; i++)
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+	pages_shift = mtd->erasesize_shift - mtd->writesize_shift;
+	if (spinand->rsv->ddr_para->valid) {
+		ddr_param_page = spinand->rsv->ddr_para->nvalid->page_addr +
+			(spinand->rsv->ddr_para->nvalid->blk_addr << pages_shift);
+		boot_info->ddr_param_page = ddr_param_page;
+		printf("save ddr param page: 0x%x to info page!\n", ddr_param_page);
+	} else {
+		printf("ddr param is invalid!\n");
+	}
+#endif
+	boot_info->checksum = 0;
+	for (i = 0; i < BOOTINFO_FIX_BYTES - 4; i++)
 		boot_info->checksum += *((u8 *)buf + i);
 
 	/* temporary dump info page for bringup */
-	for (i = 0; i < sizeof(struct boot_info); i++) {
+	for (i = 0; i < BOOTINFO_FIX_BYTES; i++) {
 		if (!(i % 8))
 			printf("\n");
 		printf("%2x  ", *((u8 *)buf + i));
@@ -724,7 +750,6 @@ static int spinand_append_info_page(struct mtd_info *mtd,
 	struct nand_device *nand = mtd_to_nanddev(mtd);
 	struct nand_page_io_req req;
 	int page;
-	u8 *buf;
 	int ret = 0;
 
 	page = nanddev_pos_to_row(nand, &last_req->pos);
@@ -733,9 +758,8 @@ static int spinand_append_info_page(struct mtd_info *mtd,
 		req.datalen = mtd->writesize;
 		req.dataoffs = 0;
 		req.ooblen = 0;
-		buf = kzalloc(mtd->writesize, GFP_KERNEL);
-		req.databuf.in = buf;
-		spinand_set_info_page(mtd, buf);
+		req.databuf.in = page_info;
+		spinand_set_info_page(mtd, page_info);
 		#if SPINAND_MESON_INFO_PAGE
 		nanddev_pos_next_page(nand, &req.pos);
 		#else
@@ -743,7 +767,6 @@ static int spinand_append_info_page(struct mtd_info *mtd,
 		#endif
 		ret = spinand_write_page(spinand, &req);
 		pr_info("write info page to 0x%x\n", nanddev_pos_to_row(nand, &req.pos));
-		kfree(buf);
 	}
 	return ret;
 }
@@ -822,6 +845,28 @@ static bool spinand_isbad(struct nand_device *nand, const struct nand_pos *pos)
 	return false;
 }
 
+static int spinand_block_checkbad(struct nand_device *nand, struct nand_pos *pos)
+{
+	struct spinand_device *spinand = nand_to_spinand(nand);
+	unsigned int offs = nanddev_pos_to_offs(nand, pos);
+	int status;
+
+	if (spinand->bbt && !spinand->bbt_scan) {
+		status = spinand->bbt[pos->eraseblock];
+		if (status != NAND_BLOCK_GOOD &&
+		   status != NAND_BLOCK_BAD &&
+		   status != NAND_FACTORY_BAD) {
+			pr_err("bad block table is mixed\n");
+			return NAND_BLOCK_BAD;
+		}
+		if (status != NAND_BLOCK_GOOD)
+			pr_info("bad block at 0x%x\n", (u32)offs);
+		return status;
+	}
+	pr_info("bbt table is not initial\n");
+	return spinand_isbad(nand, pos) ? NAND_FACTORY_BAD : NAND_BLOCK_GOOD;
+}
+
 static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
 {
 	struct nand_device *nand = mtd_to_nanddev(mtd);
@@ -835,7 +880,7 @@ static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
 #ifndef __UBOOT__
 	mutex_lock(&spinand->lock);
 #endif
-	ret = nanddev_isbad(nand, &pos);
+	ret = spinand_block_checkbad(nand, &pos);
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -1340,7 +1385,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		temp[BOOT_AREA_BL2E].offset =
 			g_ssp.boot_entry[BOOT_AREA_BL2E].offset;
 		temp[BOOT_AREA_BL2E].size =
-			g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
+			g_ssp.boot_entry[BOOT_AREA_BL2E].size * g_ssp.boot_backups;
 		if (temp[0].size % mtd->erasesize)
 			WARN_ON(1);
 
@@ -1348,7 +1393,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		temp[BOOT_AREA_BL2X].offset =
 			g_ssp.boot_entry[BOOT_AREA_BL2X].offset;
 		temp[BOOT_AREA_BL2X].size =
-			g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
+			g_ssp.boot_entry[BOOT_AREA_BL2X].size * g_ssp.boot_backups;
 		if (temp[0].size % mtd->erasesize)
 			WARN_ON(1);
 
@@ -1356,7 +1401,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		temp[BOOT_AREA_DDRFIP].offset =
 			g_ssp.boot_entry[BOOT_AREA_DDRFIP].offset;
 		temp[BOOT_AREA_DDRFIP].size =
-			g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
+			g_ssp.boot_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_backups;
 		if (temp[0].size % mtd->erasesize)
 			WARN_ON(1);
 
@@ -1390,7 +1435,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		loff_t offset = off, end = off + parts[i].size;
 
 		do {
-			if (mtd->_block_isbad(mtd, offset)) {
+			if (mtd->_block_isbad(mtd, offset) == NAND_FACTORY_BAD) {
 				pr_err("%s %d found bad block in 0x%llx\n",
 					__func__, __LINE__, offset);
 				end += mtd->erasesize;
@@ -1517,6 +1562,9 @@ static int spinand_probe(struct udevice *dev)
 	meson_rsv_check(spinand->rsv->env);
 	meson_rsv_check(spinand->rsv->key);
 	meson_rsv_check(spinand->rsv->dtb);
+#ifdef CONFIG_DDR_PARAMETER_SUPPORT
+	meson_rsv_check(spinand->rsv->ddr_para);
+#endif
 #endif
 
 #ifdef CONFIG_CMD_NAND

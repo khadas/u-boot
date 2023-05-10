@@ -15,7 +15,7 @@
 #define AML_VCCK_INIT_VOLTAGE	  900	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */
@@ -100,16 +100,13 @@
 	"fdt_high=0x20000000\0"\
 	"sdcburncfg=aml_sdc_burn.ini\0"\
 	"EnableSelinux=enforcing\0" \
-	"recovery_part=recovery\0"\
 	"loglevel=8\0" \
 	"lock=10101000\0"\
-	"recovery_offset=0\0"\
 	"cvbs_drv=0\0"\
 	"osd_reverse=0\0"\
 	"video_reverse=0\0"\
 	"active_slot=normal\0"\
 	"boot_part=boot\0"\
-	"zircon_part=recovery\0"\
 	"vendor_boot_part=vendor_boot\0"\
 	"board_logo_part=odm_ext\0" \
 	"board=oppen\0"\
@@ -120,7 +117,7 @@
 	"fs_type=""rootfstype=ramfs""\0"\
 	"initargs="\
 	"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-	"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+	"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 "\
 	"\0"\
 	"upgrade_check="\
 	"echo recovery_status=${recovery_status};"\
@@ -160,7 +157,7 @@
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
-		"if imgread kernel ${zircon_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+		"if zbi_load kernel ${loadaddr}; then zbi_boot ${loadaddr}; fi;"\
 		"echo try upgrade as booting failure; run update;"\
 		"\0" \
 	 "update="\
@@ -187,37 +184,8 @@
 		"if mmcinfo; then run recovery_from_fat_dev; fi;"\
 		"\0"\
 	"recovery_from_flash="\
-		"echo active_slot: ${active_slot};"\
-		"setenv loadaddr ${loadaddr_kernel};"\
-		"if test ${active_slot} = normal; then "\
-			"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
-			"if test ${upgrade_step} = 3; then "\
-				"if ext4load mmc 1:2 ${dtb_mem_addr} /recovery/dtb.img; then echo cache dtb.img loaded; fi;"\
-				"if test ${vendor_boot_mode} = true; then "\
-					"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-				"else "\
-					"if ext4load mmc 1:2 ${loadaddr} /recovery/recovery.img; then echo cache recovery.img loaded; bootm ${loadaddr}; fi;"\
-				"fi;"\
-			"else "\
-		"if imgread dtb recovery ${dtb_mem_addr}; then "\
-			"else echo restore dtb; run common_dtb_load;"\
-		"fi;"\
-			"fi;"\
-		"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-		"else "\
-			"if fdt addr ${dtb_mem_addr}; then else echo retry common dtb; run common_dtb_load; fi;"\
-			"if test ${partition_mode} = normal; then "\
-				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset};"\
-				"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-			"else "\
-				"if test ${vendor_boot_mode} = true; then "\
-					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${boot_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
-					"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
-				"else "\
-					"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} recovery_part=${recovery_part} recovery_offset=${recovery_offset} androidboot.slot_suffix=${active_slot};"\
-					"if imgread kernel ${recovery_part} ${loadaddr} ${recovery_offset}; then bootm ${loadaddr}; fi;"\
-				"fi;"\
-			"fi;"\
+		"if zbi_load recovery ${loadaddr}; then "\
+			"zbi_boot ${loadaddr};"\
 		"fi;"\
 		"\0"\
 	"bcb_cmd="\
@@ -296,7 +264,6 @@
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
-		"run bcb_cmd; "\
 		"run upgrade_check;"\
 		"run init_display;"\
 		"run storeargs;"\

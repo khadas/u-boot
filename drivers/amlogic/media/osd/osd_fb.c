@@ -1071,19 +1071,19 @@ static int get_vpp_slice_num(const struct vinfo_s *info)
 {
 	int slice_num = 1;
 
+#ifdef AUTO_CAL
 	/* 8k case 4 slice */
 	if (info->width > 4096 && info->field_height > 2160)
 		slice_num = 4;
-	/* 4k120hz */
-	//else if (info->width == 3840 &&
-	//	info->field_height == 2160)
-	//	slice_num = 2;
 	else
 		slice_num = 1;
+#else
+	slice_num = info->cur_enc_ppc;
+#endif
 	return slice_num;
 }
 
-void update_vpp_input_info(const struct vinfo_s *info)
+static void update_vpp_input_info(const struct vinfo_s *info)
 {
 	vpp_input.slice_num = get_vpp_slice_num(info);
 	vpp_input.overlap_hsize = 32;
@@ -1378,7 +1378,7 @@ void vpp_post_set(u32 vpp_index, struct vpp_post_s *vpp_post)
 	//vpp_post_win_cut_set(vpp_index, vpp_post);
 }
 
-void vpp_post_blend_update_s5(const struct vinfo_s *vinfo)
+static void vpp_post_blend_update_s5(void)
 {
 	struct vpp_post_s vpp_post;
 
@@ -1411,7 +1411,6 @@ int video_scale_bitmap(void)
 		fb_gdev.fb_width, fb_gdev.fb_height, fb_gdev.winSizeX, fb_gdev.winSizeY);
 
 	vout_get_current_axis(axis);
-	osd_logi("axis(%d, %d, %d, %d)\n", axis[0], axis[1], axis[2], axis[3]);
 	layer_str = env_get("display_layer");
 	if (strcmp(layer_str, "osd0") == 0)
 		osd_index = OSD1;
@@ -1459,7 +1458,7 @@ no_scale:
 #endif
 #ifdef AML_S5_DISPLAY
 	update_vpp_input_info(vinfo);
-	vpp_post_blend_update_s5(vinfo);
+	vpp_post_blend_update_s5();
 #endif
 	osd_enable_hw(osd_index, 1);
 

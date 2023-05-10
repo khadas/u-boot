@@ -7256,7 +7256,7 @@ int do_ddr_test_dqs_window_step(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 	//   unsigned int   dq_lcd_bdl_temp_reg_lef;
 	//   unsigned int   dq_lcd_bdl_temp_reg_rig;
 
-	unsigned int   ddr_test_size= DDR_TEST_SIZE;//DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_TEST_SIZE;//DDR_CROSS_TALK_TEST_SIZE;
 
 	if (argc == 2)
 	{
@@ -7706,7 +7706,7 @@ int do_ddr_test_fine_tune_dqs(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 #define  DATX8_DQ_DXNGTR          11
 
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
 #define  DQ_LCD_BDL_REG_NUM_PER_CHANNEL  DATX8_DQ_LCD_BDL_REG_WIDTH*DATX8_DQ_LANE_WIDTH
 #define  DQ_LCD_BDL_REG_NUM    DQ_LCD_BDL_REG_NUM_PER_CHANNEL*CHANNEL_CHANNEL_WIDTH
@@ -7737,7 +7737,7 @@ int do_ddr_test_fine_tune_dqs(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	unsigned int   dq_lcd_bdl_temp_reg_center_min;
 	unsigned int   dq_lcd_bdl_temp_reg_windows_min;
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 
@@ -7767,12 +7767,12 @@ int do_ddr_test_fine_tune_dqs(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 		{channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -8304,7 +8304,7 @@ int do_ddr_test_dqs_window_step(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 	//   unsigned int   dq_lcd_bdl_temp_reg_rig;
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 
@@ -8334,12 +8334,12 @@ int do_ddr_test_dqs_window_step(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		{channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -8797,7 +8797,7 @@ int do_ddr_test_lcdlr_clk_step(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	//   unsigned int   dq_lcd_bdl_temp_reg_rig;
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 
@@ -8827,12 +8827,12 @@ int do_ddr_test_lcdlr_clk_step(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		{channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -9228,13 +9228,13 @@ int do_ddr_test_dqs_window(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 		{channel_b_en = 1;
 		}
 	}
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 	//argc2=5;
@@ -9276,7 +9276,7 @@ int do_ddr_test_dqs_window(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 						printf("str_to_numarry[%d]==%d\n",i,num_arry[i]);
 					}
-					//	printf("%s,lenth=%d",s,(strlen(s)));
+					//	printf("%s,length=%d",s,(strlen(s)));
 					//sscanf(s,"d%,",wr_adj_per);
 					//sprintf(str,"d%",s);
 					//getc
@@ -9502,7 +9502,7 @@ int do_ddr_test_fine_tune_dqs_step(cmd_tbl_t *cmdtp, int flag, int argc, char * 
 #define  DATX8_DQ_DXNGTR          11
 
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
 #define  DQ_LCD_BDL_REG_NUM_PER_CHANNEL  DATX8_DQ_LCD_BDL_REG_WIDTH*DATX8_DQ_LANE_WIDTH
 #define  DQ_LCD_BDL_REG_NUM    DQ_LCD_BDL_REG_NUM_PER_CHANNEL*CHANNEL_CHANNEL_WIDTH
@@ -9533,7 +9533,7 @@ int do_ddr_test_fine_tune_dqs_step(cmd_tbl_t *cmdtp, int flag, int argc, char * 
 	unsigned int   dq_lcd_bdl_temp_reg_center_min;
 	unsigned int   dq_lcd_bdl_temp_reg_windows_min;
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 
@@ -9563,12 +9563,12 @@ int do_ddr_test_fine_tune_dqs_step(cmd_tbl_t *cmdtp, int flag, int argc, char * 
 		{channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -10105,13 +10105,13 @@ int do_ddr_test_dqs_window_env(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		{channel_b_en = 1;
 		}
 	}
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 
@@ -10137,7 +10137,7 @@ int do_ddr_test_dqs_window_env(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	}
 	printf("lane_disable==0x%08x\n",lane_disable);
 
-	unsigned int  add_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int  add_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	if (argc >6) {
 		add_test_size = simple_strtoull_ddr(argv[6], &endp, 0);
@@ -10238,7 +10238,7 @@ int do_ddr_test_dqs_window_env(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 					printf("lane_3 str_to_numarry[%d]==%d\n",i,num_arry_lane3[i]);
 				}
 			}
-			//	printf("%s,lenth=%d",s,(strlen(s)));
+			//	printf("%s,length=%d",s,(strlen(s)));
 			//sscanf(s,"d%,",wr_adj_per);
 			//sprintf(str,"d%",s);
 			//getc
@@ -11915,7 +11915,7 @@ usage:
 	printf("example ddr_test_cmd 0x17 1200 0x2aa4a 0x2015995d 50 81 1 50 \n");
 	printf("or  ddr_test_cmd 0x17 1200 0x2aa4a 0x2015995d 0x09 0x20 0 50 \n");
 	printf("or  ddr_test_cmd 0x17 1200 6034 0603406034 0 0 0 0 1 \n");
-	printf("setting zqpr_soc_dram ,..bit28 enable soc_zqpr ,   bit 29 enabe dram_drv,   bit 30 enabel dram_odt\n");
+	printf("setting zqpr_soc_dram ,..bit28 enable soc_zqpr ,   bit 29 enabe dram_drv,   bit 30 enable dram_odt\n");
 	printf("setting zqpr_soc_dram ,bit0-bit19  soc_data_drv_odt,bit20-bit24  dram_drv ,  bit24-bit28  dram_odt\n");
 	printf("setting zqpr_soc_dram ,bit0-bit19 bit 0-7 use for ddr3��bit8-19 use for ddr4,odt_down_up\n");
 	printf("setting zqpr_soc_dram ,soc_drv=(480/((setting)+1));ddr4---soc_odt=(480/(setting)+1));ddr3---soc_odt=(360/(setting)+1));\n");
@@ -12166,7 +12166,7 @@ int do_ddr_test_ac_bit_setup_hold_window(cmd_tbl_t *cmdtp, int flag, int argc, c
 	//   unsigned int   dq_lcd_bdl_temp_reg_rig;
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 	{
@@ -12196,12 +12196,12 @@ int do_ddr_test_ac_bit_setup_hold_window(cmd_tbl_t *cmdtp, int flag, int argc, c
 			{channel_b_en = 1;
 			}
 		}
-		ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+		ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		if (argc >3) {
 			ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 			if (*argv[3] == 0 || *endp != 0)
 			{
-				ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+				ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 			}
 
 		}
@@ -12636,7 +12636,7 @@ int do_ddr_test_data_bit_setup_hold_window(cmd_tbl_t *cmdtp, int flag, int argc,
 	//   unsigned int   dq_lcd_bdl_temp_reg_rig;
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 	{
@@ -12666,12 +12666,12 @@ int do_ddr_test_data_bit_setup_hold_window(cmd_tbl_t *cmdtp, int flag, int argc,
 			{channel_b_en = 1;
 			}
 		}
-		ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+		ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		if (argc >3) {
 			ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 			if (*argv[3] == 0 || *endp != 0)
 			{
-				ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+				ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 			}
 
 		}
@@ -13368,7 +13368,7 @@ int do_ddr_test_ac_windows_aclcdlr(cmd_tbl_t *cmdtp, int flag, int argc, char * 
 
 
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
 	unsigned int  ac_mdlr_a_org=0;
 	unsigned int  ac_mdlr_b_org=0;
@@ -13399,7 +13399,7 @@ int do_ddr_test_ac_windows_aclcdlr(cmd_tbl_t *cmdtp, int flag, int argc, char * 
 
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	//#define DDR_TEST_ACLCDLR
 
@@ -13430,12 +13430,12 @@ int do_ddr_test_ac_windows_aclcdlr(cmd_tbl_t *cmdtp, int flag, int argc, char * 
 		{channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -13929,7 +13929,7 @@ int do_ddr_test_ac_windows_acbdlr_ck(cmd_tbl_t *cmdtp, int flag, int argc, char 
 
 
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
 	unsigned int  ac_mdlr_a_org=0;
 	unsigned int  ac_mdlr_b_org=0;
@@ -13960,7 +13960,7 @@ int do_ddr_test_ac_windows_acbdlr_ck(cmd_tbl_t *cmdtp, int flag, int argc, char 
 
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 	//#define DDR_TEST_ACLCDLR
@@ -13992,12 +13992,12 @@ int do_ddr_test_ac_windows_acbdlr_ck(cmd_tbl_t *cmdtp, int flag, int argc, char 
 		{channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -14498,13 +14498,13 @@ int do_ddr_test_ac_bit_margin(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 		{//channel_b_en = 1;
 		}
 	}
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 	//argc2=5;
@@ -14629,13 +14629,13 @@ int do_ddr_test_data_bit_margin(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		{//channel_b_en = 1;
 		}
 	}
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 	unsigned int   ddr_test_type=0;
@@ -16003,7 +16003,7 @@ int do_ddrtest_find_gate_wind(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 #define  DATX8_DQ_DXNGTR          11
 
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
 	// #define  DQ_LCD_BDL_REG_NUM_PER_CHANNEL  5//DATX8_DQ_LCD_BDL_REG_WIDTH*DATX8_DQ_LANE_WIDTH
 	//    #define  DQ_LCD_BDL_REG_NUM    DQ_LCD_BDL_REG_NUM_PER_CHANNEL*CHANNEL_CHANNEL_WIDTH
@@ -16043,7 +16043,7 @@ int do_ddrtest_find_gate_wind(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	unsigned int   ddr_gate_up_down=0;
 	unsigned int   ddr_gate_init_lane=0;
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 
@@ -16073,12 +16073,12 @@ int do_ddrtest_find_gate_wind(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 			channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -16467,7 +16467,7 @@ int do_ddr_test_ac_windows_bdlr(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 #define  CHANNEL_A  0
 #define  CHANNEL_B  1
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
 	unsigned int  ac_mdlr_a_org=0;
 	unsigned int  ac_mdlr_b_org=0;
@@ -16498,7 +16498,7 @@ int do_ddr_test_ac_windows_bdlr(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	unsigned int   ac_bdlr_lef[10];
 	unsigned int   ac_bdlr_rig[10];
@@ -16540,12 +16540,12 @@ int do_ddr_test_ac_windows_bdlr(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		{channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -17100,7 +17100,7 @@ int do_ddr_test_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #define  CHANNEL_A  0
 #define  CHANNEL_B  1
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
 	unsigned int  ac_mdlr_a_org=0;
 	unsigned int  ac_mdlr_b_org=0;
@@ -17131,7 +17131,7 @@ int do_ddr_test_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	//   unsigned int   ac_bdlr_lef[10];
 	//   unsigned int   ac_bdlr_rig[10];
@@ -17179,12 +17179,12 @@ int do_ddr_test_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -17519,7 +17519,7 @@ int do_ddr4_test_phy_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 #define  CHANNEL_A  0
 #define  CHANNEL_B  1
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 	//   #define DDR0_PUB_REG_BASE					0xc8836000
 #define DDR0_PUB_DX0GCR4      ( DDR0_PUB_REG_BASE + ( 0x1c4  << 2 ) )
 #define DDR0_PUB_DX1GCR4     ( DDR0_PUB_REG_BASE + ( 0x204  << 2 ) )
@@ -17530,7 +17530,7 @@ int do_ddr4_test_phy_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 #define DDR0_PUB_DX2GCR5      ( DDR0_PUB_REG_BASE + ( 0x245  << 2 ) )
 #define DDR0_PUB_DX3GCR5      ( DDR0_PUB_REG_BASE + ( 0x285  << 2 ) )
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	//   unsigned int   ac_bdlr_lef[10];
 	//   unsigned int   ac_bdlr_rig[10];
@@ -17617,12 +17617,12 @@ int do_ddr4_test_phy_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 			channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -18500,7 +18500,7 @@ int do_ddr4_test_dram_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 #define  CHANNEL_B  1
 
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 	//   #define DDR0_PUB_REG_BASE					0xc8836000
 #define DDR0_PUB_DX0GCR4      ( DDR0_PUB_REG_BASE + ( 0x1c4  << 2 ) )
 #define DDR0_PUB_DX1GCR4     ( DDR0_PUB_REG_BASE + ( 0x204  << 2 ) )
@@ -18513,7 +18513,7 @@ int do_ddr4_test_dram_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	//   unsigned int   ac_bdlr_lef[10];
 	//   unsigned int   ac_bdlr_rig[10];
@@ -18564,12 +18564,12 @@ int do_ddr4_test_dram_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 			channel_b_en = 1;
 		}
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -19257,7 +19257,7 @@ int do_ddr4_test_dram_ac_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 #define  CHANNEL_A  0
 #define  CHANNEL_B  1
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 	//   #define DDR0_PUB_REG_BASE					0xc8836000
 #define DDR0_PUB_DX0GCR4      ( DDR0_PUB_REG_BASE + ( 0x1c4  << 2 ) )
 #define DDR0_PUB_DX1GCR4     ( DDR0_PUB_REG_BASE + ( 0x204  << 2 ) )
@@ -19272,7 +19272,7 @@ int do_ddr4_test_dram_ac_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	//#define DDR0_PUB_IOVCR1        ( DDR0_PUB_REG_BASE + ( 0x149 << 2 ) ) // R/W - IO VREF Control Register 1
 
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	//   unsigned int   ac_bdlr_lef[10];
 	//   unsigned int   ac_bdlr_rig[10];
@@ -19310,12 +19310,12 @@ int do_ddr4_test_dram_ac_vref(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 		if   ((strcmp(argv[1], "b") == 0) || (strcmp(argv[1], "B") == 0) || (strcmp(argv[2], "b") == 0) || (strcmp(argv[2], "B") == 0))
 			channel_b_en = 1;
 	}
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 
 	}
@@ -20023,12 +20023,12 @@ int do_ddr4_test_dram_clk(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 #define TEST_DRAM_CLK_USE_ENV  1
 	printf("\ntune ddr CLK use uboot env\n");
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 #define  DDR_TEST_MIN_FREQ_LIMITED  50
 #define  DDR_TEST_MIN_FREQ  300
 #define  DDR_TEST_MAX_FREQ  3000
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 	unsigned int start_freq=DDR_TEST_MIN_FREQ;
 	unsigned int end_freq=DDR_TEST_MAX_FREQ;
 	unsigned int test_loops=1;
@@ -20036,7 +20036,7 @@ int do_ddr4_test_dram_clk(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	if (argc == 1)
 	{
 		printf("\nplease read help\n");
-		ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+		ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		start_freq=DDR_TEST_MIN_FREQ;
 		end_freq=DDR_TEST_MAX_FREQ;
 
@@ -20413,12 +20413,12 @@ int do_ddr_test_ddr_max_freq(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 	max_freq=ddr_clk_org;
 	min_freq=ddr_clk_org;
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 	if (argc == 1)
 	{
-		ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+		ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		test_loop=1;
 		add_freq=1;
 		sub_freq=1;
@@ -20638,15 +20638,15 @@ int do_ddr_test_ddr_zq(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 
 
 
 	if (argc == 1)
 	{
-		ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+		ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		test_loop=1;
 		add_freq=1;
 		sub_freq=1;
@@ -21011,9 +21011,9 @@ int do_ddr_test_bandwidth(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 	ddr_pll = ddr_clk_convert_to_pll(ddr_clk);
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	unsigned int test_port=0;
 	unsigned int test_port_sub_id=1;
@@ -21021,7 +21021,7 @@ int do_ddr_test_bandwidth(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 	if (argc == 1)
 	{
-		ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+		ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		test_loop=1;
 
 	}
@@ -22370,7 +22370,7 @@ void set_ee_voltage(uint32_t ee_over_ride_voltage)
 	}
 	if (ee_over_ride_voltage) {
 		writel(pwm_voltage_table_ee[to][0],G12_AO_PWM_PWM_B);
-		printf ("\nDDR_overide_EE_voltage ==%d mv /n",pwm_voltage_table_ee[to-1][1]);
+		printf ("\nDDR_override_EE_voltage ==%d mv /n",pwm_voltage_table_ee[to-1][1]);
 	}
 }
 
@@ -22625,7 +22625,7 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 		uint32_t  count=0;
 		uint32_t  reg_add_offset=0;
 		uint16_t  reg_value=0;
-		//ddr_log_serial_puts("\npctl timming:\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
+		//ddr_log_serial_puts("\npctl timming:\n",p_dev->ddr_global_message.stick_ddr_log_level);
 #define DMC_DRAM_TDPD                              ((0x001d  << 2) + 0xff638400)
 #define DMC_DRAM_TMRD                              ((0x0000  << 2) + 0xff638400)
 #define G12_DMC_STICKY_0                               ((0x0000  << 2) + 0xff638800)
@@ -22634,28 +22634,28 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 
 		for (count=0;count<(DMC_DRAM_TDPD-DMC_DRAM_TMRD);) {
 			reg_add_offset=(DMC_DRAM_TMRD+(count));
-			//ddr_log_serial_puts("\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
-			//ddr_log_serial_put_hex(reg_add_offset,32,p_dev->ddr_gloabl_message.stick_ddr_log_level);
-			//ddr_log_serial_puts(": ",p_dev->ddr_gloabl_message.stick_ddr_log_level);
-			//ddr_log_serial_put_hex(readl(reg_add_offset),32,p_dev->ddr_gloabl_message.stick_ddr_log_level);
+			//ddr_log_serial_puts("\n",p_dev->ddr_global_message.stick_ddr_log_level);
+			//ddr_log_serial_put_hex(reg_add_offset,32,p_dev->ddr_global_message.stick_ddr_log_level);
+			//ddr_log_serial_puts(": ",p_dev->ddr_global_message.stick_ddr_log_level);
+			//ddr_log_serial_put_hex(readl(reg_add_offset),32,p_dev->ddr_global_message.stick_ddr_log_level);
 			printf("\n reg_add_offset: %08x %08x %08x ",reg_add_offset,readl(reg_add_offset),reg_add_offset);
 			count=count+4;
 		}
-		//ddr_log_serial_puts("\nmrs register: base (0x54000<<1)+fe000000,byte offset\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
+		//ddr_log_serial_puts("\nmrs register: base (0x54000<<1)+fe000000,byte offset\n",p_dev->ddr_global_message.stick_ddr_log_level);
 		printf("\n mrs register: ");
 		printf("\n mrs register: base (0x54000<<1)+fe000000,%08x  byte offset\n",(0x54000<<1)+0xfe000000);
 		for (count=0;count<0x80;) {
 			reg_add_offset=0x54000+count;//dwc_ddrphy_apb_wr(0x54008,0x1001);
-			//ddr_log_serial_puts("\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
-			//ddr_log_serial_put_hex(count,32,p_dev->ddr_gloabl_message.stick_ddr_log_level);
-			//ddr_log_serial_puts(": ",p_dev->ddr_gloabl_message.stick_ddr_log_level);
+			//ddr_log_serial_puts("\n",p_dev->ddr_global_message.stick_ddr_log_level);
+			//ddr_log_serial_put_hex(count,32,p_dev->ddr_global_message.stick_ddr_log_level);
+			//ddr_log_serial_puts(": ",p_dev->ddr_global_message.stick_ddr_log_level);
 			reg_value= ((*(volatile uint16_t *)((uint64_t)(((0x54000+(count>>1))) << 1)+0xfe000000))>>(((count)%2)?8:0));//dwc_ddrphy_apb_rd(0x54000+add_offset+1);
 			reg_value=reg_value&0xff;
-			//ddr_log_serial_put_hex(reg_value,32,p_dev->ddr_gloabl_message.stick_ddr_log_level);
+			//ddr_log_serial_put_hex(reg_value,32,p_dev->ddr_global_message.stick_ddr_log_level);
 			printf("\n reg_add_offset: %08x %08x %08x",reg_add_offset,reg_value,((((0x54000+(count>>1))) << 1)+0xfe000000));
 			count=count+1;
 		}
-		//ddr_log_serial_puts("\ntiming.c:\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
+		//ddr_log_serial_puts("\ntiming.c:\n",p_dev->ddr_global_message.stick_ddr_log_level);
 
 
 		printf("\n sticky register: ");
@@ -22664,16 +22664,16 @@ int do_ddr_display_g12_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, cha
 			loop_max=64<<2;//sizeof(ddr_set_t);
 			//uint32_t loop = 0;
 			for (count = 0; count < loop_max; count+=4) {
-				//	ddr_log_serial_puts("\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
-				//	ddr_log_serial_put_hex(count,32,p_dev->ddr_gloabl_message.stick_ddr_log_level);
-				//	ddr_log_serial_puts(": ",p_dev->ddr_gloabl_message.stick_ddr_log_level);
-				//	ddr_log_serial_put_hex(rd_reg((uint64_t)(p_dev->p_ddrs) + count),32,p_dev->ddr_gloabl_message.stick_ddr_log_level);
+				//	ddr_log_serial_puts("\n",p_dev->ddr_global_message.stick_ddr_log_level);
+				//	ddr_log_serial_put_hex(count,32,p_dev->ddr_global_message.stick_ddr_log_level);
+				//	ddr_log_serial_puts(": ",p_dev->ddr_global_message.stick_ddr_log_level);
+				//	ddr_log_serial_put_hex(rd_reg((uint64_t)(p_dev->p_ddrs) + count),32,p_dev->ddr_global_message.stick_ddr_log_level);
 				//	count=count+4;
 				printf("\n reg_add_offset: %08x %08x %08x",count,rd_reg((uint64_t)(G12_DMC_STICKY_0) + count),((G12_DMC_STICKY_0) + count));
 			}
 		}
 
-		//	ddr_log_serial_puts("\n",p_dev->ddr_gloabl_message.stick_ddr_log_level);
+		//	ddr_log_serial_puts("\n",p_dev->ddr_global_message.stick_ddr_log_level);
 }
 
 	printf("\n ");
@@ -23272,7 +23272,7 @@ int do_ddr_set_watchdog_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	#define  TEST_ARG_0_DMC_STICKY_MAGIC  0
 	#define  TEST_ARG_1_CMD0  1
 	#define  TEST_ARG_2_STEP  2   // 0 init   1 test ac  2 test tdqs_write
-	#define  TEST_ARG_3_ALL_TOGHTER  3
+	#define  TEST_ARG_3_ALL_TIGHTER  3
 
 	//BYTE4-7
 	#define  TEST_ARG_FREQ_NIBBLE_L  4
@@ -23325,7 +23325,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	unsigned int  kernel_watchdog_s= 20;//240;
 	//	  unsigned int  finish_clear_flag= 0;
 	unsigned int  config_register= 0;
-	unsigned int   all_toghter_enable=0;
+	unsigned int   all_tighter_enable=0;
 	unsigned int   error_flag_reg_add=0;
 	char *string_print_flag=   " uboot-window-loop \n";
 	//int argc2;
@@ -23335,7 +23335,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	buf="";
 
 	unsigned int   cs0_test_start= 0x1080000;
-	unsigned int   cs0_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   cs0_test_size= DDR_CROSS_TALK_TEST_SIZE;
 	unsigned int   cs1_test_start= 0;
 	unsigned int   cs1_test_size= 0;
 	unsigned int   enable_kernel_test=0;
@@ -23351,7 +23351,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 		cs0_test_size = simple_strtoull_ddr(argv[2], &endp, 16);
 		if (*argv[2] == 0 || *endp != 0)
 		{
-			cs0_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			cs0_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 
@@ -23370,7 +23370,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 		}
 	}
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 	ddr_test_size = cs0_test_size;
 	if (argc >5) {
 		watchdog_time_s = simple_strtoull_ddr(argv[5], &endp, 0);
@@ -23444,13 +23444,13 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	}//*/
 	///*
 	if (argc >13) {
-		all_toghter_enable = simple_strtoull_ddr(argv[13], &endp, 0);
+		all_tighter_enable = simple_strtoull_ddr(argv[13], &endp, 0);
 		if (*argv[13] == 0 || *endp != 0)
 		{
-			all_toghter_enable= 0;
+			all_tighter_enable= 0;
 		}
 	}//*/
-	printf("all_toghter_enable==0x%08x\n",all_toghter_enable);
+	printf("all_tighter_enable==0x%08x\n",all_tighter_enable);
 
 	if (argc >14) {
 		error_flag_reg_add = simple_strtoull_ddr(argv[14], &endp, 0);
@@ -23517,7 +23517,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	printf("TEST_ARG_0_DMC_STICKY_MAGIC==0x%08x\n",num_arry[TEST_ARG_0_DMC_STICKY_MAGIC]);
 	printf("\nTEST_ARG_1_CMD0==0x%08x\n",num_arry[TEST_ARG_1_CMD0]);
 	printf("TEST_ARG_2_STEP==0x%08x\n",num_arry[TEST_ARG_2_STEP]);
-	printf("TEST_ARG_3_ALL_TOGHTER==0x%08x\n",num_arry[TEST_ARG_3_ALL_TOGHTER]);
+	printf("TEST_ARG_3_ALL_TIGHTER==0x%08x\n",num_arry[TEST_ARG_3_ALL_TIGHTER]);
 	printf("TEST_ARG_FREQ_NIBBLE_L==0x%08x\n",num_arry[TEST_ARG_FREQ_NIBBLE_L]);
 	printf("TEST_ARG_FREQ_NIBBLE_H==0x%08x\n",num_arry[TEST_ARG_FREQ_NIBBLE_H]);
 	printf("TEST_ARG_BOOT_TIMES_L==0x%08x\n",num_arry[TEST_ARG_BOOT_TIMES_L]);
@@ -23557,7 +23557,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 		num_arry[TEST_ARG_2_STEP]=0;
 		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_2_STEP,num_arry[TEST_ARG_2_STEP]);
 	}
-	printf("test_sticky is not magic nummber,boot times==%d\n",test_boot_times);
+	printf("test_sticky is not magic number,boot times==%d\n",test_boot_times);
 
 	if (config_register == 1)
 	{
@@ -23575,8 +23575,8 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_TEST_INDEX_ENALBE_INDEX,num_arry[TEST_ARG_TEST_INDEX_ENALBE_INDEX]);
 		num_arry[TEST_ARG_2_STEP]=0;
 		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_2_STEP,num_arry[TEST_ARG_2_STEP]);
-		num_arry[TEST_ARG_3_ALL_TOGHTER]=all_toghter_enable;
-		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_3_ALL_TOGHTER,num_arry[TEST_ARG_3_ALL_TOGHTER]);
+		num_arry[TEST_ARG_3_ALL_TIGHTER]=all_tighter_enable;
+		ddr_wr_8_16bit_on_32reg(sticky_reg_base_add,8,TEST_ARG_3_ALL_TIGHTER,num_arry[TEST_ARG_3_ALL_TIGHTER]);
 	}
 
 	if (( num_arry[TEST_ARG_2_STEP]) == 0)
@@ -23642,7 +23642,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 					if (((nibble_mask[2])>>(nibble_step-64))&1)
 						num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=4;
 				}
-				if (all_toghter_enable)
+				if (all_tighter_enable)
 				{
 					if ((nibble_step == 0) || (nibble_step == 10) || (nibble_step == (10+16)))
 						num_arry[TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+nibble_step*TEST_ARG_NIBBLE_WIDTH_BYTE+LCD_BDLR_STATUS]=0;
@@ -23900,7 +23900,7 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 					num_arry[TEST_ARG_ERROR_FLAG]);
 				}
 
-				if (all_toghter_enable)
+				if (all_tighter_enable)
 					sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
 					num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]);
 				else
@@ -23985,7 +23985,7 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 					}
 					sprintf(buf, "0x%08x", ( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
 					printf( "%s", buf);
-					if (all_toghter_enable)
+					if (all_tighter_enable)
 						sprintf(str,"ddr_g12_offset_data  %d  0x%08x 0x%08x  0x%08x  %d %d",test_index,0,0,0,DDR_PARAMETER_LEFT,
 						( num_arry[(TEST_ARG_NIBBLE_SAVE_OFFSET_BYTE+((nibble_step+nibble_save_offset)*TEST_ARG_NIBBLE_WIDTH_BYTE)+LCD_BDLR_MIN)]));
 					else
@@ -24303,7 +24303,7 @@ for (test_index=num_arry[TEST_ARG_2_STEP];test_index<test_index_max ;test_index+
 			printf("%08d",ui_1_32_100step);
 			printf(" /100 ps ");
 			//serial_puts("bit_init_value ");
-			//serial_put_dec_out_align((p_dev->ddr_gloabl_message.stick_dmc_ddr_window_test_read_per_bit_init_value),4);
+			//serial_put_dec_out_align((p_dev->ddr_global_message.stick_dmc_ddr_window_test_read_per_bit_init_value),4);
 			//if (test_index == DMC_TEST_WINDOW_INDEX_TXDQSDLY){
 			//serial_puts("txdqsdly_second_tune_min_value ");
 			//serial_put_dec_out_align(txdqsdly_second_tune_value[count],4);
@@ -24368,13 +24368,13 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 		{channel_b_en = 1;
 		}
 	}
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
-	ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
+	ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	if (argc >3) {
 		ddr_test_size = simple_strtoull_ddr(argv[3], &endp, 16);
 		if (*argv[3] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 
@@ -24400,7 +24400,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	}
 	printf("lane_disable==0x%08x\n",lane_disable);
 
-	unsigned int  add_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int  add_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	if (argc >6) {
 		add_test_size = simple_strtoull_ddr(argv[6], &endp, 0);
@@ -24527,7 +24527,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char * c
 	}
 	else
 	{boot_times=0;
-		printf("test_sticky is not magic nummber,boot times==%d\n",boot_times);
+		printf("test_sticky is not magic number,boot times==%d\n",boot_times);
 		// writel(DMC_STICKY_MAGIC_0,(sticky_reg_base_add+(6<<2)));
 		writel(DMC_STICKY_MAGIC_1,(sticky_reg_base_add+(7<<2)));
 		test_arg_2_step=0;
@@ -25692,7 +25692,7 @@ unsigned int do_ddr_uboot_window_init(cmd_tbl_t *cmdtp, int flag, int argc, char
 		g_ddr_test_struct->ddr_data_source = simple_strtoull_ddr(argv[2], &endp, 16);
 		if (*argv[2] == 0 || *endp != 0)
 		{
-			g_ddr_test_struct->ddr_data_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			g_ddr_test_struct->ddr_data_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 	/*
@@ -26298,7 +26298,7 @@ int do_ddr_uboot_window_use_source_quick_method(cmd_tbl_t *cmdtp, int flag, int 
 				read_write_window_test_parameter(data_source,
 						temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-				test_arg_6_lcdlr_temp_count=0;  //curren_test +B  //(A+B)/2
+				test_arg_6_lcdlr_temp_count=0;  //current_test +B  //(A+B)/2
 				num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 				temp_count=6;
 				read_write_window_test_parameter(data_source,
@@ -26339,7 +26339,7 @@ int do_ddr_uboot_window_use_source_quick_method(cmd_tbl_t *cmdtp, int flag, int 
 						read_write_window_test_parameter(data_source,
 								temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-						test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //curren_test +B  //(A+B)/2
+						test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //current_test +B  //(A+B)/2
 						num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 						temp_count=6;
 						read_write_window_test_parameter(data_source,
@@ -26402,7 +26402,7 @@ int do_ddr_uboot_window_use_source_quick_method(cmd_tbl_t *cmdtp, int flag, int 
 					read_write_window_test_parameter(data_source,
 							temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-					test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //curren_test +B  //(A+B)/2
+					test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //current_test +B  //(A+B)/2
 					num_array[6]=test_arg_6_lcdlr_temp_count;                                          // --update curent
 					temp_count=6;
 					read_write_window_test_parameter(data_source,
@@ -26549,7 +26549,7 @@ int do_ddr_uboot_window_use_source_quick_method(cmd_tbl_t *cmdtp, int flag, int 
 				read_write_window_test_parameter(data_source,
 						temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-				test_arg_6_lcdlr_temp_count=0;  //curren_test +B  //(A+B)/2
+				test_arg_6_lcdlr_temp_count=0;  //current_test +B  //(A+B)/2
 				num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 				temp_count=6;
 				read_write_window_test_parameter(data_source,
@@ -26584,7 +26584,7 @@ int do_ddr_uboot_window_use_source_quick_method(cmd_tbl_t *cmdtp, int flag, int 
 						read_write_window_test_parameter(data_source,
 								temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-						test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //curren_test +B  //(A+B)/2
+						test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //current_test +B  //(A+B)/2
 						num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 						temp_count=6;
 						read_write_window_test_parameter(data_source,
@@ -26647,7 +26647,7 @@ int do_ddr_uboot_window_use_source_quick_method(cmd_tbl_t *cmdtp, int flag, int 
 					read_write_window_test_parameter(data_source,
 							temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-					test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //curren_test +B  //(A+B)/2
+					test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //current_test +B  //(A+B)/2
 					num_array[6]=test_arg_6_lcdlr_temp_count;                                          // --update curent
 					temp_count=6;
 					read_write_window_test_parameter(data_source,
@@ -28099,7 +28099,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_method(cmd_tbl_t *cmdtp, int fla
 					read_write_window_test_parameter(data_source,
 							temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-					test_arg_6_lcdlr_temp_count=0;  //curren_test +B  //(A+B)/2
+					test_arg_6_lcdlr_temp_count=0;  //current_test +B  //(A+B)/2
 					num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 					temp_count=6;
 					read_write_window_test_parameter(data_source,
@@ -28152,7 +28152,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_method(cmd_tbl_t *cmdtp, int fla
 								test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);
 							else if(ddr_test_method==DDR_TEST_METHOD_DECREASE)
 								test_arg_6_lcdlr_temp_count=((num_array[5])+1);
-							//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //curren_test +B  //(A+B)/2
+							//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //current_test +B  //(A+B)/2
 							num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 							temp_count=6;
 							read_write_window_test_parameter(data_source,
@@ -28244,7 +28244,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_method(cmd_tbl_t *cmdtp, int fla
 							test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);
 						else if(ddr_test_method==DDR_TEST_METHOD_DECREASE)
 							test_arg_6_lcdlr_temp_count=((num_array[5])+1);
-						//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //curren_test +B  //(A+B)/2
+						//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //current_test +B  //(A+B)/2
 						num_array[6]=test_arg_6_lcdlr_temp_count;                                          // --update curent
 						temp_count=6;
 						read_write_window_test_parameter(data_source,
@@ -28441,7 +28441,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_method(cmd_tbl_t *cmdtp, int fla
 					read_write_window_test_parameter(data_source,
 							temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 
-					test_arg_6_lcdlr_temp_count=0;  //curren_test +B  //(A+B)/2
+					test_arg_6_lcdlr_temp_count=0;  //current_test +B  //(A+B)/2
 					num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 					temp_count=6;
 					read_write_window_test_parameter(data_source,
@@ -28486,7 +28486,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_method(cmd_tbl_t *cmdtp, int fla
 								test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);
 							else if(ddr_test_method==DDR_TEST_METHOD_DECREASE)
 								test_arg_6_lcdlr_temp_count=((num_array[5])-1);
-							//  test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //curren_test +B  //(A+B)/2
+							//  test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //current_test +B  //(A+B)/2
 							num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 							temp_count=6;
 							read_write_window_test_parameter(data_source,
@@ -28577,7 +28577,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_method(cmd_tbl_t *cmdtp, int fla
 							test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);
 						else if(ddr_test_method==DDR_TEST_METHOD_DECREASE)
 							test_arg_6_lcdlr_temp_count=((num_array[5])-1);
-						//    test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //curren_test +B  //(A+B)/2
+						//    test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //current_test +B  //(A+B)/2
 						num_array[6]=test_arg_6_lcdlr_temp_count;                                          // --update curent
 						temp_count=6;
 						read_write_window_test_parameter(data_source,
@@ -29540,7 +29540,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_methods(cmd_tbl_t *cmdtp, int fl
 								temp_count ,num_array[temp_count],DDR_PARAMETER_WRITE);
 					}
 
-					test_arg_6_lcdlr_temp_count=0;  //curren_test +B  //(A+B)/2
+					test_arg_6_lcdlr_temp_count=0;  //current_test +B  //(A+B)/2
 					num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 					temp_count=6;
 					read_write_window_test_parameter(data_source,
@@ -29595,7 +29595,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_methods(cmd_tbl_t *cmdtp, int fl
 								test_arg_6_lcdlr_temp_count=((num_array[5])+1);
 							else if(ddr_test_method==DDR_TEST_METHOD_DECREASE_ALL_SAMETIME)
 								test_arg_6_lcdlr_temp_count=((num_array[5])+1);
-							//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //curren_test +B  //(A+B)/2
+							//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //current_test +B  //(A+B)/2
 							num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 							temp_count=6;
 							read_write_window_test_parameter(data_source,
@@ -29743,7 +29743,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_methods(cmd_tbl_t *cmdtp, int fl
 							test_arg_6_lcdlr_temp_count=((num_array[5])+1);
 						else if(ddr_test_method==DDR_TEST_METHOD_DECREASE_ALL_SAMETIME)
 							test_arg_6_lcdlr_temp_count=((num_array[5])+1);
-						//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //curren_test +B  //(A+B)/2
+						//   test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+1])>>1);  //current_test +B  //(A+B)/2
 						num_array[6]=test_arg_6_lcdlr_temp_count;                                          // --update curent
 						temp_count=6;
 						read_write_window_test_parameter(data_source,
@@ -30111,7 +30111,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_methods(cmd_tbl_t *cmdtp, int fl
 					}
 
 
-					test_arg_6_lcdlr_temp_count=0;  //curren_test +B  //(A+B)/2
+					test_arg_6_lcdlr_temp_count=0;  //current_test +B  //(A+B)/2
 					num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 					temp_count=6;
 					read_write_window_test_parameter(data_source,
@@ -30158,7 +30158,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_methods(cmd_tbl_t *cmdtp, int fl
 								test_arg_6_lcdlr_temp_count=((num_array[5])-1);
 							else if(ddr_test_method==DDR_TEST_METHOD_DECREASE_ALL_SAMETIME)
 								test_arg_6_lcdlr_temp_count=((num_array[5])-1);
-							//  test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //curren_test +B  //(A+B)/2
+							//  test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //current_test +B  //(A+B)/2
 							num_array[6]=test_arg_6_lcdlr_temp_count;                                          //--update curent
 							temp_count=6;
 							read_write_window_test_parameter(data_source,
@@ -30300,7 +30300,7 @@ int do_ddr_uboot_kernel_window_use_source_quick_methods(cmd_tbl_t *cmdtp, int fl
 							test_arg_6_lcdlr_temp_count=((num_array[5])-1);
 						else if(ddr_test_method==DDR_TEST_METHOD_DECREASE_ALL_SAMETIME)
 							test_arg_6_lcdlr_temp_count=((num_array[5])-1);
-						//    test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //curren_test +B  //(A+B)/2
+						//    test_arg_6_lcdlr_temp_count=((num_array[5]+num_array[8+(lane_step<<2)+2])>>1);  //current_test +B  //(A+B)/2
 						num_array[6]=test_arg_6_lcdlr_temp_count;                                          // --update curent
 						temp_count=6;
 						read_write_window_test_parameter(data_source,
@@ -31423,19 +31423,19 @@ int do_ddr4_test_dram_clk_use_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char 
 #define TEST_DRAM_CLK_USE_ENV  1
 	printf("\ntune ddr CLK use uboot sticky register\n");
 
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 #define  DDR_TEST_MIN_FREQ_LIMITED  50
 #define  DDR_TEST_MIN_FREQ  300
 	//   #define  DDR_TEST_MAX_FREQ  3000
 
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 	unsigned int start_freq=DDR_TEST_MIN_FREQ;
 	unsigned int end_freq=DDR_TEST_MAX_FREQ;
 	unsigned int test_loops=1;
 	if (argc == 1)
 	{
 		printf("\nplease read help\n");
-		ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+		ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		start_freq=DDR_TEST_MIN_FREQ;
 		end_freq=DDR_TEST_MAX_FREQ;
 
@@ -31568,7 +31568,7 @@ int do_ddr4_test_dram_clk_use_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char 
 	}
 	else
 	{boot_times=0;
-		printf("test_sticky is not magic nummber,boot times==%d\n",boot_times);
+		printf("test_sticky is not magic number,boot times==%d\n",boot_times);
 		// writel(DMC_STICKY_MAGIC_0,(sticky_reg_base_add+(6<<2)));
 		writel(DMC_STICKY_MAGIC_1,(sticky_reg_base_add+(7<<2)));
 		test_arg_2_step=0;
@@ -32401,7 +32401,7 @@ usage:
 	printf("example ddr_test_cmd 0x17 1200 0x2aa4a 0x2015995d 50 81 1 50 \n");
 	printf("or  ddr_test_cmd 0x17 1200 0x2aa4a 0x2015995d 0x09 0x20 0 50 \n");
 	printf("or  ddr_test_cmd 0x17 1200 6034 60346034 0 0 0 0 1 \n");
-	printf("setting zqpr_soc_dram ,..bit28 enable soc_zqpr ,   bit 29 enabe dram_drv,   bit 30 enabel dram_odt\n");
+	printf("setting zqpr_soc_dram ,..bit28 enable soc_zqpr ,   bit 29 enabe dram_drv,   bit 30 enable dram_odt\n");
 	printf("setting zqpr_soc_dram ,bit0-bit19  soc_data_drv_odt,bit20-bit24  dram_drv ,  bit24-bit28  dram_odt\n");
 	printf("setting zqpr_soc_dram ,bit0-bit19 bit 0-7 use for ddr3��bit8-19 use for ddr4,odt_down_up\n");
 	printf("setting zqpr_soc_dram ,soc_drv=(480/((setting)+1));ddr4---soc_odt=(480/(setting)+1));ddr3---soc_odt=(360/(setting)+1));\n");
@@ -32556,7 +32556,7 @@ int do_ddr_test_acx_g12a(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	uint16_t   dq_lcd_bdl_temp_reg_value=0;
 	uint16_t   test_step=1;
-	unsigned int   ddr_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   ddr_test_size= DDR_CROSS_TALK_TEST_SIZE;
 
 	if (argc <= 2)
 	{
@@ -32567,7 +32567,7 @@ int do_ddr_test_acx_g12a(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		ddr_test_size = simple_strtoull_ddr(argv[2], &endp, 16);
 		if (*argv[2] == 0 || *endp != 0)
 		{
-			ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 		}
 	}
 	if (argc >3)
@@ -32953,9 +32953,9 @@ void dwc_window_reg_after_training_update(char over_ride_index,uint32_t over_rid
 	uint32_t delay_reg_value=0;
 	uint64_t reg_add=0;
 	//	if (over_ride_index == DMC_TEST_WINDOW_INDEX_ATXDLY)
-	//p_dev->ddr_gloabl_message.stick_ddr_log_level=0;
+	//p_dev->ddr_global_message.stick_ddr_log_level=0;
 	//serial_puts("\nstick_test_ddr_window_delay_override_before_after_training_setting==");
-	//serial_put_dec(p_dev->ddr_gloabl_message.stick_test_ddr_window_delay_override_before_after_training_setting);
+	//serial_put_dec(p_dev->ddr_global_message.stick_test_ddr_window_delay_override_before_after_training_setting);
 	//serial_puts("\n");
 
 	if (!over_ride_index) {
@@ -32990,9 +32990,9 @@ void dwc_window_reg_after_training_update(char over_ride_index,uint32_t over_rid
 		delay_old_value=dwc_ddrphy_apb_rd((0<<20)|(1<<16)|(((over_ride_sub_index%8)>>1)<<12)|(0x8c+(over_ride_sub_index/8)+((over_ride_sub_index%2)<<8)));
 		dwc_ddrphy_apb_wr(reg_add,delay_reg_value);
 		dwc_ddrphy_apb_wr(reg_add+4,delay_reg_value);
-		//dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%4)<<12)|(0x18c+(over_ride_sub_index/4)),(delay_reg_value|(delay_old_value&0xffc0))-p_dev->ddr_gloabl_message.stick_phy_read_dqs_nibble_offset);
+		//dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%4)<<12)|(0x18c+(over_ride_sub_index/4)),(delay_reg_value|(delay_old_value&0xffc0))-p_dev->ddr_global_message.stick_phy_read_dqs_nibble_offset);
 		//dwc_ddrphy_apb_wr((0<<20)|(1<<16)|(((over_ride_sub_index%8)>>1)<<12)|(0x90+(over_ride_sub_index/8)+((over_ride_sub_index%2)<<8)),(delay_reg_value|(delay_old_value&0xffc0)));
-		//dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%4)<<12)|(0x190+(over_ride_sub_index/4)),(delay_reg_value|(delay_old_value&0xffc0))-p_dev->ddr_gloabl_message.stick_phy_read_dqs_nibble_offset);
+		//dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%4)<<12)|(0x190+(over_ride_sub_index/4)),(delay_reg_value|(delay_old_value&0xffc0))-p_dev->ddr_global_message.stick_phy_read_dqs_nibble_offset);
 	}
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_TXDQDLY) {
 		reg_add=((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(0xc0+((over_ride_sub_index%9)<<8)+(over_ride_sub_index/36)));
@@ -33013,7 +33013,7 @@ void dwc_window_reg_after_training_update(char over_ride_index,uint32_t over_rid
 		//	dwc_ddrphy_apb_wr((0<<20)|(1<<16)|((over_ride_sub_index%4)<<12)|(0x180+(over_ride_sub_index/4)),delay_reg_value|(delay_old_value&0xffc0));
 	}
 	if (over_ride_index == DMC_TEST_WINDOW_INDEX_SOC_VREF) {
-		//	delay_old_value= init_soc_vref(p_dev->cur_type  ,(over_ride_value>>8)&0xff, over_ride_value, over_ride_sub_index ,p_dev->ddr_gloabl_message.stick_ddr_log_level);
+		//	delay_old_value= init_soc_vref(p_dev->cur_type  ,(over_ride_value>>8)&0xff, over_ride_value, over_ride_sub_index ,p_dev->ddr_global_message.stick_ddr_log_level);
 		//	set_soc_vref( p_dev->cur_type ,  (over_ride_value>>8)&0xff, over_ride_value, over_ride_sub_index );
 		dwc_ddrphy_apb_wr((0<<20)|(1<<16)|(((over_ride_sub_index%36)/9)<<12)|(((over_ride_sub_index%36)%9)<<8)|(0x40),over_ride_value);
 	}
@@ -33201,9 +33201,9 @@ void dwc_window_reg_after_training_update_increas(char over_ride_index,uint32_t 
 	//	uint32_t delay_reg_value_cacl=0;
 	//uint32_t over_ride_value=0;
 	//	if (over_ride_index == DMC_TEST_WINDOW_INDEX_ATXDLY)
-	//p_dev->ddr_gloabl_message.stick_ddr_log_level=0;
+	//p_dev->ddr_global_message.stick_ddr_log_level=0;
 	//serial_puts("\nstick_test_ddr_window_delay_override_before_after_training_setting==");
-	//serial_put_dec(p_dev->ddr_gloabl_message.stick_test_ddr_window_delay_override_before_after_training_setting);
+	//serial_put_dec(p_dev->ddr_global_message.stick_test_ddr_window_delay_override_before_after_training_setting);
 	//serial_puts("\n");
 	uint64_t reg_add=0;
 	if (!over_ride_index) {
@@ -34775,7 +34775,7 @@ int do_ddr_g12_override_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
 
 	//ddr_test_cmd 0x25 1 1  10 10 10 10 10 10 10 10 10 10
 
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
@@ -34887,7 +34887,7 @@ int do_ddr_g12_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 
 #define  G12_DATA_READ_OFFSET_MAX   (0X3F)
 #define  G12_DATA_WRITE_OFFSET_MAX   (0X3F+7*32)
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #if 1
@@ -35101,7 +35101,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto usage;
 
 #if ( CONFIG_DDR_PHY >= P_DDR_PHY_G12)
-	printf("\12nm phy read write register should closed apd and asr funciton\n");
+	printf("\12nm phy read write register should closed apd and asr function\n");
 	writel((0), 0xff638630);
 	writel((0), 0xff638634);
 #else
@@ -35254,7 +35254,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				printf("\n  0x1e test write_read                          ddr_test_cmd 0x1e write_read pattern_id loop start_add test_size");
 				printf("\n  0x1f test pwm_cmd                           ddr_test_cmd 0x1f pwmid   pwm_low pwm_high");
 				printf("\n  0x22 test ddr_window use env           ddr_test_cmd 0x22 a 0 test_size watchdog_time \
-						lane_disable_masrk add_test_size  env_set bootcmd  ddr_test_cmd 0x22 a 0 0x800000 15 0 0x8000000");
+						lane_disable_mask add_test_size  env_set bootcmd  ddr_test_cmd 0x22 a 0 0x800000 15 0 0x8000000");
 				printf("\n defenv;save;env_set bootcmd ddr_test_cmd 0x22 a 0 0x800000 18 0x0 0x8000000");
 				printf("\n env_set env_ddrtest_data_lane  0x22;save;reset");
 				printf("\n  0x23 test shift ddr frequency          ddr_test_cmd 0x23");
@@ -35262,7 +35262,7 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				printf("\n  0x25 offset ddr_lcdlr          ddr_test_cmd 0x25");
 				printf("\n  0x26 set watchdog_value        ddr_test_cmd 0x26 30");
 				printf("\n  0x27 test ddr_window use sticky register        ddr_test_cmd 0x27 a 0 test_size watchdog_time \
-						lane_disable_masrk add_test_size  env_set bootcmd  ddr_test_cmd 0x27 a 0 0x800000 15 0 0x8000000");
+						lane_disable_mask add_test_size  env_set bootcmd  ddr_test_cmd 0x27 a 0 0x800000 15 0 0x8000000");
 				printf("\n  0x28  sweep dram clk use d2pll_sticky     ddr_test_cmd 0x28  test_size start_freq end_freq test_loops  ddr_test_cmd 0x28 0x8000000 800 1500 1");
 
 				/*
@@ -35751,12 +35751,12 @@ int do_ddr_auto_test_window(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 	ddr_test_cmd=num_arry[0];
 
 	unsigned int   cs0_test_start= 0x1080000;
-	unsigned int   cs0_test_size= DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int   cs0_test_size= DDR_CROSS_TALK_TEST_SIZE;
 	unsigned int   cs1_test_start= 0;
 	unsigned int   cs1_test_size= 0;
 	unsigned int   watchdog_time_s=0;
 	unsigned int   test_index_enable=0;
-	unsigned int all_toghter_enable=0;
+	unsigned int all_tighter_enable=0;
 	//unsigned int   nibble_mask[3]={0,0,0};
 	cs0_test_start=((num_arry[TEST_ARG_CS0_TEST_START_INDEX])|((num_arry[TEST_ARG_CS0_TEST_START_INDEX+1])<<8)|
 		((num_arry[TEST_ARG_CS0_TEST_START_INDEX+2])<<16)|((num_arry[TEST_ARG_CS0_TEST_START_INDEX+3])<<24));
@@ -35768,7 +35768,7 @@ int do_ddr_auto_test_window(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 		((num_arry[TEST_ARG_CS1_TEST_SIZE_INDEX+2])<<16)|((num_arry[TEST_ARG_CS1_TEST_SIZE_INDEX+3])<<24));
 	watchdog_time_s=((num_arry[TEST_ARG_WATCHDOG_TIME_SIZE_INDEX])|((num_arry[TEST_ARG_WATCHDOG_TIME_SIZE_INDEX+1])<<8));
 	test_index_enable=((num_arry[TEST_ARG_TEST_INDEX_ENALBE_INDEX])|((num_arry[TEST_ARG_TEST_INDEX_ENALBE_INDEX+1])<<8));
-	all_toghter_enable=(num_arry[TEST_ARG_3_ALL_TOGHTER]);
+	all_tighter_enable=(num_arry[TEST_ARG_3_ALL_TIGHTER]);
 	switch (ddr_test_cmd)
 	{
 		case(DMC_STICKY_UBOOT_WINDOW_MAGIC_1):
@@ -35777,7 +35777,7 @@ int do_ddr_auto_test_window(cmd_tbl_t *cmdtp, int flag, int argc, char * const a
 			//argc2=10;
 			sprintf(str,"ddr_test_cmd 0x27 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x \
 			0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x  0x%08x",cs0_test_start,cs0_test_size,cs1_test_start,cs1_test_size,
-			watchdog_time_s,test_index_enable,0,0,0,0,0,0,all_toghter_enable	);
+			watchdog_time_s,test_index_enable,0,0,0,0,0,0,all_tighter_enable	);
 			//	for (i = 1;i<(argc2);i++)
 			//	{
 			//	argv2[i]=(arg[i]);

@@ -53,25 +53,29 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 		temp[BOOT_AREA_BB1ST].name = BOOT_LOADER;
 		temp[BOOT_AREA_BB1ST].offset = general_boot_part_entry[BOOT_AREA_BB1ST].offset;
-		temp[BOOT_AREA_BB1ST].size = general_boot_part_entry[BOOT_AREA_BB1ST].size * g_ssp.boot_bakups;
+		temp[BOOT_AREA_BB1ST].size = general_boot_part_entry[BOOT_AREA_BB1ST].size *
+					     g_ssp.boot_backups;
 		if (temp[BOOT_AREA_BB1ST].size % SPINOR_ALIGNED_SIZE)
 			WARN_ON(1);
 
 		temp[BOOT_AREA_BL2E].name = BOOT_BL2E;
 		temp[BOOT_AREA_BL2E].offset = general_boot_part_entry[BOOT_AREA_BL2E].offset;
-		temp[BOOT_AREA_BL2E].size = general_boot_part_entry[BOOT_AREA_BL2E].size * g_ssp.boot_bakups;
+		temp[BOOT_AREA_BL2E].size = general_boot_part_entry[BOOT_AREA_BL2E].size *
+					    g_ssp.boot_backups;
 		if (temp[0].size % SPINOR_ALIGNED_SIZE)
 			WARN_ON(1);
 
 		temp[BOOT_AREA_BL2X].name = BOOT_BL2X;
 		temp[BOOT_AREA_BL2X].offset = general_boot_part_entry[BOOT_AREA_BL2X].offset;
-		temp[BOOT_AREA_BL2X].size = general_boot_part_entry[BOOT_AREA_BL2X].size * g_ssp.boot_bakups;
+		temp[BOOT_AREA_BL2X].size = general_boot_part_entry[BOOT_AREA_BL2X].size *
+					    g_ssp.boot_backups;
 		if (temp[0].size % SPINOR_ALIGNED_SIZE)
 			WARN_ON(1);
 
 		temp[BOOT_AREA_DDRFIP].name = BOOT_DDRFIP;
 		temp[BOOT_AREA_DDRFIP].offset = general_boot_part_entry[BOOT_AREA_DDRFIP].offset;
-		temp[BOOT_AREA_DDRFIP].size = general_boot_part_entry[BOOT_AREA_DDRFIP].size * g_ssp.boot_bakups;
+		temp[BOOT_AREA_DDRFIP].size = general_boot_part_entry[BOOT_AREA_DDRFIP].size *
+					      g_ssp.boot_backups;
 		if (temp[0].size % SPINOR_ALIGNED_SIZE)
 			WARN_ON(1);
 

@@ -35,7 +35,7 @@
 #define AML_VDD_CPUA_INIT_VOLTAGE	880
 #define AML_VDD_CPUB_INIT_VOLTAGE	880
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Bootloader Control Block function
@@ -126,7 +126,7 @@
         "fatload_dev=usb\0"\
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
-            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000"\
+            "init=/init console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe078000 scramble_reg=0x0xfe02e030 "\
             " loglevel=7"\
             "\0"\
         "upgrade_check="\
@@ -462,6 +462,9 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 #define CONFIG_CMD_PMU  1
+
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
 #define CONFIG_AML_KASLR_SEED
 #endif

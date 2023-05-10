@@ -319,6 +319,13 @@ int ycbcr2rgb_709[15]  = {
 	1192, 0, 1836, 1192, -217, -546, 1192, 2166, 0, 0, 0, 0, 0, 0, 0};
 int ycbcr2rgb_ncl2020[15] = {
 	1197, 0, 1726, 1197, -193, -669, 1197, 2202, 0, 0, 0, 0, 0, 0, 0};
+int rgb2ycbcr_bt2020[15] = {
+	0x00e6, 0x0252, 0x0034,
+	0x1f83, 0xfebd, 0x01c0,
+	0x01c0, 0x1e64, 0x0000,
+	0x1fdc, 0x0, 0x0,
+	0x0, 0x0, 0x0,
+};
 
 static int bypass_coeff[15] = {
 	1024, 0, 0,
@@ -744,7 +751,9 @@ void set_hdr_matrix(enum hdr_module_sel module_sel,
 			     16, 1);
 		vpp_reg_setb(hdr_ctrl, 0, 17, 1);
 		/*mtx in en*/
-		vpp_reg_setb(hdr_ctrl, 1, 14, 1);
+		/*bit14-15 is ai color for s5*/
+		if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_S5)
+			vpp_reg_setb(hdr_ctrl, 1, 14, 1);
 
 		vpp_reg_write(MATRIXI_COEF00_01,
 			      (mtx[0 * 3 + 0] << 16) |
@@ -894,7 +903,9 @@ void set_hdr_matrix(enum hdr_module_sel module_sel,
 			     16, 1);
 		vpp_reg_setb(hdr_ctrl, 0, 17, 1);
 		/*mtx out en*/
-		vpp_reg_setb(hdr_ctrl, 1, 15, 1);
+		/*bit14-15 is ai color for s5*/
+		if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_S5)
+			vpp_reg_setb(hdr_ctrl, 1, 15, 1);
 
 		vpp_reg_write(MATRIXO_COEF00_01,
 			      (mtx[0 * 3 + 0] << 16) |
@@ -1198,7 +1209,8 @@ void hdr_func(enum hdr_module_sel module_sel,
 		break;
 	case OSD3_HDR:
 		if ((get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T3) &&
-			(get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T7))
+			(get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T7) &&
+			(get_cpu_id().family_id != MESON_CPU_MAJOR_ID_S5))
 			return;
 		break;
 	case OSD4_HDR:
@@ -1207,6 +1219,12 @@ void hdr_func(enum hdr_module_sel module_sel,
 		break;
 	case VD3_HDR:
 		if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T7)
+			return;
+		break;
+	case VD1_HDR:
+	case VD2_HDR:
+		/* VD1 and VD2 need not init in uboot, just skip */
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S5)
 			return;
 		break;
 	default:
@@ -1398,6 +1416,7 @@ void hdr_func(enum hdr_module_sel module_sel,
 		(hdr_process_select & HDR_BYPASS)) {
 		/* sdr process, always rgb osd here*/
 		if (hdr_process_select & RGB_OSD) {
+			coeff_in = rgb2ycbcr_709;
 			coeff_in = rgb2ycbcr_709;
 			oft_pre_in = rgb2yuvpre;
 			oft_post_in = rgb2yuvpos;

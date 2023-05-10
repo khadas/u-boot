@@ -28,6 +28,194 @@
 
 extern struct hw_para_s osd_hw;
 
+#ifdef AML_S5_DISPLAY
+static u32 get_reg_slice_vpost(int reg_addr, int slice_idx)
+{
+	u32 reg_offset;
+	u32 reg_addr_tmp;
+
+	reg_offset = slice_idx == 0 ? 0 :
+		slice_idx == 1 ? 0x100 :
+		slice_idx == 2 ? 0x700 : 0x1900;
+	reg_addr_tmp = reg_addr + reg_offset;
+	return reg_addr_tmp;
+}
+
+static void dump_vpp_blend_reg(void)
+{
+	u32 reg_addr, reg_val = 0;
+
+	osd_logi("vpp blend regs:\n");
+	reg_addr = REG_INDEX_VCBUS(VPP_OSD1_BLD_H_SCOPE);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_OSD1_BLD_V_SCOPE);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_OSD2_BLD_H_SCOPE);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_OSD2_BLD_V_SCOPE);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLEND_VD1_H_START_END);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLEND_VD1_V_START_END);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLEND_VD2_H_START_END);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLEND_VD2_V_START_END);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLEND_VD3_H_START_END);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLEND_VD3_V_START_END);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLND_H_V_SIZE);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POST_BLEND_BLEND_DUMMY_DATA);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POST_BLEND_DUMMY_ALPHA);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POST_BLEND_DUMMY_ALPHA1);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+
+	reg_addr = REG_INDEX_VCBUS(VD1_BLEND_SRC_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VD2_BLEND_SRC_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VD3_BLEND_SRC_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(OSD1_BLEND_SRC_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(OSD2_BLEND_SRC_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VD1_POSTBLEND_ALPHA);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VD2_POSTBLEND_ALPHA);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VD3_POSTBLEND_ALPHA);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLND_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+}
+
+static void dump_vpp_post_misc_reg(void)
+{
+	int i;
+	u32 reg_addr, reg_val = 0;
+
+	osd_logi("vpp post misc regs:\n");
+	reg_addr = REG_INDEX_VCBUS(VPP_POSTBLND_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_OBUF_RAM_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_4P4S_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_4S4P_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POST_VD1_WIN_CUT_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POST_WIN_CUT_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POST_PAD_HSIZE);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	reg_addr = REG_INDEX_VCBUS(VPP_POST_PAD_CTRL);
+	reg_val = osd_reg_read(reg_addr);
+	osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+	for (i = 0; i < SLICE_NUM; i++) {
+		reg_addr = REG_INDEX_VCBUS(VPP_OUT_H_V_SIZE);
+		reg_addr = get_reg_slice_vpost(reg_addr, i);
+		reg_val = osd_reg_read(reg_addr);
+		osd_logi("reg[0x%x]: 0x%08x\n",
+		   reg_addr, reg_val);
+		reg_addr = REG_INDEX_VCBUS(VPP_OFIFO_SIZE);
+		reg_addr = get_reg_slice_vpost(reg_addr, i);
+		reg_val = osd_reg_read(reg_addr);
+		osd_logi("reg[0x%x]: 0x%08x\n",
+			   reg_addr, reg_val);
+		reg_addr = REG_INDEX_VCBUS(VPP_SLC_DEAL_CTRL);
+		reg_addr = get_reg_slice_vpost(reg_addr, i);
+		reg_val = osd_reg_read(reg_addr);
+		osd_logi("reg[0x%x]: 0x%08x\n",
+			   reg_addr, reg_val);
+		reg_addr = REG_INDEX_VCBUS(VPP_HWIN_SIZE);
+		reg_addr = get_reg_slice_vpost(reg_addr, i);
+		reg_val = osd_reg_read(reg_addr);
+		osd_logi("reg[0x%x]: 0x%08x\n",
+			   reg_addr, reg_val);
+		reg_addr = REG_INDEX_VCBUS(VPP_ALIGN_FIFO_SIZE);
+		reg_addr = get_reg_slice_vpost(reg_addr, i);
+		reg_val = osd_reg_read(reg_addr);
+		osd_logi("reg[0x%x]: 0x%08x\n",
+			   reg_addr, reg_val);
+	}
+}
+
+static void dump_vpp_post_reg(void)
+{
+	dump_vpp_blend_reg();
+	dump_vpp_post_misc_reg();
+}
+#endif
+
 static void osd_debug_dump_value(void)
 {
 	u32 index = 0;
@@ -90,7 +278,6 @@ static void osd_debug_dump_value(void)
 		osd_logi("\ty_start: 0x%08x, y_end: 0x%08x\n",
 			 pdata->y_start, pdata->y_end);
 	}
-
 }
 
 static void osd_debug_dump_register_all(void)
@@ -109,7 +296,16 @@ static void osd_debug_dump_register_all(void)
 	reg = VPP_HOLD_LINES;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 #endif
-
+#ifdef AML_S5_DISPLAY
+	reg = VPP_INTF_OSD3_CTRL;
+	osd_logi("reg[0x%x]: 0x%08x(2mux1)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_PROC_1MUX3_SEL;
+	osd_logi("reg[0x%x]: 0x%08x(1mux3)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_PI_BYPASS_EN;
+	osd_logi("reg[0x%x]: 0x%08x(PI)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_5MUX4_SEL;
+	osd_logi("reg[0x%x]: 0x%08x(5mux4)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#endif
 	if (osd_hw.osd_ver == OSD_HIGH_ONE) {
 #ifdef AML_OSD_HIGH_VERSION
 	#ifndef AML_S5_DISPLAY
@@ -143,8 +339,15 @@ static void osd_debug_dump_register_all(void)
 		reg = VIU_OSD_BLEND_BLEND1_SIZE;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 
+#ifndef AML_S5_DISPLAY
 		reg = VPP_OSD1_IN_SIZE;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#else
+		reg = OSD_BLEND_DOUT0_SIZE;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+		reg = OSD_BLEND_DOUT1_SIZE;
+		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#endif
 		reg = VPP_OSD1_BLD_H_SCOPE;
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 		reg = VPP_OSD1_BLD_V_SCOPE;
@@ -264,6 +467,32 @@ static void osd_debug_dump_register_all(void)
 		reg = hw_osd_reg_array[2].osd_blk0_cfg_w4;
 		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
+#endif
+
+#ifdef AML_S5_DISPLAY
+	osd_logi("--- slice2ppc ---\n");
+	reg = OSD_2SLICE2PPC_IN_SIZE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_2SLICE2PPC_MODE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_HWIN0_CUT;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_HWIN1_CUT;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_CTRL;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_DUMMY_DATA0;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_DUMMY_DATA1;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_H_SIZE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_PAD_V_SIZE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = OSD_SYS_2SLICE_HWIN_CUT;
+	osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+
+	dump_vpp_post_reg();
 #endif
 }
 

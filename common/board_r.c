@@ -49,6 +49,7 @@
 #include <linux/err.h>
 #include <efi_loader.h>
 #include <amlogic/storage.h>
+#include <amlogic/pm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -108,6 +109,7 @@ static int initr_caches(void)
 {
 	/* Enable caches */
 	enable_caches();
+	gd->flags |= GD_FLG_CACHE_EN;
 	return 0;
 }
 #endif
@@ -237,6 +239,10 @@ static int initr_malloc(void)
 #endif
 	/* The malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = gd->relocaddr - TOTAL_MALLOC_LEN;
+#ifdef CONFIG_AML_UASAN
+	/* skip red zone size */
+	malloc_start -= MEM_SECTION_RED_ZONE_SIZE;
+#endif
 	mem_malloc_init((ulong)map_sysmem(malloc_start, TOTAL_MALLOC_LEN),
 			TOTAL_MALLOC_LEN);
 	return 0;
@@ -299,6 +305,13 @@ static int initr_dm(void)
 	return 0;
 }
 #endif
+
+static int initr_pm(void)
+{
+	pm_initialize();
+
+	return 0;
+}
 
 static int initr_bootstage(void)
 {
@@ -453,6 +466,17 @@ static int initr_env(void)
 
 	/* Initialize from environment */
 	load_addr = env_get_ulong("loadaddr", 16, load_addr);
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	{
+		char *tmp_env = NULL;
+
+		tmp_env = env_get("time_profile");
+		if (tmp_env && !strcmp(tmp_env, "1")) {
+			gd->time_print_flag = 1;
+			printf("enable time profile print\n");
+		}
+	}
+#endif
 
 	return 0;
 }
@@ -630,6 +654,20 @@ static int initr_bedbug(void)
 }
 #endif
 
+#ifdef CONFIG_YOCTO
+static int initr_check_factory_reset(void)
+{
+	if (env_get("factory-reset")) {
+		char *pcmd;
+
+		pcmd = env_get("check_factory_reset");
+		if (pcmd)
+			run_command(pcmd, 0);
+	}
+	return 0;
+}
+#endif /* CONFIG_YOCTO */
+
 static int run_main_loop(void)
 {
 #ifdef CONFIG_SANDBOX
@@ -670,6 +708,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_barrier,
 	initr_malloc,
 	log_init,
+	initr_pm,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
 	initr_console_record,
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
@@ -803,6 +842,9 @@ static init_fnc_t init_sequence_r[] = {
 	/* PPC has a udelay(20) here dating from 2002. Why? */
 #ifdef CONFIG_CMD_NET
 	initr_ethaddr,
+#endif
+#ifdef CONFIG_YOCTO
+	initr_check_factory_reset,
 #endif
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,

@@ -39,7 +39,7 @@ config AML_DEFENV
 
 config AML_UPDATE_ENV
 	bool "aml update env part"
-	depends on CMD_EXPORTENV && CMD_IMPORTENV && CMD_SAVEENV && !ENV_IS_NOWHERE
+	depends on CMD_SAVEENV && !ENV_IS_NOWHERE
 	default y
 	help
 	  support only update specified env list to flash

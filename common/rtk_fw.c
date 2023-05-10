@@ -373,7 +373,7 @@ int check_chip_fw_version(firmware_info *fw_info)
 	if (!fw_info)
 		return -ENODEV;
 
-	fw_info->cmd_hdr->opcode = cpu_to_le16(HCI_VENDOR_READ_LMP_VERISION);
+	fw_info->cmd_hdr->opcode = cpu_to_le16(HCI_VENDOR_READ_LMP_VERSION);
 	fw_info->cmd_hdr->plen = 0;
 	fw_info->pkt_len = CMD_HDR_LEN;
 

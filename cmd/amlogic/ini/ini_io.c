@@ -16,12 +16,12 @@
     #if (!defined (CC_INI_IO_UKEY_USE_OTHER_MODULE))
         #include "UnifyKey.h"
 
-        #define HanldeReadData    readUKeyData
+	#define HandleReadData    readUKeyData
         #define HandleWriteData   writeUKeyData
     #else
         #include <tvutils/tvutils.h>
 
-        #define HanldeReadData    readUnifyKeyData
+	#define HandleReadData    readUnifyKeyData
         #define HandleWriteData   writeUnifyKeyData
     #endif
 #endif
@@ -35,7 +35,7 @@ static int WriteBinData(const char *item_name, int wr_size, unsigned char data_b
 }
 
 static int ReadIniData(const char *item_name, unsigned char data_buf[]) {
-    return HanldeReadData(item_name, data_buf, CC_ONE_SECTION_SIZE);
+	return HandleReadData(item_name, data_buf, CC_ONE_SECTION_SIZE);
 }
 
 static int WriteIniData(const char *item_name, int wr_size, unsigned char data_buf[]) {

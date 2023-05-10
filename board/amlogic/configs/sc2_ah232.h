@@ -16,7 +16,7 @@
 #define AML_VCCK_INIT_VOLTAGE	  939	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    810       // VDDEE power up voltage
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Bootloader Control Block function
@@ -96,7 +96,7 @@
         "board=ohm\0"\
         "initargs="\
             "init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 "\
 			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
             "\0"\
         "upgrade_check="\
@@ -176,7 +176,6 @@
 
 #if 1
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
@@ -355,9 +354,6 @@
 /* define CONFIG_SYS_MEM_TOP_HIDE 8M space for free buffer */
 #define CONFIG_SYS_MEM_TOP_HIDE		0x00800000
 
-/* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
-//#define CONFIG_UPDATE_MMU_TABLE
-
 #define CONFIG_CPU_ARMV8
 
 //use sha2 command
@@ -386,6 +382,9 @@
 /* #define CONFIG_AML_CRYPTO_IMG       1 */
 
 #endif /* CONFIG_AML_SECURE_UBOOT */
+
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 #define CONFIG_AML_KASLR_SEED

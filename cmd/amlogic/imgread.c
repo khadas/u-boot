@@ -28,7 +28,7 @@ int __attribute__((weak)) store_logic_read(const char *name, loff_t off, size_t 
 { return store_read(name, off, size, buf);}
 
 #define debugP(fmt...) //printf("[Dbg imgread]L%d:", __LINE__),printf(fmt)
-#define errorP(fmt...) pr_err("Err imgread(L%d):", __LINE__); pr_err(fmt)
+#define errorP(fmt...) do {pr_err("Err imgread(L%d):", __LINE__); pr_err(fmt); } while (0)
 #define wrnP(fmt...)   pr_warning("wrn:" fmt)
 #define MsgP(fmt...)   pr_info("[imgread]" fmt)
 
@@ -372,9 +372,11 @@ static int do_image_read_dtb_from_rsv(unsigned char* loadaddr)
 static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     int iRet = 0;
-    const char* const partName = argv[1];
+    const char partName[64] = {0};
     unsigned char* loadaddr = 0;
     uint64_t lflashReadOff = 0;
+
+    strncpy((char *)partName, argv[1], 63);
     if (2 < argc) {
         loadaddr = (unsigned char*)simple_strtoul(argv[2], NULL, 16);
     } else{
@@ -1164,8 +1166,8 @@ U_BOOT_CMD(
    "Read the image from internal flash with actual size",           //description
    "    argv: <imageType> <part_name> <loadaddr> \n"   //usage
    "    - <image_type> Current support is kernel/res(ource).\n"
-   "imgread kernel  --- Read image in fomart IMAGE_FORMAT_ANDROID\n"
-   "imgread dtb     --- Read dtb in fomart IMAGE_FORMAT_ANDROID\n"
+   "imgread kernel  --- Read image in format IMAGE_FORMAT_ANDROID\n"
+   "imgread dtb     --- Read dtb in format IMAGE_FORMAT_ANDROID\n"
    "imgread res     --- Read image packed by 'Amlogic resource packer'\n"
    "imgread picture --- Read one picture from Amlogic logo"
    "    - e.g. \n"

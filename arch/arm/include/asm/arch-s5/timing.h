@@ -328,34 +328,34 @@ typedef struct board_SI_setting_ps {
 	//bit 0.   rank0 odt read nsel.  enable ODT[0] if there's read  occurrede in rank1.
 	unsigned char	phy_odt_config_rank[2];
 	unsigned short	clk_drv_ohm;
-	//config soc clk pin signal driver stength ,select 20,30,40,60ohm
+	//config soc clk pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short	cs_drv_ohm;
-	//config soc cs0 cs1 pin signal driver stength ,select 20,30,40,60ohm
+	//config soc cs0 cs1 pin signal driver strength ,select 20,30,40,60ohm
 	unsigned short	ac_drv_ohm;
-	//config soc  normal address command pin driver stength ,select 20,30,40,60ohm
+	//config soc  normal address command pin driver strength ,select 20,30,40,60ohm
 	unsigned short	soc_data_drv_ohm_p;
-	//config soc data pin pull up driver stength,
+	//config soc data pin pull up driver strength,
 	//select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short	soc_data_drv_ohm_n;
-	//config soc data pin pull down driver stength,
+	//config soc data pin pull down driver strength,
 	//select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short	soc_data_odt_ohm_p;
-	//config soc data pin odt pull up stength,
+	//config soc data pin odt pull up strength,
 	//select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short	soc_data_odt_ohm_n;
-	//config soc data pin odt pull down stength,
+	//config soc data pin odt pull down strength,
 	//select 0,28,30,32,34,37,40,43,48,53,60,68,80,96,120ohm
 	unsigned short	dram_data_drv_ohm;
-	//config dram data pin pull up pull down driver stength,
+	//config dram data pin pull up pull down driver strength,
 	//ddr3 select 34,40ohm,ddr4 select 34,48ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short	dram_data_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,
 	//ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short	dram_data_wr_odt_ohm;
-	//config dram data pin odt pull up down stength,ddr3 select 40,60,120ohm,
+	//config dram data pin odt pull up down strength,ddr3 select 40,60,120ohm,
 	//ddr4 select 34,40,48,60,120,240ohm,lpddr4 select 40,48,60,80,120,240ohm
 	unsigned short	dram_ac_odt_ohm;
-	//config dram ac pin odt pull up down stength,use for lpddr4, select 40,48,60,80,120,240ohm
+	//config dram ac pin odt pull up down strength,use for lpddr4, select 40,48,60,80,120,240ohm
 	unsigned short	soc_clk_slew_rate;
 	//system reserve,do not modify
 	unsigned short	soc_cs_slew_rate;
@@ -365,7 +365,7 @@ typedef struct board_SI_setting_ps {
 	unsigned short	soc_data_slew_rate;
 	//system reserve,do not modify
 	unsigned char	dram_drv_pull_up_cal_ohm;
-	//config soc data pin odt pull up stength,select 40,60,80,120ohm
+	//config soc data pin odt pull up strength,select 40,60,80,120ohm
 	unsigned char	lpddr4_dram_vout_range;
 	//use for lpddr4 read vout voltage  setting 0 --->2/5VDDQ ,1--->1/3VDDQ
 	unsigned char	char_rev0;                      //dfe_offset_value;       //char_rev1;

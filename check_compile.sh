@@ -81,6 +81,7 @@ then
 fi
 
 echo "************************ START *************************"
+echo "TOTAL_CFG=$TOTAL_CFG, argv1 = $1"
 
 # compile check start
 # RESULT store compile result
@@ -134,6 +135,7 @@ then
     BUILD_RESULT=0
     while [ "${BUILD_COUNTER}" -gt "0" ]; do
       BUILD_COUNTER=$((BUILD_COUNTER - 1))
+      set -e
       make distclean
       make $cfg'_defconfig'
       make -j
@@ -180,6 +182,7 @@ then
     then
       for tmp in `seq $BAR_LOOP`;do RESULT=$RESULT'-';done
     fi
+    set -e
     make distclean
     make $cfg'_defconfig'
     make -j
@@ -193,6 +196,13 @@ then
     fi
     echo -e $RESULT
   done
+fi
+
+# check bl33z for kernel ramdump
+if [ -d "./bl33z" ]; then
+  cd ./bl33z
+  ./check.sh $filter
+  cd -
 fi
 
 echo -e "#################### END ###################\n"

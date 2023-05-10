@@ -62,7 +62,6 @@ int efuse_usr_api_init_dtb(const char*  dt_addr)
 		return __LINE__;
 	}
 	efusekeynum = be32_to_cpup((u32 *)phandle);
-	EFUSE_MSG("keynum is %x\n", efusekeynum);
 
 	//if (efusekey_infos) free(efusekey_infos) ;
     efusekey_infos = (struct efusekey_info *)malloc(sizeof (struct efusekey_info) *efusekeynum);
@@ -72,6 +71,7 @@ int efuse_usr_api_init_dtb(const char*  dt_addr)
     }
 
 	max_size = efuse_get_max();
+	EFUSE_MSG("keynum %u, user %u\n", efusekeynum, max_size);
 
 	for (index = 0; index < efusekeynum; index++)
     {

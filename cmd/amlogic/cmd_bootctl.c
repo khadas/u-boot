@@ -20,6 +20,8 @@
 #endif
 #include "cmd_bootctl_utils.h"
 
+extern int nand_store_write(const char *name, loff_t off, size_t size, void *buf);
+
 #ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
 extern int store_read_ops(
 		unsigned char *partition_name,
@@ -213,7 +215,15 @@ bool boot_info_save(BrilloBootInfo *info, char *miscbuf)
 		}
 	}
 #endif
-	store_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
+
+	if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+		nand_store_write((const char *)partition, 0, MISCBUF_SIZE,
+							(unsigned char *)miscbuf);
+#endif
+	} else {
+		store_write((const char *)partition, 0, MISCBUF_SIZE, (unsigned char *)miscbuf);
+	}
 	return true;
 }
 

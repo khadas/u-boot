@@ -140,8 +140,16 @@ bool calibrator_info_save(calibrator_message *info)
 		sizeof(calibrator_message) - sizeof(uint32_t));
 
 	dump_info(info);
-	store_write((const char *)partition, CALIBRATOR_OFFSET, CALIBRATOR_SIZE,
+
+	if (store_get_type() == BOOT_SNAND || store_get_type() == BOOT_NAND_MTD) {
+#ifdef CONFIG_BOOTLOADER_CONTROL_BLOCK
+		nand_store_write((const char *)partition, CALIBRATOR_OFFSET, CALIBRATOR_SIZE,
 		(unsigned char *)info);
+#endif
+	} else {
+		store_write((const char *)partition, CALIBRATOR_OFFSET, CALIBRATOR_SIZE,
+		(unsigned char *)info);
+	}
 	return true;
 }
 

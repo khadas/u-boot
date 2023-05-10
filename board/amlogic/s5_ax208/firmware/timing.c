@@ -407,13 +407,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.dram_cs0_base_add = 0,
 		//.cfg_board_common_setting.dram_cs1_base_add = 0,
 		.cfg_board_common_setting.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
@@ -759,15 +759,15 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dq_delay_c[71] = 64,
 		//pcb write dqs length > clk length 0.5UI, ideal write dqs =
 		//clk_delay(==0)+128+wl_offset*128
-		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 128,//384 - 64,
 		//clk_delay+128+wl_offset*128
-		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 128,//384 - 64,
 		.cfg_ddr_training_delay_ps.write_wck_delay[0] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[1] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[2] = 0x00000200,
@@ -1162,13 +1162,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.dram_cs0_base_add = 0,
 		//.cfg_board_common_setting.dram_cs1_base_add = 0,
 		.cfg_board_common_setting.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
@@ -1487,13 +1487,14 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dq_delay_c[70] = 64,
 		.cfg_ddr_training_delay_ps.read_dq_delay_c[71] = 64,
 		//clk_delay+128+wl_offset*128
-		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 384 - 64,
-		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 128,//384 - 64,
+		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 128,//384 - 64,
 		.cfg_ddr_training_delay_ps.write_wck_delay[0] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[1] = 0x00000200,
 		.cfg_ddr_training_delay_ps.write_wck_delay[2] = 0x00000200,
@@ -3341,7 +3342,6 @@ __attribute__ ((section(".clk_param"))) = {
 #define VCCK_A_VAL                              AML_VDD_CPUA_INIT_VOLTAGE
 #define VCCK_B_VAL                              AML_VDD_CPUB_INIT_VOLTAGE
 #define VDD_GPU_VAL                             AML_VDDGPU_INIT_VOLTAGE
-#define VDD_NPU_VAL                             AML_VDDNPU_INIT_VOLTAGE
 
 /* VDDEE_VAL_REG ax208 board by  mesured  value */
 #if   (VDDEE_VAL == 680)
@@ -3579,49 +3579,6 @@ __attribute__ ((section(".clk_param"))) = {
 #error "VDD_GPU val out of range\n"
 #endif
 
-/* VDD_NPU PWM table */
-#if   (VDD_NPU_VAL == 720)
-#define VDD_NPU_VAL_REG 0x120000
-#elif (VDD_NPU_VAL == 730)
-#define VDD_NPU_VAL_REG 0x110001
-#elif (VDD_NPU_VAL == 740)
-#define VDD_NPU_VAL_REG 0x100002
-#elif (VDD_NPU_VAL == 750)
-#define VDD_NPU_VAL_REG 0xf0003
-#elif (VDD_NPU_VAL == 760)
-#define VDD_NPU_VAL_REG 0xe0004
-#elif (VDD_NPU_VAL == 770)
-#define VDD_NPU_VAL_REG 0xd0005
-#elif (VDD_NPU_VAL == 780)
-#define VDD_NPU_VAL_REG 0xc0006
-#elif (VDD_NPU_VAL == 790)
-#define VDD_NPU_VAL_REG 0xb0007
-#elif (VDD_NPU_VAL == 800)
-#define VDD_NPU_VAL_REG 0xa0008
-#elif (VDD_NPU_VAL == 810)
-#define VDD_NPU_VAL_REG 0x90009
-#elif (VDD_NPU_VAL == 820)
-#define VDD_NPU_VAL_REG 0x8000a
-#elif (VDD_NPU_VAL == 830)
-#define VDD_NPU_VAL_REG 0x7000b
-#elif (VDD_NPU_VAL == 840)
-#define VDD_NPU_VAL_REG 0x6000c
-#elif (VDD_NPU_VAL == 850)
-#define VDD_NPU_VAL_REG 0x5000d
-#elif (VDD_NPU_VAL == 860)
-#define VDD_NPU_VAL_REG 0x4000e
-#elif (VDD_NPU_VAL == 870)
-#define VDD_NPU_VAL_REG 0x3000f
-#elif (VDD_NPU_VAL == 880)
-#define VDD_NPU_VAL_REG 0x20010
-#elif (VDD_NPU_VAL == 890)
-#define VDD_NPU_VAL_REG 0x10011
-#elif (VDD_NPU_VAL == 900)
-#define VDD_NPU_VAL_REG 0x12
-#else
-#error "VDD_NPU val out of range\n"
-#endif
-
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
@@ -3642,7 +3599,6 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PWMAB_PWM_A,		   VCCK_B_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_A,		   VDD_GPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_B,		   VCCK_A_VAL_REG,  0xffffffff, 0, 0, 0 },
-	{ PWMEF_PWM_A,		   VDD_NPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMAB_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
 				(0x3 << 0) | (0x1 << 15) | (0x1 << 23), 0, 0, 0 },
 	{ PWMCD_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),

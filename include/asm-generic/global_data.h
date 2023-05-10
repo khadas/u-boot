@@ -23,6 +23,15 @@
 #include <membuff.h>
 #include <linux/list.h>
 
+#ifdef CONFIG_AML_UASAN
+#include <amlogic/uasan.h>
+#endif
+
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+uint32_t get_time(void);
+#include <initcall.h>
+#endif
+
 typedef struct global_data {
 	bd_t *bd;
 	unsigned long flags;
@@ -133,6 +142,21 @@ typedef struct global_data {
 	struct spl_handoff *spl_handoff;
 # endif
 #endif
+#ifdef CONFIG_AML_UASAN
+	int	      uasan_enabled;
+	int	      in_asan_report;
+	unsigned long use_mem_end;
+	unsigned long use_mem_size;
+	unsigned long phy_mem_low;
+	unsigned long phy_mem_high;
+	unsigned long shadow_addr;
+	unsigned long shadow_size;
+	unsigned long section_red_zones[SECTION_RED_ZONE_NUM];
+#endif
+#ifdef CONFIG_AMLOGIC_TIME_PROFILE
+	struct init_call_time ict[INITCALL_CNT];
+	unsigned int time_print_flag;
+#endif
 } gd_t;
 #endif
 
@@ -161,5 +185,7 @@ typedef struct global_data {
 #define GD_FLG_ENV_DEFAULT	0x02000 /* Default variable flag	   */
 #define GD_FLG_SPL_EARLY_INIT	0x04000 /* Early SPL init is done	   */
 #define GD_FLG_LOG_READY	0x08000 /* Log system is ready for use	   */
+
+#define GD_FLG_CACHE_EN		0x10000 /* Cache enabled                   */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

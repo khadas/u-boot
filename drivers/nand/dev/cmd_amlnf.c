@@ -41,8 +41,8 @@ extern int amlnf_dtb_erase(void);
 #endif
 
 #if (AML_CFG_KEY_RSV_EN)
-extern int amlnf_key_write(u8 *buf, int len, uint32_t *actual_lenth);
-extern int amlnf_key_read(u8 * buf, int len, uint32_t *actual_lenth);
+extern int amlnf_key_write(u8 *buf, int len, uint32_t *actual_length);
+extern int amlnf_key_read(u8 * buf, int len, uint32_t *actual_length);
 extern int amlnf_key_erase(void);
 #endif
 
@@ -295,7 +295,7 @@ flush:
 }
 
 /**
- * @usage: get size of the partiton
+ * @usage: get size of the partition
  *
  * @name: part_name, when it's null the target
  * 		  will return normal device size(nfcache,
@@ -1107,7 +1107,7 @@ static int do_amlnfphy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 #endif
 	/* need full environments */
 #if (AML_CFG_KEY_RSV_EN)
-	uint32_t actual_lenth;
+	uint32_t actual_length;
 	if ((strcmp(cmd, "key_write") == 0)
 		|| (strcmp(cmd, "key_read") == 0)) {
 		nfread_flag = 0;
@@ -1128,11 +1128,11 @@ static int do_amlnfphy(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		//memset(devops, 0x0, sizeof(struct phydev_ops));
 
 		if (nfread_flag) {
-			ret = amlnf_key_read((u8 *)addr, (int)size, &actual_lenth);
+			ret = amlnf_key_read((u8 *)addr, (int)size, &actual_length);
 			if (ret < 0)
 				aml_nand_msg("nand read key failed");
 		} else {
-			ret = amlnf_key_write((u8 *)addr, (int)size, &actual_lenth);
+			ret = amlnf_key_write((u8 *)addr, (int)size, &actual_length);
 			if (ret < 0)
 				aml_nand_msg("nand write key failed");
 		}

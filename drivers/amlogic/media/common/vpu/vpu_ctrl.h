@@ -90,6 +90,12 @@ static unsigned int vcbus_test_reg_c3[VCBUS_REG_CNT_MAX] = {
 	VPU_VOUT_DTH_DATA,
 };
 
+static unsigned int vcbus_test_reg_a4[VCBUS_REG_CNT_MAX] = {
+	VPU_VOUT_BLEND_DUMDATA_A4,
+	VPP_VD1_MATRIX_OFFSET0_1_A4,
+	VPU_VOUT_DTH_DATA_A4,
+};
+
 /* ******************************************************* */
 /*              VPU memory power down table                */
 /* ******************************************************* */
@@ -190,6 +196,16 @@ static unsigned int vpu_pwrctrl_id_table_t3[] = {
 	PM_VI_CLK1,
 	PM_VI_CLK2,
 	PM_NOC_VPU,
+	VPU_PWR_ID_END
+};
+
+static unsigned int vpu_pwrctrl_id_table_s5[] = {
+	PM_VPU_HDMI,
+	PM_VI_CLK1,
+	PM_VI_CLK2,
+#ifdef AML_S5_DISPLAY
+	PM_VPU_DOLBY,
+#endif
 	VPU_PWR_ID_END
 };
 

@@ -54,4 +54,6 @@
 #define NAND_ECC_ONLY_BCH8_1K
 #endif
 
+#define CONFIG_DDR_PARAMETER_SUPPORT 1
+
 #endif /* _PLAT_STORAGE_H_ */

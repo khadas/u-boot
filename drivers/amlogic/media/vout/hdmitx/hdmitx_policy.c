@@ -186,7 +186,7 @@ static const char *COLOR_ATTRIBUTE_LIST1[] = {
  * TV_B witch support 1080p60hz 444,8bit maximum.
  * should keep mode(1080p60hz) witch user selected,
  * and 8bit depth(sdr) is kept in select list for
- * safety of conner case.
+ * safety of corner case.
  * i.e. if HDR cs/cd is not supported, may select
  * 8bit mode.
  * also for user change resolution case in sysctl.
@@ -819,9 +819,11 @@ static void get_best_color_attr(struct input_hdmi_data *hdmi_data,
 	}
 
 	for (i = 0; i < length; i++) {
-		strcpy(temp_mode, outputmode);
-		strcat(temp_mode, color_list[i]);
-		 if (is_supported_mode_attr(hdmi_data, temp_mode)) {
+		memset(temp_mode, 0, sizeof(temp_mode));
+		strncpy(temp_mode, outputmode, MODE_LEN - 1);
+		if ((strlen(temp_mode) + strlen(color_list[i])) < MODE_LEN)
+			strcat(temp_mode, color_list[i]);
+		if (is_supported_mode_attr(hdmi_data, temp_mode)) {
 			printf("support current mode:[%s], deep color:[%s]\n",
 			       outputmode, color_list[i]);
 			strcpy(colorattribute, color_list[i]);

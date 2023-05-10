@@ -1,0 +1,6 @@
+config CPU_PM
+        bool "power management"
+	default y
+	help
+	Select this for boards which use power management
+

@@ -291,7 +291,7 @@ int get_partition_from_dts(unsigned char *buffer)
 		//printf("%s:%d size: 0x%x  0x%x\n",__func__,__LINE__, be32_to_cpup((u32*)usize), be32_to_cpup((((u32*)usize)+1)));
 		umask = fdt_getprop(dt_addr, poffset, "mask", NULL);
 		//printf("%s:%d mask: 0x%x\n",__func__,__LINE__, be32_to_cpup((u32*)umask));
-		/* fill parition table */
+		/* fill partition table */
 		if (uname != NULL)
 			memcpy(part_table[index].name, uname, strlen(uname));
 		part_table[index].size = ((unsigned long)be32_to_cpup((u32*)usize) << 32) | (unsigned long)be32_to_cpup((((u32*)usize)+1));

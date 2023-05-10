@@ -24,4 +24,5 @@ source "drivers/amlogic/tee/Kconfig"
 source "drivers/amlogic/crypto/Kconfig"
 
 source "drivers/amlogic/mkl/Kconfig"
+source "drivers/amlogic/pm/Kconfig"
 endmenu

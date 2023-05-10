@@ -1394,7 +1394,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 			bootstage_mark(BOOTSTAGE_ID_COPY_RAMDISK);
 
 			*initrd_end = *initrd_start + rd_len;
-			pr_info("   Loading Ramdisk to %08lx, end %08lx ... ",
+			printf("   Loading Ramdisk to %08lx, end %08lx ... ",
 					*initrd_start, *initrd_end);
 
 			memmove_wd((void *)*initrd_start,

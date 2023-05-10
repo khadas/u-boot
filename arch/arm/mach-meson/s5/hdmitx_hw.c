@@ -5,11 +5,13 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx_module.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx_reg.h>
 #include <amlogic/media/vout/hdmitx21/mach_reg.h>
 #include <asm/arch/bl31_apis.h>
 #include <linux/arm-smccc.h>
+#include "hdmitx_misc.h"
 
 static int hdmi_dbg;
 
@@ -47,8 +49,14 @@ int hdmitx_get_hpd_state(void)
 {
 	int st = 0;
 
-	st = !!(hd21_read_reg(PADCTRL_GPIOW_I) & (1 << 15));
+	st = !!(hd21_read_reg(PADCTRL_GPIOH_I) & (1 << 2));
 	return st;
+}
+
+void hdmitx21_mux_ddc(void)
+{
+	hd21_set_reg_bits(PADCTRL_PIN_MUX_REG8, 1, 0, 4); // hdmitx_sda
+	hd21_set_reg_bits(PADCTRL_PIN_MUX_REG8, 1, 4, 4); // hdmitx_scl
 }
 
 static void sec_wr(u32 addr, u32 data)
@@ -299,45 +307,166 @@ u32 hd_get_paddr(u32 addr)
 	return paddr;
 }
 
+/* only for S5 */
+void hdmitx_phy_pre_init(struct hdmitx_dev *hdev)
+{
+	enum frl_rate_enum frl_rate = hdev->frl_rate;
+
+	/* Stage1: reset registers */
+	hd21_write_reg(ANACTRL_HDMIPHY_CTRL0, 0x0);
+	hd21_write_reg(ANACTRL_HDMIPHY_CTRL1, 0x0);
+	hd21_write_reg(ANACTRL_HDMIPHY_CTRL3, 0x0);
+	hd21_write_reg(ANACTRL_HDMIPHY_CTRL5, 0x0);
+	hd21_write_reg(ANACTRL_HDMIPHY_CTRL6, 0x0);
+	ndelay(10);
+
+	/* Stage2: enable Bandgap */
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL5, 0x03, 0, 8);
+	udelay(10);
+
+	/* Stage3: enable LDO */
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, 0xbd, 24, 8);
+	udelay(10);
+
+	/* Stage4: enable dcc */
+	if (frl_rate == FRL_3G3L || frl_rate == FRL_6G3L)
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL6, 0x57, 8, 8); /* power down channel 4 */
+	else
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL6, 0x77, 8, 8);
+	ndelay(10);
+
+	/* Stage5: enable p2s */
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL6, 0x0b, 0, 8);
+	if (frl_rate == FRL_3G3L || frl_rate == FRL_6G3L)
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL5, 0x3f, 8, 8); /* power down channel 4 */
+	else
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL5, 0xff, 8, 8);
+	ndelay(10);
+
+	/* set phy ch0/1/2/3 swap as default */
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 0, 18, 2);
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 20, 2);
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 2, 22, 2);
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 3, 24, 2);
+	// wire    wr_enable = control[3];
+	// wire    fifo_enable = control[2];
+	// assign  phy_clk_en = control[1];
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 0, 0, 1); // Enable Soft_reset
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 0, 1); // Enable Soft_reset
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 0, 0, 1); // Enable Soft_reset
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 1, 1); // Enable tmds_clk
+	// Enable enable the write/read decoupling state machine
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 3, 1);
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 1, 2, 1); // Enable the decoupling FIFO
+}
+
+static void hdmitx_set_s5_phypara(enum frl_rate_enum frl_rate, u32 tmds_clk)
+{
+	const u16 swing[] = {
+		[FRL_NONE] = 0x0000,
+		[FRL_3G3L] = 0x00d5,
+		[FRL_6G3L] = 0x00cf,
+		[FRL_6G4L] = 0xcfcf,
+		[FRL_8G4L] = 0xcfcf,
+		[FRL_10G4L] = 0xcfcf,
+		[FRL_12G4L] = 0xafaf,
+	};
+	const u8 ffe[] = {
+		[FRL_NONE] = 0x00,
+		[FRL_3G3L] = 0x00,
+		[FRL_6G3L] = 0x00,
+		[FRL_6G4L] = 0x00,
+		[FRL_8G4L] = 0x01,
+		[FRL_10G4L] = 0x0a,
+		[FRL_12G4L] = 0x2b,
+	};
+	const u8 drv[] = {
+		[FRL_NONE] = 0x11,
+		[FRL_3G3L] = 0x03,
+		[FRL_6G3L] = 0x03,
+		[FRL_6G4L] = 0x33,
+		[FRL_8G4L] = 0x77,
+		[FRL_10G4L] = 0x77,
+		[FRL_12G4L] = 0x77,
+	};
+	const u16 rterm_val[] = {
+		[1] = 0x00,
+		[2] = 0x04,
+		[3] = 0x0c,
+		[4] = 0x1c,
+		[5] = 0x3c,
+		[6] = 0x01,
+		[7] = 0x05,
+		[8] = 0x0d,
+		[9] = 0x1d,
+		[10] = 0x3d,
+		[11] = 0x03,
+		[12] = 0x07,
+		[13] = 0x0f,
+		[14] = 0x1f,
+		[15] = 0x3f,
+	};
+	u8 rterm_efuse = 9; /* this will get from ufuse */
+	struct arm_smccc_res res;
+
+	/* Stage6: enable rterm_efuse */
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, 0xd8, 16, 8);
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, 0x3, 24, 2);
+	arm_smccc_smc(HDCPTX_IOOPR, HDMITX_GET_RTERM, 0, 0, 0, 0, 0, 0, &res);
+	rterm_efuse = (unsigned int)((res.a0) & 0xffffffff);
+	rterm_efuse = rterm_efuse & 0x3f;
+	printf("%s[%d] rterm_efuse = %d\n", __func__, __LINE__, rterm_efuse);
+	if (!rterm_efuse)
+		rterm_efuse = 9; /* default value when efuse invalid */
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, rterm_val[rterm_efuse], 26, 6);
+	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, 0x06, 8, 8);
+	ndelay(10);
+
+	/* Stage7: set output swing */
+	if (frl_rate != FRL_NONE && frl_rate <= FRL_12G4L) {
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, swing[frl_rate], 0, 16);
+	} else {
+		u32 swing = 0;
+
+		if (tmds_clk > 300000)
+			swing = 0x90d5;
+		else if (tmds_clk > 150000)
+			swing = 0x7082;
+		else
+			swing = 0x5062;
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL0, swing, 0, 16);
+	};
+	ndelay(10);
+
+	/* Stage8: set ffe */
+	if (frl_rate != FRL_NONE && frl_rate <= FRL_12G4L)
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, ffe[frl_rate], 0, 8);
+	else
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, 0, 0, 8);
+	ndelay(10);
+
+	/* Stage9: enable driver */
+	if (frl_rate != FRL_NONE && frl_rate <= FRL_12G4L) {
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, drv[frl_rate], 16, 8);
+	} else {
+		u32 drv = 0;
+
+		if (tmds_clk > 300000)
+			drv = 0x17;
+		else
+			drv = 0x13;
+		hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL3, drv, 16, 8);
+	}
+}
+
 void hdmitx_set_phypara(enum hdmi_phy_para mode)
 {
-	hd21_write_reg(ANACTRL_HDMIPHY_CTRL0, 0x0);
-/* P_ANACTRL_HDMIPHY_CTRL1	bit[1]: enable clock	bit[0]: soft reset */
-#define RESET_HDMI_PHY() \
-do { \
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 0xf, 0, 4); \
-	mdelay(2); \
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 0xe, 0, 4); \
-	mdelay(2); \
-} while (0)
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	u32 tmds_clk = 0;
 
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 0x0390, 16, 16);
-	hd21_set_reg_bits(ANACTRL_HDMIPHY_CTRL1, 0x0, 0, 4);
-	RESET_HDMI_PHY();
-	RESET_HDMI_PHY();
-#undef RESET_HDMI_PHY
-
-	switch (mode) {
-	case HDMI_PHYPARA_6G: /* 5.94/4.5/3.7Gbps */
-	case HDMI_PHYPARA_4p5G:
-	case HDMI_PHYPARA_3p7G:
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL6, 0x0000080b);
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL0, 0x37eb65c4);
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL3, 0x2ab0ff3b);
-		break;
-	case HDMI_PHYPARA_3G: /* 2.97Gbps */
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL6, 0x00000003);
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL0, 0x33eb42a2);
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL3, 0x2ab0ff3b);
-		break;
-	case HDMI_PHYPARA_270M: /* 1.485Gbps, and below */
-	case HDMI_PHYPARA_DEF:
-	default:
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL6, 0x00000003);
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL0, 0x33eb4252);
-		hd21_write_reg(ANACTRL_HDMIPHY_CTRL3, 0x2ab0ff3b);
-		break;
-	}
+	tmds_clk = hdev->para->tmds_clk;
+	printf("%s[%d] tmds_clk %d\n", __func__, __LINE__, tmds_clk);
+	hdmitx_set_s5_phypara(hdev->frl_rate, tmds_clk);
 }
 
 void hdmitx_turnoff(void)

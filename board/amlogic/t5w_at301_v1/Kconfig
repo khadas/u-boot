@@ -1,0 +1,25 @@
+if TARGET_T5W_AT301_V1
+
+config SYS_SOC
+	default "t5w"
+
+config SYS_BOARD
+	default "t5w_at301_v1"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "t5w_at301_v1"
+
+config BL30_SELECT
+	string "T5w BL30 board config"
+	default "t5w_at301"
+
+config AML_REBOOT
+	bool "reboot cmd"
+	default y
+	help
+	  support uboot reboot cmd:
+	  set reboot mode and reboot system
+endif

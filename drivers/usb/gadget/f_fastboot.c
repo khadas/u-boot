@@ -38,9 +38,13 @@
  * (64 or 512 or 1024), else we break on certain controllers like DWC3
  * that expect bulk OUT requests to be divisible by maxpacket size.
  */
+
 #ifndef CONFIG_USB_GADGET_CRG
 extern void f_dwc_otg_pullup(int is_on);
+#else
+extern int crg_gadget_stop(struct usb_gadget *g);
 #endif
+
 struct f_fastboot {
 	struct usb_function usb_function;
 
@@ -124,7 +128,7 @@ fb_ep_desc(struct usb_gadget *g, struct usb_endpoint_descriptor *fs,
 /*
  * static strings, in UTF-8
  */
-static const char fastboot_name[] = "Android Fastboot";
+static const char fastboot_name[] = "fastboot";
 
 static struct usb_string fastboot_string_defs[] = {
 	[0].s = fastboot_name,
@@ -401,7 +405,10 @@ static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 {
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
+#else
+	crg_gadget_stop(NULL);
 #endif
+
 	do_reset(NULL, 0, 0, NULL);
 }
 
@@ -409,6 +416,8 @@ static void compl_do_reboot_bootloader(struct usb_ep *ep, struct usb_request *re
 {
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
+#else
+	crg_gadget_stop(NULL);
 #endif
 	if (dynamic_partition)
 		run_command("reboot bootloader", 0);
@@ -420,10 +429,20 @@ static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
 {
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
+#else
+	crg_gadget_stop(NULL);
 #endif
+
 	run_command("reboot fastboot", 0);
 }
 
+static void compl_do_reboot_recovery(struct usb_ep *ep, struct usb_request *req)
+{
+#ifndef CONFIG_USB_GADGET_CRG
+	f_dwc_otg_pullup(0);
+#endif
+	run_command("reboot recovery", 0);
+}
 
 static unsigned int rx_bytes_expected(struct usb_ep *ep)
 {
@@ -554,9 +573,8 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		pr_err("buffer overflow");
 		fastboot_fail("buffer overflow", response);
 	}
-
 	if (!strncmp("DATA", response, 4)) {
-		if (cmd == 5) {
+		if (cmd == 11) {
 			printf("come to fetch code\n");
 			struct usb_ep *inep = fastboot_func->in_ep;
 			struct usb_request *inreq = fastboot_func->in_req;
@@ -604,6 +622,9 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		case FASTBOOT_COMMAND_REBOOT_FASTBOOT:
 			fastboot_func->in_req->complete = compl_do_reboot_fastboot;
 			break;
+		case FASTBOOT_COMMAND_REBOOT_RECOVERY:
+			fastboot_func->in_req->complete = compl_do_reboot_recovery;
+			break;
 		}
 	}
 
@@ -613,3 +634,4 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		usb_ep_queue(ep, req, 0);
 	}
 }
+

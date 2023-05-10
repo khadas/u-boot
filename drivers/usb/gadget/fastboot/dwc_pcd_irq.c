@@ -237,7 +237,7 @@ static void pcd_setup(pcd_struct_t *_pcd)
 
 	if ((ctrl.bRequestType & USB_TYPE_MASK) != USB_TYPE_STANDARD) {
 		/* handle non-standard (class/vendor) requests in the gadget driver */
-		printf("Vendor requset\n");
+		printf("Vendor request\n");
 		f_dwc_otg_ep_req_start(_pcd, 0, 1, req);
 		return;
 	}
@@ -501,7 +501,7 @@ static void handle_in_ep_timeout_intr(u32 _epnum)
 	pcd_struct_t *pcd = &gadget_wrapper.pcd;
 	dwc_ep_t * ep = &pcd->dwc_eps[_epnum].dwc_ep;
 
-	/* Disable the NP Tx Fifo Empty Interrrupt */
+	/* Disable the NP Tx Fifo Empty Interrupt */
 	intr_mask.b.nptxfempty = 1;
 	dwc_modify_reg32(DWC_REG_GINTMSK, intr_mask.d32, 0);
 
@@ -795,7 +795,7 @@ static void dwc_otg_pcd_handle_out_ep_intr(void)
 			if (doepint.b.ahberr) {
 				CLEAR_OUT_EP_INTR(epnum, ahberr);
 			}
-			/* Setup Phase Done (contorl EPs) */
+			/* Setup Phase Done (control EPs) */
 			if (doepint.b.setup) {
 #if (defined CONFIG_USB_DEVICE_V2)
 				handle_ep0();
@@ -854,7 +854,7 @@ static void dwc_otg_pcd_handle_in_ep_intr(void)
 
 			/* Transfer complete */
 			if (diepint.b.xfercompl) {
-				/* Disable the NP Tx FIFO Empty Interrrupt  */
+				/* Disable the NP Tx FIFO Empty Interrupt  */
 				intr_mask.b.nptxfempty = 1;
 				dwc_modify_reg32(DWC_REG_GINTMSK, intr_mask.d32, 0);
 				/* Clear the bit in DIEPINTn for this interrupt */

@@ -46,6 +46,7 @@
 #define AMLOGIC_CTR_COUNT		(0x1)
 #define MESON_CPU_MAJOR_ID_A5_TMPE 0xFF
 
+#ifdef CONFIG_DM_USB
 struct ctr_info {
 	struct phy usb_phys[4];
 	unsigned long phy_count;
@@ -128,7 +129,7 @@ void usb_aml_detect_operation(int argc, char * const argv[])
 	}
 
 }
-
+#endif
 
 static void usb_set_calibration_trim(uint32_t volatile *phy2_pll_base)
 {
@@ -161,6 +162,7 @@ void usb_reset(unsigned int reset_addr, int bit){
 	*(volatile unsigned int *)(unsigned long)reset_addr = (1 << bit);
 }
 
+#ifdef CONFIG_DM_USB
 static void usb_enable_phy_pll (u32 base_addr)
 {
 	if (base_addr == PHY_20_BASE) {
@@ -168,6 +170,7 @@ static void usb_enable_phy_pll (u32 base_addr)
 			RESETCTRL_RESET0_LEVEL |= (1 << PHY20_RESET_LEVEL_BIT);
 	}
 }
+#endif
 
 void set_usb_pll(uint32_t phy2_pll_base)
 {
@@ -202,6 +205,7 @@ void set_usb_pll(uint32_t phy2_pll_base)
 	debug("tuning_disconnect_threshold=0x%x\n", TUNING_DISCONNECT_THRESHOLD);
 }
 
+#ifdef CONFIG_DM_USB
 int usb_save_phy_dev (unsigned int number, struct phy *phy)
 {
 	int i;
@@ -270,6 +274,7 @@ int usb2_phy_init (struct phy *phy) {
 	return 0;
 
 }
+#endif
 
 int usb2_phy_tuning(uint32_t phy2_pll_base, int port)
 {

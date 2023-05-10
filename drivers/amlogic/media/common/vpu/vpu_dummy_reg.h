@@ -71,6 +71,16 @@
 #define VPU_VOUT_DTH_DATA                          ((0x0103  << 2) + 0xfe350000)
 #endif
 
+#ifndef VPU_VOUT_BLEND_DUMDATA_A4
+#define VPU_VOUT_BLEND_DUMDATA_A4                     ((0x0041  << 2) + 0xfe340000)
+#endif
+#ifndef VPP_VD1_MATRIX_OFFSET0_1_A4
+#define VPP_VD1_MATRIX_OFFSET0_1_A4                   ((0x0179  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_DTH_DATA_A4
+#define VPU_VOUT_DTH_DATA_A4                          ((0x0403  << 2) + 0xfe340000)
+#endif
+
 #ifndef VPU_RDARB_MODE_L2C1
 #define VPU_RDARB_MODE_L2C1                        ((0x279d  << 2) + 0xff000000)
 #endif
@@ -163,6 +173,10 @@
 #define CLKCTRL_VOUTENC_CLK_CTRL                   ((0x0046  << 2) + 0xfe000000)
 #endif
 
+#ifndef CLKCTRL_VOUTENC_CLK_CTRL_A4
+#define CLKCTRL_VOUTENC_CLK_CTRL_A4                 ((0x0081  << 2) + 0xfe000000)
+#endif
+
 #ifndef PWRCTRL_PWR_ACK0
 #define PWRCTRL_PWR_ACK0                           ((0x0000  << 2) + 0xfe00c000)
 #endif
@@ -213,6 +227,22 @@
 
 #ifndef CLKCTRL_VPU_CLKB_CTRL
 #define CLKCTRL_VPU_CLKB_CTRL 0
+#endif
+
+#ifndef HHI_VPU_CLK_CNTL
+#define HHI_VPU_CLK_CNTL 0
+#endif
+
+#ifndef HHI_VPU_CLKB_CTRL
+#define HHI_VPU_CLKB_CTRL 0
+#endif
+
+#ifndef HHI_VPU_CLK_CTRL
+#define HHI_VPU_CLK_CTRL 0
+#endif
+
+#ifndef HHI_VPU_CLKB_CNTL
+#define HHI_VPU_CLKB_CNTL                          (0xff63c000 + (0x083 << 2))
 #endif
 
 #endif

@@ -18,7 +18,7 @@
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
 
-/* SMP Definitinos */
+/* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 
 /* Serial config */
@@ -95,7 +95,8 @@
         "board=oppen\0"\
         "initargs="\
             "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 "\
+			"cma_first_wm_low=on "\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -103,7 +104,7 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
-			"setenv bootargs ${bootargs} ${emmc_quirks};"\
+			"setenv bootargs ${bootargs} ${emmc_quirks} kvm-arm.mode=none init_on_alloc=0;"\
             "run cmdline_keys;"\
 			"\0"\
 		"switch_bootmode="\
@@ -175,7 +176,6 @@
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
@@ -387,6 +387,9 @@
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
 #define CONFIG_FIP_IMG_SUPPORT  1
+
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED

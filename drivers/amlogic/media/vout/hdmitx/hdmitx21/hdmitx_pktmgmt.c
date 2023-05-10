@@ -79,7 +79,7 @@ void dump_infoframe_packets(void)
 	}
 }
 
-static int _tpi_infoframe_wrrd(u8 wr, u8 info_type, u8 *body)
+static int _tpi_infoframe_wrrd(u8 wr, u16 info_type, u8 *body)
 {
 	u8 sel;
 
@@ -103,6 +103,9 @@ static int _tpi_infoframe_wrrd(u8 wr, u8 info_type, u8 *body)
 		sel = 7;
 		tpi_packet_send(sel, body);
 		return 0;
+	case HDMI_INFOFRAME_TYPE_VENDOR2:
+		sel = 8;
+		break;
 	default:
 		pr_info("%s[%d] wrong info_type %d\n", __func__, __LINE__, info_type);
 		return -1;
@@ -121,7 +124,7 @@ static int _tpi_infoframe_wrrd(u8 wr, u8 info_type, u8 *body)
 	}
 }
 
-void hdmitx21_infoframe_send(u8 info_type, u8 *body)
+void hdmitx21_infoframe_send(u16 info_type, u8 *body)
 {
 	_tpi_infoframe_wrrd(1, info_type, body);
 }

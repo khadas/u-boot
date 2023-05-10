@@ -961,7 +961,7 @@
 // -----------------------------------------------
 // APB_BASE:  APB2_BASE_ADDR = 0xfe00ac00
 // -----------------------------------------------
-//AHB domain regsiter.
+//AHB domain register.
 #define SPIFC_AHB_CTRL                             ((0x0000  << 2) + 0xfe00ac00)
   //bit 31   AHB BUS enable.  1 enable ahb request.  0: disable ahb request.
   //bit 30.  decerr_en for (AXI->AHB bridge).
@@ -1216,9 +1216,9 @@
 #define SPIFC_AHB_STS                              ((0x0029  << 2) + 0xfe00ac00)
   //bit 31.  AHB IDLE.  when ahb disabled, to show ahb status. 1,  no more ahb request or ahb frequent is holded.  0, ahb is still busy.
   //bit 30.  AHB data cycle status, when ahb disabled, to show ahb data cycle status. 1, data cycle is holded,  0 : not in data cycle or data cycle is processing.
-  //bit 29.  AHB bus spi requst status. 1: still waiting for spi data. 0: idle.
+  //bit 29.  AHB bus spi request status. 1: still waiting for spi data. 0: idle.
   //bit 28:0.  not used.
-//SPI cts_spi_clk domain regsiter.
+//SPI cts_spi_clk domain register.
 #define SPIFC_USER_CTRL0                           ((0x0080  << 2) + 0xfe00ac00)
   //bit 31.    user request enable.  write 1 to enable.  read 0, means user command accepted by the SPI_CTRL.
   //bit 30.    user request finish bit.  write 0 when enable user request.  read  1 means SPI_CTRL finished this user command.
@@ -1288,7 +1288,7 @@
   //bit 7:0     tWHSL
 #define SPIFC_ACTIMING1                            ((0x0089  << 2) + 0xfe00ac00)
  //bit 31.  D2 pin WP_n function enable.
- //bit 30.  D2 Pin value in WP_n fucntion.
+ //bit 30.  D2 Pin value in WP_n function.
  //bit 29.  D3 Pin HOLD_n function enable.
  //bit 8.   DTR mode. not support.
  //bit 6:4. Clock turn around delay. use it to set the system SPI clock read data delay.
@@ -1369,7 +1369,7 @@
 //     bit[11:9] == 7 : NAND_EMMCC
 // Total 16 address regions can be defined in All DDR address space.
 // The first 15 region can be defined by start address and end address in 4Kbyte boundary. The 16th range is all other space not defined by the first 15 regions.
-// all the 15 regions can be enabled or disabled  seperately. Each range use security level bit to select one of the two des key to do data scramble.
+// all the 15 regions can be enabled or disabled  separately. Each range use security level bit to select one of the two des key to do data scramble.
 // The region can be overlapped or crossover.  For one transaction, DMC would check the address from region 0 to 15.
 // DMC would use the policy defined in the region that this transaction address hit first.
 // the region is define by  >= STA && <= EDA.
@@ -1463,7 +1463,7 @@
 #define DMC_SEC_RANGE14_EDA                        ((0x001d  << 2) + 0xfe025000)
   //bit 31:12   : range 0 end address.
   //bit 11:0    : reserved to be 0.
-//there's total 36 bit sid_en policies for each region read/write seperately.
+//there's total 36 bit sid_en policies for each region read/write separately.
 //*_sid_en[35:0]
 //bit 35: dmc_test access enable bit. 1: enable : 0 disable.
 //bit 34: i2c  access enable bit. 1: enable : 0 disable.
@@ -1672,7 +1672,7 @@
   //32bits address padding used for DES data generation.
 #define DMC_DES_CTRL                               ((0x00a2  << 2) + 0xfe025000)
  //bit 1   DES enable.  1: DES enable. 0 : DES disable.  default is 1.
- //bit 0.  DES register mask. if write 1 only. after write 1, DES_CTRL and DES_padding regsiter can't be write and read.
+ //bit 0.  DES register mask. if write 1 only. after write 1, DES_CTRL and DES_padding register can't be write and read.
 // two address protection function for debug purpose.
 // protected address[31:12] >= STA && <= EDA,
 #define DMC_PROT0_STA                              ((0x00a3  << 2) + 0xfe025000)
@@ -1842,14 +1842,14 @@
      //others :  reserved.
 #define DDR_APB_SEC_CTRL                           ((0x00db  << 2) + 0xfe025000)
   //bit 19:16.  DMC normal APB register secure control.
-    //bit 19:  1:  all can write those register.  0:  the APB_PROT[0] must match the bit 0 to write those regsiter.
-    //Bit15:12.   DMC sticky APB regsiter secure control.
+    //bit 19:  1:  all can write those register.  0:  the APB_PROT[0] must match the bit 0 to write those register.
+    //Bit15:12.   DMC sticky APB register secure control.
     //bit 15.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 12 to write those register.
-    //bit 11:8.   DMC DDR PLL clock related  APB regsiter secure control.
+    //bit 11:8.   DMC DDR PLL clock related  APB register secure control.
     //bit 11.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 8 to write those register.
-    //Bit 7:4.   DMC DDR SDRAM protocal contorl register contorl
+    //Bit 7:4.   DMC DDR SDRAM protocal control register control
     //bit 11.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 4 to write those register.
-    //bit 3:0.   LPDDR4 PHY APB regsiter secure control.
+    //bit 3:0.   LPDDR4 PHY APB register secure control.
     //bit 3.  1: All APB bus can write those registers. 0: The APB_PROT[0] must match the bit 0 to write those register.
 //`endif
 //
@@ -1906,37 +1906,37 @@
 #define DMC_TEST_NUM                               ((0x0007  << 2) + 0xfe025400)
    // how many test command for the test if the DMC_TEST_CTRL bit 24 is 0.
 #define DMC_TEST_WD0                               ((0x0010  << 2) + 0xfe025400)
-   // write data 0 for write command. also for read back data comparision.
+   // write data 0 for write command. also for read back data comparison.
 #define DMC_TEST_WD1                               ((0x0011  << 2) + 0xfe025400)
-   // write data 1 for write command. also for read back data comparision.
+   // write data 1 for write command. also for read back data comparison.
 #define DMC_TEST_WD2                               ((0x0012  << 2) + 0xfe025400)
-   // write data 2 for write command. also for read back data comparision.
+   // write data 2 for write command. also for read back data comparison.
 #define DMC_TEST_WD3                               ((0x0013  << 2) + 0xfe025400)
-   // write data 3 for write command. also for read back data comparision.
+   // write data 3 for write command. also for read back data comparison.
 #define DMC_TEST_WD4                               ((0x0014  << 2) + 0xfe025400)
-   // write data 4 for write command. also for read back data comparision.
+   // write data 4 for write command. also for read back data comparison.
 #define DMC_TEST_WD5                               ((0x0015  << 2) + 0xfe025400)
-   // write data 5 for write command. also for read back data comparision.
+   // write data 5 for write command. also for read back data comparison.
 #define DMC_TEST_WD6                               ((0x0016  << 2) + 0xfe025400)
-   // write data 6 for write command. also for read back data comparision.
+   // write data 6 for write command. also for read back data comparison.
 #define DMC_TEST_WD7                               ((0x0017  << 2) + 0xfe025400)
-   // write data 7 for write command. also for read back data comparision.
+   // write data 7 for write command. also for read back data comparison.
 #define DMC_TEST_WD8                               ((0x0018  << 2) + 0xfe025400)
-   // write data 8 for write command. also for read back data comparision.
+   // write data 8 for write command. also for read back data comparison.
 #define DMC_TEST_WD9                               ((0x0019  << 2) + 0xfe025400)
-   // write data 9 for write command. also for read back data comparision.
+   // write data 9 for write command. also for read back data comparison.
 #define DMC_TEST_WD10                              ((0x001a  << 2) + 0xfe025400)
-   // write data 10 for write command. also for read back data comparision.
+   // write data 10 for write command. also for read back data comparison.
 #define DMC_TEST_WD11                              ((0x001b  << 2) + 0xfe025400)
-   // write data 11 for write command. also for read back data comparision.
+   // write data 11 for write command. also for read back data comparison.
 #define DMC_TEST_WD12                              ((0x001c  << 2) + 0xfe025400)
-   // write data 12 for write command. also for read back data comparision.
+   // write data 12 for write command. also for read back data comparison.
 #define DMC_TEST_WD13                              ((0x001d  << 2) + 0xfe025400)
-   // write data 13 for write command. also for read back data comparision.
+   // write data 13 for write command. also for read back data comparison.
 #define DMC_TEST_WD14                              ((0x001e  << 2) + 0xfe025400)
-   // write data 14 for write command. also for read back data comparision.
+   // write data 14 for write command. also for read back data comparison.
 #define DMC_TEST_WD15                              ((0x001f  << 2) + 0xfe025400)
-   // write data 15 for write command. also for read back data comparision.
+   // write data 15 for write command. also for read back data comparison.
 #define DMC_TEST_RD0                               ((0x0020  << 2) + 0xfe025400)
    // the read back data 0.  if error happens, it would capture the first error data.
 #define DMC_TEST_RD1                               ((0x0021  << 2) + 0xfe025400)
@@ -2195,12 +2195,12 @@
   //bit 10  force to disable the clock of dfi command generation
   //bit 9   force to disable the clock of dram controller
   //bit 8   force to disable the clock of dfi data path.
-  //bit 7. force to disalbe the clock of write rsp generation.
-  //bit 6. force to disalbe the clock of read rsp generation.
-  //bit 5.  force to disalbe the clock of  command filter.
-  //bit 4.  force to disalbe the clock of  write reorder buffer.
-  //bit 3.  force to disalbe the clock of write data buffer.
-  //bit 2.  force to disalbe the clock of read reorder buffer.
+  //bit 7. force to disable the clock of write rsp generation.
+  //bit 6. force to disable the clock of read rsp generation.
+  //bit 5.  force to disable the clock of  command filter.
+  //bit 4.  force to disable the clock of  write reorder buffer.
+  //bit 3.  force to disable the clock of write data buffer.
+  //bit 2.  force to disable the clock of read reorder buffer.
   //bit 1.  reserved.
   //bit 0.  reserved.
 #define DMC_CHAN_STS                               ((0x0036  << 2) + 0xfe024000)
@@ -2362,7 +2362,7 @@
 #define DMC_DRAM_DFITPHYRDLAT                      ((0x0022  << 2) + 0xfe024400)
   //bit 5:0.  dfi_t_rdlat.
 #define DMC_DRAM_DFITCTRLUPDMIN                    ((0x0023  << 2) + 0xfe024400)
-  //bit 7:0.  CTRLUPD_MIN  minimux clock cycle to maintain CTRLUPD_REQ.
+  //bit 7:0.  CTRLUPD_MIN  minimum clock cycle to maintain CTRLUPD_REQ.
 #define DMC_DRAM_DFITCTRLUPDMAX                    ((0x0024  << 2) + 0xfe024400)
   //bit 7:0   CTRLUPD_MAX.  maxmum clock cycle to maintain CTRLUPD_REQ if no CTRLUPD_ACK response.
 #define DMC_DRAM_DFITMSTRRESP                      ((0x0025  << 2) + 0xfe024400)
@@ -2490,7 +2490,7 @@
  //bit 10    1: enable staggered chip select for 2 ranks DRAM.
  //bit 9     1: enable send auto refresh command to DDR SDRAM when PCTL is in CFG/STOP state.
  //bit 8     send auto refr cmd before enter register triggered  self refresh
- //bit 7     send auto refr cmd after exit regsiter triggered self refresh mode.
+ //bit 7     send auto refr cmd after exit register triggered self refresh mode.
  //bit 6     disable dram clock after enter register triggered self refresh.
  //bit 5     send DFI_LP_REQ to PHY after enter register triggered elf refresh mode.
  //bit 4     send DRAM to power down mode after enter self refresh. ONLY for LPDDR4.
@@ -2627,7 +2627,7 @@
   //bit 25:24 : retraining dfi_freq[4:3], the [2:0] bit still use the dfi_freq bits to keep the frequency.
   //bit 23:0: retraining period unit : 100ns.
 #define DMC_DFI_ERR_STAT                           ((0x0098  << 2) + 0xfe024400)
- //LPDDR4 PHY DFI error infomation.
+ //LPDDR4 PHY DFI error information.
  //bit 31:20. not used.
  //bit 9.    ddr0_dfi_error
  //bit 8:5   ddr0_dfi_error_info.
@@ -4689,7 +4689,7 @@
 #define HCODEC_MFDIN_REG6_DCFG                     ((0x000e  << 2) + 0xfe064000)
 //cfg_soft_cmd = mfdin_reg7_scmd; // Soft Command [28]selfcleared start,[27:14]dmb_x,[13:0]dmb_y
 #define HCODEC_MFDIN_REG7_SCMD                     ((0x000f  << 2) + 0xfe064000)
-//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the begining of last dmb in the picture, picture x size
+//cfg_pic_xsize = mfdin_reg8_dmbl[23:12]; //pixel (x,y) at the beginning of last dmb in the picture, picture x size
 //cfg_pic_ysize = mfdin_reg8_dmbl[11:0];  //picture y size
 #define HCODEC_MFDIN_REG8_DMBL                     ((0x0010  << 2) + 0xfe064000)
 //cfg_endian = mfdin_reg9_endn; //Endian Control
@@ -5129,7 +5129,7 @@
 // bit[8]     p_top_left_mix
 // bit[7]     mv_cal_mixed_type
 // bit[6]     mc_hcmd_mixed_type
-// bit[5]     use_seperate_int_control
+// bit[5]     use_separate_int_control
 // bit[4]     hcmd_intra_use_q_info
 // bit[3]     hcmd_left_use_prev_info
 // bit[2]     hcmd_use_q_info
@@ -5141,7 +5141,7 @@
 //15:8  - hcmd_mb_y_auto
 // 7:0  - hcmd_mb_x_auto
 #define VLC_HCMD_MBXY_AUTO                         ((0x0026  << 2) + 0xfe067400)
-// bit[31:0] vlc_int_control_inter -- will be used when use_seperate_int_control is set
+// bit[31:0] vlc_int_control_inter -- will be used when use_separate_int_control is set
 #define VLC_INT_CONTROL_INTER                      ((0x002f  << 2) + 0xfe067400)
 // --------------------------------------------
 // Picture VLC

@@ -248,7 +248,7 @@ static int nand_write(struct amlnand_phydev *phydev)
 
 #ifndef AML_NAND_UBOOT
 	if (phydev->option & NAND_SHUT_DOWN) {
-		aml_nand_msg("nand is in shut dowm protect mod");
+		aml_nand_msg("nand is in shut down protect mode");
 		return NAND_SUCCESS;
 	}
 #endif
@@ -354,7 +354,7 @@ int nand_erase(struct amlnand_phydev *phydev)
 	}
 
 	if (phydev->option & NAND_SHUT_DOWN) {
-		aml_nand_msg("nand is in shut dowm protect mod");
+		aml_nand_msg("nand is in shut down protect mod");
 		return NAND_SUCCESS;
 	}
 
@@ -418,7 +418,7 @@ static int nand_block_isbad(struct amlnand_phydev *phydev)
 	}
 #ifndef AML_NAND_UBOOT
 	if (phydev->option & NAND_SHUT_DOWN) {
-		aml_nand_msg("nand is in shut dowm protect mod");
+		aml_nand_msg("nand is in shut down protect mod");
 		return NAND_SUCCESS;
 	}
 #endif
@@ -470,7 +470,7 @@ static int nand_block_markbad(struct amlnand_phydev *phydev)
 	}
 #ifndef AML_NAND_UBOOT
 	if (phydev->option & NAND_SHUT_DOWN) {
-		aml_nand_msg("nand is in shut dowm protect mod");
+		aml_nand_msg("nand is in shut down protect mod");
 		return NAND_SUCCESS;
 	}
 #endif
@@ -617,7 +617,7 @@ static int nand_test_block(struct amlnand_phydev *phydev)
 	}
 
 	if (phydev->option & NAND_SHUT_DOWN) {
-		aml_nand_msg("nand is in shut dowm protect mod");
+		ml_nand_msg("nand is in shut down protect mod");
 		return NAND_SUCCESS;
 	}
 
@@ -1381,7 +1381,7 @@ int amlnand_phydev_init(struct amlnand_chip *aml_chip)
 	chip_size = (flash->chipsize*chip_num);
 	chip_size = chip_size << 20;
 	if (config->dev_num == 0) {
-		aml_nand_msg("config get unvalid: config->dev_num =%d",
+		aml_nand_msg("config get invalid: config->dev_num =%d",
 			config->dev_num);
 		ret = -NAND_FAILED;
 		goto exit_error0;

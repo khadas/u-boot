@@ -89,7 +89,7 @@ static int do_dspset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	uint32_t powerflag;
 	int ret=0;
 	if (argc <= 1) {
-		printf("plese input dsp boot args:id, addrss, clk!\n");
+		printf("plese input dsp boot args:id, address, clk!\n");
 		return CMD_RET_USAGE;
 	}
 	dspid = simple_strtoul(argv[1], NULL, 16);

@@ -27,7 +27,7 @@ const char *symbol_lookup(unsigned long addr, unsigned long *caddr, unsigned lon
 {
 	const char *sym, *csym;
 	unsigned long sym_addr;
-	char sym_addr_tmp[16] = {0};
+	char sym_addr_tmp[17] = {0};	/* 17 bytes to avoid overflow */
 	unsigned long text_start;
 	unsigned long text_end;
 

@@ -286,6 +286,14 @@
 #define OSD_PI_BYPASS_EN                           0x6076
 #endif
 
+#ifndef VPP_RDARB_MODE
+#define VPP_RDARB_MODE                             0x3978
+#endif
+
+#ifndef VPU_RDARB_MODE_L2C1
+#define VPU_RDARB_MODE_L2C1                        0x279d
+#endif
+
 #define UBOOT_INFO_FLAG                VIU_OSD1_TCOLOR_AG1
 
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))

@@ -13,7 +13,8 @@
 #include <dm/device.h>
 
 extern void mtd_store_mount_ops(struct storage_t* store);
-struct aml_pre_scan *pre_scan;
+static struct aml_pre_scan nand_pre_scan;
+struct aml_pre_scan *pre_scan = &nand_pre_scan;
 
 int nand_pre(void)
 {
@@ -23,6 +24,7 @@ int nand_pre(void)
 	board_nand_init();
 	ret = (pre_scan->is_nand)? 0:1;
 	pre_scan->pre_scan_flag = 0;
+
 	return ret;
 }
 
@@ -68,7 +70,6 @@ extern int meson_nfc_probe(struct udevice *dev);
 struct udevice *nand_dev;
 int nand_probe(uint32_t init_flag)
 {
-
 	meson_nfc_probe(nand_dev);
 
 	return 0;

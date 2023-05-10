@@ -76,7 +76,17 @@ ENTRY(_main)
 	adr	x0, __bss_start
 	add	x0, x0, #CONFIG_SYS_INIT_SP_BSS_OFFSET
 #else
-	ldr	x0, =(CONFIG_SYS_INIT_SP_ADDR)
+	ldr	x0,	=(CONFIG_SYS_TEXT_BASE)
+	ldr	x1,	_bss_end_ofs
+	add	x0,	x0,	x1
+	add	x0,	x0,	#GD_SIZE
+	add	x0,	x0,	#0x100000
+#endif
+#ifdef CONFIG_AML_UASAN
+	/* add 4mb more to avoid stack overlap with uboot code sice uasan
+	 * code will larger than normal build
+	 */
+	add	x0, x0, #0x400000
 #endif
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */
 	mov	x0, sp

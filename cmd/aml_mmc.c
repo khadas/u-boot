@@ -60,13 +60,8 @@ static struct aml_dtb_info dtb_infos = {{0, 0}, {0, 0}};
 /* max 2MB for emmc in blks */
 #define UBOOT_SIZE  (0x1000)
 
-
-extern int mmc_key_write(unsigned char *buf, unsigned int size, uint32_t *actual_lenth);
-extern int mmc_key_read(unsigned char *buf, unsigned int size, uint32_t *actual_lenth);
-
 /* move this out to storage */
 //int info_disprotect = 0;
-
 
 int mmc_read_status(struct mmc *mmc, int timeout)
 {
@@ -207,7 +202,9 @@ int amlmmc_erase_bootloader(int dev, int map)
 	int blk_shift;
 	unsigned long n;
 	char *partname[3] = {"user", "boot0", "boot1"};
+#if !defined(CONFIG_ZIRCON_GPT)
 	cpu_id_t cpu_id = get_cpu_id();
+#endif
 	struct mmc *mmc = find_mmc_device(dev);
 
 	/* do nothing */
@@ -233,13 +230,19 @@ int amlmmc_erase_bootloader(int dev, int map)
 				ret = -3;
 			goto _out;
 	}
+#if defined(CONFIG_ZIRCON_GPT)
+	/* erase bootloader boot0/boot1 */
+	for (i = 1; i < count; i++) {
+#else
 	/* erase bootloader in user/boot0/boot1 */
 	for (i = 0; i < count; i++) {
+#endif
 		if (map & (0x1 << i)) {
 			if (!blk_select_hwpart_devnum(IF_TYPE_MMC, 1, i)) {
 				lbaint_t start = 0, blkcnt;
 
 				blkcnt = mmc->capacity >> blk_shift;
+#if !defined(CONFIG_ZIRCON_GPT)
 				if (0 == i) {
 					struct partitions *part_info;
 					/* get info by partition */
@@ -257,6 +260,7 @@ int amlmmc_erase_bootloader(int dev, int map)
 						}
 					}
 				}
+#endif
 /* some customer may use boot1 higher 2M as private data. */
 #ifdef CONFIG_EMMC_BOOT1_TOUCH_REGION
 				if (2 == i && CONFIG_EMMC_BOOT1_TOUCH_REGION <= mmc->capacity) {
@@ -264,8 +268,10 @@ int amlmmc_erase_bootloader(int dev, int map)
 				}
 #endif/* CONFIG_EMMC_BOOT1_TOUCH_REGION */
 
+#if !defined(CONFIG_ZIRCON_GPT)
 				if (i == 0 && (aml_gpt_valid(mmc) == 0))
 					continue;
+#endif
 
 				printf("Erasing blocks " LBAFU " to " LBAFU " @ %s\n",
 				   start, blkcnt, partname[i]);
@@ -323,8 +329,13 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 		start = GXL_START_BLK;
 	blkcnt = (size + mmc->read_bl_len - 1) / mmc->read_bl_len;
 
+#if defined(CONFIG_ZIRCON_GPT)
+	/* erase bootloader boot0/boot1 */
+	for (i = 1; i < count; i++) {
+#else
 	/* erase bootloader in user/boot0/boot1 */
 	for (i = 0; i < count; i++) {
+#endif
 		if (map & (0x1 << i)) {
 			if (!blk_select_hwpart_devnum(IF_TYPE_MMC, 1, i)) {
 /* some customer may use boot1 higher 2M as private data. */
@@ -335,8 +346,10 @@ int amlmmc_write_bootloader(int dev, int map, unsigned int size, const void *src
 					break;
 				}
 #endif /* CONFIG_EMMC_BOOT1_TOUCH_REGION */
+#if !defined(CONFIG_ZIRCON_GPT)
 				if (i == 0 && (aml_gpt_valid(mmc) == 0))
 					continue;
+#endif
 
 				printf("Writing blocks " LBAFU " to " LBAFU " @ %s\n",
 				   start, blkcnt, partname[i]);
@@ -1610,7 +1623,7 @@ static int set_register_to_pwr(struct mmc *mmc, u8 *ext_csd)
 
 	err = mmc_set_us_perm_wp_dis(mmc, ext_csd);
 	if (err) {
-		printf("Failed: set permanent protection diable failed\n");
+		printf("Failed: set permanent protection disable failed\n");
 		return 1;
 	}
 
@@ -1735,7 +1748,7 @@ static int compute_write_protect_range(struct mmc *mmc, char *name,
 	if (partition_end != *end) {
 		printf("Caution! The boundary of partition isn't aligned with write "
 				"protected group,\n"
-				"so the write protected boundry of the "
+				"so the write protected boundary of the "
 				"partition is 0x%llx, rather than 0x%llx\n",
 				*end, partition_end);
 	}
@@ -2892,7 +2905,7 @@ U_BOOT_CMD(
 	"amlmmc erase <partition_name> addr_byte# cnt_byte\n"
 	"amlmmc erase <partition_name>/<device num>\n"
 	"amlmmc rescan <device_num>\n"
-	"amlmmc part <device_num> - show partition infomation of mmc\n"
+	"amlmmc part <device_num> - show partition information of mmc\n"
 	"amlmmc list - lists available devices\n"
 	"amlmmc env -  display env partition offset\n"
 	"amlmmc switch <device_num> <part name> - part name : boot0, boot1, user\n"
@@ -3645,7 +3658,7 @@ int do_emmc_key_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret = 0;
 	void *addr = NULL;
 	u64 size;
-	uint32_t actual_lenth = 0;
+	uint32_t actual_length = 0;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -3654,7 +3667,7 @@ int do_emmc_key_read(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	size = simple_strtoull(argv[3], NULL, 16);
 	printf("enter emmc key read !!\n");
 	printf("addr:%p   size:%llx\n",addr,size);
-	ret = mmc_key_read(addr, size,&actual_lenth);
+	ret = mmc_key_read(addr, size, &actual_length);
 	printf("ret:%d\n",ret);
 	return ret;
 }
@@ -3664,14 +3677,14 @@ int do_emmc_key_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret = 0;
 	void *addr = NULL;
 	u64 size;
-	uint32_t *actual_lenth=0;
+	uint32_t *actual_length = 0;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
 	addr = (void *)simple_strtoul(argv[2], NULL, 16);
 	size = simple_strtoull(argv[3], NULL, 16);
-	ret = mmc_key_write(addr, size,actual_lenth);
+	ret = mmc_key_write(addr, size, actual_length);
 	return ret;
 
 

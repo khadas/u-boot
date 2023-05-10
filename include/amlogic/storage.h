@@ -16,7 +16,7 @@
 /* storage plat data */
 #include <asm/arch/storage.h>
 
-#define RSV_UNVAIL	140	/* rsv unvail error */
+#define RSV_INVALID	140	/* rsv invalid error */
 
 #define DISPROTECT_KEY			BIT(0)
 #define DISPROTECT_SECURE		BIT(1)
@@ -24,6 +24,8 @@
 #define DISPROTECT_HYNIX		BIT(3)
 
 #define PART_PROTECT_FLAG		BIT(4)
+
+
 enum boot_type_e {
 	BOOT_EMMC = 1,
 	BOOT_SD = 1 << 1,
@@ -38,7 +40,7 @@ enum boot_type_e {
 #define RSV_ENV "env"
 #define RSV_DTB "dtb"
 #define RSV_BBT "bbt"
-#define RSV_DDR_PARA "ddr_para"
+#define RSV_DDR_PARA "ddr-parameter"
 
 struct nand_startup_parameter {
 	int page_size;
@@ -91,7 +93,7 @@ union storage_independent_parameter {
 struct storage_startup_parameter {
 	uint8_t boot_device;
 	uint8_t	boot_seq;
-	uint8_t	boot_bakups;
+	uint8_t	boot_backups;
 	uint8_t reserved;
 	struct storage_boot_entry boot_entry[MAX_BOOT_AREA_ENTRIES];
 	union storage_independent_parameter sip;
@@ -135,6 +137,7 @@ struct storage_t {
 	int (*gpt_read)(void *dest);
 	int (*gpt_write)(void *source);
 	int (*gpt_erase)(void);
+	int (*boot_copy_enable)(int index);
 	u32 (*get_rsv_size)(const char *rsv_name);
 	int (*read_rsv)(const char *rsv_name, size_t size, void *buf);
 	int (*write_rsv)(const char *rsv_name, size_t size, void *buf);
@@ -482,5 +485,6 @@ void sheader_load(void *addr);
 int store_gpt_read(void *buf);
 int store_gpt_write(void *buf);
 int store_gpt_erase(void);
+int store_boot_copy_enable(int index);
 
 #endif/* __STORAGE_H__ */

@@ -498,7 +498,7 @@ U_BOOT_CMD(
    0,               //repeatable
    do_ini_parser,   //command function
    "Burning a partition from sdmmc ",           //description
-   "Usage: sdc_update partiton image_file_path fileFmt(android sparse, other normal) [,verify_file]\n"   //usage
+   "Usage: sdc_update partition image_file_path fileFmt(android sparse, other normal) [,verify_file]\n"   //usage
 );
 #endif//#if MYDBG
 

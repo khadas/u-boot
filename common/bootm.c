@@ -45,8 +45,14 @@
 
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
 
-#if defined(CONFIG_MDUMP_COMPRESS) || defined(CONFIG_SUPPORT_BL33Z)
+#if defined(CONFIG_MDUMP_COMPRESS) || \
+	((defined CONFIG_SUPPORT_BL33Z) && \
+	(defined CONFIG_FULL_RAMDUMP))
 #include <ramdump.h>
+#endif
+
+#ifdef CONFIG_MODIFY_INITRD_HIGH
+#include <asm/arch/cpu.h>
 #endif
 
 #ifndef USE_HOSTCC
@@ -174,6 +180,9 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
+		#ifdef CONFIG_MODIFY_INITRD_HIGH
+		env_set("initrd_high", "0D000000");
+		#endif
 		if (image_get_magic((image_header_t *)images.os.image_start) == IH_MAGIC) {
 			#ifdef CONFIG_INITRD_HIGH_ADDR
 			env_set("initrd_high", CONFIG_INITRD_HIGH_ADDR);
@@ -323,7 +332,7 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 	images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
 	images.ft_len = fdt_get_header(dtb_mem_addr, totalsize);
 #endif /* CONFIG_DTB_MEM_ADDR */
-	pr_info("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
+	printf("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
 #ifdef CONFIG_MULTI_DTB
 	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 	/* update dtb address, compatible with single dtb and multi dtbs */
@@ -337,7 +346,7 @@ int bootm_find_images(int flag, int argc, char * const argv[])
 		images.ft_addr = ft_addr_bak;
 		images.ft_len = ft_len_bak;
 
-		pr_info("load dtb from 0x%lx ......\n",
+		printf("load dtb from 0x%lx ......\n",
 			(unsigned long)(images.ft_addr));
 #ifdef CONFIG_MULTI_DTB
 		extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
@@ -406,7 +415,7 @@ static void print_decomp_msg(int comp_type, int type, bool is_xip)
 
 	if (comp_type == IH_COMP_NONE)
 #ifndef USE_HOSTCC
-		pr_info("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
+		printf("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
 #else
 		printf("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
 #endif
@@ -579,7 +588,7 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 
 	flush_cache(flush_start, ALIGN(flush_len, ARCH_DMA_MINALIGN));
 
-	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
+	printf("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);
 
 	no_overlap = (os.comp == IH_COMP_NONE && load == image_start);
@@ -761,7 +770,9 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (!ret && (states & BOOTM_STATE_FINDOTHER))
 		ret = bootm_find_other(cmdtp, flag, argc, argv);
 
-#if defined(CONFIG_MDUMP_COMPRESS) || defined(CONFIG_SUPPORT_BL33Z)
+#if defined(CONFIG_MDUMP_COMPRESS) || \
+	((defined CONFIG_SUPPORT_BL33Z) && \
+	(defined CONFIG_FULL_RAMDUMP))
 	check_ramdump();
 #endif
 
@@ -842,7 +853,6 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		bootstage_error(BOOTSTAGE_ID_CHECK_BOOT_OS);
 		return 1;
 	}
-
 
 	/* Call various other states that are not generally used */
 	if (!ret && (states & BOOTM_STATE_OS_CMDLINE))

@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#define TE_TIMER	P_ISA_TIMERE
+#define TE_TIMER	REG_MDUMP_ISA_TIMERE
 
 /**
  * Get the current timestamp from the system timer.

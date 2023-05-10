@@ -106,6 +106,10 @@ void board_init_f_init_reserve(ulong base)
 	 */
 
 	gd_ptr = (struct global_data *)base;
+#ifdef CONFIG_ARM64
+	/* clear flags before memset use it */
+	gd_ptr->flags = 0;
+#endif
 	/* zero the area */
 	memset(gd_ptr, '\0', sizeof(*gd));
 	/* set GD unless architecture did it already */

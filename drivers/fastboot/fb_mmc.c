@@ -474,7 +474,8 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 
 	if (strcmp(cmd, "dtb") == 0) {
 #ifndef DTB_BIND_KERNEL
-		erase_gpt_part_table(dev_desc);
+		if (gpt_partition)
+			erase_gpt_part_table(dev_desc);
 		ret = dtb_write(download_buffer);
 		if (ret)
 			fastboot_fail("fastboot write dtb fail", response);
@@ -490,7 +491,9 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 #else
 	fastboot_fail("dtb is bind in kernel, return", response);
 #endif
-	} else if (!strncmp(cmd, "bootloader", strlen("bootloader"))) {
+	} else if (strcmp(cmd, "bootloader") == 0 ||
+		strcmp(cmd, "bootloader-boot0") == 0 ||
+		strcmp(cmd, "bootloader-boot1") == 0) {
 		fb_mmc_write_bootloader(cmd, dev_desc, download_buffer,
 					download_bytes, response);
 		return;

@@ -269,8 +269,17 @@ void	pci_init_board(void);
 /* common/exports.c */
 void	jumptable_init(void);
 
+#ifdef CONFIG_KALLSYMS
 /* common/kallsysm.c */
 const char *symbol_lookup(unsigned long addr, unsigned long *caddr, unsigned long *naddr);
+#else
+static inline const char *symbol_lookup(unsigned long addr,
+					unsigned long *caddr,
+					unsigned long *naddr)
+{
+	return NULL;
+}
+#endif
 
 /* arch/arm/lib/stacktrace_64.c */
 void stack_dump(void);
@@ -596,6 +605,10 @@ int cpu_release(u32 nr, int argc, char * const argv[]);
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY
 # include <environment.h>
+#endif
+
+#ifdef CONFIG_AML_UASAN
+#include <amlogic/uasan.h>
 #endif
 
 #endif	/* __COMMON_H_ */

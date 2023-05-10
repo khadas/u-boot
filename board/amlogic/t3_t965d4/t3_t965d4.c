@@ -135,7 +135,6 @@ int board_init(void)
 {
 	printf("board init\n");
 
-	get_stick_reboot_flag();
 	/* The non-secure watchdog is enabled in BL2 TEE, disable it */
 	run_command("watchdog off", 0);
 	printf("watchdog disable\n");
@@ -170,6 +169,8 @@ int board_late_init(void)
 
 	printf("board late init\n");
 
+	get_stick_reboot_flag();
+
 	/* ****************************************************
 	 * 1.setup bootup resource
 	 * ****************************************************
@@ -182,6 +183,7 @@ int board_late_init(void)
 
 	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
 			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+	run_command("run bcb_cmd", 0);
 	board_init_mem();
 
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
@@ -284,14 +286,10 @@ phys_size_t get_effective_memsize(void)
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
 	return (ddr_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & ~0xfffffUL) << 4;
-	if (ddr_size >= 0xe0000000)
-		ddr_size = 0xe0000000;
-	return ddr_size
+	return ddr_size;
 #endif /* CONFIG_SYS_MEM_TOP_HIDE */
 
 }
@@ -505,19 +503,19 @@ int checkhw(char * name)
         else {
                 switch (ddr_size)
                 {
-                        case 0x80000000:
+			case 0x80000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar321-2g\0");
                                 break;
-                        case 0xc0000000:
+			case 0xc0000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar331-3g\0");
                                 break;
-                        case 0xe0000000:
+			case 0x100000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar331-4g\0");
                                 break;
-                        case 0x200000000:
+			case 0x200000000UL:
                                 strcpy(loc_name, "t3_t965d4_ar331-8g\0");
                                 break;
-                        default:
+			default:
                                 strcpy(loc_name, "t3_t965d4_unsupport");
                                 break;
                 }

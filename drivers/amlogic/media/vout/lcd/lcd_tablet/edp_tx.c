@@ -292,7 +292,7 @@ static int dptx_edid_valid_check(unsigned char *edid_buf)
 	return 0;
 }
 
-static void dptx_edid_parase(unsigned char *edid_buf, struct dptx_edid_s *edp_edid)
+static void dptx_edid_parse(unsigned char *edid_buf, struct dptx_edid_s *edp_edid)
 {
 	struct dptx_edid_range_limit_s *range;
 	struct dptx_edid_timing_s *timing;
@@ -491,7 +491,7 @@ dptx_edid_dump_retry:
 		free(str);
 	}
 
-	dptx_edid_parase(edid_buf, &edp_edid);
+	dptx_edid_parse(edid_buf, &edp_edid);
 	dptx_edid_print(&edp_edid);
 
 	free(edid_buf);
@@ -559,7 +559,7 @@ dptx_edid_timing_probe_retry:
 	if ((edp_cfg->edid_state & EDP_EDID_STATE_APPLY) == 0) {
 		if (edp_cfg->edid_retry_cnt++ > EDP_EDID_RETRY_MAX)
 			return -1;
-		dptx_edid_parase(edid_buf, &edp_edid);
+		dptx_edid_parse(edid_buf, &edp_edid);
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 			dptx_edid_print(&edp_edid);
 		edp_edid_timing_update(pdrv, &edp_edid);
@@ -707,7 +707,8 @@ static void dptx_set_msa(int index, struct lcd_config_s *pconf)
 	dptx_reg_write(index, EDP_TX_MAIN_STREAM_MISC1, 0x00000000);
 	dptx_reg_write(index, EDP_TX_MAIN_STREAM_M_VID, m_vid); //unit: 1kHz
 	dptx_reg_write(index, EDP_TX_MAIN_STREAM_N_VID, n_vid); //unit: 10kHz
-	dptx_reg_write(index, EDP_TX_MAIN_STREAM_TRANSFER_UNIT_SIZE, 32);
+	dptx_reg_write(index, EDP_TX_MAIN_STREAM_TRANSFER_UNIT_SIZE, 48);
+		/*Temporary change to 48 */
 	dptx_reg_write(index, EDP_TX_MAIN_STREAM_DATA_COUNT_PER_LANE, data_per_lane);
 	dptx_reg_write(index, EDP_TX_MAIN_STREAM_USER_PIXEL_WIDTH, ppc);
 }

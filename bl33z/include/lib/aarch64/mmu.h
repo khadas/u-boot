@@ -20,7 +20,7 @@ typedef unsigned long long u64;
 
 /***************************************************************/
 /*
- * The following definitions are related each other, shoud be calculated specifically.
+ * The following definitions are related each other, should be calculated specifically.
  */
 #define VA_BITS			(42)	/* 36 bits virtual address == 64G*/
 
@@ -118,7 +118,7 @@ typedef unsigned long long u64;
 #define CR_C		BIT(2)	/* Dcache enable		*/
 #define CR_SA		BIT(3)	/* Stack Alignment Check Enable	*/
 #define CR_I		BIT(12)	/* Icache enable		*/
-#define CR_WXN		BIT(19)	/* Write Permision Imply XN	*/
+#define CR_WXN		BIT(19)	/* Write Permission Imply XN	*/
 #define CR_EE		BIT(25)	/* Exception (Big) Endian	*/
 
 #define PGTABLE_SIZE	(0x10000)

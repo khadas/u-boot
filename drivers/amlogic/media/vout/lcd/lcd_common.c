@@ -211,6 +211,18 @@ int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 		return -1;
 	}
 
+	/* check lcd status enable or not */
+	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "status", NULL);
+	if (!propdata) {
+		LCDERR("[%d]: failed to get status, default disable\n", pdrv->index);
+		return -1;
+	}
+	if (strcmp(propdata, "okay")) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+			LCDPR("[%d]: status disabled, exit\n", pdrv->index);
+		return -1;
+	}
+
 	/* check lcd_mode & lcd_key_valid */
 	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "mode", NULL);
 	if (!propdata) {
@@ -1495,7 +1507,7 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 	pconf->basic.frame_rate_max = *(p + LCD_UKEY_FRAME_RATE_MAX);
 
 	pconf->custom_pinmux = *(p + LCD_UKEY_CUST_PINMUX);
-	pconf->fr_auto_dis = *(p + LCD_UKEY_FR_AUTO_DIS);
+	pconf->fr_auto_cus = *(p + LCD_UKEY_FR_AUTO_CUS);
 
 	/* interface: 20byte */
 	switch (pconf->basic.lcd_type) {
@@ -2230,29 +2242,38 @@ void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv)
 		temp = pclk * 3 * dconf->data_bits;
 		bit_rate = temp / dconf->lane_num;
 	}
-	temp = bit_rate / pclk;
-	if (temp % 2)
-		bit_rate += pclk;
+	//temp = bit_rate / pclk;
+	//if (temp % 2)
+	//	bit_rate += pclk;
 	dconf->local_bit_rate_min = bit_rate /* khz */;
 
 	/* bit rate max */
 	if (dconf->bit_rate_max == 0) { /* auto calculate */
 		bit_rate_max = bit_rate + (pclk / 2);
 		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDERR("[%d]: %s: invalid bit_rate_max %d\n",
-				pdrv->index, __func__, bit_rate_max);
+			LCDERR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+				pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 			bit_rate_max = MIPI_BIT_RATE_MAX;
 		}
-		dconf->local_bit_rate_max = bit_rate_max;
-		LCDPR("[%d]: mipi dsi bit_rate max=%dkHz\n",
-		      pdrv->index, dconf->local_bit_rate_max);
 	} else { /* user define */
-		dconf->local_bit_rate_max = dconf->bit_rate_max * 1000;
-		if (dconf->local_bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDPR("[%d]: invalid mipi-dsi bit_rate_max %dkHz (max=%dkHz)\n",
-			      pdrv->index, dconf->local_bit_rate_max,
-			      MIPI_BIT_RATE_MAX);
+		bit_rate_max = dconf->bit_rate_max * 1000;
+		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
+			LCDPR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+			      pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 		}
+		if (dconf->local_bit_rate_min > bit_rate_max) {
+			LCDPR("[%d]: %s: bit_rate_max %d can't reach bandwidth requirement %d\n",
+				pdrv->index, __func__, bit_rate_max,
+				dconf->local_bit_rate_min);
+			//force bit_rate_max for special case
+			dconf->local_bit_rate_min = bit_rate_max - pclk;
+		}
+	}
+	dconf->local_bit_rate_max = bit_rate_max;
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		LCDPR("[%d]: %s: local_bit_rate_max=%ukHz, local_bit_rate_min=%ukHz\n",
+		      pdrv->index, __func__,
+		      dconf->local_bit_rate_max, dconf->local_bit_rate_min);
 	}
 }
 
@@ -2466,13 +2487,37 @@ int lcd_vmode_change(struct aml_lcd_drv_s *pdrv)
 		break;
 	case 4: /* hdmi mode */
 		if (((duration_num / duration_den) == 59) ||
-		    ((duration_num / duration_den) == 47) ||
-		    ((duration_num / duration_den) == 119) ||
-		    ((duration_num / duration_den) == 95)) {
+		    ((duration_num / duration_den) == 119)) {
 			/* pixel clk adjust */
 			temp = duration_num;
 			temp = temp * h_period * v_period;
 			pclk = lcd_do_div(temp, duration_den);
+			if (pconf->timing.lcd_clk != pclk)
+				pconf->timing.clk_change = LCD_CLK_PLL_CHANGE;
+		} else if ((duration_num / duration_den) == 47) {
+			/* htotal adjust */
+			temp = pclk;
+			h_period = v_period * 50;
+			h_period = lcd_do_div(temp, h_period);
+			if (pconf->basic.h_period != h_period) {
+				/* check clk adjust */
+				temp = duration_num;
+				temp = temp * h_period * v_period;
+				pclk = lcd_do_div(temp, duration_den);
+			}
+			if (pconf->timing.lcd_clk != pclk)
+				pconf->timing.clk_change = LCD_CLK_PLL_CHANGE;
+		} else if ((duration_num / duration_den) == 95) {
+			/* htotal adjust */
+			temp = pclk;
+			h_period = v_period * 100;
+			h_period = lcd_do_div(temp, h_period);
+			if (pconf->basic.h_period != h_period) {
+				/* check clk adjust */
+				temp = duration_num;
+				temp = temp * h_period * v_period;
+				pclk = lcd_do_div(temp, duration_den);
+			}
 			if (pconf->timing.lcd_clk != pclk)
 				pconf->timing.clk_change = LCD_CLK_PLL_CHANGE;
 		} else {

@@ -72,9 +72,9 @@ LDFLAGS			+=	--gc-sections
 
 ARMCC_$(CONFIG_ENABLE_ARMCC_DEBUGROM)=$(shell echo __CC_ARM | armcc -E -  | tail -n 1)
 ifneq ($(ARMCC_y),)
-targetComplier=arm
+targetCompiler=arm
 else
-targetComplier=gcc
+targetCompiler=gcc
 endif
 
 MAKEFLAGS += --no-print-directory
@@ -90,20 +90,21 @@ endif
 ifeq ($(SOC),t5d)
 SOC		=	t5
 endif
-ifeq ($(SOC),t5w)
-SOC		=	t5
+ifeq ($(SOC),t7c)
+SOC		=	t7
 endif
 
-list="sc2 s4 t3 t7 p1 a1 a5"
+#list="sc2 s4 t3 t7 p1 a1 a5 t5w"
+list=$(shell find ./include/asm/ -name "regs.h" | cut  -d  '/' -f 4 | cut -d '-' -f 2- | sort)
+$(info amlogic soc list: $(list))
 ifeq ($(findstring $(SOC), $(list)), $(SOC))
-$(info support the soc: $(SOC))
+$(info support the  soc: $(SOC))
 else
-$(info soc support list: $(list))
 $(error soc($(SOC)) is not support, exit!!!)
 endif
 
 all:
-	$(Q)$(MAKE) -f Makefile.$(targetComplier) PLAT=${SOC}
+	$(Q)$(MAKE) -f Makefile.$(targetCompiler) PLAT=${SOC}
 
 realclean distclean:
-	$(Q)$(MAKE) -f Makefile.$(targetComplier) PLAT=${PLAT} distclean
+	$(Q)$(MAKE) -f Makefile.$(targetCompiler) PLAT=${PLAT} distclean
