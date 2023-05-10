@@ -134,7 +134,6 @@
 		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;hdmitx edid;dovi process;"\
 		"setenv outputmode2 ${hdmimode};"\
 		"osd dual_logo;"\
-		"dovi set;dovi pkg;vpp hdrpkt;"\
 		"\0"
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -199,10 +198,21 @@
         "cec_fun=0x2F\0" \
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
-	    CONFIG_EXTRA_HDMI_ENV_SETTINGS \
+        "check_connector_type="\
+                "setenv bootconfig ${bootconfig} androidboot.connector_type=" \
+                "${connector_type};\0"\
+        "check_connector1_type="\
+                "setenv bootconfig ${bootconfig} androidboot.connector1_type=" \
+                "${connector1_type};\0"\
+        "check_connector2_type="\
+                "setenv bootconfig ${bootconfig} androidboot.connector2_type=" \
+                "${connector2_type};\0"\
+	CONFIG_EXTRA_HDMI_ENV_SETTINGS \
         "initargs="\
             "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
-            "khadas_board=VIM4 boot_source=${boot_source} scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 loglevel=4 scramble_reg=0x0xfe02e030 "\
+            "khadas_board=VIM4 boot_source=${boot_source} "\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -210,8 +220,13 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
+			"setenv bootargs ${bootargs} kvm-arm.mode=none init_on_alloc=0 "\
+				"nn_adj_vol=${nn_adj_vol};"\
 			"run storeargs_hdmitx;"\
             "run cmdline_keys;"\
+			"run check_connector_type; " \
+			"run check_connector1_type; " \
+			"run check_connector2_type; " \
             "\0"\
 	"cec_init="\
 		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
@@ -346,17 +361,31 @@
 			"run init_display_hdmitx;"\
 			"\0"\
         "check_display="\
-            "echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
-            "if test ${reboot_mode} = ffv_reboot; then "\
-                "if test ${ffv_wake} = on; then "\
-                    "echo ffv reboot no display; "\
-                "else "\
-                    "run init_display; "\
-                "fi; "\
-            "else "\
-                "run init_display; "\
-            "fi; "\
-            "\0"\
+			"if test ${reboot_mode} = cold_boot; then "\
+				"if test ${powermode} = standby; then "\
+					"echo not init_display; "\
+				"else if test ${powermode} = last; then "\
+					"echo suspend=${suspend}; "\
+					"if test ${suspend} = off; then "\
+						"run init_display; "\
+					"else if test ${suspend} = on; then "\
+						"echo not init_display; "\
+					"else if test ${suspend} = shutdown; then "\
+						"echo not init_display; "\
+					"fi; fi; fi; "\
+				"else "\
+					"run init_display; "\
+				"fi; fi; "\
+			"else if test ${reboot_mode} = ffv_reboot; then "\
+				"if test ${ffv_wake} = on; then "\
+					"echo ffv reboot no display; "\
+				"else "\
+					"run init_display; "\
+				"fi; "\
+			"else "\
+				"run init_display; "\
+			"fi;fi; "\
+			"\0"\
         "cmdline_keys="\
             "setenv region_code US;"\
             "if keyman init 0x1234; then "\
@@ -404,24 +433,42 @@
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \
-    "setenv outputmode2 ${hdmimode};"\
-    "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-    "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-    "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "\0"\
+	"setenv outputmode2 ${hdmimode};"\
+	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+	"if test ${outputmode2} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"setenv display_layer osd0;osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"if test ${outputmode} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"\0"\
 
 /* dual logo, factory_reset boot, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
-    "setenv outputmode2 ${hdmimode};"\
-    "setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
-    "osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
-    "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "\0"\
+	"setenv outputmode2 ${hdmimode};"\
+	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
+	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
+	"if test ${outputmode2} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"setenv display_layer osd0;osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"if test ${outputmode} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"\0"\
 
 /* single logo */
 #define CONFIG_SINGLE_LOGO \
-    "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-    "\0"
+	"setenv display_layer osd0;osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"if test ${outputmode} = ${hmdimode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"\0"
 #endif
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
@@ -437,11 +484,11 @@
 /* running in sram */
 //#define UBOOT_RUN_IN_SRAM
 #ifdef UBOOT_RUN_IN_SRAM
-#define CONFIG_SYS_INIT_SP_ADDR                (0x00200000)
+#define CONFIG_SYS_INIT_SP_ADDR                (0x00300000)
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN                (256*1024)
 #else
-#define CONFIG_SYS_INIT_SP_ADDR                (0x00200000)
+#define CONFIG_SYS_INIT_SP_ADDR                (0x00300000)
 #define CONFIG_SYS_MALLOC_LEN                (96*1024*1024)
 #endif
 
@@ -545,7 +592,7 @@
 /* UBOOT fastboot config */
 
 
-/* UBOOT Facotry usb/sdcard burning config */
+/* UBOOT factory usb/sdcard burning config */
 
 /* net */
 #define CONFIG_CMD_NET   1
@@ -606,15 +653,17 @@
 //use startdsp command
 #define CONFIG_CMD_STARTDSP
 
-//use dache command
+//use cache command
 #define CONFIG_CMD_CACHE
 
 //use remapset command
 #define CONFIG_CMD_REMAPSET
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
 
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 //#define CONFIG_MULTI_DTB    1
 // use auto select DTB table
 #ifdef CONFIG_MULTI_DTB
@@ -646,6 +695,9 @@
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
 #define CONFIG_FIP_IMG_SUPPORT  1
+
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED

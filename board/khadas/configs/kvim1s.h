@@ -144,7 +144,8 @@
         "board=oppen\0"\
         "initargs="\
             "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend fsck.repair=yes net.ifnames=0 "\
-            "khadas_board=VIM1S boot_source=${boot_source} "\
+            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 khadas_board=VIM1S boot_source=${boot_source} "\
+			"cma_first_wm_low=on "\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -152,7 +153,7 @@
 		"storeargs="\
 			"get_bootloaderversion;" \
 			"run storeargs_base;"\
-			"setenv bootargs ${bootargs} ${emmc_quirks} reboot_mode=${reboot_mode};"\
+			"setenv bootargs ${bootargs} ${emmc_quirks} kvm-arm.mode=none init_on_alloc=0 reboot_mode=${reboot_mode};"\
             "run cmdline_keys;"\
 			"\0"\
 		"switch_bootmode="\
@@ -250,7 +251,6 @@
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
-            "run bcb_cmd; "\
             "run upgrade_check;"\
             "run init_display;"\
             "run storeargs;"\
@@ -419,6 +419,9 @@
 
 #define CONFIG_FAT_WRITE 1
 #define CONFIG_AML_FACTORY_PROVISION 1
+#define CONFIG_NAND_FACTORY_PROVISION 1
+
+#define CONFIG_AML_WATERMARK 1
 
 /* Cache Definitions */
 /* #define CONFIG_SYS_DCACHE_OFF */
@@ -460,8 +463,11 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 
-#define BL32_SHARE_MEM_SIZE  0x800000
+/* config ramdump to debug kernel panic */
+#define CONFIG_FULL_RAMDUMP
 
+#define BL32_SHARE_MEM_SIZE  0x800000
+#define CONFIG_AML_KASLR_SEED
 #endif
 
 #undef CONFIG_SYS_CBSIZE
