@@ -927,6 +927,10 @@ static int dolby_core2_set(
 		else
 			g_vpotch = 0x10;
 
+		/* for 1080p fb */
+		if (vsize <= 1080)
+			g_vpotch = 0x50;
+
 		if (vinfo_width <= 720)
 			g_htotal_add = 0x12c;
 	}
