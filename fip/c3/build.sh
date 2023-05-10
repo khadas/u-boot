@@ -313,133 +313,106 @@ function mk_devfip() {
 	echo "done to generate device-fip.bin"
 }
 
-# due to size limit of BL2, only one type of DDR firmware is
-# built into bl2 code package. For support other ddr types, we
-# need bind them to ddr_fip.bin and let bl2 fw to try it.
-#
-# Note: No piei fw in following arry because it have build into
-# bl2
-# Total ddr-fip.bin size: 256KB, 4KB for header, 252(36*7)KB for fw
-# so max 7 ddr fw support
-declare -a DDR_FW_NAME=("aml_ddr.fw"		\
-			"ddr4_1d.fw"		\
-			"ddr4_2d.fw"		\
-			"lpddr4_1d.fw"		\
-			"lpddr4_2d.fw")
-declare -a DDR_FW_MAGIC=("AML0"			\
-			 "d444"			\
-			 "d422"			\
-			 "dl44"			\
-			 "dl42")
-function mk_ddr_fip()
+function build_header()
 {
-	local outpath=$1
-	local out_hdr=$1/ddr-hdr.bin
-	local out_fip=$1/ddr-fip.bin
-	local offset=4096	# start offset inside ddr-fip.bin
+	local bl2_2=$1
+	local rtos_1=$2
+	local rtos_2=$3
+
+	local size=0
+	# 4KB for header (reserve for sign)
+	local offset=4096
+	local rem=0
+
+	# build head for bl2-2.bin
+	size=`stat -c %s ${bl2_2}`
+	# insert uuid
+	echo -n -e "\x6b\xe6\x1e\x1f\xac\xc0\x45\x12\x97\x3b\x32\x5f\x2e\x17\xa7\x2d" > ${BUILD_PATH}/_tmp_hdr.bin
+	# insert size
+	printf "%02x%02x%02x%02x" $[(size) & 0xff] $[((size) >> 8) & 0xff] \
+		$[((size) >> 16) & 0xff] $[((size) >> 24) & 0xff] | xxd -r -ps >> ${BUILD_PATH}/_tmp_hdr.bin
+	# insert offset
+	printf "%02x%02x%02x%02x" $[(offset) & 0xff] $[((offset) >> 8) & 0xff] \
+	$[((offset) >> 16) & 0xff] $[((offset) >> 24) & 0xff] | xxd -r -ps >> ${BUILD_PATH}/_tmp_hdr.bin
+	# insert 8 bytes padding
+	printf "\0\0\0\0\0\0\0\0" >> ${BUILD_PATH}/_tmp_hdr.bin
+	# insert sha256
+	openssl dgst -sha256 -binary ${bl2_2} >> ${BUILD_PATH}/_tmp_hdr.bin
+
+	# build header for RTOS_1
+	offset=`expr ${offset} + ${size} + 4095`
+	rem=`expr ${offset} % 4096`
+	offset=`expr ${offset} - ${rem}`
+	size=`stat -c %s ${rtos_1}`
+	echo -n -e "\x31\x9f\xb3\x9e\x1f\x9f\x48\x98\x96\x38\xca\xfa\x7e\xa4\x2c\xe9" >> ${BUILD_PATH}/_tmp_hdr.bin
+	printf "%02x%02x%02x%02x" $[(size) & 0xff] $[((size) >> 8) & 0xff] \
+	$[((size) >> 16) & 0xff] $[((size) >> 24) & 0xff] | xxd -r -ps >> ${BUILD_PATH}/_tmp_hdr.bin
+	printf "%02x%02x%02x%02x" $[(offset) & 0xff] $[((offset) >> 8) & 0xff] \
+	$[((offset) >> 16) & 0xff] $[((offset) >> 24) & 0xff] | xxd -r -ps >> ${BUILD_PATH}/_tmp_hdr.bin
+	printf "\0\0\0\0\0\0\0\0" >> ${BUILD_PATH}/_tmp_hdr.bin
+	openssl dgst -sha256 -binary ${rtos_1} >> ${BUILD_PATH}/_tmp_hdr.bin
+
+	# build header for RTOS_2
+	offset=`expr ${offset} + ${size} + 4095`
+	rem=`expr ${offset} % 4096`
+	offset=`expr ${offset} - ${rem}`
+	size=`stat -c %s ${rtos_2}`
+	echo -n -e "\x33\x71\xb3\x2b\x17\xca\x43\xe2\xb4\xdb\x11\xe1\x3e\xc0\xa5\xf3" >> ${BUILD_PATH}/_tmp_hdr.bin
+	printf "%02x%02x%02x%02x" $[(size) & 0xff] $[((size) >> 8) & 0xff] \
+	$[((size) >> 16) & 0xff] $[((size) >> 24) & 0xff] | xxd -r -ps >> ${BUILD_PATH}/_tmp_hdr.bin
+	printf "%02x%02x%02x%02x" $[(offset) & 0xff] $[((offset) >> 8) & 0xff] \
+	$[((offset) >> 16) & 0xff] $[((offset) >> 24) & 0xff] | xxd -r -ps >> ${BUILD_PATH}/_tmp_hdr.bin
+	printf "\0\0\0\0\0\0\0\0" >> ${BUILD_PATH}/_tmp_hdr.bin
+	openssl dgst -sha256 -binary ${rtos_2} >> ${BUILD_PATH}/_tmp_hdr.bin
+}
+
+function package_binary()
+{
 	local fw_size=
 	local rem_val=
-	local fw_cnt=0
-	local hdr_size=64
-	local input_dir=./${FIP_FOLDER}${CUR_SOC}
+	local bin1=$1
+	local bin2=$2
+	local out_bin=$3
 
-	# first: make a empty ddr-fip.bin and ddr-fip-hdr.bin
-	rm -rf ${out_hdr}
-	rm -rf ${out_fip}
-	touch ${out_fip}
-	touch ${out_hdr}
+	# align bin1 size up to 4KB and padding bin2 at the end of bin1
+	fw_size=`stat -c %s ${bin1}`
+	fw_size=`expr ${fw_size} + 4095`
+	rem_val=`expr ${fw_size} % 4096`
+	fw_size=`expr ${fw_size} - ${rem_val}`
+	dd if=/dev/zero of=${BUILD_PATH}/_tmp.bin bs=1 count=${fw_size} &> /dev/null
+	dd if=${bin1} of=${BUILD_PATH}/_tmp.bin bs=1 count=${fw_size} conv=notrunc &> /dev/null
 
-	# count firmware number we need package
-	for i in ${!DDR_FW_NAME[@]}; do
-		if [[ "${DDR_FW_NAME[${i}]}" == "${DDRFW_TYPE}"* ]]; then
-			echo "==== skip ${DDR_FW_NAME[${i}]} ===="
-			continue
-		fi
-		fw_cnt=`expr ${fw_cnt} + 1`
-	done
+	cat ${bin2} >> ${BUILD_PATH}/_tmp.bin
+	mv ${BUILD_PATH}/_tmp.bin ${BUILD_PATH}/${out_bin}
+	echo ==== package ${bin1} ${bin2} to ${out_bin} ====
+	#cp ${BUILD_PATH}/${out_bin} ${BUILD_FOLDER}
+}
 
-	# build header for ddr-hdr.bin
-	# dwMagic
-	printf "%s" "@DFM" >> ${out_hdr}
-	# nCount of firmware
-	printf "%02x%02x" $[(fw_cnt) & 0xff] $[((fw_cnt) >> 8) & 0xff] | xxd -r -ps >> ${out_hdr}
-	# padding nVersion/szReserved to 0
-	printf "\0\0\0\0\0\0\0\0\0\0" >> ${out_hdr}
+function mk_ddr_fip()
+{
+	FAST_BOOT_RESOURCE="fastboot"
+	test -f ${FAST_BOOT_RESOURCE}/bl22.bin && cp ${FAST_BOOT_RESOURCE}/bl22.bin ${BUILD_PATH}/bl22.bin
+	test -f ${FAST_BOOT_RESOURCE}/rtos_1.bin && cp ${FAST_BOOT_RESOURCE}/rtos_1.bin ${BUILD_PATH}/rtos_1.bin
+	test -f ${FAST_BOOT_RESOURCE}/rtos_2.bin && cp ${FAST_BOOT_RESOURCE}/rtos_2.bin ${BUILD_PATH}/rtos_2.bin
 
-	# build ddr-fip.bin and ddr-hdr.bin
-	for i in ${!DDR_FW_NAME[@]}; do
-		if [[ "${DDR_FW_NAME[${i}]}" == "${DDRFW_TYPE}"* ]]; then
-			continue
-		fi
-
-		# ============= package ddr-fip.bin =============
-		# get size of fw and align up to 4KB for
-		# some strage device such as nand
-		fw_size=`stat -c %s ${input_dir}/${DDR_FW_NAME[${i}]}`
-		fw_size=`expr ${fw_size} + 4095`
-		rem_val=`expr ${fw_size} % 4096`
-		fw_size=`expr ${fw_size} - ${rem_val}`
-
-		# 1. make sure we only copy 36KB, 32KB IMEM + 4KB DMEM
-		# 2. make a empty bin with fw_size
-		# 3. copy from fw to empty bin
-		# 4. padding this bin to final output
-		if [ ${fw_size} -gt "36864" ]; then
-			fw_size="36864"
-		fi
-		dd if=/dev/zero of=${outpath}/_tmp.bin bs=1 count=${fw_size} &> /dev/null
-		dd if=${input_dir}/${DDR_FW_NAME[${i}]} of=${outpath}/_tmp.bin skip=96 bs=1 count=${fw_size} conv=notrunc &> /dev/null
-		cat ${outpath}/_tmp.bin >> ${out_fip}
-
-		# ============= make ddr-hdr.bin =============
-		# dwMagic
-		printf "%s" "@DFM" >> ${out_hdr}
-		# nVersion, fix to 0
-		printf "\0\0"  >> ${out_hdr}
-		# nSize, fix to 64 bytes
-		printf "%02x%02x" $[(hdr_size) & 0xff] $[((hdr_size) >> 8) & 0xff] | xxd -r -ps >> ${out_hdr}
-		# nIMGOffset
-		printf "%02x%02x%02x%02x" $[(offset) & 0xff] $[((offset) >> 8) & 0xff] \
-		       $[((offset) >> 16) & 0xff] $[((offset) >> 24) & 0xff] | xxd -r -ps >> ${out_hdr}
-		# nIMGSize
-		printf "%02x%02x%02x%02x" $[(fw_size) & 0xff] $[((fw_size) >> 8) & 0xff] \
-		       $[((fw_size) >> 16) & 0xff] $[((fw_size) >> 24) & 0xff] | xxd -r -ps >> ${out_hdr}
-		# fw_ver, fix to 0
-		printf "\0\0\0\0"  >> ${out_hdr}
-		# fw_magic
-		printf "%s" ${DDR_FW_MAGIC[${i}]} >> ${out_hdr}
-		# szRerved2
-		printf "\0\0\0\0\0\0\0\0" >> ${out_hdr}
-		# szIMGSHA2
-		openssl dgst -sha256 -binary ${outpath}/_tmp.bin >> ${out_hdr}
-
-		offset=`expr ${offset} + ${fw_size}`
-	done;
-	rm ${outpath}/_tmp.bin
-
-	# generate ddr-fip.bin
-	fw_size=`stat -c "%s" ${out_fip}`
-	if [ ${fw_size} -gt "258048" ]; then
-		echo "==== size of ${out_fip}:${fw_size}, over limit ===="
-		exit -1
-	else
-		dd if=/dev/zero of=${out_fip}.tmp bs=1024 count=252 status=none
-		dd if=${out_fip} of=${out_fip}.tmp bs=1 count=${fw_size} conv=notrunc
+	if [ ! -e ${BUILD_PATH}/rtos_1.bin ]; then
+		echo ==== rtos_1.bin not exist, use a empty one ====
+		dd if=/dev/zero of=${BUILD_PATH}/rtos_1.bin bs=1 count=8192
 	fi
 
-	# bind to final ddr-fip.bin
-	fw_size=`stat -c "%s" ${out_hdr}`
-	if [ ${fw_size} -gt "4096" ]; then
-		echo "==== size of ${ot_hdr}:${fw_size}, over limit ===="
-		exit -1
-	else
-		dd if=/dev/zero of=${out_hdr}.tmp bs=1 count=4096 status=none
-		dd if=${out_hdr} of=${out_hdr}.tmp bs=1 count=${fw_size} conv=notrunc
+	if [ ! -e ${BUILD_PATH}/rtos_2.bin ]; then
+		echo ==== rtos_2.bin not exist, use a empty one ====
+		dd if=/dev/zero of=${BUILD_PATH}/rtos_2.bin bs=1 count=16384
 	fi
-	cat ${out_hdr}.tmp > ${out_fip}
-	cat ${out_fip}.tmp >> ${out_fip}
-	rm -rf ${out_fip}.tmp
-	rm -rf ${out_hdr}.tmp
+
+	build_header ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_1.bin ${BUILD_PATH}/rtos_2.bin
+	package_binary ${BUILD_PATH}/_tmp_hdr.bin ${BUILD_PATH}/bl22.bin bl22.bin
+	package_binary ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_1.bin bl22.bin
+	package_binary ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_2.bin ddr-fip.bin
+
+	dd if=/dev/zero of=${BUILD_PATH}/_tmp.bin bs=1024 count=256 &> /dev/null
+	dd if=${BUILD_PATH}/ddr-fip.bin of=${BUILD_PATH}/_tmp.bin conv=notrunc &> /dev/null
+	mv ${BUILD_PATH}/_tmp.bin ${BUILD_PATH}/ddr-fip.bin
 }
 
 
@@ -453,7 +426,7 @@ function mk_uboot() {
 	device_fip="${input_payloads}/device-fip.bin${postfix}"
 	bb1st="${input_payloads}/bb1st${storage_type_suffix}${chipset_variant_suffix}.bin${postfix}"
 	bl2e="${input_payloads}/blob-bl2e${storage_type_suffix}${chipset_variant_suffix}.bin${postfix}"
-	bl2x="${input_payloads}/blob-bl2x.bin${postfix}"
+	bl2x="${input_payloads}/blob-bl2x${chipset_variant_suffix}.bin${postfix}"
 
 	if [ ! -f ${device_fip} ] || \
 	   [ ! -f ${bb1st} ] || \
@@ -643,6 +616,15 @@ function process_blx() {
 		    [ "NULL" != "${BLX_BIN_NAME[$loop]}" ] && \
 			[ -n "${BLX_BIN_NAME[$loop]}" ] && \
 			[ -f ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} ]; then
+if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ]; then
+			if [ "bl32" == "${BLX_NAME[$loop]}" ] || \
+				[ "bl40" == "${BLX_NAME[$loop]}" ]; then
+				cp ${BUILD_PATH}/${BLX_BIN_NAME[$loop]}  ${BUILD_PATH}/temp
+				dd if=${BUILD_PATH}/temp of=${BUILD_PATH}/${BLX_BIN_NAME[$loop]}   bs=${BLX_BIN_SIZE[$loop]}  count=1
+				echo $loop
+				rm ${BUILD_PATH}/temp
+			fi
+fi
 			blx_size=`stat -c %s ${BUILD_PATH}/${BLX_BIN_NAME[$loop]}`
 			if [ $blx_size -ne ${BLX_BIN_SIZE[$loop]} ]; then
 				echo "Error: ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} size not match"
@@ -708,7 +690,11 @@ function process_blx() {
 
 	if [ ! -f ${BUILD_PATH}/blob-bl40.bin.signed ]; then
 		echo "Warning: local bl40"
+if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ]; then
+		dd if=bl40/bin/${CUR_SOC}/${BLX_BIN_SUB_CHIP}/blob-bl40.bin.signed of=${BUILD_PATH}/blob-bl40.bin.signed bs=${BLX_BIN_SIZE[7]}  count=1
+else
 		cp bl40/bin/${CUR_SOC}/${BLX_BIN_SUB_CHIP}/blob-bl40.bin.signed ${BUILD_PATH}
+fi
 	fi
 	if [ ! -f ${BUILD_PATH}/device-fip-header.bin ]; then
 		echo "Warning: local device fip header templates"
@@ -724,8 +710,8 @@ function build_signed() {
 
 	process_blx $@
 
-	# package ddr-fip.bin
-	if [[ "y" == ${CONFIG_DDR_FULL_FW} ]]; then
+	if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ]; then
+		# package ddr-fip.bin
 		mk_ddr_fip ${BUILD_PATH}
 	fi
 
@@ -736,7 +722,7 @@ function build_signed() {
 
 	list_pack="${BUILD_PATH}/bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/bb1st.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed"
 	list_pack="$list_pack ${BUILD_PATH}/blob-bl2e.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl2e.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed"
-	list_pack="$list_pack ${BUILD_PATH}/blob-bl2x.bin.signed ${BUILD_PATH}/blob-bl31.bin.signed ${BUILD_PATH}/blob-bl32.bin.signed ${BUILD_PATH}/blob-bl40.bin.signed"
+	list_pack="$list_pack ${BUILD_PATH}/blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl31${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl32.bin.signed ${BUILD_PATH}/blob-bl40.bin.signed"
 	list_pack="$list_pack ${BUILD_PATH}/bl30-payload.bin ${BUILD_PATH}/bl33-payload.bin ${BUILD_PATH}/dvinit-params.bin"
 	if [ -f ${BUILD_PATH}/ddr-fip.bin ]; then
 		list_pack="$list_pack ${BUILD_PATH}/ddr-fip.bin"
@@ -798,6 +784,11 @@ function copy_other_soc() {
 function package() {
 	# BUILD_PATH without "/"
 	x=$((${#BUILD_PATH}-1))
+if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ]; then
+	cp ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool-fastboot ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool
+else
+	cp ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool-normal ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool
+fi
 	if [ "\\" == "${BUILD_PATH:$x:1}" ] || [ "/" == "${BUILD_PATH:$x:1}" ]; then
 		BUILD_PATH=${BUILD_PATH:0:$x}
 	fi
@@ -812,5 +803,6 @@ function package() {
 	fi
 	#copy_file
 	cleanup
+	rm ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool
 	echo "Bootloader build done!"
 }

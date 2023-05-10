@@ -2020,7 +2020,7 @@
 #define DMC_DRAM_DFITPHYRDLAT                      ((0x0022  << 2) + 0xfe036400)
   //bit 5:0.  dfi_t_rdlat.
 #define DMC_DRAM_DFITCTRLUPDMIN                    ((0x0023  << 2) + 0xfe036400)
-  //bit 7:0.  CTRLUPD_MIN  minimux clock cycle to maintain CTRLUPD_REQ.
+  //bit 7:0.  CTRLUPD_MIN  minimum clock cycle to maintain CTRLUPD_REQ.
 #define DMC_DRAM_DFITCTRLUPDMAX                    ((0x0024  << 2) + 0xfe036400)
   //bit 7:0   CTRLUPD_MAX.  maxmum clock cycle to maintain CTRLUPD_REQ if no CTRLUPD_ACK response.
 #define DMC_DRAM_DFITREFMSKI                       ((0x0026  << 2) + 0xfe036400)
@@ -10159,7 +10159,7 @@
 //                                      1=ABH read request burst size 24;
 //                                      2=ABH read request burst size 32;
 //                                      3=ABH read request burst size 48.
-// Bit     1 RW ctrl_sw_reset. 1=Reset RDMA logics except register.
+// Bit     1 RW ctrl_sw_reset. 1=Reset RDMA logic except register.
 // Bit     0 RW ctrl_free_clk_enable. 0=Default, Enable clock gating. 1=No clock gating, enable free clock.
 #define RDMA_CTRL                                  ((0x1114  << 2) + 0xff000000)
 // Read only.
@@ -13534,7 +13534,7 @@
 // OSD1 registers
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -13746,7 +13746,7 @@
 // OSD2 registers
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -16640,7 +16640,7 @@
 // OSD1 registers
 //------------------------------------------------------------------------------
 // Bit    31 Reserved
-// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logics;
+// Bit    30 RW, enable_free_clk: 1=use free-running clock to drive logic;
 //                                0=use gated clock for low power.
 // Bit    29 R, test_rd_dsr
 // Bit    28 R, osd_done
@@ -18578,8 +18578,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE1                         ((0x27a6  << 2) + 0xff000000)
@@ -18591,8 +18591,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE2                         ((0x27a7  << 2) + 0xff000000)
@@ -18604,8 +18604,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE3                         ((0x27a8  << 2) + 0xff000000)
@@ -18617,8 +18617,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_RD_MODE4                         ((0x27a9  << 2) + 0xff000000)
@@ -18630,8 +18630,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      rd_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      rd_rel_num        unsigned  , default = 0  release the read command threshold
 #define VPU_ASYNC_WR_MODE0                         ((0x27aa  << 2) + 0xff000000)
@@ -18643,8 +18643,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_WR_MODE1                         ((0x27ab  << 2) + 0xff000000)
@@ -18656,8 +18656,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_WR_MODE2                         ((0x27ac  << 2) + 0xff000000)
@@ -18669,8 +18669,8 @@
 //Bit   10:9,     arugt_sel         unsigned  , default = 0
 //                                  00 : use auto fifo arugt generate the output arugt.
 //                                  01 : use the register bit control
-//                                  00 : use the input arguent
-//Bit   8,        arguent_cfg       unsigned  , default = 0  register arguent control bit
+//                                  00 : use the input argument
+//Bit   8,        argument_cfg       unsigned  , default = 0  register argument control bit
 //Bit   7:4,      wr_hold_num       unsigned  , default = 4  hold the read command threshold
 //Bit   3:0,      wr_rel_num        unsigned  , default = 0  release the write command threshold
 #define VPU_ASYNC_STAT                             ((0x27ad  << 2) + 0xff000000)
@@ -20896,7 +20896,7 @@
 //Bit 19:16, reg_mcdi_chkedgedifthd0.                     thd0 for edge dif check (>=), default = 15
 //Bit   :15, reserved.
 //Bit 14:10, reg_mcdi_chkedgechklen.                      total check length for edge check, 1~24 (>0), default = 24
-//Bit  9: 8, reg_mcdi_chkedgeedgesel.                     final edge select mode, 0: original start edge, 1: lpf start edge, 2: orignal start+end edge, 3: lpf start+end edge, default = 1
+//Bit  9: 8, reg_mcdi_chkedgeedgesel.                     final edge select mode, 0: original start edge, 1: lpf start edge, 2: original start+end edge, 3: lpf start+end edge, default = 1
 //Bit  7: 3, reg_mcdi_chkedgesaddstgain.                  distance gain for sad calc while getting edges, default = 4
 //Bit     2, reg_mcdi_chkedgechkmode.                     edge used in check mode, 0: original edge, 1: lpf edge, default = 1
 //Bit     1, reg_mcdi_chkedgestartedge.                   edge mode for start edge, 0: original edge, 1: lpf edge, default = 0
@@ -27516,8 +27516,8 @@
 //Bit 31:12   reserved
 //Bit 11:10   reg_fmeter_vwin_mm     //u2, vertical window size, 0:1 cloumn, 1:3cloumn, 2or3: 5cloumn .unsigned  , default = 0
 //Bit 9 : 8   reg_fmeter_hwin_mm     //u2, horizontal window size, 0:1x7, 1:1x9, 2or3: 1x11 .unsigned  , default = 0
-//Bit 7       reg_fmeter_d2_mode     //u1, selectino filter D2, 0: [0 -2 0 0 2], 1: [-2 0 0 0 2] .unsigned  , default = 0
-//Bit 6       reg_fmeter_v2_mode     //u1, selectino filter V2, 0: [0 -2 0 0 2], 1: [-2 0 0 0 2] .unsigned  , default = 0
+//Bit 7       reg_fmeter_d2_mode     //u1, selection filter D2, 0: [0 -2 0 0 2], 1: [-2 0 0 0 2] .unsigned  , default = 0
+//Bit 6       reg_fmeter_v2_mode     //u1, selection filter V2, 0: [0 -2 0 0 2], 1: [-2 0 0 0 2] .unsigned  , default = 0
 //Bit 5: 4    reg_fmeter_h2_mode     //u2, selection filter H2, 0: [0 0 0 -2 0 0 2 0 0], 1: [-2 0 0 0 2], 2or3: [0-2 0 0 0 0 0 2 0] .unsigned  , default = 0
 //Bit 3: 1    reserved
 //Bit 0       reg_freq_meter_en      //u1, freq meter enable  .unsigned  , default = 0

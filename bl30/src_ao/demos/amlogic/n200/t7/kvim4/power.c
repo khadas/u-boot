@@ -43,7 +43,7 @@
 #define CONFIG_HDMIRX_PLUGIN_WAKEUP
 
 static TaskHandle_t cecTask = NULL;
-//static int vdd_ee;
+static int vdd_ee;
 
 static IRPowerKey_t prvPowerKeyList[] = {
 	{ 0xef10fe01, IR_NORMAL}, /* ref tv pwr */
@@ -114,16 +114,15 @@ void str_hw_disable(void)
 void str_power_on(int shutdown_flag)
 {
 	int ret;
-#if 0
+	shutdown_flag = shutdown_flag;
+
 	/***set vdd_ee val***/
 	ret = vPwmMesonSetVoltage(VDDEE_VOLT,vdd_ee);
 	if (ret < 0) {
 		printf("vdd_EE pwm set fail\n");
 		return;
 	}
-#endif
 
-	shutdown_flag = shutdown_flag;
 	/***power on vcc_5v***/
 	ret = xGpioSetDir(GPIOH_4,GPIO_DIR_OUT);
 	if (ret < 0) {
@@ -183,14 +182,15 @@ void mcu_i2c_init(void)
 void str_power_off(int shutdown_flag)
 {
 	int ret;
-#if 0
-	/***set vdd_ee val***/
+
+	shutdown_flag = shutdown_flag;
+
+	/***save vdd_ee val***/
 	vdd_ee = vPwmMesonGetVoltage(VDDEE_VOLT);
 	if (vdd_ee < 0) {
 		printf("vdd_EE pwm get fail\n");
 		return;
 	}
-#endif
 
 	/***power off vdd_cpu***/
 	if (get_ETHWol_flag() == 0) {
@@ -235,6 +235,13 @@ void str_power_off(int shutdown_flag)
 	}
 
 	printf("vcc_5v off\n");
+
+	/***set vdd_ee val***/
+	ret = vPwmMesonSetVoltage(VDDEE_VOLT,771);
+	if (ret < 0) {
+		printf("vdd_EE pwm set fail\n");
+		return;
+	}
 
 	if (1 == shutdown_flag) {
 		uint8_t val = 1;

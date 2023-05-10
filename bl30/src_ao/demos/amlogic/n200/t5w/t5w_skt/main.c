@@ -201,6 +201,11 @@ int main(void)
 	create_str_task();
 
 	vUartPuts("Starting task scheduler ...\n");
+
+#define RTOS_RUN_SUCC			(1 << 0)
+#define RTOS_BOOT_SUCC_REG             AO_DEBUG_REG2
+	*(volatile uint32_t *)RTOS_BOOT_SUCC_REG |= RTOS_RUN_SUCC;
+
 	vTaskStartScheduler();
 
 	do {}while(1);

@@ -5,6 +5,7 @@ function select_uboot() {
 
 	cd ${MAIN_FOLDER}
 
+	bl33_path=$2
 	BL33_BUILD_FOLDER=$2/build/
 	SOURCE_FILE=("${BL33_BUILD_FOLDER}.config")
 	CONFIG_FILE=("${BL33_BUILD_FOLDER}include/autoconf.mk")
@@ -17,22 +18,23 @@ function pre_build_uboot() {
 	select_uboot $1 $2
 	cd ${UBOOT_SRC_FOLDER}
 	echo -n "Compile config: "
-	echo "$1" "$2"
+	echo "$1"
 	SOCNAME=$1
 	echo "SOCNAME:${SOCNAME}"
-#	make distclean # &> /dev/null
-#	make $1'_config' # &> /dev/null
-#	if [ $? != 0 ]
-#	then
-#		echo "Pre-build failed! exit!"
-#		cd ${MAIN_FOLDER}
-#		exit -1
-#	fi
+	pwd
+	make distclean # &> /dev/null
+	make $1'_config' # &> /dev/null
+	if [ $? != 0 ]
+	then
+		echo "Pre-build failed! exit!"
+		cd ${MAIN_FOLDER}
+		exit -1
+	fi
 	cd ${MAIN_FOLDER}
 }
 
 function build_uboot() {
-	echo "Build uboot...Please Wait...$1...$2...$3...$4...$5"
+	echo "Build uboot...Please Wait...$1...$2...$3...$4...$5...$6"
 	mkdir -p ${FIP_BUILD_FOLDER}
 	cd ${UBOOT_SRC_FOLDER}
 	if [[ "${SCRIPT_ARG_CHIPSET_VARIANT}" =~ "nocs" ]] || [[ "${CONFIG_CHIPSET_VARIANT}" =~ "nocs" ]]; then
@@ -42,20 +44,24 @@ function build_uboot() {
 	if [ "${CONFIG_MDUMP_COMPRESS}" = "1" ]; then
 		CONFIG_MDUMP_COMPRESS=1
 		echo "### BL33 CONFIG_MDUMP_COMPRESS = 1 ###"
-		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 CHIPMODE=${CONFIG_CHIP_NOCS} \
+		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 CHIPMODE=${CONFIG_CHIP_NOCS} \
 			CONFIG_MDUMP_COMPRESS=${CONFIG_MDUMP_COMPRESS} # &> /dev/null
 	else
 		echo "### BL33 CONFIG_MDUMP_COMPRESS = 0 ###"
-		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 CHIPMODE=${CONFIG_CHIP_NOCS} # &> /dev/null
+		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 CHIPMODE=${CONFIG_CHIP_NOCS} # &> /dev/null
 	fi
+	set +e
 
-	if [ "${CONFIG_SUPPORT_BL33Z}" = "1" ]; then
+	SOC_GROUP=`echo ${SOCNAME} | cut -d '_' -f 1`
+	skiped=("a1" "c1" "c2" "c3" "g12a" "g12b" "sm1" "t5w")
+	if [[ "${skiped[@]}"  =~ "${SOC_GROUP}" ]]; then
+		echo ""
+		echo "The soc(${SOC_GROUP}) does not support bl33z, skip."
+		echo ""
+	elif [ "${CONFIG_SUPPORT_BL33Z}" = "1" ]; then
 		echo ""
 		set -e
 		echo "ramdump enable, build bl33z.bin for soc [${SOCNAME}] ..."
-		if [ -z "${SOCNAME}" ];then
-			SOCNAME=p1
-		fi
 		if [ -f "./bl33z/Makefile" ]; then
 			make -C bl33z/ PLAT=${SOCNAME} AARCH=aarch64 distclean
 			make -C bl33z/ PLAT=${SOCNAME} AARCH=aarch64
@@ -91,7 +97,7 @@ function build_uboot() {
 
 function uboot_config_list() {
 	echo "      ******Amlogic Configs******"
-	for file in `ls -d ${BL33_DEFCFG1}/* ${BL33_DEFCFG2}/*`; do
+	for file in `ls -d ${BL33_DEFCFG1}/* ${BL33_DEFCFG2}/* ${BL33_DEFCFG3}/*`; do
 		temp_file=`basename $file`
 		#echo "$temp_file"
 		temp_file=${temp_file%_*}

@@ -15,8 +15,8 @@ import jenkins
 
 serverRootUrl = "https://jenkins-sh.amlogic.com/job/Security/job/"
 homeConfigFilePath = "~/.sign.cfg"
-types = ["ta", "vmxta", "bl32", "bl31", "bl2", "bl2e", "bl2x", "bl40", "aucpufw", "vdecfw"]
-casProviders = ["", "VMX", "nagra", "nagra-dev", "vo", "gs-dev", "gs", "irdeto"]
+types = ["ta", "vmxta", "irdetota", "bl32", "bl31", "bl2", "bl2e", "bl2x", "bl40", "aucpufw", "vdecfw"]
+casProviders = ["", "VMX", "nagra", "nagra-dev", "vo-dev", "vo", "gs-dev", "gs", "irdeto"]
 ddrTypes = ["ddr4", "lpddr4", "ddr3", "lpddr3", "lpddr4_lpddr5"]
 chipVariants = ["general", "nocs-jts-ap", "nocs-prod"]
 
@@ -108,6 +108,8 @@ def getJobRootUrl(type):
         return urljoin(serverRootUrl, "Signing/job/Sign_TA/")
     elif type == "vmxta":
         return urljoin(serverRootUrl, "CAS/job/VMX/job/VMX_TA_Sign/")
+    elif type == "irdetota":
+        return urljoin(serverRootUrl, "Signing/job/Sign_Irdeto_TA_for_s905c1/")
     elif type == "bl31":
         return urljoin(serverRootUrl, "Signing/job/Sign_Bl31/")
     elif type == "bl2":
@@ -125,6 +127,10 @@ def getJobRootUrl(type):
 def getJobName(type):
     if type == "ta":
         return "Sign_TA"
+    elif type == "vmxta":
+        return "Sign_VMX_TA"
+    elif type == "irdetota":
+        return "Sign_Irdeto_TA_for_s905c1"
     elif type == "bl31":
         return "Sign_Bl31"
     elif type == "bl2":
@@ -160,7 +166,7 @@ def submitSignJob(
         fileParameter: (fileName, open(inputFilePath, "rb")),
     }
     url = getJobRootUrl(type) + "buildWithParameters"
-    if type == "ta":
+    if type == "ta" or type == "vmxta" or type == "irdetota":
         data = {
             "chip_part_number": chipType,
             "ta_version": taVersion,

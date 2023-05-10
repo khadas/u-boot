@@ -28,8 +28,8 @@ static void *xMboxSetKeypad(void *msg)
 
 	if (key_info[0] == 0xFFFFFFFF) {
 		/* remove all key */
-		vDestoryAdcKey();
-		vDestoryGpioKey();
+		vDestroyAdcKey();
+		vDestroyGpioKey();
 
 		return NULL;
 	}

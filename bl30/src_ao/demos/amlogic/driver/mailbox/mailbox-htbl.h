@@ -61,7 +61,7 @@ uint32_t mailbox_htbl_invokeCmd(void *pHTbl, uint32_t cmd, void *arg);
  * 3, notify the job task in ISR
  * In job task:
  * 1, wait until be notified from ISR
- * 2, recieve event from Q
+ * 2, receive event from Q
  * 3, registered handler process the event
  * 4, waiting for next event
  */

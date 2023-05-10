@@ -177,13 +177,17 @@ void system_suspend(uint32_t pm)
 
 void set_reason_flag(char exit_reason)
 {
-	REG32(WAKEUP_REASON_STICK_REG) &= ~0xf;
-	REG32(WAKEUP_REASON_STICK_REG) |= exit_reason;
+	uint32_t val;
+
+	val = REG32(WAKEUP_REASON_STICK_REG) & ~0xff;
+	val |= EXIT_REASON_EXTENSION_FLAG;
+	val |= (exit_reason & 0x7f);
+	REG32(WAKEUP_REASON_STICK_REG) = val;
 }
 
 uint32_t get_reason_flag(void)
 {
-	return REG32(WAKEUP_REASON_STICK_REG) & 0xf;
+	return REG32(WAKEUP_REASON_STICK_REG) & 0x7f;
 }
 
 uint32_t get_stick_reboot_flag(void)

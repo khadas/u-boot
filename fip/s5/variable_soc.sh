@@ -26,7 +26,7 @@ declare -a BLX_SRC_FOLDER=("bl2/core"		\
 			   "bl2/ree"		\
 			   "bl2/tee"		\
 			   "bl31_1.3/src"	\
-			   "bl32_3.8/src"	\
+			   "bl32_3.18/src"	\
 			   "NULL"		\
 			   "bl30/src_ao"	\
 			   "bl33")
@@ -37,7 +37,7 @@ declare -a BLX_BIN_FOLDER=("bl2/bin"		\
 			   "bl2/bin"		\
 			   "bl2/bin"		\
 			   "bl31_1.3/bin"	\
-			   "bl32_3.8/bin"	\
+			   "bl32_3.18/bin"	\
 			   "bl40/bin"		\
 			   "bl30/bin_ao")
 
@@ -153,7 +153,7 @@ declare BL3X_SUFFIX="bin"
 declare V3_PROCESS_FLAG=""
 declare FIP_ARGS=""
 declare AML_BL2_NAME=""
-declare AML_KEY_BLOB_NANE=""
+declare AML_KEY_BLOB_NAME=""
 declare FIP_BL32_PROCESS=""
 declare BOOT_SIG_FLAG=""
 declare EFUSE_GEN_FLAG=""

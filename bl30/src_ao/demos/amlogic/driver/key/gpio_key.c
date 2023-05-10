@@ -175,7 +175,7 @@ fail_alloc2:
 	printf("gpio key: [%d] malloc failed!\n", i);
 }
 
-void vDestoryGpioKey(void)
+void vDestroyGpioKey(void)
 {
 	struct xOneGpioKeyInfo *xPassBtn, *xTmpBtn;
 	uint32_t key_id;

@@ -119,12 +119,15 @@ function build_blx_src() {
 		# bl31
 		# some soc use v1.3
 		ver=`check_bl31_ver $soc`
-		if [ $ver != 0 ]; then
+		if [ $ver == 1 ]; then
 			echo "check bl31 ver: use v1.3"
 			build_bl31_v1_3 $src_folder $bin_folder $soc
-		else
+		elif [ $ver == 0 ]; then
 			echo "check bl31 ver: use v1.0"
 			build_bl31 $src_folder $bin_folder $soc
+		else
+			echo "check bl31 ver: use v2.7"
+			build_bl31_v2_7 $src_folder $bin_folder $soc
 		fi
 	elif [ $name == ${BLX_NAME_GLB[3]} ]; then
 		# control flow for jenkins patchbuild
@@ -245,6 +248,11 @@ function clean() {
 		cd ${BL33_PATH2}
 		make distclean
 	fi
+	if [ -e ${BL33_PATH3} ]; then
+		cd ${MAIN_FOLDER}
+		cd ${BL33_PATH3}
+		make distclean
+	fi
 	cd ${MAIN_FOLDER}
 	rm ${FIP_BUILD_FOLDER} -rf
 	rm ${BUILD_FOLDER}/* -rf
@@ -257,7 +265,7 @@ function build() {
 	# IMPORTANT!!!!
 	# don't change sequence of following function call
 	# *************************************************
-#	clean
+	clean
 
 	# pre-build, get .config defines
 	if [ ! $BOARD_COMPILE_HDMITX_ONLY ]; then
@@ -299,7 +307,10 @@ function build() {
 	if [ ! $CONFIG_AVB2_RECOVERY ]; then
 		CONFIG_AVB2_RECOVERY=null
 	fi
-#	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB} ${CONFIG_FASTBOOT_WRITING_CMD} ${CONFIG_AVB2_RECOVERY}
+	if [ ! $CONFIG_TESTKEY ]; then
+		CONFIG_TESTKEY=null
+	fi
+	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB} ${CONFIG_FASTBOOT_WRITING_CMD} ${CONFIG_AVB2_RECOVERY} ${CONFIG_TESTKEY}
 
 	# source other configs after uboot compile
 	init_variable_late
@@ -359,8 +370,8 @@ function usage() {
     7. build uboot with bl[x]/src source code, and run coverity defect
         see help info: ./fip/check_coverity.sh -h
 
-    8. build uboot with ramdump function
-        ./$(basename $0) [config_name] --update-bl[x] --enable-ramdump --chipid [cpu_id]
+    8. build uboot with disable full ramdump(enable by default)
+        ./$(basename $0) [config_name] --disable-bl33z
 
     Example:
     1) ./$(basename $0) gxb_p200_v1
@@ -377,9 +388,6 @@ function usage() {
 
     5) ./$(basename $0) --check-compile skt
       check all skt board compile status
-
-    6) ./$(basename $0) sc2_ah212 --update-bl2 --update-bl2e --enable-ramdump --chipid 00D9C73147101D16
-       build uboot with ramdump function, chipid for bl2.
 
     Remark:
     bl[x].bin/img priority:
@@ -438,10 +446,32 @@ function parser() {
 				export CONFIG_MDUMP_COMPRESS
 				echo "SET CONFIG: CONFIG_MDUMP_COMPRESS"
 				continue ;;
+			--uasan)
+				UASAN_DDR_SIZE="${argv[$i]}"
+				if [ -z "${UASAN_DDR_SIZE}" ]; then
+					echo "Must set UASAN_DDR_SIZE when compile uasan"
+					exit -1;
+				fi
+				if [ "${UASAN_DDR_SIZE}" -gt 0 ]  2>/dev/null; then
+					echo  "==== UASAN_DDR_SIZE ${UASAN_DDR_SIZE} ===="
+				else
+					echo "UASAN_DDR_SIZE must be a number"
+					exit -1;
+				fi
+				CONFIG_AML_UASAN=1
+				echo "==== BL33 BUILD ENALBED CONFIG_AML_UASAN ===="
+				export CONFIG_AML_UASAN=1
+				export UASAN_DDR_SIZE
+				continue ;;
 			--enable-bl33z)
 				CONFIG_SUPPORT_BL33Z=1
 				export CONFIG_SUPPORT_BL33Z
-				echo "SET CONFIG: CONFIG_SUPPORT_BL33Z"
+				echo "SET CONFIG: CONFIG_SUPPORT_BL33Z=1"
+				continue ;;
+			--disable-bl33z)
+				CONFIG_SUPPORT_BL33Z=0
+				export CONFIG_SUPPORT_BL33Z
+				echo "SET CONFIG: CONFIG_SUPPORT_BL33Z=0"
 				continue ;;
 			--compress-bl2e)
 				CONFIG_COMPRESS_BL2E=1
@@ -455,12 +485,27 @@ function parser() {
 				export CONFIG_RAMDUMP_CHIPID
 				echo "SET CHIP ID: ${CONFIG_RAMDUMP_CHIPID}"
 				continue ;;
+			--build-version)
+				CONFIG_BUILD_VERSION="${argv[$i]}"
+				if [ -z "${CONFIG_BUILD_VERSION}" ]; then
+					echo "need choice 2015/2019/2023 version"
+				fi
+				CONFIG_CHOICE_BUILD=1
+				export CONFIG_CHOICE_BUILD
+				export CONFIG_BUILD_VERSION
+				continue ;;
 			clean|distclean|-distclean|--distclean)
 				clean
 				exit ;;
 			*)
 		esac
 	done
+
+	if [ -z $CONFIG_SUPPORT_BL33Z ]; then
+		CONFIG_SUPPORT_BL33Z=1
+		export CONFIG_SUPPORT_BL33Z
+		echo "By default, SET CONFIG_SUPPORT_BL33Z=1"
+	fi
 }
 
 function bin_path_update() {
@@ -632,6 +677,17 @@ function bin_path_parser() {
 				CONFIG_AVB2_RECOVERY=1
 				echo "export CONFIG_AVB2_RECOVERY"
 				export CONFIG_AVB2_RECOVERY=1
+				continue ;;
+			--patch)
+				CONFIG_PATCH=1
+				echo "export CONFIG_PATCH"
+				export CONFIG_PATCH
+				source fip/auto_patch.sh
+				continue ;;
+			--testkey)
+				CONFIG_TESTKEY=1
+				echo "export CONFIG_TESTKEY"
+				export CONFIG_TESTKEY=1
 				continue ;;
 				*)
 		esac

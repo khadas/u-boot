@@ -132,13 +132,13 @@ struct xAdcKeyInfo {
 }
 
 void vCreateGpioKey(struct xGpioKeyInfo *keyArr, uint16_t keyNum);
-void vDestoryGpioKey(void);
+void vDestroyGpioKey(void);
 void vGpioKeyEnable(void);
 void vGpioKeyDisable(void);
 int  vGpioKeyIsEmpty(void);
 
 void vCreateAdcKey(struct xAdcKeyInfo *keyArr, uint16_t keyNum);
-void vDestoryAdcKey(void);
+void vDestroyAdcKey(void);
 void vAdcKeyEnable(void);
 void vAdcKeyDisable(void);
 int  vAdcKeyIsEmpty(void);

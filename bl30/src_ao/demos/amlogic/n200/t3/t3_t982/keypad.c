@@ -52,7 +52,7 @@ static void vAdcKeyCallBack(struct xReportEvent event)
 			STR_Wakeup_src_Queue_Send_FromISR(buf);
 		} else {
 			//vAdcKeyDisable();
-			//vDestoryAdcKey();
+			//vDestroyAdcKey();
 			printf("adc key wakeup ap\n");
 			//wakeup_ap();
 			set_reason_flag(POWER_KEY_WAKEUP);
@@ -101,7 +101,7 @@ void vKeyPadInit(void)
 void vKeyPadDeinit(void)
 {
 	vAdcKeyDisable();
-	//vDestoryAdcKey();
+	//vDestroyAdcKey();
 }
 
 static int keypad_enter(void *arg)

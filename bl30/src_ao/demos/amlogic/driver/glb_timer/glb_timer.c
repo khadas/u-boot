@@ -194,7 +194,7 @@ int uGlobalTimerInputGPIOConfigure(uint8_t ucSrc, enum MesonGlbSrcSelFlag type)
  * lib/third_party/amlogic/include/drivers/global_timer.h note that this
  * number and GPIO
  * line number should keep mapping 0-31 <--> GLBT_GPIO0_IRQ -- GLBT_GPIO31_IRQ
- * @retruns:the global timer 64 bit snapshot value
+ * @returns:the global timer 64 bit snapshot value
  */
 uint64_t ullGlobalTimerInputGPIOGetSnapshot(uint8_t ucSrc)
 {
@@ -285,7 +285,7 @@ static inline void prvGlbTimerSetOutputSrc(uint8_t ucSrc, uint8_t gen)
  * @uInterval: pulse interval in global timer cycles
  * @ucInitval: decides the initial value of the gpio state and the pulse
  * would be inverse of that init value
- * @retruns: 0 on success and error code on failure
+ * @returns: 0 on success and error code on failure
  */
 int uGlobalTimerOutputGPIOSetup(uint8_t ucSrc, uint8_t ucOneshot,
 				uint32_t uPulseWith, uint32_t uInterval,

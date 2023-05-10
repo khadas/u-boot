@@ -8,7 +8,6 @@ BASEDIR_BUILD="${BASEDIR_TOP}/ddrfw_out"
 declare DDRFW_DIR="ddrfw_out"
 declare CHIPACS_SIZE="8192"
 declare DDRFW_SIZE="212992"
-declare -a CHIPACS_FEATURE=("orige" "merge")
 
 function gen_ddrfw_area_data() {
 	local ddr_input=$1

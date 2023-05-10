@@ -93,6 +93,12 @@ endif
 ifeq ($(SOC),t7c)
 SOC		=	t7
 endif
+ifeq ($(SOC),kvim4)
+SOC     =   t7
+endif
+ifeq ($(SOC),kvim1s)
+SOC     =   s4
+endif
 
 #list="sc2 s4 t3 t7 p1 a1 a5 t5w"
 list=$(shell find ./include/asm/ -name "regs.h" | cut  -d  '/' -f 4 | cut -d '-' -f 2- | sort)

@@ -14,16 +14,16 @@ _start:
 	li t0, (0x1 << 9);
 	csrs CSR_MMISC_CTL, t0
 
-/* Intial the mtvt*/
+/* Initial the mtvt*/
 	la t0, vector_base
 	csrw CSR_MTVT, t0
 
-/* Intial the mtvt2 and enable it*/
+/* Initial the mtvt2 and enable it*/
 	la t0, irq_entry
 	csrw CSR_MTVT2, t0
 	csrs CSR_MTVT2, 0x1
 
-	/* Intial the CSR MTVEC for the Trap ane NMI base addr*/
+	/* Initial the CSR MTVEC for the Trap ane NMI base addr*/
 	la t0, trap_entry
 	li t1, 0x3   // use ucliec
 	or t0, t0, t1
@@ -59,7 +59,7 @@ _start:
 	la sp, _sp
 
 #if defined (SOC_t3)
-	/* Fixme T3 axi_ram access issuse */
+	/* Fixme T3 axi_ram access issue */
 	lw a0, _data_start
 	lw a1, _data_end
 	lw a2, _data_img

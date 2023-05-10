@@ -12,7 +12,7 @@
 #include "n200_timer.h"
 #include "FreeRTOS.h"
 
-    // Configure PMP to make all the address space accesable and executable
+    // Configure PMP to make all the address space accessible and executable
 void pmp_open_all_space(void){
     // Config entry0 addr to all 1s to make the range cover all space
     asm volatile ("li x6, 0xffffffff":::"x6");

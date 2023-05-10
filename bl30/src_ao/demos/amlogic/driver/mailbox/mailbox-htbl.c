@@ -25,7 +25,7 @@
  */
 
 /**
- * hanlder table module (H-TBL)
+ * handler table module (H-TBL)
  * - register handler with cmd id
  * - invoke handler with cmd id
  */

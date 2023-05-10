@@ -23,6 +23,7 @@ static void bt_wakeup_Task(void *args)
 
 	UNUSED(args);
 	printf("bt_wakeup_Task\n");
+init:
 	vTaskSuspend(btTask);
 	vTaskDelay(pdMS_TO_TICKS(100));
 	if (!xGpioGetValue(GPIOX_18)) {
@@ -54,8 +55,16 @@ static void bt_wakeup_Task(void *args)
 				buf[0] = REMOTE_CUS_WAKEUP;
 			}
 		}
+		else {
+			printf("flag_p= %d, flag_n = %d",flag_p, flag_n);
+			buf[0] = BT_WAKEUP;
+		}
 
+	} else {
+		printf("bt_wake_host low level not detected, suspend task again");
+		goto init;
 	}
+
 	if (buf[0] != 0) {
 		STR_Wakeup_src_Queue_Send(buf);
 		while (1) {

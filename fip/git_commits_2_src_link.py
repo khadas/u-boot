@@ -9,7 +9,7 @@
 #               1. 2022.07.20 v0.1 create for stable branch update.
 #  =====================================================================
 
-# Import moudles
+# Import modules
 try:
     import sys
     import os
@@ -25,7 +25,7 @@ try:
     from collections import OrderedDict
 except Exception as e:
     print(e)
-    exit('Please install moudles, eg: pip3 install os')
+    exit('Please install modules, eg: pip3 install os')
 
 # jason example: bl3.4.5-20220711-pre-ver.json
 # {
@@ -57,7 +57,7 @@ blSrcGits = [
     {"blType" : "fip",           "gitBranch" : "amlogic-dev",              "gitRemote" : "fip",           "upStream" : "amlogic/tools/fip/+/"}
 ]
 
-# the local csv file columns 
+# the local csv file columns
 csv_file_column = [
     {"ID" : "A",       "WIDTH" : 12,         "NAME" : "Index"},
     {"ID" : "B",       "WIDTH" : 45,         "NAME" : "Trunk Commit"},
@@ -147,6 +147,10 @@ def git_commits_to_src_link():
     for i in range(len(trunk_list)):
         print(' > [%d] gitPath: %-12s  lastCommit: %s'%(i+1, trunk_list[i]['gitPath'], trunk_list[i]['lastCommit']))
 
+        if len(trunk_list[i]['lastCommit']) == 0:
+            print(' >     lastCommit is NULL !')
+            continue
+
         try:
             os.chdir(topdir + trunk_list[i]['gitPath'])
         except:
@@ -225,27 +229,37 @@ def git_cmt_parse(gitPath, lastCommit, headCommit, isSrc):
         #    print(' >    %s'%(log_list))
     except:
         pass
+    #Remove invalid commits
+    autosubmit = []
+    log_list_len = len(log_list)
+    for i in range(log_list_len):
+        if "gerrit.autosubmit@amlogic.com" in log_list[i]:
+            autosubmit.append(i)
+    log_list = [log_list[i] for i in range(log_list_len) if (i not in autosubmit)]
 
-    # deal with "Merge into" or "revert" commits 
+    # deal with "Merge into" or "revert" commits
     for i in range(len(log_list)):
         try:
             log_list[i] = str(re.sub(r'Merge "', r'Merge <', str(log_list[i])))
             log_list[i] = str(re.sub(r'" into', r'> into', str(log_list[i])))
             log_list[i] = str(re.sub(r'Revert "', r'Revert <', str(log_list[i])))
             log_list[i] = str(re.sub(r'"",', r'>",', str(log_list[i])))
+            log_list[i] = str(re.sub(r' "', r' <', str(log_list[i])))
+            log_list[i] = str(re.sub(r'" ', r'> ', str(log_list[i])))
 
             if debug_enable:
                 print(' >    [%d] %s'%(i,log_list[i]))
         except:
             pass
-
     # eval special special characters
     try:
         real_log_list = [eval(str(item)) for item in log_list]
     except:
         real_log_list = []
+        if debug_enable:
+            print(' >    eval(str(item)) ERROR!')
+            print(' >    %s'%(log_list))
         pass
-
     # update real_log_list[i]['pd'] with JiraNo
     for j in range(len(real_log_list)):
         try:

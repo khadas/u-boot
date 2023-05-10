@@ -162,7 +162,7 @@ fail_alloc2:
 	printf("adc key: [%d] malloc failed!\n", i);
 }
 
-void vDestoryAdcKey(void)
+void vDestroyAdcKey(void)
 {
 	struct xOneAdcKeyInfo *xPassBtn, *xTmpBtn;
 	uint32_t key_id;

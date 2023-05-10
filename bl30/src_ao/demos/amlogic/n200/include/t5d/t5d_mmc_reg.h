@@ -226,17 +226,17 @@
   //bit 10  force to disable the clock of dfi command generation
   //bit 9   force to disable the clock of dram controller
   //bit 8   force to disable the clock of dfi data path.
-  //bit 7. force to disalbe the clock of write rsp generation.
-  //bit 6. force to disalbe the clock of read rsp generation.
-  //bit 5.  force to disalbe the clock of  command filter.
-  //bit 4.  force to disalbe the clock of  write reorder buffer.
-  //bit 3.  force to disalbe the clock of write data buffer.
-  //bit 2.  force to disalbe the clock of read reorder buffer.
-  //bit 1.  force to disalbe the clock of read canvas.
-  //bit 0.  force to disalbe the clock of write canvas.
+  //bit 7. force to disable the clock of write rsp generation.
+  //bit 6. force to disable the clock of read rsp generation.
+  //bit 5.  force to disable the clock of  command filter.
+  //bit 4.  force to disable the clock of  write reorder buffer.
+  //bit 3.  force to disable the clock of write data buffer.
+  //bit 2.  force to disable the clock of read reorder buffer.
+  //bit 1.  force to disable the clock of read canvas.
+  //bit 0.  force to disable the clock of write canvas.
 
 
-// DMC CANVAS setting domain control regsiters.
+// DMC CANVAS setting domain control registers.
 #define DC_CAV_LUT_DATAL                           ((0x0012  << 2) + 0xff638000)
   //low 32 bits of canvas data which need to be configured to canvas memory.
 #define DC_CAV_LUT_DATAH                           ((0x0013  << 2) + 0xff638000)
@@ -304,7 +304,7 @@
   // at the test period,  the whole MMC granted data cycles which goes to 16bits ddr. unit:64bits
 
 #define DMC_MON0_CTRL                              ((0x0030  << 2) + 0xff638000)
-  //BW MONTIOR 0 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW MONITOR 0 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON0_CTRL1                             ((0x0031  << 2) + 0xff638000)
@@ -316,7 +316,7 @@
   // at the test period, this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON1_CTRL                              ((0x0034  << 2) + 0xff638000)
-  //BW monitor 1 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 1 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON1_CTRL1                             ((0x0035  << 2) + 0xff638000)
@@ -328,7 +328,7 @@
   // at the test period, this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON2_CTRL                              ((0x0038  << 2) + 0xff638000)
-  //BW monitor 2 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 2 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON2_CTRL1                             ((0x0039  << 2) + 0xff638000)
@@ -340,7 +340,7 @@
   // at the test period, this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON3_CTRL                              ((0x003c  << 2) + 0xff638000)
-  //BW monitor 3 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 3 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON3_CTRL1                             ((0x003d  << 2) + 0xff638000)
@@ -352,7 +352,7 @@
   // at the test period, this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON4_CTRL                              ((0x00c0  << 2) + 0xff638000)
-  //BW monitor 4 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 4 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON4_CTRL1                             ((0x00c1  << 2) + 0xff638000)
@@ -364,7 +364,7 @@
   // at the test period, this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON5_CTRL                              ((0x00c4  << 2) + 0xff638000)
-  //BW monitor 5 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 5 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON5_CTRL1                             ((0x00c5  << 2) + 0xff638000)
@@ -376,7 +376,7 @@
   // at the test period, this range granted data cycles for the selected channel and ports.
 
 #define DMC_MON6_CTRL                              ((0x00c8  << 2) + 0xff638000)
-  //BW monitor 6 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 6 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON6_CTRL1                             ((0x00c9  << 2) + 0xff638000)
@@ -389,7 +389,7 @@
 
 
 #define DMC_MON7_CTRL                              ((0x00cc  << 2) + 0xff638000)
-  //BW monitor 7 address range control.  start addrss <= AXI address[31:16] <= end address
+  //BW monitor 7 address range control.  start address <= AXI address[31:16] <= end address
   //bit 31:16  End address[31:16]
   //bit 15:0.  start address[31:16]
 #define DMC_MON7_CTRL1                             ((0x00cd  << 2) + 0xff638000)
@@ -442,7 +442,7 @@
   //bit 7:0.    write urgent 0 request pending hold num.
 
 #define DMC_CMD_FILTER_CTRL7                       ((0x0046  << 2) + 0xff638000)
-  //bit 31:24.  aw_req_pedning singal assertion after wbuf full.
+  //bit 31:24.  aw_req_pending singal assertion after wbuf full.
   //bit 23:16   aw_req_pending singal hold how long if wbuf not full.
   //bit 15:8    write to read waiting cycles if there write hit request.
   //bit 7:0     read to write waiting cycles if there write hit request.
@@ -917,7 +917,7 @@
 #define DMC_CHAN_STS                               ((0x00bc  << 2) + 0xff638000)
   //AXI0  is first CPU and Mali combined channel from CCI-400 directly.  The first 2Gbyte address will go through this channel.
   //AXI10  is the second CPU, Mali channel combined with NNA  from NIC-400.  The upper 2Gbyte address will go through this channel.
-  // read only regsiter.
+  // read only register.
   // the second mali and NNA channel IDLE.
   // the second CPU channel IDLE.
   // the first mali channel IDLE.
@@ -934,7 +934,7 @@
   //bit 31:16 :   range end address.
   //bit 15:0  :   range start address
 #define DMC_PROT0_CTRL                             ((0x00d1  << 2) + 0xff638000)
-  //bit 23:16. each bit to eanble one of the 8 ambus channal for the protection function.
+  //bit 23:16. each bit to enable one of the 8 ambus channal for the protection function.
   //bit 15:0   each bit to enable one of the 15 channel input for the protection function.
 #define DMC_PROT0_CTRL1                            ((0x00d2  << 2) + 0xff638000)
   //bit 26.  protection 0  read access protection enable.
@@ -945,7 +945,7 @@
   //bit 31:16 :   range end address.
   //bit 15:0  :   range start address
 #define DMC_PROT1_CTRL                             ((0x00d4  << 2) + 0xff638000)
-  //bit 23:16. each bit to eanble one of the 8 ambus channal for the protection function.
+  //bit 23:16. each bit to enable one of the 8 ambus channal for the protection function.
   //bit 15:0   each bit to enable one of the 15 channel input for the protection function.
 #define DMC_PROT1_CTRL1                            ((0x00d5  << 2) + 0xff638000)
   //bit 26.  protection range 1 read access protection enable bit.
@@ -1038,37 +1038,37 @@
 
 
 #define DMC_TEST_WD0                               ((0x0010  << 2) + 0xff639800)
-   // write data 0 for write command. also for read back data comparision.
+   // write data 0 for write command. also for read back data comparison.
 #define DMC_TEST_WD1                               ((0x0011  << 2) + 0xff639800)
-   // write data 1 for write command. also for read back data comparision.
+   // write data 1 for write command. also for read back data comparison.
 #define DMC_TEST_WD2                               ((0x0012  << 2) + 0xff639800)
-   // write data 2 for write command. also for read back data comparision.
+   // write data 2 for write command. also for read back data comparison.
 #define DMC_TEST_WD3                               ((0x0013  << 2) + 0xff639800)
-   // write data 3 for write command. also for read back data comparision.
+   // write data 3 for write command. also for read back data comparison.
 #define DMC_TEST_WD4                               ((0x0014  << 2) + 0xff639800)
-   // write data 4 for write command. also for read back data comparision.
+   // write data 4 for write command. also for read back data comparison.
 #define DMC_TEST_WD5                               ((0x0015  << 2) + 0xff639800)
-   // write data 5 for write command. also for read back data comparision.
+   // write data 5 for write command. also for read back data comparison.
 #define DMC_TEST_WD6                               ((0x0016  << 2) + 0xff639800)
-   // write data 6 for write command. also for read back data comparision.
+   // write data 6 for write command. also for read back data comparison.
 #define DMC_TEST_WD7                               ((0x0017  << 2) + 0xff639800)
-   // write data 7 for write command. also for read back data comparision.
+   // write data 7 for write command. also for read back data comparison.
 #define DMC_TEST_WD8                               ((0x0018  << 2) + 0xff639800)
-   // write data 8 for write command. also for read back data comparision.
+   // write data 8 for write command. also for read back data comparison.
 #define DMC_TEST_WD9                               ((0x0019  << 2) + 0xff639800)
-   // write data 9 for write command. also for read back data comparision.
+   // write data 9 for write command. also for read back data comparison.
 #define DMC_TEST_WD10                              ((0x001a  << 2) + 0xff639800)
-   // write data 10 for write command. also for read back data comparision.
+   // write data 10 for write command. also for read back data comparison.
 #define DMC_TEST_WD11                              ((0x001b  << 2) + 0xff639800)
-   // write data 11 for write command. also for read back data comparision.
+   // write data 11 for write command. also for read back data comparison.
 #define DMC_TEST_WD12                              ((0x001c  << 2) + 0xff639800)
-   // write data 12 for write command. also for read back data comparision.
+   // write data 12 for write command. also for read back data comparison.
 #define DMC_TEST_WD13                              ((0x001d  << 2) + 0xff639800)
-   // write data 13 for write command. also for read back data comparision.
+   // write data 13 for write command. also for read back data comparison.
 #define DMC_TEST_WD14                              ((0x001e  << 2) + 0xff639800)
-   // write data 14 for write command. also for read back data comparision.
+   // write data 14 for write command. also for read back data comparison.
 #define DMC_TEST_WD15                              ((0x001f  << 2) + 0xff639800)
-   // write data 15 for write command. also for read back data comparision.
+   // write data 15 for write command. also for read back data comparison.
 
 #define DMC_TEST_RD0                               ((0x0020  << 2) + 0xff639800)
    // the read back data 0.  if error happens, it would capture the first error data.
@@ -1143,7 +1143,7 @@
 
 //DMC use 15bits ID to identify the input ports and ID.
 // bit 14:10.
-// 0 : CPU and MALI.   Mali and cpu will be seperated to 2 channel. CPU traffic will be assigned to ID = 0. Mali traffic will assigned to ID =1.
+// 0 : CPU and MALI.   Mali and cpu will be separated to 2 channel. CPU traffic will be assigned to ID = 0. Mali traffic will assigned to ID =1.
 // 1 : Mali
 // 2 : PCIE
 // 3 : HDMI.
@@ -1153,7 +1153,7 @@
 // 7 : Device.
 // 8 : HEVC_B
 // 9 : WAVE.
-//10 : CPU, GPU and NNA. CPU will assign to ID = 13.  GPU and NNA still in ID = 10. we use the GPU/NNA ID to cotrol the secure control.
+//10 : CPU, GPU and NNA. CPU will assign to ID = 13.  GPU and NNA still in ID = 10. we use the GPU/NNA ID to control the secure control.
 //11 : GDC.
 //12 : ISP.
 
@@ -1844,7 +1844,7 @@
 
 #define DMC_DDR_CTRL1                              ((0x0130  << 2) + 0xff639000)
   //bit 0. DMC_DDR_LOCK.    1: LOCK DMC_DDR_CTRL, DMC_DDR_CTRL1, DMC_AXI2DDRx, DDR0/1_ADDRMAP_x registers. those register can't modified any more.
-                        //  0: all these regsiters can be read/write by secure APB access.
+                        //  0: all these registers can be read/write by secure APB access.
 
 //
 // Closing file:  ../mmc_lp4/dmc/rtl/dmc_sec.vh
@@ -1937,7 +1937,7 @@
 #define DMC_DRAM_TDPD                              ((0x001d  << 2) + 0xff638400)
  //not support.
 #define DMC_DRAM_DFITCTRLDELAY                     ((0x001e  << 2) + 0xff638400)
-  //bit 3:0. DFI_t_ctrldealy
+  //bit 3:0. DFI_t_ctrldelay
 #define DMC_DRAM_DFITPHYWRDATA                     ((0x001f  << 2) + 0xff638400)
   //bit 5:0.  dfi_t_phy_wrdata.
 #define DMC_DRAM_DFITPHYWRLAT                      ((0x0020  << 2) + 0xff638400)
@@ -1947,7 +1947,7 @@
 #define DMC_DRAM_DFITPHYRDLAT                      ((0x0022  << 2) + 0xff638400)
   //bit 5:0.  dfi_t_rdlat.
 #define DMC_DRAM_DFITCTRLUPDMIN                    ((0x0023  << 2) + 0xff638400)
-  //bit 7:0.  CTRLUPD_MIN  minimux clock cycle to maintain CTRLUPD_REQ.
+  //bit 7:0.  CTRLUPD_MIN  minimum clock cycle to maintain CTRLUPD_REQ.
 #define DMC_DRAM_DFITCTRLUPDMAX                    ((0x0024  << 2) + 0xff638400)
   //bit 7:0   CTRLUPD_MAX.  maxmum clock cycle to maintain CTRLUPD_REQ if no CTRLUPD_ACK response.
 #define DMC_DRAM_DFITREFMSKI                       ((0x0026  << 2) + 0xff638400)
@@ -2033,7 +2033,7 @@
 
 
 
-//timing paramter for frequency set 1.
+//timing parameter for frequency set 1.
 #define DMC_NFQ_TMRD                               ((0x0040  << 2) + 0xff638400)
 #define DMC_NFQ_TRFC                               ((0x0041  << 2) + 0xff638400)
 #define DMC_NFQ_TRP                                ((0x0042  << 2) + 0xff638400)
@@ -2121,7 +2121,7 @@
  //bit 10    1: enable staggered chip select for 2 ranks DRAM.
  //bit 9     1: enable send auto refresh command to DDR SDRAM when PCTL is in CFG/STOP state.
  //bit 8     send auto refr cmd before enter register triggered  self refresh
- //bit 7     send auto refr cmd after exit regsiter triggered self refresh mode.
+ //bit 7     send auto refr cmd after exit register triggered self refresh mode.
  //bit 6     disable dram clock after enter register triggered self refresh.
  //bit 5     send DFI_LP_REQ to PHY after enter register triggered elf refresh mode.
  //bit 4     send DRAM to power down mode after enter self refresh. ONLY for LPDDR4.
@@ -2218,7 +2218,7 @@
 //bit 14.   freq post config_en. After  freq enter stop state let DMC configure DDR SDRAM.
 //bit 13.   send zqcl after freq change in DDR3/4 mode.
 //bit 12.   send zqcs after freq change. 1: enable. 0 not send.
-//bit 11.   in AUTO MRW fucntion: the data format.  1: use USR_CMD format.  0: MRW format.
+//bit 11.   in AUTO MRW function: the data format.  1: use USR_CMD format.  0: MRW format.
 //bit 10.   AUTO MRW function:  1 use hardware auto MRW function.  0: don't do auto MRW.
 //bit 9.  1 : FREQ MRW done. let FREQ change machine continue.
 //bit 8   FREQ WAIT. 1 when freq change finishes, state machine stop at self refresh state in case there's something need to handle.
@@ -2304,7 +2304,7 @@
 
 
 #define DMC_DFI_ERR_STAT                           ((0x0098  << 2) + 0xff638400)
- //LPDDR4 PHY DFI error infomation.
+ //LPDDR4 PHY DFI error information.
  //bit 31:20. not used.
  //bit 9.    ddr0_dfi_error
  //bit 8:5   ddr0_dfi_error_info.

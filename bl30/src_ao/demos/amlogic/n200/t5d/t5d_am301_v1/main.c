@@ -203,6 +203,11 @@ int main(void)
 	vKeyPadCreate();
 
 	vUartPuts("Starting task scheduler ...\n");
+
+#define RTOS_RUN_SUCC			(1 << 0)
+#define RTOS_BOOT_SUCC_REG             AO_DEBUG_REG2
+	*(volatile uint32_t *)RTOS_BOOT_SUCC_REG |= RTOS_RUN_SUCC;
+
 	vTaskStartScheduler();
 
 	for (;;);
@@ -212,7 +217,7 @@ int main(void)
 
 void vApplicationIdleHook( void )
 {
-   //vPrintString("enter idle task\n");
+   //vUartPuts("enter idle task\n");
 
    //write_csr(mie, 1); // open mstatue.mie
    //asm volatile ("wfi"); // enter low power mode

@@ -45,6 +45,7 @@
 
 #define STR_QUEUE_LENGTH    32
 #define STR_QUEUE_ITEM_SIZE 4
+#define EXIT_REASON_EXTENSION_FLAG	(1 << 7)
 
 typedef struct {
 	char* name;

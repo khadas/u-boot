@@ -80,5 +80,5 @@ void vKeyPadInit(void)
 void vKeyPadDeinit(void)
 {
 	vGpioKeyDisable();
-	vDestoryGpioKey();
+	vDestroyGpioKey();
 }

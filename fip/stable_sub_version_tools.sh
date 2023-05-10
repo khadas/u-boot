@@ -334,19 +334,19 @@ function modify_stable_branch_version() {
 			if [ "${STABLE_VER_FILE[$i]}" != "NULL" ]; then
 				######################### 1. modify version ############################
 				# major
-				CURRET_VER_MAJOG=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
+				CURRENT_VER_MAJOG=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
 				MODIFY_VER_MAJOR=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  1`
-				sed -i '/MAJOR_VERSION /s/'$CURRET_VER_MAJOG'/'$MODIFY_VER_MAJOR'/g' ${STABLE_VER_FILE[$i]}
+				sed -i '/MAJOR_VERSION /s/'$CURRENT_VER_MAJOG'/'$MODIFY_VER_MAJOR'/g' ${STABLE_VER_FILE[$i]}
 
 				# minor
-				CURRET_VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
+				CURRENT_VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
 				MODIFY_VER_MINOR=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  2`
-				sed -i '/MINOR_VERSION /s/'$CURRET_VER_MINOR'/'$MODIFY_VER_MINOR'/g' ${STABLE_VER_FILE[$i]}
+				sed -i '/MINOR_VERSION /s/'$CURRENT_VER_MINOR'/'$MODIFY_VER_MINOR'/g' ${STABLE_VER_FILE[$i]}
 
 				# patch
-				CURRET_VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
+				CURRENT_VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
 				MODIFY_VER_PATCH=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  3`
-				sed -i '/PATCH_VERSION /s/'$CURRET_VER_PATCH'/'$MODIFY_VER_PATCH'/g' ${STABLE_VER_FILE[$i]}
+				sed -i '/PATCH_VERSION /s/'$CURRENT_VER_PATCH'/'$MODIFY_VER_PATCH'/g' ${STABLE_VER_FILE[$i]}
 
 				######################### 2. git add file ############################
 				git add ${STABLE_VER_FILE[$i]}

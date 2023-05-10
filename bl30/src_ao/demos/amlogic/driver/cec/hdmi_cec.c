@@ -2112,7 +2112,7 @@ static void cec_node_init(void)
 				regist_devs |= (1 << dev_idx);
 				retry += (4 - (retry & 0x03));
 				if (regist_devs == 0x07) {
-					// No avilable logical address
+					// No available logical address
 					cec_msg.log_addr = 0x0f;
 					cec_set_log_addr(15);
 					printf("CEC allocate logic address failed\n");

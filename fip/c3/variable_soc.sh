@@ -53,13 +53,24 @@ declare -a BLX_BIN_NAME=("bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
 			 "bb1st.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
 			 "blob-bl2e.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed" \
 			 "blob-bl2e.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed" \
-			 "blob-bl2x.bin.signed"                              \
-			 "blob-bl31.bin.signed"                              \
+			 "blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
+			 "blob-bl31${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
 			 "blob-bl32.bin.signed"                              \
 			 "blob-bl40.bin.signed")
 fi
 
-
+if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ]; then
+declare -a BLX_BIN_SIZE=("169984"	\
+			 "169984"	\
+			 "74864"	\
+			 "74864"	\
+			 "66672"	\
+			 "266240"	\
+			 "8192"	\
+			 "8192")
+declare BL30_BIN_SIZE="65536"
+declare BL33_BIN_SIZE="524288"
+else
 declare -a BLX_BIN_SIZE=("169984"	\
 			 "169984"	\
 			 "74864"	\
@@ -68,9 +79,9 @@ declare -a BLX_BIN_SIZE=("169984"	\
 			 "266240"	\
 			 "528384"	\
 			 "102400")
-
 declare BL30_BIN_SIZE="65536"
 declare BL33_BIN_SIZE="1572864"
+fi
 declare DEV_ACS_BIN_SIZE="4096"
 declare -a BLX_RAWBIN_NAME=("bl2.bin.sto"	\
 			    "bl2.bin.usb"	\

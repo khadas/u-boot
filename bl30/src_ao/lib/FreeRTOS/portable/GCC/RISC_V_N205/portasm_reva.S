@@ -378,7 +378,7 @@
 .endm
 
 
-/* Saves current return adress (RA) as task program counter */
+/* Saves current return address (RA) as task program counter */
 .macro portSAVE_RA
 	LOAD	t0, 1 * REGBYTES(sp)
 	STORE	t0, 33 * REGBYTES(sp)
@@ -402,7 +402,7 @@ trap_entry:
 	/* Check for interrupt */
 	pushREGFILE
 	csrr	a0, mcause
-    	//Bob: we dont need to check interrupt here because N200 have seperated entry to IRQ
+	//Bob: we dont need to check interrupt here because N200 have separated entry to IRQ
 	//blt		a0,zero,interrupt
 
 	/* synchronous interrupt*/

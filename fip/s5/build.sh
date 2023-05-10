@@ -9,7 +9,7 @@ function init_vari() {
 	#source ${AUTOCFG_FILE} &> /dev/null # ignore warning/error
 
 	AML_BL2_NAME="bl2.bin"
-	AML_KEY_BLOB_NANE="aml-user-key.sig"
+	AML_KEY_BLOB_NAME="aml-user-key.sig"
 
 	if [ "y" == "${CONFIG_AML_SECURE_BOOT_V3}" ]; then
 		V3_PROCESS_FLAG="--level v3"
@@ -100,80 +100,6 @@ function mk_bl2ex() {
 	dd if=/dev/zero of=${payload}/bl2x.bin bs=65536 count=1
 	dd if=${output}/bl2x.bin of=${payload}/bl2x.bin conv=notrunc
 
-
-	echo "===================================================="
-	echo "------ process for Synopsys ddr fw ------"
-	INPUT_DDRFW=./${FIP_FOLDER}${CUR_SOC}
-
-	if [ "$ddr_type" == "ddr4" ]; then
-		dd if=${INPUT_DDRFW}/ddr4_1d.fw of=${payload}/ddrfw_1d.bin skip=96 bs=1 count=36864
-		dd if=${INPUT_DDRFW}/ddr4_2d.fw of=${payload}/ddrfw_2d.bin skip=96 bs=1 count=36864
-	elif [ "$ddr_type" == "ddr3" ]; then
-		dd if=${INPUT_DDRFW}/ddr3_1d.fw of=${payload}/ddrfw_1d.bin skip=96 bs=1 count=36864
-		dd if=/dev/zero of=${payload}/ddrfw_2d.bin bs=36864 count=1
-	elif [ "$ddr_type" == "lpddr4" ]; then
-		dd if=${INPUT_DDRFW}/lpddr4_1d.fw of=${payload}/ddrfw_1d.bin skip=96 bs=1 count=69632
-		dd if=${INPUT_DDRFW}/lpddr4_1d.fw of=${payload}/ddrfw_2d.bin skip=96 bs=1 count=69632
-	elif [ "$ddr_type" == "lpddr5" ]; then
-		dd if=${INPUT_DDRFW}/lpddr5_1d.fw of=${payload}/ddrfw_1d.bin skip=96 bs=1 count=69632
-		dd if=${INPUT_DDRFW}/lpddr5_1d.fw of=${payload}/ddrfw_2d.bin skip=96 bs=1 count=69632
-	elif [ "$ddr_type" == "lpddr4_lpddr5" ]; then
-		dd if=${INPUT_DDRFW}/lpddr4_1d.fw of=${payload}/ddrfw_1d.bin skip=96 bs=1 count=69632
-		dd if=${INPUT_DDRFW}/lpddr5_1d.fw of=${payload}/ddrfw_2d.bin skip=96 bs=1 count=69632
-	elif [ "$ddr_type" == "lpddr3" ]; then
-		dd if=${INPUT_DDRFW}/lpddr3_1d.fw of=${payload}/ddrfw_1d.bin skip=96 bs=1 count=36864
-		dd if=/dev/zero of=${payload}/ddrfw_2d.bin bs=36864 count=1
-	else
-		echo "un-recognized ddr_type: ${ddr_type}"
-		echo "---- use default ddr4 ----"
-		dd if=${INPUT_DDRFW}/ddr4_1d.fw of=${payload}/ddrfw_1d.bin skip=96 bs=1 count=36864
-		dd if=${INPUT_DDRFW}/ddr4_2d.fw of=${payload}/ddrfw_2d.bin skip=96 bs=1 count=36864
-	fi
-
-	piei_size=`stat -c %s ${INPUT_DDRFW}/piei.fw`
-	if [ $piei_size -gt 24672 ]; then
-		dd if=${INPUT_DDRFW}/piei.fw of=${payload}/ddrfw_piei.bin skip=96 bs=1 count=24576
-	else
-		dd if=/dev/zero of=${payload}/ddrfw_piei.bin bs=24576 count=1
-		dd if=${INPUT_DDRFW}/piei.fw of=${payload}/ddrfw_piei.bin skip=96 bs=1 conv=notrunc
-	fi
-
-
-	if [ ! -f ${output}/ddr_param.bin ]; then
-		echo "${output}/ddr_param.bin not exist !"
-		dd if=/dev/zero of=${output}/ddr_param.bin bs=8192 count=1
-	fi
-	ddrparam_size=`stat -c %s ${output}/ddr_param.bin`
-	if [ $ddrparam_size -gt 8192 ]; then
-		dd if=${output}/ddr_param.bin of=${payload}/ddrfix_param.bin bs=1 count=8192
-	else
-		dd if=/dev/zero of=${payload}/ddrfix_param.bin bs=8192 count=1
-		dd if=${output}/ddr_param.bin of=${payload}/ddrfix_param.bin bs=1 conv=notrunc
-	fi
-
-	aml_ddr_size=`stat -c %s ${INPUT_DDRFW}/aml_ddr.fw`
-	if [ $aml_ddr_size -gt 40960 ]; then
-		dd if=${INPUT_DDRFW}/aml_ddr.fw of=${payload}/aml_ddr.bin  bs=1 count=40960
-	else
-		dd if=/dev/zero of=${payload}/aml_ddr.bin bs=40960 count=1
-		dd if=${INPUT_DDRFW}/aml_ddr.fw of=${payload}/aml_ddr.bin  bs=1 conv=notrunc
-	fi
-
-	cat ${payload}/ddrfw_1d.bin  ${payload}/ddrfw_2d.bin \
-		${payload}/ddrfw_piei.bin ${payload}/ddrfix_param.bin \
-		${payload}/aml_ddr.bin > ${payload}/ddrfw_data.bin
-
-	if [ ! -f ${payload}/ddrfw_data.bin ]; then
-		echo "ddrfw_data payload does not exist in ${payload} !"
-		exit -1
-	fi
-	ddrfw_data_size=`stat -c %s ${payload}/ddrfw_data.bin`
-	if [ $ddrfw_data_size -ne 212992 ]; then
-		echo "ddr_fwdata size is not equal to 208K, $ddrfw_data_size"
-		exit -1
-	fi
-
-
 	echo "===================================================="
 	echo "------ process for device and chip params ------"
 	INPUT_PARAMS=${output}
@@ -261,7 +187,7 @@ function mk_devfip() {
 
 	# fix size for BL40 96KB
 	if [ -f ${output}/bl40.bin ]; then
-		blx_szie=`stat -c %s ${output}/bl40.bin`
+		blx_size=`stat -c %s ${output}/bl40.bin`
 		if [ $blx_size -gt 98304 ]; then
 			echo "Error: bl40 size exceed limit 98304"
 			exit -1
@@ -726,6 +652,13 @@ function process_blx() {
 	fi
 	dd if=/dev/zero of=${BUILD_PATH}/bl30-payload.bin bs=${BL30_BIN_SIZE} count=1 &> /dev/null
 	dd if=${BUILD_PATH}/bl30.bin of=${BUILD_PATH}/bl30-payload.bin conv=notrunc &> /dev/null
+
+	if [ "y" == "${CONFIG_AML_BL33_COMPRESS_ENABLE}" ]; then
+		mv -f ${BUILD_PATH}/bl33.bin  ${BUILD_PATH}/bl33.bin.org
+		encrypt_step --bl3sig  --input ${BUILD_PATH}/bl33.bin.org --output ${BUILD_PATH}/bl33.bin.org.lz4 --compress lz4 --level v3 --type bl33
+		#get LZ4 format bl33 image from bl33.bin.enc with offset 0x720
+		dd if=${BUILD_PATH}/bl33.bin.org.lz4 of=${BUILD_PATH}/bl33.bin bs=1 skip=1824 >& /dev/null
+	fi
 
 	# fix size for BL33 1024KB
 	if [ ! -f ${BUILD_PATH}/bl33.bin ]; then

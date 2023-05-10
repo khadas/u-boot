@@ -33,18 +33,18 @@ dv-template:
 	make -C create-template/run $(ARGS)
 
 dv-sign:
-	make -C generate-binaires/run $(ARGS)
+	make -C generate-binaries/run $(ARGS)
 
 dv-boot-blobs:
-	make -C generate-binaires/run $(ARGS) build-boot-blobs
+	make -C generate-binaries/run $(ARGS) build-boot-blobs
 
 dv-device-fip:
-	make -C generate-binaires/run $(ARGS) build-device-fip
+	make -C generate-binaries/run $(ARGS) build-device-fip
 
 build:
 	make -C create-template/run $(ARGS)
-	make -C generate-binaires/run $(ARGS)
+	make -C generate-binaries/run $(ARGS)
 
 clean:
 	make clean -C create-template/run
-	make clean -C generate-binaires/run
+	make clean -C generate-binaries/run

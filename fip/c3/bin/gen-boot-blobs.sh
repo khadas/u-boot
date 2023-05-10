@@ -91,8 +91,8 @@ BB1ST_ARGS="${BB1ST_ARGS} --scs-family=s4"
 
 ### Output: blobs ###
 BB1ST_ARGS="${BB1ST_ARGS} --outfile-bb1st=${BASEDIR_OUTPUT_BLOB}/bb1st${FEAT_BL2_TEMPLATE_TYPE}${CHIPSET_VARIANT_SUFFIX}.bin${postfix}"
-BB1ST_ARGS="${BB1ST_ARGS} --outfile-blob-bl2e=${BASEDIR_OUTPUT_BLOB}/blob-bl2e.bin${postfix}"
-BB1ST_ARGS="${BB1ST_ARGS} --outfile-blob-bl2x=${BASEDIR_OUTPUT_BLOB}/blob-bl2x.bin${postfix}"
+BB1ST_ARGS="${BB1ST_ARGS} --outfile-blob-bl2e=${BASEDIR_OUTPUT_BLOB}/blob-bl2e${CHIPSET_VARIANT_SUFFIX}.bin${postfix}"
+BB1ST_ARGS="${BB1ST_ARGS} --outfile-blob-bl2x=${BASEDIR_OUTPUT_BLOB}/blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin${postfix}"
 
 echo ${TOOLS_ARGS}
 

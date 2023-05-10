@@ -92,6 +92,7 @@ function build_bl2() {
 		check_branch $3
 		/bin/bash mk $3 --ddrtype ${CONFIG_DDRFW_TYPE} --dsto
 		/bin/bash mk $3 --ddrtype ${CONFIG_DDRFW_TYPE} --dusb
+		set +e
 		target="$1/bl2.bin*"
 		targetv3="$1/chip_acs.bin"
 		targetvd="$1/ddr_param.bin"
@@ -110,6 +111,9 @@ function build_bl2() {
 	fi
 	if [ -e ${targetvd} ]; then
 		cp ${targetvd} $2 -f
+	fi
+	if [ -e ${1}/bl22/bl22.bin ]; then
+		cp ${1}/bl22/bl22.bin $2 -f
 	fi
 	echo "...done"
 	return

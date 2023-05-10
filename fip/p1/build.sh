@@ -145,10 +145,10 @@ function mk_bl2ex() {
 	fi
 	ddrparam_size=`stat -c %s ${output}/ddr_param.bin`
 	if [ $ddrparam_size -gt 8192 ]; then
-		dd if=${output}/ddr_param.bin of=${payload}/ddrfix_param.bin bs=1 count=8192
+		dd if=${output}/ddr_param.bin of=${payload}/ddr_fix_param.bin bs=1 count=8192
 	else
-		dd if=/dev/zero of=${payload}/ddrfix_param.bin bs=8192 count=1
-		dd if=${output}/ddr_param.bin of=${payload}/ddrfix_param.bin bs=1 conv=notrunc
+		dd if=/dev/zero of=${payload}/ddr_fix_param.bin bs=8192 count=1
+		dd if=${output}/ddr_param.bin of=${payload}/ddr_fix_param.bin bs=1 conv=notrunc
 	fi
 
 	aml_ddr_size=`stat -c %s ${INPUT_DDRFW}/aml_ddr.fw`
@@ -160,7 +160,7 @@ function mk_bl2ex() {
 	fi
 
 	cat ${payload}/ddrfw_1d.bin  ${payload}/ddrfw_2d.bin \
-		${payload}/ddrfw_piei.bin ${payload}/ddrfix_param.bin \
+		${payload}/ddrfw_piei.bin ${payload}/ddr_fix_param.bin \
 		${payload}/aml_ddr.bin > ${payload}/ddrfw_data.bin
 
 	if [ ! -f ${payload}/ddrfw_data.bin ]; then
