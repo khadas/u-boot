@@ -2031,6 +2031,10 @@ static int lcd_tcon_get_config(char *dt_addr, struct lcd_config_s *pconf, int lo
 
 	lcd_tcon_bin_load();
 
+#ifdef CONFIG_CMD_INI
+	lcd_tcon_bin_path_resv_mem_set();
+#endif
+
 	return 0;
 }
 
