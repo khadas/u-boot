@@ -24,9 +24,6 @@
 #define CONFIG_VDDEE_INIT_VOLTAGE	840		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
-/* Khadas commands */
-#define CONFIG_KHADAS_CFGLOAD 1
-#define CONFIG_KHADAS_SCRIPT 1
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"AML_TV"
 #define CONFIG_CEC_WAKEUP
@@ -750,6 +747,17 @@
 #define CONFIG_DDR_CLK_DEBUG		636
 #define CONFIG_CPU_CLK_DEBUG		600
 #endif
+
+//Command line interface
+#define CONFIG_CMDLINE			1
+#define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_AUTO_COMPLETE	1
+
+//Autoboot options
+#define CONFIG_AUTOBOOT				1
+#define CONFIG_AUTOBOOT_KEYED		1
+#define CONFIG_AUTOBOOT_DELAY_STR	"2"
+#define CONFIG_AUTOBOOT_STOP_STR	" "
 
 //support secure boot
 #define CONFIG_AML_SECURE_UBOOT   1

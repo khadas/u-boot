@@ -6,7 +6,7 @@ config SYS_CPU
 
 config SYS_BOARD
 	string
-	default "g12b_w400_debian_v1"
+	default "g12b_w400_v1"
 
 config SYS_VENDOR
 	string

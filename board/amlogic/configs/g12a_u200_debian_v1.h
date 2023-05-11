@@ -757,6 +757,17 @@
 #define CONFIG_CPU_CLK_DEBUG		600
 #endif
 
+//Command line interface
+#define CONFIG_CMDLINE			1
+#define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_AUTO_COMPLETE	1
+
+//Autoboot options
+#define CONFIG_AUTOBOOT				1
+#define CONFIG_AUTOBOOT_KEYED		1
+#define CONFIG_AUTOBOOT_DELAY_STR	"2"
+#define CONFIG_AUTOBOOT_STOP_STR	" "
+
 //support secure boot
 #define CONFIG_AML_SECURE_UBOOT   1
 
