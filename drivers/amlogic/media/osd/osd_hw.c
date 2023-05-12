@@ -3421,8 +3421,8 @@ static void osd_update_color_mode(u32 index)
 		if (!osd_hw.rotate[index].on_off)
 			data32 |= OSD_DATA_LITTLE_ENDIAN << 15;
 
-		/* after t3x, color matrix rgb565 changed */
-		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_T3X  &&
+		/*after t3x VIU_OSD1_BLK0_CFG_W0 format bit(bit2-bit5) has change*/
+		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_T3X &&
 			osd_hw.color_info[index]->color_index == 16)
 			data32 |= 2 << 2;
 		else
