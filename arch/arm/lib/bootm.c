@@ -248,7 +248,7 @@ static void add_kernel_bootargs(bootm_headers_t *images)
 	int node, len_args_uboot, len_args_dts, len;
 	char *bootargs_dts, *bootargs_uboot;
 	char *bootargs_new;
-	char  *p, *q, *t, *z;
+	char  *p, *q, *t, *z, *s;
 	static char kerenl_dts_update;
 	char buf[256];
 
@@ -304,13 +304,24 @@ static void add_kernel_bootargs(bootm_headers_t *images)
 		while (z) {
 			t = strstr(z, buf);
 			if (t) {
-				memmove(t, t + len, z + strlen(z) - t - len);
-				z = t;
+				s = t;
+				if (strchr(s, ' ') && (*(t + len) == ' ')) {
+					memmove(t, t + len, z + strlen(z) - t - len + 1);
+					z = t;
+				} else {
+					if (strlen(t) == len) {
+						memmove(t, t + len, z + strlen(z) - t - len + 1);
+						break;
+					} else {
+						z = t + len;
+					}
+				}
 			} else {
 				break;
 			}
 		}
 	}
+
 	env_set("bootargs", bootargs_new);
 	free(bootargs_new);
 }
