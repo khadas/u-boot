@@ -192,7 +192,10 @@
 		"if test ${active_slot} != normal; then "\
 			"echo ab mode, read dtb from kernel;"\
 			"setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
-		"fi;"\
+		"else if test ${gpt_mode} = true; then "\
+			"echo gpt mode, read dtb from kernel;"\
+			"setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
+		"fi;fi;"\
 		"\0"\
 	"load_bmp_logo_base="\
 		"if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
