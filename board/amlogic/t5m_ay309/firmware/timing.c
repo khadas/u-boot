@@ -1639,7 +1639,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #define VMIN_TT_VALUE                           820
 #define VMIN_SS_VALUE                           840
 /* board vddee_value defines */
-#define VDDEE_FF_VALUE                          0xa0008
+/* FF=0.83V TT=0.85V SS=0.87V */
+#define VDDEE_FF_VALUE                          0x90009
 #define VDDEE_TT_VALUE                          0x7000b
 #define VDDEE_SS_VALUE                          0x5000d
 
