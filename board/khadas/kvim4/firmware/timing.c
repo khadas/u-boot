@@ -1046,7 +1046,7 @@ __attribute__ ((section(".misc_param"))) = {
 #ifdef CONFIG_PDVFS_ENABLE
 	{PWM_AO_AB_PWM_A, 0x7000b, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_1, 0},
 	{PWM_AO_AB_PWM_A, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_2, 0},
-	{PWM_AO_AB_PWM_A, 0x4000e, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
+	{PWM_AO_AB_PWM_A, 0x5000d, 0xffffffff, 0, BL2_INIT_STAGE_VDDCORE_CONFIG_3, 0},
 #else
 	{PWM_AO_AB_PWM_A, VDDEE_VAL_REG,   0xffffffff,    0, 0, 0 },
 #endif
