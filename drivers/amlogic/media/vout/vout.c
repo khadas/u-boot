@@ -1066,6 +1066,7 @@ void vout_probe(void)
 	case MESON_CPU_MAJOR_ID_SM1:
 	case MESON_CPU_MAJOR_ID_T5:
 	case MESON_CPU_MAJOR_ID_T5D:
+	case MESON_CPU_MAJOR_ID_TXHD2:
 		vout_conf = &vout_config_dual;
 		break;
 	case MESON_CPU_MAJOR_ID_T7:
