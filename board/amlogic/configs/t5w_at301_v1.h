@@ -87,6 +87,9 @@
 #define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
 #define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
+//USB_POWEROFF
+#define AMLOGIC_USB_POWER
+
 #define CONFIG_SILENT_CONSOLE
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64

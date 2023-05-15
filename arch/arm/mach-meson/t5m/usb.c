@@ -94,7 +94,6 @@
 
 #define AMLOGIC_CTR_COUNT		(0x2)
 
-#define AMLOGIC_USB_POWER
 static int Rev_flag = 0;
 
 struct ctr_info {

@@ -66,12 +66,15 @@
 
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
+//USB_POWEROFF
+#define AMLOGIC_USB_POWER
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_BASE \
         "silent=1\0"\
-	"systemsuspend_switch=0\0"\
+	"systemsuspend_switch=1\0"\
 	"ddr_resume=0\0"\
 	"otg_device=1\0" \
         "panel_type=lvds_1\0" \
@@ -106,7 +109,7 @@
         "video_reverse=0\0"\
 	"board=t982\0"\
 	"suspend=off\0"\
-	"powermode=on\0"\
+	"powermode=standby\0"\
 	"ffv_wake=off\0"\
 	"ffv_freeze=off\0"\
 	"logic_addr=0x0\0" \

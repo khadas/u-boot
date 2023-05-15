@@ -66,6 +66,8 @@
 
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
+//USB_POWEROFF
+#define AMLOGIC_USB_POWER
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64

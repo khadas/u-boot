@@ -905,6 +905,7 @@ void goto_suspend(void)
 #endif
 		run_command("systemsuspend", 0);
 		printf("%s : exec\n", __func__);
+		env_set("ddr_resume", "0");
 	}
 }
 
