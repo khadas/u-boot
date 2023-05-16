@@ -54,6 +54,7 @@ static LIST_HEAD(logo_cache_list);
 static unsigned long memory_start;
 static unsigned long memory_end;
 
+int khadas_mipi_id = 0;
 /*
  * the phy types are used by different connectors in public.
  * The current version only has inno hdmi phy for hdmi and tve.
@@ -273,7 +274,12 @@ static int display_get_timing_from_dts(struct panel_state *panel_state,
 	int val, flags = 0;
 	ofnode timing, native_mode;
 
-	timing = dev_read_subnode(panel->dev, "display-timings");
+	//timing = dev_read_subnode(panel->dev, "display-timings");
+    if(khadas_mipi_id == 2){//TS101
+		timing = dev_read_subnode(panel->dev, "display-timings1");
+	}else{//TS050
+		timing = dev_read_subnode(panel->dev, "display-timings");
+	}
 	if (!ofnode_valid(timing))
 		return -ENODEV;
 

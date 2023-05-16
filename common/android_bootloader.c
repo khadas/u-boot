@@ -1240,7 +1240,10 @@ int android_bootloader_boot_flow(struct blk_desc *dev_desc,
 	/* Assemble the command line */
 	command_line = android_assemble_cmdline(slot_suffix, mode_cmdline);
 	env_update("bootargs", command_line);
-
+	char lcd_id_buf[32] = {0};
+	extern int khadas_mipi_id;
+	snprintf(lcd_id_buf, 32, "khadas_mipi_id=%d", khadas_mipi_id);
+	env_update("bootargs", lcd_id_buf);
 	debug("ANDROID: bootargs: \"%s\"\n", command_line);
 
 #ifdef CONFIG_SUPPORT_OEM_DTB

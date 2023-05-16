@@ -254,6 +254,7 @@ static int rockchip_panel_send_dsi_cmds(struct mipi_dsi_device *dsi,
 	return 0;
 }
 
+extern int khadas_mipi_id;
 static void panel_simple_prepare(struct rockchip_panel *panel)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(panel->dev);
@@ -394,12 +395,98 @@ static const struct rockchip_panel_funcs rockchip_panel_funcs = {
 	.disable = panel_simple_disable,
 };
 
+#ifdef CONFIG_DM_I2C
+#define TP_I2C_BUS_NUM 2
+#define TP05_CHIP_ADDR "0x38"
+#define TP10_CHIP_ADDR "0x14"
+static struct udevice *i2c_cur_bus2;
+
+static int cmd_i2c_set_bus_num2(unsigned int busnum)
+{
+    struct udevice *bus;
+    int ret;
+
+    ret = uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus);
+    if (ret) {
+        printf("%s: No bus %d\n", __func__, busnum);
+        return ret;
+    }
+    i2c_cur_bus2 = bus;
+
+    return 0;
+}
+
+static int i2c_get_cur_bus2(struct udevice **busp)
+{
+	if (!i2c_cur_bus2) {
+		if (cmd_i2c_set_bus_num2(TP_I2C_BUS_NUM)) {
+		    printf("Default I2C bus %d not found\n",
+		           TP_I2C_BUS_NUM);
+		    return -ENODEV;
+		}
+	}
+
+    if (!i2c_cur_bus2) {
+        puts("No I2C bus selected\n");
+        return -ENODEV;
+    }
+    *busp = i2c_cur_bus2;
+
+    return 0;
+}
+
+static int i2c_get_cur_bus_chip2(uint chip_addr, struct udevice **devp)
+{
+    struct udevice *bus;
+    int ret;
+
+    ret = i2c_get_cur_bus2(&bus);
+    if (ret)
+        return ret;
+
+    return i2c_get_chip(bus, chip_addr, 1, devp);
+}
+#endif
+
+static int kbi_i2c_read2(uint reg, const char *cp)
+{
+	int ret;
+	char val[64];
+	uchar   linebuf[1];
+	uchar chip;
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+#endif
+
+
+	chip = simple_strtoul(cp, NULL, 16);
+
+#ifdef CONFIG_DM_I2C
+	ret = i2c_get_cur_bus_chip2(chip, &dev);
+	if (!ret)
+		ret = dm_i2c_read(dev, reg, (uint8_t *)linebuf, 1);
+#else
+	ret = i2c_read(chip, reg, 1, linebuf, 1);
+#endif
+
+	if (ret)
+		printf("Error reading the chip: %d\n",ret);
+	else {
+		sprintf(val, "%d", linebuf[0]);
+		ret = simple_strtoul(val, NULL, 10);
+
+	}
+	return ret;
+}
+
+
 static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(dev);
 	const void *data;
 	int len = 0;
 	int ret;
+	static bool first_flag = 1;
 
 	plat->power_invert = dev_read_bool(dev, "power-invert");
 
@@ -414,7 +501,37 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 						MEDIA_BUS_FMT_RBG888_1X24);
 	plat->bpc = dev_read_u32_default(dev, "bpc", 8);
 
-	data = dev_read_prop(dev, "panel-init-sequence", &len);
+	if(first_flag){
+		mdelay(200);
+		//run_command("gpio set 67", 0);
+		//run_command("i2c dev 2", 0);
+		//run_command("i2c md 0x38 a8.1 1", 0);
+		khadas_mipi_id = kbi_i2c_read2(0xA8,TP05_CHIP_ADDR);
+		printf("TP05 id=0x%x\n",khadas_mipi_id);
+		if(khadas_mipi_id == 0x51){//old TS050
+			khadas_mipi_id = 1;
+		}else if(khadas_mipi_id == 0x79){//new TS050
+			khadas_mipi_id = 3;
+		}else{
+			khadas_mipi_id = kbi_i2c_read2(0x9e,TP10_CHIP_ADDR);
+			printf("TP10 id=0x%x\n",khadas_mipi_id);
+			if(khadas_mipi_id == 0x00){//TS101
+				khadas_mipi_id = 2;
+			}else {
+				khadas_mipi_id = 0;
+			}
+		}
+		first_flag = 0;
+		printf("hlm khadas_mipi_id=%d\n",khadas_mipi_id);
+	}
+	if(3 == khadas_mipi_id){//new TS050
+		printf("new TS050 to parse panel init sequence2\n");
+		data = dev_read_prop(dev, "panel-init-sequence2", &len);
+	}
+	else{//old TS050
+		printf("old TS050 to parse panel init sequence\n");
+		data = dev_read_prop(dev, "panel-init-sequence", &len);
+	}
 	if (data) {
 		plat->on_cmds = calloc(1, sizeof(*plat->on_cmds));
 		if (!plat->on_cmds)
