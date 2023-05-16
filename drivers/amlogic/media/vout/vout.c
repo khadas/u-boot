@@ -227,6 +227,7 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.mode              = VMODE_640x480p60hz,
 		.width             = 640,
 		.height            = 480,
+		.field_height      = 480,
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
@@ -707,6 +708,11 @@ static int get_window_axis(int *axis)
 		axis[1] = getenv_int("480p_y", def_y);
 		axis[2] = getenv_int("480p_w", def_w);
 		axis[3] = getenv_int("480p_h", def_h);
+	} else if (strncmp(mode, "640x480p60hz", 12) == 0) {
+		axis[0] = getenv_int("640x480p60hz_x", def_x);
+		axis[1] = getenv_int("640x480p60hz_y", def_y);
+		axis[2] = getenv_int("640x480p60hz_w", def_w);
+		axis[3] = getenv_int("640x480p60hz_h", def_h);
 	} else if (strncmp(mode, "576i", 4) == 0) {
 		axis[0] = getenv_int("576i_x", def_x);
 		axis[1] = getenv_int("576i_y", def_y);
