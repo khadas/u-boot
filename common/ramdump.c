@@ -130,6 +130,11 @@ void ramdump_init(void)
 				REG_MDUMP_COMPRESS_BASE, REG_MDUMP_COMPRESS_SIZE);
 	ramdump_base = readl(REG_MDUMP_COMPRESS_BASE);
 	ramdump_size = readl(REG_MDUMP_COMPRESS_SIZE);
+#if defined(CONFIG_MDUMP_COMPRESS) && defined(CONFIG_COMPRESSED_ADDR)
+	printf("%s, ramdump_base(0x%08lx) is overwritten as 0x%08x\n",
+			__func__, ramdump_base, CONFIG_COMPRESSED_ADDR);
+	ramdump_base = (unsigned long)CONFIG_COMPRESSED_ADDR;
+#endif
 	if (ramdump_base & 0x80) {
 		/* 0x80: The flag indicates that the addr exceeds 4G. */
 		/* real size = size[31:0] + addr[6:0]<<32 */
@@ -369,9 +374,11 @@ void check_ramdump(void)
 			} else {
 				ramdump_env_setup(0, 0);
 			}
+#ifndef	CONFIG_MDUMP_COMPRESS
 			//ramdump bl33z
 			printf("%s, fdt: rsvmem ramdump_bl33z enable.\n", __func__);
 			run_command("fdt set /reserved-memory/ramdump_bl33z status okay", 0);
+#endif
 			//ddr scramble
 			sprintf(str, "setenv initargs ${initargs} scramble_reg=0x%08x",
 						ddr_scramble_reg);

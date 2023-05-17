@@ -389,9 +389,16 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 
-/* config ramdump to debug kernel panic */
+/* config ramdump to debug kernel panic:
+ *   V1.0: CONFIG_MDUMP_COMPRESS
+ *   V1.2: CONFIG_FULL_RAMDUMP + CONFIG_SUPPORT_BL33Z
+ * Be careful not to open multiple versions of CONFIGS at the same time.
+ * CONFIG_SUPPORT_BL33Z is enabled by default.
+ */
+//#define CONFIG_MDUMP_COMPRESS   1
+//#define CONFIG_COMPRESSED_ADDR  (0x10000000)
+//#define CONFIG_FAT_WRITE        1
 #define CONFIG_FULL_RAMDUMP
-//#define CONFIG_MDUMP_COMPRESS 1
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED
