@@ -107,7 +107,10 @@ struct partitions emmc_partition_table[] = {
 	PARTITION_ELEMENT(MMC_RESERVED_NAME, MMC_RESERVED_SIZE, 0),
 	/* prior partitions, same partition name with dts*/
 	/* partition size will be override by dts*/
+	/* gpt not support 0 size partition */
+#ifndef CONFIG_AML_GPT
 	PARTITION_ELEMENT(MMC_CACHE_NAME, 0, 0),
+#endif
 	PARTITION_ELEMENT(MMC_ENV_NAME, MMC_ENV_SIZE, 0),
 #ifdef CONFIG_AB_UPDATE
 	PARTITION_ELEMENT(FIP_A_NAME, FIP_SIZE, 0),
