@@ -764,9 +764,6 @@
 
 //Autoboot options
 #define CONFIG_AUTOBOOT				1
-#define CONFIG_AUTOBOOT_KEYED		1
-#define CONFIG_AUTOBOOT_DELAY_STR	"2"
-#define CONFIG_AUTOBOOT_STOP_STR	" "
 
 //support secure boot
 #define CONFIG_AML_SECURE_UBOOT   1
@@ -791,13 +788,6 @@
 /* support bmp display */
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE 8192000
 #define CONFIG_VIDEO_BMP_GZIP 1
-//#define CONFIG_CFB_CONSOLE 1
-
-//build with uboot auto test
-//#define CONFIG_AML_UBOOT_AUTO_TEST 1
-
-//board customer ID
-//#define CONFIG_CUSTOMER_ID  (0x6472616F624C4D41)
 
 #if defined(CONFIG_CUSTOMER_ID)
   #undef CONFIG_AML_CUSTOMER_ID

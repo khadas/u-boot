@@ -498,17 +498,7 @@
 #define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
 #define CONFIG_AML_MTDPART	1
-/* mtd parts by env default way.*/
-/*
-#define MTDIDS_NAME_STR		"aml_nand.0"
-#define MTDIDS_DEFAULT		"nand1=" MTDIDS_NAME_STR
-#define MTDPARTS_DEFAULT	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"3M@8192K(logo),"	\
-					"10M(recovery),"	\
-					"8M(kernel),"	\
-					"40M(rootfs),"	\
-					"-(data)"
-*/
+
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
@@ -530,7 +520,6 @@
 #endif
 #define		CONFIG_PARTITIONS 1
 #define		CONFIG_SYS_NO_FLASH  1
-//#define	 CONFIG_AML_GPT
 
 /* meson SPI */
 #define CONFIG_AML_SPIFC
@@ -755,9 +744,6 @@
 
 //Autoboot options
 #define CONFIG_AUTOBOOT				1
-#define CONFIG_AUTOBOOT_KEYED		1
-#define CONFIG_AUTOBOOT_DELAY_STR	"2"
-#define CONFIG_AUTOBOOT_STOP_STR	" "
 
 //support secure boot
 #define CONFIG_AML_SECURE_UBOOT   1
