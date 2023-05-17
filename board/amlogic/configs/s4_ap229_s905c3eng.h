@@ -357,7 +357,10 @@
 #define CONFIG_CMD_SHA2
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 
 #define CONFIG_MULTI_DTB    1
 
