@@ -34,7 +34,7 @@
 #endif
 struct dw_eth_dev *priv_tool = NULL;
 struct phy_device *p_phydev = NULL;
-
+struct aml_phy_dev *p_aml_phy_dev;
 #ifndef ANACTRL_PLL_GATE_DIS
 #define ANACTRL_PLL_GATE_DIS 0xffffffff
 #endif
@@ -719,6 +719,7 @@ void setup_tx_amp(struct udevice *dev)
 		printf("addr 0x%x  =  0x%x\n", tx_amp_src, readl((uintptr_t)tx_amp_src));
 	}
 }
+
 static void setup_internal_phy(struct udevice *dev)
 {
 	int phy_cntl1 = 0;
@@ -774,7 +775,14 @@ static void setup_internal_phy(struct udevice *dev)
 		printf("can't get eth_cfg resource(ret = %d)\n", rtn);
 	}
 //	printf("wzh eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
-
+	/*internal phy only*/
+	p_aml_phy_dev->phy_top = devm_ioremap(dev, eth_top.start, resource_size(&eth_top));
+	p_aml_phy_dev->phy_cfg = devm_ioremap(dev, eth_cfg.start, resource_size(&eth_cfg));
+	p_aml_phy_dev->pm_ops = dev_register_pm("eth ops",
+				&aml_phy_suspend,
+				&aml_phy_resume,
+				&aml_phy_poweroff);
+//	writel(0x00000012, p_aml_phy_dev->phy_cfg->start + 0x0);
 	setup_tx_amp(dev);
 	/*top*/
 //	setbits_le32(ETHTOP_CNTL0, mc_val);
@@ -872,7 +880,6 @@ static void setup_external_phy(struct udevice *dev)
 	if (rtn) {
 		printf("can't get eth_cfg resource(ret = %d)\n", rtn);
 	}
-//	printf("eth_top 0x%x eth_cfg 0x%x \n", eth_top.start, eth_cfg.start);
 
 	setbits_le32(eth_top.start, mc_val);
 	setbits_le32(eth_top.start + 4, cali_val);
@@ -891,6 +898,39 @@ static void setup_external_phy(struct udevice *dev)
 	}
 }
 
+int aml_phy_suspend(void *pm_ops)
+{
+	struct dev_pm_ops *pm = (struct dev_pm_ops *)pm_ops;
+
+	pr_info("disable analog %s\n", pm->name);
+	writel(0x00000000, p_aml_phy_dev->phy_cfg + 0x0);
+	writel(0x003e0000, p_aml_phy_dev->phy_cfg + 0x4);
+	writel(0x12844008, p_aml_phy_dev->phy_cfg + 0x8);
+	writel(0x0800a40c, p_aml_phy_dev->phy_cfg + 0xc);
+	writel(0x00000000, p_aml_phy_dev->phy_cfg + 0x10);
+	writel(0x031d161c, p_aml_phy_dev->phy_cfg + 0x14);
+	writel(0x00001683, p_aml_phy_dev->phy_cfg + 0x18);
+	writel(0x09c0040a, p_aml_phy_dev->phy_cfg + 0x44);
+	return 0;
+}
+
+int aml_phy_resume(void *pm_ops)
+{
+	struct dev_pm_ops *pm = (struct dev_pm_ops *)pm_ops;
+
+	pr_info("recover analog %s\n", pm->name);
+	writel(0x19c0040a, p_aml_phy_dev->phy_cfg + 0x44);
+	writel(0x0, p_aml_phy_dev->phy_cfg + 0x4);
+	return 0;
+}
+
+int aml_phy_poweroff(void *pm_ops)
+{
+	struct dev_pm_ops *pm = (struct dev_pm_ops *)pm_ops;
+
+	pr_info("power off  %s\n", pm->name);
+	return 0;
+}
 #endif
 #ifdef CONFIG_DM_ETH
 static void __iomem *DM_network_interface_setup(struct udevice *dev)
@@ -910,6 +950,13 @@ static void __iomem *DM_network_interface_setup(struct udevice *dev)
 		setup_external_phy(dev);
 	}
 	udelay(1000);
+	return 0;
+}
+
+static void __iomem *DM_network_interface_remove(void)
+{
+	if (p_aml_phy_dev->pm_ops)
+		dev_unregister_pm(p_aml_phy_dev->pm_ops);
 	return 0;
 }
 #endif
@@ -1027,7 +1074,9 @@ clk_err:
 static int designware_eth_remove(struct udevice *dev)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
-
+#ifdef CONFIG_DM_ETH
+	DM_network_interface_remove();
+#endif
 	free(priv->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
@@ -1819,7 +1868,9 @@ static int eqos_remove(struct udevice *dev)
 	struct eqos_eth_dev *eqos = dev_get_priv(dev);
 
 	debug("%s(dev=%p):\n", __func__, dev);
-
+#ifdef CONFIG_DM_ETH
+	DM_network_interface_remove();
+#endif
 	free(eqos->phydev);
 	mdio_unregister(eqos->bus);
 	mdio_free(eqos->bus);

@@ -11,6 +11,11 @@
 #include <asm-generic/gpio.h>
 #endif
 
+#ifdef CONFIG_DM_ETH
+#include <amlogic/pm.h>
+#include <linux/io.h>
+#endif
+
 #define CONFIG_TX_DESCR_NUM	16
 #define CONFIG_RX_DESCR_NUM	16
 #define CONFIG_ETH_BUFSIZE	2048
@@ -467,5 +472,17 @@ struct eqos_eth_dev {
 	void *rx_dma_buf;
 	void *rx_pkt;
 };
+
+#ifdef CONFIG_DM_ETH
+struct aml_phy_dev {
+	void __iomem *phy_top;
+	void __iomem *phy_cfg;
+	struct dev_pm_ops *pm_ops;
+};
+
+int aml_phy_suspend(void *pm_ops);
+int aml_phy_resume(void *pm_ops);
+int aml_phy_poweroff(void *pm_ops);
+#endif
 
 #endif
