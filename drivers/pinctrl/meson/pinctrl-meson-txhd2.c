@@ -855,6 +855,7 @@ static struct meson_pmx_group meson_txhd2_aobus_groups[] __initdata = {
 	GPIO_GROUP(GPIOAO_11),
 	GPIO_GROUP(GPIOAO_12),
 	GPIO_GROUP(GPIOAO_13),
+	GPIO_GROUP(GPIO_TEST_N),
 
 	/* GPIOAO func1 */
 	GROUP(uart_tx_ao_a_ao0,				1),
@@ -943,7 +944,7 @@ static const char * const gpio_aobus_groups[] = {
 	"GPIOAO_0", "GPIOAO_1", "GPIOAO_2", "GPIOAO_3",
 	"GPIOAO_4", "GPIOAO_5", "GPIOAO_6", "GPIOAO_7",
 	"GPIOAO_8", "GPIOAO_9", "GPIOAO_10", "GPIOAO_11",
-	"GPIOAO_12", "GPIOAO_13",
+	"GPIOAO_12", "GPIOAO_13", "GPIO_TEST_N",
 };
 
 static const char * const sync_3d_out_groups[] = {
@@ -1269,6 +1270,8 @@ static struct meson_bank meson_txhd2_aobus_banks[] = {
 	/* name  first  last  pullen  pull  dir  out  in */
 	BANK("GPIOAO_", GPIOAO_0, GPIOAO_13,
 	     0x003,  0, 0x002,  0, 0x000,  0, 0x004,  0, 0x001,  0),
+	BANK("GPIO_TEST_N", GPIO_TEST_N, GPIO_TEST_N,
+	     0x003, 14, 0x002, 14, 0x000, 14, 0x004, 14, 0x001, 14),
 };
 
 static struct meson_pmx_bank meson_txhd2_periphs_pmx_banks[] = {
@@ -1289,6 +1292,7 @@ static struct meson_axg_pmx_data meson_txhd2_periphs_pmx_banks_data = {
 static struct meson_pmx_bank meson_txhd2_aobus_pmx_banks[] = {
 	/* name  first  last  reg  offset */
 	BANK_PMX("AO",  GPIOAO_0, GPIOAO_13, 0x000, 0),
+	BANK_PMX("TEST_N", GPIO_TEST_N, GPIO_TEST_N, 0x001, 24),
 };
 
 static struct meson_axg_pmx_data meson_txhd2_aobus_pmx_banks_data = {
@@ -1313,7 +1317,7 @@ static struct meson_pinctrl_data meson_txhd2_aobus_pinctrl_data = {
 	.groups		= meson_txhd2_aobus_groups,
 	.funcs		= meson_txhd2_aobus_functions,
 	.banks		= meson_txhd2_aobus_banks,
-	.num_pins	= 14,
+	.num_pins	= 15,
 	.num_groups	= ARRAY_SIZE(meson_txhd2_aobus_groups),
 	.num_funcs	= ARRAY_SIZE(meson_txhd2_aobus_functions),
 	.num_banks	= ARRAY_SIZE(meson_txhd2_aobus_banks),
