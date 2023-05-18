@@ -479,7 +479,7 @@
                 "osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
 		"androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} "\
 		"jtag=${jtag} disable_ir=${disable_ir};"\
-            "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
+            "setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic nn_adj_vol=${nn_adj_vol};"\
             "run cmdline_keys;"\
             "\0"\
 		"cec_init="\
