@@ -80,8 +80,8 @@
 	"hdmimode=1080p60hz\0" \
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0" \
-	"display_width=1920\0" \
-	"display_height=1080\0" \
+	"display_width=1024\0" \
+	"display_height=600\0" \
 	"display_bpp=16\0" \
 	"display_color_index=16\0" \
 	"display_layer=osd0\0" \
@@ -89,8 +89,8 @@
 	"display_color_bg=0\0" \
 	"dtb_mem_addr=0x01000000\0" \
 	"fb_addr=0x00300000\0" \
-	"fb_width=1920\0" \
-	"fb_height=1080\0" \
+	"fb_width=1024\0" \
+	"fb_height=600\0" \
 	"hdmichecksum=0x00000000\0" \
 	"dolby_status=0\0" \
 	"dolby_vision_on=0\0" \
@@ -418,7 +418,7 @@ defined(CONFIG_STORE_COMPATIBLE)
 
 /* osd */
 #define OSD_SCALE_ENABLE
-#define AML_OSD_HIGH_VERSION
+#define AML_C3_DISPLAY
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

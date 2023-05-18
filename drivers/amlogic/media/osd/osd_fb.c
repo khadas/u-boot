@@ -398,7 +398,8 @@ static void get_osd_version(void)
 {
 	u32 family_id = osd_get_chip_type();
 
-	if (family_id == MESON_CPU_MAJOR_ID_AXG)
+	if (family_id == MESON_CPU_MAJOR_ID_AXG ||
+		family_id == MESON_CPU_MAJOR_ID_A4)
 		osd_hw.osd_ver = OSD_SIMPLE;
 	else if (family_id < MESON_CPU_MAJOR_ID_G12A)
 		osd_hw.osd_ver = OSD_NORMAL;
@@ -482,19 +483,19 @@ static void *osd_hw_init(void)
 		osd_layer_init(&fb_gdev, OSD1);
 	} else if (osd_index == OSD2) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
-			osd_loge("AXG not support osd2\n");
+			osd_loge("AXG/A4/C3 not support osd2\n");
 			return NULL;
 		}
 		osd_layer_init(&fb_gdev, OSD2);
 	} else if (osd_index == VIU2_OSD1 /* OSD3 */) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
-			osd_loge("AXG not support viu2 osd0\n");
+			osd_loge("AXG/A4/C3 not support viu2 osd0\n");
 			return NULL;
 		}
 		osd_layer_init(&fb_gdev, VIU2_OSD1 /* OSD3 */);
 	}  else if (osd_index == VIU3_OSD1 /* OSD4 */) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
-			osd_loge("AXG not support viu3 osd0\n");
+			osd_loge("AXG/A4/C3 not support viu3 osd0\n");
 			return NULL;
 		}
 		osd_layer_init(&fb_gdev, VIU3_OSD1 /* OSD4 */);
@@ -1663,7 +1664,7 @@ static int osd_hw_init_by_index(u32 osd_index)
 		osd_layer_init(&fb_gdev, OSD1);
 	else if ( osd_index == OSD2) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
-			osd_loge("AXG not support osd2\n");
+			osd_loge("AXG/A4/C3 not support osd2\n");
 			return -1;
 		}
 		osd_layer_init(&fb_gdev, OSD2);
@@ -1717,7 +1718,6 @@ static int video_display_osd(u32 osd_index)
 	}
 
 	flush_cache((unsigned long)info->vd_base, pheight * pwidth * bpp);
-
 	return (0);
 }
 
@@ -1805,7 +1805,6 @@ int osd_rma_test(u32 osd_index)
 {
 	u32 i = osd_index, osd_max = 1;
 	u32 hist_result[4];
-	u32 family_id = osd_get_chip_type();
 
 	get_osd_version();
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
@@ -1829,6 +1828,8 @@ int osd_rma_test(u32 osd_index)
 	osd_get_hist_stat(hist_result);
 	_udelay(50000);
 	osd_get_hist_stat(hist_result);
+#ifndef AML_C3_DISPLAY
+	u32 family_id = osd_get_chip_type();
 
 	if ((hist_result[0] == hist_max_min[osd_index][family_id]) && (hist_result[1] == hist_spl_val[osd_index][family_id]) &&
 	    (hist_result[2] == hist_spl_pix_cnt[osd_index][family_id]) && (hist_result[3] == hist_cheoma_sum[osd_index][family_id])) {
@@ -1843,4 +1844,8 @@ int osd_rma_test(u32 osd_index)
 			osd_loge("=== osd%d, osd_rma_test failed. ===\n", osd_index);
 			return (-1);
 	}
+#else
+	/*second parameter according to  data in video_display_osd function which write to fb*/
+	return test_for_c3(osd_index, 0xf800);
+#endif
 }

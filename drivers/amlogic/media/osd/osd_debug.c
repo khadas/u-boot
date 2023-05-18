@@ -283,8 +283,8 @@ static void osd_debug_dump_value(void)
 static void osd_debug_dump_register_all(void)
 {
 	u32 reg = 0;
-	u32 index = 0;
 
+#ifndef AML_C3_DISPLAY
 	reg = VPU_VIU_VENC_MUX_CTRL;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = VPP_MISC;
@@ -296,6 +296,8 @@ static void osd_debug_dump_register_all(void)
 	reg = VPP_HOLD_LINES;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 #endif
+#endif
+
 #ifdef AML_S5_DISPLAY
 	reg = VPP_INTF_OSD3_CTRL;
 	osd_logi("reg[0x%x]: 0x%08x(2mux1)\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
@@ -366,6 +368,31 @@ static void osd_debug_dump_register_all(void)
 		osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 #endif
 	}
+#ifdef AML_C3_DISPLAY
+	reg = hw_osd_reg_array[0].osd_sc_ctrl0;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_sci_wh_m1;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_sco_h_start_end;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_sco_v_start_end;
+	osd_logi("reg[0x%04x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_fifo_ctrl_stat;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_ctrl_stat;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_blk0_cfg_w0;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_blk0_cfg_w1;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_blk0_cfg_w2;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_blk0_cfg_w3;
+	osd_logi("reg[0x%04x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = hw_osd_reg_array[0].osd_blk0_cfg_w4;
+	osd_logi("reg[0x%04x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#else
+	u32 index = 0;
 	reg = hw_osd_reg_array[0].osd_sc_ctrl0;
 	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	reg = hw_osd_reg_array[0].osd_sci_wh_m1;
@@ -392,6 +419,7 @@ static void osd_debug_dump_register_all(void)
 		reg = hw_osd_reg_array[index].osd_blk0_cfg_w4;
 		osd_logi("reg[0x%x]: 0x%08x\n\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
 	}
+#endif
 
 #ifdef AML_T7_DISPLAY
 	if (!strcmp(env_get("display_layer"), "osd2") ||
@@ -498,6 +526,7 @@ static void osd_debug_dump_register_all(void)
 
 static void osd_test_colorbar(void)
 {
+#ifndef AML_C3_DISPLAY
 	u32 encp_video_adv = 0;
 
 	encp_video_adv = osd_reg_read(ENCP_VIDEO_MODE_ADV);
@@ -524,16 +553,20 @@ static void osd_test_colorbar(void)
 	osd_reg_write(ENCP_VIDEO_MODE_ADV, encp_video_adv);
 	osd_reg_write(VENC_VIDEO_TST_EN, 0);
 	osd_reg_write(VENC_VIDEO_TST_MDSEL, 0);
+#endif
 }
 
+#ifndef AML_C3_DISPLAY
 static void osd_reset(void)
 {
 	osd_set_free_scale_enable_hw(0, 0);
 	osd_enable_hw(0, 1);
 }
+#endif
 
 static void osd_test_dummydata(void)
 {
+#ifndef AML_C3_DISPLAY
 	u32 dummy_data = 0;
 
 	dummy_data = osd_reg_read(VPP_DUMMY_DATA1);
@@ -571,12 +604,12 @@ static void osd_test_dummydata(void)
 		osd_reg_write(VPP_DUMMY_DATA1, dummy_data);
 		msleep(OSD_TEST_DURATION);
 	}
+#endif
 }
 
 static void osd_debug_auto_test(void)
 {
 	osd_test_colorbar();
-
 	osd_test_dummydata();
 }
 

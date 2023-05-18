@@ -186,6 +186,12 @@ enum vpp_vsync_type {
 	VPU_VPP2,
 };
 
+enum matrix_type_e {
+	MATRIX_BYPASS = 0,
+	YUV2RGB,
+	RGB2YUV
+};
+
 struct pandata_s {
 	s32 x_start;
 	s32 x_end;
@@ -311,6 +317,34 @@ struct hw_osd_reg_s {
 	u32 osd_sco_v_start_end;/* VPP_OSD_SCO_V_START_END */
 	u32 osd_proc_in_size;    /* OSD1_PROC_IN_SIZE */
 	u32 osd_proc_out_size;   /* OSD1_PROC_OUT_SIZE */
+};
+
+struct hw_osd_vout_blend_reg_s {
+	u32 vpu_vout_irq_ctrl;
+	u32 vpu_vout_blend_ctrl;
+	u32 vpu_vout_blend_dumdata;
+	u32 vpu_vout_blend_size;
+	u32 vpu_vout_bld_src0_hpos;
+	u32 vpu_vout_bld_src0_vpos;
+	u32 vpu_vout_bld_src1_hpos;
+	u32 vpu_vout_bld_src1_vpos;
+};
+
+struct hw_osd_vout_csc_reg_s {
+	u32 vout_osd1_csc_coef00_01;
+	u32 vout_osd1_csc_coef02_10;
+	u32 vout_osd1_csc_coef11_12;
+	u32 vout_osd1_csc_coef20_21;
+	u32 vout_osd1_csc_coef22;
+	u32 vout_osd1_csc_coef30_31;
+	u32 vout_osd1_csc_coef32_40;
+	u32 vout_osd1_csc_coef41_42;
+	u32 vout_osd1_csc_clip;
+	u32 vout_osd1_csc_offset0_1;
+	u32 vout_osd1_csc_offset2;
+	u32 vout_osd1_csc_pre_offset0_1;
+	u32 vout_osd1_csc_pre_offset2;
+	u32 vout_osd1_csc_en_ctrl;
 };
 
 #ifdef AML_S5_DISPLAY
