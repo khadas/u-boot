@@ -16,6 +16,7 @@
 #include <asm/arch/secure_apb.h>
 #include <amlogic/blxx2bl33_param.h>
 #include <amlogic/aml_mtd.h>
+#include <amlogic/aml_rsv.h>
 #include <mmc.h>
 
 #ifdef CONFIG_SPI_FLASH_MTD
@@ -337,7 +338,6 @@ static int storage_get_emmc_boot_start(void)
 	return emmc_boot_seqs_tbl[_get_emmc_boot_seqs()][0];;
 }
 
-#define NAND_RSV_BLOCK_NUM 48
 #define NSP_PAGE0_DISABLE 1
 extern unsigned char *ubootdata;
 static int storage_get_and_parse_ssp(int *need_build) // boot_device:
@@ -397,11 +397,15 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 			break;
 		case BOOT_NAND_NFTL:
 		case BOOT_NAND_MTD:
+			#ifdef BOARD_BL2EX_BACKUPS
+			ssp->boot_backups = BOARD_BL2EX_BACKUPS;
+			#else
 			ssp->boot_backups = 8;
 			if (IS_FEAT_DIS_8BL2_NAND())
 				ssp->boot_backups = 4;
 			if (IS_FEAT_DIS_NBL2_NAND())
 				ssp->boot_backups = 1;
+			#endif
 			sip->nsp.page_size =  current->info.write_unit;
 			sip->nsp.block_size = current->info.erase_unit;
 			sip->nsp.pages_per_block =

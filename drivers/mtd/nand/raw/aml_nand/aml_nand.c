@@ -1778,7 +1778,9 @@ int aml_nand_init(struct aml_nand_chip *aml_chip)
 		meson_rsv_check(aml_chip->rsv->env);
 #endif
 		meson_rsv_check(aml_chip->rsv->key);
+#ifndef DTB_BIND_KERNEL
 		meson_rsv_check(aml_chip->rsv->dtb);
+#endif
 		meson_rsv_check(aml_chip->rsv->ddr_para);
 	}
 

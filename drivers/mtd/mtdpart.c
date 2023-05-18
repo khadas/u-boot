@@ -705,7 +705,7 @@ static struct mtd_info *allocate_partition(struct mtd_info *master,
 	if (slave->size == MTDPART_SIZ_FULL)
 		slave->size = master->size - slave->offset;
 
-	pr_info("0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
+	printf("0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
 		(unsigned long long)(slave->offset + slave->size), slave->name);
 
 	/* let's do some sanity checks */
@@ -887,7 +887,7 @@ int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
 
 	list_for_each_entry(dentry, &aml_device, link) {
 		list_for_each_entry(temp, &dentry->parts, link) {
-			pr_info("0x%012llx-0x%012llx : \"%s\"\n",
+			printf("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
 			(unsigned long long)(temp->offset + temp->size),
 			temp->name);
@@ -942,7 +942,7 @@ int add_mtd_partitions(struct mtd_info *master,
 		INIT_LIST_HEAD(&master->partitions);
 	}
 #endif
-	pr_info("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
+	printf("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 
 	for (i = 0; i < nbparts; i++) {
 		slave = allocate_partition(master, parts + i, i, cur_offset);
@@ -1129,7 +1129,7 @@ int mtdparts_init(void)
 	}
 	list_for_each_entry(dentry, &aml_device, link) {
 		list_for_each_entry(temp, &dentry->parts, link) {
-			pr_info("0x%012llx-0x%012llx : \"%s\"\n",
+			printf("0x%012llx-0x%012llx : \"%s\"\n",
 			(unsigned long long)temp->offset,
 			(unsigned long long)(temp->offset + temp->size),
 			temp->name);

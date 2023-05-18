@@ -440,7 +440,7 @@ static size_t mtd_store_logic_part_size(struct mtd_info *mtd,
 	return part->size - cnt * mtd->erasesize;
 }
 
-static int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off)
+int mtd_store_get_offset(const char *partname, loff_t *retoff, loff_t off)
 {
 	int ret = 0;
 	loff_t offset;
