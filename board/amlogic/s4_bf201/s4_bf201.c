@@ -161,6 +161,7 @@ int board_late_init(void)
 	board_init_mem();
 	//run_command("run bcb_cmd", 0);
 
+#ifndef DTB_BIND_KERNEL
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
@@ -173,6 +174,22 @@ int board_late_init(void)
 		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 
 #endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
+#else
+	printf("dtb bind kernel mode\n");
+	char cmd[128] = {0};
+	int ret = 0;
+
+	if (!env_get("dtb_mem_addr")) {
+		sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+		ret = run_command(cmd, 0);
+		if (ret)
+			printf("%s : cmd[%s] fail, ret = %d\n", __func__, cmd, ret);
+	}
+	sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
+	ret = run_command(cmd, 0);
+	if (ret)
+		printf("%s : cmd[%s] fail, ret = %d\n", __func__, cmd, ret);
+#endif /* DTB_BIND_KERNEL */
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);

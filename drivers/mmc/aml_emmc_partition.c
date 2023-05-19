@@ -19,7 +19,7 @@
 #include <part_efi.h>
 #include <partition_table.h>
 #include <linux/compat.h>
-
+#include <asm/arch/cpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 /* using mbr*/
