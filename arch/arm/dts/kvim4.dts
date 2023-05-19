@@ -132,6 +132,13 @@
 	enc_idx = <2>; /* value can be 0 or 2 */
 };
 
+&i2c2 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins3>;
+	clock-frequency = <100000>; /* default 100k */
+};
+
 &i2c3 {
 	status = "okay";
 	pinctrl-names = "default";

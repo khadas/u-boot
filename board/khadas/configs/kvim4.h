@@ -392,6 +392,7 @@
         "otg_device=1\0" \
         "panel1_type=vbyone_1\0" \
         "panel2_type=lvds_1\0" \
+        "t7c_check_camera=0\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd1_ctrl=0x00000000\0" \
         "lcd2_ctrl=0x00000000\0" \
@@ -672,6 +673,21 @@
 				"fi;fi;"\
 				"echo $outputmode;"\
 			"\0"\
+        "check_camera="\
+				"fdt addr ${dtb_mem_addr}; "\
+                "if test ${t7c_check_camera} = 2; then "\
+                    "echo t7c check MIPI camera;"\
+				    "if test ${khadas_camera_id} = 1; then "\
+					    "echo t7c is OS08A10 camera;"\
+				    "else if test ${khadas_camera_id} = 2; then "\
+					    "echo t7c check IMX415 camera;"\
+					    "fdt set /soc/apb4@fe000000/i2c@6a000/sensor2@36 status disable;"\
+                        "fdt set /soc/apb4@fe000000/i2c@6a000/sensor1@1a status okay;"\
+					    "fdt set /csiphy0@0xfe3bec00/ports/port@0/endpoint status disable;"\
+                        "fdt set /csiphy0@0xfe3bec00/ports/port@1/endpoint status okay;"\
+				    "fi;fi;"\
+                "fi;"\
+			"\0"\
         "check_vbo="\
 				"fdt addr ${dtb_mem_addr}; "\
 				"if gpio input GPIOY_11; then "\
@@ -741,6 +757,8 @@
 				"setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
             "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
 			"setenv bootargs ${bootargs} khadas_mipi_id=${khadas_mipi_id};"\
+            "setenv bootargs ${bootargs} t7c_check_camera=${t7c_check_camera};"\
+            "setenv bootargs ${bootargs} khadas_camera_id=${khadas_camera_id};"\
 			"setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
             "factory_provision init;"\
             "\0"\
@@ -766,6 +784,7 @@
 #define CONFIG_PREBOOT  \
             "run bcb_cmd; "\
             "run check_panel;"\
+            "run check_camera;"\
             "run upgrade_check;"\
             "run check_display;"\
             "run wol_init;"\
