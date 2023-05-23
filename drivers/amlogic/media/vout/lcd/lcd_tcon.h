@@ -51,6 +51,12 @@ struct tcon_rmem_config_s {
 	unsigned int mem_paddr;
 	unsigned char *mem_vaddr;
 	unsigned int mem_size;
+};
+
+struct tcon_sec_mem_config_s {
+	unsigned int mem_paddr;
+	unsigned char *mem_vaddr;
+	unsigned int mem_size;
 	unsigned int sec_handle;
 	unsigned int sec_protect;
 };
@@ -66,6 +72,7 @@ struct tcon_rmem_s {
 	struct tcon_rmem_config_s *axi_rmem;
 	struct tcon_rmem_config_s bin_path_rmem;
 	struct tcon_rmem_config_s secure_cfg_rmem;
+	struct tcon_sec_mem_config_s secure_axi_rmem;
 
 	struct tcon_rmem_config_s vac_rmem;
 	struct tcon_rmem_config_s demura_set_rmem;
@@ -189,7 +196,7 @@ struct lcd_tcon_config_s *get_lcd_tcon_config(void);
 struct tcon_rmem_s *get_lcd_tcon_rmem(void);
 struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
 struct lcd_tcon_local_cfg_s *get_lcd_tcon_local_cfg(void);
-int lcd_tcon_mem_tee_protect(int mem_flag, int protect_en);
+int lcd_tcon_mem_tee_protect(int protect_en);
 
 int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_disable_tl1(struct aml_lcd_drv_s *pdrv);

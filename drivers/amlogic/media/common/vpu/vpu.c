@@ -602,7 +602,7 @@ static struct vpu_data_s vpu_data_t3x = {
 	.gp_pll_valid = 0,
 
 	.vpu_clk_reg = CLKCTRL_VPU_CLK_CTRL,
-	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
+	.vpu_clkb_reg = CLKCTRL_VPU_CLKB_CTRL,  //need init clkb for vpu secure config
 	.vapb_clk_reg = CLKCTRL_VAPBCLK_CTRL,
 	.vid_clk_reg = CLKCTRL_VID_CLK0_CTRL2,
 	.test_reg = vcbus_test_reg,

@@ -641,7 +641,7 @@ struct aml_lcd_drv_s {
 			       unsigned int flag);
 	unsigned int (*tcon_table_read)(unsigned int addr);
 	unsigned int (*tcon_table_write)(unsigned int addr, unsigned int val);
-	int (*tcon_mem_tee_protect)(int mem_flag, int protect_en);
+	int (*tcon_mem_tee_protect)(int protect_en);
 	int (*tcon_forbidden_check)(void);
 #endif
 	void *debug_info_reg;

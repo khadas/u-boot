@@ -277,9 +277,8 @@ static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			val = 1;
 		else
 			val = 0;
-		i = (unsigned int)simple_strtoul(argv[3], NULL, 10);
 		if (pdrv->tcon_mem_tee_protect)
-			pdrv->tcon_mem_tee_protect(i, val);
+			pdrv->tcon_mem_tee_protect(val);
 		else
 			printf("no lcd tcon_mem_tee_protect\n");
 	} else if (strcmp(argv[1], "spi") == 0) {

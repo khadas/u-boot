@@ -1236,7 +1236,7 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
 		lcd_tcon_data_set(pdrv, mm_table);
 
 #ifdef CONFIG_AMLOGIC_TEE
-	lcd_tcon_mem_tee_protect(0, 1);
+	lcd_tcon_mem_tee_protect(1);
 #endif
 
 	/* step 4: tcon_top_output_set */
@@ -1286,7 +1286,7 @@ int lcd_tcon_enable_txhd2(struct aml_lcd_drv_s *pdrv)
 		lcd_tcon_data_set(pdrv, mm_table);
 
 #ifdef CONFIG_AMLOGIC_TEE
-	lcd_tcon_mem_tee_protect(0, 1);
+	lcd_tcon_mem_tee_protect(1);
 #endif
 
 	/* step 4: tcon_top_output_set */

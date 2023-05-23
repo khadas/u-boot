@@ -49,7 +49,8 @@
 /* 20230821: update lcd ss support*/
 /* 20230823: add dma driver for tcon lut*/
 /* 20230906: support pdf action */
-#define LCD_DRV_VERSION    "20230906"
+/* 20230907: t3x revB OD secure memory support */
+#define LCD_DRV_VERSION    "20230907"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
