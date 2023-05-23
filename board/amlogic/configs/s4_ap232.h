@@ -373,7 +373,7 @@
 //Replace avb2 software SHA256 to utilize armce
 #define CONFIG_AVB2_UBOOT_SHA256
 
-/* #define CONFIG_MULTI_DTB    1 */
+#define CONFIG_MULTI_DTB    1
 
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1

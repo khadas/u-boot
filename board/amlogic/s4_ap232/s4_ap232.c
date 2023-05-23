@@ -405,6 +405,17 @@ const struct mtd_partition *get_spinand_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
+#ifdef CONFIG_MULTI_DTB
+int checkhw(char *name)
+{
+	char *dtb_name = "s4d_s905c3_ap232\0";
+
+	strcpy(name, dtb_name);
+	env_set("aml_dt", dtb_name);
+	return 0;
+}
+#endif
+
 const char * const _env_args_reserve_[] =
 {
 	"lock",
