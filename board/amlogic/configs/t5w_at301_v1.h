@@ -257,7 +257,7 @@
 		"fi;"\
 		"\0" \
 		"storeboot="\
-			"run storeboot_base;"\
+			"ddr_auto_fast_boot_check 6;run storeboot_base;"\
 			"\0"\
 		"update="\
 			"run update_base;"\
