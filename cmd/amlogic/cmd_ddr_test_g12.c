@@ -415,6 +415,32 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
 	},
+	//T5W
+	{
+		.soc_family_name = "T5W",
+		.chip_id = DDR_MESON_CPU_MAJOR_ID_T5W,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
+		.ddr_phy_base_address = 0xfe000000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
+		//AM_DDR_PLL_CNTL0
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
+		//#define SEC_AO_RTI_STATUS_REG3
+		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
+		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+
+		.sys_watchdog_base_address = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		//#define P_EE_TIMER_E		(volatile uint32_t *)0xffd0f188
+		.ee_timer_base_address = 0xffd0f188,
+		//AO_PWM_PWM_B
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
+		//DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400),
+	},
 	//P1
 	{
 		.soc_family_name = "P1",
@@ -7700,7 +7726,14 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 			//sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
 			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
 			unsigned char *sha_t_chip_id;
-			sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
+
+			sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id) - (44 * 2));
+			if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+				ddr_set_size = sizeof(ddr_set_t_c2);
+				sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id));
+			}
 			//update chip id
 			for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)
 				sha_t_chip_id[loop] = global_chip_id[loop];
@@ -10363,9 +10396,17 @@ int do_verify_flash_ddr_parameter(char log_level)
 		if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
 			p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
 			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
-			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2); //sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
+			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
+			//sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
 			unsigned char *sha_t_chip_id;
-			sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
+
+			sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id) - (44 * 2));
+			if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+				ddr_set_size = sizeof(ddr_set_t_c2);
+				sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id));
+			}
 			for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)   //update chip id
 				ddr_sha_c2.sha_chip_id[loop] = sha_t_chip_id[loop];
 		} else {
@@ -10530,6 +10571,11 @@ int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item,
 		ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
 		unsigned char *sha_t_chip_id;
 		sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
+		if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+			ddr_set_size = sizeof(ddr_set_t_c2);
+			sha_t_chip_id =
+			(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id));
+		}
 		for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)           //update chip id
 			sha_t_chip_id[loop] = global_chip_id[loop];
 	} else {
