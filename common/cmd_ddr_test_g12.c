@@ -7678,7 +7678,14 @@ int do_ddr_fastboot_config(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 			//sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
 			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
 			unsigned char *sha_t_chip_id;
-			sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
+
+			sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id) - (44 * 2));
+			if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+				ddr_set_size = sizeof(ddr_set_t_c2);
+				sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id));
+			}
 			//update chip id
 			for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)
 				sha_t_chip_id[loop] = global_chip_id[loop];
@@ -10331,9 +10338,17 @@ int do_verify_flash_ddr_parameter(char log_level)
 		if ((p_ddr_base->chip_id >= DDR_MESON_CPU_MAJOR_ID_C2 &&
 			p_ddr_base->chip_id <= DDR_MESON_CPU_MAJOR_ID_T5D) ||
 			p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
-			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2); //sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
+			ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
+			//sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
 			unsigned char *sha_t_chip_id;
-			sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
+
+			sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id) - (44 * 2));
+			if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+				ddr_set_size = sizeof(ddr_set_t_c2);
+				sha_t_chip_id =
+				(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id));
+			}
 			for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)   //update chip id
 				ddr_sha_c2.sha_chip_id[loop] = sha_t_chip_id[loop];
 		}
@@ -10488,7 +10503,14 @@ int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item,
 		//sizeof(board_phase_setting_ps_t.soc_bit_vref_dac1);
 		ddr_set_size = sizeof(ddr_set_t_c2) - (44 * 2);
 		unsigned char *sha_t_chip_id;
-		sha_t_chip_id = (unsigned char *)((uint64_t)(&(ddr_sha_c2.sha_chip_id)) - (44 * 2));
+
+		sha_t_chip_id =
+			(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id) - (44 * 2));
+		if (p_ddr_base->chip_id == DDR_MESON_CPU_MAJOR_ID_T5W) {
+			ddr_set_size = sizeof(ddr_set_t_c2);
+			sha_t_chip_id =
+			(unsigned char *)((uint64_t)(&ddr_sha_c2.sha_chip_id));
+		}
 		for (loop = 0; loop < MESON_CPU_CHIP_ID_SIZE; loop++)           //update chip id
 			sha_t_chip_id[loop] = global_chip_id[loop];
 	}
