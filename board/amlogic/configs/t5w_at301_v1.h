@@ -444,7 +444,7 @@
 	"bcb uboot-command;"\
 	"run switch_bootmode;"\
 	"run reset_suspend;"
-#define CONFIG_BOOTCOMMAND "run storeboot"
+#define CONFIG_BOOTCOMMAND "ddr_auto_fast_boot_check 6;run storeboot"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #define CONFIG_BOOTCOMMAND "echo bootcomand"
