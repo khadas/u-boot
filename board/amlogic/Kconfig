@@ -1562,11 +1562,51 @@ config TXHD2_SKT
 	help
 	  Select TXHD2 SKT(XXXX) config
 
+config TXHD2_BE301
+	bool "TXHD2_BE301"
+	select TARGET_TXHD2_BE301
+	help
+	  Select TXHD2 BE301 config
+
+config TXHD2_BE309
+	bool "TXHD2_BE309"
+	select TARGET_TXHD2_BE309
+	help
+	  Select TXHD2 BE309 config
+
+config TXHD2_BE311
+	bool "TXHD2_BE311"
+	select TARGET_TXHD2_BE311
+	help
+	  Select TXHD2 BE311 config
+
+config TXHD2_BE319
+	bool "TXHD2_BE319"
+	select TARGET_TXHD2_BE319
+	help
+	  Select TXHD2 BE319 config
+
 endchoice
 
 config TARGET_TXHD2_SKT
 	bool "TXHD2 SKT board"
 	depends on TXHD2_SKT
+
+config TARGET_TXHD2_BE301
+	bool "TXHD2 BE301 board"
+	depends on TXHD2_BE301
+
+config TARGET_TXHD2_BE309
+	bool "TXHD2 BE309 board"
+	depends on TXHD2_BE309
+
+config TARGET_TXHD2_BE311
+	bool "TXHD2 BE311 board"
+	depends on TXHD2_BE311
+
+config TARGET_TXHD2_BE319
+	bool "TXHD2 BE319 board"
+	depends on TXHD2_BE319
 
 endif
 
@@ -1764,3 +1804,10 @@ source "board/amlogic/t3x_bc309/Kconfig"
 
 source "board/amlogic/txhd2_skt/Kconfig"
 
+source "board/amlogic/txhd2_be301/Kconfig"
+
+source "board/amlogic/txhd2_be309/Kconfig"
+
+source "board/amlogic/txhd2_be311/Kconfig"
+
+source "board/amlogic/txhd2_be319/Kconfig"

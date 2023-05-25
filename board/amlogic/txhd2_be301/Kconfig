@@ -1,0 +1,32 @@
+if TARGET_TXHD2_BE301
+
+config SYS_CPU
+	string
+	default "armv8"
+
+config SYS_BOARD
+	string
+	default "txhd2_be301"
+
+config SYS_VENDOR
+	string
+	default "amlogic"
+
+config SYS_SOC
+	string
+	default "txhd2"
+
+config SYS_CONFIG_NAME
+	default "txhd2_be301"
+
+config BL30_SELECT
+	string "TXHD2 BL30 board config"
+	default "txhd2_be301"
+
+config AML_REBOOT
+	bool "reboot cmd"
+	default y
+	help
+	  support uboot reboot cmd:
+	  set reboot mode and reboot system
+endif
