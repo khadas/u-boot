@@ -64,6 +64,9 @@ static int vout_hdmi_hpd(int hpd_st)
 			env_set("outputmode", cvbsmode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
+	} else {
+		if (!strstr(env_get("outputmode"), "hz"))
+			env_set("outputmode", "1080p60hz");
 	}
 
 	return 1;
@@ -102,6 +105,9 @@ static int vout2_hdmi_hpd(int hpd_st)
 			env_set("outputmode2", cvbsmode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
+	} else {
+		if (!strstr(env_get("outputmode2"), "hz"))
+			env_set("outputmode2", "1080p60hz");
 	}
 
 	return 0;

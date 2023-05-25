@@ -928,6 +928,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 			env_set("outputmode3", hdmimode);
 		env_set("colorattribute", colorattribute);
 	}
+	env_set("save_outputmode", sel_hdmimode);
 	hdev->para = hdmitx21_get_fmtpara(sel_hdmimode, env_get("colorattribute"));
 	hdev->vic = hdev->para->timing.vic;
 	hdmitx_mask_rx_info(hdev);

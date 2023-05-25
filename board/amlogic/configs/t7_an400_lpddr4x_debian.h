@@ -732,7 +732,6 @@
 		"init_display="\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
 			"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
-			"setenv outputmode2 ${hdmimode};"\
 			"osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
 			"\0"\
@@ -801,7 +800,6 @@
 #ifndef CONFIG_HDMITX_ONLY
 /* dual logo, normal boot */
 #define CONFIG_DUAL_LOGO \
-	"setenv outputmode2 ${hdmimode};"\
 	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
 	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
 	"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;"\
@@ -810,7 +808,6 @@
 
 /* dual logo, factory_reset boot, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
-	"setenv outputmode2 ${hdmimode};"\
 	"setenv display_layer viu2_osd0;vout2 prepare ${outputmode2};"\
 	"osd open;osd clear;run load_bmp_logo;vout2 output ${outputmode2};bmp scale;"\
 	"setenv display_layer osd0;osd open;osd clear;"\
