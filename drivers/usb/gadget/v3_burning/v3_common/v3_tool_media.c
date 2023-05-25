@@ -124,11 +124,14 @@ static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const ch
 
 		if (chip_type < LAST_NOCS_TYPE) {
 			flash_boot = (unsigned char *)(V3_DOWNLOAD_VERIFY_INFO + 512);
-			const int boot_cpy = store_bootup_bootidx("bootloader");
+			int boot_cpy = 1;
+			const int usb_boot =
+				(v3tool_work_mode_get() == V3TOOL_WORK_MODE_USB_PRODUCE);
 			nocs_boot_replace nocs_normal_areas;
 			int i = 0;
 			int ret = 0;
 
+			boot_cpy = usb_boot ? 1 : store_bootup_bootidx("bootloader");
 			FB_MSG("NOCS chip %d with SCS, cur cpy %d\n", chip_type, boot_cpy);
 			ret = store_boot_read(bootName, boot_cpy, 0, flash_boot);
 			if (ret) {
