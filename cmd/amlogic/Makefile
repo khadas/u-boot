@@ -21,6 +21,7 @@ obj-$(CONFIG_AML_REBOOT) += cmd_reboot.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 
 obj-y += cmd_version.o
+obj-y += cmd_delay.o
 
 obj-$(CONFIG_CMD_CAR_PARAMS) += cmd_car_param.o
 

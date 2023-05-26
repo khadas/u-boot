@@ -314,9 +314,13 @@
 		"echo detect upgrade key; run update;"\
 	"fi;"\
 	"\0"\
+	"repeater_mcu_reset="\
+	"gpio set GPIOT_21; mdelay 1; gpio clear GPIOT_21;"\
+	"\0"\
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
+		"run repeater_mcu_reset;"\
 		"run bcb_cmd; "\
 		"run upgrade_check;"\
 		"run init_display;"\
