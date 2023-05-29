@@ -21,7 +21,8 @@
 /* v20220503: add c3 support */
 /* v20220517: add s5 support */
 /* v20221025: add t5m support */
-#define VPU_VERSION	"v20221025"
+/* v20230529: add t3x support */
+#define VPU_VERSION	"v20230529"
 
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -757,16 +758,19 @@ static int get_vpu_config(void)
 	char *propdata;
 	int ret;
 
-	dt_blob = gd->fdt_blob;
+	dt_blob = (void *)env_get_ulong("dtb_mem_addr", 16, 0x1000000);
 	if (dt_blob == NULL) {
 		VPUERR("dt_blob is null, load default parameters\n");
 		goto get_vpu_config_dft;
 	}
 	ret = fdt_check_header(dt_blob);
 	if (ret < 0) {
-		VPUERR("vpu: check dts: %s, load default parameters\n",
+		dt_blob = gd->fdt_blob;
+		if (fdt_check_header(dt_blob) < 0) {
+			VPUERR("check dts: %s, load default parameters\n",
 			fdt_strerror(ret));
-		goto get_vpu_config_dft;
+			goto get_vpu_config_dft;
+		}
 	}
 	node = fdt_path_offset(dt_blob, "/vpu");
 	if (node < 0) {
