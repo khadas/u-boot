@@ -452,7 +452,7 @@
 	"run factory_reset_poweroff_protect;"\
 	"run upgrade_check;"\
 	/* "run init_display;"\ */\
-	"run check_display;"\
+	/*"run check_display;"\ */\
 	"run storeargs;"\
 	"bcb uboot-command;"\
 	"run switch_bootmode;"\
@@ -463,7 +463,7 @@
 //#define CONFIG_BOOTCOMMAND "echo bootcomand"
 #endif //CONFIG_PXP_EMULATOR
 
-#define CONFIG_ENV_IS_NOWHERE  1
+//#define CONFIG_ENV_IS_NOWHERE  1
 
 #ifndef CONFIG_PXP_EMULATOR
 //#define CONFIG_ENV_IS_NOWHERE  1
