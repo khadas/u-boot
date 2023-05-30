@@ -182,6 +182,9 @@ int board_late_init(void)
 //#ifdef CONFIG_PXP_EMULATOR
 	char outputModeCur[30] = {};
 //#endif
+	char connector_type_pre[20] = {}, connector_type_cur[20] = {};
+	char *str;
+
 	printf("board late init\n");
 	get_stick_reboot_flag();
 
@@ -214,6 +217,9 @@ int board_late_init(void)
 	 */
 	if (env_get("outputmode"))
 		strncpy(outputModePre, env_get("outputmode"), 29);
+	str = env_get("connector_type");
+	if (str)
+		strncpy(connector_type_pre, str, 19);
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -257,6 +263,16 @@ int board_late_init(void)
 	if (strcmp(outputModeCur, outputModePre)) {
 		printf("outputMode changed, old:%s - new:%s\n", outputModePre, outputModeCur);
 		run_command("update_env_part -p outputmode", 0);
+	}
+
+	str = env_get("connector_type");
+	if (str) {
+		strncpy(connector_type_cur, str, 19);
+		if (strcmp(connector_type_cur, connector_type_pre)) {
+			printf("uboot connector_type change saveenv old:%s - new:%s\n",
+				connector_type_pre, connector_type_cur);
+			run_command("update_env_part -p connector_type", 0);
+		}
 	}
 
 	unsigned char chipid[16];
