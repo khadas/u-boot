@@ -462,7 +462,7 @@
 #endif
 
 /* vpu */
-#define AML_VPU_CLK_LEVEL_DFT 5
+#define AML_VPU_CLK_LEVEL_DFT 3
 
 /* LCD */
 
