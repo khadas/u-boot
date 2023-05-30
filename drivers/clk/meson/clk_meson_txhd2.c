@@ -114,7 +114,7 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 	 reg = readl(priv->addr + pod->reg_off);
 	od = PARM_GET(pod->width, pod->shift, reg);
 
-	return ((parent_rate_mhz * m / n) >> od) * 1000000;
+	return ((parent_rate_mhz * m >> n) >> od) * 1000000;
 }
 
 static ulong meson_clk_get_rate_by_id(struct clk *clk, ulong id)
