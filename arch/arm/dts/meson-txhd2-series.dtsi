@@ -478,38 +478,66 @@
 			};
 		};
 
-		crg20: crg@ff500000 {
+		crg1: crg1@ffdf0000 {
 			compatible = "crg-xhci";
 			status = "disable";
-			reg = <0x0 0xff500000 0x0 0x100000>;
-			phys = <&usb2_phy_v2>, <&usb3_phy_v2>;
+			reg = <0x0 0xffdf0000 0x0 0x10000>;
+			phys = <&usb21_phy_v2>, <&usb31_phy_v2>;
 			phy-names = "usb2-phy", "usb3-phy";
 		};
 
-		usb2_phy_v2: usb2phy@ffe09000 {
+		usb21_phy_v2: usb21phy@ffe09020 {
 			compatible = "amlogic, amlogic-new-usb2-v2";
 			status = "disable";
 			#address-cells = <2>;
 			#size-cells = <2>;
 			phy-version = <2>;
-			reg = <0x0 0xffe09000 0x0 0x80
-				0x0 0xffd01008 0x0 0x100
-				0x0 0xff636000 0x0 0x2000
-				0x0 0xff63a000 0x0 0x2000
-				0x0 0xff658000 0x0 0x2000>;
-			dwc2_a_reg = <0xff400000>;
+			reg = <0x0 0xffe09020 0x0 0x60
+			       0x0 0xFFD01008 0x0 0x100
+			       0x0 0xff63a000 0x0 0x2000
+			       0x0 0xff658000 0x0 0x2000>;
+			dwc2_a_reg = <0xff69a000>;
 			#phy-cells = <0>;
 		};
 
-		usb3_phy_v2: usb3phy@ffe09080 {
+		usb31_phy_v2: usb31phy@ffe09080 {
 			compatible = "amlogic, amlogic-new-usb3-v2";
 			status = "disable";
 			#address-cells = <2>;
 			#size-cells = <2>;
 			phy-version = <3>;
 			reg = <0x0 0xffe09080 0x0 0x20>;
-			usb2-phy-reg = <0xffe09000>;
-			usb2-phy-reg-size = <0x80>;
+			#phy-cells = <0>;
+		};
+
+		crg2: crg2@ff690000 {
+			compatible = "crg-xhci";
+			status = "disable";
+			reg = <0x0 0xff690000 0x0 0x10000>;
+			phys = <&usb20_phy_v2>, <&usb30_phy_v2>;
+			phy-names = "usb2-phy", "usb3-phy";
+		};
+
+		usb20_phy_v2: usb20phy@ffe09000 {
+			compatible = "amlogic, amlogic-new-usb2-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <2>;
+			reg = <0x0 0xffe09000 0x0 0x20
+			       0x0 0xFFD01008 0x0 0x100
+			       0x0 0xff636000 0x0 0x2000>;
+			dwc2_a_reg = <0xfe320000>;
+			#phy-cells = <0>;
+		};
+
+		usb30_phy_v2: usb30phy@ffe09080 {
+			compatible = "amlogic, amlogic-new-usb3-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <3>;
+			reg = <0x0 0xffe09080 0x0 0x20>;
 			#phy-cells = <0>;
 		};
 	};
