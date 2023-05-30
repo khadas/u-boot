@@ -669,9 +669,9 @@ phys_size_t get_effective_memsize(void)
 {
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	return (((readl(AO_SEC_GP_CFG0)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+	return (((readl(AO_SEC_GP_CFG0)) & 0xFFF80000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
 #else
-	return (((readl(AO_SEC_GP_CFG0)) & 0xFFFF0000) << 4);
+	return (((readl(AO_SEC_GP_CFG0)) & 0xFFF80000) << 4);
 #endif
 }
 
@@ -700,10 +700,9 @@ struct mm_region *mem_map = bd_mem_map;
 #ifdef CONFIG_MULTI_DTB
 int checkhw(char * name)
 {
-	char dtb_name[64] = {0};
+	char loc_name[64] = {0};
 	unsigned long ddr_size = 0;
-	char memsize[64] = {0};
-	int i, j;
+	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		ddr_size += gd->bd->bi_dram[i].size;
@@ -711,24 +710,21 @@ int checkhw(char * name)
 	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
 #endif
 	printf("ddr_size is %lx\n", ddr_size);
-	if (ddr_size <= 0x40000000)
-		strcpy(dtb_name, "t5w_at301_1g\0");
-	else if (ddr_size <= 0x60000000)
-		strcpy(dtb_name, "t5w_at301_1.5g\0");
-	else
-		strcpy(dtb_name, "t5w_at301_2g\0");
-/*memsize will be used for different ram device property, get from dts_name*/
-	i = 0;
-	for (j = 0; j < strlen(dtb_name); j++) {
-		if (dtb_name[j] == '_')
-			i = j;
+	switch (ddr_size) {
+	case 0x20000000:
+		strcpy(loc_name, "txhd2_t950s_be301-512m\0");
+		break;
+	case 0x40000000:
+		strcpy(loc_name, "txhd2_t950s_be301\0");
+		break;
+	default:
+		strcpy(loc_name, "txhd2_t950s_unsupport");
+		break;
 	}
-	if (i != 0)
-		strncpy(memsize, dtb_name + i + 1, strlen(dtb_name) - i);
-	env_set("memsize", memsize);
 
-	strcpy(name, dtb_name);
-	env_set("aml_dt", dtb_name);
+	/* set aml_dt */
+	strcpy(name, loc_name);
+	env_set("aml_dt", loc_name);
 	return 0;
 }
 #endif
