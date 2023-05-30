@@ -7,6 +7,9 @@
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include "hdmitx_drv.h"
 
+/* now this interface should be not used, otherwise need
+ * adjust as hdmi_vend_infoframe_rawset fistly
+ */
 void hdmi_vend_infoframe_set(struct hdmi_vendor_infoframe *info)
 {
 	u8 body[31] = {0};
@@ -20,18 +23,88 @@ void hdmi_vend_infoframe_set(struct hdmi_vendor_infoframe *info)
 	hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, body);
 }
 
+/* refer to DV Consumer Decoder for Source Devices
+ * System Development Guide Kit version chapter 4.4.8 Game
+ * content signaling:
+ * 1.if DV sink device that supports ALLM with
+ * InfoFrame Data Block (IFDB), HF-VSIF with ALLM_Mode = 1
+ * should comes after Dolby VSIF with L11_MD_Present = 1 and
+ * Content_Type[3:0] = 0x2(case B1)
+ * 2. DV sink device that supports ALLM without
+ * InfoFrame Data Block (IFDB), Dolby VSIF with L11_MD_Present
+ * = 1 and Content_Type[3:0] = 0x2 should comes after HF-VSIF
+ * with  ALLM_Mode = 1(case B2), or should only send Dolby VSIF,
+ * not send HF-VSIF(case A)
+ */
+/* only used for DV_VSIF / HDMI1.4b_VSIF / HDR10+ VSIF */
 void hdmi_vend_infoframe_rawset(u8 *hb, u8 *pb)
 {
 	u8 body[31] = {0};
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	if (!hb || !pb) {
-		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, NULL);
+		if (!hdev->RXCap.ifdb_present) {
+			hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR2, NULL);
+			printf("%s clear vendor2\n", __func__);
+		} else {
+			hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, NULL);
+			printf("%s clear vendor\n", __func__);
+		}
 		return;
 	}
 
 	memcpy(body, hb, 3);
 	memcpy(&body[3], pb, 28);
-	hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, body);
+	if (hdev->RXCap.ifdb_present && hdev->RXCap.additional_vsif_num >= 1) {
+		/* dolby cts case93 B1 */
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, body);
+		printf("%s set vendor\n", __func__);
+	} else if (!hdev->RXCap.ifdb_present) {
+		/* dolby cts case92 B2 */
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR2, body);
+		printf("%s set vendor2\n", __func__);
+	} else {
+		/* case89 ifdb_present but no additional_vsif, should not send HF-VSIF */
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR2, NULL);
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, body);
+		printf("%s clear vendor2, set vendor\n", __func__);
+	}
+}
+
+/* only used for HF-VSIF */
+void hdmi_vend_infoframe2_rawset(u8 *hb, u8 *pb)
+{
+	u8 body[31] = {0};
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (!hb || !pb) {
+		if (!hdev->RXCap.ifdb_present) {
+			hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, NULL);
+			printf("%s clear vendor\n", __func__);
+		} else {
+			hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR2, NULL);
+			printf("%s clear vendor2\n", __func__);
+		}
+		return;
+	}
+
+	memcpy(body, hb, 3);
+	memcpy(&body[3], pb, 28);
+	if (hdev->RXCap.ifdb_present && hdev->RXCap.additional_vsif_num >= 1) {
+		/* dolby cts case93 B1 */
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR2, body);
+		printf("%s set vendor2, vsif_num >= 1\n", __func__);
+	} else if (!hdev->RXCap.ifdb_present) {
+		/* dolby cts case92 B2 */
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR, body);
+		printf("%s set vendor\n", __func__);
+	} else {
+		/* case89 ifdb_present but no additional_vsif, currently
+		 * no DV-VSIF enabled, then send HF-VSIF
+		 */
+		hdmitx21_infoframe_send(HDMI_INFOFRAME_TYPE_VENDOR2, body);
+		printf("%s set vendor2\n", __func__);
+	}
 }
 
 void hdmi_avi_infoframe_set(struct hdmi_avi_infoframe *info)
@@ -97,6 +170,9 @@ void hdmi_avi_infoframe_config(enum avi_component_conf conf, u8 val)
 		break;
 	case CONF_AVI_YQ01:
 		info->ycc_quantization_range = val;
+		break;
+	case CONF_AVI_VIC:
+		info->video_code = val & 0xff;
 		break;
 	default:
 		break;

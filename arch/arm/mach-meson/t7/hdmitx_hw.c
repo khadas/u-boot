@@ -51,6 +51,11 @@ int hdmitx_get_hpd_state(void)
 	return st;
 }
 
+void hdmitx_phy_pre_init(struct hdmitx_dev *hdev)
+{
+	/* dummy function, no need for t7 */
+}
+
 static void sec_wr(u32 addr, u32 data)
 {
 	struct arm_smccc_res res;
@@ -366,4 +371,18 @@ void hdmitx_test_prbs(void)
 		else
 			printf("prbs D[%d]: %08x\n", i - 1, hd21_read_reg(ANACTRL_HDMIPLL_CTRL6));
 	}
+}
+
+void hdmitx21_mux_ddc(void)
+{
+	u32 data32 = 0;
+
+	data32 |= (1 << 28);     // [31:28] GPIOW_15_SEL=1 for hdmitx_hpd
+	data32 |= (1 << 24);     // [27:24] GPIOW_14_SEL=1 for hdmitx_scl
+	data32 |= (1 << 20);     // [23:20] GPIOW_13_SEL=1 for hdmitx_sda
+	hd21_write_reg(PADCTRL_PIN_MUX_REGN, data32);
+}
+
+void hdmitx_set_clkdiv(struct hdmitx_dev *hdev)
+{
 }

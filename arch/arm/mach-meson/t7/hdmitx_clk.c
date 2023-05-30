@@ -4,8 +4,18 @@
  */
 
 #include <common.h>
+#include <amlogic/clk_measure.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include "hdmitx_clk.h"
+
+#define SET_CLK_MAX_TIMES 10
+#define CLK_TOLERANCE 2 /* Unit: MHz */
+#define MIN_HTXPLL_VCO 3000000 /* Min 3GHz */
+#define MAX_HTXPLL_VCO 6000000 /* Max 6GHz */
+#define MIN_FPLL_VCO 1600000 /* Min 1.6GHz */
+#define MAX_FPLL_VCO 3200000 /* Max 3.2GHz */
+#define MIN_GP2PLL_VCO 1600000 /* Min 1.6GHz */
+#define MAX_GP2PLL_VCO 3200000 /* Max 3.2GHz */
 
 #define usleep_range(a, b) udelay(a)
 
@@ -13,6 +23,7 @@
 static u32 frac_rate;
 static void set_crt_video_enc(u32 vidx, u32 in_sel, u32 div_n);
 static void set_crt_video_enc2(u32 vidx, u32 in_sel, u32 div_n);
+static void hdmitx_check_frac_rate(struct hdmitx_dev *hdev);
 /*
  * HDMITX Clock configuration
  */
@@ -125,6 +136,44 @@ static bool set_hpll_hclk_v3(u32 m, u32 frac_val)
 	return ret; /* return hpll locked status */
 }
 
+static void t7_auto_set_hpll(u32 clk)
+{
+	u32 quotient;
+	u32 remainder;
+	u32 rem_1;
+	u32 rem_2;
+
+	if (clk < 3000000 || clk >= 6000000) {
+		pr_err("%s[%d] clock should be 3~6G\n", __func__, __LINE__);
+		return;
+	}
+
+	quotient = clk / 24000;
+	remainder = clk - quotient * 24000;
+	/* remainder range: 0 ~ 99999, 0x1869f, 17bits */
+	/* convert remainder to 0 ~ 2^17 */
+	if (remainder) {
+		rem_1 = remainder / 16;
+		rem_2 = remainder - rem_1 * 16;
+		rem_1 *= 1 << 17;
+		rem_1 /= 1500;
+		rem_2 *= 1 << 13;
+		rem_2 /= 1500;
+		remainder = rem_1 + rem_2;
+	}
+
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL0, 0x3b000400 | (quotient & 0x1ff));
+	hd21_set_reg_bits(ANACTRL_HDMIPLL_CTRL0, 0x3, 28, 2);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, remainder);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x6a685c00);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927200a);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x55540000);
+	hd21_set_reg_bits(ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+	WAIT_FOR_PLL_LOCKED(ANACTRL_HDMIPLL_CTRL0);
+}
+
 static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 {
 	switch (clk) {
@@ -140,7 +189,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL0, 0x3b0004e9);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x0000aaab);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);/*test*/
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);/*test*/
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -155,7 +204,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		else
 			hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x00007333);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -197,7 +246,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		else
 			hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x00005c29);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -224,7 +273,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL0, 0x3b00048f);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x00018000);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -239,7 +288,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		else
 			hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x0000451f);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -251,7 +300,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL0, 0x3b000485);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x00007555);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -266,7 +315,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		else
 			hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x00018000);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -278,7 +327,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL0, 0x3b0004a8);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, 0x00000000);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
-		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x0a691c00);
+		hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x4a691c00);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927000a);
 		hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x50540000);
@@ -287,7 +336,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		pr_info("HPLL: 0x%x\n", hd21_read_reg(ANACTRL_HDMIPLL_CTRL0));
 		break;
 	default:
-		pr_info("error hpll clk: %d\n", clk);
+		t7_auto_set_hpll(clk);
 		break;
 	}
 }
@@ -404,9 +453,13 @@ static void hdmitx_enable_encp_clk(struct hdmitx_dev *hdev)
 	//hd21_set_reg_bits(CLKCTRL_VID_CLK_CTRL2, 1, 2, 1);
 }
 
-void hdmitx21_set_audioclk(bool en)
+void hdmitx21_set_audioclk(u8 hdmitx_aud_clk_div)
 {
 	u32 data32;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (hdmitx_aud_clk_div == 0)
+		hdmitx_aud_clk_div = 1;
 
 	// Enable hdmitx_aud_clk
 	// [10: 9] clk_sel for cts_hdmitx_aud_clk: 2=fclk_div3
@@ -415,10 +468,16 @@ void hdmitx21_set_audioclk(bool en)
 	data32 = 0;
 	data32 |= (2 << 9);
 	data32 |= (0 << 8);
-	data32 |= ((18 - 1) << 0);
-	hd21_write_reg(CLKCTRL_HTX_CLK_CTRL1, data32);
+	if (hdev->chip_type == MESON_CPU_ID_T7) {
+		data32 |= ((hdmitx_aud_clk_div - 1) << 0);
+		hd21_write_reg(CLKCTRL_HTX_CLK_CTRL1, data32);
+	} else {
+		hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, 1, 8, 1); /* enable */
+		hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, 3, 9, 2); /* FIXPLL/5 */
+		hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, 1, 0, 8); /* div 2 */
+	}
 	// [    8] clk_en for cts_hdmitx_aud_clk
-	hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, en, 8, 1);
+	hd21_set_reg_bits(CLKCTRL_HTX_CLK_CTRL1, 1, 8, 1);
 }
 
 void hdmitx21_set_default_clk(void)
@@ -450,7 +509,7 @@ void hdmitx21_set_default_clk(void)
 	data32 |= (1 << 8); // [    8] clk_en for cts_hdmitx_prif_clk
 	hd21_write_reg(CLKCTRL_HTX_CLK_CTRL0, data32);
 
-	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 0, 0, 5);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 7, 0, 3);
 
 	// wire    wr_enable = control[3];
 	// wire    fifo_enable = control[2];
@@ -515,6 +574,8 @@ static void set_hpll_od3(u32 div)
  * wire    [1:0]   clk_sel         = control[17:16];
  * wire            set_preset      = control[15];
  * wire    [14:0]  shift_preset    = control[14:0];
+ * div_src: 0 means divide the hdmi_tmds_out2 to tmds_clk
+ *          1 means divide the hdmi_tmds_out2 to vid_pll0_clk
  */
 static void clocks_set_vid_clk_div_for_hdmi(int div_sel)
 {
@@ -677,6 +738,9 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_24[] = {
 	  HDMI_2_720x480p60_4x3,
 	  HDMI_VIC_END},
 		4324320, 4, 4, 2, VID_PLL_DIV_5, 1, 1, 1, 1, 1},
+	{{HDMI_1_640x480p60_4x3, /* 4.028G / 16 = 251.75M */
+	  HDMI_VIC_END},
+		4028000, 4, 4, 2, VID_PLL_DIV_5, 2, 1, 1, 1, 1},
 	{{HDMI_19_1280x720p50_16x9,
 	  HDMI_4_1280x720p60_16x9,
 	  HDMI_5_1920x1080i60_16x9,
@@ -815,7 +879,47 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
 		4455000, 1, 1, 2, VID_PLL_DIV_7p5, 1, 1, 1, 1, 1},
 };
 
-static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
+static void t7_calc_pixel_clk_hpll_vco_od(u32 pixel_freq, u32 *vco_out, u32 *od1, u32 *od2)
+{
+	u32 htx_vco = 5940000;
+	u32 div = 1;
+
+	if (!vco_out || !od1 || !od2)
+		return;
+
+	if (pixel_freq < 25175 || pixel_freq > 5940000) {
+		pr_err("%s[%d] not valid pixel clock %d\n", __func__, __LINE__, pixel_freq);
+		return;
+	}
+
+	pixel_freq = pixel_freq * 10; /* for tmds modes, here should multi 10 */
+	if (pixel_freq > MAX_HTXPLL_VCO) {
+		pr_err("%s[%d] base_pixel_clk %d over MAX_HTXPLL_VCO %d\n",
+			__func__, __LINE__, pixel_freq, MAX_HTXPLL_VCO);
+	}
+
+	/* the base pixel_clk range should be 250M ~ 5940M? */
+	htx_vco = pixel_freq;
+	do {
+		if (htx_vco >= MIN_HTXPLL_VCO && htx_vco < MAX_HTXPLL_VCO)
+			break;
+		div *= 2;
+		htx_vco *= 2;
+	} while (div <= 16);
+
+	*vco_out = htx_vco;
+	/* setting htxpll div */
+	if (div > 4) {
+		*od1 = 4;
+		*od2 = div / 4;
+	} else {
+		*od1 = div;
+		*od2 = 1;
+	}
+}
+
+static void hdmitx21_set_clk_(struct hdmitx_dev *hdev,
+		struct hw_enc_clk_val_group *test_clk)
 {
 	int i = 0;
 	int j = 0;
@@ -825,6 +929,9 @@ static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
 	enum hdmi_color_depth cd = hdev->para->cd;
 	char *sspll_dis = NULL;
 	struct hw_enc_clk_val_group tmp_clk = {0};
+
+	if (!test_clk)
+		return;
 
 	/* YUV 422 always use 24B mode */
 	if (cs == HDMI_COLORSPACE_YUV422)
@@ -841,8 +948,10 @@ static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
 		}
 		if (j == sizeof(setting_enc_clk_val_24)
 			/ sizeof(struct hw_enc_clk_val_group)) {
-			pr_info("Not find VIC = %d for hpll setting\n", vic);
-			return;
+			if (vic < HDMITX_VESA_OFFSET) {
+				pr_info("Not find VIC = %d for hpll setting\n", vic);
+				return;
+			}
 		}
 	} else if (cd == COLORDEPTH_30B) {
 		p_enc = &setting_enc_clk_val_30[0];
@@ -856,8 +965,11 @@ static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
 		}
 		if (j == sizeof(setting_enc_clk_val_30) /
 			sizeof(struct hw_enc_clk_val_group)) {
-			pr_info("Not find VIC = %d for hpll setting\n", vic);
-			return;
+			/* if vic is VESA mode, then here will automatically calculate the clks */
+			if (vic < HDMITX_VESA_OFFSET) {
+				pr_info("Not find VIC = %d for hpll setting\n", vic);
+				return;
+			}
 		}
 	} else if (cd == COLORDEPTH_36B) {
 		p_enc = &setting_enc_clk_val_36[0];
@@ -879,6 +991,7 @@ static void hdmitx21_set_clk_(struct hdmitx_dev *hdev)
 		return;
 	}
 next:
+	*test_clk = p_enc[j];
 	memcpy(&tmp_clk, &p_enc[j], sizeof(struct hw_enc_clk_val_group));
 	if (cs == HDMI_COLORSPACE_YUV420) {
 		/* adjust the sub-clock under Y420 */
@@ -887,6 +1000,25 @@ next:
 		tmp_clk.od3 = 1;
 		tmp_clk.pnx_div = 2;
 		tmp_clk.pixel_div = 2;
+	}
+	if (vic >= HDMITX_VESA_OFFSET) {
+		const struct hdmi_timing *timing = NULL;
+
+		timing = hdmitx21_gettiming_from_vic(vic);
+		if (!timing) {
+			pr_info("failed to find VIC %d timing\n", vic);
+			return;
+		}
+		memset(&tmp_clk, 0, sizeof(tmp_clk));
+		t7_calc_pixel_clk_hpll_vco_od(timing->pixel_freq,
+			&tmp_clk.hpll_clk_out, &tmp_clk.od1, &tmp_clk.od2);
+		tmp_clk.od3 = 2; /* fixed divider value */
+		tmp_clk.vid_pll_div = VID_PLL_DIV_5;
+		tmp_clk.vid_clk_div = 2; /* fixed divider value */
+		tmp_clk.enc_div = 1;
+		tmp_clk.fe_div = 1;
+		tmp_clk.pnx_div = 1;
+		tmp_clk.pixel_div = 1;
 	}
 	set_hpll_clk_out(tmp_clk.hpll_clk_out);
 	sspll_dis = env_get("sspll_dis");
@@ -910,10 +1042,10 @@ next:
 		set_crt_video_enc2(0, 0, 1);
 }
 
-static int likely_frac_rate_mode(char *m)
+int likely_frac_rate_mode(char *m)
 {
-	if (strstr(m, "24hz") || strstr(m, "30hz") || strstr(m, "60hz") ||
-	    strstr(m, "120hz") || strstr(m, "240hz"))
+	if (strstr(m, "24hz") || strstr(m, "30hz") || strstr(m, "48hz") ||
+	    strstr(m, "60hz") || strstr(m, "120hz") || strstr(m, "240hz"))
 		return 1;
 	else
 		return 0;
@@ -934,10 +1066,118 @@ static void hdmitx_check_frac_rate(struct hdmitx_dev *hdev)
 	hdev->frac_rate_policy = frac_rate;
 	pr_info("hdmitx_check_frac_rate: frac_rate:%d\n", frac_rate);
 }
+
+/*
+ * calculate the pixel clock with current clock parameters
+ * and measure the pixel clock from hardware clkmsr
+ * then compare above 2 clocks
+ */
+static bool test_pixel_clk(struct hdmitx_dev *hdev, const struct hw_enc_clk_val_group *t)
+{
+	u32 idx;
+	u32 calc_pixel_clk;
+	u32 msr_pixel_clk;
+
+	if (!hdev || !t)
+		return 0;
+
+	/* refer to meson-clk-measure.c, here can see that before SC2,
+	 * the pixel index is 36, and since or after SC2, the index is 59
+	 * the index may change in later chips
+	 */
+	idx = 59;
+
+	/* calculate the pixel_clk firstly */
+	calc_pixel_clk = t->hpll_clk_out;
+	if (frac_rate)
+		calc_pixel_clk = calc_pixel_clk - calc_pixel_clk / 1001;
+	calc_pixel_clk /= (t->od1 > 0) ? t->od1 : 1;
+	calc_pixel_clk /= (t->od2 > 0) ? t->od2 : 1;
+	calc_pixel_clk /= (t->od3 > 0) ? t->od3 : 1;
+	switch (t->vid_pll_div) {
+	case VID_PLL_DIV_2:
+		calc_pixel_clk /= 2;
+		break;
+	case VID_PLL_DIV_2p5:
+		calc_pixel_clk = calc_pixel_clk * 2 / 5;
+		break;
+	case VID_PLL_DIV_3:
+		calc_pixel_clk /= 3;
+		break;
+	case VID_PLL_DIV_3p25:
+		calc_pixel_clk = calc_pixel_clk * 4 / 13;
+		break;
+	case VID_PLL_DIV_3p5:
+		calc_pixel_clk = calc_pixel_clk * 2 / 7;
+		break;
+	case VID_PLL_DIV_3p75:
+		calc_pixel_clk = calc_pixel_clk * 4 / 15;
+		break;
+	case VID_PLL_DIV_4:
+		calc_pixel_clk /= 4;
+		break;
+	case VID_PLL_DIV_5:
+		calc_pixel_clk /= 5;
+		break;
+	case VID_PLL_DIV_6:
+		calc_pixel_clk /= 6;
+		break;
+	case VID_PLL_DIV_6p25:
+		calc_pixel_clk = calc_pixel_clk * 4 / 25;
+		break;
+	case VID_PLL_DIV_7:
+		calc_pixel_clk /= 7;
+		break;
+	case VID_PLL_DIV_7p5:
+		calc_pixel_clk = calc_pixel_clk * 2 / 15;
+		break;
+	case VID_PLL_DIV_12:
+		calc_pixel_clk /= 12;
+		break;
+	case VID_PLL_DIV_14:
+		calc_pixel_clk /= 14;
+		break;
+	case VID_PLL_DIV_15:
+		calc_pixel_clk /= 15;
+		break;
+	case VID_PLL_DIV_1:
+	default:
+		calc_pixel_clk /= 1;
+		break;
+	}
+	calc_pixel_clk /= (t->vid_clk_div > 0) ? t->vid_clk_div : 1;
+	calc_pixel_clk /= (t->pixel_div > 0) ? t->pixel_div : 1;
+
+	/* measure the current HW pixel_clk */
+	msr_pixel_clk = clk_util_clk_msr(idx);
+
+	/* convert both unit to MHz and compare */
+	calc_pixel_clk /= 1000;
+	if (calc_pixel_clk == msr_pixel_clk)
+		return 1;
+	if (calc_pixel_clk > msr_pixel_clk && ((calc_pixel_clk - msr_pixel_clk) <= CLK_TOLERANCE))
+		return 1;
+	if (calc_pixel_clk < msr_pixel_clk && ((msr_pixel_clk - calc_pixel_clk) <= CLK_TOLERANCE))
+		return 1;
+	pr_info("calc_pixel_clk %dMHz msr_pixel_clk %dMHz\n", calc_pixel_clk, msr_pixel_clk);
+	return 0;
+}
+
 void hdmitx21_set_clk(struct hdmitx_dev *hdev)
 {
+	int i = 0;
+	struct hw_enc_clk_val_group test_clks = {0};
+
 	hdmitx_check_frac_rate(hdev);
-	hdmitx21_set_clk_(hdev);
+
+	/* set the clock and test the pixel clock */
+	for (i = 0; i < SET_CLK_MAX_TIMES; i++) {
+		hdmitx21_set_clk_(hdev, &test_clks);
+		if (test_pixel_clk(hdev, &test_clks))
+			break;
+	}
+	if (i == SET_CLK_MAX_TIMES)
+		pr_info("need check hdmitx clocks\n");
 }
 
 //===============================================================

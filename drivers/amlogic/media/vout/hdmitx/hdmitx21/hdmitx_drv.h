@@ -9,6 +9,7 @@
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 
 const struct hdmi_timing *get_hdmitx_timing_para0(void);
+const struct hdmi_timing *hdmitx21_gettiming_from_name(const char *name);
 int get_hdmitx_timing_size(void);
 
 void set_vmode_enc_hw(enum hdmi_vic vic);
@@ -19,5 +20,7 @@ void set_tv_enci_new(struct hdmitx_dev *hdev, u32 enc_index,
 	enum hdmi_vic vic, u32 enable);
 void set_tv_encp_new(struct hdmitx_dev *hdev, u32 enc_index,
 	enum hdmi_vic vic, u32 enable);
+
+void hdmitx_dfm_cfg(u8 bw_type, u16 val);
 
 #endif

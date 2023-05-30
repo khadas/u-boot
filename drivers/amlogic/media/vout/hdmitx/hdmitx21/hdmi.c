@@ -64,7 +64,8 @@ int hdmi_avi_infoframe_init(struct hdmi_avi_infoframe *frame)
 static int hdmi_avi_infoframe_check_only(const struct hdmi_avi_infoframe *frame)
 {
 	if (frame->type != HDMI_INFOFRAME_TYPE_AVI ||
-	    frame->version != 2 ||
+	    frame->version < 2 ||
+	    frame->version > 4 ||
 	    frame->length != HDMI_AVI_INFOFRAME_SIZE)
 		return -EINVAL;
 
@@ -155,7 +156,7 @@ ssize_t hdmi_avi_infoframe_pack_only(const struct hdmi_avi_infoframe *frame,
 	if (frame->itc)
 		ptr[2] |= BIT(7);
 
-	ptr[3] = frame->video_code & 0x7f;
+	ptr[3] = frame->video_code;
 
 	ptr[4] = ((frame->ycc_quantization_range & 0x3) << 6) |
 		 ((frame->content_type & 0x3) << 4) |
@@ -221,8 +222,8 @@ int hdmi_spd_infoframe_init(struct hdmi_spd_infoframe *frame,
 	frame->version = 1;
 	frame->length = HDMI_SPD_INFOFRAME_SIZE;
 
-	strncpy(frame->vendor, vendor, sizeof(frame->vendor));
-	strncpy(frame->product, product, sizeof(frame->product));
+	strncpy(frame->vendor, vendor, sizeof(frame->vendor) - 1);
+	strncpy(frame->product, product, sizeof(frame->product) - 1);
 
 	return 0;
 }
@@ -629,7 +630,7 @@ hdmi_vendor_any_infoframe_check_only(const union hdmi_vendor_any_infoframe *fram
 }
 
 /**
- * hdmi_drm_infoframe_init() - initialize an HDMI Dynaminc Range and
+ * hdmi_drm_infoframe_init() - initialize an HDMI dynamic Range and
  * mastering infoframe
  * @frame: HDMI DRM infoframe
  *
@@ -970,7 +971,8 @@ static int hdmi_avi_infoframe_unpack(struct hdmi_avi_infoframe *frame,
 		return -EINVAL;
 
 	if (ptr[0] != HDMI_INFOFRAME_TYPE_AVI ||
-	    ptr[1] != 2 ||
+	    ptr[1] < 2 ||
+	    ptr[1] > 4 ||
 	    ptr[2] != HDMI_AVI_INFOFRAME_SIZE)
 		return -EINVAL;
 
@@ -1005,7 +1007,7 @@ static int hdmi_avi_infoframe_unpack(struct hdmi_avi_infoframe *frame,
 	frame->quantization_range = (ptr[2] >> 2) & 0x3;
 	frame->nups = ptr[2] & 0x3;
 
-	frame->video_code = ptr[3] & 0x7f;
+	frame->video_code = ptr[3];
 	frame->ycc_quantization_range = (ptr[4] >> 6) & 0x3;
 	frame->content_type = (ptr[4] >> 4) & 0x3;
 
