@@ -299,10 +299,9 @@ int usb2_phy_init(struct phy *phy)
 		}
 	}
 
-	for (i = 0; i < priv->u2_port_num; i++) {
-		printf("------set usb pll\n");
+	for (i = 0; i < priv->u2_port_num; i++)
 		set_usb_pll(priv->usb_phy2_pll_base_addr[i]);
-	}
+
 	return 0;
 }
 
