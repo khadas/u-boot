@@ -165,7 +165,7 @@
 	bus-width = <8>;
 	cap-mmc-highspeed;
 	//mmc-ddr-1_8v;
-	//mmc-hs200-1_8v;
+	mmc-hs200-1_8v;
 	//mmc-hs400-1_8v;
 	max-frequency = <200000000>;
 	non-removable;
@@ -181,8 +181,8 @@
 	hs2_co_phase = <2>;
 	hs2_to_phase = <0>;
 
-	hs4_co_phase = <0>;
-	hs4_tx_delay = <16>;
+	//hs4_co_phase = <0>;
+	//hs4_tx_delay = <16>;
 
 	hw_reset = <&gpio GPIOB_9 GPIO_ACTIVE_HIGH>;
 
