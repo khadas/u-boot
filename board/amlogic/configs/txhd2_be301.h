@@ -354,7 +354,7 @@
             "run upgrade_check;"\
 	/* "run init_display;"\ */\
 	"get_rebootmode;"\
-	/*"run check_display;"\ */\
+	"run check_display;"\
 	"run storeargs;"\
             "run upgrade_key;" \
             "bcb uboot-command;" \
