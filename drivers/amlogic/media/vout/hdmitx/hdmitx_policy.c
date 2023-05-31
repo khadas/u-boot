@@ -466,6 +466,25 @@ static int get_hdr_priority(void)
 	return (int)value;
 }
 
+int get_hdr_policy(void)
+{
+	char *hdr_policy = env_get("hdr_policy");
+	hdr_policy_e value = HDR_POLICY_SINK;
+
+	if (hdr_policy) {
+		if (strcmp(hdr_policy, "0") == 0)
+			value = HDR_POLICY_SINK;
+		else if (strcmp(hdr_policy, "1") == 0)
+			value = HDR_POLICY_SOURCE;
+		else
+			printf("error ubootenv value of hdr_policy\n");
+	} else {
+		value = HDR_POLICY_SINK;
+	}
+
+	return (int)value;
+}
+
 bool is_tv_support_hdr(struct hdmitx_dev *hdev)
 {
 	struct hdr_info *hdr;
@@ -525,7 +544,21 @@ bool is_hdr_preference(struct hdmitx_dev *hdev)
 		return false;
 }
 
-int get_ubootenv_dv_type(void)
+/* decide output dolby status by uboot dolby vision driver */
+/* uboot hdmi driver will update this value follow below policy,
+ * 1.hdr_policy = always
+ * dv type = sink-led -> dolby_status = 1
+ * dv type = source-led -> dolby_status = 2
+ * dv type = dolby disable -> dolby_status = 0
+ * 2.hdr_policy = adaptive -> dolby_status = 0
+
+ * systemcontrol save current dv output status
+ * dolby_status = 0 -> dolby vision disable
+ * dolby_status = 1 -> std mode(sink-led)
+ * dolby_status = 2 -> LL YUV(source-led)
+ * dolby_status = 3 -> LL RGB
+ */
+int get_ubootenv_dv_status(void)
 {
 	char *dolby_status = NULL;
 
@@ -545,9 +578,36 @@ int get_ubootenv_dv_type(void)
 		return DOLBY_VISION_DISABLE;
 }
 
+/* user_prefer_dv_type is used to save user select dolby vision
+ * output mode. Note: if the user has not set it, it will be empty.
+ * dv_type = 0 ->dolby vision disable
+ * dv_type = 1 ->std mode(sink-led)
+ * dv_type = 2 ->LL YUV(source-led)
+ * dv_type = 3 ->LL RGB
+ */
+int get_ubootenv_dv_type(void)
+{
+	char *dv_type = NULL;
+
+	dv_type = env_get("user_prefer_dv_type");
+
+	if (!dv_type) {
+		printf("no ubootenv user_prefer_dv_type\n");
+		return DV_NONE;
+	}
+	if (!strcmp(dv_type, DOLBY_VISION_SET_STD))
+		return DOLBY_VISION_STD_ENABLE;
+	else if (!strcmp(dv_type, DOLBY_VISION_SET_LL_YUV))
+		return DOLBY_VISION_LL_YUV;
+	else if (!strcmp(dv_type, DOLBY_VISION_SET_LL_RGB))
+		return DOLBY_VISION_LL_RGB;
+	else
+		return DOLBY_VISION_DISABLE;
+}
+
 bool is_dolby_enabled(void)
 {
-	if (get_ubootenv_dv_type() != DOLBY_VISION_DISABLE)
+	if (get_ubootenv_dv_status() != DOLBY_VISION_DISABLE)
 		return true;
 	else
 		return false;
@@ -1301,8 +1361,14 @@ void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 		colorattribute = DEFAULT_COLOR_FORMAT;
 	strcpy(data->ubootenv_hdmimode, hdmimode);
 	strcpy(data->ubootenv_colorattribute, colorattribute);
+	/* if user not select dv_type in menu, while dolby_status is 1/2
+	 * which means that currently DV is enabled, then uboot will
+	 * select a dv_type by policy;
+	 * else, dv_type will be the same as dolby_status
+	 */
 	data->ubootenv_dv_type = get_ubootenv_dv_type();
 	data->hdr_priority = get_hdr_priority();
+	data->hdr_policy = get_hdr_policy();
 	#if 0
 	data->isbestpolicy = is_best_outputmode();
 	data->isSupport4K30Hz = is_support_4k30hz();
@@ -1313,9 +1379,11 @@ void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 	#endif
 	data->prxcap = &hdev->RXCap;
 	/* memcpy(&(data->prxcap), &(hdev->RXCap), sizeof(hdev->RXCap)); */
-	printf("ubootenv dv_type: %d, hdr_priority: %d\n",
-	       data->ubootenv_dv_type,
-	       data->hdr_priority);
+	printf("ubootenv user_dv_type: %d, dv_sts:%d, hdr_priority: %d, hdr_policy: %d\n",
+	       get_ubootenv_dv_type(),
+	       get_ubootenv_dv_status(),
+	       data->hdr_priority,
+	       data->hdr_policy);
 	printf("ubootenv best_output: %d, best_colorspace: %d,  framerate_priority: %d\n",
 	       is_best_outputmode(),
 	       is_best_color_space(),
