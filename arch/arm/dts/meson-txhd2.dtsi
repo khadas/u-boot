@@ -74,19 +74,35 @@
 		logo_addr = "0x3f800000";
 	};
 
-	pinctrl_aobus: pinctrl@ff800014{
+	pinctrl_aobus: pinctrl@ff800014 {
 		compatible = "amlogic,meson-txhd2-aobus-pinctrl";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		gpio_ao: ao-bank@ff800014{
+		gpio_ao: ao-bank@ff800014 {
 			reg = <0x0 0xff800014 0x0 0x008>,
 			      <0x0 0xff800024 0x0 0x014>;
 			reg-names = "mux","gpio";
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl_aobus 0 0 15>;
+			gpio-ranges = <&pinctrl_aobus 0 0 14>;
+		};
+	};
+
+	pinctrl_test: pinctrl@ff80035c {
+		compatible = "amlogic,meson-txhd2-testn-pinctrl";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gpio_test: test-bank@ff80035c {
+			reg = <0x0 0xff80035c 0x0 0x4>,
+			      <0x0 0xff80035c 0x0 0x4>;
+			reg-names = "mux", "gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl_test 0 0 1>;
 		};
 	};
 

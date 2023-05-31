@@ -21,7 +21,6 @@
 #define GPIOAO_11			11
 #define GPIOAO_12			12
 #define GPIOAO_13			13
-#define	GPIO_TEST_N			14
 
 /* GPIODV */
 #define GPIODV_0			0
@@ -100,5 +99,8 @@
 #define GPIOW_5				63
 #define GPIOW_6				64
 #define GPIOW_7				65
+
+/* TESTN */
+#define	GPIO_TEST_N			0
 
 #endif

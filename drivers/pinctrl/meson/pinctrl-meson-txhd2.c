@@ -855,7 +855,6 @@ static struct meson_pmx_group meson_txhd2_aobus_groups[] __initdata = {
 	GPIO_GROUP(GPIOAO_11),
 	GPIO_GROUP(GPIOAO_12),
 	GPIO_GROUP(GPIOAO_13),
-	GPIO_GROUP(GPIO_TEST_N),
 
 	/* GPIOAO func1 */
 	GROUP(uart_tx_ao_a_ao0,				1),
@@ -920,6 +919,10 @@ static struct meson_pmx_group meson_txhd2_aobus_groups[] __initdata = {
 	GROUP(pdm_dclk_ao13,				6),
 };
 
+static struct meson_pmx_group meson_txhd2_testn_groups[] = {
+	GPIO_GROUP(GPIO_TEST_N),
+};
+
 static const char * const gpio_periphs_groups[] = {
 	"GPIODV_0", "GPIODV_1", "GPIODV_2", "GPIODV_3",
 	"GPIODV_4", "GPIODV_5", "GPIODV_6", "GPIODV_7",
@@ -944,7 +947,7 @@ static const char * const gpio_aobus_groups[] = {
 	"GPIOAO_0", "GPIOAO_1", "GPIOAO_2", "GPIOAO_3",
 	"GPIOAO_4", "GPIOAO_5", "GPIOAO_6", "GPIOAO_7",
 	"GPIOAO_8", "GPIOAO_9", "GPIOAO_10", "GPIOAO_11",
-	"GPIOAO_12", "GPIOAO_13", "GPIO_TEST_N",
+	"GPIOAO_12", "GPIOAO_13",
 };
 
 static const char * const sync_3d_out_groups[] = {
@@ -1192,6 +1195,10 @@ static const char * const uart_c_groups[] = {
 	"uart_rts_c", "uart_cts_c", "uart_rx_c", "uart_tx_c",
 };
 
+static const char * const gpio_testn_groups[] = {
+	"GPIO_TEST_N",
+};
+
 static struct meson_pmx_func meson_txhd2_periphs_functions[] __initdata = {
 	FUNCTION(gpio_periphs),
 	FUNCTION(sync_3d_out),
@@ -1250,6 +1257,10 @@ static struct meson_pmx_func meson_txhd2_aobus_functions[] __initdata = {
 	FUNCTION(pdm_ao),
 };
 
+static struct meson_pmx_func meson_txhd2_testn_functions[] = {
+	FUNCTION(gpio_testn),
+};
+
 static struct meson_bank meson_txhd2_periphs_banks[] = {
 	/* name  first  last  pullen  pull  dir  out  in */
 	BANK("GPIODV_", GPIODV_0, GPIODV_9,
@@ -1270,8 +1281,12 @@ static struct meson_bank meson_txhd2_aobus_banks[] = {
 	/* name  first  last  pullen  pull  dir  out  in */
 	BANK("GPIOAO_", GPIOAO_0, GPIOAO_13,
 	     0x003,  0, 0x002,  0, 0x000,  0, 0x004,  0, 0x001,  0),
-	BANK("GPIO_TEST_N", GPIO_TEST_N, GPIO_TEST_N,
-	     0x003, 14, 0x002, 14, 0x000, 14, 0x004, 14, 0x001, 14),
+};
+
+static struct meson_bank meson_txhd2_testn_banks[] = {
+	/* name  first  last  pullen  pull  dir  out  in */
+	BANK("GPIO_TEST_N",  GPIO_TEST_N,  GPIO_TEST_N,
+	     0,  5,  0,  4,  0,  6,  0, 31,  0,  30)
 };
 
 static struct meson_pmx_bank meson_txhd2_periphs_pmx_banks[] = {
@@ -1292,12 +1307,21 @@ static struct meson_axg_pmx_data meson_txhd2_periphs_pmx_banks_data = {
 static struct meson_pmx_bank meson_txhd2_aobus_pmx_banks[] = {
 	/* name  first  last  reg  offset */
 	BANK_PMX("AO",  GPIOAO_0, GPIOAO_13, 0x000, 0),
-	BANK_PMX("TEST_N", GPIO_TEST_N, GPIO_TEST_N, 0x001, 24),
 };
 
 static struct meson_axg_pmx_data meson_txhd2_aobus_pmx_banks_data = {
 	.pmx_banks	= meson_txhd2_aobus_pmx_banks,
 	.num_pmx_banks	= ARRAY_SIZE(meson_txhd2_aobus_pmx_banks),
+};
+
+static struct meson_pmx_bank meson_txhd2_testn_pmx_banks[] = {
+	/* name  first  last  reg  offset */
+	BANK_PMX("TEST_N", GPIO_TEST_N, GPIO_TEST_N, 0x0, 8)
+};
+
+static struct meson_axg_pmx_data meson_txhd2_testn_pmx_banks_data = {
+	.pmx_banks	= meson_txhd2_testn_pmx_banks,
+	.num_pmx_banks	= ARRAY_SIZE(meson_txhd2_testn_pmx_banks),
 };
 
 static struct meson_pinctrl_data meson_txhd2_periphs_pinctrl_data = {
@@ -1317,11 +1341,23 @@ static struct meson_pinctrl_data meson_txhd2_aobus_pinctrl_data = {
 	.groups		= meson_txhd2_aobus_groups,
 	.funcs		= meson_txhd2_aobus_functions,
 	.banks		= meson_txhd2_aobus_banks,
-	.num_pins	= 15,
+	.num_pins	= 14,
 	.num_groups	= ARRAY_SIZE(meson_txhd2_aobus_groups),
 	.num_funcs	= ARRAY_SIZE(meson_txhd2_aobus_functions),
 	.num_banks	= ARRAY_SIZE(meson_txhd2_aobus_banks),
 	.pmx_data	= &meson_txhd2_aobus_pmx_banks_data,
+};
+
+static struct meson_pinctrl_data meson_txhd2_testn_pinctrl_data = {
+	.name		= "test-banks",
+	.groups		= meson_txhd2_testn_groups,
+	.funcs		= meson_txhd2_testn_functions,
+	.banks		= meson_txhd2_testn_banks,
+	.num_pins	= 1,
+	.num_groups	= ARRAY_SIZE(meson_txhd2_testn_groups),
+	.num_funcs	= ARRAY_SIZE(meson_txhd2_testn_functions),
+	.num_banks	= ARRAY_SIZE(meson_txhd2_testn_banks),
+	.pmx_data	= &meson_txhd2_testn_pmx_banks_data,
 };
 
 static const struct udevice_id meson_txhd2_pinctrl_match[] = {
@@ -1332,6 +1368,10 @@ static const struct udevice_id meson_txhd2_pinctrl_match[] = {
 	{
 		.compatible = "amlogic,meson-txhd2-aobus-pinctrl",
 		.data = (ulong)&meson_txhd2_aobus_pinctrl_data,
+	},
+	{
+		.compatible = "amlogic,meson-txhd2-testn-pinctrl",
+		.data = (ulong)&meson_txhd2_testn_pinctrl_data,
 	},
 	{ },
 };
