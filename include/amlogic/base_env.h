@@ -86,16 +86,17 @@
 			"echo system_mode in storeboot: ${system_mode};"\
 			"echo active_slot in storeboot: ${active_slot};"\
 			"if test ${system_mode} = 1; then "\
-				"setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+				"setenv bootargs \"${bootargs} ro rootwait skip_initramfs\";"\
 			"else "\
-				"setenv bootconfig ${bootconfig} "\
-				"androidboot.force_normal_boot=1;"\
+				"setenv bootconfig \"${bootconfig} "\
+				"androidboot.force_normal_boot=1\";"\
 			"fi;"\
 			"if test ${active_slot} != normal; then "\
-				"setenv bootconfig ${bootconfig} "\
-				"androidboot.slot_suffix=${active_slot};"\
+				"setenv bootconfig \"${bootconfig} "\
+				"androidboot.slot_suffix=${active_slot}\";"\
 			"fi;"\
-			"setenv bootconfig ${bootconfig} androidboot.rollback=${rollback_flag};"\
+			"setenv bootconfig \"${bootconfig} "\
+			"androidboot.rollback=${rollback_flag}\";"\
 			"if fdt addr ${dtb_mem_addr}; then else "\
 				"echo retry common dtb; run common_dtb_load; fi;"\
 			"setenv loadaddr ${loadaddr_kernel};"\
