@@ -51,11 +51,11 @@ int get_bootloader_build_message(void)
 		return -1;
 	}
 
-	bootloader_build_message = (char *)malloc(size_all + 2 + strlen(version_string));
+	bootloader_build_message = (char *)malloc(size_all + 3 + strlen(version_string));
 	if (!bootloader_build_message)
 		return -1;
 
-	memset((void *)bootloader_build_message, 0x0, size_all);
+	memset((void *)bootloader_build_message, 0x0, size_all + 3 + strlen(version_string));
 
 	memcpy((void *)(uintptr_t)bootloader_build_message,
 			(void *)(uintptr_t)build_info->bl2_message_addr,
