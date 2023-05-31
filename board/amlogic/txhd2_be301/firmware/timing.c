@@ -656,12 +656,13 @@ bl2_reg_t __bl2_reg[] = {
 	{ AO_RTI_PINMUX_REG1,	       (4 << 4),		   (0xF << 4), 0, BL2_INIT_STAGE_1, 0 },
 	{ PERIPHS_PIN_MUX_4,	       (1 << 20),		   (0xF << 20), 0, BL2_INIT_STAGE_1, 0 },
 	/* Enable VCCK SET GPIOD_10 HIGH */
-	{ AO_RTI_PINMUX_REG1,	       (0 << 8),			   (0xF << 8),	 0, BL2_INIT_STAGE_1, 0 },
-	{ AO_GPIO_O_EN_N,	       (0 << 10),			   (1 << 10),	 0, BL2_INIT_STAGE_1, 0 },
-	{ AO_GPIO_O,		       (1 << 10),			   (1 << 10),	 0, BL2_INIT_STAGE_1, 0 },
-	/* Enable 5V_EN ,set TEST_N low --> several millisecond--set high in board_init*/
-	//{AO_SEC_REG0,		(0 << 0),	(1 << 0),	0, BL2_INIT_STAGE_1, 0},
-	{AO_GPIO_TEST_N,	(0 << 31),	(1UL << 31),	0, BL2_INIT_STAGE_1, 0},
+	//{ AO_RTI_PINMUX_REG1,	       (0 << 8),			   (0xF << 8),	 0, BL2_INIT_STAGE_1, 0 },
+	//{ AO_GPIO_O_EN_N,	       (0 << 10),			   (1 << 10),	 0, BL2_INIT_STAGE_1, 0 },
+	//{ AO_GPIO_O,		       (1 << 10),			   (1 << 10),	 0, BL2_INIT_STAGE_1, 0 },
+	/* Enable 5V_EN ,set GPIOAO_10 low --> several millisecond--set high in board_init */
+	{ AO_RTI_PINMUX_REG1,	       (0 << 8),		(0xF << 8),	 0, BL2_INIT_STAGE_1, 0 },
+	{ AO_GPIO_O_EN_N,	       (0 << 10),		(1 << 10),	 0, BL2_INIT_STAGE_1, 0 },
+	{ AO_GPIO_O,		       (0 << 10),		(1 << 10),	 0, BL2_INIT_STAGE_1, 0 },
 	/* GPIOH_12 pull high */
 	//{PREG_PAD_GPIO2_O,     (1 << 12),               (1 << 12),   0, BL2_INIT_STAGE_1, 0},
 	//{PREG_PAD_GPIO2_EN_N,  (0 << 12),               (1 << 12),   0, BL2_INIT_STAGE_1, 0},

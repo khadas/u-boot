@@ -476,8 +476,8 @@ int board_init(void)
 {
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 
-	/* set GPIO_TEST_N to 1 (TEST_N set to high), enable usb 5v voltage */
-	run_command("gpio set GPIO_TEST_N0", 0);
+	/* set GPIOAO_10 to 1 (GPIOAO_10 set to high), enable usb 5v voltage */
+	run_command("gpio set GPIOAO_10", 0);
 
 #ifdef CONFIG_PXP_EMULATOR
 	return 0;
