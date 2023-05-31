@@ -529,57 +529,21 @@ int board_late_init(void)
 		strncpy(outputModePre, env_get("outputmode"), 29);
 	}
 	run_command("run bcb_cmd", 0);
-		/*add board late init function here*/
-#ifndef DTB_BIND_KERNEL
-		if (has_boot_slot == 0) {
-			int ret;
-			ret = run_command("store dtb read $dtb_mem_addr", 1);
-			if (ret) {
-				printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
-#ifdef CONFIG_DTB_MEM_ADDR
-				char cmd[64];
-				printf("load dtb to %x\n", CONFIG_DTB_MEM_ADDR);
-				sprintf(cmd, "store dtb read %x", CONFIG_DTB_MEM_ADDR);
-				ret = run_command(cmd, 1);
-				if (ret) {
-					printf("%s(): %s fail\n", __func__, cmd);
-				}
-#endif
-			}
-		} else {
-			printf("%s(): ab update mode, use dtb in kernel img \n", __func__);
-			char cmd[128];
-			int ret;
-			if (!env_get("dtb_mem_addr")) {
-				sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
-				printf("%s(): cmd : %s\n", __func__, cmd);
-				run_command(cmd, 0);
-			}
-			sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
-			printf("%s(): cmd : %s\n", __func__, cmd);
-			ret = run_command(cmd, 0);
-			if (ret) {
-				printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
-			}
-		}
-#elif defined(CONFIG_DTB_MEM_ADDR)
-		{
-				char cmd[128];
-				int ret;
-                if (!env_get("dtb_mem_addr")) {
-						sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
-						run_command(cmd, 0);
-				}
-				sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
-				ret = run_command(cmd, 0);
-                if (ret) {
-						printf("%s(): cmd[%s] fail, ret=%d\n", __func__, cmd, ret);
-				}
-		}
-#endif// #ifndef DTB_BIND_KERNEL
 
-		/* load unifykey */
-		run_command("keyunify init 0x1234", 0);
+#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
+	if (run_command("run common_dtb_load", 0)) {
+		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
+		run_command("if test ${reboot_mode} = fastboot; then "\
+			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
+	}
+
+	//load dtb here then users can directly use 'fdt' command
+	run_command("if fdt addr ${dtb_mem_addr}; then "\
+		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
+#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtbi
+
+	/* load unifykey */
+	run_command("keyunify init 0x1234", 0);
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
