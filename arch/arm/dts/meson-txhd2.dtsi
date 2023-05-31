@@ -257,11 +257,11 @@
 &pinctrl_aobus {
 	jtag_a_pins:jtag_a_pin {
 		mux {
-			groups = "jtag_a_clk",
-			"jtag_a_tms",
-			"jtag_a_tdi",
-			"jtag_a_tdo";
-			function = "jtag_a";
+			groups = "jtag_clk_ao5",
+			"jtag_tms_ao7",
+			"jtag_tdi_ao3",
+			"jtag_tdo_ao4";
+			function = "jtag_ao";
 		};
 	};
 	i2cAO_pins1:i2cAO_pins1 {
@@ -285,6 +285,15 @@
 };
 
 &pinctrl_periphs {
+	jtag_b_pins:jtag_b_pin {
+		mux {
+			groups = "jtag_clk_c4",
+			"jtag_tms_c5",
+			"jtag_tdi_c1",
+			"jtag_tdo_c0";
+			function = "jtag";
+		};
+	};
 	i2c0_pins1:i2c0_pins1 {
 		mux {
 			groups = "i2cm_a_sda_dv4",
