@@ -55,7 +55,7 @@
 #define SRAM_DEBUG_BUFF_SIZE		256
 
 /* BL2 SPL size */
-#define BL2_SIZE			(80 * 1024)
+#define BL2_SIZE			(92 * 1024)
 
 //for signature test
 //#define CONFIG_AML_SIG_TEST_BUILD
