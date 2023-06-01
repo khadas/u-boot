@@ -14,9 +14,10 @@ enum pm_e {
 	PM_VPU,
 	PM_DOS_HEVC,
 	PM_DEMOD,
+	PM_DOS_VDEC,
 };
 
-#define PM_MAX (PM_DEMOD + 1)
+#define PM_MAX (PM_DOS_VDEC + 1)
 
 unsigned long pwr_ctrl_psci_smc(enum pm_e power_domain, bool power_control);
 unsigned long pwr_ctrl_status_psci_smc(unsigned int power_domain);

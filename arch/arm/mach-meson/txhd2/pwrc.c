@@ -7,4 +7,5 @@ char *domain_name[] = {
 	"PM_VPU",
 	"PM_DOS_HEVC",
 	"PM_DEMOD",
+	"PM_DOS_VDEC",
 };
