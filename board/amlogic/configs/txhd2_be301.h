@@ -28,9 +28,11 @@
  * platform power init config
  */
 #define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	960		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	840		// VDDEE power up voltage
-#define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
+#define CONFIG_VCCK_INIT_VOLTAGE	1080		// VCCK power up voltage
+#define CONFIG_VDDEE_INIT_VOLTAGE	1000		// VDDEE power up voltage
+#define CONFIG_VDDEE_SLEEP_VOLTAGE	860		// VDDEE suspend voltage
+/*Distinguish whether to use efuse to adjust vddee*/
+#define CONFIG_PDVFS_ENABLE
 
 /* configs for CEC */
 #define CONFIG_CEC_OSD_NAME		"AML_TV"

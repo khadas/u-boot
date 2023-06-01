@@ -27,6 +27,15 @@
 #define BL2_INIT_STAGE_PWM_CFG_GROUP	0x83
 #define BL2_INIT_STAGE_PWM_INIT			0xC0
 
+/*bl2 efuse val flag*/
+#define BL2_VMIN_FT__FLAG_1		0x84
+#define BL2_VMIN_FT__FLAG_2		0x85
+#define BL2_VMIN_FT__FLAG_3		0x86
+/* board vmin_flag */
+#define BL2_VMIN_EE__FLAG_1		0x87
+#define BL2_VMIN_EE__FLAG_2		0x88
+#define BL2_VMIN_EE__FLAG_3		0x89
+
 typedef struct bl2_reg {
 	unsigned	int		reg;
 	unsigned	int		value;
