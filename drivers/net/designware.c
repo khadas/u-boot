@@ -725,6 +725,7 @@ static void setup_internal_phy(struct udevice *dev)
 	int phy_cntl1 = 0;
 	int mc_val = 0;
 	int chip_num = 0;
+	int phy_pll_mode = 0;
 	unsigned int pll_val[3] = {0};
 	unsigned int analog_val[3] = {0};
 	int rtn = 0;
@@ -746,6 +747,13 @@ static void setup_internal_phy(struct udevice *dev)
 		printf("use 0 as default chip num\n");
 	}
 	printf("chip num %d\n", chip_num);
+
+	phy_pll_mode = dev_read_u32_default(dev, "phy_pll_mode", 0);
+	if (phy_pll_mode < 0) {
+		phy_pll_mode = 0;
+		printf("use 0 as default phy_pll_mode\n");
+	}
+	printf("phy_pll_mode %d\n", phy_pll_mode);
 
 	rtn = dev_read_u32_array(dev, "pll_val", pll_val, ARRAY_SIZE(pll_val));
 	if (rtn < 0) {
@@ -788,12 +796,24 @@ static void setup_internal_phy(struct udevice *dev)
 //	setbits_le32(ETHTOP_CNTL0, mc_val);
 	setbits_le32(eth_top.start, mc_val);
 	/*pll*/
-	writel(pll_val[0] | 0x30000000, eth_cfg.start + AML_ETH_PLL_CTL0);
-	writel(pll_val[1], eth_cfg.start + AML_ETH_PLL_CTL1);
-	writel(pll_val[2], eth_cfg.start + AML_ETH_PLL_CTL2);
-	writel(0x00000000, eth_cfg.start + AML_ETH_PLL_CTL3);
-	udelay(200);
-	writel(pll_val[0] | 0x10000000, eth_cfg.start + AML_ETH_PLL_CTL0);
+	if (phy_pll_mode) {
+		pr_info("wzh 22nm\n");
+		writel(0x608200a0, eth_cfg.start + AML_ETH_PLL_CTL0);
+		writel(0xea002000, eth_cfg.start + AML_ETH_PLL_CTL1);
+		writel(0x00000150, eth_cfg.start + AML_ETH_PLL_CTL2);
+		writel(0x00000000, eth_cfg.start + AML_ETH_PLL_CTL3);
+		writel(0x708200a0, eth_cfg.start + AML_ETH_PLL_CTL0);
+		udelay(200);
+		writel(0x508200a0, eth_cfg.start + AML_ETH_PLL_CTL0);
+		writel(0x00000110, eth_cfg.start + AML_ETH_PLL_CTL2);
+	} else {
+		writel(pll_val[0] | 0x30000000, eth_cfg.start + AML_ETH_PLL_CTL0);
+		writel(pll_val[1], eth_cfg.start + AML_ETH_PLL_CTL1);
+		writel(pll_val[2], eth_cfg.start + AML_ETH_PLL_CTL2);
+		writel(0x00000000, eth_cfg.start + AML_ETH_PLL_CTL3);
+		udelay(200);
+		writel(pll_val[0] | 0x10000000, eth_cfg.start + AML_ETH_PLL_CTL0);
+	}
 
 	/*analog*/
 	writel(analog_val[0], eth_cfg.start + AML_ETH_PLL_CTL5);

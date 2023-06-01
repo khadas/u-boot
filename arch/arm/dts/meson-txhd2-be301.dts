@@ -60,6 +60,13 @@
 	status = "okay";
 };
 
+&ethmac {
+	status = "okay";
+	internal_phy = <1>;
+	mc_val = <0x4be04>;
+	/*mc_val = <0x1621>;*/
+};
+
 &saradc {
 	status = "okay";
 };

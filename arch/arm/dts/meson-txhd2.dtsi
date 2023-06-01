@@ -145,16 +145,17 @@
 &ethmac {
 	compatible = "amlogic,g12a-eth-dwmac";
 	reg = <0x0 0xff3f0000 0x0 0x10000
-		0x0 0xff634540 0x0 0x8
-		0x0 0xff64c000 0x0 0xa0>;
+		0x0 0xFF650000 0x0 0x8
+		0x0 0xFF652000 0x0 0xa0>;
 	reg-names = "eth_base", "eth_top", "eth_cfg";
 	phy_cntl1 = <0x41054147>;
 	internal_phy = <1>;
 	mc_val = <0x4be04>;
 	cali_val = <0x60000>;
+	phy_pll_mode = <1>;
 	//reset-gpios = <&gpio GPIOC_15 GPIO_ACTIVE_HIGH>;
 	analog_ver = <1>; /*1:c1; 2:c2*/
-	pll_val = <0x9c0040a 0x927e0000 0xac5f49e5>;
+	pll_val = <0x608200a0 0xea002000 0x00000150>;
 	analog_val = <0x20200000 0x0000c000 0x00000023>;
 	chip_num = <3>;
 	//tx_amp_src = <0xfe005b30>;
