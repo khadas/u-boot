@@ -527,16 +527,32 @@ void enable_crt_video_encp2(u32 enable, u32 in_sel)
 void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 {
 	u32 data32;
+	u32 addr_enc02_hdmi_clk;
 	u32 addr_vid_clk02;
 	u32 addr_viid_clk02;
 	u32 addr_vid_clk022;
+	u32 val = 0;
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 	struct hdmi_format_para *para = hdev->para;
 
+	if (para->cs == HDMI_COLORSPACE_YUV420)
+		val = 1;
+	addr_enc02_hdmi_clk = (enc_sel == 0) ?
+				CLKCTRL_ENC0_HDMI_CLK_CTRL : CLKCTRL_ENC2_HDMI_CLK_CTRL;
 	addr_vid_clk02 = (enc_sel == 0) ? CLKCTRL_VID_CLK0_CTRL : CLKCTRL_VID_CLK2_CTRL;
 	addr_viid_clk02 = (enc_sel == 0) ? CLKCTRL_VIID_CLK0_CTRL : CLKCTRL_VIID_CLK2_CTRL;
 	addr_vid_clk022 = (enc_sel == 0) ? CLKCTRL_VID_CLK0_CTRL2 : CLKCTRL_VID_CLK2_CTRL2;
 
+	// hdmi_tx_pnx_clk
+	//clk_sel:hi_hdmi_clk_cntl[27:24];
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 24, 4);
+	// hdmi_tx_fe_clk: for 420 mode, Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk)/2,
+	// otherwise Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk).
+	// clk_sel:hi_hdmi_clk_cntl[23:20];
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, (in_sel == 1) ? 0 : in_sel, 20, 4);
+	// hdmi_tx_pixel_clk
+	//clk_sel:hi_hdmi_clk_cntl[19:16];
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 16, 4);
 	if (in_sel <= 4) { //V1
 		if (in_sel == 1)
 			// If 420 mode, need to turn on div1_clk for hdmi_tx_fe_clk
