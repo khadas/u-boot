@@ -417,5 +417,7 @@
 /* config ramdump to debug kernel panic */
 #define CONFIG_FULL_RAMDUMP
 
+#define DTB_BIND_KERNEL
+
 #endif
 

@@ -84,6 +84,4 @@ like the AES key not ready when secure boot enabled for the first time.
 
 #define CONFIG_KEY_PRESERVE
 
-#define DTB_BIND_KERNEL
-
 #endif /* _CPU_H */

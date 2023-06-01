@@ -7,7 +7,6 @@
 #include <command.h>
 #include <asm/io.h>
 #include <asm/arch/secure_apb.h>
-#include <asm/arch/cpu.h>
 
 #ifdef CONFIG_CMD_RSVMEM
 

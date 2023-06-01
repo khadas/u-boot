@@ -16,7 +16,6 @@
 #include <linux/sizes.h>
 #include <amlogic/cpu_id.h>
 #include <amlogic/aml_mmc.h>
-#include <asm/arch/cpu.h>
 
 /* info system. */
 #define dtb_err(fmt, ...) printf( "%s()-%d: " fmt , \
