@@ -701,6 +701,25 @@ static void lcd_reg_print_serializer(void)
 	       reg, lcd_clk_read(reg));
 }
 
+static void lcd_reg_print_combo_dphy_serializer(void)
+{
+	unsigned int reg;
+
+	reg = COMBO_DPHY_CNTL0;
+	printf("COMBO_DPHY_CNTL0          [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = COMBO_DPHY_VID_PLL0_DIV;
+	printf("COMBO_DPHY_VID_PLL0_DIV     [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0;
+	printf("COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0     [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1;
+	printf("COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1     [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+
+}
+
 static void lcd_reg_print_phy_analog(struct aml_lcd_drv_s *pdrv)
 {
 	unsigned int reg;
@@ -716,6 +735,60 @@ static void lcd_reg_print_phy_analog(struct aml_lcd_drv_s *pdrv)
 	       reg, lcd_clk_read(reg));
 	reg = HHI_DIF_CSI_PHY_CNTL3;
 	printf("PHY_CNTL3           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+}
+
+static void lcd_reg_print_phy_analog_txhd2(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int reg;
+
+	printf("\nphy analog registers:\n");
+	lcd_reg_print_combo_dphy_serializer();
+
+	reg = HHI_DIF_CSI_PHY_CNTL1;
+	printf("PHY_CNTL1           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL2;
+	printf("PHY_CNTL2           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL3;
+	printf("PHY_CNTL3           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL4;
+	printf("PHY_CNTL4           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL6;
+	printf("PHY_CNTL6           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL7;
+	printf("PHY_CNTL7           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL8;
+	printf("PHY_CNTL8           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL9;
+	printf("PHY_CNTL9           [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL10;
+	printf("PHY_CNTL10          [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL11;
+	printf("PHY_CNTL11          [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL12;
+	printf("PHY_CNTL12          [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL13;
+	printf("PHY_CNTL13          [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL14;
+	printf("PHY_CNTL14          [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL15;
+	printf("PHY_CNTL15          [0x%08x] = 0x%08x\n",
+	       reg, lcd_clk_read(reg));
+	reg = HHI_DIF_CSI_PHY_CNTL16;
+	printf("PHY_CNTL16          [0x%08x] = 0x%08x\n",
 	       reg, lcd_clk_read(reg));
 }
 
@@ -1417,6 +1490,19 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 			lcd_reg_print_phy_analog_tl1;
 		lcd_debug_info_if_p2p.reg_dump_phy =
 			lcd_reg_print_phy_analog_tl1;
+#endif
+		break;
+	case LCD_CHIP_TXHD2:
+		lcd_debug_info_reg = &lcd_debug_info_reg_tl1;
+		lcd_debug_info_if_lvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_txhd2;
+		lcd_debug_info_if_mipi.reg_dump_phy =
+			lcd_reg_print_phy_analog_txhd2;
+#ifdef CONFIG_AML_LCD_TCON
+		lcd_debug_info_if_mlvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_txhd2;
+		lcd_debug_info_if_p2p.reg_dump_phy =
+			lcd_reg_print_phy_analog_txhd2;
 #endif
 		break;
 	case LCD_CHIP_G12A:

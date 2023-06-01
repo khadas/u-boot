@@ -335,7 +335,6 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 		lcd_clk_config_chip_init_t5(pdrv, cconf);
 		break;
 	case LCD_CHIP_T5D:
-	case LCD_CHIP_TXHD2:
 		lcd_clk_config_chip_init_t5d(pdrv, cconf);
 		break;
 	case LCD_CHIP_T7:
@@ -356,6 +355,9 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 		break;
 	case LCD_CHIP_A4:
 		lcd_clk_config_chip_init_a4(pdrv, cconf);
+		break;
+	case LCD_CHIP_TXHD2:
+		lcd_clk_config_chip_init_txhd2(pdrv, cconf);
 		break;
 	default:
 		LCDPR("[%d]: %s: invalid chip type\n", pdrv->index, __func__);

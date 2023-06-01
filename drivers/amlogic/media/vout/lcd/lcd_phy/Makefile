@@ -7,3 +7,4 @@ obj-$(CONFIG_AML_LCD) += lcd_phy_t5_t5d_t5w.o
 obj-$(CONFIG_AML_LCD) += lcd_phy_t7.o
 obj-$(CONFIG_AML_LCD) += lcd_phy_tl1.o
 obj-$(CONFIG_AML_LCD) += lcd_phy_t3x.o
+obj-$(CONFIG_AML_LCD) += lcd_phy_txhd2.o
