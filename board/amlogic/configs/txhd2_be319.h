@@ -84,12 +84,12 @@
 #define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
 #define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
-//#define CONFIG_SILENT_CONSOLE
+#define CONFIG_SILENT_CONSOLE
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_BASE \
-		"silent=1\0"\
+		"silent=0\0"\
 		"systemsuspend_switch=1\0"\
 		"ddr_resume=0\0"\
 		"otg_device=1\0" \
