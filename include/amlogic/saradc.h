@@ -77,9 +77,11 @@ struct meson_saradc_diff_ops {
  */
 struct meson_saradc_data {
 	bool reg3_ring_counter_disable;
+	unsigned int reg11_bandgap_en_mask;
 	bool reg11_vref_en;
 	bool reg11_cmv_sel;
 	bool reg11_eoc;
+	unsigned int reg13_calib_factor_mask;
 	bool has_bl30_integration;
 	bool update_vref_conf;
 	unsigned char self_test_channel;
