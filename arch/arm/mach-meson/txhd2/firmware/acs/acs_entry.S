@@ -3,7 +3,7 @@
 
 acs_entry:
 	.word 0
-	.word __acs_set
+	.word __param_hdr //__acs_set
 #ifdef CONFIG_MDUMP_COMPRESS
 	.word	__ramdump_data
 	.word	__ddr_setting

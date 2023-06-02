@@ -9,47 +9,42 @@
 #ifndef __ACS_H
 #define __ACS_H
 
+#define CHIP_PARAM_MAGIC		0x50696863  //"chiP"
+#define DEV_PARAM_MAGIC			0x50766564  //"devP"
+
+#define CHIP_PARAM_VERSION		0x1
+#define DEV_PARAM_VERSION		0x1
 #ifndef __ASSEMBLY__
-typedef struct acs_setting{
-		char				acs_magic[5];	//acs setting magic word, make sure this piece of data was right.
-		unsigned char		chip_type;		//chip type
-		unsigned short		version;		//version of acs_setting struct, for PC tool use.
-		unsigned long		acs_set_length;	//length of current struct.
+typedef struct dev_param_hdr {
+	unsigned int		magic;
+	unsigned int		version;
 
-		//ddr setting part, 16 bytes
-		char				ddr_magic[5];		//magic word to indicate that following 12 bytes was ddr setting.
-		unsigned char		ddr_set_version;	//struct version, for PC tool use.
-		unsigned short		ddr_set_length;		//length of ddr struct.
-		unsigned long		ddr_set_addr;		//address of ddr setting.
+	char				bl2_regs_magic[6];
+	unsigned short		bl2_regs_length;
+	unsigned *bl2_regs_sta;
 
-		char				ddr_reg_magic[5];
-		unsigned char		ddr_reg_version;
-		unsigned short		ddr_reg_length;
-		unsigned long		ddr_reg_addr;
+	char				board_clk_magic[6];
+	unsigned short		board_clk_length;
+	pll_set_t  *board_clk_sta;//board_clk_set_t
 
-		char				pll_magic[5];
-		unsigned char		pll_set_version;
-		unsigned short		pll_set_length;
-		unsigned long		pll_set_addr;
+	char				opt_reg_magic[6];
+	unsigned short		opt_reg_length;
+	unsigned  *opt_reg_sta;//register_ops_t
 
-		char				sto_magic[5];
-		unsigned char		sto_set_version;
-		unsigned short		sto_set_length;
-		unsigned long		sto_set_addr;
+	char				sto_set_magic[6];
+	unsigned short		sto_set_length;
+	unsigned  *sto_set_sta;//storage_parameter_t
 
-		char				bl2_regs_magic[5];
-		unsigned char		bl2_regs_version;
-		unsigned short		bl2_regs_length;
-		unsigned long		bl2_regs_addr;
+	char				ddr_set_magic[6];
+	unsigned short		ddr_set_length;
+	ddr_set_ps0_only_t *ddr_set_sta;
 
-		char				rsv_magic[5];
-		unsigned char		rsv_set_version;
-		unsigned short		rsv_set_length;
-		unsigned long		rsv_set_addr;
-		char				board_id[12];
-		unsigned short		ddr_struct_size[12];
-		unsigned long		ddr_struct_org_size;
-}__attribute__ ((packed)) acs_set_t;
+	char				ddr_2acs_magic[6];
+	unsigned short		ddr_2acs_length;
+	unsigned int		*ddr_2acs_data_p;
+
+	unsigned int		RFU[4];
+} __attribute__ ((packed)) dev_param_hdr_t;
 
 #endif
 #endif
