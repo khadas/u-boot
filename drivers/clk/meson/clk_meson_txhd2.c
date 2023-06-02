@@ -113,7 +113,8 @@ static ulong meson_pll_get_rate(struct clk *clk, unsigned long id)
 	/* there is OD in C1 */
 	 reg = readl(priv->addr + pod->reg_off);
 	od = PARM_GET(pod->width, pod->shift, reg);
-
+	if (id == CLKID_FIXED_PLL)
+		return ((parent_rate_mhz * m / n) >> od) * 1000000;
 	return ((parent_rate_mhz * m >> n) >> od) * 1000000;
 }
 
