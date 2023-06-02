@@ -285,13 +285,13 @@
 				pinctrl-0=<&jtag_a_pins>;
 				pinctrl-1=<&jtag_b_pins>;
 			};
+		};
 
-			watchdog@0f0d0 {
-				compatible = "amlogic,meson-gxbb-wdt";
-				reg = <0x0 0xf0d0 0x0 0x10>;
-				clocks = <&xtal>;
-				clock-names = "wdt-clk";
-			};
+		watchdog@ffd0f0d0 {
+			compatible = "amlogic,meson-gxbb-wdt";
+			reg = <0x0 0xffd0f0d0 0x0 0x10>;
+			clocks = <&xtal>;
+			clock-names = "wdt-clk";
 		};
 
 		periphs: periphs@ff634400 {
