@@ -101,6 +101,7 @@
 		"connector_type=LVDS-A\0" \
 		"cvbsmode=576cvbs\0" \
 		"vout_init=disable\0" \
+		"vout_projector_mux=disable\0" \
 		"model_name=FHD2HDMI\0" \
 		"gamma=0\0" \
 		"display_width=1920\0" \
@@ -156,7 +157,7 @@
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} powermode=${powermode} kvm-arm.mode=none init_on_alloc=0 "\
 		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-		"outputmode=${outputmode} gamma=${gamma};"\
+		"outputmode=${outputmode} gamma=${gamma} vout_projector_mux=${vout_projector_mux};"\
 		"run check_connector_type; " \
 		"run cmdline_keys;"\
             "\0"\

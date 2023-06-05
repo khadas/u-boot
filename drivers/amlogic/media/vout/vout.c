@@ -859,6 +859,12 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 	unsigned int clk_bit = 0xff, clk_sel = 0;
 	unsigned int vout_viu_sel = 0xf;
 	unsigned int venc_sel = mux_sel;
+	char *projector_mux = env_get("vout_projector_mux");
+	int vout_projector_mux = 0;
+
+	if (strncmp(projector_mux, "en", 2) == 0) {
+		vout_projector_mux = 1;
+	}
 
 	switch (index) {
 	case VOUT_VIU2_SEL:
@@ -905,6 +911,12 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 	if (vout_conf->viu_valid[1]) {
 		if (clk_bit < 0xff)
 			vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+	}
+
+	if (vout_projector_mux && get_cpu_id().family_id ==
+		MESON_CPU_MAJOR_ID_TXHD2) {
+		vout_reg_setb(VPP_MISC_TXHD2, 1, 27, 1);
+		vout_log("TXHD2: %s: vout_projector_mux %d\n", __func__, vout_projector_mux);
 	}
 }
 
