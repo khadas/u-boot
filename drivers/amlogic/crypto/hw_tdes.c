@@ -14,12 +14,18 @@ static int32_t des_tdes_ecb_encrypt(void *key, uint32_t keylen,
 {
 	uint32_t mode = 0;
 
-	if (keylen == TDES_2K_KEY_SIZE)
+	if (keylen == TDES_2K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_2K;
-	else if (keylen == TDES_3K_KEY_SIZE)
+	} else if (keylen == TDES_3K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_3K;
-	else
+	} else {
+#ifndef CONFIG_MESON_TXHD2
 		mode = DMA_MODE_DES;
+#else
+		printf("DES not supported\n");
+		return -1;
+#endif
+	}
 
 	return des_tdes_cipher(key, keylen, NULL, pt, ct,
 			1, mode, CIPHER_OP_MODE_ECB, size);
@@ -30,12 +36,18 @@ static int32_t des_tdes_ecb_decrypt(void *key, uint32_t keylen,
 {
 	uint32_t mode = 0;
 
-	if (keylen == TDES_2K_KEY_SIZE)
+	if (keylen == TDES_2K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_2K;
-	else if (keylen == TDES_3K_KEY_SIZE)
+	} else if (keylen == TDES_3K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_3K;
-	else
+	} else {
+#ifndef CONFIG_MESON_TXHD2
 		mode = DMA_MODE_DES;
+#else
+		printf("DES not supported\n");
+		return -1;
+#endif
+	}
 
 	return des_tdes_cipher(key, keylen, NULL, ct, pt,
 			0, mode, CIPHER_OP_MODE_ECB, size);
@@ -46,12 +58,18 @@ static int32_t des_tdes_cbc_encrypt(void *key, uint32_t keylen, void *iv,
 {
 	uint32_t mode = 0;
 
-	if (keylen == TDES_2K_KEY_SIZE)
+	if (keylen == TDES_2K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_2K;
-	else if (keylen == TDES_3K_KEY_SIZE)
+	} else if (keylen == TDES_3K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_3K;
-	else
+	} else {
+#ifndef CONFIG_MESON_TXHD2
 		mode = DMA_MODE_DES;
+#else
+		printf("DES not supported\n");
+		return -1;
+#endif
+	}
 
 	return des_tdes_cipher(key, keylen, iv, pt, ct,
 			1, mode, CIPHER_OP_MODE_CBC, size);
@@ -62,12 +80,18 @@ static int32_t des_tdes_cbc_decrypt(void *key, uint32_t keylen, void *iv,
 {
 	uint32_t mode = 0;
 
-	if (keylen == TDES_2K_KEY_SIZE)
+	if (keylen == TDES_2K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_2K;
-	else if (keylen == TDES_3K_KEY_SIZE)
+	} else if (keylen == TDES_3K_KEY_SIZE) {
 		mode = DMA_MODE_TDES_3K;
-	else
+	} else {
+#ifndef CONFIG_MESON_TXHD2
 		mode = DMA_MODE_DES;
+#else
+		printf("DES not supported\n");
+		return -1;
+#endif
+	}
 
 	return des_tdes_cipher(key, keylen, iv, ct, pt,
 			0, mode, CIPHER_OP_MODE_CBC, size);
