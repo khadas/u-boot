@@ -3,6 +3,7 @@ obj-y	:= sdio.o pinctrl_init.o
 obj-y   += bl31_apis.o
 obj-y	+= cpu_reset.o
 obj-y	+= timer.o
+obj-y	+= hw_rng.o
 obj-y  += stick_mem.o
 obj-y	+= mailbox.o
 #obj-y   += gate_init.o
