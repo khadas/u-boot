@@ -12,7 +12,7 @@ usage() {
 Usage: $(basename $0) --help
        $(basename $0) --version
        $(basename $0) --audio-id audio_id_value \\
-                       --soc [axg | txhd | g12a | g12b | sm1 | tl1 | tm2 | a1 | c1 |c2 | t5 | t5d | t5w | sc2 | t7 | s4 | t3 | s4d | p1 | a5 | c3| s5 | t5m | a4] \\
+                       --soc [axg | txhd | g12a | g12b | sm1 | tl1 | tm2 | a1 | c1 |c2 | t5 | t5d | t5w | sc2 | t7 | s4 | t3 | s4d | p1 | a5 | c3| s5 | t5m | a4 | t3x] \\
                        -o audio_id.efuse
 EOF
     exit 1
@@ -57,7 +57,7 @@ function generate_audio_id_pattern() {
 
     if [ ${soc} == "sc2" ] || [ ${soc} == "t7" ] || [ ${soc} == "s4" ] || [ ${soc} == "t3" ] \
        || [ ${soc} == "p1" ] || [ ${soc} == "a5" ] || [ ${soc} == "c3" ] || [ ${soc} == "s5" ] \
-       || [ ${soc} == "t5m" ] || [ ${soc} == "a4" ]; then
+       || [ ${soc} == "t5m" ] || [ ${soc} == "a4" ] || [ ${soc} == "t3x" ]; then
         ${EXEC_BASEDIR}/${soc}/bin/efuse-gen.sh --audio-id ${audio_id_value} -o ${output}
     elif [ "$soc" == "axg" ] || [ "$soc" == "txhd" ] || [ "$soc" == "g12a" ] \
        || [ "$soc" == "sm1" ] || [ "$soc" == "g12b" ] || [ "$soc" == "tl1" ] || [ "$soc" == "tm2" ] \

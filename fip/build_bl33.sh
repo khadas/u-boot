@@ -21,7 +21,6 @@ function pre_build_uboot() {
 	echo "$1"
 	SOCNAME=$1
 	echo "SOCNAME:${SOCNAME}"
-	pwd
 	make distclean # &> /dev/null
 	make $1'_config' # &> /dev/null
 	if [ $? != 0 ]
@@ -34,7 +33,7 @@ function pre_build_uboot() {
 }
 
 function build_uboot() {
-	echo "Build uboot...Please Wait...$1...$2...$3...$4...$5...$6"
+	echo "Build uboot...Please Wait...$1...$2...$3...$4...$5...$6...$7"
 	mkdir -p ${FIP_BUILD_FOLDER}
 	cd ${UBOOT_SRC_FOLDER}
 	if [[ "${SCRIPT_ARG_CHIPSET_VARIANT}" =~ "nocs" ]] || [[ "${CONFIG_CHIPSET_VARIANT}" =~ "nocs" ]]; then
@@ -44,13 +43,43 @@ function build_uboot() {
 	if [ "${CONFIG_MDUMP_COMPRESS}" = "1" ]; then
 		CONFIG_MDUMP_COMPRESS=1
 		echo "### BL33 CONFIG_MDUMP_COMPRESS = 1 ###"
-		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 CHIPMODE=${CONFIG_CHIP_NOCS} \
+		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 GPTMODE=$7 CHIPMODE=${CONFIG_CHIP_NOCS} \
 			CONFIG_MDUMP_COMPRESS=${CONFIG_MDUMP_COMPRESS} # &> /dev/null
 	else
 		echo "### BL33 CONFIG_MDUMP_COMPRESS = 0 ###"
-		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 CHIPMODE=${CONFIG_CHIP_NOCS} # &> /dev/null
+		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 GPTMODE=$7 CHIPMODE=${CONFIG_CHIP_NOCS} # &> /dev/null
 	fi
-	set +e
+
+	if [ "y" == "${CONFIG_AB_UPDATE}" ]; then
+		cp ./build/board/amlogic/${SOCNAME}/firmware/acs.bin ../../${BUILD_PATH}/acs.bin -f
+		fip_bl33_size=`stat -c %s ./build/u-boot.bin`
+		dd if=/dev/zero of=./build/fip.tmp bs=2097120 count=1
+		dd if=./build/u-boot.bin of=./build/fip.tmp bs=${fip_bl33_size} count=1 conv=notrunc
+
+		# sha fip ab
+		openssl dgst -sha256 -binary ./build/fip.tmp > ./build/u-boot.bin.sha256
+		dd if=./build/u-boot.bin.sha256 of=./build/fip.tmp bs=1 count=32 oflag=append conv=notrunc
+		cp ./build/fip.tmp ../../build/fip-bl33.bin -f
+
+		# sign fip ab
+		../../fip/stool/signing-tool-c1/sign-boot-c1.sh --sign-kernel -i ./build/fip.tmp \
+		-k ./board/amlogic/common/ab_mode/aml-key/kernelkey.pem -a ./board/amlogic/common/ab_mode/aml-key/kernelaeskey \
+		--iv ./board/amlogic/common/ab_mode/aml-key/kernelaesiv -o ./build/fip-bl33.bin.encrypt
+		cp ./build/fip-bl33.bin.encrypt ../../build/ -f
+		#cp ./build/fip-bl33.bin.encrypt ../../${BUILD_PATH}/fip-bl33.bin -f
+
+		# build pre bl33
+		make distclean
+		make ${SOCNAME}_defconfig
+		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 CHIPMODE=${CONFIG_CHIP_NOCS} \
+			ABUPDATE=${CONFIG_AB_UPDATE} # &> /dev/null
+		if [ $? != 0 ]; then
+			echo "Pre bl33 failed! exit!"
+			cd ${MAIN_FOLDER}
+			exit 1
+		fi
+		cp ./build/u-boot.bin ../../${FIP_BUILD_FOLDER}bl33.bin
+	fi
 
 	SOC_GROUP=`echo ${SOCNAME} | cut -d '_' -f 1`
 	skiped=("a1" "c1" "c2" "c3" "g12a" "g12b" "sm1" "t5w")
@@ -126,7 +155,9 @@ function uboot_config_list() {
 }
 
 function copy_bl33() {
-	cp ${BL33_BUILD_FOLDER}/u-boot.bin ${FIP_BUILD_FOLDER}bl33.bin -f
+	if [ "y" != "${CONFIG_AB_UPDATE}" ]; then
+		cp ${BL33_BUILD_FOLDER}/u-boot.bin ${FIP_BUILD_FOLDER}bl33.bin -f
+	fi
 
 	# remove src link to prevent android "File system loop detected" issue
 	#cd ${UBOOT_SRC_FOLDER}/build/

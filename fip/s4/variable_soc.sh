@@ -51,6 +51,20 @@ declare -a BLX_BIN_NAME=("bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
 			 "blob-bl40.bin.signed"                              \
 			 "bl30.bin")
 
+if [ "${BLX_BIN_SUB_CHIP}" == "s805c1a" ]; then
+declare -a BLX_BIN_SIZE=("169984"	\
+			 "169984"	\
+			 "74864"	\
+			 "74864"	\
+			 "66672"	\
+			 "176128"	\
+			 "528384"	\
+			 "102400"	\
+			 "NULL")
+
+declare BL30_BIN_SIZE="65536"
+declare BL33_BIN_SIZE="768000"
+else
 declare -a BLX_BIN_SIZE=("169984"	\
 			 "169984"	\
 			 "74864"	\
@@ -63,6 +77,7 @@ declare -a BLX_BIN_SIZE=("169984"	\
 
 declare BL30_BIN_SIZE="65536"
 declare BL33_BIN_SIZE="1572864"
+fi
 declare DEV_ACS_BIN_SIZE="4096"
 declare -a BLX_RAWBIN_NAME=("bl2.bin.sto"	\
 			    "bl2.bin.usb"	\

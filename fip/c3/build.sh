@@ -47,8 +47,13 @@ function init_vari() {
 		CHIPSET_VARIANT="${SCRIPT_ARG_CHIPSET_VARIANT}"
 		CHIPSET_VARIANT_SUFFIX=".${CHIPSET_VARIANT}"
 	elif [ -n "${CONFIG_CHIPSET_VARIANT}" ]; then
-		CHIPSET_VARIANT="${CONFIG_CHIPSET_VARIANT}"
-		CHIPSET_VARIANT_SUFFIX=".${CHIPSET_VARIANT}"
+		if [ "${CONFIG_CHIPSET_VARIANT}" == "fastboot" ]; then
+			CHIPSET_VARIANT="general"
+			CHIPSET_VARIANT_SUFFIX=".fastboot"
+		else
+			CHIPSET_VARIANT="${CONFIG_CHIPSET_VARIANT}"
+			CHIPSET_VARIANT_SUFFIX=".${CHIPSET_VARIANT}"
+		fi
 	else
 		if [ -n "${CONFIG_FORMER_SIGN}" ]; then
 			CHIPSET_VARIANT="no_variant"
@@ -599,16 +604,18 @@ function process_blx() {
 			if [ -n "${CONFIG_FORMER_SIGN}" ]; then
 					./${FIP_FOLDER}${CUR_SOC}/bin/sign-blx.sh --blxname ${BLX_NAME[$loop]} --input ${BUILD_PATH}/${BLX_RAWBIN_NAME[$loop]} \
 						--output ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} --chipset_name ${CHIPSET_NAME} --chipset_variant ${CHIPSET_VARIANT} \
-						--key_type ${AMLOGIC_KEY_TYPE} --soc ${CUR_SOC} --chip_acs ${BUILD_PATH}/chip_acs.bin --ddr_type ${DDRFW_TYPE}
+						--key_type ${AMLOGIC_KEY_TYPE} --soc ${CUR_SOC} --chip_acs ${BUILD_PATH}/chip_acs.bin --ddr_type ${DDRFW_TYPE} \
+						--extra_args ${CONFIG_CHIPSET_VARIANT}
 			else
 					if [ -n "${CONFIG_JENKINS_SIGN}" ]; then
 						/usr/bin/python3 ./sign.py --type ${BLX_NAME[$loop]} --in ${BUILD_PATH}/${BLX_RAWBIN_NAME[$loop]} \
 							--out ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} --chip ${CHIPSET_NAME}  --chipVariant ${CHIPSET_VARIANT} \
-							--keyType ${AMLOGIC_KEY_TYPE}  --chipAcsFile ${BUILD_PATH}/chip_acs.bin --ddrType ${DDRFW_TYPE}
+							--keyType ${AMLOGIC_KEY_TYPE}  --chipAcsFile ${BUILD_PATH}/chip_acs.bin --ddrType ${DDRFW_TYPE} \
+							--extraArgs ${CONFIG_CHIPSET_VARIANT}
 					else
 						/usr/bin/python3 ./${FIP_FOLDER}/jenkins_sign.py --type ${BLX_NAME[$loop]} --in ${BUILD_PATH}/${BLX_RAWBIN_NAME[$loop]} \
 							--out ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} --chip ${CHIPSET_NAME} --chipVariant ${CHIPSET_VARIANT} --keyType ${AMLOGIC_KEY_TYPE} \
-							--chipAcsFile ${BUILD_PATH}/chip_acs.bin --ddrType ${DDRFW_TYPE}
+							--chipAcsFile ${BUILD_PATH}/chip_acs.bin --ddrType ${DDRFW_TYPE} --extraArgs ${CONFIG_CHIPSET_VARIANT}
 					fi
 			fi
 		fi

@@ -118,16 +118,20 @@ function build_blx_src() {
 	elif [ $name == ${BLX_NAME_GLB[2]} ]; then
 		# bl31
 		# some soc use v1.3
-		ver=`check_bl31_ver $soc`
-		if [ $ver == 1 ]; then
-			echo "check bl31 ver: use v1.3"
-			build_bl31_v1_3 $src_folder $bin_folder $soc
-		elif [ $ver == 0 ]; then
-			echo "check bl31 ver: use v1.0"
-			build_bl31 $src_folder $bin_folder $soc
-		else
+		# some soc use v2.7
+		local version
+		version=`check_bl31_ver $soc`
+		#echo "switch_bl31 version=${version}"
+
+		if [ ${version} == 2 ]; then
 			echo "check bl31 ver: use v2.7"
 			build_bl31_v2_7 $src_folder $bin_folder $soc
+		elif [ ${version} == 1 ]; then
+			echo "check bl31 ver: use v1.3"
+			build_bl31_v1_3 $src_folder $bin_folder $soc
+		else
+			echo "check bl31 ver: use v1.0"
+			build_bl31 $src_folder $bin_folder $soc
 		fi
 	elif [ $name == ${BLX_NAME_GLB[3]} ]; then
 		# control flow for jenkins patchbuild
@@ -298,6 +302,9 @@ function build() {
 	if [ ! $CONFIG_AVB2 ]; then
 		CONFIG_AVB2=null
 	fi
+	if [ ! $CONFIG_AML_GPT ]; then
+		CONFIG_AML_GPT=null
+	fi
 	if [ ! $CONFIG_CMD_BOOTCTOL_VAB ]; then
 		CONFIG_CMD_BOOTCTOL_VAB=null
 	fi
@@ -310,7 +317,8 @@ function build() {
 	if [ ! $CONFIG_TESTKEY ]; then
 		CONFIG_TESTKEY=null
 	fi
-	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB} ${CONFIG_FASTBOOT_WRITING_CMD} ${CONFIG_AVB2_RECOVERY} ${CONFIG_TESTKEY}
+
+	build_uboot ${CONFIG_SYSTEM_AS_ROOT} ${CONFIG_AVB2} ${CONFIG_CMD_BOOTCTOL_VAB} ${CONFIG_FASTBOOT_WRITING_CMD} ${CONFIG_AVB2_RECOVERY} ${CONFIG_TESTKEY} ${CONFIG_AB_UPDATE} ${CONFIG_AML_GPT}
 
 	# source other configs after uboot compile
 	init_variable_late
@@ -493,6 +501,11 @@ function parser() {
 				CONFIG_CHOICE_BUILD=1
 				export CONFIG_CHOICE_BUILD
 				export CONFIG_BUILD_VERSION
+				continue ;;
+			--ab-update)
+				CONFIG_AB_UPDATE=y
+				echo "export CONFIG_AB_UPDATE"
+				export CONFIG_AB_UPDATE=y
 				continue ;;
 			clean|distclean|-distclean|--distclean)
 				clean
@@ -689,7 +702,12 @@ function bin_path_parser() {
 				echo "export CONFIG_TESTKEY"
 				export CONFIG_TESTKEY=1
 				continue ;;
+			--gpt)
+				CONFIG_AML_GPT=1
+				export CONFIG_AML_GPT=1
+				continue ;;
 				*)
+
 		esac
 	done
 }

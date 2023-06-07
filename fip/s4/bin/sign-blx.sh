@@ -114,6 +114,10 @@ function sign_blx() {
 		chipset_name="s905y4"
 	fi
 
+	if [ ${chipset_name} == "s805c1a" ]; then
+		BLX_BIN_SIZE[5]="172032"
+	fi
+
 	# select bl2/bl2e sign template
 	FEAT_BL2_TEMPLATE_TYPE=
 	FEAT_BL2E_SIGPROT_MODE=0

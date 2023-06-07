@@ -479,6 +479,9 @@ function mk_uboot() {
 		echo "==== use empty ddr-fip ===="
 		dd if=/dev/zero of=${ddr_fip} bs=1024 count=256 status=none
 	fi
+	if [ "${CHIPSET_NAME}" == "s805c1a" ]; then
+		dd if=/dev/zero of=${ddr_fip} bs=1024 count=0 status=none
+	fi
 
 	#cat those together with 4K upper aligned for sdcard
 	align_base=4096
@@ -644,7 +647,7 @@ function process_blx() {
 			[ -f ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} ]; then
 			blx_size=`stat -c %s ${BUILD_PATH}/${BLX_BIN_NAME[$loop]}`
 			if [ $blx_size -ne ${BLX_BIN_SIZE[$loop]} ]; then
-				echo "Error: ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} size not match"
+				echo "Error: ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} size  ${BLX_BIN_SIZE[$loop]} :  $blx_size not match"
 				exit -1
 			fi
 		fi
@@ -728,7 +731,7 @@ function build_signed() {
 		mk_ddr_fip ${BUILD_PATH}
 	fi
 
-	./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_VARIANT_SUFFIX}
+	./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_NAME} ${CHIPSET_VARIANT_SUFFIX}
 	postfix=.signed
 	mk_uboot ${BUILD_PATH} ${BUILD_PATH} ${postfix} .sto ${CHIPSET_VARIANT_SUFFIX}
 	mk_uboot ${BUILD_PATH} ${BUILD_PATH} ${postfix} .usb ${CHIPSET_VARIANT_SUFFIX}

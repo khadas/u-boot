@@ -38,6 +38,7 @@
 #include "interrupt_control_pic.h"
 #include "eth.h"
 #include "irq.h"
+#include "hdmirx_wake.h"
 
 static TaskHandle_t cecTask = NULL;
 static int vdd_ee;
@@ -84,6 +85,9 @@ void str_hw_init(void)
 	vKeyPadInit();
 	vGpioIRQInit();
 	Bt_GpioIRQRegister();
+#ifdef CONFIG_HDMIRX_PLUGIN_WAKEUP
+	hdmirx_GpioIRQRegister();
+#endif
 }
 
 
@@ -99,6 +103,9 @@ void str_hw_disable(void)
 	Bt_GpioIRQFree();
 	vKeyPadDeinit();
 	vRestoreGpioIrqReg();
+#ifdef CONFIG_HDMIRX_PLUGIN_WAKEUP
+	hdmirx_GpioIRQFree();
+#endif
 }
 
 void str_power_on(int shutdown_flag)

@@ -122,6 +122,10 @@ if [ -z "$key_dir" ]; then
 	key_dir="."
 fi
 
+if [ "${project}" == "s805c1a" ]; then
+ACPU_IMAGETOOL=${EXEC_BASEDIR}/../../binary-tool/acpu-imagetool-${project}
+fi
+
 #
 # Settings
 #

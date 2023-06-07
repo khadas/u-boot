@@ -88,6 +88,8 @@ function sign_blx() {
                 soc="${argv[$i]}" ;;
             --build_type)
                 build_type="${argv[$i]}" ;;
+            --extra_args)
+                tool_type="${argv[$i]}" ;;
             *)
                 echo "Unknown option $arg"; exit 1
                 ;;
@@ -134,8 +136,21 @@ function sign_blx() {
 			FEAT_BL2_TEMPLATE_TYPE=".sto"
 		fi
 	fi
+
+	if [ "fastboot" == "${tool_type}" ]; then
+		chipset_variant_suffix=""
+	fi
+
 	export FEAT_BL2_TEMPLATE_TYPE
 	export FEAT_BL2E_SIGPROT_MODE
+
+
+	#special case for c3 fastboot
+	if [ "fastboot" == "${tool_type}" ]; then
+		cp ../fip/c3/binary-tool/acpu-imagetool-fastboot ../fip/c3/binary-tool/acpu-imagetool
+	else
+		cp ../fip/c3/binary-tool/acpu-imagetool-normal ../fip/c3/binary-tool/acpu-imagetool
+	fi
 
 	if [ -z ${key_type} ]; then
 		key_type="dev-keys"

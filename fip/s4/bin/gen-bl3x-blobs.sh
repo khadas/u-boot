@@ -23,6 +23,9 @@ BASEDIR_PAYLOAD=$2
 BASEDIR_NONCE="./nonce"
 
 CHIPSET_NAME=$4
+if [ "${CHIPSET_NAME}" == "s805c1a" ]; then
+ACPU_IMAGETOOL=${EXEC_BASEDIR}/../binary-tool/acpu-imagetool-${CHIPSET_NAME}
+fi
 KEY_TYPE=$5
 SOC=$6
 

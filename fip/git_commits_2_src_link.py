@@ -46,15 +46,26 @@ except Exception as e:
 pdPrefix  = "https://jira.amlogic.com/browse/"
 scgitPrefix = "https://scgit.amlogic.com/plugins/gitiles/"
 blSrcGits = [
-    {"blType" : "bl2_sc2",       "gitBranch" : "projects/sc2",             "gitRemote" : "firmware",      "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
-    {"blType" : "bl2_s4",        "gitBranch" : "projects/s4",              "gitRemote" : "firmware",      "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
-    {"blType" : "bl2_ree",       "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",      "upStream" : "bootloader/amlogic-advanced-bootloader/ree/+/"},
-    {"blType" : "bl2_tee",       "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",      "upStream" : "bootloader/amlogic-advanced-bootloader/tee/+/"},
-    {"blType" : "bl30_aocpu",    "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",      "upStream" : "firmware/aocpu/+/"},
-    {"blType" : "bl31_1.3",      "gitBranch" : "amlogic-dev-1.3",          "gitRemote" : "firmware",      "upStream" : "ARM-software/arm-trusted-firmware/+/"},
-    {"blType" : "bl32_3.8",      "gitBranch" : "amlogic-dev-3.8.0",        "gitRemote" : "firmware",      "upStream" : "OP-TEE/optee_os/+/"},
-    {"blType" : "bl33",          "gitBranch" : "amlogic-dev-2019",         "gitRemote" : "uboot",         "upStream" : "uboot/+/"},
-    {"blType" : "fip",           "gitBranch" : "amlogic-dev",              "gitRemote" : "fip",           "upStream" : "amlogic/tools/fip/+/"}
+    {"blType" : "bl2_sc2",                  "gitBranch" : "projects/sc2",             "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
+    {"blType" : "bl2_s4",                   "gitBranch" : "projects/s4",              "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
+    {"blType" : "bl2_s5",                   "gitBranch" : "projects/s5",              "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
+    {"blType" : "bl2_ree",                  "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/ree/+/"},
+    {"blType" : "bl2_tee",                  "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/tee/+/"},
+    {"blType" : "bl30_aocpu",               "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",         "upStream" : "firmware/aocpu/+/"},
+    {"blType" : "rtos_arch",            "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/arch/riscv/+/"},
+    {"blType" : "rtosboards",          "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/boards/riscv/+/"},
+    {"blType" : "rtos_build",           "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/build/+/"},
+    {"blType" : "rtos_driver_aocpu",    "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/drivers_aocpu/+/"},
+    {"blType" : "rtos_freertos",        "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/freertos/+/"},
+    {"blType" : "rtos_libc",            "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/libc/+/"},
+    {"blType" : "rtos_products_aocpu",  "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/product/aocpu/+/"},
+    {"blType" : "rtos_scripts",         "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/scripts/+/"},
+    {"blType" : "rtos_soc",             "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "origin",           "upStream" : "rtos_sdk/soc/riscv/+/"},
+    {"blType" : "bl31_1.3",                 "gitBranch" : "amlogic-dev-1.3",          "gitRemote" : "firmware",         "upStream" : "ARM-software/arm-trusted-firmware/+/"},
+    {"blType" : "bl32_3.8",                 "gitBranch" : "amlogic-dev-3.8.0",        "gitRemote" : "firmware",         "upStream" : "OP-TEE/optee_os/+/"},
+    {"blType" : "bl32_3.18",                "gitBranch" : "amlogic-dev-3.18.0",        "gitRemote" : "firmware",        "upStream" : "OP-TEE/optee_os/+/"},
+    {"blType" : "bl33",                     "gitBranch" : "amlogic-dev-2019",         "gitRemote" : "uboot",            "upStream" : "uboot/+/"},
+    {"blType" : "fip",                      "gitBranch" : "amlogic-dev",              "gitRemote" : "fip",              "upStream" : "amlogic/tools/fip/+/"}
 ]
 
 # the local csv file columns

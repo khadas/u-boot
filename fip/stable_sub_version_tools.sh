@@ -18,19 +18,19 @@
 
 # Set these ENV externally, cmd: export ENV=${ENV}
 if [[ -z "${STABLE_MAJOR_VERSION}" ]]; then
-	STABLE_MAJOR_VERSION="3.4.0"
+	STABLE_MAJOR_VERSION="3.5.0"
 else
 	echo "External settings env: STABLE_MAJOR_VERSION=${STABLE_MAJOR_VERSION}"
 fi
 
 if [[ -z "${ANDROID_ROOT_DIR}" ]]; then
-	ANDROID_ROOT_DIR="/mnt/fileroot/${LOGNAME}/workspace/3_android/2_R_5.4"
+	ANDROID_ROOT_DIR="/mnt/fileroot/wenbo.wang/Android/android_T"
 else
 	echo "External settings env: ANDROID_ROOT_DIR=${ANDROID_ROOT_DIR}"
 fi
 
 if [[ -z "${ANDROID_TARGET_BRANCH}" ]]; then
-	ANDROID_TARGET_BRANCH="s-tv-dev"
+	ANDROID_TARGET_BRANCH="t-tv-dev"
 else
 	echo "External settings env: ANDROID_TARGET_BRANCH=${ANDROID_TARGET_BRANCH}"
 fi
@@ -49,41 +49,71 @@ PUSH_TOPIC_COMMON=0
 # openlinux stable branch
 BL2_SC2_BRANCH="projects/openlinux/bl-sc2-${STABLE_MAJOR_VERSION}"
 BL2_S4_BRANCH="projects/openlinux/bl-s4-${STABLE_MAJOR_VERSION}"
+BL2_S5_BRANCH="projects/openlinux/bl-s5-${STABLE_MAJOR_VERSION}"
 
 # push uboot.bin to android dir
-declare -a OPENLINUX_BOARD_TYPE=("ohm" "oppen")
-declare -a OPENLINUX_BOARD_BRANCH=("${BL2_SC2_BRANCH}" "${BL2_S4_BRANCH}")
-declare -a OPENLINUX_BOARD_CONFIG=("sc2_ah212" "s4_ap222")
+declare -a OPENLINUX_BOARD_TYPE=("ohm" "oppen" "tyson")
+declare -a OPENLINUX_BOARD_BRANCH=("${BL2_SC2_BRANCH}" "${BL2_S4_BRANCH}" "${BL2_S5_BRANCH}")
+declare -a OPENLINUX_BOARD_CONFIG=("sc2_ah212" "s4_ap222" "s5_ax201")
 ANDROID_DEV_DIR="device/amlogic"
 ANDROID_DIR_OHM="${ANDROID_ROOT_DIR}/${ANDROID_DEV_DIR}/${OPENLINUX_BOARD_TYPE[0]}"
 ANDROID_DIR_OPPEN="${ANDROID_ROOT_DIR}/${ANDROID_DEV_DIR}/${OPENLINUX_BOARD_TYPE[1]}"
+ANDROID_DIR_TYSON="${ANDROID_ROOT_DIR}/${ANDROID_DEV_DIR}/${OPENLINUX_BOARD_TYPE[2]}"
 
-declare -a ANDROID_DIR_LIST=("${ANDROID_DIR_OHM}" "${ANDROID_DIR_OPPEN}")
+declare -a ANDROID_DIR_LIST=("${ANDROID_DIR_OHM}" "${ANDROID_DIR_OPPEN}" "${ANDROID_DIR_TYSON}")
 
 #
 # Array
 #
-declare -a BLX_NAME=(		\
-	"bl2       "			\
-	"bl2e      "			\
-	"bl2x      "			\
-	"bl30      "			\
-	"bl31_1.3  "			\
-	"bl32_3.8  "			\
-	"bl33_v2019"    		\
-	"fip       ")
+declare -a BLX_NAME=(			\
+	"bl2		"				\
+	"bl2e		"				\
+	"bl2x		"				\
+	"bl30		"				\
+	"rtos_sdk	"				\
+	"bl31_1.3	"				\
+	"bl32_3.8	"				\
+	"bl32_3.18	"				\
+	"bl33_v2019	"    			\
+	"fip		")
+
+declare -a RTOS_NAME=(		\
+	"rtos_arch"				\
+	"rtos_boards"			\
+	"rtos_build"			\
+	"rtos_driver_aocpu"		\
+	"rtos_freertos"			\
+	"rtos_libc"				\
+	"rtos_products_aocpu"	\
+	"rtos_scripts"			\
+	"rtos_soc"	)
 
 declare -a BLX_PATH=(		\
 	"bl2/core"				\
 	"bl2/ree"				\
 	"bl2/tee"				\
 	"bl30/src_ao"			\
+	"bl30/rtos_sdk"			\
 	"bl31_1.3/src"			\
 	"bl32_3.8/src"			\
+	"bl32_3.18/src"			\
 	"bl33/v2019"			\
-	"fip")
+	"fip"		)
+
+declare -a RTOS_PATH=(				\
+	"bl30/rtos_sdk/arch/riscv"		\
+	"bl30/rtos_sdk/boards/riscv"	\
+	"bl30/rtos_sdk/build_system"	\
+	"bl30/rtos_sdk/drivers_aocpu"	\
+	"bl30/rtos_sdk/kernel/freertos"	\
+	"bl30/rtos_sdk/lib/libc"		\
+	"bl30/rtos_sdk/products/aocpu"	\
+	"bl30/rtos_sdk/scripts"			\
+	"bl30/rtos_sdk/soc/riscv"	)
 
 declare -a BLX_COMMIT=(		\
+	" "						\
+	" "						\
 	" "						\
 	" "						\
 	" "						\
@@ -97,6 +127,8 @@ declare -a BLX_REMOTE=(		\
 	"firmware"				\
 	"firmware"				\
 	"firmware"				\
+	"firmware"				\
+	"origin"				\
 	"firmware"				\
 	"firmware"				\
 	"firmware"				\
@@ -112,6 +144,7 @@ declare -a BLX_STABLE_BRANCH=(			        \
 	"projects/openlinux/bl-$STABLE_MAJOR_VERSION"		\
 	"projects/openlinux/bl-$STABLE_MAJOR_VERSION"		\
 	"projects/openlinux/bl-$STABLE_MAJOR_VERSION"		\
+	"projects/openlinux/bl-$STABLE_MAJOR_VERSION"		\
 	"projects/openlinux/bl-$STABLE_MAJOR_VERSION")
 
 declare -a BLX_TRUNK_BRANCH=(	\
@@ -119,8 +152,10 @@ declare -a BLX_TRUNK_BRANCH=(	\
 	"projects/amlogic-dev"		\
 	"projects/amlogic-dev"		\
 	"projects/amlogic-dev"		\
+	"projects/amlogic-dev"		\
 	"amlogic-dev-1.3"			\
 	"amlogic-dev-3.8.0"			\
+	"amlogic-dev-3.18.0"			\
 	"amlogic-dev-2019"			\
 	"amlogic-dev")
 
@@ -129,27 +164,32 @@ declare -a STABLE_VER_FILE=(			\
 	"Makefile.gcc"						\
 	"Makefile.gcc"						\
 	"demos/amlogic/makedefs"			\
+	"build_system/Makefile"				\
 	"Makefile"							\
+	"core/arch/arm/plat-meson/conf.mk"	\
 	"core/arch/arm/plat-meson/conf.mk"	\
 	"Makefile"							\
 	"NULL")
 
-declare -a STABLE_VER_INFO=(	\
-	" "							\
-	" "							\
-	" "							\
-	" "							\
-	" "							\
-	" "							\
-	" "							\
+declare -a STABLE_VER_INFO=(\
+	" "						\
+	" "						\
+	" "						\
+	" "						\
+	" "						\
+	" "						\
+	" "						\
+	" "						\
+	" "						\
 	" ")
-
 declare -a STABLE_VER_TOPIC=(	\
 	"bl2-sc2"					\
 	"bl2e"						\
 	"bl2x"						\
 	"bl30"						\
+	"rtos_sdk"					\
 	"bl31"						\
+	"bl32"						\
 	"bl32"						\
 	"bl33"						\
 	"NULL")
@@ -301,6 +341,14 @@ function show_stable_branch_version() {
 				VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
 				STABLE_VER_EXT="bl-${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
 				echo "# bl2-s4     : 	${STABLE_VER_EXT}"
+
+				git checkout ${BL2_S5_BRANCH} > /dev/null 2>&1
+				VER_MAJOR=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				STABLE_VER_EXT="bl-${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
+				echo "# bl2-s5     : 	${STABLE_VER_EXT}"
+
 				git checkout ${BLX_STABLE_BRANCH[0]} > /dev/null 2>&1
 
 			elif [ $i -eq 0 -a "${CURRENT_BRANCH}" = "${BL2_S4_BRANCH}" ];then
@@ -310,7 +358,33 @@ function show_stable_branch_version() {
 				VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
 				STABLE_VER_EXT="bl-${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
 				echo "# bl2-sc2    : 	${STABLE_VER_EXT}"
+
+				git checkout ${BL2_S5_BRANCH} > /dev/null 2>&1
+				VER_MAJOR=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				STABLE_VER_EXT="bl-${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
+				echo "# bl2-s5    : 	${STABLE_VER_EXT}"
+
 				git checkout ${BL2_S4_BRANCH} > /dev/null 2>&1
+
+			elif [ $i -eq 0 -a "${CURRENT_BRANCH}" = "${BL2_S5_BRANCH}" ];then
+				git checkout ${BLX_STABLE_BRANCH[0]} > /dev/null 2>&1
+				VER_MAJOR=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				STABLE_VER_EXT="bl-${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
+				echo "# bl2-sc2    : 	${STABLE_VER_EXT}"
+
+				git checkout ${BL2_S4_BRANCH} > /dev/null 2>&1
+				VER_MAJOR=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[0]} |grep '=' |awk '{print $3}'`
+				STABLE_VER_EXT="bl-${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
+				echo "# bl2-s4   : 	${STABLE_VER_EXT}"
+
+				git checkout ${BL2_S5_BRANCH} > /dev/null 2>&1
+
 			fi
 		fi
 	done
@@ -322,6 +396,51 @@ function show_stable_branch_version() {
 	echo
 }
 
+function modify_stable_branch_version_info() {
+	local index=$1
+	# stable branch version format: bl-x.y.z;
+	# x is major version, y is minor version, z is patch version
+	if [ "${STABLE_VER_FILE[${index}]}" != "NULL" ]; then
+		######################### 1. modify version ############################
+		# major
+		CURRENT_VER_MAJOG=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[${index}]} |grep '=' |awk '{print $3}'`
+		MODIFY_VER_MAJOR=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  1`
+		sed -i '/MAJOR_VERSION /s/'$CURRENT_VER_MAJOG'/'$MODIFY_VER_MAJOR'/g' ${STABLE_VER_FILE[${index}]}
+
+		# minor
+		CURRENT_VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[${index}]} |grep '=' |awk '{print $3}'`
+		MODIFY_VER_MINOR=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  2`
+		sed -i '/MINOR_VERSION /s/'$CURRENT_VER_MINOR'/'$MODIFY_VER_MINOR'/g' ${STABLE_VER_FILE[${index}]}
+
+		# patch
+		CURRENT_VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[${index}]} |grep '=' |awk '{print $3}'`
+		MODIFY_VER_PATCH=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  3`
+		sed -i '/PATCH_VERSION /s/'$CURRENT_VER_PATCH'/'$MODIFY_VER_PATCH'/g' ${STABLE_VER_FILE[${index}]}
+		
+		######################### 1. modify version ############################
+		######################### 2. git add file ############################
+		git add ${STABLE_VER_FILE[${index}]}
+
+		CHECK_COMMIT_FORMAT=`echo $ADD_COMMIT_MESSAGE | grep -c '-'`
+		if [ $CHECK_COMMIT_FORMAT -eq 1 ]; then
+			######################### 3. git commit -m ############################
+			git commit --sign -m "
+			${BLX_PATH[${index}]}: stable branch update version: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH} [1/1]
+
+			PD#${ADD_COMMIT_MESSAGE}
+
+			Problem:
+			bootloader stable branch(openlinux/bl-${STABLE_MAJOR_VERSION}) update
+
+			Solution:
+			add version to build message: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH}
+
+			Verify:
+			ohm/oppen/tyson"
+		fi
+	fi
+}
+
 function modify_stable_branch_version() {
 	echo
 	echo "modify_stable_branch_version to: bl-$MODIFY_STABLE_VERSION"
@@ -329,46 +448,8 @@ function modify_stable_branch_version() {
 	for((i=0;i<${#BLX_NAME[@]}-1;i++)); do
 		if [ -d $rootdir/${BLX_PATH[$i]} ]; then
 			cd $rootdir/${BLX_PATH[$i]}
-			# stable branch version format: bl-x.y.z;
-			# x is major version, y is minor version, z is patch version
-			if [ "${STABLE_VER_FILE[$i]}" != "NULL" ]; then
-				######################### 1. modify version ############################
-				# major
-				CURRENT_VER_MAJOG=`grep 'MAJOR_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
-				MODIFY_VER_MAJOR=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  1`
-				sed -i '/MAJOR_VERSION /s/'$CURRENT_VER_MAJOG'/'$MODIFY_VER_MAJOR'/g' ${STABLE_VER_FILE[$i]}
-
-				# minor
-				CURRENT_VER_MINOR=`grep 'MINOR_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
-				MODIFY_VER_MINOR=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  2`
-				sed -i '/MINOR_VERSION /s/'$CURRENT_VER_MINOR'/'$MODIFY_VER_MINOR'/g' ${STABLE_VER_FILE[$i]}
-
-				# patch
-				CURRENT_VER_PATCH=`grep 'PATCH_VERSION ' ./${STABLE_VER_FILE[$i]} |grep '=' |awk '{print $3}'`
-				MODIFY_VER_PATCH=`echo $MODIFY_STABLE_VERSION | cut  -d  '.'  -f  3`
-				sed -i '/PATCH_VERSION /s/'$CURRENT_VER_PATCH'/'$MODIFY_VER_PATCH'/g' ${STABLE_VER_FILE[$i]}
-
-				######################### 2. git add file ############################
-				git add ${STABLE_VER_FILE[$i]}
-
-				CHECK_COMMIT_FORMAT=`echo $ADD_COMMIT_MESSAGE | grep -c '-'`
-				if [ $CHECK_COMMIT_FORMAT -eq 1 ]; then
-				######################### 3. git commit -m ############################
-git commit --sign -m "
-${BLX_PATH[$i]}: stable branch update version: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH} [1/1]
-
-PD#${ADD_COMMIT_MESSAGE}
-
-Problem:
-bootloader stable branch(openlinux/bl-${STABLE_MAJOR_VERSION}) update
-
-Solution:
-add version to build message: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH}
-
-Verify:
-ohm/oppen"
-				fi
-			fi
+			modify_stable_branch_version_info $i
+			
 		fi
 	done
 
@@ -380,7 +461,11 @@ function push_stable_branch_version() {
 	#for i in $(seq 0 ${BLX_NAME[@]}); do
 	for((i=0;i<${#BLX_NAME[@]}-1;i++)); do
 		if [ -d $rootdir/${BLX_PATH[$i]} ]; then
-			cd $rootdir/${BLX_PATH[$i]}
+			if [ ${BLX_NAME[$i]} == "rtos_sdk" ]; then
+				cd $rootdir/${RTOS_PATH[2]}
+			else
+				cd $rootdir/${BLX_PATH[$i]}
+			fi
 
 			#check bl2/core is at sc2 branch
 			CURRENT_BRANCH=`git branch |grep "*"| awk '{print $2}'`
@@ -397,13 +482,22 @@ function push_stable_branch_version() {
 				echo "PUSH ${STABLE_VER_TOPIC[$i]} ==>>"
 				git push review HEAD:refs/for/${BLX_STABLE_BRANCH[$i]}%topic=${PUSH_TOPIC_COMMON}-${STABLE_VER_TOPIC[$i]}
 				echo ""
-				if [ "${STABLE_VER_TOPIC[$i]}" = "bl2-sc2" ];then
+				if [ "${STABLE_VER_TOPIC[$i]}" == "bl2-sc2" ];then
 					echo ""
 					echo "PUSH bl2-s4 ==>>"
 					BL2_SC2_LAST_COMMIT=`git log --pretty=format:"%h" | head -1  | awk '{print $1}'`
 					git checkout ${BL2_S4_BRANCH} > /dev/null
 					git cherry-pick ${BL2_SC2_LAST_COMMIT}
 					git push review HEAD:refs/for/${BL2_S4_BRANCH}%topic=${PUSH_TOPIC_COMMON}-bl2-s4
+					git checkout ${BLX_STABLE_BRANCH[$i]} > /dev/null
+					echo ""
+
+					echo ""
+					echo "PUSH bl2-s5 ==>>"
+					BL2_SC2_LAST_COMMIT=`git log --pretty=format:"%h" | head -1  | awk '{print $1}'`
+					git checkout ${BL2_S5_BRANCH} > /dev/null
+					git cherry-pick ${BL2_SC2_LAST_COMMIT}
+					git push review HEAD:refs/for/${BL2_S5_BRANCH}%topic=${PUSH_TOPIC_COMMON}-bl2-s5
 					git checkout ${BLX_STABLE_BRANCH[$i]} > /dev/null
 					echo ""
 				fi
@@ -421,7 +515,12 @@ function show_current_branch_info() {
 	#for i in $(seq 0 ${BLX_NAME[@]}); do
 	for((i=0;i<${#BLX_NAME[@]};i++)); do
 		if [ -d $rootdir/${BLX_PATH[$i]} ]; then
-			cd $rootdir/${BLX_PATH[$i]}
+			if [ ${BLX_NAME[$i]} == "rtos_sdk" ]; then
+				cd $rootdir/${RTOS_PATH[2]}
+			else
+				cd $rootdir/${BLX_PATH[$i]}
+			fi
+
 			commit=`git rev-parse HEAD`
 			# compare setting commit with current commit
 			if [ ${#BLX_COMMIT[$i]} -gt 20 ]; then
@@ -437,11 +536,27 @@ function show_current_branch_info() {
 				if [ $i -eq 0 -a "${CURRENT_BRANCH}" = "${BLX_STABLE_BRANCH[0]}" ];then
 					git checkout ${BL2_S4_BRANCH} > /dev/null 2>&1
 					echo "[--] ${BLX_NAME[$i]}: [`git branch --show-current`]  `git log --abbrev=8 --oneline -1 `"
+					
+					git checkout ${BL2_S5_BRANCH} > /dev/null 2>&1
+					echo "[--] ${BLX_NAME[$i]}: [`git branch --show-current`]  `git log --abbrev=8 --oneline -1 `"
+
 					git checkout ${BLX_STABLE_BRANCH[0]} > /dev/null 2>&1
 				elif [ $i -eq 0 -a "${CURRENT_BRANCH}" = "${BL2_S4_BRANCH}" ];then
 					git checkout ${BLX_STABLE_BRANCH[0]} > /dev/null 2>&1
 					echo "[--] ${BLX_NAME[$i]}: [`git branch --show-current`]  `git log --abbrev=8 --oneline -1 `"
+
+					git checkout ${BL2_S5_BRANCH} > /dev/null 2>&1
+					echo "[--] ${BLX_NAME[$i]}: [`git branch --show-current`]  `git log --abbrev=8 --oneline -1 `"
+
 					git checkout ${BL2_S4_BRANCH} > /dev/null 2>&1
+				elif [ $i -eq 0 -a "${CURRENT_BRANCH}" = "${BL2_S5_BRANCH}" ];then
+					git checkout ${BLX_STABLE_BRANCH[0]} > /dev/null 2>&1
+					echo "[--] ${BLX_NAME[$i]}: [`git branch --show-current`]  `git log --abbrev=8 --oneline -1 `"
+
+					git checkout ${BL2_S4_BRANCH} > /dev/null 2>&1
+					echo "[--] ${BLX_NAME[$i]}: [`git branch --show-current`]  `git log --abbrev=8 --oneline -1 `"
+
+					git checkout ${BL2_S5_BRANCH} > /dev/null 2>&1
 				fi
 			fi
 		else
@@ -506,7 +621,7 @@ function modify_stable_sub_version() {
 		modify_stable_branch_version
 		show_stable_branch_version
 	fi
-
+	
 	# 5. push stable branch last version
 	if [ "$PUSH_TOPIC_COMMON" != "0" ]; then
 		push_stable_branch_version

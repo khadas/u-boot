@@ -33,11 +33,14 @@
 #include "pwm.h"
 #include "pwm_plat.h"
 #include "keypad.h"
+#include "hdmirx_wake.h"
 
 #define CONFIG_CEC_TASK
 #ifdef CONFIG_CEC_TASK
 #include "hdmi_cec.h"
 #endif
+
+#define CONFIG_HDMIRX_PLUGIN_WAKEUP
 
 #include "interrupt_control_pic.h"
 #include "eth.h"
@@ -93,6 +96,9 @@ void str_hw_init(void)
 	vKeyPadInit();
 	vGpioIRQInit();
 	Bt_GpioIRQRegister();
+#ifdef CONFIG_HDMIRX_PLUGIN_WAKEUP
+	hdmirx_GpioIRQRegister();
+#endif
 }
 
 
@@ -110,6 +116,11 @@ void str_hw_disable(void)
 	Bt_GpioIRQFree();
 	vKeyPadDeinit();
 	vRestoreGpioIrqReg();
+#ifdef CONFIG_HDMIRX_PLUGIN_WAKEUP
+	hdmirx_GpioIRQFree();
+#endif
+
+
 }
 
 void str_power_on(int shutdown_flag)
