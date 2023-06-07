@@ -34,6 +34,8 @@
 #include <image.h>
 #include <version.h>
 
+#include <amlogic/unlz4_android.h>
+
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 #include <ext_common.h>
 #endif
@@ -541,6 +543,13 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		image_len = size;
 		break;
 	}
+	case IH_COMP_LZ4_ANDROID: {
+		size_t size = unc_len;
+
+		ret = unlz4(image_buf, image_len, load_buf, &size);
+		image_len = size;
+		break;
+	}
 #endif /* CONFIG_LZ4 */
 	default:
 		printf("Unimplemented compression type %d\n", comp);
@@ -723,6 +732,26 @@ static void fixup_silent_linux(void)
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 
+#ifdef AMLOGIC_USB_POWER
+extern void set_usb_power_off(void);
+#endif
+void goto_suspend(void)
+{
+	char *ddr_resume = env_get("ddr_resume");
+	char *suspend_switch = env_get("systemsuspend_switch");
+
+	if (suspend_switch && !strcmp(suspend_switch, "0"))
+		return;
+	if (ddr_resume && !strncmp(ddr_resume, "1", 1)) {
+	/*usb_power make suspend power too high, need to power off first*/
+#ifdef AMLOGIC_USB_POWER
+		set_usb_power_off();
+#endif
+		run_command("systemsuspend", 0);
+		printf("%s : exec\n", __func__);
+	}
+}
+
 /**
  * Execute selected states of the bootm command.
  *
@@ -878,7 +907,7 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 			ret = run_command_list(cmd_list, -1, flag);
 	}
 #endif
-
+	goto_suspend();
 	/* Check for unsupported subcommand. */
 	if (ret) {
 		puts("subcommand not supported\n");

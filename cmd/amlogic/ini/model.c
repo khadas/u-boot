@@ -747,6 +747,7 @@ static int handle_lcd_timming(struct lcd_attr_s *p_attr)
 static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 {
 	const char *ini_value = NULL;
+	unsigned char clk_auto, clk_mode, ppc, custom_pinmux;
 
 	ini_value = IniGetString("lcd_Attr", "fr_adjust_type", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -761,7 +762,13 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 	ini_value = IniGetString("lcd_Attr", "clk_auto_gen", "1");
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, clk_auto_gen is (%s)\n", __func__, ini_value);
-	p_attr->customer.clk_auto_gen = strtoul(ini_value, NULL, 0);
+	clk_auto = strtoul(ini_value, NULL, 0);
+
+	ini_value = IniGetString("lcd_Attr", "clk_mode", "0");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, clk_mode is (%s)\n", __func__, ini_value);
+	clk_mode = strtoul(ini_value, NULL, 0);
+	p_attr->customer.custom_val0 = ((clk_mode & 0xf) << 4) | (clk_auto & 0xf);
 
 	ini_value = IniGetString("lcd_Attr", "pixel_clk", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -821,13 +828,19 @@ static int handle_lcd_customer(struct lcd_attr_s *p_attr)
 	ini_value = IniGetString("lcd_Attr", "custom_pinmux", "0");
 	if (model_debug_flag & DEBUG_LCD)
 		ALOGD("%s, custom_pinmux is (%s)\n", __func__, ini_value);
-	p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
-	if (p_attr->customer.custom_pinmux == 0) {
+	custom_pinmux = strtoul(ini_value, NULL, 0);
+	if (custom_pinmux == 0) {
 		ini_value = IniGetString("lcd_Attr", "customer_value_9", "0");
 		if (model_debug_flag & DEBUG_LCD)
 			ALOGD("%s, customer_value_9 is (%s)\n", __func__, ini_value);
-		p_attr->customer.custom_pinmux = strtoul(ini_value, NULL, 0);
+		custom_pinmux = strtoul(ini_value, NULL, 0);
 	}
+
+	ini_value = IniGetString("lcd_Attr", "ppc_mode", "1");
+	if (model_debug_flag & DEBUG_LCD)
+		ALOGD("%s, ppc_mode is (%s)\n", __func__, ini_value);
+	ppc = strtoul(ini_value, NULL, 0);
+	p_attr->customer.custom_val1 = ((ppc & 0xf) << 4) | (custom_pinmux & 0xf);
 
 	ini_value = IniGetString("lcd_Attr", "fr_auto_custom", "0");
 	if (model_debug_flag & DEBUG_LCD)
@@ -1221,6 +1234,7 @@ static int handle_lcd_ext_type(struct lcd_ext_attr_s *p_attr)
 	return 0;
 }
 
+#ifdef CONFIG_AML_LCD_TCON
 static int handle_lcd_ext_cmd_type_flag(unsigned int type, unsigned int sub_type)
 {
 	int flag = 0;
@@ -1243,18 +1257,20 @@ static int handle_lcd_ext_cmd_type_flag(unsigned int type, unsigned int sub_type
 	}
 	return flag;
 }
+#endif
 
 static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 {
-	int i = 0, j = 0, tmp_cnt = 0, tmp_off = 0;
+	int i = 0, j = 0, k, tmp_cnt = 0, tmp_off = 0;
 	const char *ini_value = NULL;
 	unsigned int tmp_buf[2048];
-	unsigned char *data_buf = NULL, type, sub_type;
-	unsigned int flag = 0;
+	unsigned char raw_size, data_size;
 #ifdef CONFIG_AML_LCD_TCON
-	unsigned int data_size = 0;
-	unsigned int n, k, multi_id;
+	unsigned char type, sub_type;
+	unsigned char *data_buf = NULL;
+	unsigned int n, multi_id;
 	unsigned int offset = 0, data_len = 0;
+	unsigned int flag = 0;
 	int ret;
 #endif
 
@@ -1264,11 +1280,14 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 		ALOGD("%s, init_on is (%s)\n", __func__, ini_value);
 	tmp_cnt = trans_buffer_data(ini_value, tmp_buf);
 
+#ifdef CONFIG_AML_LCD_TCON
 	data_buf = (unsigned char *)malloc(LCD_EXTERN_INIT_ON_MAX);
 	if (data_buf == NULL) {
 		ALOGE("%s, malloc buffer memory error!!!\n", __func__);
 		return -1;
 	}
+	memset(data_buf, 0, LCD_EXTERN_INIT_ON_MAX);
+#endif
 
 	/* init on */
 	if (tmp_cnt > LCD_EXTERN_INIT_ON_MAX) {
@@ -1284,27 +1303,25 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 		j = 0;
 		while (i < tmp_cnt) {
 			p_attr->cmd_data[j] = tmp_buf[i];
+			raw_size = tmp_buf[i + 1];
+			data_size = raw_size;
 			if (p_attr->cmd_data[j] == LCD_EXTERN_INIT_END) {
 				p_attr->cmd_data[j + 1] = 0;
 				j += 2;
 				break;
 			}
 
+#ifdef CONFIG_AML_LCD_TCON
 			type = tmp_buf[i] >> 4 & 0xf;
 			if (type == 0xe) {
 				sub_type = tmp_buf[i + 3] & 0xf;
-#ifdef CONFIG_AML_LCD_TCON
 				multi_id = tmp_buf[i + 2];
-#endif
 			} else {
 				sub_type = 0xff;
-#ifdef CONFIG_AML_LCD_TCON
 				multi_id = 0xff;
-#endif
 			}
 			flag = handle_lcd_ext_cmd_type_flag(type, sub_type);
 			if (flag) {
-#ifdef CONFIG_AML_LCD_TCON
 				if (flag == 1) {
 					data_len = tmp_buf[i + 1];
 					offset = tmp_buf[i + 2];
@@ -1340,21 +1357,20 @@ static int handle_lcd_ext_cmd_data(struct lcd_ext_attr_s *p_attr)
 				default:
 					break;
 				}
-#endif
 			}
-#ifdef CONFIG_AML_LCD_TCON
 handle_lcd_ext_cmd_data_original:
+#endif
 			/* original ini data */
-			data_size = tmp_buf[i + 1];
 			p_attr->cmd_data[j + 1] = data_size;
 			for (k = 0; k < data_size; k++) {
 				p_attr->cmd_data[j + 2 + k] =
 					(unsigned char)tmp_buf[i + 2 + k];
 			}
+#ifdef CONFIG_AML_LCD_TCON
 handle_lcd_ext_cmd_data_next:
-			j += data_size + 2;
-			i += tmp_buf[i + 1] + 2; /* raw data */
 #endif
+			j += data_size + 2;
+			i += raw_size + 2; /* raw data */
 		}
 		glcd_ext_init_on_cnt = j;
 	} else {
@@ -1391,8 +1407,11 @@ handle_lcd_ext_cmd_data_inif_off:
 			ALOGD("  [%d] = 0x%02x\n", i, p_attr->cmd_data[tmp_off+i]);
 	}
 
+#ifdef CONFIG_AML_LCD_TCON
+	memset(data_buf, 0, LCD_EXTERN_INIT_ON_MAX);
 	free(data_buf);
 	data_buf = NULL;
+#endif
 	return 0;
 }
 

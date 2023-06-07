@@ -1242,6 +1242,20 @@ static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3_1 = {
 	.reg_pinmux_table = lcd_reg_dump_pinmux_t3,
 };
 
+static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3x_0 = {
+	.reg_pll_table = lcd_reg_dump_pll_t7_0,
+	.reg_clk_table = lcd_reg_dump_clk_t7_0,
+	.reg_encl_table = lcd_reg_dump_encl_t3x_0,
+	.reg_pinmux_table = lcd_reg_dump_pinmux_t3,
+};
+
+static struct lcd_debug_info_reg_s lcd_debug_info_reg_t3x_1 = {
+	.reg_pll_table = lcd_reg_dump_pll_t7_1,
+	.reg_clk_table = lcd_reg_dump_clk_t7_1,
+	.reg_encl_table = lcd_reg_dump_encl_t7_1,
+	.reg_pinmux_table = lcd_reg_dump_pinmux_t3,
+};
+
 static struct lcd_debug_info_reg_s lcd_debug_info_reg_c3 = {
 	.reg_pll_table = lcd_reg_dump_pll_c3,
 	.reg_clk_table = lcd_reg_dump_clk_c3,
@@ -1351,6 +1365,31 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 			lcd_reg_print_phy_analog_t3;
 #endif
 		break;
+	case LCD_CHIP_T3X:
+		switch (pdrv->index) {
+		case 1:
+			lcd_debug_info_reg = &lcd_debug_info_reg_t3x_1;
+			break;
+		default:
+			lcd_debug_info_reg = &lcd_debug_info_reg_t3x_0;
+			break;
+		}
+		lcd_debug_info_if_lvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_t7;
+		lcd_debug_info_if_vbyone.reg_dump_phy =
+			lcd_reg_print_phy_analog_t7;
+#ifdef CONFIG_AML_LCD_TCON
+		lcd_debug_info_if_mlvds.reg_dump_interface =
+			lcd_reg_print_tcon_t3;
+		lcd_debug_info_if_mlvds.reg_dump_phy =
+			lcd_reg_print_phy_analog_t7;
+		lcd_debug_info_if_p2p.reg_dump_interface =
+			lcd_reg_print_tcon_t3;
+		lcd_debug_info_if_p2p.reg_dump_phy =
+			lcd_reg_print_phy_analog_t7;
+#endif
+		break;
+
 	case LCD_CHIP_T5W:
 		lcd_debug_info_reg = &lcd_debug_info_reg_t5w;
 		lcd_debug_info_if_lvds.reg_dump_phy =

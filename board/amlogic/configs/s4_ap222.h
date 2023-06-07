@@ -71,7 +71,7 @@
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
-        "hdmimode=1080p60hz\0" \
+	"hdmimode=none\0" \
         "colorattribute=444,8bit\0"\
         "cvbsmode=576cvbs\0" \
 	"vout_init=enable\0" \
@@ -100,9 +100,10 @@
         "video_reverse=0\0"\
         "board=oppen\0"\
         "initargs="\
-            "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 "\
-			"cma_first_wm_low=on "\
+		"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend "\
+		"earlycon=aml-uart,0xfe07a000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
+		"ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xfe02e030 "\
+		"cma_first_wm_low=on "\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -387,7 +388,11 @@
 
 /* unify build for generate encrypted bootloader "u-boot.bin.encrypt" */
 #define CONFIG_AML_CRYPTO_UBOOT   1
-//#define CONFIG_AML_SIGNED_UBOOT   1
+
+#ifdef CONFIG_AB_UPDATE
+#define CONFIG_AML_SIGNED_UBOOT   1
+#endif
+
 /* unify build for generate encrypted kernel image
    SRC : "board/amlogic/(board)/boot.img"
    DST : "fip/boot.img.encrypt" */
@@ -398,7 +403,9 @@
 #define CONFIG_FIP_IMG_SUPPORT  1
 
 /* config ramdump to debug kernel panic */
+#ifndef CONFIG_AB_UPDATE
 #define CONFIG_FULL_RAMDUMP
+#endif
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED

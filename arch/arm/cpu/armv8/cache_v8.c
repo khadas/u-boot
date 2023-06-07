@@ -470,6 +470,7 @@ void dcache_enable(void)
 	}
 
 	set_sctlr(get_sctlr() | CR_C);
+	gd->flags |= GD_FLG_CACHE_EN;
 }
 
 void dcache_disable(void)
@@ -482,7 +483,9 @@ void dcache_disable(void)
 	if (!(sctlr & CR_C))
 		return;
 
-	set_sctlr(sctlr & ~(CR_C|CR_M));
+	gd->flags &= ~GD_FLG_CACHE_EN;
+	set_sctlr(sctlr & ~(CR_C | CR_M));
+
 
 	flush_dcache_all();
 	__asm_invalidate_tlb_all();

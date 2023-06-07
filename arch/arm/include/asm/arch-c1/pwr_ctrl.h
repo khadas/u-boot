@@ -5,7 +5,7 @@
 
 #define PWR_ON    1
 #define PWR_OFF   0
-
+#define PM_MAX	40
 enum pm_e {
 	PM_CPU_PWR0,
 	PM_CPU_CORE0,
@@ -41,7 +41,7 @@ enum pm_e {
 	PM_ETH,
 	PM_GIC,
 	PM_DDR,
-	PM_SPICC_B
+	PM_SPICC_B,
 };
 
 unsigned long pwr_ctrl_psci_smc(unsigned int power_domain, bool power_control);

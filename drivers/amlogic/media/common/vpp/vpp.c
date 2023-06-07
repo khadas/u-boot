@@ -523,30 +523,88 @@ static void vpp_set_matrix_default_init(void)
 static void vpp_top_post2_matrix_yuv2rgb(int vpp_top)
 {
 	int *m = NULL;
+	int offset = 0x100;
+	unsigned int reg_mtrx_coeff00_01;
+	unsigned int reg_mtrx_coeff02_10;
+	unsigned int reg_mtrx_coeff11_12;
+	unsigned int reg_mtrx_coeff20_21;
+	unsigned int reg_mtrx_coeff22;
+	unsigned int reg_mtrx_offset0_1;
+	unsigned int reg_mtrx_offset2;
+	unsigned int reg_mtrx_pre_offset0_1;
+	unsigned int reg_mtrx_pre_offset2;
+	unsigned int reg_mtrx_en_ctrl;
+
 	/* POST2 matrix: YUV limit -> RGB  default is 12bit*/
 	m = YUV709l_to_RGB709_coeff12;
 
+	if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T3X) {
+		reg_mtrx_coeff00_01 = VPP_POST2_MATRIX_COEF00_01;
+		reg_mtrx_coeff02_10 = VPP_POST2_MATRIX_COEF02_10;
+		reg_mtrx_coeff11_12 = VPP_POST2_MATRIX_COEF11_12;
+		reg_mtrx_coeff20_21 = VPP_POST2_MATRIX_COEF20_21;
+		reg_mtrx_coeff22 = VPP_POST2_MATRIX_COEF22;
+		reg_mtrx_offset0_1 = VPP_POST2_MATRIX_OFFSET0_1;
+		reg_mtrx_offset2 = VPP_POST2_MATRIX_COEF22;
+		reg_mtrx_pre_offset0_1 = VPP_POST2_MATRIX_PRE_OFFSET0_1;
+		reg_mtrx_pre_offset2 = VPP_POST2_MATRIX_PRE_OFFSET2;
+		reg_mtrx_en_ctrl = VPP_POST2_MATRIX_EN_CTRL;
+	} else {
+		reg_mtrx_coeff00_01 = S0_VPP_POST2_MATRIX_COEF00_01;
+		reg_mtrx_coeff02_10 = S0_VPP_POST2_MATRIX_COEF02_10;
+		reg_mtrx_coeff11_12 = S0_VPP_POST2_MATRIX_COEF11_12;
+		reg_mtrx_coeff20_21 = S0_VPP_POST2_MATRIX_COEF20_21;
+		reg_mtrx_coeff22 = S0_VPP_POST2_MATRIX_COEF22;
+		reg_mtrx_offset0_1 = S0_VPP_POST2_MATRIX_OFFSET0_1;
+		reg_mtrx_offset2 = S0_VPP_POST2_MATRIX_COEF22;
+		reg_mtrx_pre_offset0_1 = S0_VPP_POST2_MATRIX_PRE_OFFSET0_1;
+		reg_mtrx_pre_offset2 = S0_VPP_POST2_MATRIX_PRE_OFFSET2;
+		reg_mtrx_en_ctrl = S0_VPP_POST2_MATRIX_EN_CTRL;
+	}
+
 	if (vpp_top == 0) {
 		/* VPP WRAP POST2 matrix */
-		vpp_reg_write(VPP_POST2_MATRIX_PRE_OFFSET0_1,
+		vpp_reg_write(reg_mtrx_pre_offset0_1,
 			(((m[0] >> 2) & 0xfff) << 16) | ((m[1] >> 2) & 0xfff));
-		vpp_reg_write(VPP_POST2_MATRIX_PRE_OFFSET2,
+		vpp_reg_write(reg_mtrx_pre_offset2,
 			(m[2] >> 2) & 0xfff);
-		vpp_reg_write(VPP_POST2_MATRIX_COEF00_01,
+		vpp_reg_write(reg_mtrx_coeff00_01,
 			(((m[3] >> 2) & 0x1fff) << 16) | ((m[4] >> 2) & 0x1fff));
-		vpp_reg_write(VPP_POST2_MATRIX_COEF02_10,
+		vpp_reg_write(reg_mtrx_coeff02_10,
 			(((m[5] >> 2) & 0x1fff) << 16) | ((m[6] >> 2) & 0x1fff));
-		vpp_reg_write(VPP_POST2_MATRIX_COEF11_12,
+		vpp_reg_write(reg_mtrx_coeff11_12,
 			(((m[7] >> 2) & 0x1fff) << 16) | ((m[8] >> 2) & 0x1fff));
-		vpp_reg_write(VPP_POST2_MATRIX_COEF20_21,
+		vpp_reg_write(reg_mtrx_coeff20_21,
 			(((m[9] >> 2) & 0x1fff) << 16) | ((m[10] >> 2) & 0x1fff));
-		vpp_reg_write(VPP_POST2_MATRIX_COEF22,
+		vpp_reg_write(reg_mtrx_coeff22,
 			(m[11] >> 2) & 0x1fff);
-		vpp_reg_write(VPP_POST2_MATRIX_OFFSET0_1,
+		vpp_reg_write(reg_mtrx_offset0_1,
 			(((m[18] >> 2) & 0xfff) << 16) | ((m[19] >> 2) & 0xfff));
-		vpp_reg_write(VPP_POST2_MATRIX_OFFSET2,
+		vpp_reg_write(reg_mtrx_offset2,
 			(m[20] >> 2) & 0xfff);
-		vpp_reg_setb(VPP_POST2_MATRIX_EN_CTRL, 1, 0, 1);
+		vpp_reg_setb(reg_mtrx_en_ctrl, 1, 0, 1);
+
+		if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T3X) {
+			vpp_reg_write(reg_mtrx_pre_offset0_1 + offset,
+				(((m[0] >> 2) & 0xfff) << 16) | ((m[1] >> 2) & 0xfff));
+			vpp_reg_write(reg_mtrx_pre_offset2 + offset,
+				(m[2] >> 2) & 0xfff);
+			vpp_reg_write(reg_mtrx_coeff00_01 + offset,
+				(((m[3] >> 2) & 0x1fff) << 16) | ((m[4] >> 2) & 0x1fff));
+			vpp_reg_write(reg_mtrx_coeff02_10 + offset,
+				(((m[5] >> 2) & 0x1fff) << 16) | ((m[6] >> 2) & 0x1fff));
+			vpp_reg_write(reg_mtrx_coeff11_12 + offset,
+				(((m[7] >> 2) & 0x1fff) << 16) | ((m[8] >> 2) & 0x1fff));
+			vpp_reg_write(reg_mtrx_coeff20_21 + offset,
+				(((m[9] >> 2) & 0x1fff) << 16) | ((m[10] >> 2) & 0x1fff));
+			vpp_reg_write(reg_mtrx_coeff22 + offset,
+				(m[11] >> 2) & 0x1fff);
+			vpp_reg_write(reg_mtrx_offset0_1 + offset,
+				(((m[18] >> 2) & 0xfff) << 16) | ((m[19] >> 2) & 0xfff));
+			vpp_reg_write(reg_mtrx_offset2 + offset,
+				(m[20] >> 2) & 0xfff);
+			vpp_reg_setb(reg_mtrx_en_ctrl + offset, 1, 0, 1);
+		}
 	} else if (vpp_top == 1) {
 		vpp_reg_write(VPP1_MATRIX_PRE_OFFSET0_1,
 			(((m[0] >> 2) & 0xfff) << 16) | ((m[1] >> 2) & 0xfff));
@@ -1721,7 +1779,7 @@ void hdr_tx_pkt_cb(void)
 	hdrinfo = hdmitx_get_rx_hdr_info();
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
-		hdr_policy == 0) {
+		(hdr_policy == 0 || hdr_policy == 3)) {
 		if (is_hdmi_mode(env_get("outputmode"))) {
 			hdr_func(OSD1_HDR, SDR_HDR);
 			hdr_func(OSD2_HDR, SDR_HDR);

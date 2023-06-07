@@ -15,6 +15,7 @@
 #endif
 #include "lcd_reg.h"
 #include "lcd_common.h"
+#include <amlogic/pm.h>
 
 #define PANEL_NAME	"panel"
 
@@ -25,6 +26,8 @@ static unsigned int lcd_debug_test_flag;
 struct aml_lcd_data_s *lcd_data;
 static struct aml_lcd_drv_s *lcd_driver[LCD_MAX_DRV];
 static struct lcd_debug_ctrl_s debug_ctrl;
+//static int lcd_poweron_suspend = 1;
+char *lcd_pm_name[LCD_MAX_DRV] = {"lcd_drv0_pm", "lcd_drv1_pm", "lcd_drv2_pm"};
 
 static struct aml_lcd_data_s lcd_data_g12a = {
 	.chip_type = LCD_CHIP_G12A,
@@ -157,6 +160,28 @@ static struct aml_lcd_data_s lcd_data_t5m = {
 	.offset_venc_data = {0x0},
 	.dft_conf = {NULL, NULL, NULL},
 };
+
+static struct aml_lcd_data_s lcd_data_t3x = {
+	.chip_type = LCD_CHIP_T3X,
+	.chip_name = "t3x",
+	.rev_type = 0,
+	.drv_max = 2,
+	.offset_venc = {0x0, (0x100 << 2), 0},
+	.offset_venc_if = {0x0, (0x500 << 2), 0},
+	.offset_venc_data = {0x0, (0x100 << 2), 0},
+};
+
+static __maybe_unused struct aml_lcd_data_s lcd_data_a4 = {
+	.chip_type = LCD_CHIP_A4,
+	.chip_name = "a4",
+	.rev_type = 0,
+	.drv_max = 1,
+	.offset_venc = {0},
+	.offset_venc_if = {0},
+	.offset_venc_data = {0},
+	.dft_conf = {NULL, NULL, NULL},
+};
+
 static void lcd_chip_detect(void)
 {
 #if 1
@@ -202,6 +227,12 @@ static void lcd_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_T5M:
 		lcd_data = &lcd_data_t5m;
 		break;
+	case MESON_CPU_MAJOR_ID_T3X:
+		lcd_data = &lcd_data_t3x;
+		break;
+	case MESON_CPU_MAJOR_ID_A4:
+		lcd_data = &lcd_data_a4;
+		break;
 	default:
 		lcd_data = NULL;
 		return;
@@ -223,6 +254,9 @@ struct aml_lcd_data_s *aml_lcd_get_data(void)
 
 static struct aml_lcd_drv_s *lcd_driver_check_valid(int index)
 {
+	if (index >= LCD_MAX_DRV)
+		return NULL;
+
 	if (!lcd_driver[index] || !lcd_driver[index]->config_check) {
 		LCDERR("invalid lcd%d config\n", index);
 		return NULL;
@@ -570,6 +604,7 @@ static unsigned int lcd_get_drv_cnt_flag_from_bsp(void)
 static struct aml_lcd_drv_s *lcd_driver_add(int index)
 {
 	struct aml_lcd_drv_s *pdrv;
+	int init_once = 0;
 
 	if (index >= lcd_data->drv_max) {
 		LCDERR("%s: invalid index: %d\n", __func__, index);
@@ -586,10 +621,20 @@ static struct aml_lcd_drv_s *lcd_driver_add(int index)
 			LCDERR("%s: Not enough memory\n", __func__);
 			return NULL;
 		}
+		init_once = 1;
 	}
+
 	pdrv = lcd_driver[index];
 	memset(pdrv, 0, sizeof(struct aml_lcd_drv_s));
 	pdrv->index = index;
+
+	if (init_once) {
+		pdrv->power_on_suspend = 1;
+		pdrv->dev_pm_ops = dev_register_pm(lcd_pm_name[index],
+							&aml_lcd_driver_suspend,
+							&aml_lcd_driver_resume,
+							&aml_lcd_driver_poweroff);
+	}
 
 	/* default config */
 	pdrv->data = lcd_data;
@@ -617,6 +662,9 @@ static int lcd_driver_remove(int index)
 	if (!lcd_driver[index])
 		return 0;
 
+	if (lcd_driver[index]->dev_pm_ops)
+		dev_unregister_pm(lcd_driver[index]->dev_pm_ops);
+
 	free(lcd_driver[index]);
 	lcd_driver[index] = NULL;
 
@@ -630,6 +678,20 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 
 	pdrv->boot_ctrl.lcd_type = pdrv->config.basic.lcd_type;
 	pdrv->boot_ctrl.lcd_bits = pdrv->config.basic.lcd_bits;
+	pdrv->boot_ctrl.clk_mode = pdrv->config.timing.clk_mode;
+	pdrv->boot_ctrl.base_frame_rate = pdrv->config.timing.base_frame_rate;
+	switch (pdrv->config.timing.ppc) {
+	case 2:
+		pdrv->boot_ctrl.ppc = LCD_VENC_2PPC;
+		break;
+	case 4:
+		pdrv->boot_ctrl.ppc = LCD_VENC_4PPC;
+		break;
+	case 1:
+	default:
+		pdrv->boot_ctrl.ppc = LCD_VENC_1PPC;
+		break;
+	}
 	switch (pdrv->config.basic.lcd_type) {
 	case LCD_RGB:
 		pdrv->boot_ctrl.advanced_flag =
@@ -647,7 +709,9 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	pdrv->boot_ctrl.init_level = env_get_ulong("lcd_init_level", 10, 0);
 
 	/*
-	 *bit[31:20]: reserved
+	 *bit[31:23]: base frame rate
+	 *bit[23:22]: clk_mode
+	 *bit[21:20]: ppc
 	 *bit[19:18]: lcd_init_level
 	 *bit[17]: reserved
 	 *bit[16]: custom pinmux flag
@@ -660,6 +724,18 @@ static void lcd_update_ctrl_bootargs(struct aml_lcd_drv_s *pdrv)
 	val |= (pdrv->boot_ctrl.advanced_flag & 0xff) << 8;
 	val |= (pdrv->boot_ctrl.custom_pinmux & 0x1) << 16;
 	val |= (pdrv->boot_ctrl.init_level & 0x3) << 18;
+	val |= (pdrv->boot_ctrl.ppc & 0x3) << 20;
+	val |= (pdrv->boot_ctrl.clk_mode & 0x3) << 22;
+	val |= (pdrv->boot_ctrl.base_frame_rate & 0xff) << 24;
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
+		LCDPR("[%d]: %s: ppc=%d, clk_mode=%d, base_fr=%d, bootctrl val=0x%x\n",
+			pdrv->index, __func__,
+			pdrv->config.timing.ppc,
+			pdrv->config.timing.clk_mode,
+			pdrv->config.timing.base_frame_rate, val);
+	}
+
 	sprintf(ctrl_str, "0x%08x", val);
 
 	if (strlen(pdrv->config.basic.model_name) > 0) {
@@ -776,16 +852,16 @@ static int lcd_config_probe(void)
 					load_id_temp &= ~(1 << 4);
 			}
 
-			lcd_clk_config_probe(pdrv);
 			ret = lcd_get_config(dt_addr, load_id_temp, pdrv);
 			if (ret) {
 				lcd_driver_remove(i);
 				continue;
 			}
+			lcd_clk_config_probe(pdrv);
 			lcd_phy_probe(pdrv);
 			lcd_debug_probe(pdrv);
-			lcd_update_ctrl_bootargs(pdrv);
 			lcd_mode_init(pdrv);
+			lcd_update_ctrl_bootargs(pdrv);
 		}
 	} else {
 		for (i = 0; i < lcd_data->drv_max; i++) {
@@ -808,16 +884,16 @@ static int lcd_config_probe(void)
 					load_id_temp &= ~(1 << 4);
 			}
 
-			lcd_clk_config_probe(pdrv);
 			ret = lcd_get_config(dt_addr, load_id_temp, pdrv);
 			if (ret) {
 				lcd_driver_remove(i);
 				continue;
 			}
+			lcd_clk_config_probe(pdrv);
 			lcd_phy_probe(pdrv);
 			lcd_debug_probe(pdrv);
-			lcd_update_ctrl_bootargs(pdrv);
 			lcd_mode_init(pdrv);
+			lcd_update_ctrl_bootargs(pdrv);
 		}
 	}
 
@@ -884,6 +960,8 @@ int lcd_remove(void)
 
 	for (i = 0; i < LCD_MAX_DRV; i++) {
 		if (lcd_driver[i]) {
+			if (lcd_driver[i]->dev_pm_ops)
+				dev_unregister_pm(lcd_driver[i]->dev_pm_ops);
 			free(lcd_driver[i]);
 			lcd_driver[i] = NULL;
 		}
@@ -966,10 +1044,21 @@ void aml_lcd_driver_prepare(int index, char *mode, unsigned int frac)
 void aml_lcd_driver_enable(int index, char *mode, unsigned int frac)
 {
 	struct aml_lcd_drv_s *pdrv;
+	char *ddr_resume = NULL;
 
 	pdrv = lcd_driver_check_valid(index);
 	if (!pdrv)
 		return;
+
+	ddr_resume = env_get("ddr_resume");
+	if (ddr_resume && ddr_resume[0] == '1' && pdrv->power_on_suspend == 1) {
+		pdrv->power_on_suspend = 0;
+		sprintf(pdrv->init_mode, "%s", mode);
+		pdrv->init_mode[strlen(mode)] = '\0';
+		pdrv->init_frac = frac;
+		LCDPR("%s drv mode=%s\n", __func__, pdrv->init_mode);
+		return;
+	}
 
 	if (pdrv->status & LCD_STATUS_IF_ON) {
 		LCDPR("[%d]: already enabled\n", pdrv->index);
@@ -1291,4 +1380,53 @@ void aml_lcd_driver_unifykey_dump(int index, unsigned int flag)
 #endif
 	}
 	lcd_unifykey_dump(index, key_flag);
+}
+
+int aml_lcd_driver_suspend(void *pm_ops)
+{
+	int i = 0;
+	struct dev_pm_ops *pm = (struct dev_pm_ops *)pm_ops;
+
+	for (i = 0; i < LCD_MAX_DRV; i++) {
+		printf("%s %d: pm->name=%s\n", __func__, __LINE__, pm->name);
+		if (strcmp(pm->name, lcd_pm_name[i]) == 0)
+			break;
+	}
+
+	if (i >= LCD_MAX_DRV || i < 0) {
+		LCDERR("lcd_drv%d is not allowed\n", i);
+		return 0;
+	}
+
+	aml_lcd_driver_disable(i);
+	LCDPR("%s driver disabled\n", __func__);
+
+	return 0;
+}
+
+int aml_lcd_driver_resume(void *pm_ops)
+{
+	int i = 0;
+	struct dev_pm_ops *pm = (struct dev_pm_ops *)pm_ops;
+	struct aml_lcd_drv_s *pdrv;
+
+	for (i = 0; i < LCD_MAX_DRV; i++)
+		if (strcmp(pm->name, lcd_pm_name[i]) == 0)
+			break;
+
+	pdrv = lcd_driver_check_valid(i);
+	if (!pdrv)
+		return -1;
+
+	aml_lcd_driver_enable(i, pdrv->init_mode, pdrv->init_frac);
+	LCDPR("%s driver enable\n", __func__);
+
+	return 0;
+}
+
+int aml_lcd_driver_poweroff(void *pm_ops)
+{
+	aml_lcd_driver_suspend(pm_ops);
+
+	return 0;
 }

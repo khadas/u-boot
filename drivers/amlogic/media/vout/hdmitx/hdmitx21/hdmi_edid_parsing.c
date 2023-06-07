@@ -250,6 +250,9 @@ static void edid_parsingvendspec(struct rx_cap *prxcap,
 				dv->tminPQ = dat[pos] >> 3;
 				pos++;
 				dv->Interface = dat[pos] & 0x3;
+				dv->parity = (dat[pos] >> 2) & 0x1;
+				/* if parity = 0, then not support > 60hz nor 8k */
+				dv->sup_1080p120hz = dv->parity;
 				dv->tmaxPQ = dat[pos] >> 3;
 				pos++;
 				dv->sup_10b_12b_444 = ((dat[pos] & 0x1) << 1) |
@@ -1195,6 +1198,38 @@ bool is_vic_over_limited_1080p(enum hdmi_vic vic)
 	return 0;
 }
 
+static bool hdmitx_check_4x3_16x9_mode(struct hdmitx_dev *hdev,
+		enum hdmi_vic vic)
+{
+	bool flag = 0;
+	int j;
+	struct rx_cap *prxcap = NULL;
+
+	prxcap = &hdev->RXCap;
+	if (vic == HDMI_2_720x480p60_4x3 ||
+		vic == HDMI_6_720x480i60_4x3 ||
+		vic == HDMI_17_720x576p50_4x3 ||
+		vic == HDMI_21_720x576i50_4x3) {
+		for (j = 0; (j < prxcap->VIC_count) && (j < VIC_MAX_NUM); j++) {
+			if ((vic + 1) == (prxcap->VIC[j] & 0xff)) {
+				flag = 1;
+				break;
+			}
+		}
+	} else if (vic == HDMI_3_720x480p60_16x9 ||
+			vic == HDMI_7_720x480i60_16x9 ||
+			vic == HDMI_18_720x576p50_16x9 ||
+			vic == HDMI_22_720x576i50_16x9) {
+		for (j = 0; (j < prxcap->VIC_count) && (j < VIC_MAX_NUM); j++) {
+			if ((vic - 1) == (prxcap->VIC[j] & 0xff)) {
+				flag = 1;
+				break;
+			}
+		}
+	}
+	return flag;
+}
+
 /* For some TV's EDID, there maybe exist some information ambiguous.
  * Such as EDID declare support 2160p60hz(Y444 8bit), but no valid
  * Max_TMDS_Clock2 to indicate that it can support 5.94G signal.
@@ -1268,8 +1303,13 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 
 	/* target mode is not contained at RX SVD */
 	for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
-		if ((para->timing.vic & 0xff) == (prxcap->VIC[i] & 0xff))
+		if ((para->timing.vic & 0xff) == (prxcap->VIC[i] & 0xff)) {
 			svd_flag = 1;
+			break;
+		} else if (hdmitx_check_4x3_16x9_mode(hdev, para->timing.vic & 0xff)) {
+			svd_flag = 1;
+			break;
+		}
 	}
 	if (svd_flag == 0)
 		return 0;

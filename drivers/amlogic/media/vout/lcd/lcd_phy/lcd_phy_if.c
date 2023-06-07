@@ -54,8 +54,6 @@ int lcd_phy_probe(struct aml_lcd_drv_s *pdrv)
 	pdrv->phy_set = NULL;
 	return 0;
 #endif
-	LCDPR("RAN %s\n", __func__);
-
 	if (!lcd_phy_ctrl)
 		return 0;
 
@@ -114,6 +112,9 @@ int lcd_phy_config_init(struct aml_lcd_data_s *pdata)
 		break;
 	case LCD_CHIP_C3:
 		lcd_phy_ctrl = lcd_phy_config_init_c3(pdata);
+		break;
+	case LCD_CHIP_T3X:
+		lcd_phy_ctrl = lcd_phy_config_init_t3x(pdata);
 		break;
 	default:
 		break;

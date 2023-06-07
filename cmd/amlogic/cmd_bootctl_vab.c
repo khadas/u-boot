@@ -597,7 +597,7 @@ static void set_ddr_size(void)
 	memset(ddr_size_str, 0, 32);
 	ddr_size = (readl(SYSCTRL_SEC_STATUS_REG4) & 0xFFF00000) << 4;
 
-	sprintf(ddr_size_str, "%u", ddr_size);
+	sprintf(ddr_size_str, "%u%c", ddr_size, 'B');
 	printf("ddr_size_str = %s\n", ddr_size_str);
 	env_set("ddr_size", ddr_size_str);
 }

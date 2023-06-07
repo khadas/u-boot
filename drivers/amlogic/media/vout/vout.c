@@ -536,6 +536,7 @@ static struct vinfo_s vout_info = {
 	.vd_color_bg = 0,
 	.cmap = NULL,                /* Pointer to the colormap */
 	.priv = NULL,                /* Pointer to driver-specific data */
+	.cur_enc_ppc = 1,
 };
 
 static int vout_conf_check(void)
@@ -639,12 +640,19 @@ static void vout_vmode_init(void)
 		width = pdrv->config.basic.h_active;
 		height = pdrv->config.basic.v_active;
 		field_height = pdrv->config.basic.v_active;
+		vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
 		break;
 #endif
 	default:
 		width = vset->width;
 		height = vset->height;
 		field_height = vset->field_height;
+#ifdef CONFIG_AML_LCD
+		venc_index = (vset->viu_mux >> 4) & 0xf;
+		pdrv = aml_lcd_get_driver(venc_index);
+		vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
+		printf("%s cur_enc_ppc = %d\n", __func__, vout_info.cur_enc_ppc);
+#endif
 		break;
 	}
 	vout_axis_init(width, height);
@@ -1078,6 +1086,7 @@ void vout_probe(void)
 		break;
 	case MESON_CPU_MAJOR_ID_T3:
 	case MESON_CPU_MAJOR_ID_T5M:
+	case MESON_CPU_MAJOR_ID_T3X:
 		vout_conf = &vout_config_dual_t3;
 		vout_reg_write(VPU_VIU_VENC_MUX_CTRL, 0x3f);
 		break;

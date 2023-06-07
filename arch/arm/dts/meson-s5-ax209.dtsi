@@ -104,9 +104,9 @@
 };
 
 &ir {
-	status = "disabled";
-	/* pinctrl-0 = <&remote_input_ao_pins>; */
-	/* pinctrl-names = "default"; */
+	status = "okay";
+	pinctrl-0 = <&remote_input_ao_pins>;
+	pinctrl-names = "default";
 };
 
 &saradc {

@@ -124,6 +124,7 @@ struct aml_ldim_driver_s {
 struct aml_ldim_driver_s *aml_ldim_get_driver(void);
 
 /* flag: 0=dts, 1=bsp, 2=unifykey */
-int aml_ldim_probe(char *dt_addr, int child_offset, unsigned char *key_buf, int flag);
+int aml_ldim_probe(struct aml_bl_drv_s *bdrv, char *dt_addr, int child_offset,
+		unsigned char *key_buf, int flag);
 
 #endif /* INC_AML_BL_LDIM_H */

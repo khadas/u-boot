@@ -153,6 +153,10 @@ struct lcd_tcon_local_cfg_s {
 #define CTRL_TIMING_OFFSET_T5D            12
 #define CTRL_TIMING_CNT_T5D               0
 
+/* T3X */
+#define LCD_TCON_TABLE_LEN_T3X            0x1478 /* 0x51e*4 */
+#define LCD_TCON_AXI_BANK_T3X             3
+
 #ifdef CONFIG_CMD_INI
 void *handle_lcd_ext_buf_get(void);
 void *handle_tcon_path_mem_get(unsigned int size);
@@ -170,6 +174,7 @@ int handle_tcon_data_load(unsigned char **buf, unsigned int index);
 #define TCON_VAC_SET_PARAM_NUM    3
 #define TCON_VAC_LUT_PARAM_NUM    256
 
+void lcd_tcon_od_pre_disable(unsigned char *table);
 void lcd_tcon_init_data_version_update(char *data_buf);
 int lcd_tcon_data_multi_match_find(struct aml_lcd_drv_s *pdrv, unsigned char *data_buf);
 int lcd_tcon_spi_data_probe(struct aml_lcd_drv_s *pdrv);

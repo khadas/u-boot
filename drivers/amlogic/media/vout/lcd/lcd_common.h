@@ -40,7 +40,8 @@
 /* 20230303: fix hdmi mode 47hz & 95hz timing*/
 /* 20230313: update tcon debug info print*/
 /* 20230319: optimize phy code*/
-#define LCD_DRV_VERSION    "20230319"
+/* 20230505: t3x support */
+#define LCD_DRV_VERSION    "20230505"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
@@ -79,6 +80,7 @@ void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv);
 
 /* lcd venc */
 void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv);
+unsigned int lcd_get_max_line_cnt(struct aml_lcd_drv_s *pdrv);
 void lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num);
 void lcd_set_venc_timing(struct aml_lcd_drv_s *pdrv);
 void lcd_set_venc(struct aml_lcd_drv_s *pdrv);

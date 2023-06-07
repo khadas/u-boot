@@ -139,6 +139,10 @@ void *memchr_inv(const void *, int, size_t);
 #define memset(s, c, n) __memset(s, c, n)
 #endif
 
+#if defined(CONFIG_AML_UASAN)
+#define memset_non_cache(s, c, n) __memset(s, c, n)
+#endif
+
 unsigned long ustrtoul(const char *cp, char **endp, unsigned int base);
 unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base);
 

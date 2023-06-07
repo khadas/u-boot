@@ -567,6 +567,12 @@ config S4_AP2327
 	help
 		Select S4 AP2327(XXXX) config
 
+config S4_BF201
+	bool "S4_BF201"
+	select TARGET_S4_BF201
+	help
+		Select S4 BF201(XXXX) config
+
 endchoice
 
 config TARGET_S4_SKT
@@ -616,6 +622,10 @@ config TARGET_S4_AP232
 config TARGET_S4_AP2327
 	bool "S4 AP2327 board"
 	depends on S4_AP2327
+
+config TARGET_S4_BF201
+	bool "S4 BF201 board"
+	depends on S4_BF201
 
 config TARGET_S4_AP229_S905C3ENG
 	bool "S4 AP229 S905C3ENG board"
@@ -1307,6 +1317,66 @@ config TARGET_T3_T965D4
 
 endif
 
+if MESON_T3X
+
+config SYS_SOC
+	default "t3x"
+
+config DDRFW_TYPE
+	string "t3x FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+        string "T3X CHIPSET NAME"
+        default "t968d4"
+
+config CHIPSET_VARIANT
+        string "T3X CHIPSET VARIANT"
+        default ""
+
+config AMLOGIC_KEY_TYPE
+        string "T3X AMLOGIC KEY TYPE"
+        default "dev-keys"
+
+config BL30_SELECT
+	string "T3X BL30 board config"
+	default "t3x_bc309"
+
+choice
+	prompt "T3X Board"
+
+config T3X_SKY
+	bool "T3X_SKY"
+	select TARGET_T3X_SKY
+	help
+		Select T3X SKY(XXXX) config
+
+config T3X_BC302
+	bool "T3X_BC302"
+	select TARGET_T3X_BC302
+	help
+		Select T3X BC302 config
+
+config T3X_BC309
+	bool "T3X_BC309"
+	select TARGET_T3X_BC309
+	help
+		Select T3X BC309 config
+endchoice
+
+config TARGET_T3X_SKY
+	bool "T3X SKY board"
+	depends on T3X_SKY
+
+config TARGET_T3X_BC302
+	bool "T3X BC302 board"
+	depends on T3X_BC302
+
+config TARGET_T3X_BC309
+	bool "T3X BC309 board"
+	depends on T3X_BC309
+endif
+
 if MESON_T5M
 
 config SYS_SOC
@@ -1526,6 +1596,8 @@ source "board/amlogic/s4_aq222/Kconfig"
 
 source "board/amlogic/s4_aq2432/Kconfig"
 
+source "board/amlogic/s4_bf201/Kconfig"
+
 source "board/amlogic/s4_aq229/Kconfig"
 
 source "board/amlogic/s4_t211/Kconfig"
@@ -1649,3 +1721,8 @@ source "board/amlogic/a4_ba400/Kconfig"
 source "board/amlogic/a4_ba400_zircon/Kconfig"
 
 source "board/amlogic/a4_ba409/Kconfig"
+
+source "board/amlogic/t3x_sky/Kconfig"
+source "board/amlogic/t3x_bc302/Kconfig"
+source "board/amlogic/t3x_bc309/Kconfig"
+

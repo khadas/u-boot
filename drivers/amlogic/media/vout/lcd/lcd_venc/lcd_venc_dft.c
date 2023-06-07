@@ -33,6 +33,16 @@ static void lcd_venc_wait_vsync(struct aml_lcd_drv_s *pdrv)
 	 */
 }
 
+static unsigned int lcd_venc_get_max_lint_cnt(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int line_cnt;
+
+	line_cnt = lcd_vcbus_read(ENCL_VIDEO_MAX_LNCNT) + 1;
+	/*LCDPR("[%d]: %s: line_cnt=%d", pdrv->index, __func__, line_cnt); */
+
+	return line_cnt;
+}
+
 #define LCD_ENC_TST_NUM_MAX    9
 static char *lcd_enc_tst_str[] = {
 	"0-None",        /* 0 */
@@ -263,6 +273,7 @@ int lcd_venc_op_init_dft(struct lcd_venc_op_s *venc_op)
 		return -1;
 
 	venc_op->wait_vsync = lcd_venc_wait_vsync;
+	venc_op->get_max_lcnt = lcd_venc_get_max_lint_cnt;
 	venc_op->venc_debug_test = lcd_venc_debug_test;
 	venc_op->venc_set_timing = lcd_venc_set_timing;
 	venc_op->venc_set = lcd_venc_set;

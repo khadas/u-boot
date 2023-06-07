@@ -67,7 +67,7 @@
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
-        "hdmimode=1080p60hz\0" \
+	"hdmimode=none\0" \
         "cvbsmode=576cvbs\0" \
         "display_width=1920\0" \
         "display_height=1080\0" \
@@ -104,7 +104,8 @@
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
 		"init=/init console=ttyS0,115200 no_console_suspend earlycon=aml-uart,0xfe002000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 scramble_reg=0x0xfe02e030 "\
+		"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+		"scramble_reg=0xfe02e030 "\
             "\0"\
         "upgrade_check="\
             "echo recovery_status=${recovery_status};"\

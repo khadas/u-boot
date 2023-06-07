@@ -16,6 +16,7 @@
 static struct lcd_venc_op_s lcd_venc_op = {
 	.init_flag = 0,
 	.wait_vsync = NULL,
+	.get_max_lcnt = NULL,
 	.venc_debug_test = NULL,
 	.venc_set_timing = NULL,
 	.venc_set = NULL,
@@ -32,6 +33,20 @@ void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv)
 		return;
 
 	lcd_venc_op.wait_vsync(pdrv);
+}
+
+unsigned int lcd_get_max_line_cnt(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int lcnt;
+
+	if (!lcd_venc_op.get_max_lcnt) {
+		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+			LCDERR("[%d]: %s: invalid\n", pdrv->index, __func__);
+		return 0;
+	}
+
+	lcnt = lcd_venc_op.get_max_lcnt(pdrv);
+	return lcnt;
 }
 
 void lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
@@ -56,12 +71,15 @@ void lcd_debug_test(struct aml_lcd_drv_s *pdrv, unsigned int num)
 static void lcd_gamma_init(struct aml_lcd_drv_s *pdrv)
 {
 #ifdef CONFIG_AML_LCD_PXP
+	LCDPR("%s PXP bypass\n", __func__);
 	return;
 #endif
 
 #ifdef CONFIG_AML_VPP
 	lcd_wait_vsync(pdrv);
 	vpp_disable_lcd_gamma_table(pdrv->index);
+	if (pdrv->data->chip_type == LCD_CHIP_T3X)
+		return;
 
 	vpp_init_lcd_gamma_table(pdrv->index);
 
@@ -87,6 +105,7 @@ void lcd_set_venc(struct aml_lcd_drv_s *pdrv)
 		return;
 	}
 
+	LCDPR("%s\n", __func__);
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 	lcd_venc_op.venc_set(pdrv);
@@ -132,7 +151,11 @@ int lcd_venc_probe(struct aml_lcd_data_s *pdata)
 		ret = lcd_venc_op_init_t7(&lcd_venc_op);
 		break;
 	case LCD_CHIP_C3:
+	case LCD_CHIP_A4:
 		ret = lcd_venc_op_init_c3(&lcd_venc_op);
+		break;
+	case LCD_CHIP_T3X:
+		ret = lcd_venc_op_init_t3x(&lcd_venc_op);
 		break;
 	default:
 		ret = lcd_venc_op_init_dft(&lcd_venc_op);

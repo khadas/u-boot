@@ -13,7 +13,6 @@ struct lcd_phy_ctrl_s {
 
 	unsigned int (*phy_vswing_level_to_val)(struct aml_lcd_drv_s *pdrv, unsigned int level);
 	unsigned int (*phy_preem_level_to_val)(struct aml_lcd_drv_s *pdrv, unsigned int level);
-
 	void (*phy_set_lvds)(struct aml_lcd_drv_s *pdrv, int status);
 	void (*phy_set_vx1)(struct aml_lcd_drv_s *pdrv, int status);
 	void (*phy_set_mlvds)(struct aml_lcd_drv_s *pdrv, int status);
@@ -74,6 +73,7 @@ struct lcd_phy_ctrl_s *lcd_phy_config_init_t5(struct aml_lcd_data_s *pdata);
 struct lcd_phy_ctrl_s *lcd_phy_config_init_t5w(struct aml_lcd_data_s *pdata);
 struct lcd_phy_ctrl_s *lcd_phy_config_init_t7(struct aml_lcd_data_s *pdata);
 struct lcd_phy_ctrl_s *lcd_phy_config_init_tl1(struct aml_lcd_data_s *pdata);
+struct lcd_phy_ctrl_s *lcd_phy_config_init_t3x(struct aml_lcd_data_s *pdata);
 
 unsigned int lcd_phy_vswing_level_to_value_dft(struct aml_lcd_drv_s *pdrv, unsigned int level);
 unsigned int lcd_phy_preem_level_to_value_dft(struct aml_lcd_drv_s *pdrv, unsigned int level);

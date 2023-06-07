@@ -37,6 +37,46 @@
 /* ********************************
  * dummy registers *
  * ********************************* */
+#ifndef S0_VPP_POST2_MATRIX_COEF00_01
+#define S0_VPP_POST2_MATRIX_COEF00_01              0x2560
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_COEF02_10
+#define S0_VPP_POST2_MATRIX_COEF02_10              0x2561
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_COEF11_12
+#define S0_VPP_POST2_MATRIX_COEF11_12              0x2562
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_COEF20_21
+#define S0_VPP_POST2_MATRIX_COEF20_21              0x2563
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_COEF22
+#define S0_VPP_POST2_MATRIX_COEF22                 0x2564
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_OFFSET0_1
+#define S0_VPP_POST2_MATRIX_OFFSET0_1              0x2569
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_OFFSET2
+#define S0_VPP_POST2_MATRIX_OFFSET2                0x256a
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_PRE_OFFSET0_1
+#define S0_VPP_POST2_MATRIX_PRE_OFFSET0_1          0x256b
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_PRE_OFFSET2
+#define S0_VPP_POST2_MATRIX_PRE_OFFSET2            0x256c
+#endif
+
+#ifndef S0_VPP_POST2_MATRIX_EN_CTRL
+#define S0_VPP_POST2_MATRIX_EN_CTRL                0x256d
+#endif
+
 #ifndef VPP_POST2_MATRIX_PRE_OFFSET0_1
 #define VPP_POST2_MATRIX_PRE_OFFSET0_1             0x39ab
 #endif
@@ -76,7 +116,6 @@
 #ifndef VPP_POST2_MATRIX_EN_CTRL
 #define VPP_POST2_MATRIX_EN_CTRL                   0x39ad
 #endif
-
 
 #ifndef VPP_WRAP_OSD1_MATRIX_PRE_OFFSET0_1
 #define VPP_WRAP_OSD1_MATRIX_PRE_OFFSET0_1         0x3d6b

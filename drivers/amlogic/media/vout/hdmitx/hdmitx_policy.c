@@ -29,6 +29,7 @@
 #define DV_MODE_4K2K60HZ                "2160p60hz"
 #define DV_MODE_LIST_SIZE               10
 
+#define MODE_640x480p                   "640x480p60hz"
 #define MODE_480I                       "480i60hz"
 #define MODE_480P                       "480p60hz"
 #define MODE_480CVBS                    "480cvbs"
@@ -37,6 +38,8 @@
 #define MODE_576CVBS                    "576cvbs"
 #define MODE_720P50HZ                   "720p50hz"
 #define MODE_720P                       "720p60hz"
+#define MODE_720P100HZ                  "1280x720p100hz"
+#define MODE_720P120HZ                  "1280x720p120hz"
 #define MODE_768P                       "768p60hz"
 #define MODE_1080P24HZ                  "1080p24hz"
 #define MODE_1080P25HZ                  "1080p25hz"
@@ -45,15 +48,32 @@
 #define MODE_1080P50HZ                  "1080p50hz"
 #define MODE_1080I                      "1080i60hz"
 #define MODE_1080P                      "1080p60hz"
+#define MODE_1080P100HZ                 "1920x1080p100hz"
+#define MODE_1080P120HZ                 "1920x1080p120hz"
+#define MODE_1440P50HZ                  "2560x1440p50hz"
+#define MODE_1440P60HZ                  "2560x1440p60hz"
+#define MODE_1440P100HZ                 "2560x1440p100hz"
+#define MODE_1440P120HZ                 "2560x1440p120hz"
+
 #define MODE_4K2K24HZ                   "2160p24hz"
 #define MODE_4K2K25HZ                   "2160p25hz"
 #define MODE_4K2K30HZ                   "2160p30hz"
 #define MODE_4K2K50HZ                   "2160p50hz"
 #define MODE_4K2K60HZ                   "2160p60hz"
+
+#define MODE_4K2K100HZ                  "3840x2160p100hz"
+#define MODE_4K2K120HZ                  "3840x2160p120hz"
 #define MODE_4K2KSMPTE                  "smpte24hz"
 #define MODE_4K2KSMPTE30HZ              "smpte30hz"
 #define MODE_4K2KSMPTE50HZ              "smpte50hz"
 #define MODE_4K2KSMPTE60HZ              "smpte60hz"
+#define MODE_8K4K24HZ                   "7680x4320p24hz"
+#define MODE_8K4K25HZ                   "7680x4320p25hz"
+#define MODE_8K4K30HZ                   "7680x4320p30hz"
+#define MODE_8K4K48HZ                   "7680x4320p48hz"
+#define MODE_8K4K50HZ                   "7680x4320p50hz"
+#define MODE_8K4K60HZ                   "7680x4320p60hz"
+
 #define MODE_PANEL                      "panel"
 #define MODE_PAL_M                      "pal_m"
 #define MODE_PAL_N                      "pal_n"
@@ -73,6 +93,7 @@
 #define COLOR_RGB_8BIT                   "rgb,8bit"
 
 static const char *DISPLAY_MODE_LIST[] = {
+	MODE_640x480p,
 	MODE_480I,
 	MODE_480P,
 	/* MODE_480CVBS, */
@@ -81,6 +102,8 @@ static const char *DISPLAY_MODE_LIST[] = {
 	/* MODE_576CVBS, */
 	MODE_720P,
 	MODE_720P50HZ,
+	MODE_720P100HZ,
+	MODE_720P120HZ,
 	MODE_1080P24HZ,
 	MODE_1080P25HZ,
 	MODE_1080P30HZ,
@@ -88,6 +111,12 @@ static const char *DISPLAY_MODE_LIST[] = {
 	MODE_1080P50HZ,
 	MODE_1080I,
 	MODE_1080P,
+	MODE_1080P100HZ,
+	MODE_1080P120HZ,
+	MODE_1440P50HZ,
+	MODE_1440P60HZ,
+	MODE_1440P100HZ,
+	MODE_1440P120HZ,
 	MODE_4K2K24HZ,
 	MODE_4K2K25HZ,
 	MODE_4K2K30HZ,
@@ -96,7 +125,15 @@ static const char *DISPLAY_MODE_LIST[] = {
 	MODE_4K2KSMPTE,
 	MODE_4K2KSMPTE30HZ,
 	MODE_4K2KSMPTE50HZ,
-	MODE_4K2KSMPTE60HZ
+	MODE_4K2KSMPTE60HZ,
+	MODE_4K2K100HZ,
+	MODE_4K2K120HZ,
+	MODE_8K4K24HZ,
+	MODE_8K4K25HZ,
+	MODE_8K4K30HZ,
+	MODE_8K4K48HZ,
+	MODE_8K4K50HZ,
+	MODE_8K4K60HZ
 	/* MODE_768P,  */
 	/* MODE_PANEL, */
 	/* MODE_PAL_M, */
@@ -134,6 +171,7 @@ static const char *MODE_RESOLUTION_FIRST[] = {
 	MODE_576I,
 	MODE_1080I50HZ,
 	MODE_1080I,
+	MODE_640x480p,
 	MODE_480P,
 	MODE_576P,
 	MODE_720P50HZ,
@@ -144,7 +182,13 @@ static const char *MODE_RESOLUTION_FIRST[] = {
 	MODE_4K2K25HZ,
 	MODE_4K2K30HZ,
 	MODE_4K2K50HZ,
-	MODE_4K2K60HZ
+	MODE_4K2K60HZ,
+	MODE_8K4K24HZ,
+	MODE_8K4K25HZ,
+	MODE_8K4K30HZ,
+	MODE_8K4K48HZ,
+	MODE_8K4K50HZ,
+	MODE_8K4K60HZ
 };
 
 /* ascending order */
@@ -153,6 +197,7 @@ static const char *MODE_FRAMERATE_FIRST[] = {
 	MODE_576I,
 	MODE_1080I50HZ,
 	MODE_1080I,
+	MODE_640x480p,
 	MODE_480P,
 	MODE_576P,
 	MODE_720P50HZ,
@@ -163,7 +208,9 @@ static const char *MODE_FRAMERATE_FIRST[] = {
 	MODE_1080P50HZ,
 	MODE_1080P,
 	MODE_4K2K50HZ,
-	MODE_4K2K60HZ
+	MODE_4K2K60HZ,
+	MODE_8K4K50HZ,
+	MODE_8K4K60HZ
 };
 
 /* this is prior selected list for sdr of
@@ -244,7 +291,7 @@ static const char *COLOR_ATTRIBUTE_LIST4[] = {
 /* this is prior selected list of HDR non 4k50/60 colorspace
  * descending order
  */
-static const char * const HDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
+static const char *HDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
 	COLOR_YCBCR422_12BIT,
 	COLOR_YCBCR444_10BIT,
 	COLOR_RGB_10BIT,
@@ -255,7 +302,7 @@ static const char * const HDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
 /* this is prior selected list of HDR 4k colorspace(2160p60hz/2160p50hz)
  * descending order
  */
-static const char * const HDR_4K_COLOR_ATTRIBUTE_LIST[] = {
+static const char *HDR_4K_COLOR_ATTRIBUTE_LIST[] = {
 	COLOR_YCBCR420_10BIT,
 	COLOR_YCBCR422_12BIT,
 };
@@ -320,11 +367,20 @@ static const char *disp_mode_t[] = {
 	NULL
 };
 
+static bool hdmi_sink_disp_mode_sup(struct input_hdmi_data *hdmi_data, char *disp_mode);
+
 static bool is_best_outputmode(void)
 {
 	char *is_bestmode = env_get("is.bestmode");
 
 	return !is_bestmode || (strcmp(is_bestmode, "true") == 0);
+}
+
+static bool is_best_color_space(void)
+{
+	char *is_best_cs = env_get("bestcolorspace");
+
+	return !is_best_cs || (strcmp(is_best_cs, "true") == 0);
 }
 
 static bool is_framerate_priority(void)
@@ -628,6 +684,42 @@ static void update_dv_attr(struct input_hdmi_data *hdmi_data, char *dv_attr)
 	printf("dv_type :%d dv_attr:%s", dv_type, dv_attr);
 }
 
+static bool is_dv_support_mode(struct input_hdmi_data *hdmi_data, char *mode)
+{
+	bool valid = false;
+	struct dv_info *dv = NULL;
+	char dv_displaymode[MODE_LEN] = {0};
+
+	if (!hdmi_data || !mode)
+		return false;
+
+	dv = &hdmi_data->prxcap->dv_info;
+	/* maximum DV mode */
+	if (dv->sup_2160p60hz == 1)
+		strcpy(dv_displaymode, DV_MODE_4K2K60HZ);
+	else
+		strcpy(dv_displaymode, DV_MODE_4K2K30HZ);
+
+	if (!hdmi_sink_disp_mode_sup(hdmi_data, mode))
+		return false;
+
+	if (!strcmp(mode, MODE_1080P100HZ)) {
+		if (dv->sup_1080p120hz)
+			valid = true;
+	} else if (!strcmp(mode, MODE_1080P100HZ)) {
+		if (dv->sup_1080p120hz)
+			valid = true;
+	} else if ((resolve_resolution_value(mode, RESOLUTION_PRIORITY) <
+		resolve_resolution_value(dv_displaymode, RESOLUTION_PRIORITY)) &&
+		(strcmp(mode, "480p") && strcmp(mode, "576p") &&
+		strcmp(mode, "smpte") && strcmp(mode, "4096") &&
+		!strstr(mode, "i"))) {
+		/* sync with system, don't support DV under some mode, refer to SWPL-83949 */
+		valid = true;
+	}
+	return valid;
+}
+
 static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
 	char *final_displaymode)
 {
@@ -639,14 +731,27 @@ static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
 	if (!hdmi_data || !final_displaymode)
 		return;
 	dv_type = hdmi_data->ubootenv_dv_type;
+
 	strcpy(cur_outputmode, hdmi_data->ubootenv_hdmimode);
 	dv = &hdmi_data->prxcap->dv_info;
+	/* maximum DV mode */
 	if (dv->sup_2160p60hz == 1)
 		strcpy(dv_displaymode, DV_MODE_4K2K60HZ);
 	else
 		strcpy(dv_displaymode, DV_MODE_4K2K30HZ);
+
 	if (is_best_outputmode()) {
-		if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
+		if (dv->parity) {
+			/* TV support dolby vision 2160p60hz case */
+			if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
+				if (dv_type == DOLBY_VISION_LL_RGB)
+					strcpy(final_displaymode, DV_MODE_1080P);
+				else
+					strcpy(final_displaymode, DV_MODE_4K2K60HZ);
+			} else {
+				strcpy(final_displaymode, DV_MODE_1080P);
+			}
+		} else if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
 			if (dv_type == DOLBY_VISION_LL_RGB)
 				strcpy(final_displaymode, DV_MODE_1080P);
 			 else
@@ -661,13 +766,21 @@ static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
 		}
 	} else {
 		/* if current disp_mode is outside of maximum dv disp_mode */
-		if ((resolve_resolution_value(cur_outputmode, RESOLUTION_PRIORITY) >
-		     resolve_resolution_value(dv_displaymode, RESOLUTION_PRIORITY)) ||
-		    (strstr(cur_outputmode, "smpte") != NULL) ||
-		    (strstr(cur_outputmode, "i") != NULL))
-			strcpy(final_displaymode, dv_displaymode);
-		else
+		if (!is_dv_support_mode(hdmi_data, cur_outputmode)) {
+			if (!strcmp(dv_displaymode, MODE_4K2K30HZ) ||
+				!strcmp(dv_displaymode, MODE_4K2K25HZ) ||
+				!strcmp(dv_displaymode, MODE_4K2K24HZ)) {
+				/* TV support dolby vision support 2160p30/25/24hz
+				 * prefer 1080p
+				 */
+				strcpy(final_displaymode, MODE_1080P);
+			} else {
+				/* use maximum DV mode */
+				strcpy(final_displaymode, dv_displaymode);
+			}
+		} else {
 			strcpy(final_displaymode, cur_outputmode);
+		}
 	}
 
 	printf("final_displaymode:%s, cur_outputmode:%s, dv_displaymode:%s",
@@ -760,6 +873,9 @@ static void get_hdmi_outputmode(struct input_hdmi_data *hdmi_data, char *mode)
 			struct hdmitx_dev, RXCap);
 
     /* Fall back to 480p if EDID can't be parsed */
+    /* actually won't go into this edid parsing decision
+     * as it will be decided outside
+     */
 	if (!edid_parsing_ok(hdev)) {
 		strcpy(mode, DEFAULT_HDMI_MODE);
 		printf("EDID parsing error detected\n");
@@ -791,7 +907,15 @@ static void get_best_color_attr(struct input_hdmi_data *hdmi_data,
 	if (!strcmp(outputmode, MODE_4K2K60HZ) ||
 	    !strcmp(outputmode, MODE_4K2K50HZ) ||
 	    !strcmp(outputmode, MODE_4K2KSMPTE60HZ) ||
-	    !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
+	    !strcmp(outputmode, MODE_4K2KSMPTE50HZ) ||
+	    !strcmp(outputmode, MODE_4K2K100HZ) ||
+	    !strcmp(outputmode, MODE_4K2K120HZ) ||
+		!strcmp(outputmode, MODE_8K4K60HZ) ||
+		!strcmp(outputmode, MODE_8K4K50HZ) ||
+		!strcmp(outputmode, MODE_8K4K48HZ) ||
+		!strcmp(outputmode, MODE_8K4K30HZ) ||
+		!strcmp(outputmode, MODE_8K4K25HZ) ||
+		!strcmp(outputmode, MODE_8K4K24HZ)) {
 		if (is_low_powermode()) {
 			color_list = COLOR_ATTRIBUTE_LIST3;
 			length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST3);
@@ -845,7 +969,15 @@ static void get_hdmi_colorattribute(struct input_hdmi_data *hdmi_data,
 		if (!strcmp(outputmode, MODE_4K2K60HZ) ||
 		    !strcmp(outputmode, MODE_4K2K50HZ) ||
 		    !strcmp(outputmode, MODE_4K2KSMPTE60HZ) ||
-		    !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
+		    !strcmp(outputmode, MODE_4K2KSMPTE50HZ) ||
+		    !strcmp(outputmode, MODE_4K2K100HZ) ||
+		    !strcmp(outputmode, MODE_4K2K120HZ) ||
+			!strcmp(outputmode, MODE_8K4K60HZ) ||
+			!strcmp(outputmode, MODE_8K4K50HZ) ||
+			!strcmp(outputmode, MODE_8K4K48HZ) ||
+			!strcmp(outputmode, MODE_8K4K30HZ) ||
+			!strcmp(outputmode, MODE_8K4K25HZ) ||
+			!strcmp(outputmode, MODE_8K4K24HZ)) {
 			strcpy(colorattribute, DEFAULT_COLOR_FORMAT_4K);
 		} else {
 			strcpy(colorattribute, DEFAULT_COLOR_FORMAT);
@@ -856,8 +988,9 @@ static void get_hdmi_colorattribute(struct input_hdmi_data *hdmi_data,
 		return;
 	}
 
-	/* if bestpolicy is disabled, use ubootenv.var.colorattribute */
-	if (!is_best_outputmode()) {
+	/* use ubootenv.var.colorattribute when best color space policy is disable */
+	/* will check resolution + color format be support TV EDID */
+	if (!is_best_color_space()) {
 		strcpy(temp_mode, hdmi_data->ubootenv_hdmimode);
 		strcat(temp_mode, hdmi_data->ubootenv_colorattribute);
 		if (is_supported_mode_attr(hdmi_data, temp_mode))
@@ -1019,35 +1152,116 @@ void hdr_scene_process(struct input_hdmi_data *hdmi_data,
 	scene_output_info_t *output_info)
 {
 	bool find = false;
+	char temp_mode[MODE_LEN] = {0};
 	char colorattribute[MODE_LEN] = {0};
+	const char **resolutionList = NULL;
+	int resolutionList_length = 0;
+	const char **colorList = NULL;
+	int colorList_length = 0;
+	int j = 0;
 
 	if (!hdmi_data || !output_info)
 		return;
 
-	if (is_best_outputmode()) {
+	if (is_best_outputmode() && is_best_color_space()) {
+		/* case1: both best mode/color are selected */
+
 		find = find_hdr_prefer_mode(hdmi_data, output_info);
 		if (!find)
 			printf("%s not find hdr support mode\n", __func__);
+	} else if (is_best_outputmode()) {
+		/* case2: best_color_space is disabled, use user selected color */
+
+		if (is_framerate_priority()) {
+			resolutionList = MODE_FRAMERATE_FIRST;
+			resolutionList_length = ARRAY_SIZE(MODE_FRAMERATE_FIRST);
+		} else {
+			resolutionList = MODE_RESOLUTION_FIRST;
+			resolutionList_length = ARRAY_SIZE(MODE_RESOLUTION_FIRST);
+		}
+
+		for (j = resolutionList_length - 1; j >= 0; j--) {
+			memset(temp_mode, 0, sizeof(temp_mode));
+			strncpy(temp_mode, resolutionList[j], MODE_LEN - 1);
+			if (hdmitx_chk_mode_attr_sup(hdmi_data, temp_mode,
+				hdmi_data->ubootenv_colorattribute)) {
+				printf("%s mode:[%s], deep color:[%s]\n",
+					__func__, resolutionList[j],
+					hdmi_data->ubootenv_colorattribute);
+				strcpy(output_info->final_displaymode, resolutionList[j]);
+				strcpy(output_info->final_deepcolor,
+					hdmi_data->ubootenv_colorattribute);
+				find = true;
+				break;
+			}
+		}
+	} else if (is_best_color_space()) {
+		/* case3: is_best_mode is disabled, use user selected mode */
+
+		if (!strcmp(hdmi_data->ubootenv_hdmimode, MODE_4K2K60HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_4K2K50HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_4K2KSMPTE60HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_4K2KSMPTE50HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_4K2K100HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_4K2K120HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_8K4K60HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_8K4K50HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_8K4K48HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_8K4K30HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_8K4K25HZ) ||
+			!strcmp(hdmi_data->ubootenv_hdmimode, MODE_8K4K24HZ)) {
+			//2160p50hz 2160p60hz 3840x2160p60hz 3840x2160p50hz case
+			//use 4k color format table
+			colorList = COLOR_ATTRIBUTE_LIST1;
+			colorList_length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST1);
+		} else {
+			//except 2160p60hz 2160p50hz 3840x2160p60hz 3840x2160p60hz case
+			//use non-4k color format table
+			colorList = COLOR_ATTRIBUTE_LIST2;
+			colorList_length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST2);
+		}
+
+		for (j = colorList_length - 1; j >= 0; j--) {
+			memset(colorattribute, 0, sizeof(colorattribute));
+			strncpy(colorattribute, colorList[j], MODE_LEN - 1);
+			if (hdmitx_chk_mode_attr_sup(hdmi_data,
+				hdmi_data->ubootenv_hdmimode, colorattribute)) {
+				printf("%s mode:[%s], deep color:[%s]\n",
+					__func__, hdmi_data->ubootenv_hdmimode, colorList[j]);
+				strcpy(output_info->final_displaymode,
+					hdmi_data->ubootenv_hdmimode);
+				strcpy(output_info->final_deepcolor, colorList[j]);
+				find = true;
+				break;
+			}
+		}
 	} else {
-		/* 1.check current displaymode + colorattribute support or not */
+		/* case4: neither best mode/color_space is enabled, use user selected mode/cs */
 		if (hdmitx_chk_mode_attr_sup(hdmi_data, hdmi_data->ubootenv_hdmimode,
 			hdmi_data->ubootenv_colorattribute)) {
+			printf("support current mode:[%s], deep color:[%s]\n",
+				hdmi_data->ubootenv_hdmimode, hdmi_data->ubootenv_colorattribute);
 			strcpy(output_info->final_displaymode, hdmi_data->ubootenv_hdmimode);
 			strcpy(output_info->final_deepcolor, hdmi_data->ubootenv_colorattribute);
+			find = true;
 		} else if (hdmi_sink_disp_mode_sup(hdmi_data, hdmi_data->ubootenv_hdmimode)) {
-			/* 2.check cur_displaymode support or not
-			 * if support, find best color format for this mode.
-			 */
+			printf("support current mode:[%s]\n", hdmi_data->ubootenv_hdmimode);
 			get_best_color_attr(hdmi_data, hdmi_data->ubootenv_hdmimode,
 				colorattribute);
 			strcpy(output_info->final_displaymode, hdmi_data->ubootenv_hdmimode);
 			strcpy(output_info->final_deepcolor, colorattribute);
-		} else {
-			/* 3.find best hdr prefer mode */
-			find = find_hdr_prefer_mode(hdmi_data, output_info);
-			if (!find)
-				printf("%s not find hdr support mode2\n", __func__);
+			find = true;
 		}
+	}
+
+	/* not find support mode and colorspace and try best policy */
+	if (!find && !(is_best_outputmode() && is_best_color_space())) {
+		/* for case2/3/4, if not find proper mode/cs,
+		 * use best policy enable case
+		 */
+		find = find_hdr_prefer_mode(hdmi_data, output_info);
+		if (!find)
+			printf("%s not find hdr support mode2\n", __func__);
 	}
 }
 
@@ -1079,14 +1293,26 @@ void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 
 	if (!hdev || !data)
 		return;
-
+	/* 1."hdmimode" is used to save user manually selected mode,
+	 * note that if auto best mode is on, it means no user manual
+	 * operation. then this env will be default "none" or NULL
+	 * 2."user_colorattribute" is used to save user manually
+	 * selected color space/depth.
+	 * while
+	 * 3."outputmode" is used to save the actual output hdmi mode
+	 * 4."colorattribute" is used to save the actual output color space/depth
+	 */
 	hdmimode = env_get("hdmimode");
-	colorattribute = env_get("colorattribute");
+	colorattribute = env_get("user_colorattribute");
 
-	if (!hdmimode)
-		hdmimode = DEFAULT_HDMIMODE_ENV;
-	if (!colorattribute)
-		colorattribute = DEFAULT_COLORATTRIBUTE_ENV;
+	/* the default value here is just an init value in
+	 * case the env is null. if it's null/none, it will
+	 * select the auto best mode/color by policy
+	 */
+	if (!hdmimode || !strcmp(hdmimode, "none"))
+		hdmimode = DEFAULT_HDMI_MODE;
+	if (!colorattribute || !strcmp(colorattribute, "none"))
+		colorattribute = DEFAULT_COLOR_FORMAT;
 	strcpy(data->ubootenv_hdmimode, hdmimode);
 	strcpy(data->ubootenv_colorattribute, colorattribute);
 	data->ubootenv_dv_type = get_ubootenv_dv_type();
@@ -1104,7 +1330,8 @@ void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 	printf("ubootenv dv_type: %d, hdr_priority: %d\n",
 	       data->ubootenv_dv_type,
 	       data->hdr_priority);
-	printf("ubootenv best_output: %d, framerate_priority: %d\n",
+	printf("ubootenv best_output: %d, best_colorspace: %d,  framerate_priority: %d\n",
 	       is_best_outputmode(),
+	       is_best_color_space(),
 	       is_framerate_priority());
 }

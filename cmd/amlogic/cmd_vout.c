@@ -59,22 +59,11 @@ static int vout_hdmi_hpd(int hpd_st)
 	if (colorattribute)
 		printf("%s: colorattribute=%s\n", __func__, colorattribute);
 
-	if (hdmimode) {
-		if (strstr(hdmimode, "null")) {
-			env_set("hdmimode", "1080p60hz");
-			//run_command("saveenv", 0);
-		}
-	} else {
-		env_set("hdmimode", "1080p60hz");
-		//run_command("saveenv", 0);
-	}
-
-	hdmimode = env_get("hdmimode");
-	if (hpd_st) {
-		printf("set outputmode: hdmimode=%s\n", hdmimode);
-		env_set("outputmode", hdmimode);
-	} else {
-		env_set("outputmode", hdmimode);
+	/* if hpd_st high, output mode will be saved on hdmi side */
+	if (!hpd_st) {
+		cvbsmode = env_get("cvbsmode");
+		if (cvbsmode)
+			env_set("outputmode", cvbsmode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
 	}
@@ -108,22 +97,11 @@ static int vout2_hdmi_hpd(int hpd_st)
 	if (colorattribute)
 		printf("%s: colorattribute=%s\n", __func__, colorattribute);
 
-	if (hdmimode) {
-		if (strstr(hdmimode, "null")) {
-			env_set("hdmimode", "1080p60hz");
-			//run_command("saveenv", 0);
-		}
-	} else {
-		env_set("hdmimode", "1080p60hz");
-		//run_command("saveenv", 0);
-	}
-
-	hdmimode = env_get("hdmimode");
-	if (hpd_st) {
-		printf("set outputmode2: hdmimode=%s\n", hdmimode);
-		env_set("outputmode2", hdmimode);
-	} else {
-		env_set("outputmode2", hdmimode);
+	/* if hpd_st high, output mode will be saved on hdmi side */
+	if (!hpd_st) {
+		cvbsmode = env_get("cvbsmode");
+		if (cvbsmode)
+			env_set("outputmode2", cvbsmode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
 	}
@@ -231,6 +209,7 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 {
 	char *mode;
 	unsigned int frac;
+
 #if defined(CONFIG_AML_CVBS) || defined(CONFIG_AML_HDMITX) || defined(CONFIG_AML_LCD)
 	unsigned int mux_sel = VIU_MUX_MAX, venc_sel = VIU_MUX_MAX;
 #endif

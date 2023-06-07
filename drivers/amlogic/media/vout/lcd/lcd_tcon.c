@@ -1156,11 +1156,32 @@ static void lcd_tcon_data_complete_check(struct aml_lcd_drv_s *pdrv, int index)
 	}
 }
 
+void lcd_tcon_data_block_regen_crc(unsigned char *data)
+{
+	unsigned int raw_crc32 = 0, new_crc32 = 0;
+	struct lcd_tcon_data_block_header_s *header;
+
+	if (!data)
+		return;
+	header = (struct lcd_tcon_data_block_header_s *)data;
+
+	raw_crc32 = (data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24));
+	new_crc32 = crc32(0, data + 4, header->block_size - 4);
+	if (raw_crc32 != new_crc32) {
+		data[0] = (unsigned char)(new_crc32 & 0xff);
+		data[1] = (unsigned char)((new_crc32 >> 8) & 0xff);
+		data[2] = (unsigned char)((new_crc32 >> 16) & 0xff);
+		data[3] = (unsigned char)((new_crc32 >> 24) & 0xff);
+	}
+}
+
 static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv, unsigned char *data_buf, int index)
 {
 	struct lcd_tcon_data_block_header_s *block_header;
 	struct tcon_data_priority_s *data_prio;
 	unsigned int priority;
+	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
+	unsigned int *core_reg_table;
 	int j;
 
 	if (!data_buf) {
@@ -1188,6 +1209,16 @@ static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv, unsigned char *data_bu
 		tcon_mm_table.valid_flag |= block_header->block_flag;
 		if (block_header->block_flag == LCD_TCON_DATA_VALID_DEMURA)
 			tcon_mm_table.demura_cnt++;
+	} else {
+		core_reg_table = (unsigned int *)(data_buf +
+			sizeof(struct lcd_tcon_data_block_header_s));
+		if (!tcon_conf)
+			return -1;
+
+		lcd_tcon_od_pre_disable((unsigned char *)core_reg_table);
+		if (tcon_conf->tcon_axi_mem_update)
+			tcon_conf->tcon_axi_mem_update(core_reg_table);
+		lcd_tcon_data_block_regen_crc(data_buf);
 	}
 
 	/* insertion sort for block data init_priority */
@@ -1541,6 +1572,47 @@ static void lcd_tcon_axi_mem_config_t5(void)
 	}
 }
 
+static void lcd_tcon_axi_mem_config_t3x(void)
+{
+	unsigned int size[3] = {0x00400000, 0x00400000, 0x100000};
+	unsigned int reg[3] = {0x261, 0x26d, 0x1a9};
+	unsigned int total_size = 0, temp_size = 0;
+	int i;
+
+	for (i = 0; i < lcd_tcon_conf->axi_bank; i++)
+		total_size += size[i];
+	if (total_size > tcon_rmem.axi_mem_size) {
+		LCDERR("%s: tcon axi_mem size 0x%x is not enough, need 0x%x\n",
+		       __func__, tcon_rmem.axi_mem_size, total_size);
+		return;
+	}
+
+	temp_size = lcd_tcon_conf->axi_bank * sizeof(struct tcon_rmem_config_s);
+	tcon_rmem.axi_rmem = (struct tcon_rmem_config_s *)malloc(temp_size);
+	if (!tcon_rmem.axi_rmem)
+		return;
+	memset(tcon_rmem.axi_rmem, 0, temp_size);
+
+	temp_size = lcd_tcon_conf->axi_bank * sizeof(unsigned int);
+	lcd_tcon_conf->axi_reg = (unsigned int *)malloc(temp_size);
+	if (!lcd_tcon_conf->axi_reg) {
+		free(tcon_rmem.axi_rmem);
+		return;
+	}
+	memset(lcd_tcon_conf->axi_reg, 0, temp_size);
+
+	temp_size = 0;
+	for (i = 0; i < lcd_tcon_conf->axi_bank; i++) {
+		tcon_rmem.axi_rmem[i].mem_paddr = tcon_rmem.axi_mem_paddr + temp_size;
+		tcon_rmem.axi_rmem[i].mem_vaddr = (unsigned char *)
+			(unsigned long)tcon_rmem.axi_rmem[i].mem_paddr;
+		tcon_rmem.axi_rmem[i].mem_size = size[i];
+		temp_size += size[i];
+
+		lcd_tcon_conf->axi_reg[i] = reg[i];
+	}
+}
+
 static void lcd_tcon_axi_rmem_update_t5(unsigned int *table)
 {
 	unsigned int reg, paddr, i;
@@ -1825,6 +1897,7 @@ static int lcd_tcon_load_init_data_from_unifykey_new(void)
 	int key_len, data_len;
 	unsigned char *buf, *p;
 	struct lcd_tcon_init_block_header_s *data_header;
+	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
 	int ret;
 
 	data_len = tcon_mm_table.core_reg_table_size + LCD_TCON_DATA_BLOCK_HEADER_SIZE;
@@ -1871,6 +1944,9 @@ static int lcd_tcon_load_init_data_from_unifykey_new(void)
 	}
 	p = buf + LCD_TCON_DATA_BLOCK_HEADER_SIZE;
 	memcpy(tcon_mm_table.core_reg_table, p, data_len);
+	lcd_tcon_od_pre_disable(tcon_mm_table.core_reg_table);
+	if (tcon_conf && tcon_conf->tcon_axi_mem_update && tcon_conf->reg_table_width == 32)
+		tcon_conf->tcon_axi_mem_update((unsigned int *)tcon_mm_table.core_reg_table);
 	free(buf);
 
 	LCDPR("tcon: load init data len: %d, ver: %s\n",
@@ -1969,6 +2045,9 @@ static int lcd_tcon_get_config(char *dt_addr, struct aml_lcd_drv_s *pdrv, int lo
 
 	lcd_tcon_bin_load(pdrv);
 
+#ifdef CONFIG_CMD_INI
+	lcd_tcon_bin_path_resv_mem_set();
+#endif
 	return 0;
 }
 
@@ -2182,6 +2261,43 @@ static struct lcd_tcon_config_s tcon_data_t5w = {
 	.tcon_disable = lcd_tcon_disable_t5,
 };
 
+static struct lcd_tcon_config_s tcon_data_t3x = {
+	.tcon_valid = 0,
+
+	.core_reg_ver = 1, /* new version with header */
+	.core_reg_width = LCD_TCON_CORE_REG_WIDTH_T5,
+	.reg_table_width = LCD_TCON_TABLE_WIDTH_T5,
+	.reg_table_len = LCD_TCON_TABLE_LEN_T3X,
+	.core_reg_start = TCON_CORE_REG_START_T5,
+
+	.reg_top_ctrl = REG_LCD_TCON_MAX,
+	.bit_en = BIT_TOP_EN_T5,
+
+	.reg_core_od = REG_CORE_OD_T5,
+	.bit_od_en = BIT_OD_EN_T5,
+
+	.reg_ctrl_timing_base = REG_LCD_TCON_MAX,
+	.ctrl_timing_offset = CTRL_TIMING_OFFSET_T5,
+	.ctrl_timing_cnt = CTRL_TIMING_CNT_T5,
+
+	.axi_bank = LCD_TCON_AXI_BANK_T3X,
+
+	.rsv_mem_size    = 0x00c00000, /* 12M */
+	.axi_size        = 0x00a00000, /* 9M */
+	.bin_path_size   = 0x00002800, /* 10K */
+	.secure_cfg_size = 0x00000040, /* 64byte */
+	.vac_size        = 0,
+	.demura_set_size = 0,
+	.demura_lut_size = 0,
+	.acc_lut_size    = 0,
+
+	.axi_reg = NULL,
+	.tcon_axi_mem_config = lcd_tcon_axi_mem_config_t3x,
+	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5,
+	.tcon_enable = lcd_tcon_enable_t3,
+	.tcon_disable = lcd_tcon_disable_t3,
+};
+
 int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *pdrv, int load_id)
 {
 	int ret = 0;
@@ -2207,6 +2323,8 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *pdrv, int load_id)
 	case LCD_CHIP_T5W:
 		lcd_tcon_conf = &tcon_data_t5w;
 		break;
+	case LCD_CHIP_T3X:
+		lcd_tcon_conf = &tcon_data_t3x;
 	default:
 		break;
 	}

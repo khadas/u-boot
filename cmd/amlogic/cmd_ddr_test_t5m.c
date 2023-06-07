@@ -28,6 +28,7 @@ struct ddr_base_address_table {
 	unsigned int	chip_id;
 	unsigned int	preg_sticky_reg0;
 	unsigned int	ddr_phy_base_address;
+	unsigned int	ddr_dmc_base_address;
 	unsigned int	ddr_pctl_timing_base_address;
 	unsigned int	ddr_pctl_timing_end_address;
 	unsigned int	ddr_dmc_sticky0;
@@ -44,6 +45,7 @@ struct ddr_base_address_table {
 
 	unsigned int	ddr_dmc_sticky0_1;
 	unsigned int	ddr_phy_base_address_1;
+	unsigned int	ddr_dmc_base_address_1;
 	unsigned int	ddr_pctl_timing_base_address_1;
 	unsigned int	ddr_pctl_timing_end_address_1;
 	unsigned int	ddr_dmc_apd_address_1;
@@ -97,11 +99,23 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #else
 #define MESON_CPU_MAJOR_ID_GXLX3                  0x3f
 #endif
+#ifdef MESON_CPU_MAJOR_ID_A4
+#undef MESON_CPU_MAJOR_ID_A4
+#define MESON_CPU_MAJOR_ID_A4                 0x40
+#else
+#define MESON_CPU_MAJOR_ID_A4                  0x40
+#endif
 #ifdef MESON_CPU_MAJOR_ID_T5M
 #undef MESON_CPU_MAJOR_ID_T5M
 #define MESON_CPU_MAJOR_ID_T5M                   0x41
 #else
 #define MESON_CPU_MAJOR_ID_T5M                   0x41
+#endif
+#ifdef MESON_CPU_MAJOR_ID_T3X
+#undef MESON_CPU_MAJOR_ID_T3X
+#define MESON_CPU_MAJOR_ID_T3X                   0x42
+#else
+#define MESON_CPU_MAJOR_ID_T3X                   0x42
 #endif
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
@@ -134,7 +148,7 @@ int ddr_get_chip_id(void)
 	return soc_family_id;
 }
 
-char CMD_VER[] = "Ver_14";
+char CMD_VER[] = "Ver_15";
 ddr_base_address_table_t __ddr_base_address_table[] = {
 	//g12a
 	{
@@ -142,6 +156,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_G12A,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -160,6 +175,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_G12B,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -178,6 +194,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_TL1,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -196,6 +213,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_SM1,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -214,6 +232,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_TM2,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -234,6 +253,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//use sram  A1,((0x00b0  << 2) + 0xfe005800),
 		//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfd020000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfd020400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfd020400),
 		.ddr_dmc_sticky0 = 0xfd020800,
@@ -253,6 +273,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.preg_sticky_reg0 = 0xfffff400,
 		//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfd000000,
+		.ddr_dmc_base_address = 0xfe024000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe024400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe024400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe024800),
@@ -273,6 +294,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe024800),
 		//use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfd000000,
+		.ddr_dmc_base_address = 0xfe024000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe024400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe024400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe024800),
@@ -295,6 +317,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_SC2,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800), //
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = 0xfe036800,
@@ -313,6 +336,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T5,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
@@ -337,6 +361,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T5D,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
@@ -362,6 +387,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T7,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800), //
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = ((0x200 << 2) + 0xfe036000),
@@ -380,6 +406,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -393,6 +420,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_S4,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -418,6 +446,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T3,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -440,6 +469,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -453,6 +483,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_P1,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -475,6 +506,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -488,6 +520,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_S5,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -510,6 +543,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -523,6 +557,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_GXLX3,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xc8838800),
 		.ddr_phy_base_address = 0xc8860000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xc8839000),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xc8839000),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xc8838800),
@@ -545,6 +580,44 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xc8838000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+	},
+//A4
+	{
+		.soc_family_name = "A4",
+		.chip_id = MESON_CPU_MAJOR_ID_A4,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -558,6 +631,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T5M,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -578,8 +652,9 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -587,12 +662,13 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
 	},
-	// force id use id mask
+	//t3X
 	{
-		.soc_family_name = "UNKNOWN",
-		.chip_id = MESON_CPU_MAJOR_ID_T5M,
+		.soc_family_name = "T3X",
+		.chip_id = MESON_CPU_MAJOR_ID_T3X,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -612,15 +688,53 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
-		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
 		.ddr_phy_base_address_1 = 0xfb000000,
-		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
-		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
-		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
-		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
-		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+		.ddr_dmc_base_address_1 = 0xfe032000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe032400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe032400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe032000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe032000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
+	},
+	// force id use id mask
+	{
+		.soc_family_name = "UNKNOWN",
+		.chip_id = MESON_CPU_MAJOR_ID_T3X,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe032000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe032400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe032400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe032000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe032000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
 	},
 };
 
@@ -1057,7 +1171,7 @@ typedef struct board_phase_setting_ps {
 	unsigned char	dfi_hwtmrl;
 	unsigned char	csr_hwtctrl;
 	unsigned char	rever1;
-	unsigned char	rever2;
+	unsigned char	dram_vref_offset;
 	//unsigned	char	ARdPtrInitVal;
 	//unsigned	short	csr_vrefinglobal;
 	//unsigned	short	csr_dqsrcvcntrl[4];
@@ -1769,11 +1883,22 @@ int check_base_address(void)
 	for (count = 0; count < 12; count++)
 		ddr_sha_s5.sha_chip_id[count] = global_chip_id[count];
 
+	phy_base_array_add[0] = p_ddr_base->ddr_phy_base_address;
+	dmc_base_array_add[0] = p_ddr_base->ddr_dmc_base_address;
+	ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
+	ddr_dmc_apd_address[0] = p_ddr_base->ddr_dmc_apd_address;
+	ddr_dmc_asr_address[0] = p_ddr_base->ddr_dmc_asr_address;
+	dmc_retraining_ctrl_address[0] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
+
 	if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S5) {
 		phy_base_array_add[0] = p_ddr_base->ddr_phy_base_address;
 		phy_base_array_add[1] = p_ddr_base->ddr_phy_base_address;
 		phy_base_array_add[2] = p_ddr_base->ddr_phy_base_address_1;
 		phy_base_array_add[3] = p_ddr_base->ddr_phy_base_address_1;
+		dmc_base_array_add[0] = p_ddr_base->ddr_dmc_base_address;
+		dmc_base_array_add[1] = p_ddr_base->ddr_dmc_base_address;
+		dmc_base_array_add[2] = p_ddr_base->ddr_dmc_base_address_1;
+		dmc_base_array_add[3] = p_ddr_base->ddr_dmc_base_address_1;
 		ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
 		ddr_dmc_sticky[1] = p_ddr_base->ddr_dmc_sticky0;
 		ddr_dmc_sticky[2] = p_ddr_base->ddr_dmc_sticky0_1;
@@ -1785,6 +1910,28 @@ int check_base_address(void)
 		dmc_retraining_ctrl_address[0] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
 		dmc_retraining_ctrl_address[1] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
 		dmc_retraining_ctrl_address[2] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
+		dmc_retraining_ctrl_address[3] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
+	}
+	if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_T5M) {
+		phy_base_array_add[0] = p_ddr_base->ddr_phy_base_address;
+		//phy_base_array_add[1] = p_ddr_base->ddr_phy_base_address;
+		phy_base_array_add[1] = p_ddr_base->ddr_phy_base_address_1;
+		//phy_base_array_add[3] = p_ddr_base->ddr_phy_base_address_1;
+		dmc_base_array_add[0] = p_ddr_base->ddr_dmc_base_address;
+		dmc_base_array_add[1] = p_ddr_base->ddr_dmc_base_address_1;
+		//dmc_base_array_add[2] = p_ddr_base->ddr_dmc_base_address_1;
+		//dmc_base_array_add[3] = p_ddr_base->ddr_dmc_base_address_1;
+		ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
+		//ddr_dmc_sticky[1] = p_ddr_base->ddr_dmc_sticky0;
+		ddr_dmc_sticky[1] = p_ddr_base->ddr_dmc_sticky0_1;
+		//ddr_dmc_sticky[3] = p_ddr_base->ddr_dmc_sticky0_1;
+		ddr_dmc_apd_address[0] = p_ddr_base->ddr_dmc_apd_address;
+		//ddr_dmc_apd_address[1] = p_ddr_base->ddr_dmc_apd_address;
+		ddr_dmc_asr_address[1] = p_ddr_base->ddr_dmc_asr_address_1;
+		ddr_dmc_asr_address[1] = p_ddr_base->ddr_dmc_asr_address_1;
+		dmc_retraining_ctrl_address[0] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
+		//dmc_retraining_ctrl_address[1] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
+		dmc_retraining_ctrl_address[1] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
 		dmc_retraining_ctrl_address[3] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
 	}
 	dmc_change_channel(0);
@@ -7125,6 +7272,17 @@ uint32_t ddr_training_reg_rw(ddr_set_ps0_only_t *p_ddrs, char index,
 			//DDR_X32_F0_AD30	DDR_X32_F0_A930
 			reg_add_coarse = 0;
 			reg_add_fine = 0;
+			reg_add_coarse_bit_mask = 0;
+			reg_add_fine_bit_mask = 0;
+			if (sub_index < 2)	{
+				reg_add_fine =
+					(add_base +
+					 ((ps << 16) |
+					  (0x1 << 12) |
+					  ((0) << 13) |
+					  (0x028)));
+				reg_add_fine_bit_mask = (~(0x7f << ((sub_index) * 8 + 16)));
+			}
 			if (index == DMC_TEST_WINDOW_INDEX_DRAM_VREF_RO) {
 				reg_add_coarse = 0;
 				reg_add_fine =
@@ -7135,9 +7293,9 @@ uint32_t ddr_training_reg_rw(ddr_set_ps0_only_t *p_ddrs, char index,
 					  (0xa60 + (((sub_index % (9 * sub_ch_mask0)) /
 						     9) * (8)) +
 					   (0) + (((sub_index % 9) / 4) * 4))));
+				reg_add_coarse_bit_mask = 0;
+				reg_add_fine_bit_mask = (~(0x7f << (((sub_index % 9) % 4) * 8)));
 			}
-			reg_add_coarse_bit_mask = 0;
-			reg_add_fine_bit_mask = (~(0x7f << (((sub_index % 9) % 4) * 8)));
 		}
 	}
 
@@ -7441,6 +7599,8 @@ void ddr_read_write_training_all_delay_value(ddr_set_ps0_only_t *p_ddrs,
 				      &board_phase_setting_p->soc_bit_vref0[0], print);
 	ddr_read_write_training_value(p_ddrs, WINDOW_TEST_SOC_VREF_DAC1, read_write, ps,
 				      &board_phase_setting_p->soc_bit_vref1[0], print);
+	ddr_read_write_training_value(p_ddrs, DMC_TEST_WINDOW_INDEX_DRAM_VREF, read_write, ps,
+				      &board_phase_setting_p->dram_vref[0], print);
 	//ddr_read_write_training_value(p_ddrs,
 	// DMC_TEST_SOC_VREF_DFE_DAC2, read_write, ps,
 	//	&(board_phase_setting_p->soc_bit_vref2, print);
@@ -7488,7 +7648,8 @@ int do_read_s5_ddr_training_data(char log_level, ddr_set_ps0_only_t *ddr_set_t_p
 
 	for (loop = 0; loop < loop_max; loop += 4)
 		wr_reg(((uint64_t)(ddr_set_t_p) + loop),
-		       rd_reg((p_ddr_base->ddr_dmc_sticky0) + loop));
+		       rd_reg((((p_ddr_base->ddr_dmc_sticky0) & 0x1fff) |
+				(dmc_base_add & 0xffff7000)) + loop));
 	loop_max = sizeof(board_SI_setting_ps_t);
 	printf_log(log_level, "\nsizeof(board_SI_setting_ps_t)=0x%8x\n", loop_max);
 	//for (loop = 0; loop < loop_max; loop += 4)
@@ -7528,7 +7689,8 @@ int do_ddr_display_s5_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 
 		for (count = 0; count < ((p_ddr_base->ddr_pctl_timing_end_address) -
 					 (p_ddr_base->ddr_pctl_timing_base_address));) {
-			reg_add_offset = ((p_ddr_base->ddr_pctl_timing_base_address) + (count));
+			reg_add_offset = ((((p_ddr_base->ddr_pctl_timing_base_address) & 0x1fff) |
+				(dmc_base_add & 0xffff7000)) + (count));
 			printf("\n reg_add_offset: %8x %8x %8x ", reg_add_offset,
 			       readl(reg_add_offset), reg_add_offset);
 			count = count + 4;
@@ -7543,8 +7705,10 @@ int do_ddr_display_s5_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 			loop_max = 64 << 2; //sizeof(ddr_set_t);
 			for (count = 0; count < loop_max; count += 4)
 				printf("\n reg_add_offset: %8x %8x %8x", count,
-				       rd_reg((uint64_t)((p_ddr_base->ddr_dmc_sticky0)) + count),
-				       (((p_ddr_base->ddr_dmc_sticky0)) + count));
+				       rd_reg((uint64_t)((((p_ddr_base->ddr_dmc_sticky0) & 0x1fff) |
+				(dmc_base_add & 0xffff7000)) + count)),
+				       ((((p_ddr_base->ddr_dmc_sticky0) & 0x1fff) |
+				(dmc_base_add & 0xffff7000)) + count));
 		}
 
 		{
@@ -7975,10 +8139,10 @@ int do_ddr_display_s5_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever1,
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever1,
 	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.rever1));
-	printf("\n.cfg_ddr_training_delay_ps.rever2=0x%x,//%d,0x%x",
-	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever2,
-	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever2,
-	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.rever2));
+	printf("\n.cfg_ddr_training_delay_ps.dram_vref_offset=0x%x,//%d,0x%x",
+	       ddr_set_t_p->cfg_ddr_training_delay_ps.dram_vref_offset,
+	       ddr_set_t_p->cfg_ddr_training_delay_ps.dram_vref_offset,
+	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dram_vref_offset));
 	for (count = 0; count < 4; count++)
 		printf("\n.cfg_ddr_training_delay_ps.pptdqscnttg0[%d] = 0x%x,//%d,0x%x",
 		       count,
@@ -8354,6 +8518,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		argc_count++;
 	}
 	dcache_disable();
+	dcache_enable();
 	//if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) ||
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) ||
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
@@ -8361,8 +8526,9 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S4)
 	//    || (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
 	printf("reset...\n");
-	run_command("reset", 0);
 	run_command("reboot", 0);
+	run_command("reset", 0);
+	//run_command("reboot", 0);
 	//} else {
 	//	//G12A/G12B/SM1/TL1/TM2//(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T7)
 	//	printf("reboot...\n");
@@ -8528,8 +8694,11 @@ int do_ddr_s5_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	test_index = simple_strtoull_ddr(argv[count + 1], &endp, 0);
 	if (*argv[count + 1] == 0 || *endp != 0)
 		test_index = 0;
-	if (test_index / 100)
-		dmc_ddr_config_channel_id = 2;
+	if (test_index / 100) {
+		dmc_ddr_config_channel_id = (test_index / 100);
+		if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_T5M)
+			dmc_ddr_config_channel_id = 1;
+	}
 	else
 		dmc_ddr_config_channel_id = 0;
 	test_index = (test_index % 100);         //for DDR_PHY 1
@@ -8745,8 +8914,10 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		       dmc_retraining_ctrl & (~(1 << 31)));
 		writel((0), p_ddr_base->ddr_dmc_apd_address);
 		writel((0), p_ddr_base->ddr_dmc_asr_address);
-		run_command("dcache off", 0);
-		run_command("dcache on", 0);
+		//run_command("dcache off", 0);
+		//run_command("dcache on", 0);
+		dcache_disable();
+		dcache_enable();
 		printf("\n cache off on");
 		switch (ddr_test_cmd) {
 		case (DDR_TEST_CMD__NONE):
@@ -8898,11 +9069,19 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				dmc_change_channel(dmc_ddr_config_channel_id);
 				do_ddr_display_s5_ddr_information((cmd_tbl_t *)cmdtp,
 								  (int)flag, (int)argc2, (argv2));
-				dmc_ddr_config_channel_id = 2;
-				dmc_change_channel(dmc_ddr_config_channel_id);
-				do_ddr_display_s5_ddr_information((cmd_tbl_t *)cmdtp,
+				//dmc_ddr_config_channel_id = 2;
+				if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5) ||
+					(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5M) ||
+					(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3X)) {
+					if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S5)
+						dmc_ddr_config_channel_id = 2;
+					else
+						dmc_ddr_config_channel_id = 1;
+					dmc_change_channel(dmc_ddr_config_channel_id);
+					do_ddr_display_s5_ddr_information((cmd_tbl_t *)cmdtp,
 								  (int)flag, (int)argc2, (argv2));
-				dmc_ddr_config_channel_id = 0;
+					dmc_ddr_config_channel_id = 0;
+				}
 				dmc_change_channel(dmc_ddr_config_channel_id);
 				//}
 			}

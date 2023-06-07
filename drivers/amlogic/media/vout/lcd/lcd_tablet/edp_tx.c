@@ -421,7 +421,7 @@ static void edp_edid_timing_update(struct aml_lcd_drv_s *pdrv, struct dptx_edid_
 	pconf->basic.v_period = timing->v_active + timing->v_blank;
 
 	pconf->timing.lcd_clk = timing->pclk;
-	pconf->timing.lcd_clk_dft = pconf->timing.lcd_clk;
+	pconf->timing.base_pixel_clk = pconf->timing.lcd_clk;
 	sync_duration = timing->pclk / pconf->basic.h_period;
 	sync_duration = sync_duration * 100 / pconf->basic.v_period;
 	pconf->timing.sync_duration_num = sync_duration;

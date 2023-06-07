@@ -34,7 +34,11 @@ static int _get_partition_info_aml(struct blk_desc * dev_desc,
 	info->blksz=dev_desc->blksz;
 	sprintf ((char *)info->type, "U-Boot");
 	/* using partition name in partition tables */
+#ifdef CONFIG_MMC
 	ret = get_part_info_from_tbl(dev_desc, part_num, info);
+#else
+	ret = -1;
+#endif
 	if (ret) {
 		printf ("** Partition %d not found on device %d **\n",
 			part_num,dev_desc->devnum);

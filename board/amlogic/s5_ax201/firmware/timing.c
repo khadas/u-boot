@@ -578,6 +578,15 @@ __attribute__ ((section(".ddr_param"))) = {
 			27, 17, 16, 0,	0,  0,
 		},
 		.cfg_ddr_training_delay_ps.rx_offset[0] = (1 << 7) | 0x10,
+		.cfg_ddr_training_delay_ps.reserve_para = {
+			(0 << 7) | 9, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs1 write dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs0 read dqs,lane0-lane3
+			(1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b,
+			//cs1 read dqs,lane0-lane3
+			(1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b,
+		},
 		.cfg_ddr_training_delay_ps.tx_offset[0] = (1 << 7) | 0x8,
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = 0,//(1 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[1] = 0,//(0 << 7) | 0x10,
@@ -1307,6 +1316,15 @@ __attribute__ ((section(".ddr_param"))) = {
 			26, 16, 17, 0,	0,  0,
 		},
 		.cfg_ddr_training_delay_ps.rx_offset[0] = (1 << 7) | 0x10,
+		.cfg_ddr_training_delay_ps.reserve_para = {
+			(0 << 7) | 9, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs1 write dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs0 read dqs,lane0-lane3
+			(1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b,
+			//cs1 read dqs,lane0-lane3
+			(1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b, (1 << 7) | 0x0b,
+		},
 		.cfg_ddr_training_delay_ps.tx_offset[0] = (1 << 7) | 0x8,
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = 0,//(1 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[1] = 0,//(0 << 7) | 0x10,

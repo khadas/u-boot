@@ -38,14 +38,23 @@ static unsigned int	mode;
 static int		speed = 1000000;
 static int		wordlen = 8;
 static int   		bitlen;
-static uchar 		dout[MAX_SPI_BYTES];
-static uchar 		din[MAX_SPI_BYTES];
+static unsigned int	xfer_flags;
+struct spi_slave	*g_slave;
+#define XFERS_MAX	8
+static uchar		* buf_list[XFERS_MAX];
+static int		buf_cnt;
+static uchar		*dout;
+static uchar		*din;
 
 static int do_spi_xfer(int bus, int cs)
 {
 	struct spi_slave *slave;
 	int ret = 0;
 
+	if (g_slave && !(xfer_flags & SPI_XFER_BEGIN)) {
+		slave = g_slave;
+		goto next_xfer;
+	}
 #ifdef CONFIG_DM_SPI
 	char name[30], *str;
 	struct udevice *dev;
@@ -65,12 +74,15 @@ static int do_spi_xfer(int bus, int cs)
 		return -EINVAL;
 	}
 #endif
+	g_slave = slave;
 	slave->wordlen = wordlen;
 	ret = spi_claim_bus(slave);
 	if (ret)
 		goto done;
-	ret = spi_xfer(slave, bitlen, dout, din,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+next_xfer:
+	ret = spi_xfer(slave, bitlen, dout, din, xfer_flags);
+	if (ret > 0)
+		return 0;
 #ifndef CONFIG_DM_SPI
 	/* We don't get an error code in this case */
 	if (ret)
@@ -86,6 +98,10 @@ static int do_spi_xfer(int bus, int cs)
 		printf("\n");
 	}
 done:
+	g_slave = 0;
+	for (int i = 0; i < buf_cnt; i++)
+		kfree(buf_list[i]);
+	buf_cnt = 0;
 	spi_release_bus(slave);
 #ifndef CONFIG_DM_SPI
 	spi_free_slave(slave);
@@ -133,9 +149,21 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				speed = simple_strtoul(cp+1, &cp, 10);
 			if (*cp == '.')
 				wordlen = simple_strtoul(cp+1, &cp, 10);
+			if (*cp == '.')
+				xfer_flags = simple_strtoul(cp + 1, &cp, 16);
+			else
+				xfer_flags = SPI_XFER_BEGIN | SPI_XFER_END;
 		}
-		if (argc >= 3)
+		if (argc >= 3) {
 			bitlen = simple_strtoul(argv[2], NULL, 10);
+			dout = kcalloc(ALIGN(bitlen / 8, 8), 2, GFP_KERNEL);
+			if (!dout)
+				return -ENOMEM;
+			din = dout + ALIGN(bitlen / 8, 8);
+			buf_list[buf_cnt] = dout;
+			if (++buf_cnt >= XFERS_MAX)
+				xfer_flags |= SPI_XFER_END;
+		}
 		if (argc >= 4) {
 			cp = argv[3];
 			for(j = 0; *cp; j++, cp++) {

@@ -55,6 +55,7 @@
 #define AMLOGIC_CTR_COUNT		(0x2)
 #define USB_RESET1       (unsigned long *)0xffd01008
 
+#define AMLOGIC_USB_POWER
 static int Rev_flag;
 
 struct ctr_info {

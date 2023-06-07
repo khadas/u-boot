@@ -72,12 +72,14 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_BASE \
 		"silent=1\0"\
+		"systemsuspend_switch=1\0"\
+		"ddr_resume=0\0"\
 		"otg_device=1\0" \
 		"panel_type=lvds_1\0" \
 		"lcd_ctrl=0x00000000\0" \
 		"lcd_debug=0x00000000\0" \
 		"outputmode=1080p60hz\0" \
-		"hdmimode=1080p60hz\0" \
+		"hdmimode=none\0" \
 		"connector_type=LVDS-A\0" \
 		"cvbsmode=576cvbs\0" \
 		"vout_init=disable\0" \
@@ -119,10 +121,11 @@
 		"setenv bootconfig ${bootconfig} androidboot.connector_type=${connector_type};"\
 		"\0"\
         "initargs="\
-			"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 "\
-			"no_console_suspend earlycon=aml-uart,0xfe07a000 scramble_reg=0x0xfe02e030 "\
-			"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
-			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 loglevel=4 isolcpus=4 "\
+		"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 "\
+		"no_console_suspend earlycon=aml-uart,0xfe07a000 scramble_reg=0xfe02e030 "\
+		"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+		"loop.max_part=4 scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
+		"loglevel=4 isolcpus=4 "\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -159,17 +162,17 @@
 			/*"run try_auto_burn; "*/\
 		"else if test ${powermode} = standby; then "\
 			"run cec_init;"\
-			"systemoff; "\
+			"if test ${systemsuspend_switch} = 0;then systemoff; fi;"\
 		"else if test ${powermode} = last; then "\
 			"echo suspend=${suspend}; "\
 			"if test ${suspend} = off; then "\
 				/*"run try_auto_burn; "*/\
 			"else if test ${suspend} = on; then "\
 				"run cec_init;"\
-				"systemoff; "\
+				"if test ${systemsuspend_switch} = 0;then systemoff; fi;"\
 			"else if test ${suspend} = shutdown; then "\
 				"run cec_init;"\
-				"systemoff; "\
+				"if test ${systemsuspend_switch} = 0;then systemoff; fi;"\
 			"fi; fi; fi; "\
 		"fi; fi; fi; "\
 		"\0"\
@@ -249,7 +252,24 @@
 			"run load_bmp_logo_base;"\
 			"\0"\
 	"init_display="\
-		"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode}"\
+		"get_rebootmode;"\
+		"echo reboot_mode:::: ${reboot_mode};"\
+		"if test ${reboot_mode} = quiescent; then "\
+			"setenv dolby_status 0;"\
+			"setenv dolby_vision_on 0;"\
+			"run storeargs;"\
+			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"osd open;osd clear;"\
+		"else if test ${reboot_mode} = recovery_quiescent; then "\
+			"setenv dolby_status 0;"\
+			"setenv dolby_vision_on 0;"\
+			"run storeargs;"\
+			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"osd open;osd clear;"\
+		"else "\
+			"run storeargs;"\
+			"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+		"fi;fi;"\
 		"\0"\
 	"check_display="\
 		"echo check_display reboot_mode : ${reboot_mode} ,powermode : ${powermode};"\
@@ -260,15 +280,25 @@
 				"run init_display; "\
 			"fi; "\
 		"else if test ${reboot_mode} = cold_boot; then "\
+			"if test ${powermode} = standby; then "\
+				"setenv ddr_resume 1;"\
+			"else if test ${powermode} = last; then "\
+				"if test ${suspend} != off; then "\
+					"setenv ddr_resume 1;"\
+				"fi;"\
+			"fi;fi;"\
 			"if test ${powermode} = on; then "\
 				"echo powermode : ${powermode} ,need to init_display; "\
+				"run init_display; "\
+			"else if test ${powermode} = standby; then "\
+				"echo reboot: ${reboot_mode} suspend: ${suspend};"\
 				"run init_display; "\
 			"else if test ${powermode} = last; then "\
 				"if test ${suspend} = off; then "\
 					"echo suspend : ${suspend} ,need to init_display; "\
 					"run init_display; "\
 				"fi; "\
-			"fi;fi; "\
+			"fi;fi;fi; "\
 		"else "\
 			"echo reboot_mode is normal;"\
 			"run init_display; "\
@@ -293,7 +323,7 @@
 
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\
-	/* "run init_display;"\ */\
+	/*"run init_display;"*/\
 	"get_rebootmode;"\
 	"run check_display;"\
 	"run storeargs;"\

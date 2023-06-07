@@ -176,10 +176,10 @@ static int ldim_config_load_from_unifykey(unsigned char *para, struct aml_ldim_d
 	return 0;
 }
 
-int aml_ldim_probe(char *dt_addr, int child_offset, unsigned char *key_buf, int flag)
+int aml_ldim_probe(struct aml_bl_drv_s *bdrv, char *dt_addr, int child_offset,
+		unsigned char *key_buf, int flag)
 {
 	struct aml_lcd_data_s *pdata = aml_lcd_get_data();
-	struct aml_bl_drv_s *bdrv = aml_bl_get_driver(0);
 	unsigned int size;
 	int ret = -1;
 

@@ -178,7 +178,7 @@ static void storage_boot_layout_debug_info(
 	int i;
 
 	printf("boot area list: \n");
-	for (i = 0; i < MAX_BOOT_AREA_ENTRIES && boot_entry[i].size; i++) {
+	for (i = 0; i <= BOOT_AREA_DEVFIP; i++) {
 		printf("%10s    ", boot_entry[i].name);
 		printf("%10llx    ", boot_entry[i].offset);
 		printf("%10llx\n", boot_entry[i].size);
@@ -230,7 +230,7 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 	boot_entry[BOOT_AREA_BL2E].size = bl2e_size;
 	boot_entry[BOOT_AREA_BL2X].size = bl2x_size;
 
-	for (i = 1; i < MAX_BOOT_AREA_ENTRIES && boot_entry[i - 1].size; i++) {
+	for (i = 1; i <= BOOT_AREA_DEVFIP; i++) {
 		STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[i].size, align_size);
 		boot_entry[i].offset = boot_entry[i-1].offset +
 				boot_entry[i-1].size * cal_copy + reserved_size;
@@ -299,7 +299,7 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 		}
 		/* normal boot */
 		for (nIndex = 0;
-		     nIndex < MAX_BOOT_AREA_ENTRIES && sbentry->size;
+		     nIndex <= BOOT_AREA_DEVFIP;
 		     nIndex++, sbentry++) {
 			boot_entry[nIndex].size = sbentry->size;
 			boot_entry[nIndex].offset = sbentry->offset;
@@ -474,7 +474,7 @@ int store_init(u32 init_flag)
 	return record;
 }
 
-static struct storage_t *store_get_current(void)
+struct storage_t *store_get_current(void)
 {
 	return current;
 }
@@ -1075,7 +1075,7 @@ static int name2index(struct boot_layout *boot_layout, const char *img)
 	int i;
 
 	boot_entry = boot_layout->boot_entry;
-	for (i = 1; i < MAX_BOOT_AREA_ENTRIES && boot_entry[i].size; i++) {
+	for (i = 1; i <= BOOT_AREA_DEVFIP; i++) {
 		if (!strncmp(img, boot_entry[i].name, strlen(boot_entry[i].name)))
 			return i;
 	}

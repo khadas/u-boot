@@ -61,7 +61,7 @@ extern unsigned int lcd_debug_print_flag;
 #define PRE_DE_DELAY                8
 
 #define LCD_PINMUX_END          0xff
-#define LCD_PINMUX_NUM          15
+#define LCD_PINMUX_NUM          22
 
 /* **********************************
  * global control define
@@ -85,6 +85,8 @@ enum lcd_chip_e {
 	LCD_CHIP_C3,
 	LCD_CHIP_T5W,
 	LCD_CHIP_T5M,
+	LCD_CHIP_T3X,
+	LCD_CHIP_A4,
 	LCD_CHIP_MAX,
 };
 
@@ -131,13 +133,16 @@ struct lcd_timing_s {
 	unsigned char fr_adjust_type; /* 0=clock, 1=htotal, 2=vtotal */
 	unsigned char clk_change; /* internal used */
 	unsigned int lcd_clk;   /* pixel clock(unit: Hz) */
-	unsigned int lcd_clk_dft; /* internal used */
-	unsigned int h_period_dft; /* internal used */
-	unsigned int v_period_dft; /* internal used */
+	unsigned int base_pixel_clk; /* internal used */
+	unsigned int base_h_period;  /* internal used */
+	unsigned int base_v_period;  /* internal used */
+	unsigned int base_frame_rate; /* internal used */
 	unsigned int pll_ctrl;  /* pll settings */
 	unsigned int div_ctrl;  /* divider settings */
 	unsigned int clk_ctrl;  /* clock settings */
 	unsigned int bit_rate; /* Hz */
+	unsigned int clk_mode;  /* 0=dependence mode, 1=independence mode */
+	unsigned int ppc;
 
 	unsigned int ss_level; /* [15:12]: ss_freq, [11:8]: ss_mode,
 				* [7:0]: ss_level
@@ -483,8 +488,15 @@ struct lcd_duration_s {
 #define LCD_INIT_LEVEL_NORMAL         0
 #define LCD_INIT_LEVEL_PWR_OFF        1
 #define LCD_INIT_LEVEL_KERNEL_ON      2
+
+#define LCD_VENC_1PPC                 0
+#define LCD_VENC_2PPC                 1
+#define LCD_VENC_4PPC                 2
+
 /*
- *bit[31:20]: reserved
+ *bit[31:24]: base_frame_rate
+ *bit[23:22]: clk_mode
+ *bit[21:20]: ppc
  *bit[19:18]: lcd_init_level
  *bit[17]: reserved
  *bit[16]: custom pinmux flag
@@ -498,6 +510,9 @@ struct lcd_boot_ctrl_s {
 	unsigned char advanced_flag;
 	unsigned char custom_pinmux;
 	unsigned char init_level;
+	unsigned char ppc;
+	unsigned char clk_mode;
+	unsigned char base_frame_rate;
 };
 
 /*
@@ -558,7 +573,10 @@ struct aml_lcd_drv_s {
 	unsigned char mode;
 	unsigned char key_valid;
 	unsigned char clk_path; /* 0=hpll, 1=gp0_pll */
+	char init_mode[64];
+	int init_frac;
 	unsigned int output_vmode;
+	unsigned int power_on_suspend;
 
 	struct lcd_config_s config;
 	struct aml_lcd_data_s *data;
@@ -591,7 +609,7 @@ struct aml_lcd_drv_s {
 	void *debug_info_reg;
 	void *debug_info_if;
 	void (*phy_set)(struct aml_lcd_drv_s *pdrv, int status);
-
+	struct dev_pm_ops *dev_pm_ops;
 	/* for factory test */
 	struct lcd_power_step_s *factory_lcd_power_on_step;
 };
@@ -634,4 +652,8 @@ void aml_lcd_driver_set_bl_level(int index, int level);
 unsigned int  aml_lcd_driver_get_bl_level(int index);
 void aml_lcd_driver_bl_config_print(int index);
 
+int aml_lcd_driver_suspend(void *pm_ops);
+int aml_lcd_driver_resume(void *pm_ops);
+int aml_lcd_driver_poweroff(void *pm_ops);
+void aml_lcd_set_poweron_suspend_sta(int state);
 #endif /* INC_AML_LCD_VOUT_H */

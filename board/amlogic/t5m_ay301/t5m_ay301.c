@@ -137,6 +137,7 @@ int board_init(void)
 	printf("watchdog disable\n");
 
 	run_command("gpio set GPIO_TEST_N0", 0);
+	run_command("gpio clr GPIOD_11", 0);
 	aml_set_bootsequence(0);
 	//Please keep try usb boot first in board_init, as other init before usb may cause burning failure
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
@@ -506,6 +507,9 @@ int checkhw(char * name)
 			strcpy(loc_name, "t5m-reva_t963d4_ay301-3g\0");
 		else if (cpu_id.chip_rev == 0xB)
 			strcpy(loc_name, "t5m_t963d4_ay301-3g\0");
+		break;
+	case 0xe0000000:
+		strcpy(loc_name, "t5m_t963d4_ay301-4g\0");
 		break;
 	default:
 		strcpy(loc_name, "t5m_t963d4_unsupport");

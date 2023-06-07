@@ -87,7 +87,7 @@
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
         "outputmode=1080p60hz\0" \
-        "hdmimode=1080p60hz\0" \
+	"hdmimode=none\0" \
         "cvbsmode=576cvbs\0" \
         "vout_init=disable\0" \
         "model_name=FHD2HDMI\0" \
@@ -121,7 +121,7 @@
         "fs_type=""rootfstype=ramfs""\0"\
         "initargs="\
 			"init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 "\
-			"no_console_suspend earlycon=aml-uart,0xfe002000 scramble_reg=0x0xfe02e030 "\
+			"no_console_suspend earlycon=aml-uart,0xfe002000 scramble_reg=0xfe02e030 "\
 			"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
 			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
             "\0"\

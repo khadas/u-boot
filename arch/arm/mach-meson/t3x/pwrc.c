@@ -1,0 +1,36 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+char* domain_name[] =
+{
+	"PDID_DSPA",
+	"PDID_MALI_0",
+	"PDID_MALI_1",
+	"PDID_MALI_2",
+	"PDID_DOS_VDEC",
+	"PDID_DOS_HCODEC",
+	"PDID_DOS_HEVC_TOP",
+	"PDID_USB2HX2",
+	"PDID_GE2D",
+	"PDID_VICP",
+	"PDID_VI_CLK1",
+	"PDID_VI_CLK2",
+	"PDID_VPU_DOLBY",
+	"PDID_VPU_HDMI",
+	"PDID_ETH",
+	"PDID_PCIE",
+	"PDID_USB30",
+	"PDID_USB31",
+	"PDID_SDCARD",
+	"PDID_NAND_EMMC",
+	"PDID_NNA_4T",
+	"PDID_FRC_TOP",
+	"PDID_HDMIRX_WRAP",
+	"PDID_DEMOD",
+	"PDID_AUDIO",
+	"PDID_DMC00",
+	"PDID_NOC_DMC_TOP",
+	"PDID_DMC10"
+};

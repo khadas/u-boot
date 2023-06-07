@@ -59,7 +59,7 @@ struct lcd_unifykey_header_s {
 /* customer (31Byte) */
 #define LCD_UKEY_FR_ADJ_TYPE       (LCD_UKEY_MODEL_NAME + 54)/* +36+18 byte */
 #define LCD_UKEY_SS_LEVEL          (LCD_UKEY_MODEL_NAME + 55)
-#define LCD_UKEY_CLK_AUTO_GEN      (LCD_UKEY_MODEL_NAME + 56)
+#define LCD_UKEY_CUST_VAL0         (LCD_UKEY_MODEL_NAME + 56)
 #define LCD_UKEY_PCLK              (LCD_UKEY_MODEL_NAME + 57)
 #define LCD_UKEY_H_PERIOD_MIN      (LCD_UKEY_MODEL_NAME + 61)
 #define LCD_UKEY_H_PERIOD_MAX      (LCD_UKEY_MODEL_NAME + 63)
@@ -71,7 +71,7 @@ struct lcd_unifykey_header_s {
 #define LCD_UKEY_VLOCK_VAL_1       (LCD_UKEY_MODEL_NAME + 78)
 #define LCD_UKEY_VLOCK_VAL_2       (LCD_UKEY_MODEL_NAME + 79)
 #define LCD_UKEY_VLOCK_VAL_3       (LCD_UKEY_MODEL_NAME + 80)
-#define LCD_UKEY_CUST_PINMUX       (LCD_UKEY_MODEL_NAME + 81)
+#define LCD_UKEY_CUST_VAL1         (LCD_UKEY_MODEL_NAME + 81)
 #define LCD_UKEY_FR_AUTO_CUS       (LCD_UKEY_MODEL_NAME + 82)
 #define LCD_UKEY_FRAME_RATE_MIN    (LCD_UKEY_MODEL_NAME + 83)
 #define LCD_UKEY_FRAME_RATE_MAX    (LCD_UKEY_MODEL_NAME + 84)

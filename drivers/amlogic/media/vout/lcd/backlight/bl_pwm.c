@@ -387,6 +387,10 @@ void bl_set_pwm(struct bl_pwm_config_s *bl_pwm)
 
 	if (!bl_pwm_ctrl_conf)
 		return;
+	if (bl_pwm->pwm_cnt == 0) {
+		BLERR("%s: pwm_cnt is 0\n", __func__);
+		return;
+	}
 
 	switch (bl_pwm->pwm_method) {
 	case BL_PWM_POSITIVE:
@@ -474,6 +478,11 @@ void bl_pwm_set_level(struct aml_bl_drv_s *bdrv,
 	unsigned int max = bl_pwm->level_max;
 	unsigned int pwm_max = bl_pwm->pwm_max;
 	unsigned int pwm_min = bl_pwm->pwm_min;
+
+	if (bl_pwm->pwm_cnt == 0) {
+		BLERR("%s: pwm_cnt is 0\n", __func__);
+		return;
+	}
 
 	level = bl_level_mapping(&bdrv->config, level);
 	max = bl_level_mapping(&bdrv->config, max);
@@ -582,6 +591,7 @@ void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag)
 
 void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm)
 {
+	struct aml_lcd_drv_s *pdrv;
 	unsigned int freq, pre_div, cnt;
 	int i;
 
@@ -596,11 +606,11 @@ void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm)
 		BLPR("%s pwm_port 0x%x: freq = %u\n",
 		     __func__, bl_pwm->pwm_port, bl_pwm->pwm_freq);
 	}
+	pdrv = aml_lcd_get_driver(bl_pwm->drv_index);
 	freq = bl_pwm->pwm_freq;
 	switch (bl_pwm->pwm_port) {
 	case BL_PWM_VS:
-		cnt = lcd_vcbus_read(ENCL_VIDEO_MAX_LNCNT) + 1;
-		bl_pwm->pwm_cnt = cnt;
+		bl_pwm->pwm_cnt = lcd_get_max_line_cnt(pdrv);
 		bl_pwm->pwm_pre_div = 0;
 		if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL)
 			BLPR("pwm_cnt = %u\n", bl_pwm->pwm_cnt);
@@ -702,6 +712,7 @@ int aml_bl_pwm_reg_config_init(struct aml_lcd_data_s *pdata)
 		break;
 	case LCD_CHIP_T3:
 	case LCD_CHIP_T5M:
+	case LCD_CHIP_T3X:
 		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_t3;
 		break;
 	default:

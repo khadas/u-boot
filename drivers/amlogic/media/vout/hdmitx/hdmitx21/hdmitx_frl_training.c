@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <time.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include "hdmitx_drv.h"
 
@@ -257,17 +258,22 @@ static void TX_LTS_2_SETTING(enum frl_rate_enum frl_rate)
 	pr_info("write SCDC/0x30 as %x\n", 0);
 }
 
-static void TX_LTS_3_POLL_FLT_UPDATE(void)
+static bool TX_LTS_3_POLL_FLT_UPDATE(void)
 {
 	u8 hdmi21_update_reg;
 	u8 FLT_update = 0;
 	u8 data8;
+	unsigned long tmo = get_timer(0) + 200;
 
-	while (!FLT_update) {
+	while (!FLT_update && time_after(tmo, get_timer(0))) {
 		scdc21_rd_sink(0x10, &data8);//Update_flag registers,0x10
 		hdmi21_update_reg = data8;
 		FLT_update = hdmi21_update_reg & 0x20; //[5] FLT_update
 	}
+	if (time_after(tmo, get_timer(0)))
+		return 1;
+	else
+		return 0;
 }
 
 static void TX_LTS_3_READ_LTP_REQ(u16 *val)
@@ -491,18 +497,19 @@ static void hdmitx_frl_config(u8 color_depth, enum frl_rate_enum frl_rate)
 	//=============================================================
 }
 
-void hdmitx_frl_training_main(enum frl_rate_enum frl_rate)
+bool hdmitx_frl_training_main(enum frl_rate_enum frl_rate)
 {
 	u16 ltp0123 = 0xAAAA;//reserved LTP
 	u8 data8;
 	char *ltp_en = NULL;
+	bool ret;
 
 	pr_info("hdmitx21: set rx frl_rate as %d\n", frl_rate);
 	ltp_en = env_get("ltp_en");
 	if (ltp_en && ltp_en[0] == '0') {
 		pr_info("skip the FRL LTP training...\n");
 		hdmitx_frl_config(0, frl_rate);
-		return;
+		return 1;
 	}
 	hdmitx21_wr_reg(AON_CYP_CTL_IVCTX, 2); // 70kHz
 
@@ -524,11 +531,13 @@ void hdmitx_frl_training_main(enum frl_rate_enum frl_rate)
 	pr_info("[FRL TRAINING] ************** TX_LTS_2_SETTING************\n");
 	TX_LTS_2_SETTING(frl_rate);
 	if (frl_rate == FRL_NONE)
-		return;
+		return 1;
 
 	while (ltp0123 != 0) {
 		pr_info("[FRL TRAINING] ************** TX_LTS_3_POLL_FLT_UPDATE************\n");
-		TX_LTS_3_POLL_FLT_UPDATE();
+		ret = TX_LTS_3_POLL_FLT_UPDATE();
+		if (!ret)
+			return 0;
 		pr_info("[FRL TRAINING] ************** TX_LTS_3_READ_LTP_REQ************\n");
 		TX_LTS_3_READ_LTP_REQ(&ltp0123);
 		pr_info("LTPn: 0x%x\n", ltp0123);
@@ -542,4 +551,5 @@ void hdmitx_frl_training_main(enum frl_rate_enum frl_rate)
 	TX_FLT_UPDATE_CLEAR();
 	pr_info("[FRL TRAINING] ************** TX_LTS_P_POLL_FRL_START************\n");
 	TX_LTS_P_POLL_FRL_START();
+	return 1;
 }

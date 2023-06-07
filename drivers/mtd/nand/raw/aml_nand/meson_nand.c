@@ -821,10 +821,9 @@ static int m3_nand_probe(struct aml_nand_platform *plat, unsigned dev_num)
 	return 0;
 
 exit_error:
-	if (aml_chip)
-		kfree(aml_chip);
 	if (mtd)
 		mtd->name = NULL;
+	kfree(aml_chip);
 	return err;
 }
 

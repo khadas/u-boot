@@ -1162,6 +1162,7 @@ static int bl_config_load_from_dts(char *dt_addr, struct aml_bl_drv_s *bdrv)
 		bl_pwm = bconf->bl_pwm;
 		memset(bl_pwm, 0, sizeof(struct bl_pwm_config_s));
 		bl_pwm->index = 0;
+		bl_pwm->drv_index = bdrv->index;
 
 		bl_pwm->level_max = bconf->level_max;
 		bl_pwm->level_min = bconf->level_min;
@@ -1269,6 +1270,8 @@ static int bl_config_load_from_dts(char *dt_addr, struct aml_bl_drv_s *bdrv)
 		memset(pwm_combo1, 0, sizeof(struct bl_pwm_config_s));
 		pwm_combo0->index = 0;
 		pwm_combo1->index = 1;
+		pwm_combo0->drv_index = bdrv->index;
+		pwm_combo1->drv_index = bdrv->index;
 
 		propdata = (char *)fdt_getprop(dt_addr, child_offset,
 					       "bl_pwm_combo_level_mapping",
@@ -1420,7 +1423,7 @@ static int bl_config_load_from_dts(char *dt_addr, struct aml_bl_drv_s *bdrv)
 			BLPR("find en_sequence_reverse: %d\n", bconf->en_sequence_reverse);
 		}
 
-		aml_ldim_probe(dt_addr, child_offset, NULL, 0);
+		aml_ldim_probe(bdrv, dt_addr, child_offset, NULL, 0);
 		break;
 #endif
 #ifdef CONFIG_AML_LCD_BL_EXTERN
@@ -1557,6 +1560,7 @@ static int bl_config_load_from_unifykey(char *dt_addr, struct aml_bl_drv_s *bdrv
 		}
 		bl_pwm = bconf->bl_pwm;
 		bl_pwm->index = 0;
+		bl_pwm->drv_index = bdrv->index;
 
 		bl_pwm->level_max = bconf->level_max;
 		bl_pwm->level_min = bconf->level_min;
@@ -1614,6 +1618,8 @@ static int bl_config_load_from_unifykey(char *dt_addr, struct aml_bl_drv_s *bdrv
 		pwm_combo1 = bconf->bl_pwm_combo1;
 		pwm_combo0->index = 0;
 		pwm_combo1->index = 1;
+		pwm_combo0->drv_index = bdrv->index;
+		pwm_combo1->drv_index = bdrv->index;
 
 		bconf->pwm_on_delay = (*(p + LCD_UKEY_BL_PWM_ON_DELAY) |
 			((*(p + LCD_UKEY_BL_PWM_ON_DELAY + 1)) << 8));
@@ -1687,7 +1693,7 @@ static int bl_config_load_from_unifykey(char *dt_addr, struct aml_bl_drv_s *bdrv
 			break;
 		}
 		if (bl_header.version == 2) {
-			aml_ldim_probe(dt_addr, 0, para, 2);
+			aml_ldim_probe(bdrv, dt_addr, 0, para, 2);
 		} else {
 			BLERR("not support ldim for unifykey version: %d\n",
 			      bl_header.version);
@@ -1781,6 +1787,7 @@ static int bl_config_load_from_bsp(struct aml_bl_drv_s *bdrv)
 		}
 		bconf->bl_pwm = bl_pwm;
 		bl_pwm->index = 0;
+		bl_pwm->drv_index = bdrv->index;
 
 		bl_pwm->level_max     = bconf->level_max;
 		bl_pwm->level_min     = bconf->level_min;
@@ -1816,6 +1823,8 @@ static int bl_config_load_from_bsp(struct aml_bl_drv_s *bdrv)
 		pwm_combo1 = bconf->bl_pwm_combo1;
 		pwm_combo0->index = 0;
 		pwm_combo1->index = 1;
+		pwm_combo0->drv_index = bdrv->index;
+		pwm_combo1->drv_index = bdrv->index;
 
 		pwm_combo0->level_max     = ext_lcd->pwm_level_max;
 		pwm_combo0->level_min     = ext_lcd->pwm_level_min;
@@ -1860,7 +1869,7 @@ static int bl_config_load_from_bsp(struct aml_bl_drv_s *bdrv)
 			BLERR("no ldim driver\n");
 			break;
 		}
-		aml_ldim_probe(NULL, 0, NULL, 1);
+		aml_ldim_probe(bdrv, NULL, 0, NULL, 1);
 		break;
 #endif
 #ifdef CONFIG_AML_LCD_BL_EXTERN

@@ -239,6 +239,148 @@ static void do_nonsec_virt_switch(void)
 }
 #endif
 
+/*
+ * suffix kernel bootargs to bootargs
+ *
+ */
+static void add_kernel_bootargs(bootm_headers_t *images)
+{
+	int node, len_args_uboot, len_args_dts, len;
+	char *bootargs_dts, *bootargs_uboot;
+	char *bootargs_new;
+	char  *p, *q, *t, *z;
+	static char kerenl_dts_update;
+	char buf[256];
+
+	if (kerenl_dts_update)
+		return;
+
+	kerenl_dts_update = 1;
+	node = fdt_path_offset(images->ft_addr, "/chosen");
+	if (node < 0) {
+		printf("Can't find /chosen node from DTB\n");
+		return;
+	}
+	bootargs_dts = (char *)fdt_getprop(images->ft_addr, node, "bootargs", &len);
+	if (!bootargs_dts) {
+		printf("Can't find bootargs property in chosen\n");
+		return;
+	}
+	bootargs_uboot = env_get("bootargs");
+	if (!bootargs_uboot)
+		return;
+
+	len_args_uboot = strlen(bootargs_uboot);
+	len_args_dts = strlen(bootargs_dts);
+	len = len_args_uboot + len_args_dts + 2;
+
+	bootargs_new = (char *)malloc(len);
+	if (!bootargs_new) {
+		printf("fail to malloc new bootargs memory\n");
+		return;
+	}
+
+	memcpy(bootargs_new, bootargs_uboot, len_args_uboot);
+	bootargs_new[len_args_uboot] = ' ';
+	memcpy(bootargs_new + len_args_uboot + 1, bootargs_dts, len_args_dts);
+	bootargs_new[len - 1] = '\0';
+	p = bootargs_new;
+	while ((q = strchr(p, ' '))) {
+		if (q == p) {
+			p = q + 1;
+			continue;
+		}
+		memset(buf, 0, sizeof(buf));
+		if ((q - p) > sizeof(buf)) {
+			memcpy(buf, p, sizeof(buf));
+			printf("%s is oversized\n", buf);
+			p = q + 1;
+			continue;
+		}
+		memcpy(buf, p, q - p);
+		len = strlen(buf);
+		p = q + 1;
+		z = p;
+		while (z) {
+			t = strstr(z, buf);
+			if (t) {
+				memmove(t, t + len, z + strlen(z) - t - len);
+				z = t;
+			} else {
+				break;
+			}
+		}
+	}
+	env_set("bootargs", bootargs_new);
+	free(bootargs_new);
+}
+
+/*
+ * kernel 5.15 limit boot env number to 32, there are lots of unused/default
+ * zero envs which may cause boot failed in kernel. So remove these envs
+ */
+static void fix_bootargs(void)
+{
+	static char const *remove_list[] = {
+		"dolby_vision_on=",
+		"hdr_policy=",
+		"hdr_priority=",
+		"osd_reverse=",
+		"disable_ir=",
+		"lcd_debug=",
+		"recovery_offset=",
+		"hdmi_read_edid=",
+	};
+	int i, len, rlen, find;
+	char *cmdline, *p, *q;
+	char buf[64];
+	unsigned long value;
+
+	cmdline = env_get("bootargs");
+	if (!cmdline)
+		return;
+
+	p      = cmdline;
+	debug("bootargs:%s\n", cmdline);
+	while (*p) {
+		/* get an arg */
+		q = strchr(p, ' ');
+		if (!q)
+			break;
+		rlen = strlen(q);
+		find = 0;
+		/* match remove args */
+		for (i = 0; i < ARRAY_SIZE(remove_list); i++) {
+			len = strlen(remove_list[i]);
+			if (!memcmp(p, remove_list[i], len)) {
+				/* copy this env to temp buffer and check it's value */
+				memset(buf, 0, sizeof(buf));
+				memcpy(buf, p, q - p);
+				if (buf[len] == ' ') { /* empty one */
+					find = 1;
+				} else {
+					value = -1UL;
+					str2long(buf + len, &value);
+					if (!value)
+						find = 1;
+				}
+				if (find) {
+					memmove(p, q + 1, rlen);
+					//pr_info("remove env:%s\n", buf);
+					break;
+				}
+			}
+		}
+		if (find)
+			continue;
+		else
+			p = q + 1;
+	}
+	debug("new boot args:%s\n", cmdline);
+	/* update env */
+	env_set("bootargs", cmdline);
+}
+
 /* Subcommand: PREP */
 static void boot_prep_linux(bootm_headers_t *images)
 {
@@ -499,6 +641,8 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 int do_bootm_linux(int flag, int argc, char * const argv[],
 		   bootm_headers_t *images)
 {
+	add_kernel_bootargs(images);
+	fix_bootargs();
 	/* No need for those on ARM */
 	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
 		return -1;

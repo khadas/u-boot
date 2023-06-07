@@ -289,11 +289,9 @@ static void edid_set_fallback_mode(struct rx_cap *prxcap)
 /* add default VICs for all zeroes case */
 static void hdmitx_edid_set_default_vic(struct rx_cap *prxcap)
 {
-	prxcap->VIC_count = 0x4;
+	prxcap->VIC_count = 0x2;
 	prxcap->VIC[0] = HDMI_720x480p60_16x9;
 	prxcap->VIC[1] = HDMI_1280x720p60_16x9;
-	prxcap->VIC[2] = HDMI_1920x1080i60_16x9;
-	prxcap->VIC[3] = HDMI_1920x1080p60_16x9;
 	prxcap->native_VIC = HDMI_720x480p60_16x9;
 	/* hdmitx_device->vic_count = prxcap->VIC_count; */
 	printf("set default vic\n");

@@ -116,6 +116,14 @@ config MESON_T3
 	help
 		Support Amlogic Meson T3
 
+config MESON_T3X
+	bool "T3X"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	help
+		Support Amlogic Meson T3X
+
 config MESON_C2
 	bool "C2"
 	select ARM64

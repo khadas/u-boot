@@ -3,8 +3,8 @@
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
 
-#ifndef _ARCH_MESON_S4_MEASURE_H_
-#define _ARCH_MESON_S4_MEASURE_H_
+#ifndef _ARCH_MESON_A4_MEASURE_H_
+#define _ARCH_MESON_A4_MEASURE_H_
 
 static const char *clk_msr_table[] = {
 	[0] = "cts_sys_clk",

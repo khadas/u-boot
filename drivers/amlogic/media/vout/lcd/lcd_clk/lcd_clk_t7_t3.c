@@ -200,7 +200,10 @@ set_pll_retry_t7:
 	udelay(10);
 	lcd_ana_write(ANACTRL_TCON_PLL0_CNTL2 + offset, 0x0000110c);
 	udelay(10);
-	lcd_ana_write(ANACTRL_TCON_PLL0_CNTL3 + offset, 0x10051400);
+	if (cconf->pll_fvco < 3800000)
+		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL3 + offset, 0x10051100);
+	else
+		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL3 + offset, 0x10051400);
 	udelay(10);
 	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL4 + offset, 0x0100c0, 0, 24);
 	udelay(10);
@@ -272,7 +275,10 @@ set_pll_retry_t3:
 	udelay(10);
 	lcd_ana_write(ANACTRL_TCON_PLL0_CNTL2 + offset, 0x0000110c);
 	udelay(10);
-	lcd_ana_write(ANACTRL_TCON_PLL0_CNTL3 + offset, 0x10051400);
+	if (cconf->pll_fvco < 3800000)
+		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL3 + offset, 0x10051100);
+	else
+		lcd_ana_write(ANACTRL_TCON_PLL0_CNTL3 + offset, 0x10051400);
 	udelay(10);
 	lcd_ana_setb(ANACTRL_TCON_PLL0_CNTL4 + offset, 0x0100c0, 0, 24);
 	udelay(10);
@@ -500,6 +506,7 @@ static void lcd_clk_set_t7(struct aml_lcd_drv_s *pdrv)
 	}
 }
 
+/* tcon run base clk, include register access */
 static void lcd_set_tcon_clk_t3(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
@@ -593,6 +600,7 @@ static void lcd_set_vid_pll_div_t3(struct aml_lcd_drv_s *pdrv)
 		lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 1, 15, 1);
 		lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, shift_val, 0, 15);
 		lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 0, 15, 1);
+
 	}
 	/* Enable the final output clock */
 	lcd_ana_setb(ANACTRL_VID_PLL_CLK_DIV, 1, 19, 1);
@@ -1587,3 +1595,4 @@ void lcd_clk_config_chip_init_t3(struct aml_lcd_drv_s *pdrv, struct lcd_clk_conf
 	}
 	cconf->data->enc_clk_msr_id = -1;
 }
+

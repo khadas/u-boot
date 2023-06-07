@@ -19,45 +19,37 @@ static void lcd_vbyone_sync_pol(unsigned int offset, int hsync_pol, int vsync_po
 	lcd_vcbus_setb(VBO_VIN_CTRL + offset, vsync_pol, 7, 1);
 }
 
+static int lcd_vbyone_check(int lane_num, int region, int slice, int byte_mode)
+{
+	if (lane_num <= 0 || (lane_num & (lane_num - 1)) || lane_num > 8) //must 1,2,4,8
+		return -1;
+	if (region <= 0 || (region & (region - 1))) //1,2,4,8
+		return -1;
+	if ((slice == 1 && region > 4) || (slice == 2 && region > 8))
+		return -1;
+	if (lane_num % region)
+		return -1;
+	if (byte_mode != 3 && byte_mode != 4)
+		return -1;
+	return 0;
+}
+
 static int lcd_vbyone_lanes_set(unsigned int offset, int lane_num, int byte_mode,
 				int region_num, int hsize, int vsize)
 {
 	int sublane_num;
 	int region_size[4];
-	int tmp;
+	int tmp, slice = 1;
 
-	switch (lane_num) {
-	case 1:
-	case 2:
-	case 4:
-	case 8:
-		break;
-	default:
+	if (lcd_vbyone_check(lane_num, region_num, slice, byte_mode))
 		return -1;
-	}
-	switch (region_num) {
-	case 1:
-	case 2:
-	case 4:
-		break;
-	default:
-		return -1;
-	}
-	if (lane_num % region_num)
-		return -1;
-	switch (byte_mode) {
-	case 3:
-	case 4:
-		break;
-	default:
-		return -1;
-	}
+
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("byte_mode=%d, lane_num=%d, region_num=%d\n",
-			byte_mode, lane_num, region_num);
+		LCDPR("byte_mode=%d, lane_num=%d, region_num=%d slice=%d\n",
+			byte_mode, lane_num, region_num, slice);
 	}
 
-	sublane_num = lane_num / region_num; /* lane num in each region */
+	sublane_num = lane_num * slice / region_num; /* lane num in each region */
 	lcd_vcbus_setb(VBO_LANES + offset, (lane_num - 1), 0, 3);
 	lcd_vcbus_setb(VBO_LANES + offset, (region_num - 1), 4, 2);
 	lcd_vcbus_setb(VBO_LANES + offset, (sublane_num - 1), 8, 3);
@@ -88,12 +80,74 @@ static int lcd_vbyone_lanes_set(unsigned int offset, int lane_num, int byte_mode
 	return 0;
 }
 
+static int lcd_vbyone_lanes_set_t3x(unsigned int offset, int lane_num, int byte_mode,
+				int region_num, int slice, int ppc, int hsize, int vsize)
+{
+	int sublane_num, orgn_sub, orgns_num, slice_lane_num;
+	unsigned int p2s_mode, pre_hact;
+
+	if (slice == 0)
+		slice = 1;
+	if (region_num == 0)
+		return -1;
+
+	slice_lane_num = lane_num / slice;
+	if (lcd_vbyone_check(slice_lane_num, region_num, slice, byte_mode))
+		return -1;
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		LCDPR("byte_mode=%d, lane_num=%d, region_num=%d slice=%d\n",
+			byte_mode, lane_num, region_num, slice);
+	}
+
+	sublane_num = slice_lane_num * slice / region_num; /* lane num in each region */
+	lcd_vcbus_setb(VBO_LANES + offset, (slice_lane_num - 1), 0, 3);
+	lcd_vcbus_setb(VBO_LANES + offset, (1 << slice) - 1, 4, 4);// group en
+	lcd_vcbus_setb(VBO_LANES + offset, byte_mode - 1, 11, 2);
+	lcd_vcbus_write(VBO_ACT_VSIZE + offset, vsize);
+
+	orgn_sub = slice_lane_num == 8 ? (sublane_num == 4 ? 3 : 2) :
+			   slice_lane_num == 4 ? (sublane_num == 1 ? 1 : 2) :
+			   slice_lane_num == 2 ? (sublane_num == 1 ? 0 : 2) : 2;
+
+	orgns_num = region_num == 1 ? 0 :
+				 region_num == 2 ? 1 :
+				 region_num == 4 ? 2 :
+				 region_num == 8 ? 3 : 0;
+
+	lcd_vcbus_setb(VBO_RGN_CTRL + offset, slice >> 1, 0, 2);
+	lcd_vcbus_setb(VBO_RGN_CTRL + offset, orgns_num, 4, 3);//output region number
+	lcd_vcbus_setb(VBO_RGN_CTRL + offset, orgn_sub, 8, 2);
+	lcd_vcbus_setb(VBO_RGN_CTRL + offset, slice_lane_num == 4, 10, 1);
+	lcd_vcbus_setb(VBO_RGN_CTRL + offset, 0, 16, 8);//hblank for read line buf
+
+	pre_hact = hsize / slice * 4 / 5;
+	lcd_vcbus_setb(VBO_RGN_HSIZE + offset, hsize / slice, 0, 12);//input pixels for each slice
+	lcd_vcbus_setb(VBO_RGN_HSIZE + offset, pre_hact, 16, 12);//first line pre-read pixels
+
+	p2s_mode = ppc == 2 && slice == 2 ? 0 :
+			   ppc == 2 && slice == 1 ? 1 : 2;
+	lcd_vcbus_write(VBO_SLICE_CTRL + offset, 0x0);
+	lcd_vcbus_setb(VBO_SLICE_CTRL + offset, hsize / ppc, 0, 14);//slice hsize
+	lcd_vcbus_setb(VBO_SLICE_CTRL + offset, p2s_mode, 14, 2);//ppc to slice
+
+	lcd_vcbus_setb(VBO_CTRL + offset, 2, 16, 4);
+	lcd_vcbus_setb(VBO_CTRL + offset, 1, 0, 1);//enable
+	if (lane_num == 8 && slice == 2) {
+		lcd_vcbus_write(P2P_CH_SWAP0, 0xba983210);
+		lcd_vcbus_write(P2P_CH_SWAP1, 0xfedc7654);
+	}
+
+	return 0;
+}
+
 void lcd_vbyone_enable(struct aml_lcd_drv_s *pdrv)
 {
-	int lane_count, byte_mode, region_num, hsize, vsize;
+	int lane_count, byte_mode, region_num, slice, hsize, vsize;
 	/* int color_fmt; */
 	int vin_color, vin_bpp;
 	unsigned int offset;
+	unsigned int ppc;
 
 	offset = pdrv->data->offset_venc_if[pdrv->index];
 
@@ -122,7 +176,16 @@ void lcd_vbyone_enable(struct aml_lcd_drv_s *pdrv)
 	lcd_vcbus_setb(VBO_VIN_CTRL + offset, vin_color, 8, 3);
 	lcd_vcbus_setb(VBO_VIN_CTRL + offset, vin_bpp, 11, 2);
 
-	lcd_vbyone_lanes_set(offset, lane_count, byte_mode, region_num, hsize, vsize);
+	if (pdrv->data->chip_type == LCD_CHIP_T3X) {
+		ppc = pdrv->config.timing.ppc;
+		slice = ppc;
+		lcd_vbyone_lanes_set_t3x(offset, lane_count, byte_mode, region_num,
+			slice, ppc, hsize, vsize);
+	} else {
+		slice = 1;
+		lcd_vbyone_lanes_set(offset, lane_count, byte_mode, region_num, hsize, vsize);
+	}
+
 	/*set hsync/vsync polarity to let the polarity is low active
 	inside the VbyOne */
 	lcd_vbyone_sync_pol(offset, 0, 0);
@@ -175,7 +238,8 @@ void lcd_vbyone_sw_reset(struct aml_lcd_drv_s *pdrv)
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
-	if (pdrv->data->chip_type == LCD_CHIP_T7) {
+	if (pdrv->data->chip_type == LCD_CHIP_T7 ||
+		pdrv->data->chip_type == LCD_CHIP_T3X) {
 		offset = pdrv->data->offset_venc_if[pdrv->index];
 		switch (pdrv->index) {
 		case 0:
@@ -256,13 +320,24 @@ void lcd_vbyone_cdr_training_hold(struct aml_lcd_drv_s *pdrv, int flag)
 	unsigned int offset, reg;
 
 	offset = pdrv->data->offset_venc[pdrv->index];
-	reg = VBO_FSM_HOLDER_H + offset;
+	if (pdrv->data->chip_type == LCD_CHIP_T3X)
+		reg = VBO_FSM_HOLDER_H + offset;
+	else
+		reg = VBO_FSM_HOLDER + offset;
+
 	if (flag) {
 		LCDPR("[%d]: ctrl_flag for cdr_training_hold\n", pdrv->index);
-		lcd_vcbus_setb(reg, 0xffff, 0, 16);
+		if (pdrv->data->chip_type == LCD_CHIP_T3X)
+			lcd_vcbus_setb(reg + offset, 0xffff, 16, 16);//cdr hold timer
+		else
+			lcd_vcbus_setb(reg + offset, 0xffff, 0, 16);
+
 	} else {
 		mdelay(pdrv->config.control.vbyone_cfg.cdr_training_hold);
-		lcd_vcbus_setb(reg, 0, 0, 16);
+		if (pdrv->data->chip_type == LCD_CHIP_T3X)
+			lcd_vcbus_setb(reg + offset, 0, 16, 16);//cdr_hold timer
+		else
+			lcd_vcbus_setb(reg + offset, 0, 0, 16);
 	}
 }
 

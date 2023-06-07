@@ -382,11 +382,12 @@ struct dv_info {
 	u32 ieeeoui;
 	u8 ver; /* 0 or 1 or 2*/
 	u8 length;/*ver1: 15 or 12*/
-
-	u8 sup_yuv422_12bit:1;
 	/* if as 0, then support RGB tunnel mode */
-	u8 sup_2160p60hz:1;
+	u8 sup_yuv422_12bit:1;
 	/* if as 0, then support 2160p30hz */
+	u8 sup_2160p60hz:1;
+	/* if equals 0, then don't support 1080p100/120hz */
+	u8 sup_1080p120hz:1;
 	u8 sup_global_dimming:1;
 	u16 Rx;
 	u16 Ry;
@@ -408,6 +409,7 @@ struct dv_info {
 	u8 sup_backlight_control:1;/*only ver2*/
 	u8 backlt_min_luma;/*only ver2*/
 	u8 Interface;/*only ver2*/
+	u8 parity:1;/*only ver2*/
 	u8 sup_10b_12b_444;/*only ver2*/
 	u8 support_DV_RGB_444_8BIT;
 	u8 support_LL_YCbCr_422_12BIT;
@@ -562,6 +564,7 @@ enum avi_component_conf {
 	CONF_AVI_BT2020,
 	CONF_AVI_Q01,
 	CONF_AVI_YQ01,
+	CONF_AVI_VIC,
 	CONF_AVI_RGBYCC_INDIC,
 };
 
@@ -669,13 +672,14 @@ struct hdmi_support_mode {
 #define HDMI_IEEEOUI 0x000C03
 #define MODE_LEN	32
 
+/* below default ENV is not used, just for backup */
 #define DEFAULT_OUTPUTMODE_ENV		"1080p60hz"
 #define DEFAULT_HDMIMODE_ENV		"1080p60hz"
 #define DEFAULT_COLORATTRIBUTE_ENV	"444,8bit"
 
 #define DEFAULT_COLOR_FORMAT_4K         "420,8bit"
-#define DEFAULT_COLOR_FORMAT            "444,8bit"
-#define DEFAULT_HDMI_MODE               "480p60hz"
+#define DEFAULT_COLOR_FORMAT            "rgb,8bit"
+#define DEFAULT_HDMI_MODE               "720p60hz"
 
 typedef enum {
 	DOLBY_VISION_PRIORITY = 0,

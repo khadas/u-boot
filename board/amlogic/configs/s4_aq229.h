@@ -64,7 +64,7 @@
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
         "outputmode=1080p60hz\0" \
-        "hdmimode=1080p60hz\0" \
+	"hdmimode=none\0" \
         "cvbsmode=576cvbs\0" \
 	"vout_init=enable\0" \
         "display_width=1920\0" \
@@ -91,8 +91,9 @@
         "video_reverse=0\0"\
         "board=s4x2_skt\0"\
         "initargs="\
-            "init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-            "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+		"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend "\
+		"earlycon=aml-uart,0xfe07a000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
+		"ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xfe02e030"\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\

@@ -62,7 +62,7 @@
 #define  CONFIG_BOARD_TIMMING
 
 #define ENABLE_T5M_SKT_BOARD 1  //SKT AY309 6layer 4pcs ddr4
-//#define ENABLE_T5M_REF_BOARD 1      //AR331 2layer 4pcs ddr4
+//#define ENABLE_T5M_REF_BOARD 1  //REF AY301 2layer 1pcs ddr4
 
 #define T3_2GB_SAM_DDR4_X4_EID       0x66C6A
 
@@ -87,10 +87,11 @@
 #define DDR_ID_FROM_GPIO_CONFIG1  (0Xfdu << 24)
 #define DDR_ID_START_MASK  (0XFFDDCCBBu)
 
-#define DDR_ADC_CH0  (0X0u << 6)
-#define DDR_ADC_CH1  (0X1u << 6)
-#define DDR_ADC_CH2  (0X2u << 6)
-#define DDR_ADC_CH3  (0X3u << 6)
+#define DDR_ADC_CH0  (0X0u << 5)
+#define DDR_ADC_CH1  (0X1u << 5)
+#define DDR_ADC_CH2  (0X2u << 5)
+#define DDR_ADC_CH3  (0X3u << 5)
+#define DDR_ADC_CH4  (0X4u << 5)
 
 #define DDR_ADC_VALUE0  (0X0u << 0)
 #define DDR_ADC_VALUE1  (0X1u << 0)
@@ -141,9 +142,39 @@ typedef  struct   ddr_para_data_start {
 #if 1
 uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 	//DDR_ID
-	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH3, DDR_ADC_VALUE1),
-	//data start,2GB,DDR0-1GB,DDR1-1GB
+	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH4, DDR_ADC_VALUE0),
+	//DDR1-2GB-16bit,DDR0-x
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch0_size_MB,
+		((DRAM_SIZE_ID_256MBX8 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch1_size_MB,
+		((DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
+	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
+	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
+//		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[0], (0 << 7) | 2),
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[1], (0 << 7) | 2),
 
+	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH4, DDR_ADC_VALUE1),
+	//DDR1-1GB-16bit,DDR0-x
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch0_size_MB,
+		((DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch1_size_MB,
+		((DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
+	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
+	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 	//...
 	//...
 	//data end
@@ -166,11 +197,10 @@ uint32_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 
 #endif
 
-#if ENABLE_T5M_SKT_BOARD    //timing_config,SKT AR319 6layer 4pcs ddr4
+#if ENABLE_T5M_SKT_BOARD    //timing_config,SKT AY309 6layer 1pcs ddr4
 ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
-//ddr_set_ps0_only_t ddr_set_ps0_only_t_default[2] = {
-	{
-		.cfg_board_common_setting.timming_magic = 0x12345678,
+	{//start ddr0
+		.cfg_board_common_setting.timming_magic = 0,
 		.cfg_board_common_setting.timming_max_valid_configs = 0,
 		//sizeof(__ddr_setting) / sizeof(ddr_set_ps0_only_t),
 		.cfg_board_common_setting.timming_struct_version = 0,
@@ -204,8 +234,17 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
-		.cfg_board_common_setting.pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
-		//center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
+
+		//CNTL1 bit23=0 disable SSC,cfg_board_common_setting.pll_ssc_mode = 0,
+		//center_ssc_1000ppm,(1 << 29) | (1 << 8) | (2 << 4) | 0
+		//CNTL1 bit23=1 enable SSC,
+		//CNTL2
+		//bit29, 0-29.5k, 1-31.5k, 2-50k
+		//bit[11:8], 1-x500ppm, 2-x1000ppm, 3-x1500ppm
+		//bit4, 1-12,ssc value = bit[7:4] * bit[11:8];
+		//bit0, 0-center_ssc, 1-up_ssc, 1-down_ssc
+		.cfg_board_common_setting.pll_ssc_mode = (1 << 29) | (1 << 8) | (2 << 4) | 0,
+
 		.cfg_board_common_setting.org_tdqs2dq = 0,
 		.cfg_board_common_setting.reserve1_test = { 0 },
 		.cfg_board_common_setting.ddr_dmc_remap = DDR_DMC_REMAP_DDR4_32BIT,
@@ -229,7 +268,6 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 
 		.cfg_board_common_setting.dbi_enable = 0x00000000,
 		.cfg_board_common_setting.ddr_rfc_type = DDR_RFC_TYPE_DDR4_2Gbx8,
-		.cfg_board_common_setting.pll_ssc_mode = 0x00000000,
 
 		#ifdef CONFIG_BOARD_TIMMING     //skt lp4 board
 		#define TDQS2DQ  ((0 * 128 * CACLU_CLK_DDR1) / 1000000)
@@ -264,53 +302,31 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		},
 
 		.cfg_board_common_setting.ddr_dq_remap = {
-			0,
-			1,
-			2,
-			3,
-			4,
-			5,
-			6,
-			32,
-			7,
-			8,
-			9,
-			10,
-			11,
-			12,
-			13,
-			14,
-			33,
-			15,
-			16,
-			17,
-			18,
-			19,
-			20,
-			21,
-			22,
-			23,
-			34,
-			24,
-			25,
-			26,
-			27,
-			28,
-			29,
-			30,
-			31,
-			35,
+			0, 1, 2, 3, 4, 5, 6, 32, 7,
+			8, 9, 10, 11, 12, 13, 14, 33, 15,
+			16, 17, 18, 19, 20, 21, 22, 23, 34,
+			24, 25, 26, 27, 28, 29, 30, 31, 35,
 		},
 		//.cfg_board_common_setting.ddr_dq_remap= {
 		// 3, 0, 2, 1, 4, 6, 5, 7,  14, 12, 13, 15,
-		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
+		.cfg_ddr_training_delay_ps.reserve_para = {
+			//cs0 write dqs,lane0-lane3
+			(1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8,
+			//cs1 write dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs0 read dqs,lane0-lane3
+			(1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16,
+			//cs1 read dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		},
+//		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
+//		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = 0,//(1 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[1] = 0,//(0 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = (1 << 7) | 0x5,
@@ -887,7 +903,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[2][4] = 0x00000000,
 		.cfg_ddr_training_delay_ps.RxReplicaPhase[3][4] = 0x00000000,
 	},
-	{
+	{//ddr1
 		.cfg_board_common_setting.timming_magic = 0,
 		.cfg_board_common_setting.timming_max_valid_configs = 0,
 		//sizeof(__ddr_setting) / sizeof(ddr_set_ps0_only_t),
@@ -922,8 +938,17 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
-		.cfg_board_common_setting.pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
-		//center_ssc_1000ppm,//SSC_DISABLE,(1 << 20) | (0 << 8) | (2 << 4) | 0,
+
+		//CNTL1 bit23=0 disable SSC,cfg_board_common_setting.pll_ssc_mode = 0,
+		//center_ssc_1000ppm,(1 << 29) | (1 << 8) | (2 << 4) | 0
+		//CNTL1 bit23=1 enable SSC,
+		//CNTL2
+		//bit29, 0-29.5k, 1-31.5k, 2-50k
+		//bit[11:8], 1-x500ppm, 2-x1000ppm, 3-x1500ppm
+		//bit4, 1-12,ssc value = bit[7:4] * bit[11:8];
+		//bit0, 0-center_ssc, 1-up_ssc, 1-down_ssc
+		.cfg_board_common_setting.pll_ssc_mode = (1 << 29) | (1 << 8) | (2 << 4) | 0,
+
 		.cfg_board_common_setting.org_tdqs2dq = 0,
 		.cfg_board_common_setting.reserve1_test = {
 			0
@@ -956,7 +981,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 // 1 //real chip stk lp4
 		.cfg_board_common_setting.dbi_enable = 0x00000000,
 		.cfg_board_common_setting.ddr_rfc_type = DDR_RFC_TYPE_DDR4_2Gbx8,
-		.cfg_board_common_setting.pll_ssc_mode = 0x00000000,
+
 //.cfg_board_common_setting.max_core_timmming_frequency=0x00000e10,// 3600,0x0000006a
 
 //.cfg_board_common_setting.lpddr4_x8_mode=0x00000000,// 0,0x00000087
@@ -1004,42 +1029,10 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		},
 #ifdef CONFIG_BOARD_TIMMING
 		.cfg_board_common_setting.ddr_dq_remap = {
-			4,
-			0,
-			5,
-			1,
-			6,
-			3,
-			7,
-			2,
-			32,
-			12,
-			10,
-			14,
-			9,
-			13,
-			8,
-			11,
-			33,
-			15,
-			16,
-			17,
-			18,
-			19,
-			20,
-			21,
-			22,
-			34,
-			23,
-			24,
-			25,
-			26,
-			27,
-			28,
-			29,
-			30,
-			35,
-			31,
+			4, 0, 5, 1, 6, 3, 7, 2, 32,
+			12, 10, 14, 9, 13, 8, 11, 33, 15,
+			16, 17, 18, 19, 20, 21, 22, 34, 23,
+			24, 25, 26, 27, 28, 29, 30, 35, 31,
 		},
 #endif
 
@@ -1047,14 +1040,24 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//3, 0, 2, 1, 4, 6, 5, 7,  14, 12, 13, 15,
 		.cfg_ddr_training_delay_ps.tx_offset[0] = (0 << 7) | 0x0,
 		.cfg_ddr_training_delay_ps.rx_offset[0] = (0 << 7) | 0x0,
-		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
-		.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
+		.cfg_ddr_training_delay_ps.reserve_para = {
+			//cs0 write dqs,lane0-lane3
+			(1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8, (1 << 7) | 8,
+			//cs1 write dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+			//cs0 read dqs,lane0-lane3
+			(1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16, (1 << 7) | 16,
+			//cs1 read dqs,lane0-lane3
+			(0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0, (0 << 7) | 0,
+		},
+		//.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[2] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[3] = (1 << 7) | 0x8,//write dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 0] = (1 << 7) | 0x10,//read dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 1] = (1 << 7) | 0x10,//read dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 2] = (1 << 7) | 0x10,//read dqs
+		//.cfg_ddr_training_delay_ps.reserve_para[8 + 3] = (1 << 7) | 0x10,//read dqs
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = 0,//(1 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[1] = 0,//(0 << 7) | 0x10,
 		//.cfg_ddr_training_delay_ps.dac_offset[0] = (1 << 7) | 0x5,
@@ -1636,7 +1639,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #define VMIN_TT_VALUE                           820
 #define VMIN_SS_VALUE                           840
 /* board vddee_value defines */
-#define VDDEE_FF_VALUE                          0xa0008
+/* FF=0.83V TT=0.85V SS=0.87V */
+#define VDDEE_FF_VALUE                          0x90009
 #define VDDEE_TT_VALUE                          0x7000b
 #define VDDEE_SS_VALUE                          0x5000d
 

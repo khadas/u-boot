@@ -646,6 +646,106 @@
 #define LCD_GAMMA_ADDR_PORT0                       ((0x14b6  << 2) + 0xff000000)
 #endif
 
+#ifndef ENCL_TST_DATA
+#define ENCL_TST_DATA                              ((0x14b6  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_TST_CLRBAR_CNTL
+#define ENCL_TST_CLRBAR_CNTL                       ((0x14b7  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_TST_CRSBAR_CNTL
+#define ENCL_TST_CRSBAR_CNTL                       ((0x14b8  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_TST_CRSBAR_CNTL
+#define ENCL_TST_CRSBAR_CNTL                       ((0x14b8  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_DACSEL_0
+#define ENCL_DACSEL_0                              ((0x14b9  << 2) + 0xff800000)
+#endif
+
+#ifndef VPP_4S4P_CTRL
+#define VPP_4S4P_CTRL                              ((0x1d16  << 2) + 0xff800000)
+#endif
+
+#ifndef LCD_LCD_IF_CTRL
+#define LCD_LCD_IF_CTRL                            ((0x14e0  << 2) + 0xff800000)
+#endif
+
+#ifndef LCD_DITH_CTRL
+#define LCD_DITH_CTRL                              ((0x14e2  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_VSRC_CTRL
+#define ENCL_VIDEO_VSRC_CTRL                       ((0x14c3  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_MAX_CNT
+#define ENCL_VIDEO_MAX_CNT                         ((0x14c8  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_HAVON_PX_RNG
+#define ENCL_VIDEO_HAVON_PX_RNG                    ((0x14c9  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_VAVON_LN_RNG
+#define ENCL_VIDEO_VAVON_LN_RNG                    ((0x14ca  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_HSO_PX_RNG
+#define ENCL_VIDEO_HSO_PX_RNG                      ((0x14cb  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_VSO_PX_RNG
+#define ENCL_VIDEO_VSO_PX_RNG                      ((0x14cc  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_VSO_LN_RNG
+#define ENCL_VIDEO_VSO_LN_RNG                      ((0x14cd  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_OFFST_HV
+#define ENCL_VIDEO_OFFST_HV                        ((0x14ce  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_OFFST_OFLD
+#define ENCL_VIDEO_OFFST_OFLD                      ((0x14cf  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_DBG_PX_LN_RST
+#define ENCL_DBG_PX_LN_RST                         ((0x14d0  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_DBG_PX_LN_INT
+#define ENCL_DBG_PX_LN_INT                         ((0x14d1  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_MAX_LINE_SWITCH_POINT
+#define ENCL_MAX_LINE_SWITCH_POINT                 ((0x14d2  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_TIM_SYNC_CTRL
+#define ENCL_TIM_SYNC_CTRL                         ((0x14d3  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_GAIN_RGB_CTRL
+#define ENCL_VIDEO_GAIN_RGB_CTRL                   ((0x14c2  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_V_PRE_DE_LN_RNG
+#define ENCL_VIDEO_V_PRE_DE_LN_RNG                 ((0x14db  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_H_PRE_DE_PX_RNG
+#define ENCL_VIDEO_H_PRE_DE_PX_RNG                 ((0x14da  << 2) + 0xff800000)
+#endif
+
+#ifndef VPU_VENC_DITH
+#define VPU_VENC_DITH                              ((0x1cee  << 2) + 0xff800000)
+#endif
+
 #ifndef ENCL_TST_EN
 #define ENCL_TST_EN                                ((0x1c98  << 2) + 0xff000000)
 #endif
@@ -1874,4 +1974,56 @@
 #endif
 #ifndef HHI_VID_CLK0_CTRL2
 #define HHI_VID_CLK0_CTRL2              0x0a4
+#endif
+
+#ifndef VBO_SLICE_CTRL
+#define VBO_SLICE_CTRL                             ((0x1980  << 2) + 0xff800000)
+#endif
+
+#ifndef VBO_RGN_CTRL
+#define VBO_RGN_CTRL                               ((0x1981  << 2) + 0xff800000)
+#endif
+#ifndef VBO_RGN_HSIZE
+#define VBO_RGN_HSIZE                              ((0x1982  << 2) + 0xff800000)
+#endif
+
+#ifndef ENCL_VIDEO_HSO_PRE_PX_RNG
+#define ENCL_VIDEO_HSO_PRE_PX_RNG                  ((0x14f0  << 2) + 0xff800000)
+#endif
+#ifndef ENCL_VIDEO_VSO_PRE_PX_RNG
+#define ENCL_VIDEO_VSO_PRE_PX_RNG                  ((0x14f1  << 2) + 0xff800000)
+#endif
+#ifndef ENCL_VIDEO_VSO_PRE_LN_RNG
+#define ENCL_VIDEO_VSO_PRE_LN_RNG                  ((0x14f2  << 2) + 0xff800000)
+#endif
+#ifndef VBO_CTRL
+#define VBO_CTRL                                   ((0x1960  << 2) + 0xff800000)
+#endif
+#ifndef VBO_FSM_HOLDER
+#define VBO_FSM_HOLDER                             ((0x1975  << 2) + 0xff800000)
+#endif
+/* A4 */
+#ifndef VPU_VOUT_BIST_SEL
+#define VPU_VOUT_BIST_SEL                          ((0x0452  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_CLRBAR_CFG
+#define VPU_VOUT_CLRBAR_CFG                        ((0x0451  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BIST_HIGH
+#define VPU_VOUT_BIST_HIGH                         ((0x0453  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BIST_CFG_YUV
+#define VPU_VOUT_BIST_CFG_YUV                      ((0x0450  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_INT_CTRL
+#define VPU_VOUT_INT_CTRL                          ((0x0401  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BLEND_SIZE
+#define VPU_VOUT_BLEND_SIZE                        ((0x0042  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BLEND_CTRL
+#define VPU_VOUT_BLEND_CTRL                        ((0x0040  << 2) + 0xfe340000)
+#endif
+#ifndef VPU_VOUT_BLEND_DUMDATA
+#define VPU_VOUT_BLEND_DUMDATA                     ((0x0041  << 2) + 0xfe340000)
 #endif

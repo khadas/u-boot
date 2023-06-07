@@ -2416,7 +2416,7 @@ struct hdmi_format_para *hdmi_tst_fmt_name(char const *name, char const *attr)
 	unsigned int copy_len;
 
 	copy_para(&tst_para, &fmt_para_non_hdmi_fmt);
-	if (!name)
+	if (!name || !attr)
 		return &tst_para;
 
 	for (i = 0; all_fmt_paras[i]; i++) {

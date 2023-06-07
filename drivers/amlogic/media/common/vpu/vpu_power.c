@@ -64,7 +64,7 @@ void vpu_module_init_config(void)
 		vpu_vcbus_write(VPU_RDARB_MODE_L1C2, 0x10000);
 	}
 	if (vpu_conf.data->chip_type == VPU_CHIP_T5M)
-		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x400000);
+		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x0);
 	else
 		vpu_vcbus_write(VPU_RDARB_MODE_L2C1, 0x900000);
 

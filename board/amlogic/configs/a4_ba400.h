@@ -75,7 +75,7 @@
 	"loadaddr_kernel=0x03080000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \
-	"panel_type=lcd_1\0" \
+	"panel_type=rgb_0\0" \
 	"outputmode=1080p60hz\0" \
 	"hdmimode=1080p60hz\0" \
 	"colorattribute=444,8bit\0"\
@@ -121,8 +121,9 @@
 	"fatload_dev=usb\0"\
 	"fs_type=""rootfstype=ramfs""\0"\
 	"initargs="\
-	"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml-uart,0xfe07a000 "\
-	"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
+	"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend  "\
+	"earlycon=aml-uart,0xfe07a000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
+	"ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xfe02e030 "\
 	"\0"\
 	"upgrade_check="\
 	"echo recovery_status=${recovery_status};"\

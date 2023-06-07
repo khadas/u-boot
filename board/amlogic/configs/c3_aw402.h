@@ -94,8 +94,9 @@
 	"fatload_dev=usb\0"\
 	"fs_type=""rootfstype=ramfs""\0"\
 	"initargs="\
-	"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend earlycon=aml_uart,0xfe07a000 "\
-	"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 "\
+	"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend "\
+	"earlycon=aml_uart,0xfe07a000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
+	"ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xfe02e030 "\
 	"\0"\
 	"upgrade_check="\
 	"echo recovery_status=${recovery_status};"\
@@ -128,13 +129,13 @@
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0" \
 	"storeboot="\
-		"ddr_auto_fast_boot_check 6;"\
+		"run storage_param;"\
 		"imgread dtb _aml_dtb ${dtb_mem_addr};"\
 		"imgread kernel ${boot_part} ${loadaddr_kernel};"\
 		"store read 0x01a80000 system 0 0x300000;bootm ${loadaddr_kernel};"\
 		"\0" \
 	"storeboot_ramdisk="\
-		"ddr_auto_fast_boot_check 6;"\
+		"run storage_param;"\
 		"imgread dtb _aml_dtb ${dtb_mem_addr};"\
 		"imgread kernel ${boot_part} ${loadaddr_kernel};"\
 		"store read 0x01a80000 system 0 0x300000;bootm ${loadaddr_kernel};"\
@@ -173,6 +174,10 @@
 		"\0"\
 	"bcb_cmd="\
 		"get_valid_slot;"\
+		"\0"\
+	"storage_param="\
+		"store param;"\
+		"setenv bootargs ${bootargs} ${mtdbootparts}; "\
 		"\0"\
 	"\0"\
 

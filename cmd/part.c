@@ -95,7 +95,7 @@ static int do_part_list(int argc, char * const argv[])
 			int r = part_get_info(desc, p, &info);
 
 			if (r != 0)
-				continue;
+				break;
 
 			if (bootable && !info.bootable)
 				continue;

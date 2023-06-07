@@ -53,7 +53,8 @@ static unsigned int vinfo_width = 1920;
 static unsigned int vinfo_height = 1080;
 static unsigned int vinfo_duration_num = 60;
 static unsigned int vinfo_field_height = 1080;
-bool dolby_vision_on;
+static bool dolby_vision_ll_flag;
+int dolby_vision_on;
 static char *dolby_status;
 static bool dv_fw_valid = true;
 
@@ -473,6 +474,9 @@ static int check_tv_support_dv(struct hdmitx_dev *hdmitx_device)
 			printf("check_tv_support_dv: 4k60 dovi NOT supported\n");
 			return 0;
 		}
+	} else if (strstr(outputmode, "100hz") || strstr(outputmode, "120hz")) {
+		if (!dv_info->sup_1080p120hz)
+			return 0;
 	} else if (!check_outputmode()) {
 		/* currently all sink not support 4k100/120 and 8k dv */
 	    /*in the future, some new flag in vsvdb will be used to judge dv cap*/
@@ -1139,9 +1143,10 @@ static int dolby_core3_set(
 	if (is_meson_s5())
 		WRITE_VPP_REG_BITS(VPU_DOLBY_GATE_CTRL, 1, 9, 1);
 #endif
-	if (dovi_setting.diagnostic_enable
-		|| dovi_setting.dovi_ll_enable)
+	if (dovi_setting.diagnostic_enable || dovi_setting.dovi_ll_enable) {
 		diag_enable = 1;
+		dolby_vision_ll_flag = true;
+	}
 
 	if (((cur_dv_mode == DOLBY_VISION_OUTPUT_MODE_IPT_TUNNEL)
 		|| (cur_dv_mode == DOLBY_VISION_OUTPUT_MODE_IPT))
@@ -1554,8 +1559,26 @@ static int  enable_dolby_vision(void)
 			}
 		}
 #endif
-		dolby_vision_on = true;
-		env_set("dolby_vision_on", "1");
+		/* dolby_vision_on: */
+		/*	1- STD mode */
+		/*	2- LL mode */
+		/*	3- HDR10 mode */
+		/*	4- SDR mode */
+		if (dolby_vision_mode == DOLBY_VISION_OUTPUT_MODE_SDR8) {
+			dolby_vision_on = 4;
+			env_set("dolby_vision_on", "4");
+		} else if (dolby_vision_mode == DOLBY_VISION_OUTPUT_MODE_HDR10) {
+			dolby_vision_on = 3;
+			env_set("dolby_vision_on", "3");
+		} else if (dolby_vision_ll_flag &&
+			(dolby_vision_mode == DOLBY_VISION_OUTPUT_MODE_IPT_TUNNEL ||
+			dolby_vision_mode == DOLBY_VISION_OUTPUT_MODE_IPT)) {
+			dolby_vision_on = 2;
+			env_set("dolby_vision_on", "2");
+		} else {
+			dolby_vision_on = 1;
+			env_set("dolby_vision_on", "1");
+		}
 		run_command("saveenv", 0);
 		printk("Dolby Vision turn on\n");
 	}

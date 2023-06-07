@@ -30,6 +30,11 @@
 #define CLK_LEVEL_DFT_C3      4
 #define CLK_LEVEL_MAX_C3      5
 
+/* T3X */
+/* freq max=800M, default=800M */
+#define CLK_LEVEL_DFT_T3X      8
+#define CLK_LEVEL_MAX_T3X      9
+
 /* vpu clk setting */
 #if 0
 static struct fclk_div_s fclk_div_table_gxb[] = {
@@ -60,6 +65,15 @@ static struct fclk_div_s fclk_div_table_c3[] = {
 	{FCLK_DIV_MAX, 8,    1},
 };
 
+static struct fclk_div_s fclk_div_table_t3x[] = {
+	/* id,         mux,  div */
+	{FCLK_DIV3,    0,    3},
+	{FCLK_DIV4,    1,    4},
+	{FCLK_DIV5,    2,    5},
+	{FCLK_DIV2P5,  3,    25},
+	{FCLK_DIV_MAX, 8,    1},
+};
+
 static struct vpu_clk_s vpu_clk_table[] = {
 	/* frequency   clk_mux       div */
 	{100000000,    FCLK_DIV5,    3}, /* 0 */
@@ -70,8 +84,9 @@ static struct vpu_clk_s vpu_clk_table[] = {
 	{400000000,    FCLK_DIV5,    0}, /* 5 */
 	{500000000,    FCLK_DIV4,    0}, /* 6 */
 	{666667000,    FCLK_DIV3,    0}, /* 7 */
-	{696000000,    GPLL_CLK,     0}, /* 8 */ /* invalid */
-	{850000000,    GPLL_CLK,     0}, /* 9 */ /* invalid */
+	{800000000,    FCLK_DIV2P5,  0}, /* 8 */
+	{696000000,    GPLL_CLK,     0}, /* 9 */ /* invalid */
+	{850000000,    GPLL_CLK,     0}, /* 10 */ /* invalid */
 };
 
 /* ******************************************************* */
@@ -200,6 +215,16 @@ static unsigned int vpu_pwrctrl_id_table_t3[] = {
 };
 
 static unsigned int vpu_pwrctrl_id_table_s5[] = {
+	PM_VPU_HDMI,
+	PM_VI_CLK1,
+	PM_VI_CLK2,
+#ifdef AML_S5_DISPLAY
+	PM_VPU_DOLBY,
+#endif
+	VPU_PWR_ID_END
+};
+
+static unsigned int vpu_pwrctrl_id_table_t3x[] = {
 	PM_VPU_HDMI,
 	PM_VI_CLK1,
 	PM_VI_CLK2,

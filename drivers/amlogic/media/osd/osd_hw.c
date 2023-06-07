@@ -1198,7 +1198,8 @@ void osd_setting_default_hwc(u32 index, struct pandata_s *disp_data)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X)
 		postbld_src3_sel = 4;
 
 	/* for s5_display, OSDx to din(x+1) */
@@ -3178,7 +3179,13 @@ static void osd_update_color_mode(u32 index)
 		data32 |= osd_hw.fb_gem[index].canvas_idx << 16;
 		if (!osd_hw.rotate[index].on_off)
 			data32 |= OSD_DATA_LITTLE_ENDIAN << 15;
-		data32 |= osd_hw.color_info[index]->hw_colormat << 2;
+
+		/* after t3x, color matrix rgb565 changed */
+		if (osd_get_chip_type() >= MESON_CPU_MAJOR_ID_T3X  &&
+			osd_hw.color_info[index]->color_index == 16)
+			data32 |= 2 << 2;
+		else
+			data32 |= osd_hw.color_info[index]->hw_colormat << 2;
 		if (osd_get_chip_type() < MESON_CPU_MAJOR_ID_GXTVBB) {
 			if (osd_hw.color_info[index]->color_index
 				< COLOR_INDEX_YUV_422)
@@ -4339,7 +4346,8 @@ void osd_init_hw_viux(u32 index)
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_T7 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X)
 		osd_hw.mif_linear = 1;
 }
 #else
@@ -4433,6 +4441,7 @@ static void set_vpp_super_position(void)
 #define PREBLD_SR0_VD1_SCALER		(1 << 1)
 #define DNLP_SR1_CM			        (1 << 3)
 
+#ifndef AML_S5_DISPLAY
 	if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_G12A) ||
 		(osd_get_chip_type() == MESON_CPU_MAJOR_ID_G12B) ||
 		 (osd_get_chip_type() == MESON_CPU_MAJOR_ID_SM1))
@@ -4440,6 +4449,7 @@ static void set_vpp_super_position(void)
 	else if ((osd_get_chip_type() == MESON_CPU_MAJOR_ID_TL1) ||
 		(osd_get_chip_type() >= MESON_CPU_MAJOR_ID_TM2))
 		osd_reg_set_mask(VPP_MISC, DNLP_SR1_CM);
+#endif
 }
 
 static void fix_vpu_clk2_default_regs(void)
@@ -4873,7 +4883,8 @@ void osd_init_hw(void)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X)
 		osd_hw.mif_linear = 1;
 
 	return;

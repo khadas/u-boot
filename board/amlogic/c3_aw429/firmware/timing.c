@@ -504,6 +504,14 @@ __attribute__ ((section(".misc_param"))) = {
 	/* set GPIOE_0 GPIOE_1 mux to pwma pwmb */
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 0),	  (0xf << 0), 0, 0, 0 },
 	{ PADCTRL_PIN_MUX_REGI,	   (0x1 << 4),	  (0xf << 4), 0, 0, 0 },
+    /* set GPIOA_2 ircut) to low */
+	{ PADCTRL_PIN_MUX_REGB,	   (0 << 8),	  (0xf << 8), 0, 0, 0 },
+	{ PADCTRL_GPIOA_O,	       (0 << 2),	  (0x1 << 2), 0, 0, 0 },
+	{ PADCTRL_GPIOA_OEN,	   (0 << 2),	  (0x1 << 2), 0, 0, 0 },
+    /* set GPIOA_3 ircut to low */
+	{ PADCTRL_PIN_MUX_REGB,	   (0 << 12),	  (0xf << 12), 0, 0, 0 },
+	{ PADCTRL_GPIOA_O,	       (0 << 3),	  (0x1 << 3), 0, 0, 0 },
+	{ PADCTRL_GPIOA_OEN,	   (0 << 3),	  (0x1 << 3), 0, 0, 0 },
 };
 
 #define DEV_FIP_SIZE 0x300000

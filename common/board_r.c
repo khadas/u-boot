@@ -109,7 +109,6 @@ static int initr_caches(void)
 {
 	/* Enable caches */
 	enable_caches();
-	gd->flags |= GD_FLG_CACHE_EN;
 	return 0;
 }
 #endif
@@ -166,6 +165,7 @@ static int initr_reloc_global_data(void)
 static int initr_serial(void)
 {
 	serial_initialize();
+
 	return 0;
 }
 
@@ -250,6 +250,10 @@ static int initr_malloc(void)
 
 static int initr_console_record(void)
 {
+#if defined(CONFIG_AML_DRIVER)
+	extern int get_bootloader_build_message(void);
+	get_bootloader_build_message();
+#endif
 #if defined(CONFIG_CONSOLE_RECORD)
 	return console_record_init();
 #else
