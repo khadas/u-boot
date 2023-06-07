@@ -61,11 +61,11 @@ static int vout_hdmi_hpd(int hpd_st)
 
 	/* if hpd_st high, output mode will be saved on hdmi side */
 	if (!hpd_st) {
-		cvbsmode = env_get("cvbsmode");
-		if (cvbsmode)
-			env_set("outputmode", cvbsmode);
+		env_set("outputmode", hdmimode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
+	} else {
+		env_set("outputmode", hdmimode);
 	}
 
 	return 1;
@@ -99,11 +99,11 @@ static int vout2_hdmi_hpd(int hpd_st)
 
 	/* if hpd_st high, output mode will be saved on hdmi side */
 	if (!hpd_st) {
-		cvbsmode = env_get("cvbsmode");
-		if (cvbsmode)
-			env_set("outputmode2", cvbsmode);
+		env_set("outputmode2", hdmimode);
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
+	} else {
+		env_set("outputmode2", hdmimode);
 	}
 
 	return 0;
