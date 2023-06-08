@@ -337,6 +337,8 @@ void usb_device_mode_init(int phy_num)
 	//}
 
 	//step 1: usb phy power
+	writel((readl(RESET1_LEVEL_BASE) & (~(0x1 << 16))), RESET1_LEVEL_BASE);
+	usb_udelay(500);
 	writel((readl(RESET1_LEVEL_BASE) | (0x1 << 16)), RESET1_LEVEL_BASE);
 
 	//step 2: usb controller reset
