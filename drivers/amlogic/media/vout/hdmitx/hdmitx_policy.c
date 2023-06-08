@@ -1221,7 +1221,7 @@ void hdr_scene_process(struct input_hdmi_data *hdmi_data,
 			colorList_length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST2);
 		}
 
-		for (j = colorList_length - 1; j >= 0; j--) {
+		for (j = 0; j < colorList_length; j++) {
 			memset(colorattribute, 0, sizeof(colorattribute));
 			strncpy(colorattribute, colorList[j], MODE_LEN - 1);
 			if (hdmitx_chk_mode_attr_sup(hdmi_data,
