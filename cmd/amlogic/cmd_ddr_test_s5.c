@@ -476,7 +476,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_phy_base_address = 0xfc000000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
-		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_dmc_sticky0 = ((0x200 << 2) + 0xfe036000),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
@@ -493,7 +493,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
-		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe032000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
@@ -7380,7 +7380,7 @@ int do_read_s5_ddr_training_data(char log_level, ddr_set_ps0_only_t *ddr_set_t_p
 
 	for (loop = 0; loop < loop_max; loop += 4)
 		wr_reg(((uint64_t)(ddr_set_t_p) + loop),
-		       rd_reg((p_ddr_base->ddr_dmc_sticky0) + loop));
+		       rd_reg((ddr_dmc_sticky[dmc_ddr_config_channel_id]) + loop));
 	loop_max = sizeof(board_SI_setting_ps_t);
 	printf_log(log_level, "\nsizeof(board_SI_setting_ps_t)=0x%8x\n", loop_max);
 	//for (loop = 0; loop < loop_max; loop += 4)
@@ -7435,8 +7435,9 @@ int do_ddr_display_s5_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 			loop_max = 64 << 2; //sizeof(ddr_set_t);
 			for (count = 0; count < loop_max; count += 4)
 				printf("\n reg_add_offset: %8x %8x %8x", count,
-				       rd_reg((uint64_t)((p_ddr_base->ddr_dmc_sticky0)) + count),
-				       (((p_ddr_base->ddr_dmc_sticky0)) + count));
+				rd_reg((uint64_t)(ddr_dmc_sticky[dmc_ddr_config_channel_id]) +
+				 count),
+				ddr_dmc_sticky[dmc_ddr_config_channel_id] + count);
 		}
 
 		{

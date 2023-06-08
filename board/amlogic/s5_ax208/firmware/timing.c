@@ -468,28 +468,40 @@ typedef struct ddr_para_data_start {
 
 #define DDR_TIMMING_TUNE_STRUCT_SIZE(a)  sizeof(a)
 
-#define DDR_TIMMING_TUNE_TIMMING0_F(PARA, VALUE) ((DDR_TIMMING_OFFSET(PARA)) << 16) |\
-((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | VALUE
-#define DDR_TIMMING_TUNE_TIMMING1_F(PARA, VALUE) ((sizeof(ddr_set_ps0_only_t) +\
-DDR_TIMMING_OFFSET(PARA)) << 16) | ((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | (VALUE)
-
-#define DDR_TIMMING_TUNE_START(id_src_from, id_adc_ch, id_value) (id_src_from) |\
-(id_adc_ch) | (id_value) }
+#define DDR_TIMMING_TUNE_TIMMING0_F(PARA, VALUE) (((DDR_TIMMING_OFFSET(PARA)) << 16) | \
+((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | (VALUE))
+#define DDR_TIMMING_TUNE_TIMMING1_F(PARA, VALUE) (((sizeof(ddr_set_ps0_only_t) + \
+DDR_TIMMING_OFFSET(PARA)) << 16) | ((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | (VALUE))
+#define DDR_TIMMING_TUNE_START(id_src_from, id_adc_ch, id_value) ((id_src_from) | \
+(id_adc_ch) | (id_value))
 #define DDR_TIMMING_TUNE_ADC_MULT_START(id_value, ch0, ch1, ch2, ch3, ch4, ch5) (id_value) |\
 (ch0) | ((ch1) << 4) | ((ch2) << 8) | ((ch3) << 12) | ((ch4) << 16) | ((ch5) << 20)
 
 //#if 1
 uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 	DDR_ID_START_MASK,
-	//DDR_TIMMING_TUNE_ADC_MULT_START(DDR_ID_FROM_ADC_MULT, V12, V1, VX, VX, VX, VX),
-	//data start
+	//DDR_TIMMING_TUNE_ADC_MULT_START(DDR_ID_FROM_ADC_MULT, VX, VX, V3, VX, VX, VX),
+    //data start
 	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch0_size_MB,
-	//		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-	//		(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-	//		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-	//		(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
-	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1200),
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch1_size_MB,
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch0_size_MB,
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch1_size_MB,
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
 };
 
 //#endif
@@ -513,7 +525,7 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.ddr_func = 0,
 		.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
 		.cfg_board_common_setting.DramType = CONFIG_DDR_TYPE_LPDDR4,
-		.cfg_board_common_setting.enable_lpddr4x_mode = 3,
+		.cfg_board_common_setting.enable_lpddr4x_mode = 2,
 		//0  force lp4x   1 force lp4
 		//2 auto 4x use nn 4 use pn drivere
 		//3 auto + force 4 4x both use nn driver
@@ -523,13 +535,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.dram_ch0_size_MB =
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
 		//bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
 		.cfg_board_common_setting.DisabledDbyte[1] = 0xf0,
@@ -737,6 +749,37 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 256,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 256,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 256,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 0x98,//152，0xd8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 0x9b,//155，0xda
+		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 0xb1,//177，0xdc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 0xa6,//166，0xde
+		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 0xb4,//180，0xe0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 0xb2,//178，0xe2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 0x0,//0，0xe4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 0x0,//0，0xe6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 0x1bf,//447，0xe8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 0x1bf,//447，0xea
+		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 0x9b,//155，0xec
+		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 0xbf,//191，0xee
+		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 0x9b,//155，0xf0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 0xbf,//191，0xf2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 0x9b,//155，0xf4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 0xb4,//180，0xf6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 0xb2,//178，0xf8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 0xa6,//166，0xfa
+		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 0xb1,//177，0xfc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 0x98,//152，0xfe
+		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 0x9b,//155，0x100
+		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 0x0,//0，0x102
+		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 0x0,//0，0x104
+		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 0x1bf,//447，0x106
+		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 0x1bf,//447，0x108
+		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0xbf,//191，0x10a
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0xbf,//191，0x10c
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0x9b,//155，0x10e
+		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 0x9b,//155，0x110
+		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 0x9b,//155，0x112
+
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 64,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[1] = 64,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[2] = 64,
@@ -1347,6 +1390,286 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dqs_delay[5] = 0x80,
 		.cfg_ddr_training_delay_ps.read_dqs_delay[6] = 0x80,
 		.cfg_ddr_training_delay_ps.read_dqs_delay[7] = 0x80,
+		//cxmt
+		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 0x8d,//141，0xd8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 0x92,//146，0xda
+		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 0xa2,//162，0xdc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 0x9d,//157，0xde
+		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 0xb0,//176，0xe0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 0xae,//174，0xe2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 0x0,//0，0xe4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 0x0,//0，0xe6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 0x1bf,//447，0xe8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 0x1bf,//447，0xea
+		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 0x92,//146，0xec
+		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 0xbf,//191，0xee
+		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 0x92,//146，0xf0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 0xbf,//191，0xf2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 0x92,//146，0xf4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 0xb0,//176，0xf6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 0xae,//174，0xf8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 0x9d,//157，0xfa
+		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 0xa2,//162，0xfc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 0x8d,//141，0xfe
+		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 0x92,//146，0x100
+		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 0x0,//0，0x102
+		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 0x0,//0，0x104
+		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 0x1bf,//447，0x106
+		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 0x1bf,//447，0x108
+		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0xbf,//191，0x10a
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0xbf,//191，0x10c
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0x92,//146，0x10e
+		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 0x92,//146，0x110
+		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 0x92,//146，0x112
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 0x37,//55，0x114
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[1] = 0x46,//70，0x116
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[2] = 0x3c,//60，0x118
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[3] = 0x3f,//63，0x11a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[4] = 0x4c,//76，0x11c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[5] = 0x36,//54，0x11e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[6] = 0x38,//56，0x120
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[7] = 0x40,//64，0x122
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[8] = 0x46,//70，0x124
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[9] = 0x38,//56，0x126
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[10] = 0x40,//64，0x128
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[11] = 0x49,//73，0x12a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[12] = 0x48,//72，0x12c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[13] = 0x4e,//78，0x12e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[14] = 0x4e,//78，0x130
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[15] = 0x54,//84，0x132
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[16] = 0x4d,//77，0x134
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[17] = 0x45,//69，0x136
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[18] = 0x39,//57，0x138
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[19] = 0x3f,//63，0x13a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[20] = 0x49,//73，0x13c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[21] = 0x3e,//62，0x13e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[22] = 0x48,//72，0x140
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[23] = 0x3f,//63，0x142
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[24] = 0x3a,//58，0x144
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[25] = 0x37,//55，0x146
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[26] = 0x3a,//58，0x148
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[27] = 0x35,//53，0x14a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[28] = 0x3b,//59，0x14c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[29] = 0x45,//69，0x14e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[30] = 0x3a,//58，0x150
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[31] = 0x3f,//63，0x152
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[32] = 0x3a,//58，0x154
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[33] = 0x32,//50，0x156
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[34] = 0x44,//68，0x158
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[35] = 0x30,//48，0x15a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[0 + 36] = 0x37,//55，0x114
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[1 + 36] = 0x46,//70，0x116
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[2 + 36] = 0x3c,//60，0x118
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[3 + 36] = 0x3f,//63，0x11a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[4 + 36] = 0x4c,//76，0x11c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[5 + 36] = 0x36,//54，0x11e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[6 + 36] = 0x38,//56，0x120
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[7 + 36] = 0x40,//64，0x122
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[8 + 36] = 0x46,//70，0x124
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[9 + 36] = 0x38,//56，0x126
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[10 + 36] = 0x40,//64，0x128
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[11 + 36] = 0x49,//73，0x12a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[12 + 36] = 0x48,//72，0x12c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[13 + 36] = 0x4e,//78，0x12e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[14 + 36] = 0x4e,//78，0x130
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[15 + 36] = 0x54,//84，0x132
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[16 + 36] = 0x4d,//77，0x134
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[17 + 36] = 0x45,//69，0x136
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[18 + 36] = 0x39,//57，0x138
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[19 + 36] = 0x3f,//63，0x13a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[20 + 36] = 0x49,//73，0x13c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[21 + 36] = 0x3e,//62，0x13e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[22 + 36] = 0x48,//72，0x140
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[23 + 36] = 0x3f,//63，0x142
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[24 + 36] = 0x3a,//58，0x144
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[25 + 36] = 0x37,//55，0x146
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[26 + 36] = 0x3a,//58，0x148
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[27 + 36] = 0x35,//53，0x14a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[28 + 36] = 0x3b,//59，0x14c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[29 + 36] = 0x45,//69，0x14e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[30 + 36] = 0x3a,//58，0x150
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[31 + 36] = 0x3f,//63，0x152
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[32 + 36] = 0x3a,//58，0x154
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[33 + 36] = 0x32,//50，0x156
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[34 + 36] = 0x44,//68，0x158
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[35 + 36] = 0x30,//48，0x15a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[0] = 0x0,//0，0x1a4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[1] = 0x0,//0，0x1a6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[2] = 0x0,//0，0x1a8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[3] = 0x0,//0，0x1aa
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[4] = 0x0,//0，0x1ac
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[5] = 0x0,//0，0x1ae
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[6] = 0x0,//0，0x1b0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[7] = 0x0,//0，0x1b2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[8] = 0x0,//0，0x1b4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[9] = 0x0,//0，0x1b6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[10] = 0x0,//0，0x1b8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[11] = 0x0,//0，0x1ba
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[12] = 0x0,//0，0x1bc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[13] = 0x0,//0，0x1be
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[14] = 0x0,//0，0x1c0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[15] = 0x0,//0，0x1c2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[16] = 0x0,//0，0x1c4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[17] = 0x0,//0，0x1c6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[18] = 0x0,//0，0x1c8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[19] = 0x0,//0，0x1ca
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[20] = 0x0,//0，0x1cc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[21] = 0x0,//0，0x1ce
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[22] = 0x0,//0，0x1d0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[23] = 0x0,//0，0x1d2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[24] = 0x0,//0，0x1d4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[25] = 0x0,//0，0x1d6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[26] = 0x0,//0，0x1d8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[27] = 0x0,//0，0x1da
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[28] = 0x0,//0，0x1dc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[29] = 0x0,//0，0x1de
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[30] = 0x0,//0，0x1e0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[31] = 0x0,//0，0x1e2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[32] = 0x0,//0，0x1e4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[33] = 0x0,//0，0x1e6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[34] = 0x0,//0，0x1e8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[35] = 0x0,//0，0x1ea
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[36] = 0x0,//0，0x1ec
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[37] = 0x0,//0，0x1ee
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[38] = 0x0,//0，0x1f0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[39] = 0x0,//0，0x1f2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[40] = 0x0,//0，0x1f4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[41] = 0x0,//0，0x1f6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[42] = 0x0,//0，0x1f8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[43] = 0x0,//0，0x1fa
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[44] = 0x0,//0，0x1fc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[45] = 0x0,//0，0x1fe
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[46] = 0x0,//0，0x200
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[47] = 0x0,//0，0x202
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[48] = 0x0,//0，0x204
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[49] = 0x0,//0，0x206
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[50] = 0x0,//0，0x208
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[51] = 0x0,//0，0x20a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[52] = 0x0,//0，0x20c
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[53] = 0x0,//0，0x20e
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[54] = 0x0,//0，0x210
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[55] = 0x0,//0，0x212
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[56] = 0x0,//0，0x214
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[57] = 0x0,//0，0x216
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[58] = 0x0,//0，0x218
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[59] = 0x0,//0，0x21a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[60] = 0x0,//0，0x21c
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[61] = 0x0,//0，0x21e
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[62] = 0x0,//0，0x220
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[63] = 0x0,//0，0x222
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[64] = 0x0,//0，0x224
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[65] = 0x0,//0，0x226
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[66] = 0x0,//0，0x228
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[67] = 0x0,//0，0x22a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[68] = 0x0,//0，0x22c
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[69] = 0x0,//0，0x22e
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[70] = 0x0,//0，0x230
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[71] = 0x0,//0，0x232
+		.cfg_ddr_training_delay_ps.read_dqs_delay[0] = 0x70,//112，0x234
+		.cfg_ddr_training_delay_ps.read_dqs_delay[1] = 0x70,//112，0x236
+		.cfg_ddr_training_delay_ps.read_dqs_delay[2] = 0x70,//112，0x238
+		.cfg_ddr_training_delay_ps.read_dqs_delay[3] = 0x70,//112，0x23a
+		.cfg_ddr_training_delay_ps.read_dqs_delay[4] = 0x70,//112，0x23c
+		.cfg_ddr_training_delay_ps.read_dqs_delay[5] = 0x70,//112，0x23e
+		.cfg_ddr_training_delay_ps.read_dqs_delay[6] = 0x70,//112，0x240
+		.cfg_ddr_training_delay_ps.read_dqs_delay[7] = 0x70,//112，0x242
+		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 0x134,//308，0x244
+		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 0x10b,//267，0x246
+		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 0x10b,//267，0x248
+		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 0xdd,//221，0x24a
+		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 0x100,//256，0x24c
+		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 0x100,//256，0x24e
+		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 0x100,//256，0x250
+		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 0x132,//306，0x252
+		.cfg_ddr_training_delay_ps.write_wck_delay[0] = 0x0,//0，0x254
+		.cfg_ddr_training_delay_ps.write_wck_delay[1] = 0x0,//0，0x256
+		.cfg_ddr_training_delay_ps.write_wck_delay[2] = 0x0,//0，0x258
+		.cfg_ddr_training_delay_ps.write_wck_delay[3] = 0x0,//0，0x25c
+		.cfg_ddr_training_delay_ps.write_wck_delay[4] = 0x0,//0，0x25a
+		.cfg_ddr_training_delay_ps.write_wck_delay[5] = 0x0,//0，0x25e
+		.cfg_ddr_training_delay_ps.write_wck_delay[6] = 0x0,//0，0x260
+		.cfg_ddr_training_delay_ps.write_wck_delay[7] = 0x0,//0，0x262
+		.cfg_ddr_training_delay_ps.wdq_delay[0] = 0x151,//337，0x264
+		.cfg_ddr_training_delay_ps.wdq_delay[1] = 0x166,//358，0x266
+		.cfg_ddr_training_delay_ps.wdq_delay[2] = 0x158,//344，0x268
+		.cfg_ddr_training_delay_ps.wdq_delay[3] = 0x15b,//347，0x26a
+		.cfg_ddr_training_delay_ps.wdq_delay[4] = 0x166,//358，0x26c
+		.cfg_ddr_training_delay_ps.wdq_delay[5] = 0x14e,//334，0x26e
+		.cfg_ddr_training_delay_ps.wdq_delay[6] = 0x150,//336，0x270
+		.cfg_ddr_training_delay_ps.wdq_delay[7] = 0x15f,//351，0x272
+		.cfg_ddr_training_delay_ps.wdq_delay[8] = 0x166,//358，0x274
+		.cfg_ddr_training_delay_ps.wdq_delay[9] = 0x134,//308，0x276
+		.cfg_ddr_training_delay_ps.wdq_delay[10] = 0x135,//309，0x278
+		.cfg_ddr_training_delay_ps.wdq_delay[11] = 0x13e,//318，0x27a
+		.cfg_ddr_training_delay_ps.wdq_delay[12] = 0x13b,//315，0x27c
+		.cfg_ddr_training_delay_ps.wdq_delay[13] = 0x13f,//319，0x27e
+		.cfg_ddr_training_delay_ps.wdq_delay[14] = 0x143,//323，0x280
+		.cfg_ddr_training_delay_ps.wdq_delay[15] = 0x140,//320，0x282
+		.cfg_ddr_training_delay_ps.wdq_delay[16] = 0x13d,//317，0x284
+		.cfg_ddr_training_delay_ps.wdq_delay[17] = 0x138,//312，0x286
+		.cfg_ddr_training_delay_ps.wdq_delay[18] = 0x124,//292，0x288
+		.cfg_ddr_training_delay_ps.wdq_delay[19] = 0x12f,//303，0x28a
+		.cfg_ddr_training_delay_ps.wdq_delay[20] = 0x134,//308，0x28c
+		.cfg_ddr_training_delay_ps.wdq_delay[21] = 0x12a,//298，0x28e
+		.cfg_ddr_training_delay_ps.wdq_delay[22] = 0x135,//309，0x290
+		.cfg_ddr_training_delay_ps.wdq_delay[23] = 0x12c,//300，0x292
+		.cfg_ddr_training_delay_ps.wdq_delay[24] = 0x124,//292，0x294
+		.cfg_ddr_training_delay_ps.wdq_delay[25] = 0x122,//290，0x296
+		.cfg_ddr_training_delay_ps.wdq_delay[26] = 0x126,//294，0x298
+		.cfg_ddr_training_delay_ps.wdq_delay[27] = 0xf0,//240，0x29a
+		.cfg_ddr_training_delay_ps.wdq_delay[28] = 0xf7,//247，0x29c
+		.cfg_ddr_training_delay_ps.wdq_delay[29] = 0x103,//259，0x29e
+		.cfg_ddr_training_delay_ps.wdq_delay[30] = 0xf7,//247，0x2a0
+		.cfg_ddr_training_delay_ps.wdq_delay[31] = 0x105,//261，0x2a2
+		.cfg_ddr_training_delay_ps.wdq_delay[32] = 0xf6,//246，0x2a4
+		.cfg_ddr_training_delay_ps.wdq_delay[33] = 0xef,//239，0x2a6
+		.cfg_ddr_training_delay_ps.wdq_delay[34] = 0x100,//256，0x2a8
+		.cfg_ddr_training_delay_ps.wdq_delay[35] = 0xe6,//230，0x2aa
+		.cfg_ddr_training_delay_ps.wdq_delay[0 + 36] = 0x151,//337，0x264
+		.cfg_ddr_training_delay_ps.wdq_delay[1 + 36] = 0x166,//358，0x266
+		.cfg_ddr_training_delay_ps.wdq_delay[2 + 36] = 0x158,//344，0x268
+		.cfg_ddr_training_delay_ps.wdq_delay[3 + 36] = 0x15b,//347，0x26a
+		.cfg_ddr_training_delay_ps.wdq_delay[4 + 36] = 0x166,//358，0x26c
+		.cfg_ddr_training_delay_ps.wdq_delay[5 + 36] = 0x14e,//334，0x26e
+		.cfg_ddr_training_delay_ps.wdq_delay[6 + 36] = 0x150,//336，0x270
+		.cfg_ddr_training_delay_ps.wdq_delay[7 + 36] = 0x15f,//351，0x272
+		.cfg_ddr_training_delay_ps.wdq_delay[8 + 36] = 0x166,//358，0x274
+		.cfg_ddr_training_delay_ps.wdq_delay[9 + 36] = 0x134,//308，0x276
+		.cfg_ddr_training_delay_ps.wdq_delay[10 + 36] = 0x135,//309，0x278
+		.cfg_ddr_training_delay_ps.wdq_delay[11 + 36] = 0x13e,//318，0x27a
+		.cfg_ddr_training_delay_ps.wdq_delay[12 + 36] = 0x13b,//315，0x27c
+		.cfg_ddr_training_delay_ps.wdq_delay[13 + 36] = 0x13f,//319，0x27e
+		.cfg_ddr_training_delay_ps.wdq_delay[14 + 36] = 0x143,//323，0x280
+		.cfg_ddr_training_delay_ps.wdq_delay[15 + 36] = 0x140,//320，0x282
+		.cfg_ddr_training_delay_ps.wdq_delay[16 + 36] = 0x13d,//317，0x284
+		.cfg_ddr_training_delay_ps.wdq_delay[17 + 36] = 0x138,//312，0x286
+		.cfg_ddr_training_delay_ps.wdq_delay[18 + 36] = 0x124,//292，0x288
+		.cfg_ddr_training_delay_ps.wdq_delay[19 + 36] = 0x12f,//303，0x28a
+		.cfg_ddr_training_delay_ps.wdq_delay[20 + 36] = 0x134,//308，0x28c
+		.cfg_ddr_training_delay_ps.wdq_delay[21 + 36] = 0x12a,//298，0x28e
+		.cfg_ddr_training_delay_ps.wdq_delay[22 + 36] = 0x135,//309，0x290
+		.cfg_ddr_training_delay_ps.wdq_delay[23 + 36] = 0x12c,//300，0x292
+		.cfg_ddr_training_delay_ps.wdq_delay[24 + 36] = 0x124,//292，0x294
+		.cfg_ddr_training_delay_ps.wdq_delay[25 + 36] = 0x122,//290，0x296
+		.cfg_ddr_training_delay_ps.wdq_delay[26 + 36] = 0x126,//294，0x298
+		.cfg_ddr_training_delay_ps.wdq_delay[27 + 36] = 0xf0,//240，0x29a
+		.cfg_ddr_training_delay_ps.wdq_delay[28 + 36] = 0xf7,//247，0x29c
+		.cfg_ddr_training_delay_ps.wdq_delay[29 + 36] = 0x103,//259，0x29e
+		.cfg_ddr_training_delay_ps.wdq_delay[30 + 36] = 0xf7,//247，0x2a0
+		.cfg_ddr_training_delay_ps.wdq_delay[31 + 36] = 0x105,//261，0x2a2
+		.cfg_ddr_training_delay_ps.wdq_delay[32 + 36] = 0xf6,//246，0x2a4
+		.cfg_ddr_training_delay_ps.wdq_delay[33 + 36] = 0xef,//239，0x2a6
+		.cfg_ddr_training_delay_ps.wdq_delay[34 + 36] = 0x100,//256，0x2a8
+		.cfg_ddr_training_delay_ps.wdq_delay[35 + 36] = 0xe6,//230，0x2aa
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[0] = 0x124,//292，0x2f4
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[1] = 0x132,//306，0x2f6
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[2] = 0x12c,//300，0x2f8
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[3] = 0x150,//336，0x2fa
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[4] = 0x140,//0，0x2fc
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[5] = 0x140,//0，0x2fe
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[6] = 0x140,//0，0x300
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[7] = 0x140,//0，0x302
+
 	},
 	{
 		.cfg_board_common_setting.timming_magic = 0,
@@ -1361,7 +1684,7 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.ddr_func = 0,
 		.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
 		.cfg_board_common_setting.DramType = CONFIG_DDR_TYPE_LPDDR4,
-		.cfg_board_common_setting.enable_lpddr4x_mode = 3,
+		.cfg_board_common_setting.enable_lpddr4x_mode = 2,
 		//0  force lp4x   1 force lp4
 		//2 auto 4x use nn 4 use pn drivere
 		//3 auto + force 4 4x both use nn driver
@@ -1371,13 +1694,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.dram_ch0_size_MB =
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
 		//bit 0 -3 ch0 cs0 ,bit 4-7 ch0 cs1,
 		.cfg_board_common_setting.DisabledDbyte[1] = 0xf0,
@@ -1559,6 +1882,36 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 256,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 256,
 		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 256,
+		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 0xb1,//177，0xd8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 0xb6,//182，0xda
+		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 0x93,//147，0xdc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 0x90,//144，0xde
+		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 0x7d,//125，0xe0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 0x90,//144，0xe2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 0x0,//0，0xe4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 0x0,//0，0xe6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 0x1bf,//447，0xe8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 0x1bf,//447，0xea
+		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 0xb6,//182，0xec
+		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 0xbf,//191，0xee
+		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 0xb6,//182，0xf0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 0xbf,//191，0xf2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 0xb6,//182，0xf4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 0x7d,//125，0xf6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 0x90,//144，0xf8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 0x90,//144，0xfa
+		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 0x93,//147，0xfc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 0xb1,//177，0xfe
+		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 0xb6,//182，0x100
+		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 0x0,//0，0x102
+		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 0x0,//0，0x104
+		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 0x1bf,//447，0x106
+		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 0x1bf,//447，0x108
+		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0xbf,//191，0x10a
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0xbf,//191，0x10c
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0xb6,//182，0x10e
+		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 0xb6,//182，0x110
+		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 0xb6,//182，0x112
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 64,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[1] = 64,
 		.cfg_ddr_training_delay_ps.read_dq_delay_t[2] = 64,
@@ -2167,6 +2520,289 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.read_dqs_delay[5] = 0x80,
 		.cfg_ddr_training_delay_ps.read_dqs_delay[6] = 0x80,
 		.cfg_ddr_training_delay_ps.read_dqs_delay[7] = 0x80,
+
+		//cxmt
+		.cfg_ddr_training_delay_ps.ac_trace_delay[0] = 0xb1,//177，0xd8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 0xb6,//182，0xda
+		.cfg_ddr_training_delay_ps.ac_trace_delay[2] = 0x93,//147，0xdc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[3] = 0x90,//144，0xde
+		.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 0x7d,//125，0xe0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[5] = 0x90,//144，0xe2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[6] = 0x0,//0，0xe4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[7] = 0x0,//0，0xe6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 0x1bf,//447，0xe8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 0x1bf,//447，0xea
+		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 0xb6,//182，0xec
+		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 0xbf,//191，0xee
+		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 0xb6,//182，0xf0
+		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 0xbf,//191，0xf2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 0xb6,//182，0xf4
+		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 0x7d,//125，0xf6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 0x90,//144，0xf8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 0x90,//144，0xfa
+		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 0x93,//147，0xfc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 0xb1,//177，0xfe
+		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 0xb6,//182，0x100
+		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 0x0,//0，0x102
+		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 0x0,//0，0x104
+		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 0x1bf,//447，0x106
+		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 0x1bf,//447，0x108
+		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0xbf,//191，0x10a
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0xbf,//191，0x10c
+		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0xb6,//182，0x10e
+		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 0xb6,//182，0x110
+		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 0xb6,//182，0x112
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[0] = 0x3c,//60，0x114
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[1] = 0x38,//56，0x116
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[2] = 0x2f,//47，0x118
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[3] = 0x39,//57，0x11a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[4] = 0x38,//56，0x11c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[5] = 0x3f,//63，0x11e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[6] = 0x40,//64，0x120
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[7] = 0x3b,//59，0x122
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[8] = 0x33,//51，0x124
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[9] = 0x3c,//60，0x126
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[10] = 0x3d,//61，0x128
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[11] = 0x38,//56，0x12a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[12] = 0x36,//54，0x12c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[13] = 0x3e,//62，0x12e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[14] = 0x30,//48，0x130
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[15] = 0x2f,//47，0x132
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[16] = 0x34,//52，0x134
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[17] = 0x35,//53，0x136
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[18] = 0x37,//55，0x138
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[19] = 0x49,//73，0x13a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[20] = 0x4a,//74，0x13c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[21] = 0x3d,//61，0x13e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[22] = 0x47,//71，0x140
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[23] = 0x39,//57，0x142
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[24] = 0x38,//56，0x144
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[25] = 0x37,//55，0x146
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[26] = 0x35,//53，0x148
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[27] = 0x48,//72，0x14a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[28] = 0x45,//69，0x14c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[29] = 0x46,//70，0x14e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[30] = 0x4d,//77，0x150
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[31] = 0x54,//84，0x152
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[32] = 0x4b,//75，0x154
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[33] = 0x48,//72，0x156
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[34] = 0x56,//86，0x158
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[35] = 0x59,//89，0x15a
+
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[0 + 36] = 0x3c,//60，0x114
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[1 + 36] = 0x38,//56，0x116
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[2 + 36] = 0x2f,//47，0x118
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[3 + 36] = 0x39,//57，0x11a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[4 + 36] = 0x38,//56，0x11c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[5 + 36] = 0x3f,//63，0x11e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[6 + 36] = 0x40,//64，0x120
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[7 + 36] = 0x3b,//59，0x122
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[8 + 36] = 0x33,//51，0x124
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[9 + 36] = 0x3c,//60，0x126
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[10 + 36] = 0x3d,//61，0x128
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[11 + 36] = 0x38,//56，0x12a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[12 + 36] = 0x36,//54，0x12c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[13 + 36] = 0x3e,//62，0x12e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[14 + 36] = 0x30,//48，0x130
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[15 + 36] = 0x2f,//47，0x132
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[16 + 36] = 0x34,//52，0x134
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[17 + 36] = 0x35,//53，0x136
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[18 + 36] = 0x37,//55，0x138
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[19 + 36] = 0x49,//73，0x13a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[20 + 36] = 0x4a,//74，0x13c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[21 + 36] = 0x3d,//61，0x13e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[22 + 36] = 0x47,//71，0x140
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[23 + 36] = 0x39,//57，0x142
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[24 + 36] = 0x38,//56，0x144
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[25 + 36] = 0x37,//55，0x146
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[26 + 36] = 0x35,//53，0x148
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[27 + 36] = 0x48,//72，0x14a
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[28 + 36] = 0x45,//69，0x14c
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[29 + 36] = 0x46,//70，0x14e
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[30 + 36] = 0x4d,//77，0x150
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[31 + 36] = 0x54,//84，0x152
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[32 + 36] = 0x4b,//75，0x154
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[33 + 36] = 0x48,//72，0x156
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[34 + 36] = 0x56,//86，0x158
+		.cfg_ddr_training_delay_ps.read_dq_delay_t[35 + 36] = 0x59,//89，0x15a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[0] = 0x0,//0，0x1a4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[1] = 0x0,//0，0x1a6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[2] = 0x0,//0，0x1a8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[3] = 0x0,//0，0x1aa
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[4] = 0x0,//0，0x1ac
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[5] = 0x0,//0，0x1ae
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[6] = 0x0,//0，0x1b0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[7] = 0x0,//0，0x1b2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[8] = 0x0,//0，0x1b4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[9] = 0x0,//0，0x1b6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[10] = 0x0,//0，0x1b8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[11] = 0x0,//0，0x1ba
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[12] = 0x0,//0，0x1bc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[13] = 0x0,//0，0x1be
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[14] = 0x0,//0，0x1c0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[15] = 0x0,//0，0x1c2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[16] = 0x0,//0，0x1c4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[17] = 0x0,//0，0x1c6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[18] = 0x0,//0，0x1c8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[19] = 0x0,//0，0x1ca
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[20] = 0x0,//0，0x1cc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[21] = 0x0,//0，0x1ce
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[22] = 0x0,//0，0x1d0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[23] = 0x0,//0，0x1d2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[24] = 0x0,//0，0x1d4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[25] = 0x0,//0，0x1d6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[26] = 0x0,//0，0x1d8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[27] = 0x0,//0，0x1da
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[28] = 0x0,//0，0x1dc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[29] = 0x0,//0，0x1de
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[30] = 0x0,//0，0x1e0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[31] = 0x0,//0，0x1e2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[32] = 0x0,//0，0x1e4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[33] = 0x0,//0，0x1e6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[34] = 0x0,//0，0x1e8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[35] = 0x0,//0，0x1ea
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[36] = 0x0,//0，0x1ec
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[37] = 0x0,//0，0x1ee
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[38] = 0x0,//0，0x1f0
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[39] = 0x0,//0，0x1f2
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[40] = 0x0,//0，0x1f4
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[41] = 0x0,//0，0x1f6
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[42] = 0x0,//0，0x1f8
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[43] = 0x0,//0，0x1fa
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[44] = 0x0,//0，0x1fc
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[45] = 0x0,//0，0x1fe
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[46] = 0x0,//0，0x200
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[47] = 0x0,//0，0x202
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[48] = 0x0,//0，0x204
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[49] = 0x0,//0，0x206
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[50] = 0x0,//0，0x208
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[51] = 0x0,//0，0x20a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[52] = 0x0,//0，0x20c
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[53] = 0x0,//0，0x20e
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[54] = 0x0,//0，0x210
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[55] = 0x0,//0，0x212
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[56] = 0x0,//0，0x214
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[57] = 0x0,//0，0x216
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[58] = 0x0,//0，0x218
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[59] = 0x0,//0，0x21a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[60] = 0x0,//0，0x21c
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[61] = 0x0,//0，0x21e
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[62] = 0x0,//0，0x220
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[63] = 0x0,//0，0x222
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[64] = 0x0,//0，0x224
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[65] = 0x0,//0，0x226
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[66] = 0x0,//0，0x228
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[67] = 0x0,//0，0x22a
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[68] = 0x0,//0，0x22c
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[69] = 0x0,//0，0x22e
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[70] = 0x0,//0，0x230
+		.cfg_ddr_training_delay_ps.read_dq_delay_c[71] = 0x0,//0，0x232
+		.cfg_ddr_training_delay_ps.read_dqs_delay[0] = 0x70,//112，0x234
+		.cfg_ddr_training_delay_ps.read_dqs_delay[1] = 0x70,//112，0x236
+		.cfg_ddr_training_delay_ps.read_dqs_delay[2] = 0x70,//112，0x238
+		.cfg_ddr_training_delay_ps.read_dqs_delay[3] = 0x70,//112，0x23a
+		.cfg_ddr_training_delay_ps.read_dqs_delay[4] = 0x70,//112，0x23c
+		.cfg_ddr_training_delay_ps.read_dqs_delay[5] = 0x70,//112，0x23e
+		.cfg_ddr_training_delay_ps.read_dqs_delay[6] = 0x70,//112，0x240
+		.cfg_ddr_training_delay_ps.read_dqs_delay[7] = 0x70,//112，0x242
+		.cfg_ddr_training_delay_ps.write_dqs_delay[0] = 0x136,//310，0x244
+		.cfg_ddr_training_delay_ps.write_dqs_delay[1] = 0x10e,//270，0x246
+		.cfg_ddr_training_delay_ps.write_dqs_delay[2] = 0x142,//322，0x248
+		.cfg_ddr_training_delay_ps.write_dqs_delay[3] = 0xea,//234，0x24a
+		.cfg_ddr_training_delay_ps.write_dqs_delay[4] = 0x100,//256，0x24c
+		.cfg_ddr_training_delay_ps.write_dqs_delay[5] = 0x100,//256，0x24e
+		.cfg_ddr_training_delay_ps.write_dqs_delay[6] = 0x100,//256，0x250
+		.cfg_ddr_training_delay_ps.write_dqs_delay[7] = 0x128,//296，0x252
+		.cfg_ddr_training_delay_ps.write_wck_delay[0] = 0x0,//0，0x254
+		.cfg_ddr_training_delay_ps.write_wck_delay[1] = 0x0,//0，0x256
+		.cfg_ddr_training_delay_ps.write_wck_delay[2] = 0x0,//0，0x258
+		.cfg_ddr_training_delay_ps.write_wck_delay[3] = 0x0,//0，0x25a
+		.cfg_ddr_training_delay_ps.write_wck_delay[4] = 0x0,//0，0x25c
+		.cfg_ddr_training_delay_ps.write_wck_delay[5] = 0x0,//0，0x25e
+		.cfg_ddr_training_delay_ps.write_wck_delay[6] = 0x0,//0，0x260
+		.cfg_ddr_training_delay_ps.write_wck_delay[7] = 0x0,//0，0x262
+		.cfg_ddr_training_delay_ps.wdq_delay[0] = 0x15b,//347，0x264
+		.cfg_ddr_training_delay_ps.wdq_delay[1] = 0x15c,//348，0x266
+		.cfg_ddr_training_delay_ps.wdq_delay[2] = 0x14a,//330，0x268
+		.cfg_ddr_training_delay_ps.wdq_delay[3] = 0x159,//345，0x26a
+		.cfg_ddr_training_delay_ps.wdq_delay[4] = 0x162,//354，0x26c
+		.cfg_ddr_training_delay_ps.wdq_delay[5] = 0x160,//352，0x26e
+		.cfg_ddr_training_delay_ps.wdq_delay[6] = 0x160,//352，0x270
+		.cfg_ddr_training_delay_ps.wdq_delay[7] = 0x15b,//347，0x272
+		.cfg_ddr_training_delay_ps.wdq_delay[8] = 0x151,//337，0x274
+		.cfg_ddr_training_delay_ps.wdq_delay[9] = 0x13b,//315，0x276
+		.cfg_ddr_training_delay_ps.wdq_delay[10] = 0x139,//313，0x278
+		.cfg_ddr_training_delay_ps.wdq_delay[11] = 0x134,//308，0x27a
+		.cfg_ddr_training_delay_ps.wdq_delay[12] = 0x132,//306，0x27c
+		.cfg_ddr_training_delay_ps.wdq_delay[13] = 0x139,//313，0x27e
+		.cfg_ddr_training_delay_ps.wdq_delay[14] = 0x126,//294，0x280
+		.cfg_ddr_training_delay_ps.wdq_delay[15] = 0x12b,//299，0x282
+		.cfg_ddr_training_delay_ps.wdq_delay[16] = 0x130,//304，0x284
+		.cfg_ddr_training_delay_ps.wdq_delay[17] = 0x12f,//303，0x286
+		.cfg_ddr_training_delay_ps.wdq_delay[18] = 0x14f,//335，0x288
+		.cfg_ddr_training_delay_ps.wdq_delay[19] = 0x161,//353，0x28a
+		.cfg_ddr_training_delay_ps.wdq_delay[20] = 0x168,//360，0x28c
+		.cfg_ddr_training_delay_ps.wdq_delay[21] = 0x15a,//346，0x28e
+		.cfg_ddr_training_delay_ps.wdq_delay[22] = 0x166,//358，0x290
+		.cfg_ddr_training_delay_ps.wdq_delay[23] = 0x15c,//348，0x292
+		.cfg_ddr_training_delay_ps.wdq_delay[24] = 0x157,//343，0x294
+		.cfg_ddr_training_delay_ps.wdq_delay[25] = 0x153,//339，0x296
+		.cfg_ddr_training_delay_ps.wdq_delay[26] = 0x14e,//334，0x298
+		.cfg_ddr_training_delay_ps.wdq_delay[27] = 0x10e,//270，0x29a
+		.cfg_ddr_training_delay_ps.wdq_delay[28] = 0x10e,//270，0x29c
+		.cfg_ddr_training_delay_ps.wdq_delay[29] = 0x113,//275，0x29e
+		.cfg_ddr_training_delay_ps.wdq_delay[30] = 0x115,//277，0x2a0
+		.cfg_ddr_training_delay_ps.wdq_delay[31] = 0x11a,//282，0x2a2
+		.cfg_ddr_training_delay_ps.wdq_delay[32] = 0x113,//275，0x2a4
+		.cfg_ddr_training_delay_ps.wdq_delay[33] = 0x10f,//271，0x2a6
+		.cfg_ddr_training_delay_ps.wdq_delay[34] = 0x121,//289，0x2a8
+		.cfg_ddr_training_delay_ps.wdq_delay[35] = 0x11c,//284，0x2aa
+
+		.cfg_ddr_training_delay_ps.wdq_delay[0 + 36] = 0x15b,//347，0x264
+		.cfg_ddr_training_delay_ps.wdq_delay[1 + 36] = 0x15c,//348，0x266
+		.cfg_ddr_training_delay_ps.wdq_delay[2 + 36] = 0x14a,//330，0x268
+		.cfg_ddr_training_delay_ps.wdq_delay[3 + 36] = 0x159,//345，0x26a
+		.cfg_ddr_training_delay_ps.wdq_delay[4 + 36] = 0x162,//354，0x26c
+		.cfg_ddr_training_delay_ps.wdq_delay[5 + 36] = 0x160,//352，0x26e
+		.cfg_ddr_training_delay_ps.wdq_delay[6 + 36] = 0x160,//352，0x270
+		.cfg_ddr_training_delay_ps.wdq_delay[7 + 36] = 0x15b,//347，0x272
+		.cfg_ddr_training_delay_ps.wdq_delay[8 + 36] = 0x151,//337，0x274
+		.cfg_ddr_training_delay_ps.wdq_delay[9 + 36] = 0x13b,//315，0x276
+		.cfg_ddr_training_delay_ps.wdq_delay[10 + 36] = 0x139,//313，0x278
+		.cfg_ddr_training_delay_ps.wdq_delay[11 + 36] = 0x134,//308，0x27a
+		.cfg_ddr_training_delay_ps.wdq_delay[12 + 36] = 0x132,//306，0x27c
+		.cfg_ddr_training_delay_ps.wdq_delay[13 + 36] = 0x139,//313，0x27e
+		.cfg_ddr_training_delay_ps.wdq_delay[14 + 36] = 0x126,//294，0x280
+		.cfg_ddr_training_delay_ps.wdq_delay[15 + 36] = 0x12b,//299，0x282
+		.cfg_ddr_training_delay_ps.wdq_delay[16 + 36] = 0x130,//304，0x284
+		.cfg_ddr_training_delay_ps.wdq_delay[17 + 36] = 0x12f,//303，0x286
+		.cfg_ddr_training_delay_ps.wdq_delay[18 + 36] = 0x14f,//335，0x288
+		.cfg_ddr_training_delay_ps.wdq_delay[19 + 36] = 0x161,//353，0x28a
+		.cfg_ddr_training_delay_ps.wdq_delay[20 + 36] = 0x168,//360，0x28c
+		.cfg_ddr_training_delay_ps.wdq_delay[21 + 36] = 0x15a,//346，0x28e
+		.cfg_ddr_training_delay_ps.wdq_delay[22 + 36] = 0x166,//358，0x290
+		.cfg_ddr_training_delay_ps.wdq_delay[23 + 36] = 0x15c,//348，0x292
+		.cfg_ddr_training_delay_ps.wdq_delay[24 + 36] = 0x157,//343，0x294
+		.cfg_ddr_training_delay_ps.wdq_delay[25 + 36] = 0x153,//339，0x296
+		.cfg_ddr_training_delay_ps.wdq_delay[26 + 36] = 0x14e,//334，0x298
+		.cfg_ddr_training_delay_ps.wdq_delay[27 + 36] = 0x10e,//270，0x29a
+		.cfg_ddr_training_delay_ps.wdq_delay[28 + 36] = 0x10e,//270，0x29c
+		.cfg_ddr_training_delay_ps.wdq_delay[29 + 36] = 0x113,//275，0x29e
+		.cfg_ddr_training_delay_ps.wdq_delay[30 + 36] = 0x115,//277，0x2a0
+		.cfg_ddr_training_delay_ps.wdq_delay[31 + 36] = 0x11a,//282，0x2a2
+		.cfg_ddr_training_delay_ps.wdq_delay[32 + 36] = 0x113,//275，0x2a4
+		.cfg_ddr_training_delay_ps.wdq_delay[33 + 36] = 0x10f,//271，0x2a6
+		.cfg_ddr_training_delay_ps.wdq_delay[34 + 36] = 0x121,//289，0x2a8
+		.cfg_ddr_training_delay_ps.wdq_delay[35 + 36] = 0x11c,//284，0x2aa
+
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[0] = 0x12a,//298，0x2f4
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[1] = 0x12d,//301，0x2f6
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[2] = 0x12c,//300，0x2f8
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[3] = 0x171,//369，0x2fa
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[4] = 0x120,//0，0x2fc
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[5] = 0x120,//0，0x2fe
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[6] = 0x120,//0，0x300
+		.cfg_ddr_training_delay_ps.read_dqs_gate_delay[7] = 0x120,//0，0x302
 //#endif
 	},
 #endif
@@ -2195,13 +2831,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.dram_cs0_base_add = 0,
 		//.cfg_board_common_setting.dram_cs1_base_add = 0,
 		.cfg_board_common_setting.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
@@ -2918,13 +3554,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		//.cfg_board_common_setting.dram_cs0_base_add = 0,
 		//.cfg_board_common_setting.dram_cs1_base_add = 0,
 		.cfg_board_common_setting.dram_ch0_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.dram_ch1_size_MB =
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-			(DRAM_SIZE_ID_256MBX2 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+			(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 			(DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET),
 		.cfg_board_common_setting.DisabledDbyte[0] = 0xf0,
