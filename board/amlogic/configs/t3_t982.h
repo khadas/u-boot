@@ -109,7 +109,7 @@
         "video_reverse=0\0"\
 	"board=t982\0"\
 	"suspend=off\0"\
-	"powermode=standby\0"\
+	"powermode=on\0"\
 	"ffv_wake=off\0"\
 	"ffv_freeze=off\0"\
 	"logic_addr=0x0\0" \
