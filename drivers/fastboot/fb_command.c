@@ -618,11 +618,8 @@ static void flash(char *cmd_parameter, char *response)
 	}
 
 	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
-		rc = store_part_size("userdata");
-		if (-1 == rc)
-			strcpy(name, "data");
-		else
-			strcpy(name, "userdata");
+		fastboot_okay(NULL, response);
+		return;
 	} else if (strcmp(cmd_parameter, "dts") == 0) {
 		strcpy(name, "dtb");
 	} else {
