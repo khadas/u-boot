@@ -173,6 +173,7 @@
 			"earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
 			"amlogic_board=t7_an400_lpddr4x_debian boot_source=${boot_source} "\
 			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0xfe02e030 "\
+			"gamma=0 "\
 			"\0"\
 		"upgrade_check="\
 			"echo recovery_status=${recovery_status};"\
@@ -527,6 +528,7 @@
 			"earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
 			"amlogic_board=t7_an400_lpddr4x_debian boot_source=${boot_source} "\
 			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
+			"gamma=0 "\
 			"\0"\
 		"upgrade_check="\
 			"echo recovery_status=${recovery_status};"\
