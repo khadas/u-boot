@@ -5001,7 +5001,10 @@ void osd_init_hw(void)
 		if (osd_hw.osd_ver == OSD_HIGH_ONE) {
 			data32 &= ~((0xfff << 20) | 0x3fff);
 			data32 |= (0xfff << 20);
-			data32 |= (0xfff + 1);
+			if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_TXHD2)
+				data32 |= (0x77f + 1);
+			else
+				data32 |= (0xfff + 1);
 			osd_reg_write(VPP_OFIFO_SIZE, data32);
 		}
 #endif
