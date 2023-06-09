@@ -679,13 +679,6 @@ int osd_get_chip_type(void)
 static void osd_vpu_power_on(void)
 {
 }
-#ifndef AML_T7_DISPLAY
-#ifdef AML_OSD_HIGH_VERSION
-static void osd_vpu_power_on_viu2(void)
-{
-}
-#endif
-#endif
 
 void osd_set_log_level(int level)
 {
@@ -2941,7 +2934,7 @@ static void osd2_update_disp_freescale_enable(void)
 	osd_update_disp_freescale_enable(OSD2, OSD1);
 }
 
-#ifdef AML_T7_DISPLAY
+#if defined(AML_T7_DISPLAY) || defined(AML_S5_DISPLAY)
 static void osdx_update_disp_freescale_enable(u32 index)
 {
 	u64 hf_phase_step, vf_phase_step;
@@ -3127,6 +3120,14 @@ static void osdx_update_disp_freescale_enable(u32 index)
 			vsc_bot_rcv_num++;
 	}
 
+#ifdef AML_S5_DISPLAY
+	VSYNCOSD_WR_MPEG_REG
+		(hw_osd_reg_array[index].osd_proc_in_size,
+		 (src_h << 16) | src_w);
+	VSYNCOSD_WR_MPEG_REG
+		(hw_osd_reg_array[index].osd_proc_out_size,
+		 (dst_h << 16) | dst_w);
+#endif
 	data32 = 0x0;
 	if (osd_hw.free_scale_enable[index]) {
 		data32 = (((src_h - 1 + shift_line) & 0x1fff)
@@ -3180,6 +3181,7 @@ static void osdx_update_disp_freescale_enable(u32 index)
 		VSYNCOSD_WR_MPEG_REG(osd_sco_vsc_ini_phase, data32);
 	}
 	if (osd_index == VIU2_OSD1) {
+#ifdef AML_T7_DISPLAY
 		/* hdr in size */
 		VSYNCOSD_WR_MPEG_REG(OSD3_HDR_IN_SIZE, dst_h << 16 | dst_w);
 		/* vpp_top1 scope */
@@ -3194,7 +3196,21 @@ static void osdx_update_disp_freescale_enable(u32 index)
 			 osd_hw.free_dst_data[index].y_end);
 
 		VSYNCOSD_WR_MPEG_REG(VPP1_BLD_OUT_SIZE, dst_h << 16 | dst_w);
+#endif
+#ifdef AML_S5_DISPLAY
+		/* vpp1 scope */
+		VSYNCOSD_WR_MPEG_REG
+			(VPP1_OSD3_BLD_H_SCOPE,
+			 (osd_hw.free_dst_data[index].x_start << 16) |
+			 osd_hw.free_dst_data[index].x_end);
 
+		VSYNCOSD_WR_MPEG_REG
+			(VPP1_OSD3_BLD_V_SCOPE,
+			 (osd_hw.free_dst_data[index].y_start << 16) |
+			 osd_hw.free_dst_data[index].y_end);
+
+		VSYNCOSD_WR_MPEG_REG(VPP1_BLEND_H_V_SIZE, dst_h << 16 | dst_w);
+#endif
 		osd_logd2("vpp1 bld scop(%d %d %d %d)\n",
 			osd_hw.free_dst_data[index].x_start,
 			osd_hw.free_dst_data[index].x_end,
@@ -3284,7 +3300,7 @@ static void osd2_update_coef(void)
 	remove_from_update_list(OSD2, OSD_FREESCALE_COEF);
 }
 
-#ifdef AML_T7_DISPLAY
+#if defined(AML_T7_DISPLAY) || defined(AML_S5_DISPLAY)
 static void osdx_update_coef(u32 index)
 {
 	int i;
@@ -4291,7 +4307,7 @@ void vpp_post_padding_set(u32 vpp_index,
 	}
 }
 #endif
-#ifdef AML_T7_DISPLAY
+#if defined(AML_T7_DISPLAY) || defined(AML_S5_DISPLAY)
 static void viu2_osd1_update_disp_geometry(void)
 {
 	osd_update_disp_geometry(VIU2_OSD1);
@@ -4509,7 +4525,7 @@ void osd2_config_with_dimm(int *axis)
 }
 #endif
 
-#ifdef AML_T7_DISPLAY
+#if defined(AML_T7_DISPLAY) || defined(AML_S5_DISPLAY)
 void osd_init_hw_viux(u32 index)
 {
 	u32 group, idx, reverse_val = 0;
@@ -4597,12 +4613,26 @@ void osd_init_hw_viux(u32 index)
 		osd_reg_set_bits(VPP1_BLD_CTRL, osd_premult, 17, 1);
 		osd_reg_set_bits(VPP1_BLD_CTRL, blend_en, 31, 1);
 
+#ifdef AML_T7_DISPLAY
 		/* vpp_top input mux */
 		osd_reg_set_bits(OSD_PATH_MISC_CTRL, OSD3 + VPP_OSD1,
 				 OSD3 * 4 + 16, 4);
 
 		/* to vpp_top1 */
 		osd_reg_set_bits(PATH_START_SEL, VPU_VPP1, 24, 2);
+#endif
+#ifdef AML_S5_DISPLAY
+		/* use vpp1 vsync */
+		osd_reg_set_bits(VIU_OSD3_MISC, 1, 0, 1);
+		/* 1mux3,  OSD3 -> din5 */
+		osd_reg_set_bits(OSD_PROC_1MUX3_SEL, 0, 4, 2);
+		/* 5mux4, select din5 */
+		osd_reg_set_bits(OSD_SYS_5MUX4_SEL, 5, 8, 4);
+		/* 0:select postblend 1:select vpp1 blend */
+		osd_reg_set_bits(VPP1_BLD_CTRL, 1, 29, 1);
+		/* 1:output to vpp slice1 0:output to venc1 directly */
+		osd_reg_set_bits(VPP1_BLD_CTRL, 0, 30, 1);
+#endif
 	}
 
 	if (index == VIU3_OSD1) {
@@ -4691,7 +4721,6 @@ void osd_init_hw_viux(u32 index)
 
 	osd_hw.updated[index] = 0;
 #ifndef AML_C3_DISPLAY
-	osd_vpu_power_on_viu2();
 	osd_reg_write(VPP2_OFIFO_SIZE, 0x7ff00800);
 #endif
 	/* init osd fifo control register */

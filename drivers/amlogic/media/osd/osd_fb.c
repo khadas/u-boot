@@ -406,7 +406,7 @@ static void get_osd_version(void)
 	else
 		osd_hw.osd_ver = OSD_HIGH_ONE;
 
-	#ifdef AML_T7_DISPLAY
+	#if defined(AML_T7_DISPLAY) || defined(AML_S5_DISPLAY)
 	osd_hw.viux_scale_cap = 1;
 	#else
 	osd_hw.viux_scale_cap = 0;
@@ -1445,8 +1445,10 @@ no_scale:
 		osd_update_blend(&disp_data);
 #endif
 #ifdef AML_S5_DISPLAY
-	update_vpp_input_info(vinfo);
-	vpp_post_blend_update_s5();
+	if (osd_index < VIU2_OSD1) {
+		update_vpp_input_info(vinfo);
+		vpp_post_blend_update_s5();
+	}
 #endif
 	osd_enable_hw(osd_index, 1);
 
