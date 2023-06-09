@@ -18,8 +18,6 @@
 		serial1 = &uart_b;
 		spi0 = &spifc;
 		spi1 = &spicc0;
-		spi2 = &spicc1;
-		spi3 = &spicc2;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -290,20 +288,6 @@
 &spicc0 {	//for TCON
 	status = "disabled";
 	pinctrl-names = "default";
-	pinctrl-0 = <&spicc0_pins_h>;
-	cs-gpios = <&gpio GPIOH_8 GPIO_ACTIVE_HIGH>;
-};
-
-&spicc1 {	//for UWB/LocalDimm
-	status = "disabled";
-	// pinctrl-names = "default";
-	// pinctrl-0 = <&spicc1_pins>;
-	// cs-gpios = <&gpio GPIOH_22 GPIO_ACTIVE_HIGH>;
-};
-
-&spicc2 {
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spicc2_pins>;
-	cs-gpios = <&gpio GPIOC_3 GPIO_ACTIVE_HIGH>;
+	pinctrl-0 = <&spicc0_pins_c>;
+	cs-gpios = <&gpio GPIOC_7 GPIO_ACTIVE_HIGH>;
 };

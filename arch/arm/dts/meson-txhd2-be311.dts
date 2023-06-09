@@ -79,10 +79,6 @@
 	/*pinctrl-0 = <&i2c3_h_pins1>;*/
 };
 
-&spicc1 {	//for UWB/LocalDimm
-	status = "okay";
-};
-
 &pinctrl_periphs {
 	bl_pwm_off_pins:bl_pwm_off_pin {
 		mux {

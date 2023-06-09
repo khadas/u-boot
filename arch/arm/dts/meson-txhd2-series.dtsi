@@ -340,22 +340,6 @@
 			status = "disabled";
 		};
 
-		spicc1: spi@ffd15000 {
-			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xffd15000 0x0 0x44>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
-		spicc2: spi@ffd16000 {
-			compatible = "amlogic,meson-g12a-spicc";
-			reg = <0x0 0xffd16000 0x0 0x44>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
 		i2c0: i2c@ffd1f000 {
 			compatible = "amlogic,meson-i2c";
 			reg = <0x0 0xffd1f000 0x0 0x24>;
