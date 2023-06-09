@@ -166,8 +166,6 @@ int board_late_init(void)
 	char connector_type_pre[20] = {}, connector_type_cur[20] = {};
 	char *str;
 
-	get_stick_reboot_flag();
-
 	printf("board late init\n");
 
 	/* ****************************************************

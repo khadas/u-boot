@@ -182,7 +182,6 @@ int board_late_init(void)
 	char *str;
 
 	printf("board late init\n");
-	get_stick_reboot_flag();
 
 	/* ****************************************************
 	 * 1.setup bootup resource

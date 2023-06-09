@@ -180,8 +180,6 @@ int board_late_init(void)
 
 	printf("board late init\n");
 
-	get_stick_reboot_flag();
-
 	/* ****************************************************
 	 * 1.setup bootup resource
 	 * ****************************************************
