@@ -20,7 +20,7 @@
  * platform power init config
  */
 #define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	1040		// VCCK power up voltage
+#define CONFIG_VCCK_INIT_VOLTAGE	1030		// VCCK power up voltage
 #define CONFIG_VDDEE_INIT_VOLTAGE	840		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
@@ -452,7 +452,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1800 //MHz. Range: 100-2004
+#define CONFIG_CPU_CLK				1908 //MHz. Range: 100-1908
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
