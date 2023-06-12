@@ -16,3 +16,4 @@ obj-$(CONFIG_CMD_AML_MTEST) += core.o
 obj-y += usb.o
 obj-$(CONFIG_CMD_HDMIRX) += hdmirx/
 obj-$(CONFIG_AML_TSENSOR) += tsensor.o
+obj-y += avb2_fip_key.o

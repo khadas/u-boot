@@ -28,7 +28,6 @@
 #define MAX_DTB_SIZE (AML_DTB_IMG_MAX_SZ + 512)
 #define DTB_PARTITION_SIZE 258048
 #define AVB_NUM_SLOT (4)
-#define MAX_AVBKEY_LEN (8 + 1024)
 
 /* use max nand page size, 4K */
 #define NAND_PAGE_SIZE (0x1000)

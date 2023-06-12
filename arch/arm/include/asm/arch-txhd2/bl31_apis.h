@@ -157,4 +157,5 @@ void set_viu_probe_enable(void);
 int32_t set_boot_params(const keymaster_boot_params*);
 void aml_set_power_domain(uint64_t function_id, uint64_t arg0, uint64_t arg1);
 int bl31_get_cornerinfo(uint8_t *outbuf, int size);
+int32_t get_avbkey_from_fip(uint8_t *buf, uint32_t buflen);
 #endif

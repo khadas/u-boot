@@ -79,4 +79,7 @@
 #define PACKAGE_ID_MASK         0xFF
 
 #define MIPI_DSI_REGISTER 1
+
+#define CONFIG_AVB2_KPUB_FROM_FIP 1
+
 #endif /* _CPU_H */
