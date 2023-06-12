@@ -604,6 +604,12 @@ ddr_reg_t __ddr_reg[] = {
 	#define VCCK_VAL_REG	0x0004001E
 #elif (VCCK_VAL == 1010)
 	#define VCCK_VAL_REG	0x0003001F
+#elif (VCCK_VAL == 1020)
+	#define VCCK_VAL_REG	0x00020020
+#elif (VCCK_VAL == 1030)
+	#define VCCK_VAL_REG	0x00010021
+#elif (VCCK_VAL == 1040)
+	#define VCCK_VAL_REG	0x00000022
 #else
 	#error "VCCK val out of range"
 #endif
