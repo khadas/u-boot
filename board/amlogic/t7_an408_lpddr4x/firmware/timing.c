@@ -8,7 +8,7 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define CPU_CLK                                 1512
+#define CPU_CLK                                 2016
 
 /* ddr config support multiple configs for boards which use same bootloader:
  * config steps:
