@@ -8,7 +8,7 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define CPU_CLK                                 1512
+#define CPU_CLK                                 2016
 #define DSU_CLK                                 1200
 
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
