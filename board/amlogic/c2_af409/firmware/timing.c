@@ -8,7 +8,7 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define CPU_CLK					1512
+#define CPU_CLK					1992
 #define TIMMING_MAX_CONFIG		1
 
 //#define T406_LPDDR4  1
