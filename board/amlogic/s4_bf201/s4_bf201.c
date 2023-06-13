@@ -133,8 +133,8 @@ int board_init(void)
 #endif
 	board_id = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xff00) >> 8);
 	printf("board_id is %ld\n", board_id);
-	if (board_id == 2)
-		run_command("gpio set GPIOH_10", 0); //T215
+	if (board_id == 1)
+		run_command("gpio set GPIOH_10", 0); //C1A board
 	else
 		run_command("gpio set GPIOH_7", 0);
 #ifdef CONFIG_AML_HDMITX20
