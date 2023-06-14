@@ -18,6 +18,8 @@ static char lcd0_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
 };
 
 static char lcd0_bl_gpio[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
+	"GPIOZ_2", /* bl_en */
+	"GPIOZ_1", /* bl_pwm */
 	"invalid", /* ending flag */
 };
 
@@ -48,7 +50,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_PWM,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_D,180,100,25,1,0,
+	BL_PWM_POSITIVE, BL_PWM_B, 180, 100, 25, 1, 0,
 	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	10,10,Rsv_val},
@@ -86,7 +88,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	/* backlight */
 	60,255,10,128,128,
 	BL_CTRL_MAX,0,1,0,200,200,
-	BL_PWM_POSITIVE,BL_PWM_C,180,100,25,1,0,
+	BL_PWM_POSITIVE, BL_PWM_B, 180, 100, 25, 1, 0,
 	Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	Rsv_val,Rsv_val,Rsv_val,Rsv_val,
 	10,10,Rsv_val},
@@ -105,7 +107,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	/* backlight */
 	60, 255, 10, 128, 128,
 	BL_CTRL_MAX, 0, 1, 0, 200, 200,
-	BL_PWM_POSITIVE, BL_PWM_C, 180, 100, 25, 1, 0,
+	BL_PWM_POSITIVE, BL_PWM_B, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	10, 10, Rsv_val},
@@ -123,6 +125,16 @@ static struct lcd_pinmux_ctrl_s lcd0_pinmux_ctrl[LCD_PINMUX_MAX] = {
 };
 
 static struct lcd_pinmux_ctrl_s lcd0_bl_pinmux_ctrl[BL_PINMUX_MAX] = {
+	{
+		.name = "bl_pwm_on_pin", //GPIOZ_1
+		.pinmux_set = {{4, 0x40}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{4, 0xf0}, {LCD_PINMUX_END, 0x0}},
+	},
+	{
+		.name = "bl_pwm_vs_on_pin", //GPIOZ_1
+		.pinmux_set = {{4, 0x30}, {LCD_PINMUX_END, 0x0}},
+		.pinmux_clr = {{4, 0xf0}, {LCD_PINMUX_END, 0x0}},
+	},
 	{
 		.name = "invalid",
 	},
