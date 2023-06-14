@@ -85,6 +85,14 @@ int check_valid_dts(unsigned char *buffer)
 		flush_cache((unsigned long)sbuffer, AML_DTB_IMG_MAX_SZ);
 #ifndef CONFIG_IMAGE_CHECK
 		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (long unsigned)sbuffer, AML_DTB_IMG_MAX_SZ, 0);
+#ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+		ncheckoffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+				GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
+		if (AML_D_Q_IMG_SIG_HDR_SIZE == (ncheckoffset & 0xFFFF))
+			ncheckoffset = (ncheckoffset >> 16) & 0xFFFF;
+		else
+			ncheckoffset = 0;
+#endif
 #else
 		ret = secure_image_check((uint8_t *)(unsigned long)sbuffer, AML_DTB_IMG_MAX_SZ, 0);
 		ncheckoffset = sizeof(struct aml_boot_header_t);

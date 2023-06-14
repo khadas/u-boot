@@ -213,20 +213,32 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		loadaddr = simple_strtoul(argv[0], &endp, 16);
 		//printf("aml log : addr = 0x%x\n",loadaddr);
 	}
-#ifndef CONFIG_IMAGE_CHECK
-	int ret = 0;
 
-	ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, loadaddr, GXB_IMG_SIZE, GXB_IMG_DEC_ALL);
-
-	if (ret)
-	{
-		printf("\naml log : Sig Check %d\n", ret);
-		return ret;
-	}
-#else
 	if (IS_FEAT_BOOT_VERIFY()) {
 		int ret = 0;
+		ulong img_addr, ncheckoffset = 0;
+		static char argv0_new[12] = {0};
+		static char *argv_new;
 
+		argv_new = (char *)&argv0_new;
+		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
+#ifndef CONFIG_IMAGE_CHECK
+		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, loadaddr, GXB_IMG_SIZE,
+				GXB_IMG_DEC_ALL);
+
+		if (ret) {
+			printf("\naml log : Sig Check %d\n", ret);
+			return ret;
+		}
+#ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+		ncheckoffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+				GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
+		if (AML_D_Q_IMG_SIG_HDR_SIZE == (ncheckoffset & 0xFFFF))
+			ncheckoffset = (ncheckoffset >> 16) & 0xFFFF;
+		else
+			ncheckoffset = 0;
+#endif
+#else
 		ret = secure_image_check((uint8_t *)(unsigned long)loadaddr,
 			GXB_IMG_SIZE, GXB_IMG_DEC_ALL);
 		if (ret) {
@@ -236,22 +248,14 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Override load address argument to skip secure boot header.
 		 * Only skip if secure boot so normal boot can use plain boot.img+
 		 */
-		ulong img_addr, ncheckoffset;
-		static char argv0_new[12] = {0};
-		static char *argv_new;
-
-		memset(argv0_new, 0, sizeof(argv0_new));
-		argv_new = (char *)&argv0_new;
-
-		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
 		ncheckoffset = android_image_check_offset();
+#endif
 		img_addr += ncheckoffset;
 		env_set_hex("loadaddr", img_addr);//android_image_get_ramdisk_v3 need env loadaddr
 		snprintf(argv0_new, sizeof(argv0_new), "%lx", img_addr);
 		argc = 1;
 		argv = (char **)&argv_new;
 	}
-#endif
 #endif
 
 #ifdef CONFIG_CMD_BOOTCTOL_AVB
