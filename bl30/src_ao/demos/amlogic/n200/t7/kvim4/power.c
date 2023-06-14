@@ -81,6 +81,7 @@ void str_power_off(int shutdown_flag);
 void Bt_GpioIRQRegister(void);
 void Tp_GpioIRQRegister(void);
 void Bt_GpioIRQFree(void);
+void Tp_GpioIRQFree(void);
 
 void str_hw_init(void)
 {
@@ -114,6 +115,7 @@ void str_hw_disable(void)
 		vTaskDelete(cecTask);
 		cec_req_irq(0);
 	}
+	Tp_GpioIRQFree();
 	Bt_GpioIRQFree();
 	vKeyPadDeinit();
 	vRestoreGpioIrqReg();
