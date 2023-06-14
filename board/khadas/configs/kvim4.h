@@ -667,6 +667,7 @@
 					"fdt set /soc/apb4@fe000000/i2c@6c000/gt9xx@14 status okay;"\
 					"fdt set /soc/apb4@fe000000/i2c@6c000/ft5336@38 status disable;"\
 					"fdt set /fb display_size_default <0x00000f00 0x00000960 0x00000f00 0x000012c0 0x00000020>;"\
+					"fdt set /fb mem_size <0x00800000 0x04800000 0x00100000 0x00100000 0x00100000>;"\
 				"else "\
 					"echo no check dsi panel; outputmode=$vbo_output; setenv outputmode ${vbo_output};"\
 					"fdt set /fb display_size_default <0x00000f00 0x00000870 0x00000f00 0x000010e0 0x00000020>;"\
