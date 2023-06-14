@@ -398,6 +398,17 @@ static void hdmitx_csc_config (unsigned char input_color_format,
                         unsigned char output_color_format,
                         unsigned char color_depth);
 
+#define DUMP_SECTION(_a, _b) \
+	do { \
+		typeof(_a) a = (_a); \
+		typeof(_b) b = (_b); \
+		for (reg_adr = (a); \
+		     reg_adr < (b) + 1; reg_adr++) { \
+			reg_val = hdmitx_rd_reg(reg_adr); \
+			printf("[0x%x]: 0x%x\n", reg_adr, reg_val); \
+		} \
+	} while (0)
+
 static void dump_regs(void)
 {
 	unsigned int reg_adr;
@@ -424,22 +435,36 @@ static void dump_regs(void)
 		reg_val = hd_read_reg(ladr);
 		printk("[0x%08x] = 0x%X\n", ladr, reg_val);
 	}
-	for (reg_adr = HDMITX_TOP_SW_RESET; reg_adr < HDMITX_TOP_STAT0 + 1; reg_adr ++) {
-		reg_val = hdmitx_rd_reg(reg_adr);
-		printk("TOP[0x%x]: 0x%x\n", reg_adr, reg_val);
-	}
-	for (reg_adr = HDMITX_DWC_DESIGN_ID; reg_adr < HDMITX_DWC_I2CM_SCDC_UPDATE1 + 1; reg_adr ++) {
-		if ((reg_adr > HDMITX_DWC_HDCP_BSTATUS_0 -1) && (reg_adr < HDMITX_DWC_HDCPREG_BKSV0)) {
-            //hdmitx_wr_reg(HDMITX_DWC_A_KSVMEMCTRL, 0x1);
-//            hdmitx_poll_reg(HDMITX_DWC_A_KSVMEMCTRL, (1<<1), 2 * HZ);
-			reg_val = 0;//hdmitx_rd_reg(reg_adr);
-		} else {
-			reg_val = hdmitx_rd_reg(reg_adr);
-		}
-		if (reg_val) {
-			printk("DWC[0x%x]: 0x%x\n", reg_adr, reg_val);
-		}
-	}
+
+	printf("\n--------HDMITX registers--------\n");
+
+	DUMP_SECTION(HDMITX_TOP_SW_RESET, HDMITX_TOP_STAT0);
+	DUMP_SECTION(HDMITX_TOP_SKP_CNTL_STAT, HDMITX_TOP_DUK_3);
+	DUMP_SECTION(HDMITX_TOP_INFILTER, HDMITX_TOP_NSEC_SCRATCH);
+	DUMP_SECTION(HDMITX_TOP_SEC_SCRATCH, HDMITX_TOP_SEC_SCRATCH);
+	DUMP_SECTION(HDMITX_TOP_EMP_CNTL0, HDMITX_TOP_I2C_BUSY_CNT_STAT);
+	DUMP_SECTION(HDMITX_TOP_HDCP22_BSOD, HDMITX_TOP_HDCP22_BSOD);
+	DUMP_SECTION(HDMITX_TOP_DDC_CNTL, HDMITX_TOP_DISABLE_NULL);
+	DUMP_SECTION(HDMITX_DWC_DESIGN_ID, HDMITX_DWC_CONFIG3_ID);
+	DUMP_SECTION(HDMITX_DWC_IH_FC_STAT0, HDMITX_DWC_IH_MUTE);
+	DUMP_SECTION(HDMITX_DWC_TX_INVID0, HDMITX_DWC_TX_BCBDATA1);
+	DUMP_SECTION(HDMITX_DWC_VP_STATUS, HDMITX_DWC_VP_MASK);
+	DUMP_SECTION(HDMITX_DWC_FC_INVIDCONF, HDMITX_DWC_FC_DBGTMDS2);
+	DUMP_SECTION(HDMITX_DWC_PHY_CONF0, HDMITX_DWC_I2CM_PHY_SDA_HOLD);
+	DUMP_SECTION(HDMITX_DWC_AUD_CONF0, HDMITX_DWC_AUD_INT1);
+	DUMP_SECTION(HDMITX_DWC_AUD_N1, HDMITX_DWC_AUD_INPUTCLKFS);
+	DUMP_SECTION(HDMITX_DWC_AUD_SPDIF0, HDMITX_DWC_AUD_SPDIFINT1);
+	DUMP_SECTION(HDMITX_DWC_MC_CLKDIS, HDMITX_DWC_MC_LOCKONCLOCK);
+	DUMP_SECTION(HDMITX_DWC_CSC_CFG, HDMITX_DWC_CSC_LIMIT_DN_LSB);
+	DUMP_SECTION(HDMITX_DWC_A_HDCPCFG0, HDMITX_DWC_A_HDCPCFG1);
+	DUMP_SECTION(HDMITX_DWC_A_HDCPOBS0, HDMITX_DWC_A_COREVERMSB);
+	DUMP_SECTION(HDMITX_DWC_HDCPREG_BKSV0, HDMITX_DWC_HDCPREG_RMLSTS);
+	DUMP_SECTION(HDMITX_DWC_HDCPREG_SEED0, HDMITX_DWC_HDCPREG_DPK6);
+	DUMP_SECTION(HDMITX_DWC_HDCP22REG_ID, HDMITX_DWC_HDCP22REG_ID);
+	DUMP_SECTION(HDMITX_DWC_HDCP22REG_CTRL, HDMITX_DWC_HDCP22REG_CTRL);
+	DUMP_SECTION(HDMITX_DWC_HDCP22REG_CTRL1, HDMITX_DWC_HDCP22REG_MUTE);
+	DUMP_SECTION(HDMITX_DWC_CEC_CTRL, HDMITX_DWC_CEC_WAKEUPCTRL);
+	DUMP_SECTION(HDMITX_DWC_I2CM_SLAVE, HDMITX_DWC_I2CM_SCDC_UPDATE1);
 }
 
 static void hdmitx_hw_init(void)
