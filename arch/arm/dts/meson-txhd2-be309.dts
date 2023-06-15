@@ -73,10 +73,10 @@
 
 /* demo for i2c user */
 &i2c3 {
-	status= "disabled";
+	status= "okay";
 	clock-frequency = <100000>;
-	/*pinctrl-names = "default";*/
-	/*pinctrl-0 = <&i2c3_h_pins1>;*/
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c3_pins2>;
 };
 
 &pinctrl_periphs {

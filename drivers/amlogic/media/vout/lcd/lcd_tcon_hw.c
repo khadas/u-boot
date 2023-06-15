@@ -929,6 +929,22 @@ static int lcd_tcon_top_set_t5(struct lcd_config_s *pconf)
 	return 0;
 }
 
+static int lcd_tcon_top_set_txhd2(struct lcd_config_s *pconf)
+{
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("lcd tcon top set\n");
+
+	lcd_tcon_write(TCON_CLK_CTRL, 0x001f);
+	lcd_tcon_write(TCON_TOP_CTRL, 0x8b98);
+	lcd_tcon_write(TCON_PLLLOCK_CNTL, 0x0037);
+	//lcd_tcon_write(TCON_RST_CTRL, 0x003f);
+	lcd_tcon_write(TCON_RST_CTRL, 0x0000);
+	lcd_tcon_write(TCON_DDRIF_CTRL0, 0x33fff000);
+	lcd_tcon_write(TCON_DDRIF_CTRL1, 0x300300);
+
+	return 0;
+}
+
 int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
@@ -1105,6 +1121,55 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
 
 	/* step 1: tcon top */
 	lcd_tcon_top_set_t5(pconf);
+
+	/* step 2: tcon_core_reg_update */
+	if (mm_table->core_reg_header) {
+		if (mm_table->core_reg_header->block_ctrl == 0) {
+			lcd_tcon_core_reg_set(tcon_conf, mm_table,
+				mm_table->core_reg_table);
+		}
+	}
+
+	/* step 3:  tcon data set */
+	if (mm_table->version)
+		lcd_tcon_data_set(pdrv, mm_table);
+
+#ifdef CONFIG_AMLOGIC_TEE
+	lcd_tcon_mem_tee_protect(0, 1);
+#endif
+
+	/* step 4: tcon_top_output_set */
+	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
+	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
+
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
+	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
+
+	return 0;
+}
+
+int lcd_tcon_enable_txhd2(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_config_s *pconf = &pdrv->config;
+	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
+	struct tcon_mem_map_table_s *mm_table = get_lcd_tcon_mm_table();
+	struct tcon_rmem_s *rmem = get_lcd_tcon_rmem();
+	int ret;
+
+	ret = lcd_tcon_valid_check();
+	if (ret)
+		return -1;
+	if (!tcon_conf)
+		return -1;
+	if (!mm_table)
+		return -1;
+
+	lcd_vcbus_write(ENCL_VIDEO_EN, 0);
+
+	/* step 1: tcon top */
+	lcd_tcon_top_set_txhd2(pconf);
 
 	/* step 2: tcon_core_reg_update */
 	if (mm_table->core_reg_header) {

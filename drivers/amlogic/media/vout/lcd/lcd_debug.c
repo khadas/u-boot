@@ -1280,6 +1280,13 @@ static struct lcd_debug_info_reg_s lcd_debug_info_reg_t5w = {
 	.reg_pinmux_table = lcd_reg_dump_pinmux_t5w,
 };
 
+static struct lcd_debug_info_reg_s lcd_debug_info_reg_txhd2 = {
+	.reg_pll_table = NULL,
+	.reg_clk_table = lcd_reg_dump_clk_tl1,
+	.reg_encl_table = lcd_reg_dump_encl_tl1,
+	.reg_pinmux_table = lcd_reg_dump_pinmux_t5w,
+};
+
 static struct lcd_debug_info_reg_s lcd_debug_info_reg_t7_0 = {
 	.reg_pll_table = lcd_reg_dump_pll_t7_0,
 	.reg_clk_table = lcd_reg_dump_clk_t7_0,
@@ -1493,7 +1500,7 @@ void lcd_debug_probe(struct aml_lcd_drv_s *pdrv)
 #endif
 		break;
 	case LCD_CHIP_TXHD2:
-		lcd_debug_info_reg = &lcd_debug_info_reg_tl1;
+		lcd_debug_info_reg = &lcd_debug_info_reg_txhd2;
 		lcd_debug_info_if_lvds.reg_dump_phy =
 			lcd_reg_print_phy_analog_txhd2;
 		lcd_debug_info_if_mipi.reg_dump_phy =
