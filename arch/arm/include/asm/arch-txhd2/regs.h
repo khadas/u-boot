@@ -28,9 +28,9 @@
  * REG_MDUMP_COMPRESS_SIZE   use SYSCTRL_DEBUG_REG7 (P_AO_SEC_GP_CFG13)
  * REG_MDUMP_REBOOT_MODE     use AO_SEC_SD_CFG15
  */
-#define REG_MDUMP_CPUBOOT_STATUS    (0xff634400 + (0x76 << 2)) /* boot status */
-#define REG_MDUMP_COMPRESS_BASE     (0xff800000 + (0x2a << 2)) /* ram compress size */
-#define REG_MDUMP_COMPRESS_SIZE     (0xff800000 + (0x2b << 2)) /* ram compress start addrs */
+#define REG_MDUMP_CPUBOOT_STATUS    (0xff634400 + (0x78 << 2)) /* boot status */
+#define REG_MDUMP_COMPRESS_BASE     (0xff800000 + (0x9c << 2)) /* ram compress size */
+#define REG_MDUMP_COMPRESS_SIZE     (0xff800000 + (0x9d << 2)) /* ram compress start addrs */
 #define REG_MDUMP_REBOOT_MODE       (0xff800000 + (0x8f << 2)) /* reboot mode */
 
 /*
