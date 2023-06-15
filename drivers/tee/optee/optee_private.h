@@ -62,4 +62,10 @@ static inline void optee_suppl_rpmb_release(struct udevice *dev)
 
 void *optee_alloc_and_init_page_list(void *buf, ulong len, u64 *phys_buf_ptr);
 
+int from_msg_param(struct tee_param *params, uint num_params,
+			  const struct optee_msg_param *msg_params);
+
+int to_msg_param(struct optee_msg_param *msg_params, uint num_params,
+			const struct tee_param *params);
+
 #endif /* __OPTEE_PRIVATE_H */

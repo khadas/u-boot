@@ -157,7 +157,7 @@ static int get_msg_arg(struct udevice *dev, uint num_params,
 	return 0;
 }
 
-static int to_msg_param(struct optee_msg_param *msg_params, uint num_params,
+int to_msg_param(struct optee_msg_param *msg_params, uint num_params,
 			const struct tee_param *params)
 {
 	uint n;
@@ -196,7 +196,7 @@ static int to_msg_param(struct optee_msg_param *msg_params, uint num_params,
 	return 0;
 }
 
-static int from_msg_param(struct tee_param *params, uint num_params,
+int from_msg_param(struct tee_param *params, uint num_params,
 			  const struct optee_msg_param *msg_params)
 {
 	uint n;
@@ -235,6 +235,20 @@ static int from_msg_param(struct tee_param *params, uint num_params,
 				break;
 			}
 			p->u.memref.shm_offs = mp->u.rmem.offs;
+			p->u.memref.shm = shm;
+			break;
+		case OPTEE_MSG_ATTR_TYPE_TMEM_INPUT:
+		case OPTEE_MSG_ATTR_TYPE_TMEM_OUTPUT:
+		case OPTEE_MSG_ATTR_TYPE_TMEM_INOUT:
+			p->attr = TEE_PARAM_ATTR_TYPE_MEMREF_INPUT +
+				attr - OPTEE_MSG_ATTR_TYPE_TMEM_INPUT;
+			p->u.memref.size = mp->u.tmem.size;
+			shm = (struct tee_shm *)(unsigned long)mp->u.tmem.shm_ref;
+			if (!shm) {
+				p->u.memref.shm_offs = 0;
+				p->u.memref.shm = NULL;
+				break;
+			}
 			p->u.memref.shm = shm;
 			break;
 		default:
