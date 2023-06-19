@@ -1785,8 +1785,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_ddr_training_delay_ps.ac_trace_delay[4] = 140 + AC_OFFSET,//cs1 t3 SKT board
 	.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 128 + AC_OFFSET,      //ckp
 	.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 128 + AC_OFFSET,      //ckn
-	.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 128 + AC_OFFSET,      //cke0
-	.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + AC_OFFSET,      //cke1
+	.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 128 + AC_OFFSET - 64,      //cke0
+	.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 128 + AC_OFFSET - 64,      //cke1
 	.cfg_ddr_training_delay_ps.ac_trace_delay[1] = 128 + AC_OFFSET,       //odt0
 	.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 128 + AC_OFFSET,      //odt1
 
