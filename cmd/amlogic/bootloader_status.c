@@ -795,17 +795,6 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 			wrnP("current index is expect, no need reboot next, run cache recovery\n");
 			if (has_boot_slot == 1) {
 				wrnP("ab mode\n");
-				update_env = env_get("update_env");
-				if (!update_env) {
-					errorP("can not get update_env\n");
-					return -1;
-				}
-				if (strcmp(update_env, "1") == 0) {
-					printf("ab mode, default all uboot env\n");
-					run_command("defenv_reserv;saveenv;", 0);
-					run_command("run bcb_cmd", 0);
-					env_set("update_env","0");
-				}
 			} else {
 				run_recovery_from_cache();
 				return 0;
@@ -982,6 +971,37 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 }
 
 
+static int do_update_uboot_env(cmd_tbl_t *cmdtp,
+	int flag,
+	int argc,
+	char * const argv[])
+{
+	//default uboot env need before anyone use it
+	//after factory reset
+	if (env_get("default_env")) {
+		printf("factory reset, need default all uboot env.\n");
+		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
+	}
+
+	//after ab update
+	char *update_env = env_get("update_env");
+
+	if (update_env && (strcmp(update_env, "1") == 0)) {
+		printf("ab mode, default all uboot env\n");
+		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
+	}
+
+	//after recovery update
+	char *upgrade_step = env_get("upgrade_step");
+
+	if (upgrade_step && (strcmp(upgrade_step, "1") == 0)) {
+		printf("after recovery update, need update uboot env\n");
+		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
+	}
+
+	return 0;
+}
+
 U_BOOT_CMD_COMPLETE(
 	amlbootsta, 3, 0,	do_get_bootloader_status,
 	"get bootloader status in env",
@@ -996,6 +1016,13 @@ U_BOOT_CMD_COMPLETE(
 	""
 	"",
 	var_complete
+);
+
+U_BOOT_CMD(aml_update_env,
+	1,	0, do_update_uboot_env,
+	"aml_update_env",
+	"\nThis command will update uboot env\n"
+	"So you can execute command: aml_update_env"
 );
 
 

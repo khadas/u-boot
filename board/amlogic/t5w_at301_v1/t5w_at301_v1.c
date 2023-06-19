@@ -518,15 +518,9 @@ int board_late_init(void)
 	char connector_type_pre[20] = {}, connector_type_cur[20] = {};
 	char *str;
 
-	if (env_get("default_env") || env_get("update_env")) {
-		printf("factory reset, need default all uboot env\n");
-		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
-	}
-
-		//update env before anyone using it
+	run_command("aml_update_env", 0);
 	run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
-		run_command("if itest ${upgrade_step} == 1; then "\
-						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
+
 	if (env_get("outputmode")) {
 		strncpy(outputModePre, env_get("outputmode"), 29);
 	}
