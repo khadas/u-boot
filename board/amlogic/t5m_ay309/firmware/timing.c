@@ -64,7 +64,11 @@
 #define ENABLE_T5M_SKT_BOARD 1  //SKT AY309 6layer 4pcs ddr4
 //#define ENABLE_T5M_REF_BOARD 1  //REF AY301 2layer 1pcs ddr4
 
-#define T3_2GB_SAM_DDR4_X4_EID       0x66C6A
+#define DDR_EFUSE_ID_NTC_C_1G_X2   1
+#define DDR_EFUSE_ID_SAM_C_1G_X2   2
+#define DDR_EFUSE_ID_SAM_F_512M_X2   3
+#define DDR_EFUSE_ID_SAM_E_512M_X2   4
+#define DDR_EFUSE_ID_NTC_E_512M_X2   5
 
 //bit 6 adc_channel bit 0-5 adc value,chan 3 value 8 is layer 2
 #define DDR_ID_ACS_ADC   ((3 << 6) | (8))
@@ -156,10 +160,6 @@ uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
 	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
-//		.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
-//		.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
-	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[0], (0 << 7) | 2),
-	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[1], (0 << 7) | 2),
 
 	DDR_TIMMING_TUNE_START(DDR_ID_FROM_ADC, DDR_ADC_CH4, DDR_ADC_VALUE1),
 	//DDR1-1GB-16bit,DDR0-x
@@ -173,6 +173,14 @@ uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
 		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
 		 (DRAM_SIZE_ID_256MBX0 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET))),
+
+	DDR_TIMMING_TUNE_START(DDR_ID_FROM_EFUSE, 0, DDR_EFUSE_ID_NTC_C_1G_X2),
+	//efuse = ,offset ddr0
+	//.cfg_ddr_training_delay_ps.reserve_para[0] = (1 << 7) | 0x8,//write dqs
+	//.cfg_ddr_training_delay_ps.reserve_para[1] = (1 << 7) | 0x8,//write dqs
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[0], (0 << 7) | 2),
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_ddr_training_delay_ps.reserve_para[1], (0 << 7) | 2),
+
 	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_SI_setting_ps.DRAMFreq, 1176),
 	//...
@@ -231,6 +239,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//bit 0 -3 ch1 cs0 ,bit 4-7 ch1
 		.cfg_board_common_setting.dram_x4x8x16_mode = CONFIG_DRAM_MODE_X16,
 		.cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
+		//log_level = 0xff,boot few log,can test ddr window and max frequency;
+		//log_level = 4,training log;
 		.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
@@ -935,6 +945,8 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		//bit 0 -3 ch1 cs0 ,bit 4-7 ch1
 		.cfg_board_common_setting.dram_x4x8x16_mode = CONFIG_DRAM_MODE_X16,
 		.cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
+		//log_level = 0xff,boot few log,can test ddr window and max frequency;
+		//log_level = 4,training log;
 		.cfg_board_common_setting.log_level = 4,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
