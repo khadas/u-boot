@@ -37,6 +37,7 @@ enum scdc_addr {
 
 #define HDMITX_VIC420_OFFSET	0x100
 #define HDMITX_VESA_OFFSET	0x300
+#define HDMI_UNKNOWN	HDMI_unknown
 
 /* HDMI VIC definitions */
 enum hdmi_vic {

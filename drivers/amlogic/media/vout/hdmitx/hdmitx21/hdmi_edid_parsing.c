@@ -53,7 +53,6 @@
 
 #define EDID_MAX_BLOCK 8
 
-static bool _is_y420_vic(enum hdmi_vic vic);
 static int hdmitx_edid_search_IEEEOUI(unsigned char *buf)
 {
 	int i;
@@ -1337,7 +1336,7 @@ const char *hdmitx_edid_vic_to_string(enum hdmi_vic vic)
 	return hdmitx_edid_vic_tab_map_string(vic);
 }
 
-static bool _is_y420_vic(enum hdmi_vic vic)
+bool _is_y420_vic(enum hdmi_vic vic)
 {
 	int i;
 	enum hdmi_vic y420_vic[] = {

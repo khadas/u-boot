@@ -63,6 +63,7 @@ void sdr_scene_process(hdmi_data_t *hdmi_data,
 	scene_output_info_t *output_info);
 void hdr_scene_process(struct input_hdmi_data *hdmi_data,
 	scene_output_info_t *output_info);
+bool _is_y420_vic(enum hdmi_vic vic);
 
 void get_hdmi_data(struct hdmitx_dev *hdev, hdmi_data_t *data);
 bool pre_process_str(char *name);

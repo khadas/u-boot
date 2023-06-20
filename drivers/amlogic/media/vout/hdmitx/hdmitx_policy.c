@@ -447,24 +447,6 @@ static bool is_low_powermode(void)
 	return false;
 }
 
-static int is_4k50_fmt(char *mode)
-{
-	int i;
-	static char const *hdmi4k50[] = {
-		"2160p50hz",
-		"2160p60hz",
-		"smpte50hz",
-		"smpte60hz",
-		NULL
-	};
-
-	for (i = 0; hdmi4k50[i]; i++) {
-		if (strcmp(hdmi4k50[i], mode) == 0)
-			return 1;
-	}
-	return 0;
-}
-
 static int get_hdr_priority(void)
 {
 	char *hdr_priority = env_get("hdr_priority");
@@ -795,10 +777,14 @@ static void update_dv_displaymode(struct input_hdmi_data *hdmi_data,
  */
 static bool hdmi_sink_disp_mode_sup(struct input_hdmi_data *hdmi_data, char *disp_mode)
 {
+	enum hdmi_vic vic = HDMI_UNKNOWN;
+
 	if (!hdmi_data || !disp_mode)
 		return false;
 
-	if (is_4k50_fmt(disp_mode)) {
+	vic = hdmitx_edid_vic_tab_map_vic(disp_mode);
+
+	if (_is_y420_vic(vic)) {
 		if (hdmitx_chk_mode_attr_sup(hdmi_data, disp_mode, "420,8bit"))
 			return true;
 		if (hdmitx_chk_mode_attr_sup(hdmi_data, disp_mode, "rgb,8bit"))
