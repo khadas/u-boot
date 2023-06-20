@@ -19,7 +19,6 @@
 #include <dm/util.h>
 #include <dm/pinctrl.h>
 
-
 //#define CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -121,7 +120,7 @@ struct spifc_regs {
 	u32 cache[8];
 	u32 buffer[8];
 		#define SPIFC_CACHE_SIZE_IN_WORD 16
-		#define SPIFC_CACHE_SIZE_IN_BYTE SPIFC_CACHE_SIZE_IN_WORD << 2
+		#define SPIFC_CACHE_SIZE_IN_BYTE (SPIFC_CACHE_SIZE_IN_WORD << 2)
 };
 
 struct spifc_priv {
@@ -343,7 +342,7 @@ static int spifc_set_speed(struct udevice *bus, uint hz)
 
 static int spifc_set_mode(struct udevice *bus, uint mode)
 {
-	struct spifc_platdata *plat= dev_get_platdata(bus);
+	struct spifc_platdata *plat = dev_get_platdata(bus);
 
 	if (mode == plat->mode)
 		return 0;

@@ -52,7 +52,7 @@
 #define SRAM_DEBUG_BUFF_SIZE		256
 
 /* BL2 SPL size */
-#define BL2_SIZE			(166 * 1024)
+#define BL2_SIZE			(202 * 1024)
 
 #define BL2E_BUFFER_BASE	(0x1200000)
 #define BL2E_VER_BUFF_BASE_ADDR        (BL2E_BUFFER_BASE + 1024 * 65) //bl2e buffer

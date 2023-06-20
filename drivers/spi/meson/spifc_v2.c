@@ -22,6 +22,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define WHILE_NULL_LOOP(cond)	while ((cond))
+
 struct spifc_priv {
 	struct spifc_regs *regs;
 	void __iomem *mem_map;
@@ -56,7 +58,7 @@ struct spifc_priv {
 
 #define SPIFC_DEFAULT_SPEED		24000000
 #define SPIFC_CACHE_SIZE_IN_WORD 128
-#define SPIFC_CACHE_SIZE_IN_BYTE SPIFC_CACHE_SIZE_IN_WORD << 2
+#define SPIFC_CACHE_SIZE_IN_BYTE (SPIFC_CACHE_SIZE_IN_WORD << 2)
 
 static void spifc_set_rx_op_mode(struct spifc_priv *priv,
 				 unsigned int slave_mode, unsigned char cmd)
@@ -158,7 +160,7 @@ static int spifc_user_cmd(struct spifc_priv *priv,
 	writel(0, SPIFC_USER_CTRL3);
 	writel(addr, SPIFC_USER_ADDR);
 	writel(1 << 31, SPIFC_USER_CTRL0);
-	while (!(readl(SPIFC_USER_CTRL0) & 0x40000000));
+	WHILE_NULL_LOOP(!(readl(SPIFC_USER_CTRL0) & 0x40000000));
 
 	return 0;
 }
@@ -191,8 +193,11 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 		writel(*p++, SPIFC_DBUF_DATA);
 
 	val = readl(SPIFC_USER_CTRL1);
-	val &= ~((3 << 28) | (0xff << 20) | (1 << 19) | (3 << 17) | (3 << 15) | (1 << 13) | (1 << 12) | (0x3FF << 0));
-	val |= ((1 << 30) | ((priv->save_cmd << 20)) | ((!!priv->save_addr_len) << 19) | (bits << 15) | (1 << 14) | (len << 0));
+	val &= ~((3 << 28) | (0xff << 20) | BIT(19) |
+		(3 << 17) | (3 << 15) | BIT(13) | BIT(12) | (0x3FF << 0));
+	val |= (BIT(30) | ((priv->save_cmd << 20)) |
+		((!!priv->save_addr_len) << 19) | (bits << 15) |
+		BIT(14) | (len << 0));
 	writel(val, SPIFC_USER_CTRL1);
 	/* disable dummy */
 	writel(0, SPIFC_USER_CTRL2);
@@ -202,7 +207,7 @@ static int spifc_user_cmd_dout(struct spifc_priv *priv,
 	writel(0, SPIFC_USER_DBUF_ADDR);
 	writel(priv->save_addr, SPIFC_USER_ADDR);
 	writel(1 << 31, SPIFC_USER_CTRL0);
-	while (!(readl(SPIFC_USER_CTRL0) & 0x40000000));
+	WHILE_NULL_LOOP(!(readl(SPIFC_USER_CTRL0) & 0x40000000));
 
 	return 0;
 }
@@ -240,7 +245,8 @@ static int spifc_user_cmd_din(struct spifc_priv *priv,
 	u16 bits = priv->save_addr_len ? (priv->save_addr_len - 1) : 0;
 
 	/* enable and set cmd addr */
-	writel((1 << 30) | ((!!priv->save_addr_len) << 19) | (priv->save_cmd << 20) | (bits << 15), SPIFC_USER_CTRL1);
+	writel((1 << 30) | ((!!priv->save_addr_len) << 19) |
+	       (priv->save_cmd << 20) | (bits << 15), SPIFC_USER_CTRL1);
 	writel(priv->save_addr, SPIFC_USER_ADDR);
 	/* disable dummy */
 	writel(0, SPIFC_USER_CTRL2);
@@ -251,15 +257,15 @@ static int spifc_user_cmd_din(struct spifc_priv *priv,
 	/* clear buffer start address */
 	writel(0, SPIFC_USER_DBUF_ADDR);
 	writel(1 << 31, SPIFC_USER_CTRL0);
-	while (!(readl(SPIFC_USER_CTRL0) & 0x40000000));
-	while (!(readl(SPIFC_USER_CTRL0) & 1));
+	WHILE_NULL_LOOP(!(readl(SPIFC_USER_CTRL0) & 0x40000000));
+	WHILE_NULL_LOOP(!(readl(SPIFC_USER_CTRL0) & 1));
 
-	writel((0x1 << 30) ,SPIFC_DBUF_CTRL);
+	writel((0x1 << 30), SPIFC_DBUF_CTRL);
 	p = (u32 *)temp_buf;
 	len32 = (len / 4) + !!(len % 4);
-	for (i = 0; i < len32; i++) {
+	for (i = 0; i < len32; i++)
 		*p++ = readl(SPIFC_DBUF_DATA);
-	}
+
 	memcpy(buf, temp_buf, len);
 
 	return 0;
@@ -286,7 +292,7 @@ static int spifc_set_speed(struct udevice *bus, uint hz)
 
 	ret = clk_set_rate(&priv->spifc_div, plat->speed);
 	if (ret) {
-		pr_err("can't set clk rate 0x%x\n !",plat->speed);
+		pr_err("can't set clk rate 0x%x\n !", plat->speed);
 		return ret;
 	}
 	writel((1 << 30) | (1 << 28) | (7 << 16) | (7 << 12) | (7 << 8) | (2), SPIFC_ACTIMING0);
@@ -296,7 +302,7 @@ static int spifc_set_speed(struct udevice *bus, uint hz)
 
 static int spifc_set_mode(struct udevice *bus, uint mode)
 {
-	struct spifc_platdata *plat= dev_get_platdata(bus);
+	struct spifc_platdata *plat = dev_get_platdata(bus);
 
 	if (mode == plat->mode)
 		return 0;
@@ -375,9 +381,9 @@ static int spifc_xfer(struct udevice *dev,
 					priv->save_addr = priv->save_addr << 8;
 					priv->save_addr |= buf[i + 1];
 				}
-			}
-			else
+			} else {
 				priv->save_addr = 0;
+			}
 
 			priv->cmd = buf[0];
 		}
@@ -422,9 +428,10 @@ static int spifc_xfer(struct udevice *dev,
 			}
 		}
 	}
-	if (ret || flags & SPI_XFER_END) {
+
+	if (ret || flags & SPI_XFER_END)
 		priv->cmd = 0;
-	}
+
 	return ret;
 }
 

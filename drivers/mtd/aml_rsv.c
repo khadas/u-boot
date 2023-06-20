@@ -11,6 +11,7 @@
 #include <amlogic/aml_rsv.h>
 #include <amlogic/aml_mtd.h>
 #include <partition_table.h>
+#include <asm/arch/cpu_config.h>
 #include <amlogic/storage.h>
 
 extern int info_disprotect;
@@ -449,8 +450,7 @@ RE_RSV_INFO:
 		rsv_info->init = 1;
 		rsv_info->nvalid->status = 0;
 		/* Do not use strlen ,Use ARRAY_SIZE to make the length 4 */
-		if (!memcmp(oobinfo.name, rsv_info->name,
-			    4)) {
+		if (!memcmp(oobinfo.name, rsv_info->name, 4)) {
 			rsv_info->valid = 1;
 			if (rsv_info->nvalid->blk_addr >= 0) {
 				free_node = get_free_node(rsv_info);
@@ -1110,64 +1110,41 @@ int meson_rsv_key_write(u_char *source, size_t size)
 }
 
 #ifdef CONFIG_DDR_PARAMETER_SUPPORT
-#define DDR_PARAMETER_POS	256
-enum PAGE_INFO_ERR_TYPE {
-	PAGE_INFO_READ_ERR = -3,
-	PAGE_INFO_ERASE_ERR,
-	PAGE_INFO_WRITE_ERR,
-	PAGE_INFO_MAX_ERR,
-};
-
-int meson_modify_page_info_and_save(u_char *src, unsigned int ptr, size_t size)
+int meson_modify_page_info_and_save(struct mtd_info *mtd)
 {
-	struct mtd_info *mtd = rsv_handler->ddr_para->mtd;
-	struct erase_info ei;
-	u_char *block_buf;
-	loff_t offset = 0;
-	int err, i;
+	u64 bl2_mem, bl2_size = BL2_SIZE;
+	int ret, i;
+	u_char *bl2_buf;
+	char str[128];
 
-	/* don't try to write out the range of page info! */
-	if (ptr >= mtd->writesize)
-		return PAGE_INFO_MAX_ERR;
+	bl2_buf = malloc(bl2_size);
+	if (!bl2_buf)
+		return -ENOMEM;
 
-	block_buf = malloc(mtd->erasesize);
-	if (!block_buf)
-		return PAGE_INFO_MAX_ERR;
-
-	ei.mtd = mtd;
-	ei.callback = NULL;
+	bl2_mem = (u64)bl2_buf;
 	for (i = 0; i < 4; i++) {
-		/* Need to change to MTD0 for SLC NAND later, noisy */
-		err = mtd_read(mtd, offset + mtd->writesize,
-			       mtd->erasesize - mtd->writesize,
-			       NULL, block_buf);
-		if (err && !mtd_is_bitflip(err)) {
-			err = PAGE_INFO_READ_ERR;
+		sprintf(str, "store boot_read bl2 0x%llx %d 0x%llx", bl2_mem, i, bl2_size);
+		printf("command:    %s\n", str);
+		ret = run_command(str, 0);
+		if (ret)
 			goto _err_modify_page_info;
-		}
 
-		ei.addr = offset;
-		ei.len = mtd->erasesize;
-		err = mtd_erase(mtd, &ei);
-		if (err) {
-			err = PAGE_INFO_ERASE_ERR;
+		sprintf(str, "store boot_erase bl2 %d", i);
+		printf("command:    %s\n", str);
+		ret = run_command(str, 0);
+		if (ret)
 			goto _err_modify_page_info;
-		}
 
-		//memcpy(block_buf + ptr, src, size);
-		err = mtd_write(mtd, offset + mtd->writesize,
-				mtd->erasesize - mtd->writesize,
-				NULL, block_buf);
-		if (err) {
-			err = PAGE_INFO_WRITE_ERR;
+		sprintf(str, "store boot_write bl2 0x%llx %d 0x%llx", bl2_mem, i, bl2_size);
+		printf("command:    %s\n", str);
+		ret = run_command(str, 0);
+		if (ret)
 			goto _err_modify_page_info;
-		}
-		offset += (mtd->writesize << 8);
 	}
 
 _err_modify_page_info:
-	free(block_buf);
-	return err;
+	free(bl2_buf);
+	return ret;
 }
 #endif
 
@@ -1175,7 +1152,6 @@ int meson_rsv_ddr_para_write(u_char *source, size_t size)
 {
 #if defined(CONFIG_DDR_PARAMETER_SUPPORT) && defined(CONFIG_MTD_SPI_NAND)
 	struct mtd_info *mtd = rsv_handler->ddr_para->mtd;
-	unsigned int pages_shift, ddr_param_page;
 #endif
 	u_char *temp;
 	size_t len;
@@ -1206,19 +1182,7 @@ int meson_rsv_ddr_para_write(u_char *source, size_t size)
 		__func__, __LINE__, len > size ? size : len, ret);
 
 #if defined(CONFIG_DDR_PARAMETER_SUPPORT) && defined(CONFIG_MTD_SPI_NAND)
-extern void spinand_page_info_set_ddr_param(int value);
-
-	pages_shift = mtd->erasesize_shift - mtd->writesize_shift;
-	ddr_param_page = rsv_handler->ddr_para->nvalid->page_addr +
-		(rsv_handler->ddr_para->nvalid->blk_addr << pages_shift);
-	spinand_page_info_set_ddr_param(ddr_param_page);
-	ret = meson_modify_page_info_and_save((u_char *)&ddr_param_page,
-					      DDR_PARAMETER_POS,
-					      sizeof(unsigned int));
-	if (ret) {
-		pr_info("%s %d: error type %d\n", __func__, __LINE__, ret);
-		return -1;
-	}
+	ret = meson_modify_page_info_and_save(mtd);
 #endif
 	kfree(temp);
 	return ret;

@@ -1,0 +1,37 @@
+config AML_SPICC
+	bool "Amlogic SPICC Driver"
+	help
+	  Enable support for SPICC on all meson SoCs.
+	  nothing
+
+config AML_SPICCV2
+	bool "Amlogic SPICC_V2 Driver"
+	help
+	  Enable support for SPICC v2 on meson a4 SoCs.
+	  It is a new spi controller to support,
+	  - PIO, DMA-memory, DMA-SG,
+	  - Descriptor list
+	  - Dual/Quad SPI
+	  - LCD data/command mode(9bits or pin)
+
+config AML_SPIFC
+	bool "Amlogic SPIFC Driver"
+	help
+	  Enable support for SPI Flash Controller on meson SoCs.
+	  It should be set when user want SPI NAND or SPI NOR on meson SoCs.
+	  If SPI NAND/SPI FLASH is enabled, please open it in defconfig
+
+config AML_SPIFCV2
+	bool "Amlogic SPIFC_V2 Driver"
+	help
+	  Enable support for SPI Flash Controller v2 on a1 meson SoCs.
+	  It should be set when user want SPI NAND or SPI NOR on a1 meson SoCs.
+	  If SPI NAND/SPI FLASH is enabled, please open it in defconfig
+
+config AML_SPI_NFC
+	bool "Amlogic SPI NFC with Host ECC Driver"
+	default y
+	help
+	  Enable support for SPI Flash Controller with host ECC on meson SoCs.
+	  It should be set when user want SPI NAND or SPI NOR on meson SoCs.
+	  If SPI NAND/SPI FLASH is enabled, please open it in defconfig

@@ -50,6 +50,7 @@ enum spi_nor_option_flags {
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_WRITE_ENABLE		0x06
 #define CMD_QUAD_PAGE_PROGRAM		0x32
+#define CMD_OCTAL_PAGE_PROGRAM		0x82
 
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
@@ -58,6 +59,8 @@ enum spi_nor_option_flags {
 #define CMD_READ_DUAL_IO_FAST		0xbb
 #define CMD_READ_QUAD_OUTPUT_FAST	0x6b
 #define CMD_READ_QUAD_IO_FAST		0xeb
+#define CMD_READ_OCTAL_OUTPUT_FAST	0x8b
+#define CMD_READ_OCTAL_IO_FAST		0xcb
 #define CMD_READ_ID			0x9f
 #define CMD_READ_STATUS			0x05
 #define CMD_READ_STATUS1		0x35
@@ -146,6 +149,8 @@ struct spi_flash_info {
 #define RD_DUAL			BIT(5)	/* use Dual Read */
 #define RD_QUADIO		BIT(6)	/* use Quad IO Read */
 #define RD_DUALIO		BIT(7)	/* use Dual IO Read */
+#define RD_OCTAL		BIT(8)	/* use Quad Read */
+#define WR_OPP			BIT(9)	/* use Quad Page Program */
 #define RD_FULL			(RD_QUAD | RD_DUAL | RD_QUADIO | RD_DUALIO)
 };
 

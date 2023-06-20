@@ -16,7 +16,6 @@
 #include <linux/mtd/spinand.h>
 #include <dm/pinctrl.h>
 
-
 static struct storage_t *snand_storage;
 extern void mtd_store_set(struct mtd_info *mtd, int dev);
 extern void mtd_store_mount_ops(struct storage_t *store);
@@ -34,7 +33,7 @@ static inline struct storage_t *get_snand_storage(void)
 	return snand_storage;
 }
 
-int board_nand_init(void)
+int board_spinand_init(void)
 {
 	u32 bus = 0, cs = 1, speed = 0, mode = 0;
 	struct spi_slave *slave;
@@ -93,7 +92,7 @@ int spi_nand_pre(void)
 	if (spi_nand)
 		return 0;
 
-	return board_nand_init();
+	return board_spinand_init();
 }
 
 int spi_nand_probe(u32 init_flag)

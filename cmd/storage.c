@@ -197,6 +197,7 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
 	uint64_t align_size, reserved_size = 0, cal_copy = ssp->boot_backups;
+	cpu_id_t cpu_id = get_cpu_id();
 	uint8_t i;
 
 	align_size = ALIGN_SIZE;
@@ -208,11 +209,16 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 	} else if (ssp->boot_device == BOOT_SNAND) {
 		reserved_size = ssp->sip.snasp.layout_reserve_size;
 		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.snasp.pagesize);
-	} else 	if (ssp->boot_device == BOOT_EMMC) {
+	} else if (ssp->boot_device == BOOT_EMMC) {
 		ssp->boot_entry[0].offset = boot_entry[0].offset +=
 			BL2_CORE_BASE_OFFSET_EMMC;
 		cal_copy = 1;
+	} else if (ssp->boot_device == BOOT_SNOR &&
+		cpu_id.family_id == MESON_CPU_MAJOR_ID_A4) {
+		ssp->boot_entry[0].offset = boot_entry[0].offset += 0x200;
+		cal_copy = 1;
 	}
+
 	STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[0].size, align_size);
 	ssp->boot_entry[0].size = boot_entry[0].size;
 	printf("ssp->boot_entry[0] offset:0x%x, size:0x%x\n",
@@ -275,9 +281,9 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			       nIndex, name, offPayload, szPayload);
 		}
 		boot_entry[BOOT_AREA_BB1ST].size = ssp->boot_entry[BOOT_AREA_BB1ST].size;
-	#ifdef ADVANCE_DDRFIP_SIZE
+#ifdef ADVANCE_DDRFIP_SIZE
 		ssp->boot_entry[BOOT_AREA_DDRFIP].size = ADVANCE_DDRFIP_SIZE;
-	#endif
+#endif
 		boot_entry[BOOT_AREA_DDRFIP].size = ssp->boot_entry[BOOT_AREA_DDRFIP].size;
 		boot_entry[BOOT_AREA_DEVFIP].size = ssp->boot_entry[BOOT_AREA_DEVFIP].size;
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
@@ -375,7 +381,7 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 			else if (IS_FEAT_DIS_NBL2_SNOR())
 				ssp->boot_backups = 1;
 			else
-				ssp->boot_backups = 2; /* Default 2 backup, consistent with rom */
+				ssp->boot_backups = 1; /* Default 2 backup, consistent with rom */
 			break;
 		case BOOT_SNAND:
 			if (IS_FEAT_EN_8BL2_SNAND())
@@ -456,6 +462,8 @@ int store_init(u32 init_flag)
 			record |= BIT(i);
 		}
 	}
+
+	pr_info("record = 0x%x\n", record);
 
 	if (!record) {
 		pr_info("No Valid storage device\n");
@@ -1239,7 +1247,7 @@ static int bl2x_mode_check_header(p_payload_info_t pInfo)
 	printf("\tversion : %d\n",hdr->byVersion);
 	printf("\tItemNum : %d\n",nItemNum);
 	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);
-	if (nItemNum > 8 || nItemNum < 3) {
+	if (nItemNum > MAX_BOOT_AREA_ENTRIES || nItemNum < 3) {
 		pr_info("illegal nitem num %d\n", nItemNum);
 		return __LINE__;
 	}

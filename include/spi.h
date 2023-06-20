@@ -30,7 +30,8 @@
 #define SPI_RX_SLOW	BIT(11)			/* receive with 1 wire slow */
 #define SPI_RX_DUAL	BIT(12)			/* receive with 2 wires */
 #define SPI_RX_QUAD	BIT(13)			/* receive with 4 wires */
-
+#define SPI_RX_OCTAL	BIT(14)			/* receive with 8 wires */
+#define SPI_TX_OCTAL	BIT(15)			/* transmit with 8 wires */
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
 
@@ -115,6 +116,15 @@ struct spi_slave {
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 #define SPI_XFER_MMAP		BIT(2)	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	BIT(3)	/* Memory Mapped End */
+
+/* spi nfc needed */
+#define SPI_XFER_OOB		BIT(4)
+#define SPI_XFER_RAW		BIT(5)
+#define SPI_XFER_AUTO_OOB	BIT(6)
+#define SPI_XFER_OOB_ONLY       BIT(7)
+#define SPI_XFER_NFC_MASK_FLAG			\
+	(SPI_XFER_OOB | SPI_XFER_RAW |		\
+	 SPI_XFER_AUTO_OOB | SPI_XFER_OOB_ONLY)
 };
 
 /**

@@ -5,6 +5,7 @@
 
 #ifndef __AMLMTD_H_
 #define __AMLMTD_H_
+
 #define BOOT_TOTAL_PAGES			1024
 
 #define CONFIG_BL2_COPY_NUM			8

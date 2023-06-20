@@ -17,7 +17,8 @@
 /* define the parameter type here and make sure the same with blxx */
 enum {
 	STORAGE_PARAM_TYPE = 1,
-	BL2PARMA_PARAM_TYPE = 2,
+	BOOTINFO_PAGE_TYPE = 2,
+	BL2PARMA_PARAM_TYPE = 3,
 	/* other */
 };
 

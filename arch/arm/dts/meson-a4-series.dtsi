@@ -329,30 +329,26 @@
 			status = "disabled";
 		};
 
-		spifc: spi@fe056000 {
-			compatible = "amlogic,spifc";
-			status = "disabled";
-			reg = <0x0 0xfe056000 0x0 0x80>;
-			/* clocks = <&clkc CLKID_CLK81>; */
-			/* clock-names = "core"; */
-			pinctrl-names = "default";
-			pinctrl-0 = <&spifc_pins>;
+		spi_nfc: spinfc@0xfe08c000 {
+			compatible = "amlogic,spi_nfc";
+			status = "okay";
+			reg = <0x0 0xfe08c000 0x0 0x800>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			spi-flash@0 {
 				compatible = "spi-flash";
 				reg = <0>;
 				spi-max-frequency = <20000000>;
-				spi-tx-bus-width = <1>;
-				spi-rx-bus-width = <1>;
-				status = "disabled";
+				spi-tx-bus-width = <4>;
+				spi-rx-bus-width = <4>;
+				status = "okay";
 			};
 			spi-nand@1 {
 				compatible = "spi-nand";
 				reg = <1>;
 				spi-max-frequency = <20000000>;
-				spi-tx-bus-width = <1>;
-				spi-rx-bus-width = <1>;
+				spi-tx-bus-width = <4>;
+				spi-rx-bus-width = <4>;
 				status = "disabled";
 			};
 		};
@@ -377,6 +373,7 @@
 			interrupts = <GIC_SPI 34 IRQ_TYPE_EDGE_RISING>;
 			status = "disabled";
 			clk_reg = <0 0xfe08c000>;
+			spi_cfg = <0 0xfe08d040>;
 		};
 
 		apb: apb@fe000000 {

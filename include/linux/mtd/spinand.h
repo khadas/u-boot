@@ -28,78 +28,12 @@
 #define NAND_FACTORY_BAD	2
 
 #define SPINAND_MESON_RSV		1
-#ifdef CONFIG_SPI_NAND_AML_ADVANCED
-/* Use dev parameters to send parameters in advanced mode */
-#define SPINAND_MESON_INFO_PAGE		0
-#else
-#ifdef SPINAND_ADVANCE_INFO_PAGE
-#define SPINAND_MESON_INFO_PAGE_V2      1
-#else
-#define SPINAND_MESON_INFO_PAGE		1
-#endif
-#endif
 
 #ifdef CONFIG_CMD_NAND
 extern int nand_curr_device;
 extern struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 #endif
 
-#if SPINAND_MESON_INFO_PAGE
-struct info_page {
-	char magic[8];	/* magic header of info page */
-	/* info page version, +1 when you update this struct */
-	u8 version;	/* 1 for now */
-	u8 mode;	/* 1 discrete, 0 compact */
-	u8 bl2_num;	/* bl2 copy number */
-	u8 fip_num;	/* fip copy number */
-	union {
-		struct {
-#define SPINAND_MAGIC       "AMLIFPG"
-#define SPINAND_INFO_VER    1
-			u8 rd_max; /* spi nand max read io */
-			u8 oob_offset; /* user bytes offset */
-			uint8_t planes_per_lun;
-			u8 rsv;
-			u32 fip_start; /* start pages */
-			u32 fip_pages; /* pages per fip */
-			u32 page_size; /* spi nand page size (bytes) */
-			u32 page_per_blk;	/* page number per block */
-			u32 oob_size;	/* valid oob size (bytes) */
-			u32 bbt_start; /* bbt start pages */
-			u32 bbt_valid; /* bbt valid offset pages */
-			u32 bbt_size;	/* bbt occupied bytes */
-		} s;/* spi nand */
-		struct {
-			u32 reserved;
-		} e;/* emmc */
-	} dev;
-
-};
-#endif
-
-#if SPINAND_MESON_INFO_PAGE_V2
-struct boot_info {
-#define SPINAND_MAGIC       "BOOTINFO"
-#define SPINAND_INFO_VER    2
-        char magic[8];
-        unsigned char version;		/* need to greater than or equal to 2 */
-	unsigned char reserved1[2];	/* reserve zero */
-	/* bit0~1: page per bbt */
-	unsigned char common;
-        struct {
-		unsigned int page_size;
-		/* bit0~3: planes_per_lun bit4~7: plane_shift */
-		unsigned char planes_per_lun;
-		/* bit0~3: bus_width bit4~7: cache_plane_shift */
-		unsigned char bus_width;
-	} dev_cfg;
-	unsigned int checksum;
-#define BOOTINFO_FIX_BYTES	24
-	unsigned char reserved2[104 + 128];
-	/* need to be modified */
-	unsigned int ddr_param_page;
-};
-#endif
 /**
  * Standard SPI NAND flash operations
  */

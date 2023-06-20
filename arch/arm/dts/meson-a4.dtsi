@@ -502,15 +502,19 @@
 		};
 	};
 
-	spifc_pins: spifc_pins {
+	spi_nfc_pins: spi_nfc_pins {
 		mux {
-			groups = "spif_hold",
-				 "spif_mo",
-				 "spif_mi",
-				 //"spif_cs",
-				 "spif_clk",
-				 "spif_wp";
-			function = "spif";
+			groups = "spinf_mo_d0",
+				 "spinf_mi_d1",
+				 "spinf_wp_d2",
+				 "spinf_hold_d3",
+				 "spinf_d4",
+				 "spinf_d5",
+				 "spinf_d6",
+				 "spinf_d7",
+				 "spinf_clk",
+				 "spinf_cs0";
+			function = "spinf";
 			drive-strength = <3>;
 		};
 	};

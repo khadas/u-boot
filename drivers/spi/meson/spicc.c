@@ -177,8 +177,8 @@
 #define spicc_dbg(fmt, args...)
 #endif
 
-#define writel_relaxed(val, addr) 	writel(val, addr)
-#define readl_relaxed(addr) 		readl(addr)
+#define writel_relaxed(val, addr)	writel(val, addr)
+#define readl_relaxed(addr)		readl(addr)
 #define writel_bits_relaxed(mask, val, addr) \
 	writel_relaxed((readl_relaxed(addr) & ~(mask)) | (val), addr)
 #define readl_bits_relaxed(mask, addr) \
@@ -206,7 +206,7 @@ struct meson_spicc_device {
 	u32				speed_hz;
 	u32				real_speed_hz;
 	int				num_chipselect;
-	struct gpio_desc 		cs_gpios[CS_GPIO_MAX];
+	struct gpio_desc		cs_gpios[CS_GPIO_MAX];
 	const struct meson_spicc_data	*data;
 	u8				*tx_buf;
 	u8				*rx_buf;
@@ -509,7 +509,7 @@ static void spicc_chipselect(struct udevice *dev, bool select)
 	int cs = spi_chip_select(dev);
 
 	spicc = dev_get_priv(slave->dev->parent);
-	if ((cs >= spicc->num_chipselect) || (cs < 0)) {
+	if (cs >= spicc->num_chipselect || cs < 0) {
 		spicc_err("cs %d over\n", cs);
 		return;
 	}
@@ -537,7 +537,7 @@ static int spicc_set_speed(struct udevice *bus, uint hz)
 	u32 sys_clk_rate, div, mid, real_hz;
 	u32 regv;
 
-	if (!hz || (spicc->speed_hz == hz))
+	if (!hz || spicc->speed_hz == hz)
 		return 0;
 
 	sys_clk_rate = spicc->parent_clk_rate;
@@ -634,7 +634,7 @@ static int spicc_set_wordlen(struct udevice *bus, uint wordlen)
 	struct meson_spicc_device *spicc = dev_get_priv(bus);
 	u32 regv;
 
-	if (!wordlen || (spicc->wordlen == wordlen))
+	if (!wordlen || spicc->wordlen == wordlen)
 		return 0;
 
 	spicc->bytes_per_word = DIV_ROUND_UP(wordlen, 8);
@@ -652,12 +652,11 @@ static int spicc_set_wordlen(struct udevice *bus, uint wordlen)
 	return 0;
 }
 
-static int spicc_xfer(
-		struct udevice *dev,
-		unsigned int bitlen,
-		const void *dout,
-		void *din,
-		unsigned long flags)
+static int spicc_xfer(struct udevice *dev,
+		      unsigned int bitlen,
+		      const void *dout,
+		      void *din,
+		      unsigned long flags)
 {
 	struct udevice *bus = dev->parent;
 	struct meson_spicc_device *spicc = dev_get_priv(bus);
@@ -775,7 +774,6 @@ static int spicc_cs_init(struct udevice *bus)
 	return 0;
 }
 
-
 static int spicc_probe(struct udevice *bus)
 {
 	struct meson_spicc_device *spicc = dev_get_priv(bus);
@@ -848,8 +846,10 @@ static const struct meson_spicc_data meson_spicc_axg_data = {
 	.has_async_clk		= true,
 };
 
-/* g12a (ENHANCE_CNTL2, async-clk can be used for spi-io-clk)
-   txhd hasn't ENHANCE_CNTL2 */
+/*
+ * g12a (ENHANCE_CNTL2, async-clk can be used for spi-io-clk)
+ * txhd hasn't ENHANCE_CNTL2
+ */
 static const struct meson_spicc_data meson_spicc_g12a_data = {
 	.min_speed_hz		= 50000,
 	.max_speed_hz		= 166666667,
@@ -898,6 +898,6 @@ U_BOOT_DRIVER(spicc) = {
 	.of_match = meson_spicc_of_match,
 	.priv_auto_alloc_size = sizeof(struct meson_spicc_device),
 	.per_child_auto_alloc_size = sizeof(struct spi_slave),
-	.ops= &spicc_ops,
+	.ops = &spicc_ops,
 	.probe = spicc_probe,
 };

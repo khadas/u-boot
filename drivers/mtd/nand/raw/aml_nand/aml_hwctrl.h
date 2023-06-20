@@ -39,6 +39,7 @@ struct hw_controller {
         struct clk gate;
 	void __iomem *reg_base;
 	void __iomem *nand_clk_reg;
+	void __iomem *spi_cfg;
 	u32 irq;
 };
 

@@ -12,9 +12,10 @@
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/partitions.h>
 #include <amlogic/storage.h>
-#include <amlogic/aml_mtd.h>
 #include <amlogic/aml_nand.h>
 #include <amlogic/aml_rsv.h>
+#include <amlogic/aml_mtd.h>
+#include <amlogic/aml_pageinfo.h>
 #include <asm/arch/cpu_config.h>
 #include <partition_table.h>
 #include <time.h>
@@ -907,6 +908,38 @@ static u64 mtd_store_boot_copy_size(const char *part_name)
 	}
 }
 
+#ifdef CONFIG_MTD_SPI_NAND
+static int mtd_store_spinand_bl2_read(loff_t offset, size_t size,
+				      u_char *source, struct mtd_info *mtd)
+{
+	int i, ret, page_cnt;
+	size_t retlen, page_size, read_size = 0;
+	size_t data_len = (size > BL2_SIZE) ? BL2_SIZE : size;
+	loff_t offset_pos = offset;
+
+	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
+		page_size = 2048;
+	else
+		page_size = mtd->writesize;
+
+	page_cnt = (size + mtd->writesize - 1) / mtd->writesize;
+	for (i = 0; i < page_cnt; i++) {
+		offset_pos = offset + i * mtd->writesize;
+		if (!page_info_is_page(offset_pos / mtd->writesize) &&
+		    read_size < data_len) {
+			ret = mtd_read(mtd, offset_pos, page_size, &retlen, source + read_size);
+			if (ret) {
+				printf("read 0x%llx bl2 data failed\n", offset_pos);
+				return -EIO;
+			}
+			read_size += retlen;
+		}
+	}
+
+	return 0;
+}
+#endif
+
 static int mtd_store_boot_read(const char *part_name,
 			       u8 cpy, size_t size, void *dest)
 {
@@ -916,7 +949,6 @@ static int mtd_store_boot_read(const char *part_name,
 	size_t retlen = 0, len = size;
 	u8 num = 0;
 	u64 size_per_copy = 0;
-	enum boot_type_e medium_type = store_get_type();
 
 	if (!part_name) {
 		pr_info("%s %d invalid name!\n",
@@ -943,69 +975,70 @@ static int mtd_store_boot_read(const char *part_name,
 	}
 	offset += (cpy * size_per_copy);
 	limit = offset + size_per_copy;
-	if (BOOT_SNAND == medium_type) {
-		/**
-		 * TODO:
-		 * Need delete this part of code when we fix the
-		 * romcode read size limit bug and afunction of
-		 * bad block skipping.
-		 */
-		if (!strcmp(part_name, BOOT_BL2) ||
-		    !strcmp(part_name, BOOT_SPL)) {
-			int i, read_cnt;
-			loff_t off = offset;
-			size_t sz_read = SZ_2K;
-			size_t length = (size > BL2_SIZE) ? BL2_SIZE : size;
+	#ifdef CONFIG_MTD_SPI_NAND
+	enum boot_type_e medium_type = store_get_type();
 
-			#if SPINAND_ADVANCE_INFO_PAGE
-			/* rom can get page size through info page, no need to fix 2K */
-			sz_read = mtd->writesize;
-			/* info page will be inserted before each BL2 */
-			off += mtd->writesize;
-			#endif
-
-			read_cnt = (length + sz_read - 1) / sz_read;
-			for (i = 0; i < read_cnt; i++) {
-				len = min(sz_read, (length - i * sz_read));
-				ret = mtd_store_read_skip_bad(mtd,
-							      off,
-							      &len,
-							      &retlen,
-							      limit,
-							(u_char *)(dest + i * sz_read));
-				if (ret)
-					return -EIO;
-				off += mtd->writesize;
-				if (retlen > len)
-					off += (retlen - len);
-			}
-			if (store_get_device_bootloader_mode() == COMPACT_BOOTLOADER) {
-				if (size <= BL2_SIZE)
-					return ret;
-				len = size - BL2_SIZE;
-				ret = mtd_store_read_skip_bad(mtd,
-							      off,
-							      &len,
-							      &retlen,
-							      limit,
-							      (u_char *)(dest + BL2_SIZE));
-				if (ret)
-					return -EIO;
-			}
-
-		return ret;
-		}
+	if (medium_type == BOOT_SNAND &&
+	    (!strcmp(part_name, BOOT_BL2) ||
+	     !strcmp(part_name, BOOT_SPL))) {
+		ret = mtd_store_spinand_bl2_read(offset, size_per_copy, (u_char *)dest, mtd);
+		if (ret)
+			return -EIO;
+	} else {
+	#else
+	{
+	#endif
+		ret = mtd_store_read_skip_bad(mtd,
+						  offset,
+						  &len,
+						  &retlen,
+						  limit,
+						  (u_char *)dest);
+		if (ret)
+			return -EIO;
 	}
-	ret = mtd_store_read_skip_bad(mtd,
-				      offset,
-				      &len,
-				      &retlen,
-				      limit,
-				      (u_char *)dest);
-	if (ret)
-		return -EIO;
 	return ret;
 }
+
+#ifdef CONFIG_MTD_SPI_NAND
+static int mtd_store_spinand_bl2_write(loff_t offset, size_t size,
+				       u_char *source, struct mtd_info *mtd)
+{
+	int i, ret, page_cnt;
+	size_t retlen, page_size, write_size = 0;
+	size_t data_len = (size > BL2_SIZE) ? BL2_SIZE : size;
+	struct udevice *dev = mtd->dev;
+	unsigned char *pageinfo = page_info_post_init(mtd, dev);
+	loff_t offset_pos = offset;
+
+	if (store_get_device_bootloader_mode() == DISCRETE_BOOTLOADER)
+		page_size = 2048;
+	else
+		page_size = mtd->writesize;
+
+	page_cnt = (size + mtd->writesize - 1) / mtd->writesize;
+	for (i = 0; i < page_cnt; i++) {
+		offset_pos = offset + i * mtd->writesize;
+		if (page_info_is_page(offset_pos / mtd->writesize)) {
+			printf("write infopage at 0x%llx\n", offset_pos);
+			ret = mtd_write(mtd, offset_pos, page_size, &retlen, pageinfo);
+			if (ret) {
+				printf("write 0x%llx pageinfo failed\n", offset_pos);
+				return -EIO;
+			}
+		} else if (write_size < data_len) {
+			ret = mtd_write(mtd, offset_pos, page_size, &retlen, source + write_size);
+			if (ret) {
+				printf("write 0x%llx bl2 data failed\n", offset_pos);
+				return -EIO;
+			}
+			write_size += retlen;
+		}
+	}
+
+	return 0;
+}
+#endif
 
 static int mtd_store_boot_write(const char *part_name,
 				u8 cpy, size_t size, void *source)
@@ -1016,7 +1049,6 @@ static int mtd_store_boot_write(const char *part_name,
 	size_t retlen = 0, len = size;
 	u8 num = 0;
 	u64 size_per_copy = 0;
-	enum boot_type_e medium_type = store_get_type();
 
 	if (!part_name) {
 		pr_info("%s %d invalid name!\n",
@@ -1055,67 +1087,20 @@ static int mtd_store_boot_write(const char *part_name,
 		pr_info("write %lx bytes to %llx\n",
 			size, offset);
 		limit = offset + size_per_copy;
-		if (BOOT_SNAND == medium_type) {
 
-			/**
-			 * TODO:
-			 * 1.Need delete this part of code when we fix the
-			 * romcode read size limit bug and afunction of
-			 * bad block skipping.
-			 * 2.Need handle info page position there, not in
-			 * SPI NAND drvier, which we can not know the bad
-			 * block skiped or not.
-			 */
-			if (!strcmp(part_name, BOOT_BL2) ||
-			    !strcmp(part_name, BOOT_SPL)) {
-				int i, write_cnt;
-				loff_t off = offset;
-				size_t sz_write = SZ_2K;
-				size_t length = (size > BL2_SIZE) ? BL2_SIZE : size;
+		#ifdef CONFIG_MTD_SPI_NAND
+		enum boot_type_e medium_type = store_get_type();
 
-				#if SPINAND_ADVANCE_INFO_PAGE
-				/* rom can get page size through info page, no need to fix 2K */
-				sz_write = mtd->writesize;
-				/* info page will be inserted before each BL2 */
-				off += mtd->writesize;
-				#endif
-
-				write_cnt = (length + sz_write - 1) / sz_write;
-				for (i = 0; i < write_cnt; i++) {
-					len = min(sz_write, (length - i * sz_write));
-					ret = mtd_store_write_skip_bad(mtd,
-								       off,
-								       &len,
-								       &retlen,
-								       limit,
-								(u_char *)(source +
-									i * sz_write),
-								       0);
-					if (ret)
-						return -EIO;
-					off += mtd->writesize;
-					if (retlen > len)
-						off += (retlen - len);
-				}
-		if (store_get_device_bootloader_mode() == COMPACT_BOOTLOADER) {
-			if (size <= BL2_SIZE)
-				return ret;
-			len = size - BL2_SIZE;
-			ret = mtd_store_write_skip_bad(mtd,
-						       off,
-						       &len,
-						       &retlen,
-						       limit,
-						       (u_char *)(source +
-								BL2_SIZE),
-						       0);
+		if (medium_type == BOOT_SNAND &&
+		    (!strcmp(part_name, BOOT_BL2) ||
+		     !strcmp(part_name, BOOT_SPL))) {
+			ret = mtd_store_spinand_bl2_write(offset, size_per_copy,
+							(u_char *)source, mtd);
 			if (ret)
 				return -EIO;
+			continue;
 		}
-				continue;
-			}
-		}
-
+		#endif
 		ret = mtd_store_write_skip_bad(mtd,
 					       offset,
 					       &len,

@@ -9,6 +9,9 @@
 #include <linux/mtd/mtd.h>
 #include <spi_flash.h>
 #include <linux/log2.h>
+#include <amlogic/aml_mtd.h>
+#include <amlogic/aml_pageinfo.h>
+#include <amlogic/cpu_id.h>
 
 #ifdef CONFIG_AML_MTDPART
 extern int spinor_add_partitions(struct mtd_info *mtd);
@@ -69,11 +72,19 @@ static int spi_flash_mtd_write(struct mtd_info *mtd, loff_t to, size_t len,
 	size_t *retlen, const u_char *buf)
 {
 	struct spi_flash *flash = mtd->priv;
+	cpu_id_t cpu_id = get_cpu_id();
+	unsigned char *page_info;
 	int err;
 
 	if (!flash)
 		return -ENODEV;
 
+	if (to == 512 && cpu_id.family_id == MESON_CPU_MAJOR_ID_A4) {
+		page_info = page_info_post_init(mtd, flash->dev);
+		err = spi_flash_write(flash, 0, 512, page_info);
+		if (err)
+			return err;
+	}
 	err = spi_flash_write(flash, to, len, buf);
 	if (!err)
 		*retlen = len;
