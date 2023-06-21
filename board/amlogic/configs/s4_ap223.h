@@ -93,6 +93,7 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
         "board=oppen\0"\
+	"upgrade_key_flag=2\0"\
         "initargs="\
 		"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend "\
 		"earlycon=aml-uart,0xfe07a000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
@@ -162,17 +163,9 @@
 			"run cmdline_keys_base;"\
             "\0"\
         "upgrade_key="\
-		"if gpio input GPIOD_3; then "\
-			"echo detect upgrade key;"\
-			"if test ${boot_flag} = 0; then "\
-				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 0;"\
-			"else if test ${boot_flag} = 1; then "\
-				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
-			"else "\
-				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
-			"fi;fi;"\
-		"fi;"\
-		"\0"\
+			"run upgrade_key_base;"\
+			"echo usr key;"\
+			"\0"\
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \

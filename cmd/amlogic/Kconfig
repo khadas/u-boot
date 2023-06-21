@@ -110,6 +110,15 @@ config CMD_RMA
 	  Support rma cmd
 
 #prduct mode start---->
+config ENABLE_AML_GPIO_UPGRADE
+	bool "enter upgrade by gpio key"
+	depends on CMD_GPIO
+	default n
+
+config AML_GPIO_UPGRADE_KEY
+	string "config gpio upgrade key"
+	depends on ENABLE_AML_GPIO_UPGRADE
+
 config NO_FASTBOOT_FLASHING
 	depends on FASTBOOT
 	bool "support fastboot lock/unlock"

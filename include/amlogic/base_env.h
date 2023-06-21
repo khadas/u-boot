@@ -8,6 +8,22 @@
 
 #include <asm/arch/cpu.h>
 
+#ifdef CONFIG_ENABLE_AML_GPIO_UPGRADE
+#define _AML_GPIO_UPGRADE_ \
+	"if gpio input " CONFIG_AML_GPIO_UPGRADE_KEY "; then "\
+		"echo detect upgrade key;"\
+		"if test ${upgrade_key_flag} = 0; then "\
+			"echo enter recovery; setenv upgrade_key_flag 1; saveenv;"\
+			"run recovery_from_flash;"\
+		"else if test ${upgrade_key_flag} = 1; then "\
+			"echo enter update; setenv upgrade_key_flag 2; saveenv; run update;"\
+		"else "\
+			"echo enter fastboot; setenv upgrade_key_flag 0; saveenv; fastboot 0;"\
+		"fi;fi;"
+#else
+#define _AML_GPIO_UPGRADE_ "echo base env no upgrade key;"
+#endif //#ifdef CONFIG_ENABLE_AML_GPIO_UPGRADE
+
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 #define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
@@ -36,7 +52,6 @@
 	"vendor_boot_part=vendor_boot\0"\
 	"board_logo_part=odm_ext\0" \
 	"rollback_flag=0\0"\
-	"boot_flag=0\0"\
 	"write_boot=0\0"\
 	"ddr_size=0B\0"\
 	"recovery_mode=false\0"\
@@ -249,6 +264,7 @@
 		"setenv serial ${usid}; setenv serial# ${usid};"\
 	    "factory_provision init;"\
 		"\0"\
+	"upgrade_key_base=" _AML_GPIO_UPGRADE_ "\0"
 
 #endif
 
