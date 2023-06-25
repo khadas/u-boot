@@ -509,8 +509,40 @@ static int set_led_mode(int type, char *led, int mode)
 
 static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
+	int khadas_camera_id = 0;//NULL
+
 	// switch to i2c2
 	printf("hlm %s\n", __func__);
+	run_command("i2c dev 3", 0);
+	khadas_camera_id = run_command("i2c md 0x0C 1", 0);//DW971
+	printf("khadas camera id=0x%x\n",khadas_camera_id);
+	if(khadas_camera_id == 0){//IMX415
+		run_command("fdt set /i2c@feab0000/os08a10f@36 status disable", 0);
+	} else {//OS08A10
+		run_command("fdt set /i2c@feab0000/imx415f@1a status disable", 0);
+		run_command("fdt set /i2c@feab0000/dw9714f@c status disable", 0);
+	}
+
+	run_command("i2c dev 4", 0);
+	khadas_camera_id = run_command("i2c md 0x0C 1", 0);//DW971
+	printf("khadas camera id=0x%x\n",khadas_camera_id);
+	if(khadas_camera_id == 0){//IMX415
+		run_command("fdt set /i2c@feac0000/os08a10b@36 status disable", 0);
+	} else {//OS08A10
+		run_command("fdt set /i2c@feac0000/imx415b@1a status disable", 0);
+		run_command("fdt set /i2c@feac0000/dw9714b@c status disable", 0);
+	}
+
+	run_command("i2c dev 8", 0);
+	khadas_camera_id = run_command("i2c md 0x0C 1", 0);//DW971
+	printf("khadas camera id=0x%x\n",khadas_camera_id);
+	if(khadas_camera_id == 0){//IMX415
+		run_command("fdt set /i2c@feca0000/os08a10@36 status disable", 0);
+	} else {//OS08A10
+		run_command("fdt set /i2c@feca0000/imx415@1a status disable", 0);
+		run_command("fdt set /i2c@feca0000/dw9714c@c status disable", 0);
+	}
+
 	run_command("i2c dev 2", 0);
 
 	return 0;
