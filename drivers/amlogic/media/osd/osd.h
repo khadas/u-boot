@@ -495,5 +495,8 @@ struct vpp_post_s {
 #endif
 
 extern struct hw_osd_reg_s hw_osd_reg_array[HW_OSD_COUNT];
+#ifdef AML_S5_DISPLAY
+struct vpp_post_info_t *get_vpp_post_amdv_info(void);
+#endif
 
 #endif /* _OSD_H_ */

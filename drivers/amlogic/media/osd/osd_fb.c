@@ -1053,6 +1053,7 @@ int video_display_raw(ulong raw_image, int x, int y)
 
 #ifdef AML_S5_DISPLAY
 struct vpp_post_input_s vpp_input;
+static struct vpp_post_info_t vpp_post_amdv;
 
 static int get_vpp_slice_num(const struct vinfo_s *info)
 {
@@ -1366,6 +1367,22 @@ void vpp_post_set(u32 vpp_index, struct vpp_post_s *vpp_post)
 	//vpp_post_win_cut_set(vpp_index, vpp_post);
 }
 
+static void update_vpp_post_amdv_info(struct vpp_post_s *vpp_post)
+{
+	int i;
+
+	vpp_post_amdv.slice_num = vpp_post->slice_num;
+	vpp_post_amdv.overlap_hsize = vpp_post->overlap_hsize;
+	vpp_post_amdv.vpp_post_blend_hsize = vpp_post->vpp_post_blend.bld_out_w;
+	vpp_post_amdv.vpp_post_blend_vsize = vpp_post->vpp_post_blend.bld_out_h;
+	for (i = 0; i < vpp_post->slice_num; i++) {
+		vpp_post_amdv.slice[i].hsize =
+			vpp_post->vpp_post_proc.vpp_post_proc_slice.hsize[i];
+		vpp_post_amdv.slice[i].vsize =
+			vpp_post->vpp_post_proc.vpp_post_proc_slice.vsize[i];
+	}
+}
+
 static void vpp_post_blend_update_s5(void)
 {
 	struct vpp_post_s vpp_post;
@@ -1378,6 +1395,23 @@ static void vpp_post_blend_update_s5(void)
 
 	vpp_post_param_set(&vpp_post);
 	vpp_post_set(0, &vpp_post);
+	update_vpp_post_amdv_info(&vpp_post);
+}
+
+static void set_vpp_post_amdv_info(void)
+{
+	struct vinfo_s *vinfo = NULL;
+
+	vinfo = vout_get_current_vinfo();
+	update_vpp_input_info(vinfo);
+	vpp_post_blend_update_s5();
+}
+
+struct vpp_post_info_t *get_vpp_post_amdv_info(void)
+{
+	set_vpp_post_amdv_info();
+
+	return &vpp_post_amdv;
 }
 #endif
 
