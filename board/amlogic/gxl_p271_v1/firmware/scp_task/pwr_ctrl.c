@@ -141,6 +141,7 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 	struct wakeup_info *p = (struct wakeup_info *)response;
 	unsigned val;
 	struct wakeup_gpio_info *gpio;
+	unsigned i = 0;
 
 	p->status = RESPONSE_OK;
 	val = (POWER_KEY_WAKEUP_SRC | AUTO_WAKEUP_SRC | REMOTE_WAKEUP_SRC |
@@ -148,7 +149,7 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 	p->sources = val;
 
 	/* Power Key: AO_GPIO[3]*/
-	gpio = &(p->gpio_info[0]);
+	gpio = &p->gpio_info[i];
 	gpio->wakeup_id = POWER_KEY_WAKEUP_SRC;
 	gpio->gpio_in_idx = GPIOAO_2;
 	gpio->gpio_in_ao = 1;
@@ -156,9 +157,9 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 	gpio->gpio_out_ao = -1;
 	gpio->irq = IRQ_AO_GPIO0_NUM;
 	gpio->trig_type = GPIO_IRQ_FALLING_EDGE;
-	p->gpio_info_count++;
+	p->gpio_info_count = i++;
 
-	gpio = &(p->gpio_info[1]);
+	gpio = &p->gpio_info[i];
 	gpio->wakeup_id = BT_WAKEUP_SRC;
 	gpio->gpio_in_idx = GPIOX_18;
 	gpio->gpio_in_ao = 0;
@@ -166,7 +167,7 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 	gpio->gpio_out_ao = -1;
 	gpio->irq = IRQ_GPIO0_NUM;
 	gpio->trig_type	= GPIO_IRQ_FALLING_EDGE;
-	p->gpio_info_count++;
+	p->gpio_info_count = i++;
 }
 void wakeup_timer_setup(void)
 {

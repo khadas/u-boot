@@ -221,7 +221,7 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 	       ETH_PHY_WAKEUP_SRC | BT_WAKEUP_SRC | WIFI_WAKEUP_SRC);
 
 #ifdef CONFIG_BT_WAKEUP
-	gpio = &(p->gpio_info[0]);
+	gpio = &p->gpio_info[i];
 	gpio->wakeup_id = BT_WAKEUP_SRC;
 	gpio->gpio_in_idx = GPIOX_22;
 	gpio->gpio_in_ao = 0;
@@ -233,7 +233,7 @@ void get_wakeup_source(void *response, unsigned int suspend_from)
 #endif
 #ifdef CONFIG_WIFI_WAKEUP
 	/*WIFI Wakeup: IN: GPIOX[7], OUT: GPIOX[6]*/
-	gpio = &(p->gpio_info[1]);
+	gpio = &p->gpio_info[i];
 	gpio->wakeup_id = WIFI_WAKEUP_SRC;
 	gpio->gpio_in_idx = GPIOX_6;
 	gpio->gpio_in_ao = 0;
