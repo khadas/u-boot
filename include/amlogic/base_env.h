@@ -58,7 +58,6 @@
 			"run init_display;run storeargs; run update; fi;"\
 		"\0"\
 	"storeargs_base="\
-		"get_bootloaderversion;" \
 		"setenv bootargs ${initargs} otg_device=${otg_device} "\
 		"logo=${display_layer},loaded,${fb_addr} "\
 		"vout=${outputmode},${vout_init} panel_type=${panel_type} "\
@@ -211,7 +210,6 @@
 			"setenv dolby_vision_on 0;"\
 			"setenv initconfig androidboot.quiescent=1 "\
 			"androidboot.bootreason=${reboot_mode};"\
-			"run storeargs;"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
@@ -219,12 +217,10 @@
 			"setenv dolby_vision_on 0;"\
 			"setenv initconfig androidboot.quiescent=1 "\
 			"androidboot.bootreason=recovery,quiescent;"\
-			"run storeargs;"\
 			"osd open;osd clear;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
 			"setenv initconfig androidboot.bootreason=${reboot_mode};"\
-			"run storeargs;"\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
 			"dovi process;watermark_init;osd open;osd clear;run load_bmp_logo;"\
 			"bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
