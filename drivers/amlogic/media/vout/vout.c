@@ -749,10 +749,10 @@ static int get_window_axis(int *axis)
 		axis[2] = getenv_int("1080p_w", def_w);
 		axis[3] = getenv_int("1080p_h", def_h);
 	} else if (strncmp(mode, "1920x1080p", 10) == 0) {
-		axis[0] = getenv_int("1920x1080p_x", def_x);
-		axis[1] = getenv_int("1920x1080p_y", def_y);
-		axis[2] = getenv_int("1920x1080p_w", def_w);
-		axis[3] = getenv_int("1920x1080p_h", def_h);
+		axis[0] = getenv_int("1080p_x", def_x);
+		axis[1] = getenv_int("1080p_y", def_y);
+		axis[2] = getenv_int("1080p_w", def_w);
+		axis[3] = getenv_int("1080p_h", def_h);
 	} else if (strncmp(mode, "2160p", 5) == 0) {
 		axis[0] = getenv_int("2160p_x", def_x);
 		axis[1] = getenv_int("2160p_y", def_y);
@@ -769,15 +769,15 @@ static int get_window_axis(int *axis)
 		axis[2] = getenv_int("3840x1080p_w", def_w);
 		axis[3] = getenv_int("3840x1080p_h", def_h);
 	} else if (strncmp(mode, "3840x2160p", 10) == 0) {
-		axis[0] = getenv_int("3840x2160p_x", def_x);
-		axis[1] = getenv_int("3840x2160p_y", def_y);
-		axis[2] = getenv_int("3840x2160p_w", def_w);
-		axis[3] = getenv_int("3840x2160p_h", def_h);
+		axis[0] = getenv_int("2160p_x", def_x);
+		axis[1] = getenv_int("2160p_y", def_y);
+		axis[2] = getenv_int("2160p_w", def_w);
+		axis[3] = getenv_int("2160p_h", def_h);
 	} else if (strncmp(mode, "7680x4320p", 10) == 0) {
-		axis[0] = getenv_int("7680x4320p_x", def_x);
-		axis[1] = getenv_int("7680x4320p_y", def_y);
-		axis[2] = getenv_int("7680x4320p_w", def_w);
-		axis[3] = getenv_int("7680x4320p_h", def_h);
+		axis[0] = getenv_int("4320p_x", def_x);
+		axis[1] = getenv_int("4320p_y", def_y);
+		axis[2] = getenv_int("4320p_w", def_w);
+		axis[3] = getenv_int("4320p_h", def_h);
 	} else if (strncmp(mode, "panel",5) == 0) {
 		axis[0] = getenv_int("panel_x", def_x);
 		axis[1] = getenv_int("panel_y", def_y);
