@@ -165,6 +165,7 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 	struct p2p_config_s *p2p_conf;
 	struct phy_config_s *phy = &pdrv->config.phy_cfg;
 	unsigned int com_data = 0;
+	unsigned int mode = 1;  //1-normal mode, 0-low common mode
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
@@ -185,6 +186,7 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 		case P2P_ISP:
 		case P2P_EPI:
 			com_data = 0xff2027a0 | phy->vswing;
+			mode = 1;
 			break;
 		case P2P_CHPI: /* low common mode */
 		case P2P_CSPI:
@@ -200,6 +202,7 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 			/* vswing */
 			com_data &= ~(0xf);
 			com_data |= phy->vswing;
+			mode = 0;
 			break;
 		default:
 			LCDERR("%s: invalid p2p_type %d\n", __func__, p2p_type);
@@ -207,7 +210,7 @@ static void lcd_p2p_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 		}
 
 		lcd_phy_common_update(phy, com_data);
-		lcd_phy_cntl_set(pdrv, phy, status, 1, 1, 0);
+		lcd_phy_cntl_set(pdrv, phy, status, 1, mode, 0);
 	} else {
 		lcd_phy_cntl_set(pdrv, phy, status, 1, 0, 0);
 	}

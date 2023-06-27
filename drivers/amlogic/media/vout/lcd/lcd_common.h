@@ -42,7 +42,8 @@
 /* 20230319: optimize phy code*/
 /* 20230505: t3x support */
 /* 20230615: txhd2 support */
-#define LCD_DRV_VERSION    "20230615"
+/* 20230705: t3x fix tconless phy setting */
+#define LCD_DRV_VERSION    "20230705"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
