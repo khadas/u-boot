@@ -309,8 +309,24 @@ static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 	lcd_vcbus_setb(VPU_VENC_CTRL + offset1, 2, 0, 2);// enable timming
 	lcd_vcbus_setb(ENCL_VIDEO_EN + offset, 1, 0, 1);//enable
 
-	lcd_vcbus_setb(LCD_LCD_IF_CTRL + offset1, (0x400 << 12), 0, 23);
-	lcd_vcbus_write(LCD_DITH_CTRL + offset1,   0);
+	lcd_vcbus_setb(LCD_LCD_IF_CTRL + offset, (0x400 << 12), 0, 23);
+	if (pconf->basic.lcd_type != LCD_P2P &&
+		pconf->basic.lcd_type != LCD_MLVDS) {
+		switch (pconf->basic.lcd_bits) {
+		case 6:
+			lcd_vcbus_write(LCD_DITH_CTRL + offset,   0x600);
+			break;
+		case 8:
+			lcd_vcbus_write(LCD_DITH_CTRL + offset,   0x400);
+			break;
+		case 10:
+		default:
+			lcd_vcbus_write(LCD_DITH_CTRL + offset,   0);
+			break;
+		}
+	} else {
+		lcd_vcbus_write(LCD_DITH_CTRL + offset,   0);
+	}
 
 	switch (pdrv->index) {
 	case 0:
