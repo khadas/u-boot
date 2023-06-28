@@ -73,8 +73,8 @@ static struct aml_nand_ecclayout ecclayout[16] = {
 	{&aml_nand_oob_448, 448},
 	{&aml_nand_oob_640, 640},
 	{&aml_nand_oob_744, 744},
-	{&aml_nand_oob_1280,1280},
-	{&aml_nand_oob_1664,1664}
+	{&aml_nand_oob_1280, 1280},
+	{&aml_nand_oob_1664, 1664}
 };
 
 struct nand_ecclayout *aml_ecclayout_get(unsigned int oobsize)
@@ -807,13 +807,12 @@ void aml_nand_command(struct mtd_info *mtd,
 		valid_page_num = (mtd->writesize >> chip->page_shift);
 		valid_page_num /= aml_chip->plane_num;
 		aml_chip->page_addr = page_addr / valid_page_num;
-	if (unlikely(aml_chip->page_addr >= aml_chip->internal_page_nums)) {
-		/*internal_chip =
-		aml_chip->page_addr / aml_chip->internal_page_nums;*/
-		aml_chip->page_addr -= aml_chip->internal_page_nums;
-		aml_chip->page_addr |=
-		(1 << aml_chip->internal_chip_shift)*aml_chip->internal_chipnr;
-	}
+		if (unlikely(aml_chip->page_addr >= aml_chip->internal_page_nums)) {
+			/*internal_chip = aml_chip->page_addr / aml_chip->internal_page_nums;*/
+			aml_chip->page_addr -= aml_chip->internal_page_nums;
+			aml_chip->page_addr |=
+			(1 << aml_chip->internal_chip_shift) * aml_chip->internal_chipnr;
+		}
 	} else
 		aml_chip->page_addr = page_addr;
 
@@ -1103,6 +1102,7 @@ exit:
 	return error;
 }
 
+extern u8 recovery_flag;
 int aml_nand_read_page_hwecc(struct mtd_info *mtd,
 	struct nand_chip *chip, uint8_t *buf, int oob_required, int page)
 {
@@ -1113,6 +1113,12 @@ int aml_nand_read_page_hwecc(struct mtd_info *mtd,
 	int user_byte_num;
 	int error = 0, i = 0, stat = 0, j = 0, page_addr, internal_chipnr = 1;
 	int ran_mode = aml_chip->ran_mode;
+	unsigned count = 0;
+	uint8_t bch_mode;
+	uint8_t retry_flag = 0;
+	uint8_t retry_num = 0;
+	uint8_t recovery_feature_set[4] = {0};
+	uint8_t recovery_feature_get[4] = {0};
 
 	pages_per_blk_shift = (chip->phys_erase_shift - chip->page_shift);
 	user_byte_num = (((nand_page_size + chip->ecc.size - 1) /chip->ecc.size)
@@ -1126,171 +1132,216 @@ int aml_nand_read_page_hwecc(struct mtd_info *mtd,
 		user_byte_num = chip->ecc.steps;
 	}
 
-	for (i = 0; i < controller->chip_num; i++) {
-	if (aml_chip->valid_chip[i]) {
-		page_addr = aml_chip->page_addr;
-		for (j = 0; j < internal_chipnr; j++) {
-		if (j > 0) {
-			page_addr = aml_chip->page_addr;
-			page_addr |= (1 << aml_chip->internal_chip_shift) * j;
-			aml_chip->aml_nand_select_chip(aml_chip, i);
-			aml_chip->aml_nand_command(aml_chip, NAND_CMD_READ0,
-				0, page_addr, i);
-		}
-		if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
-			pr_info ("read couldn`t found selected chip: %d ready\n",
-				i);
-			error = -EBUSY;
-			goto exit;
-		}
-		if (aml_chip->ops_mode & AML_CHIP_NONE_RB)
-			chip->cmd_ctrl(mtd, NAND_CMD_READ0 & 0xff,
-				NAND_NCE | NAND_CLE | NAND_CTRL_CHANGE);
-		if (aml_chip->plane_num == 2) {
-			aml_chip->aml_nand_command(aml_chip,
-				NAND_CMD_TWOPLANE_READ1, 0x00, page_addr, i);
-dma_retry_plane0:
-			error = aml_chip->aml_nand_dma_read(aml_chip,
-				buf, nand_page_size, aml_chip->bch_mode);
-			if (error)
-				goto exit;
+retry_data_recovery:
+	if (retry_flag) {
+		bch_mode = aml_chip->bch_mode;
+		if (bch_mode == NAND_ECC_NONE)
+			count = 1;
+		else if (bch_mode == NAND_ECC_BCH_SHORT)
+			count = nand_page_size / chip->ecc.size;
+		else
+			count = chip->ecc.steps;
 
-			aml_chip->aml_nand_get_user_byte(aml_chip,
-				oob_buf, user_byte_num);
-			stat = aml_chip->aml_nand_hwecc_correct(aml_chip,
-				buf, nand_page_size, oob_buf);
-			if (stat < 0) {
-				if (aml_chip->ran_mode
-				&& (aml_chip->zero_cnt <  aml_chip->ecc_max)) {
-					memset(buf, 0xff, nand_page_size);
-					memset(oob_buf, 0xff, user_byte_num);
-					goto plane0_ff;
-				}
+		memset((unsigned char *)aml_chip->user_info_buf, 0, count * PER_INFO_BYTE);
+		memset(oob_buf, 0, (((nand_page_size + chip->ecc.size - 1) / chip->ecc.size)
+				* aml_chip->user_byte_mode));
 
-				if (ran_mode && aml_chip->ran_mode) {
-					aml_chip->ran_mode = 0;
-					ndelay(300);
-					aml_chip->aml_nand_command(aml_chip,
-						NAND_CMD_RNDOUT, 0, -1, i);
-					ndelay(500);
-					goto dma_retry_plane0;
-				 }
-				memset(buf, 0xff, nand_page_size);
-				memset(oob_buf, 0xff, user_byte_num);
-
-				mtd->ecc_stats.failed++;
-				pr_info("read ecc pl0 failed at page%d chip%d\n",
-					page_addr, i);
-			} else {
-			if (aml_chip->ecc_cnt_cur > aml_chip->ecc_cnt_limit) {
-	pr_info("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d,blk:%d chip%d\n",
-				__func__, __LINE__,
-				aml_chip->ecc_cnt_cur, aml_chip->ecc_cnt_limit,
-				page_addr, page_addr >> pages_per_blk_shift, i);
-				mtd->ecc_stats.corrected++;
-			}
-				mtd->ecc_stats.corrected += stat;
-			}
-plane0_ff:
-			aml_chip->ran_mode = ran_mode;
-			oob_buf += user_byte_num;
-			buf += nand_page_size;
-
-			aml_chip->aml_nand_command(aml_chip,
-				NAND_CMD_TWOPLANE_READ2, 0x00, page_addr, i);
-dma_retry_plane1:
-			error = aml_chip->aml_nand_dma_read(aml_chip,
-				buf, nand_page_size, aml_chip->bch_mode);
-			if (error)
-				goto exit;
-
-			aml_chip->aml_nand_get_user_byte(aml_chip,
-					oob_buf, user_byte_num);
-			stat = aml_chip->aml_nand_hwecc_correct(aml_chip,
-					buf, nand_page_size, oob_buf);
-			if (stat < 0) {
-				if(aml_chip->ran_mode
-				&& (aml_chip->zero_cnt <  aml_chip->ecc_max)) {
-					memset(buf, 0xff, nand_page_size);
-					memset(oob_buf, 0xff, user_byte_num);
-					oob_buf += user_byte_num;
-					buf += nand_page_size;
-					continue;
-				}
-
-				if (ran_mode && aml_chip->ran_mode) {
-					aml_chip->ran_mode = 0;
-					ndelay(300);
-					aml_chip->aml_nand_command(aml_chip,
-						NAND_CMD_RNDOUT, 0, -1, i);
-					ndelay(500);
-					goto dma_retry_plane1;
-				 }
-				memset(buf, 0xff, nand_page_size);
-				memset(oob_buf, 0xff, user_byte_num);
-
-				mtd->ecc_stats.failed++;
-				pr_info("read ecc pl1 failed at page%d chip%d\n",
-					page_addr, i);
-			} else {
-			if (aml_chip->ecc_cnt_cur > aml_chip->ecc_cnt_limit) {
-	pr_info("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d blk:%d chip%d\n",
-				__func__, __LINE__,
-				aml_chip->ecc_cnt_cur, aml_chip->ecc_cnt_limit,
-				page_addr, page_addr >> pages_per_blk_shift, i);
-				mtd->ecc_stats.corrected++;
-			}
-				mtd->ecc_stats.corrected += stat;
-			}
-			aml_chip->ran_mode = ran_mode;
-			oob_buf += user_byte_num;
-			buf += nand_page_size;
-
-		} else if (aml_chip->plane_num == 1) {
-			error = aml_chip->aml_nand_dma_read(aml_chip,
-				buf, nand_page_size, aml_chip->bch_mode);
-			if (error)
-				goto exit;
-
-			aml_chip->aml_nand_get_user_byte(aml_chip,
-				oob_buf, user_byte_num);
-			stat = aml_chip->aml_nand_hwecc_correct(aml_chip,
-				buf, nand_page_size, oob_buf);
-			if (stat < 0) {
-				if(aml_chip->ran_mode
-				&& (aml_chip->zero_cnt <  aml_chip->ecc_max)) {
-					memset(buf, 0xff, nand_page_size);
-					memset(oob_buf, 0xff, user_byte_num);
-					oob_buf += user_byte_num;
-					buf += nand_page_size;
-					continue;
-				}
-				/*memset(buf, 0xff, nand_page_size);*/
-				memset(oob_buf, 0x22, user_byte_num);
-	pr_info("%s %d read ecc failed here at at page:%d, blk:%d chip[%d]\n",
-		__func__, __LINE__, page_addr,
-		(page_addr >> pages_per_blk_shift), i);
-				mtd->ecc_stats.failed++;
-			} else {
-				aml_chip->ran_mode = ran_mode;
-				mtd->ecc_stats.corrected += stat;
-			}
-			oob_buf += user_byte_num;
-			buf += nand_page_size;
-		} else {
-			error = -ENODEV;
-			goto exit;
-		}
-		}
+		if (nand_standard_page_accessors(&chip->ecc))
+			chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, page);
 	}
+
+	for (i = 0; i < controller->chip_num; i++) {
+		if (aml_chip->valid_chip[i]) {
+			page_addr = aml_chip->page_addr;
+			for (j = 0; j < internal_chipnr; j++) {
+				if (j > 0) {
+					page_addr = aml_chip->page_addr;
+					page_addr |= (1 << aml_chip->internal_chip_shift) * j;
+					aml_chip->aml_nand_select_chip(aml_chip, i);
+					aml_chip->aml_nand_command(aml_chip, NAND_CMD_READ0,
+						0, page_addr, i);
+				}
+				if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
+					pr_info("read couldn`t found selected chip: %d ready\n",
+						i);
+					error = -EBUSY;
+					goto exit;
+				}
+				if (aml_chip->ops_mode & AML_CHIP_NONE_RB) {
+					chip->cmd_ctrl(mtd, NAND_CMD_READ0 & 0xff,
+						NAND_NCE | NAND_CLE | NAND_CTRL_CHANGE);
+				}
+				if (aml_chip->plane_num == 2) {
+					aml_chip->aml_nand_command(aml_chip,
+						NAND_CMD_TWOPLANE_READ1, 0x00, page_addr, i);
+dma_retry_plane0:
+					error = aml_chip->aml_nand_dma_read(aml_chip,
+						buf, nand_page_size, aml_chip->bch_mode);
+					if (error)
+						goto exit;
+
+					aml_chip->aml_nand_get_user_byte(aml_chip,
+						oob_buf, user_byte_num);
+					stat = aml_chip->aml_nand_hwecc_correct(aml_chip,
+						buf, nand_page_size, oob_buf);
+					if (stat < 0) {
+						if (aml_chip->ran_mode &&
+							aml_chip->zero_cnt <  aml_chip->ecc_max) {
+							memset(buf, 0xff, nand_page_size);
+							memset(oob_buf, 0xff, user_byte_num);
+							goto plane0_ff;
+						}
+
+						if (ran_mode && aml_chip->ran_mode) {
+							aml_chip->ran_mode = 0;
+							ndelay(300);
+							aml_chip->aml_nand_command(aml_chip,
+								NAND_CMD_RNDOUT, 0, -1, i);
+							ndelay(500);
+							goto dma_retry_plane0;
+						}
+						memset(buf, 0xff, nand_page_size);
+						memset(oob_buf, 0xff, user_byte_num);
+
+						mtd->ecc_stats.failed++;
+						pr_info("read ecc pl0 failed at page%d chip%d\n",
+							page_addr, i);
+					} else {
+						if (aml_chip->ecc_cnt_cur
+							> aml_chip->ecc_cnt_limit) {
+							pr_info("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d,blk:%d chip%d\n",
+							__func__, __LINE__,
+							aml_chip->ecc_cnt_cur,
+							aml_chip->ecc_cnt_limit,
+							page_addr,
+							page_addr >> pages_per_blk_shift, i);
+							mtd->ecc_stats.corrected++;
+						}
+						mtd->ecc_stats.corrected += stat;
+					}
+plane0_ff:
+					aml_chip->ran_mode = ran_mode;
+					oob_buf += user_byte_num;
+					buf += nand_page_size;
+
+					aml_chip->aml_nand_command(aml_chip,
+						NAND_CMD_TWOPLANE_READ2, 0x00, page_addr, i);
+dma_retry_plane1:
+					error = aml_chip->aml_nand_dma_read(aml_chip,
+						buf, nand_page_size, aml_chip->bch_mode);
+					if (error)
+						goto exit;
+
+					aml_chip->aml_nand_get_user_byte(aml_chip,
+							oob_buf, user_byte_num);
+					stat = aml_chip->aml_nand_hwecc_correct(aml_chip,
+							buf, nand_page_size, oob_buf);
+					if (stat < 0) {
+						if (aml_chip->ran_mode &&
+							aml_chip->zero_cnt < aml_chip->ecc_max) {
+							memset(buf, 0xff, nand_page_size);
+							memset(oob_buf, 0xff, user_byte_num);
+							oob_buf += user_byte_num;
+							buf += nand_page_size;
+							continue;
+						}
+
+						if (ran_mode && aml_chip->ran_mode) {
+							aml_chip->ran_mode = 0;
+							ndelay(300);
+							aml_chip->aml_nand_command(aml_chip,
+								NAND_CMD_RNDOUT, 0, -1, i);
+							ndelay(500);
+							goto dma_retry_plane1;
+						}
+						memset(buf, 0xff, nand_page_size);
+						memset(oob_buf, 0xff, user_byte_num);
+
+						mtd->ecc_stats.failed++;
+						pr_info("read ecc pl1 failed at page%d chip%d\n",
+							page_addr, i);
+					} else {
+						if (aml_chip->ecc_cnt_cur
+							> aml_chip->ecc_cnt_limit) {
+							pr_info("%s %d uncorrect ecc_cnt_cur:%d limit:%d pg:%d blk:%d chip%d\n",
+							__func__, __LINE__,
+							aml_chip->ecc_cnt_cur,
+							aml_chip->ecc_cnt_limit,
+							page_addr,
+							page_addr >> pages_per_blk_shift, i);
+							mtd->ecc_stats.corrected++;
+						}
+						mtd->ecc_stats.corrected += stat;
+					}
+					aml_chip->ran_mode = ran_mode;
+					oob_buf += user_byte_num;
+					buf += nand_page_size;
+
+				} else if (aml_chip->plane_num == 1) {
+					error = aml_chip->aml_nand_dma_read(aml_chip,
+						buf, nand_page_size, aml_chip->bch_mode);
+					if (error)
+						goto exit;
+					aml_chip->aml_nand_get_user_byte(aml_chip,
+						oob_buf, user_byte_num);
+					stat = aml_chip->aml_nand_hwecc_correct(aml_chip,
+						buf, nand_page_size, oob_buf);
+					if (stat < 0) {
+						if (aml_chip->ran_mode &&
+						aml_chip->zero_cnt < aml_chip->ecc_max) {
+							memset(buf, 0xff, nand_page_size);
+							memset(oob_buf, 0xff, user_byte_num);
+							oob_buf += user_byte_num;
+							buf += nand_page_size;
+							continue;
+						}
+						/*memset(buf, 0xff, nand_page_size);*/
+						if (retry_num < 5 &&
+							recovery_flag) {
+							if (!retry_num)
+								retry_flag = 1;
+							recovery_feature_set[0] += 1;
+							aml_nand_set_onfi_features(aml_chip,
+							recovery_feature_set,
+							ONFI_FEATURE_ADDR_READ_RETRY);
+							aml_nand_get_onfi_features(aml_chip,
+							recovery_feature_get,
+							ONFI_FEATURE_ADDR_READ_RETRY);
+							if (recovery_feature_get[0]
+								!= recovery_feature_set[0]) {
+								pr_info("set recovery feature 0x%x failed!\n",
+										recovery_feature_set[0]);
+							} else {
+								retry_num++;
+								goto retry_data_recovery;
+							}
+						}
+						memset(oob_buf, 0x22, user_byte_num);
+						pr_info("%s %d read ecc failed here at page:%d, blk:%d chip[%d]\n",
+							__func__, __LINE__, page_addr,
+							(page_addr >> pages_per_blk_shift), i);
+						retry_flag = 0;
+						mtd->ecc_stats.failed++;
+					} else {
+						aml_chip->ran_mode = ran_mode;
+						mtd->ecc_stats.corrected += stat;
+					}
+					oob_buf += user_byte_num;
+					buf += nand_page_size;
+				} else {
+					error = -ENODEV;
+					goto exit;
+				}
+			}
+		}
 	}
 exit:
 	return error;
 }
 
 int aml_nand_write_page_hwecc(struct mtd_info *mtd,
-	struct nand_chip *chip, const uint8_t *buf, int oob_required,
-	int page)
+		struct nand_chip *chip, const uint8_t *buf, int oob_required,
+		int page)
 {
 	struct aml_nand_chip *aml_chip = mtd_to_nand_chip(mtd);
 	uint8_t *oob_buf = chip->oob_poi;
@@ -1309,90 +1360,89 @@ int aml_nand_write_page_hwecc(struct mtd_info *mtd,
 
 	for (i = 0; i < controller->chip_num; i++) {
 		if (aml_chip->valid_chip[i]) {
-		page_addr = aml_chip->page_addr;
-		for (j = 0; j < internal_chipnr; j++) {
-		aml_chip->aml_nand_select_chip(aml_chip, i);
-		if (j > 0) {
 			page_addr = aml_chip->page_addr;
-			page_addr |=
-				(1 <<aml_chip->internal_chip_shift) * j;
-			aml_chip->aml_nand_command(aml_chip,
-			NAND_CMD_SEQIN, 0, page_addr, i);
-		}
-		if (aml_chip->plane_num == 2) {
-			aml_chip->aml_nand_set_user_byte(aml_chip,
-				oob_buf, user_byte_num);
-			error = aml_chip->aml_nand_dma_write(aml_chip,
-				(unsigned char *)buf,
-				nand_page_size, aml_chip->bch_mode);
-			if (error) {
-				pr_info("dma write 1 err at page %x\n",
-					page_addr);
-				goto exit;
-			}
-			aml_chip->aml_nand_command(aml_chip,
-				NAND_CMD_DUMMY_PROGRAM, -1, -1, i);
-
-			oob_buf += user_byte_num;
-			buf += nand_page_size;
-
-			if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
-				pr_info ("write couldn't found chip:%d ready\n",
-					i);
-				error = -EBUSY;
-				goto exit;
-			}
-
-			aml_chip->aml_nand_command(aml_chip,
-				NAND_CMD_TWOPLANE_WRITE2, 0x00, page_addr, i);
-			aml_chip->aml_nand_set_user_byte(aml_chip,
-				oob_buf, user_byte_num);
-			error = aml_chip->aml_nand_dma_write(aml_chip,
-				(u8 *)buf,
-				nand_page_size, aml_chip->bch_mode);
-			if (error) {
-				pr_info("aml_nand_dma_write 2 err at page %x\n",
-					page_addr);
-				goto exit;
-			}
-			if (aml_chip->cached_prog_status)
-				aml_chip->aml_nand_command(aml_chip,
-					NAND_CMD_CACHEDPROG, -1, -1, i);
-			else
-				aml_chip->aml_nand_command(aml_chip,
-					NAND_CMD_PAGEPROG, -1, -1, i);
-
-			oob_buf += user_byte_num;
-			buf += nand_page_size;
-		} else if (aml_chip->plane_num == 1) {
-			aml_chip->aml_nand_set_user_byte(aml_chip,
-				oob_buf, user_byte_num);
-			error = aml_chip->aml_nand_dma_write(aml_chip,
-				(unsigned char *)buf,
-				nand_page_size, aml_chip->bch_mode);
-			if (error) {
-				pr_info("aml_nand_dma_write err at page %x\n",
-					page_addr);
-				goto exit;
-			}
-
-			if (chip->cmdfunc == aml_nand_command) {
-				if (aml_chip->cached_prog_status)
+			for (j = 0; j < internal_chipnr; j++) {
+				aml_chip->aml_nand_select_chip(aml_chip, i);
+				if (j > 0) {
+					page_addr = aml_chip->page_addr;
+					page_addr |=
+						(1 << aml_chip->internal_chip_shift) * j;
 					aml_chip->aml_nand_command(aml_chip,
-						NAND_CMD_CACHEDPROG, -1, -1, i);
-				else
+					NAND_CMD_SEQIN, 0, page_addr, i);
+				}
+				if (aml_chip->plane_num == 2) {
+					aml_chip->aml_nand_set_user_byte(aml_chip,
+						oob_buf, user_byte_num);
+					error = aml_chip->aml_nand_dma_write(aml_chip,
+						(unsigned char *)buf,
+						nand_page_size, aml_chip->bch_mode);
+					if (error) {
+						pr_info("dma write 1 err at page %x\n",
+							page_addr);
+						goto exit;
+					}
 					aml_chip->aml_nand_command(aml_chip,
-						NAND_CMD_PAGEPROG, -1, -1, i);
-			}
+						NAND_CMD_DUMMY_PROGRAM, -1, -1, i);
 
-			oob_buf += user_byte_num;
-			buf += nand_page_size;
-		}
-		else {
-			error = -ENODEV;
-			goto exit;
-		}
-		}
+					oob_buf += user_byte_num;
+					buf += nand_page_size;
+
+					if (!aml_chip->aml_nand_wait_devready(aml_chip, i)) {
+						pr_info("write couldn't found chip:%d ready\n",
+							i);
+						error = -EBUSY;
+						goto exit;
+					}
+
+					aml_chip->aml_nand_command(aml_chip,
+						NAND_CMD_TWOPLANE_WRITE2, 0x00, page_addr, i);
+					aml_chip->aml_nand_set_user_byte(aml_chip,
+						oob_buf, user_byte_num);
+					error = aml_chip->aml_nand_dma_write(aml_chip,
+						(u8 *)buf,
+						nand_page_size, aml_chip->bch_mode);
+					if (error) {
+						pr_info("aml_nand_dma_write 2 err at page %x\n",
+							page_addr);
+						goto exit;
+					}
+					if (aml_chip->cached_prog_status)
+						aml_chip->aml_nand_command(aml_chip,
+							NAND_CMD_CACHEDPROG, -1, -1, i);
+					else
+						aml_chip->aml_nand_command(aml_chip,
+							NAND_CMD_PAGEPROG, -1, -1, i);
+
+					oob_buf += user_byte_num;
+					buf += nand_page_size;
+				} else if (aml_chip->plane_num == 1) {
+					aml_chip->aml_nand_set_user_byte(aml_chip,
+						oob_buf, user_byte_num);
+					error = aml_chip->aml_nand_dma_write(aml_chip,
+						(unsigned char *)buf,
+						nand_page_size, aml_chip->bch_mode);
+					if (error) {
+						pr_info("aml_nand_dma_write err at page %x\n",
+							page_addr);
+						goto exit;
+					}
+
+					if (chip->cmdfunc == aml_nand_command) {
+						if (aml_chip->cached_prog_status)
+							aml_chip->aml_nand_command(aml_chip,
+								NAND_CMD_CACHEDPROG, -1, -1, i);
+						else
+							aml_chip->aml_nand_command(aml_chip,
+								NAND_CMD_PAGEPROG, -1, -1, i);
+					}
+
+					oob_buf += user_byte_num;
+					buf += nand_page_size;
+				} else {
+					error = -ENODEV;
+					goto exit;
+				}
+			}
 		}
 	}
 exit:
@@ -1498,8 +1548,8 @@ int aml_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 		if (aml_chip->block_status[blk_addr] == NAND_FACTORY_BAD) {
 			pr_info(" NAND bbt detect factory Bad block at %llx \n",
 				(uint64_t)ofs);
-			return FACTORY_BAD_BLOCK_ERROR;  //159  EFAULT
-		} else if (aml_chip->block_status[blk_addr] ==NAND_BLOCK_GOOD)
+			return FACTORY_BAD_BLOCK_ERROR;//159 EFAULT
+		} else if (aml_chip->block_status[blk_addr] == NAND_BLOCK_GOOD)
 			return 0;
 	}
 	chip->pagebuf = -1;

@@ -565,4 +565,8 @@ int aml_nand_get_fbb_issue(void);
 
 void aml_nand_check_fbb_issue(u8 *dev_id);
 
+void aml_nand_set_onfi_features(struct aml_nand_chip *aml_chip,
+	uint8_t *buf, int addr);
+uint8_t aml_nand_get_onfi_features(struct aml_nand_chip *aml_chip,
+	uint8_t *buf, int addr);
 #endif
