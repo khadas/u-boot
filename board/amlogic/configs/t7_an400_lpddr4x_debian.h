@@ -84,7 +84,7 @@
 #else
 #define CONFIG_EXTRA_HDMI_ENV_SETTINGS \
 	"panel_type=vbyone_0\0" \
-	"panel1_type=vbyone_2\0" \
+	"panel1_type=vbyone_1\0" \
 	"panel2_type=lvds_1\0" \
 	"lcd1_ctrl=0x00000000\0" \
 	"lcd2_ctrl=0x00000000\0" \
@@ -101,7 +101,6 @@
 		"\0"\
 	"init_display_hdmitx="\
 		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-		"setenv outputmode2 ${hdmimode};"\
 		"osd dual_logo;"\
 		"\0"
 #endif
@@ -123,12 +122,13 @@
 	"silent=1\0"\
 	"loadaddr_kernel=0x01080000\0"\
 	"dv_fw_addr=0xa00000\0"\
+	"loadaddr=0x00020000\0"\
 	"systemsuspend_switch=0\0"\
 	"ddr_resume=0\0"\
 	"otg_device=1\0" \
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
-	"hdmimode=none\0" \
+	"hdmimode=1080p60hz\0" \
 	"hdmi_read_edid=0\0" \
 	"hdmitx_hpd_wait_cnt=0\0" \
 	"cvbsmode=dummy_l\0" \
