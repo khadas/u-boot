@@ -573,6 +573,8 @@ int board_late_init(void)
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
+	run_command("amlsecurecheck", 0);
+	run_command("update_tries", 0);
 
 	TE(__func__);
 	if (env_get("outputmode")) {
