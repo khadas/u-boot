@@ -63,17 +63,22 @@ static void lcd_encl_tcon_set(struct lcd_config_s *pconf)
 	lcd_vcbus_write(reg_rgb_base, 0);
 	lcd_vcbus_write(reg_rgb_coeff, 0x400);
 
-	switch (pconf->lcd_basic.lcd_bits) {
-	case 6:
-		lcd_vcbus_write(reg_dith_ctrl,  0x600);
-		break;
-	case 8:
-		lcd_vcbus_write(reg_dith_ctrl,  0x400);
-		break;
-	case 10:
-	default:
+	if (pconf->lcd_basic.lcd_type != LCD_P2P &&
+		pconf->lcd_basic.lcd_type != LCD_MLVDS) {
+		switch (pconf->lcd_basic.lcd_bits) {
+		case 6:
+			lcd_vcbus_write(reg_dith_ctrl,  0x600);
+			break;
+		case 8:
+			lcd_vcbus_write(reg_dith_ctrl,  0x400);
+			break;
+		case 10:
+		default:
+			lcd_vcbus_write(reg_dith_ctrl,  0x0);
+			break;
+		}
+	} else {
 		lcd_vcbus_write(reg_dith_ctrl,  0x0);
-		break;
 	}
 
 	switch (pconf->lcd_basic.lcd_type) {
