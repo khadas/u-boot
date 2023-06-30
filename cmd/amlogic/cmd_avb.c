@@ -672,6 +672,28 @@ static AvbIOResult persistent_test(AvbOps *ops)
 	return ret;
 }
 
+uint32_t create_csrs(void)
+{
+	int part_num = get_partition_num_by_name(PART_NAME_FTY);
+	char part_name[32] = {0};
+	char cmd[64] = {0};
+	uint8_t buf[1] = {0};
+
+	if (part_num >= 0)
+		strcpy(part_name, PART_NAME_FTY);
+	else
+		strcpy(part_name, PART_NAME_RSV);
+
+	sprintf(cmd, "fatwrite %s 0x%X:0x%X 0x%08X %s 0x%X", DEV_NAME, DEV_NO,
+			get_partition_num_by_name(part_name),
+			(uint32_t)virt_to_phys((void *)buf), "csrs.json", 1);
+	if (run_command(cmd, 0)) {
+		printf("command[%s] failed\n", cmd);
+		return AVB_IO_RESULT_ERROR_IO;
+	}
+	return AVB_IO_RESULT_OK;
+}
+
 static AvbIOResult write_persistent_to_factory(uint8_t *buf, uint32_t size)
 {
 	int part_num = get_partition_num_by_name(PART_NAME_FTY);
