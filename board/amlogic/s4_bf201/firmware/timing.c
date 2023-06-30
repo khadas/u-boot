@@ -96,22 +96,22 @@ uint32_t __ddr_parameter_reg_index[] __attribute__ ((section(".ddr_2acs_index"))
 };
 #endif
 
-#define BOARD_AP223_LPDDR4 1
+//#define BOARD_AP223_LPDDR4 1
 //#define S4_LPDDR4_1RANK 1   //use for 1rank lpddr4
 //#define S4_LPDDR4_1RANK_RAYSON_2GB 1
 
 //#define S4_LPDDR4_DONGLE_LAYER_4 1   //use for 1rank lpddr4
 //#define S4_LPDDR4_DONGLE_LAYER_6 1  //use for 1rank lpddr4
 
-#define S4_LPDDR4_2RANK 1
-#define S4_LPDDR4_2RANK_RAYSON_2GB 1
+//#define S4_LPDDR4_2RANK 1
+//#define S4_LPDDR4_2RANK_RAYSON_2GB 1
 //#define S4_LPDDR4_2RANK_FORESEE_2GB 1
 
 //#define S4_DDR4_2RANK 1
 //#define S4_DDR4_1RANK 1
 //#define S4_DDR4_1RANK_PCB_MODE2_GANGZHENG 1
-//#define S4_DDR3  1
-#define S4_1RANK_DDR4_ON_2RANK_PCB 1
+#define S4_DDR3  1
+//#define S4_1RANK_DDR4_ON_2RANK_PCB 1
 
 ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #if S4_1RANK_DDR4_ON_2RANK_PCB
@@ -414,7 +414,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.DisabledDbyte = CONFIG_DISABLE_D16_D31,
 		.cfg_board_common_setting.dram_cs0_base_add = 0,
 		.cfg_board_common_setting.dram_cs1_base_add = 0,
-		.cfg_board_common_setting.dram_cs0_size_MB = CONFIG_DDR0_SIZE_512MB,
+		.cfg_board_common_setting.dram_cs0_size_MB = CONFIG_DDR0_SIZE_256MB,
 		.cfg_board_common_setting.dram_cs1_size_MB = CONFIG_DDR1_SIZE_0MB,
 		.cfg_board_common_setting.dram_x4x8x16_mode = CONFIG_DRAM_MODE_X16,
 		.cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
@@ -437,15 +437,16 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.pll_ssc_mode = (1 << 20) | (1 << 8) | (2 << 4) | 0,
 		.cfg_board_common_setting.org_tdqs2dq = 0,
 		.cfg_board_common_setting.reserve1_test_function = { 0 },
-		.cfg_board_common_setting.ddr_dmc_remap = DDR_DMC_REMAP_DDR4_16BIT,
+		.cfg_board_common_setting.ddr_dmc_remap = DDR_DMC_REMAP_DDR3_16BIT,
 		//s4 ddr3 ac pinmux
 		.cfg_board_common_setting.ac_pinmux = {
-			0,  0,	0,  1, 2,  3,
-			11, 14, 13, 5, 25, 6, 27,  0,
-			15, 7, 26, 9, 4, 20, 8, 21,
-			0, 0, 0, 0, 10, 2, 3, 0,
-			0, 1, 12, 22, 0
+		0,	0,	0,	1,	2,	3,
+		14,	5,	15,	25,	6,	1,	13,	0,
+		4,	9,	26,	22,	8,	20,	7,	21,
+		0,	0,	0,	0,	3,	11,	2,	0,
+		0,	12,	10,	27,	0
 		},
+
 		.cfg_board_common_setting.ddr_dqs_swap = 0,
 		.cfg_board_common_setting.ddr_dq_remap = {
 			0,  1,	2,  3,	4,  5,	6,  7,
@@ -455,7 +456,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 			32, 33, 34, 35
 		},//d0-d31 dm0 dm1 dm2 dm3
 		.cfg_board_common_setting.ddr_vddee_setting = { 0 },
-		.cfg_board_SI_setting_ps.DRAMFreq = 1320,
+		.cfg_board_SI_setting_ps.DRAMFreq = 1056,
 		.cfg_board_SI_setting_ps.PllBypassEn = 0,
 		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
 		.cfg_board_SI_setting_ps.ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
@@ -475,9 +476,9 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.lpddr4_dram_vout_voltage_range_setting =
 			DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
 		.cfg_board_SI_setting_ps.dfe_offset = 0,
-		.cfg_board_SI_setting_ps.vref_ac_permil = 300,
+		.cfg_board_SI_setting_ps.vref_ac_permil = 0,
 		.cfg_board_SI_setting_ps.vref_soc_data_permil = 0,
-		.cfg_board_SI_setting_ps.vref_dram_data_permil = 330,  //330
+		.cfg_board_SI_setting_ps.vref_dram_data_permil = 0,  //330
 		.cfg_board_SI_setting_ps.max_core_timmming_frequency = 0,
 		.cfg_board_SI_setting_ps.training_phase_parameter = { 0 },
 .cfg_board_SI_setting_ps.ac_trace_delay_org = {
