@@ -71,7 +71,7 @@ ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {
 	},       //d0-d31 dm0 dm1 dm2 dm3
 
 	.cfg_board_common_setting.ddr_vddee_setting							= { 0 },
-	.cfg_board_SI_setting_ps[0].DRAMFreq = 1320,
+	.cfg_board_SI_setting_ps[0].DRAMFreq = 1176,
 	.cfg_board_SI_setting_ps[0].PllBypassEn = 0,
 	.cfg_board_SI_setting_ps[0].training_SequenceCtrl = 0,
 	.cfg_board_SI_setting_ps[0].ddr_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,//DDR_DRAM_ODT_W_CS0_ODT01_CS1_ODT01__R_CS0_ODT1_CS1_ODT0, //DDR_DRAM_ODT_W_CS0_ODT0_CS1_ODT1,
