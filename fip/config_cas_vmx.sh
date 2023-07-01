@@ -1,0 +1,14 @@
+# bl2 config:
+export CONFIG_OVERENCRYPTED_BL3X_KEYS=1
+export CONFIG_BL32_TEE_MEM_LARGE=y
+export CONFIG_MARKET_ID_CHECK=y
+
+# bl30:
+
+# bl31:
+export CONFIG_CAS_VMX_ULTRA=1
+export CONFIG_EFUSE_READ=1
+
+#bl2, bl31, bl32, bl33:
+export USE_GIT_DATE=1
+export CONFIG_AML_SECURE_BOOT_V3=1
