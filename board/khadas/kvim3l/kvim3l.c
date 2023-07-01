@@ -45,9 +45,205 @@
 #ifdef CONFIG_AML_SPIFC
 #include <amlogic/spifc.h>
 #endif
+#ifdef CONFIG_TCA6408
+#include <khadas_tca6408.h>
+#endif
+#ifdef CONFIG_POWER_FUSB302
+#include <fusb302.h>
+#endif
 #include <asm/arch/timer.h>
 
+#define SW_I2C_DELAY() udelay(2)
+#define SW_I2C_SCL_H() set_gpio_level(1,1) //TO-DO: set scl pin to high
+#define SW_I2C_SCL_L() set_gpio_level(1,0) //TO-DO: set scl pin to low
+#define SW_I2C_SDA_H() set_gpio_level(0,1) //TO-DO: set sda pin to high
+#define SW_I2C_SDA_L() set_gpio_level(0,0) //TO-DO: set sda pin to low
+#define SW_I2C_SDA_IS_H() get_sda_gpio_level() //TO-DO: get sda pin level
+
 DECLARE_GLOBAL_DATA_PTR;
+
+static bool get_sda_gpio_level(void)
+{
+	writel(readl(PREG_PAD_GPIO5_EN_N) | (1 << 14), PREG_PAD_GPIO5_EN_N);
+	if (((readl(PREG_PAD_GPIO5_I) & 0x4000) == 0x4000)) {
+		return 1;
+	}
+	return 0;
+}
+
+static void set_gpio_level(int pin, int high)
+{
+	//pin 0: sda 1: scl
+	if (pin == 1){ //scl
+		if (high == 1) {
+			writel(readl(PREG_PAD_GPIO5_O) | (1 << 15), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 15)), PREG_PAD_GPIO5_EN_N);
+		} else {
+			writel(readl(PREG_PAD_GPIO5_O) & (~(1 << 15)), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 15)), PREG_PAD_GPIO5_EN_N);
+		}
+		writel(readl(PERIPHS_PIN_MUX_E) & (~(0xf << 28)), PERIPHS_PIN_MUX_E);
+	} else { //sda
+		if (high == 1) {
+			writel(readl(PREG_PAD_GPIO5_O) | (1 << 14), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 14)), PREG_PAD_GPIO5_EN_N);
+		} else {
+			writel(readl(PREG_PAD_GPIO5_O) & (~(1 << 14)), PREG_PAD_GPIO5_O);
+			writel(readl(PREG_PAD_GPIO5_EN_N) & (~(1 << 14)), PREG_PAD_GPIO5_EN_N);
+		}
+		writel(readl(PERIPHS_PIN_MUX_E) & (~(0xf << 24)), PERIPHS_PIN_MUX_E);
+	}
+}
+
+void sw_i2c_start(void)
+{
+	SW_I2C_SDA_H();
+	udelay(50);
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_L();
+	SW_I2C_DELAY();
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+}
+
+void sw_i2c_stop(void)
+{
+	SW_I2C_SCL_H();
+	SW_I2C_SDA_L();
+
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_H();
+	SW_I2C_DELAY();
+}
+
+void sw_i2c_tx_ack(void)
+{
+	SW_I2C_SDA_L();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+
+	SW_I2C_SDA_H();
+}
+
+void sw_i2c_tx_nack(void)
+{
+	SW_I2C_SDA_H();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+}
+
+uint8_t sw_i2c_rx_ack(void)
+{
+	uint8_t ret = 0;
+	uint16_t ucErrTime = 0;
+
+	SW_I2C_SDA_IS_H();
+	SW_I2C_DELAY();
+	SW_I2C_SCL_H();
+	SW_I2C_DELAY();
+	SW_I2C_DELAY();
+
+	while(SW_I2C_SDA_IS_H()){
+		if((++ucErrTime) > 250) {
+			sw_i2c_stop();
+			return 1;
+		}
+	}
+
+	SW_I2C_SCL_L();
+	SW_I2C_DELAY();
+
+	return ret;
+}
+
+void sw_i2c_tx_byte(uint8_t dat)
+{
+	uint8_t i = 0;
+	uint8_t temp = dat;
+
+	for (i = 0; i < 8; i++) {
+		if (temp & 0x80) {
+			SW_I2C_SDA_H();
+		} else {
+			SW_I2C_SDA_L();
+		}
+		SW_I2C_DELAY();
+
+		SW_I2C_SCL_H();
+		SW_I2C_DELAY();
+		SW_I2C_DELAY();
+
+		SW_I2C_SCL_L();
+		SW_I2C_DELAY();
+
+		temp <<= 1;
+	}
+}
+
+uint8_t sw_i2c_rx_byte(void)
+{
+	uint8_t i = 0;
+	uint8_t dat = 0;
+
+	for (i = 0; i < 8; i++) {
+		dat <<= 1;
+
+		SW_I2C_SCL_H();
+		SW_I2C_DELAY();
+		SW_I2C_DELAY();
+
+		if (SW_I2C_SDA_IS_H()) {
+			dat++;
+		}
+
+		SW_I2C_SCL_L();
+		SW_I2C_DELAY();
+		SW_I2C_DELAY();
+	}
+	return dat;
+}
+
+void sw_i2c_read(uint8_t device_addr, uint8_t reg_addr, uint8_t dat[], uint8_t len)
+{
+	uint8_t i = 0;
+	sw_i2c_start();
+	sw_i2c_tx_byte(device_addr & 0xFE);
+	sw_i2c_rx_ack();
+	sw_i2c_tx_byte(reg_addr);
+	sw_i2c_rx_ack();
+
+	sw_i2c_start();
+	sw_i2c_tx_byte(device_addr | 0x01);
+	sw_i2c_rx_ack();
+
+	for (i = 0; i < len; i++) {
+		dat[i] = sw_i2c_rx_byte();
+		if (i == (len-1))
+		{
+			sw_i2c_tx_nack();
+		} else {
+			sw_i2c_tx_ack();
+		}
+	}
+	sw_i2c_stop();
+}
 
 //new static eth setup
 struct eth_board_socket*  eth_board_skt;
@@ -328,27 +524,17 @@ int board_mmc_init(bd_t	*bis)
 }
 
 #ifdef CONFIG_SYS_I2C_AML
-#if 0
 static void board_i2c_set_pinmux(void){
-	/*********************************************/
-	/*                | I2C_Master_AO        |I2C_Slave            |       */
-	/*********************************************/
-	/*                | I2C_SCK                | I2C_SCK_SLAVE  |      */
-	/* GPIOAO_4  | [AO_PIN_MUX: 6]     | [AO_PIN_MUX: 2]   |     */
-	/*********************************************/
-	/*                | I2C_SDA                 | I2C_SDA_SLAVE  |     */
-	/* GPIOAO_5  | [AO_PIN_MUX: 5]     | [AO_PIN_MUX: 1]   |     */
-	/*********************************************/
 
 	//disable all other pins which share with I2C_SDA_AO & I2C_SCK_AO
-	clrbits_le32(P_AO_RTI_PIN_MUX_REG, ((1<<2)|(1<<24)|(1<<1)|(1<<23)));
+	clrbits_le32(P_AO_RTI_PINMUX_REG0, ((1<<8)|(1<<9)|(1<<10)|(1<<11)));
+	clrbits_le32(P_AO_RTI_PINMUX_REG0, ((1<<12)|(1<<13)|(1<<14)|(1<<15)));
 	//enable I2C MASTER AO pins
-	setbits_le32(P_AO_RTI_PIN_MUX_REG,
-	(MESON_I2C_MASTER_AO_GPIOAO_4_BIT | MESON_I2C_MASTER_AO_GPIOAO_5_BIT));
+	setbits_le32(P_AO_RTI_PINMUX_REG0,
+	(MESON_I2C_MASTER_AO_GPIOAO_2_BIT | MESON_I2C_MASTER_AO_GPIOAO_3_BIT));
 
 	udelay(10);
 };
-#endif
 struct aml_i2c_platform g_aml_i2c_plat = {
 	.wait_count         = 1000000,
 	.wait_ack_interval  = 5,
@@ -358,13 +544,12 @@ struct aml_i2c_platform g_aml_i2c_plat = {
 	.use_pio            = 0,
 	.master_i2c_speed   = AML_I2C_SPPED_400K,
 	.master_ao_pinmux = {
-		.scl_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_4_REG,
-		.scl_bit    = MESON_I2C_MASTER_AO_GPIOAO_4_BIT,
-		.sda_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_5_REG,
-		.sda_bit    = MESON_I2C_MASTER_AO_GPIOAO_5_BIT,
+		.scl_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_2_REG,
+		.scl_bit    = MESON_I2C_MASTER_AO_GPIOAO_2_BIT,
+		.sda_reg    = (unsigned long)MESON_I2C_MASTER_AO_GPIOAO_3_REG,
+		.sda_bit    = MESON_I2C_MASTER_AO_GPIOAO_3_BIT,
 	}
 };
-#if 0
 static void board_i2c_init(void)
 {
 	//set I2C pinmux with PCB board layout
@@ -372,11 +557,11 @@ static void board_i2c_init(void)
 
 	//Amlogic I2C controller initialized
 	//note: it must be call before any I2C operation
+	i2c_plat_init();
 	aml_i2c_init();
 
 	udelay(10);
 }
-#endif
 #endif
 #endif
 
@@ -538,6 +723,7 @@ U_BOOT_DEVICE(spifc) = {
 
 extern void aml_pwm_cal_init(int mode);
 
+#ifdef CONFIG_SYS_I2C_MESON
 static const struct meson_i2c_platdata i2c_data[] = {
 	{ 0, 0xffd1f000, 166666666, 3, 15, 100000 },
 	{ 1, 0xffd1e000, 166666666, 3, 15, 100000 },
@@ -560,15 +746,28 @@ U_BOOT_DEVICES(meson_i2cs) = {
 };
 
 /*
- *GPIOAO_10//I2C_SDA_AO
- *GPIOAO_11//I2C_SCK_AO
- *pinmux configuration separated with i2c controller configuration
+ *GPIOH_6 I2C_SDA_M1
+ *GPIOH_7 I2C_SCK_M1
+ *pinmux configuration seperated with i2c controller configuration
  * config it when you use
  */
 void set_i2c_ao_pinmux(void)
 {
+	/*ds =3 */
+	clrbits_le32(PAD_DS_REG3A, 0xf << 12);
+	setbits_le32(PAD_DS_REG3A, 0x3 << 12 | 0x3 << 14);
+	/*pull up en*/
+	clrbits_le32(PAD_PULL_UP_EN_REG3, 0x3 << 6);
+	setbits_le32(PAD_PULL_UP_EN_REG3, 0x3 << 6 );
+	/*pull up*/
+	clrbits_le32(PAD_PULL_UP_REG3, 0x3 << 6);
+	setbits_le32(PAD_PULL_UP_REG3, 0x3 << 6 );
+	/*pin mux to i2cm1*/
+	clrbits_le32(PERIPHS_PIN_MUX_B, 0xff << 24);
+	setbits_le32(PERIPHS_PIN_MUX_B, 0x4 << 24 | 0x4 << 28);
 	return;
 }
+#endif /*end CONFIG_SYS_I2C_MESON*/
 
 #ifdef CONFIG_PWM_MESON
 static const struct meson_pwm_platdata pwm_data[] = {
@@ -588,6 +787,82 @@ U_BOOT_DEVICES(meson_pwm) = {
 };
 #endif /*end CONFIG_PWM_MESON*/
 
+#if (defined (CONFIG_AML_LCD) && defined(CONFIG_TCA6408))
+// detect whether the LCD is exist
+void board_lcd_detect(void)
+{
+	u8 value = 0;
+	uchar linebuf[1] = {0};
+	tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
+	mdelay(5);
+	tca6408_output_set_value((0<<6), (1<<6));
+	mdelay(20);
+	tca6408_output_set_value((1<<6), (1<<6));
+	mdelay(50);
+
+		sw_i2c_read(0x70,0xA8,linebuf,1);
+		if (linebuf[0] == 0x51) {//old TS050
+			setenv("panel_type", "lcd_0");
+			value = 1;
+		} else if (linebuf[0] == 0x79) {//new TS050
+			setenv("panel_type", "lcd_1");
+			value = 1;
+		} else {
+			sw_i2c_read(0xba,0x9e,linebuf,1);
+			if (linebuf[0] == 0x00) {//TS101
+				setenv("panel_type", "lcd_2");
+				value = 1;
+			}
+		}
+
+	// detect RESET pin
+	// if the LCD is connected, the RESET pin will be plll high
+	// if the LCD is not connected, the RESET pin will be low
+
+	printf("LCD_RESET PIN: %d\n", value);
+	setenv_ulong("lcd_exist", value);
+}
+#endif /* CONFIG_AML_LCD */
+
+extern void aml_pwm_cal_init(int mode);
+
+extern int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len);
+static int check_forcebootsd(void)
+{
+	unsigned char tst_status = 0;
+	unsigned char mcu_version[2] = {0};
+	int retval;
+
+	retval = i2c_read(0x18, 0x12, 1, mcu_version, 1);
+	retval |= i2c_read(0x18, 0x13, 1, mcu_version + 1, 1);
+
+	if (retval < 0) {
+		printf("%s i2c_read failed!\n", __func__);
+		return -1;
+	}
+
+	printf("MCU version: 0x%02x 0x%02x\n", mcu_version[0], mcu_version[1]);
+
+	if (mcu_version[1] < 0x04) {
+		printf("MCU version is to low! Doesn't support froce boot from SD card.\n");
+		return -1;
+	}
+
+	retval = i2c_read(0x18, 0x90, 1, &tst_status, 1);
+	if (retval < 0) {
+		printf("%s i2c_read failed!\n", __func__);
+		return -1;
+	}
+
+	if (1 == tst_status) {
+		printf("Force boot from SD.\n");
+		run_command("kbi tststatus clear", 0);
+		run_command("kbi forcebootsd", 0);
+	}
+
+	return 0;
+}
+
 int board_init(void)
 {
 	sys_led_init();
@@ -601,6 +876,7 @@ int board_init(void)
 #ifdef CONFIG_USB_XHCI_AMLOGIC_V2
 	board_usb_pll_disable(&g_usb_config_GXL_skt);
 	board_usb_init(&g_usb_config_GXL_skt,BOARD_USB_MODE_HOST);
+	gpio_set_vbus_power(1);
 #endif /*CONFIG_USB_XHCI_AMLOGIC*/
 
 #if 0
@@ -613,60 +889,15 @@ int board_init(void)
 #ifdef CONFIG_SYS_I2C_MESON
 	set_i2c_ao_pinmux();
 #endif
+#ifdef CONFIG_SYS_I2C_AML
+	board_i2c_init();
+	check_forcebootsd();
+#endif
+#ifdef CONFIG_TCA6408
+	tca6408_gpio_init();
+#endif
 
 	return 0;
-}
-
-/* set dts props */
-void aml_config_dtb(void)
-{
-	cpu_id_t cpuid = get_cpu_id();
-	if (MESON_CPU_MAJOR_ID_G12A != cpuid.family_id)
-		return;
-	run_command("fdt address $dtb_mem_addr", 0);
-	printf("%s %d\n", __func__, __LINE__);
-	if (cpuid.chip_rev == 0xA) {
-		printf("%s %d\n", __func__, __LINE__);
-		run_command("fdt set /emmc/emmc co_phase <0x2>", 0);
-		run_command("fdt rm /emmc/emmc caps2", 0);
-		run_command("fdt set /emmc/emmc f_max <0x02625a00>", 0);
-
-		run_command("fdt set /sdio status okay", 0);
-		run_command("fdt set /sd1 status okay", 0);
-		run_command("fdt set /pinctrl@ff634480/sd_clk_cmd_pins/mux drive-strength <1>", 0);
-		run_command("fdt set /pinctrl@ff634480/sd_clk_cmd_pins/mux1 drive-strength <1>", 0);
-		run_command("fdt set /pinctrl@ff634480/sd_all_pins/mux drive-strength <1>", 0);
-		run_command("fdt set /pinctrl@ff634480/sd_all_pins/mux1 drive-strength <1>", 0);
-		run_command("fdt set /pinctrl@ff634480/sdio_clk_cmd_pins/mux drive-strength <2>", 0);
-		run_command("fdt set /pinctrl@ff634480/sdio_all_pins/mux drive-strength <1>", 0);
-		/* debug */
-		run_command("fdt print /emmc/emmc co_phase", 0);
-		run_command("fdt print /emmc/emmc caps2", 0);
-		run_command("fdt print /emmc/emmc f_max", 0);
-
-		run_command("fdt print /sdio status", 0);
-		run_command("fdt print /sd1 status ", 0);
-		run_command("fdt print /pinctrl@ff634480/sd_clk_cmd_pins/mux drive-strength", 0);
-		run_command("fdt print /pinctrl@ff634480/sd_clk_cmd_pins/mux1 drive-strength", 0);
-		run_command("fdt print /pinctrl@ff634480/sd_all_pins/mux drive-strength", 0);
-		run_command("fdt print /pinctrl@ff634480/sd_all_pins/mux1 drive-strength", 0);
-		run_command("fdt print /pinctrl@ff634480/sdio_clk_cmd_pins/mux drive-strength", 0);
-		run_command("fdt print /pinctrl@ff634480/sdio_all_pins/mux drive-strength", 0);
-	} else {
-
-		printf("%s %d\n", __func__, __LINE__);
-		run_command("fdt set /emmc/emmc co_phase <0x3>", 0);
-		run_command("fdt set /sdio status disabled", 0);
-		run_command("fdt set /sd2 status okay", 0);
-		/* debug */
-		run_command("fdt print /emmc/emmc co_phase", 0);
-		run_command("fdt print /emmc/emmc caps2", 0);
-		run_command("fdt print /emmc/emmc f_max", 0);
-		run_command("fdt print /sdio status", 0);
-		run_command("fdt print /sd2 status", 0);
-	}
-
-	return;
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
@@ -696,13 +927,7 @@ static void board_init_mem(void)
 extern void board_set_boot_source(void);
 int board_late_init(void)
 {
-	 TE(__func__);
-
-	//default uboot env need before anyone use it
-	if (getenv("default_env")) {
-		printf("factory reset, need default all uboot env.\n");
-		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
-	}
+	TE(__func__);
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
 						"if test ${reboot_mode} = factory_reset; then "\
@@ -742,6 +967,14 @@ int board_late_init(void)
 		}
 #endif// #ifndef DTB_BIND_KERNEL
 
+#ifdef CONFIG_POWER_FUSB302
+	fusb302_init();
+#endif
+
+	run_command("gpio set GPIOA_13", 0);//5G reset
+	mdelay(200);
+	run_command("gpio clear GPIOA_13", 0);//5G reset
+	run_command("gpio clear GPIOA_8", 0); //pcie reset-gpio
 		/* load unifykey */
 		run_command("keyunify init 0x1234", 0);
 
@@ -764,6 +997,7 @@ int board_late_init(void)
 	run_command("cvbs init", 0);
 #endif
 #ifdef CONFIG_AML_LCD
+	board_lcd_detect();
 	lcd_probe();
 #endif
 
@@ -774,11 +1008,17 @@ int board_late_init(void)
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif// #ifdef CONFIG_AML_V2_FACTORY_BURN
 
-    if (MESON_CPU_MAJOR_ID_SM1 == get_cpu_id().family_id) {
+	// Setup FAN to MAX speed for testing
+	run_command("i2c mw 0x18 0x88 3", 0);
+	cpu_id_t cpu_id = get_cpu_id();
+	if (cpu_id.family_id == MESON_CPU_MAJOR_ID_SM1) {
+		char cmd[16];
+		setenv("maxcpus","4");
+		sprintf(cmd, "%X", cpu_id.chip_rev);
+		setenv("chiprev", cmd);
 		setenv("board_defined_bootup", "bootup_D3");
 	}
 	/**/
-	aml_config_dtb();
 
 	unsigned char chipid[16];
 
@@ -840,70 +1080,6 @@ phys_size_t get_effective_memsize(void)
 	return (((readl(AO_SEC_GP_CFG0)) & 0xFFF80000) << 4);
 #endif
 }
-
-#ifdef CONFIG_MULTI_DTB
-int checkhw(char * name)
-{
-	/*
-	 * set aml_dt according to chip and dram capacity
-	 */
-	unsigned int ddr_size=0;
-	char loc_name[64] = {0};
-	int i;
-	cpu_id_t cpu_id=get_cpu_id();
-
-	for (i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
-		ddr_size += gd->bd->bi_dram[i].size;
-	}
-#if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	ddr_size += CONFIG_SYS_MEM_TOP_HIDE;
-#endif
-	char *ddr_mode = getenv("mem_size");
-	if (MESON_CPU_MAJOR_ID_SM1 == cpu_id.family_id) {
-		switch (ddr_size) {
-			case 0x80000000:
-				if (!strcmp(ddr_mode, "1g")) {
-					strcpy(loc_name, "sm1_ac200_1g\0");
-					break;
-				}
-				strcpy(loc_name, "sm1_ac200_2g\0");
-				break;
-			case 0x40000000:
-				strcpy(loc_name, "sm1_ac200_1g\0");
-				break;
-			case 0x2000000:
-				strcpy(loc_name, "sm1_ac200_512m\0");
-				break;
-			default:
-				strcpy(loc_name, "sm1_ac200_unsupport");
-				break;
-		}
-	}
-	else {
-		switch (ddr_size) {
-			case 0x80000000:
-				if (!strcmp(ddr_mode, "1g")) {
-					strcpy(loc_name, "g12a_u200_1g\0");
-					break;
-				}
-				strcpy(loc_name, "g12a_u200_2g\0");
-				break;
-			case 0x40000000:
-				strcpy(loc_name, "g12a_u200_1g\0");
-				break;
-			case 0x2000000:
-				strcpy(loc_name, "g12a_u200_512m\0");
-				break;
-			default:
-				strcpy(loc_name, "g12a_u200_unsupport");
-				break;
-		}
-	}
-	strcpy(name, loc_name);
-	setenv("aml_dt", loc_name);
-	return 0;
-}
-#endif
 
 const char * const _env_args_reserve_[] =
 {

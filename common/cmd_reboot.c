@@ -111,9 +111,9 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			setenv("reboot_mode","recovery_quiescent");
 			break;
 		}
-		case AMLOGIC_FFV_REBOOT:
+		case AMLOGIC_REBOOT_TEST:
 		{
-			setenv("reboot_mode","ffv_reboot");
+			setenv("reboot_mode","reboot_test");
 			break;
 		}
 		/* remove default, fix coverity error DEADCODE*/
@@ -180,6 +180,8 @@ int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			reboot_mode_val = AMLOGIC_KERNEL_PANIC;
 		else if (strcmp(mode, "rpmbp") == 0)
 			reboot_mode_val = AMLOGIC_RPMBP_REBOOT;
+		else if (strcmp(mode, "reboot_test") == 0)
+			reboot_mode_val = AMLOGIC_REBOOT_TEST;
 		else {
 			printf("Can not find match reboot mode, use normal by default\n");
 			reboot_mode_val = AMLOGIC_NORMAL_BOOT;
@@ -239,6 +241,7 @@ U_BOOT_CMD(
 	"    suspend_off\n"
 	"    hibernate\n"
 	"    crash_dump\n"
+	"    reboot_test\n"
 );
 
 U_BOOT_CMD(

@@ -320,190 +320,12 @@ static int bootm_find_ramdisk(int flag, int argc, char * const argv[])
 	return 0;
 }
 
-	/*
-	 * load dtb overlay partition to mem
-	 */
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-static int read_fdto_partition(void)
-{
-	char	cmd[128];
-	int	ret = 0;
-	u64	tmp = 0;
-	void	*dtbo_mem_addr = NULL;
-	char	dtbo_partition[32]={0};
-	char	*s1;
-	struct	dt_table_header hdr;
-
-	//run_command("get_valid_slot;", 0);
-	s1 = getenv("active_slot");
-	printf("active_slot is %s\n", s1);
-	if (strcmp(s1, "normal") == 0) {
-		strcpy(dtbo_partition, "dtbo");
-	} else if (strcmp(s1, "_a") == 0) {
-		strcpy(dtbo_partition, "dtbo_a");
-	} else if (strcmp(s1, "_b") == 0) {
-		strcpy(dtbo_partition, "dtbo_b");
-	}
-
-	/* check if dtbo partition exist */
-	sprintf(cmd, "store size %s 0x%p", dtbo_partition, &tmp);
-	ret = run_command(cmd, 0);
-	if (ret != 0) {
-		printf("No dtbo partitions found\n");
-		return ret;
-	} else {
-		/*
-		 * Though it is really no need to parse the dtimg infos
-		 * here, but wasting time to read the whole dtbo image
-		 * partition is unacceptable
-		 */
-		sprintf(cmd, "store read %s 0x%p 0 0x%lx",
-			dtbo_partition, &hdr,
-			sizeof(struct dt_table_header));
-		ret = run_command(cmd, 0);
-		if (ret != 0) {
-			printf("Fail to read header of DTBO partition\n");
-			return ret;
-		}
-
-		if (!android_dt_check_header((ulong)&hdr)) {
-			printf("DTBO partition header is incorrect\n");
-			return -1;
-		}
-
-		dtbo_mem_addr = malloc(fdt32_to_cpu(hdr.total_size));
-		if (!dtbo_mem_addr) {
-			printf("out of memory\n");
-			return -1;
-		} else {
-			sprintf(cmd, "store read %s 0x%p 0 0x%x",
-				dtbo_partition, dtbo_mem_addr,
-				fdt32_to_cpu(hdr.total_size));
-			ret = run_command(cmd, 0);
-			if (ret != 0) {
-				printf("Fail to read DTBO partition\n");
-				free(dtbo_mem_addr);
-				return ret;
-			} else {
-				sprintf(cmd,
-				"setenv dtbo_mem_addr 0x%p",
-				dtbo_mem_addr);
-				run_command(cmd, 0);
-				//free(dtbo_mem_addr);
-			}
-		}
-	}
-	/*
-	 * malloc dtbo_mem_addr for ENV, need ignore.
-	 */
-	/* coverity[leaked_storage:SUPPRESS] */
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-static int get_fdto_totalsize(u32 *tz)
-{
-	TE(__func__);
-
-	unsigned long long dtbo_mem_addr = 0;
-	int ret;
-
-	ret = read_fdto_partition();
-	if (ret != 0)
-		return ret;
-
-	dtbo_mem_addr = getenv_hex("dtbo_mem_addr", 0);
-	*tz = android_dt_get_totalsize(dtbo_mem_addr);
-
-	TE(__func__);
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-static int do_fdt_overlay(void)
-{
-	unsigned long long dtbo_mem_addr = 0;
-	int                dtbo_num = 0;
-	int                i;
-	char               cmd[128];
-	unsigned long long dtbo_start;
-	char               *dtbo_idx = NULL;
-	char		   idx[32];
-
-	if (!getenv("dtbo_mem_addr")) {
-		printf("No valid dtbo image found\n");
-		return -1;
-	}
-	dtbo_mem_addr = getenv_hex("dtbo_mem_addr", 0);
-	if (!android_dt_check_header(dtbo_mem_addr)) {
-		printf("Error: DTBO image header is incorrect\n");
-		return -1;
-	}
-
-	/* android_dt_print_contents(dtbo_mem_addr); */
-	dtbo_num = fdt32_to_cpu((
-		(const struct dt_table_header *)dtbo_mem_addr)->dt_entry_count);
-	printf("find %d dtbos\n", dtbo_num);
-
-	dtbo_idx = getenv("androidboot.dtbo_idx");
-	if (!dtbo_idx) {
-		printf("No androidboot.dtbo_idx configured\n");
-		printf("And no dtbos will be applied\n");
-		return -1;
-	}
-	printf("dtbos to be applied: %s\n", dtbo_idx);
-
-	#ifndef CONFIG_CMD_DTIMG
-	printf("Error: No dtimg support found\n");
-	return -1;
-	#endif
-
-	for (i = 0; i < dtbo_num; i++) {
-		memset(idx, 0x00, sizeof(idx));
-		sprintf(idx, "%d", i);
-		if (strstr(dtbo_idx, idx)) {
-			printf("Apply dtbo %d\n", i);
-			sprintf(cmd, "dtimg start 0x%llx %d dtbo_start",
-				dtbo_mem_addr, i);
-			run_command(cmd, 0);
-			dtbo_start = getenv_hex("dtbo_start", 0);
-
-			sprintf(cmd, "fdt apply 0x%llx", dtbo_start);
-			run_command(cmd, 0);
-		}
-	}
-
-	free((void *)dtbo_mem_addr);
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_MULTI_DTB
-/*for avoid coverity error*/
-static char *get_multi_dt_entry_avoid(char *ft_addr)
-{
-	unsigned long ftaddr;
-	char *p_ftaddr;
-	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
-
-	ftaddr = (unsigned long)images.ft_addr;
-	p_ftaddr = (char*)get_multi_dt_entry(ftaddr);
-	return p_ftaddr;
-}
-#endif
-
 #if defined(CONFIG_OF_LIBFDT)
 static int bootm_find_fdt(int flag, int argc, char * const argv[])
 {
 	TE(__func__);
 
 	int ret;
-	#ifdef CONFIG_OF_LIBFDT_OVERLAY
-	u32		  fdto_totalsize = 0;
-	#endif
 
 	/* find flattened device tree */
 	#ifdef CONFIG_DTB_MEM_ADDR
@@ -523,11 +345,6 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	ft_addr_bak = (char *)images.ft_addr;
 	ft_len_bak = images.ft_len;
 	images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
-	#ifdef CONFIG_OF_LIBFDT_OVERLAY
-	if (get_fdto_totalsize(&fdto_totalsize) == 0)
-		fdt_set_totalsize(images.ft_addr, fdt_get_header(images.ft_addr,
-				  totalsize) + fdto_totalsize);
-	#endif
 	images.ft_len = fdt_get_header(dtb_mem_addr, totalsize);
 	#endif
 	printf("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
@@ -561,10 +378,6 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	}
 
 	set_working_fdt_addr(images.ft_addr);
-
-	#ifdef CONFIG_OF_LIBFDT_OVERLAY
-	do_fdt_overlay();
-	#endif
 
 	ft_len_bak = images.ft_len;
 

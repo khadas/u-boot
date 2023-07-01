@@ -348,10 +348,14 @@ obj-y += cmd_disk.o
 # vpp module
 obj-y += cmd_vpp.o
 
+# Khadas commands
+obj-$(CONFIG_KHADAS_CFGLOAD)  += cmd_cfgload.o
+obj-$(CONFIG_KHADAS_SCRIPT) += cmd_script.o
+
 # amlogic commands
 obj-$(CONFIG_CMD_REBOOT) += cmd_reboot.o
 obj-y += cmd_scp.o
-obj-$(CONFIG_AML_HDMITX20) += hdmi_parameters.o hdmi_edid_parsing.o cmd_hdmitx.o hdmitx_policy.o
+obj-$(CONFIG_AML_HDMITX20) += hdmi_parameters.o hdmi_edid_parsing.o cmd_hdmitx.o hdmitx_policy.o edid-decode.o
 obj-$(CONFIG_CMD_JTAG) += cmd_jtag.o
 obj-$(CONFIG_AML_OSD) += cmd_osd.o cmd_img_osd.o
 obj-$(CONFIG_AML_MINUI) += cmd_ui.o
@@ -378,5 +382,8 @@ obj-$(CONFIG_AML_POWER_DOMAIN_SEC) += cmd_power.o
 
 # zircon commands
 obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += cmd_zircon_bootconfig.o
+
+# khadas commands
+obj-$(CONFIG_KHADAS_KBI) += cmd_kbi.o
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

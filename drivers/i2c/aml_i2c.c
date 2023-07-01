@@ -943,6 +943,14 @@ void i2c_init(int speed, int slaveaddr)
 	aml_i2c_init();
 }
 
+void i2c_plat_init(void)
+{
+	if (g_i2c_ports == NULL) {
+		g_i2c_ports = &g_aml_i2c_plat;
+		g_cur_bus_num = 0;
+	}
+}
+
 
 
 /*

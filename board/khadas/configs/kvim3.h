@@ -21,11 +21,22 @@
  */
 #define CONFIG_PLATFORM_POWER_INIT
 #define CONFIG_VCCK_INIT_VOLTAGE	800		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	840		// VDDEE power up voltage
+#define CONFIG_VDDEE_INIT_VOLTAGE	880		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
+/* Khadas commands */
+#define CONFIG_KHADAS_KBI 1
+#define CONFIG_KHADAS_CFGLOAD 1
+#define CONFIG_KHADAS_SCRIPT 1
+
+#define CONFIG_TCA6408 1
+#define CONFIG_POWER_FUSB302 1
+
 /* configs for CEC */
-#define CONFIG_CEC_OSD_NAME		"AML_TV"
+#ifndef CONFIG_CEC_OSD_NAME
+#undef CONFIG_CEC_OSD_NAME
+#define CONFIG_CEC_OSD_NAME		"KVIM3"
+#endif
 #define CONFIG_CEC_WAKEUP
 /*if use bt-wakeup,open it*/
 #define CONFIG_BT_WAKEUP
@@ -51,7 +62,7 @@
 #define CONFIG_SERIAL_MULTI		1
 
 /*Enable ir remote wake up for bl30*/
-#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL1 0xef10fe01 //amlogic tv ir --- power
+#define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL1 0xeb14ff00 //khadas ir --- power
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL2 0XBB44FB04 //amlogic tv ir --- ch+
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL3 0xF20DFE01 //amlogic tv ir --- ch-
 #define CONFIG_IR_REMOTE_POWER_UP_KEY_VAL4 0XBA45BD02 //amlogic small ir--- power
@@ -212,37 +223,16 @@
 			"androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 			"setenv bootargs ${bootargs} androidboot.hardware=amlogic "\
 				"androidboot.bootloader=${bootloader_version} "\
-				"androidboot.build.expect.baseband=N/A boot_source=${boot_source};"\
+				"androidboot.build.expect.baseband=N/A boot_source=${boot_source} "\
+                "ddr_size=${ddr_size} reboot_mode=${reboot_mode};"\
 			"run cmdline_keys;"\
 			"\0"\
-		"switch_bootmode="\
-			"get_rebootmode;"\
-			"if test ${reboot_mode} = factory_reset; then "\
-					"setenv reboot_mode_android ""normal"";"\
-					"run recovery_from_flash;"\
-			"else if test ${reboot_mode} = update; then "\
-					"setenv reboot_mode_android ""normal"";"\
-					"run update;"\
-			"else if test ${reboot_mode} = quiescent; then "\
-					"setenv reboot_mode_android ""quiescent"";"\
-					"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-			"else if test ${reboot_mode} = recovery_quiescent; then "\
-					"setenv reboot_mode_android ""quiescent"";"\
-					"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-					"run recovery_from_flash;"\
-			"else if test ${reboot_mode} = cold_boot; then "\
-					"setenv reboot_mode_android ""normal"";"\
-			"else if test ${reboot_mode} = fastboot; then "\
-				"setenv reboot_mode_android ""normal"";"\
-				"fastboot;"\
-		    "fi;fi;fi;fi;fi;fi;"\
-			"\0" \
 		"storeboot="\
-			"echo storeboot::: reboot_mode: ${reboot_mode};"\
+            "kbi resetflag 0;"\
 			"boot_cooling;"\
-			"echo load mmc::: ;"\
-			"echo ext4load mmc:::: "\
-			"ext4load mmc 1:6 1080000 Image;ext4load mmc 1:6 10000000 initrd;ext4load mmc 1:6 20000000 dtb.img;booti 1080000 10000000 20000000;"\
+            "cfgload;" \
+            "if load mmc 0:1 1020000 s905_autoscript || load mmc 1:1 1020000 s905_autoscript || load mmc 1:5 1020000 /boot/s905_autoscript; then autoscr 1020000; fi;"\
+            "ext4load mmc 1:5 1080000 zImage;ext4load mmc 1:5 10000000 uInitrd;ext4load mmc 1:5 20000000 dtb.img;booti 1080000 10000000 20000000;"\
 			"for p in 1 2 3 4 5 6 7 8 9 A B C D E F 10 11 12 13 14 15 16 17 18; do if fatload mmc 1:${p} ${loadaddr} aml_autoscript; then autoscr ${loadaddr}; fi; done;"\
 			"run update;"\
 			"\0"\
@@ -270,6 +260,7 @@
 			"fi; \0" \
 		 "update="\
 			/*first usb burning, second sdc_burn, third ext-sd autoscr/recovery, last udisk autoscr/recovery*/\
+            "kbi lcd_reset; "\
 			"run usb_burning; "\
 			"run sdc_burning; "\
 			"if mmcinfo; then "\
@@ -306,7 +297,7 @@
 			"fi;"\
 			"\0"\
 		"load_bmp_logo="\
-			"if load mmc 1:6 ${loadaddr} /usr/share/amlbian/logo/logo.bmp; then "\
+			"if load mmc 1:6 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
 				"bmp display ${loadaddr};"\
 				"bmp scale;"\
 			"fi;"\
@@ -336,51 +327,50 @@
 				"dovi set;dovi pkg;vpp hdrpkt;"\
 			"fi;fi;"\
 			"\0"\
+        "wol_init="\
+            "kbi init;"\
+            "kbi powerstate;"\
+            "kbi trigger wol r;"\
+            "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
+            "if test ${power_state} = 1; then "\
+                "kbi poweroff;"\
+            "else "\
+                "kbi wolreset;"\
+            "fi;"\
+            "\0"\
 		"port_mode_change="\
-			"echo port_mode_change::::"\
 			"fdt addr ${dtb_mem_addr}; "\
-			"fdt set /usb3phy@ffe09080 status okay;"\
-			"fdt set /pcieA@fc000000 status disable;"\
-			"echo port_mode_change::::"\
-			"\0"\
-		"cmdline_keys="\
-			"if keyman init 0x1234; then "\
-				"if keyman read usid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
-					"setenv serial ${usid};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.serialno=w400${cpu_id};"\
-					"setenv serial w400${cpu_id};"\
-				"fi;"\
-				"if keyman read mac ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} mac=${mac} androidboot.mac=${mac};"\
-				"fi;"\
-				"if keyman read deviceid ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
-				"fi;"\
-				"if keyman read oemkey ${loadaddr} str; then "\
-					"setenv bootargs ${bootargs} androidboot.oem.key1=${oemkey};"\
-				"else "\
-					"setenv bootargs ${bootargs} androidboot.oem.key1=ATV00104319;"\
-				"fi;"\
-			"fi;"\
-		"factory_provision init;"\
-			"\0"\
-		"bcb_cmd="\
-			"get_avb_mode;"\
-			"get_valid_slot;"\
-			"echo bcb_cmd::: active_slot: ${active_slot};"\
+            "kbi portmode r;"\
+            "if test ${port_mode} = 0; then "\
+                "fdt set /usb3phy@ffe09080 status okay;"\
+                "fdt set /pcieA@fc000000 status disable;"\
+            "else "\
+                "fdt set /usb3phy@ffe09080 status disable;"\
+                "fdt set /pcieA@fc000000 status okay;"\
+            "fi;"\
+            "\0"\
+        "cmdline_keys="\
+            "if keyman init 0x1234; then "\
+                "if keyman read usid ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+                    "setenv serial ${usid};"\
+                "else "\
+                    "setenv bootargs ${bootargs} androidboot.serialno=1234567890;"\
+                    "setenv serial 1234567890;"\
+                "fi;"\
+                "kbi ethmac;"\
+                "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
+                "if keyman read deviceid ${loadaddr} str; then "\
+                    "setenv bootargs ${bootargs} androidboot.deviceid=${deviceid};"\
+                "fi;"\
+            "fi;"\
 			"\0"\
 		"upgrade_key="\
-			"if gpio input GPIOAO_3; then "\
-			"echo detect upgrade key;"\
-			"if test ${boot_flag} = 0; then "\
-				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot;"\
-			"else if test ${boot_flag} = 1; then "\
-				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
-			"else "\
-				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
-			"fi;fi;"\
+            "if gpio input GPIOAO_7; then "\
+                "echo detect upgrade key;"\
+                "gpio set GPIOAO_4;"\
+                "run fan_stop;"\
+                "run update;"\
 			"fi;"\
 			"\0"\
 		"irremote_update="\
@@ -392,6 +382,20 @@
 					"run update;\n" \
 				"fi;fi;" \
 			"fi;\0" \
+        "updateu="\
+            "if tftp 1080000 u-boot.bin; then "\
+                "mmc dev 1;"\
+                "store rom_write 1080000 0 ${filesize}; " \
+            "fi;"\
+            "\0" \
+        "vim3_check="\
+            "kbi hwver; "\
+            "echo Hardware version: ${hwver};" \
+            "setenv bootargs ${bootargs} hwver=${hwver};"\
+            "\0"\
+        "fan_stop=" \
+            "i2c mw 0x18 0x88 0" \
+            "\0"\
 		BOOTENV\
 		"pxe_boot=dhcp; pxe get && pxe boot\0"\
 		"bootcmd_storeboot=run storeboot\0"\
@@ -402,8 +406,11 @@
 			"run init_display;"\
 			"run storeargs;"\
 			"run upgrade_key;"\
-			"bcb uboot-command;"\
-			"run switch_bootmode;"
+			"run vim3_check;" \
+			"run wol_init;"\
+			"run port_mode_change;"\
+			"forceupdate;" \
+			"run fan_stop;"
 
 /*
  * logo image path: device/amlogic/$(proj_name)/logo_img_files/
@@ -510,7 +517,6 @@
 #define CONFIG_BL2_COPY_NUM			   4
 #endif /* CONFIG_DISCRETE_BOOTLOADER */
 
-#define CONFIG_CMD_NAND 1
 #define CONFIG_MTD_DEVICE y
 /* mtd parts of ourown.*/
 #define CONFIG_AML_MTDPART	1
@@ -518,11 +524,8 @@
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE
-#define CONFIG_CMD_NAND_TORTURE 1
 #define CONFIG_CMD_MTDPARTS   1
 #define CONFIG_MTD_PARTITIONS 1
-#define CONFIG_SYS_MAX_NAND_DEVICE  2
-#define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 /* endof CONFIG_AML_MTD */
 #define CONFIG_AML_SD_EMMC 1
@@ -539,7 +542,6 @@
 
 /* meson SPI */
 #define CONFIG_AML_SPIFC
-#define CONFIG_AML_SPICC
 #if defined CONFIG_AML_SPIFC || defined CONFIG_AML_SPICC
 	#define CONFIG_OF_SPI
 	#define CONFIG_DM_SPI
@@ -563,19 +565,14 @@
 	#define CONFIG_SPI_M95XXX
 	#define CONFIG_SPI_FLASH_ESMT
 	/* SPI nand flash support */
-	//#define CONFIG_SPI_NAND
 	#define CONFIG_BL2_SIZE (64 * 1024)
 #endif
 
 #if defined CONFIG_AML_MTD || defined CONFIG_SPI_NAND
-	#define CONFIG_CMD_NAND 1
 	#define CONFIG_MTD_DEVICE y
 	#define CONFIG_RBTREE
-	#define CONFIG_CMD_NAND_TORTURE 1
 	#define CONFIG_CMD_MTDPARTS   1
 	#define CONFIG_MTD_PARTITIONS 1
-	#define CONFIG_SYS_MAX_NAND_DEVICE  2
-	#define CONFIG_SYS_NAND_BASE_LIST   {0}
 #endif
 
 /* vpu */
@@ -662,19 +659,19 @@
 	#define CONFIG_CMD_PING 1
 	#define CONFIG_CMD_DHCP 1
 	#define CONFIG_CMD_RARP 1
-	#define CONFIG_HOSTNAME		arm_gxbb
+	#define CONFIG_HOSTNAME        KVIM3
 //	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
-	#define CONFIG_ETHADDR		 (00 : 15 : 18 : 01 : 81 : 31)   /* Ethernet address */
-	#define CONFIG_IPADDR		  (10.18.9.97)		  /* Our ip address */
-	#define CONFIG_GATEWAYIP	   (10.18.9.1)		   /* Our getway ip address */
-	#define CONFIG_SERVERIP		(10.18.9.113)		 /* Tftp server ip address */
-	#define CONFIG_NETMASK		 (255.255.255.0)
+	#define CONFIG_ETHADDR		 00 : 15 : 18 : 01 : 81 : 31   /* Ethernet address */
+	#define CONFIG_IPADDR		  192.168.31.200		  /* Our ip address */
+	#define CONFIG_GATEWAYIP	   192.168.31.1		   /* Our getway ip address */
+	#define CONFIG_SERVERIP		192.168.31.230		 /* Tftp server ip address */
+	#define CONFIG_NETMASK		 255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 
 /* other devices */
 /* I2C DM driver*/
-#define CONFIG_DM_I2C
-#define CONFIG_DM_I2C_GPIO		1
+//#define CONFIG_DM_I2C
+//#define CONFIG_DM_I2C_GPIO		1
 #if defined(CONFIG_DM_I2C)
 #define CONFIG_SYS_I2C_MESON		1
 #else
@@ -742,9 +739,6 @@
 #define CONFIG_SYS_MEM_TOP_HIDE 0x08000000 //hide 128MB for kernel reserve
 #define CONFIG_CMD_LOADB	1
 
-#define CONFIG_MULTI_DTB	1
-
-#define CONFIG_CMD_CHIPID 1
 
 /* debug mode defines */
 //#define CONFIG_DEBUG_MODE		   1
@@ -799,8 +793,8 @@
 
 /* Choose One of Ethernet Type */
 #undef CONFIG_ETHERNET_NONE
-#define ETHERNET_INTERNAL_PHY
-#undef ETHERNET_EXTERNAL_PHY
+#define ETHERNET_EXTERNAL_PHY
+#undef  ETHERNET_INTERNAL_PHY
 
 #define CONFIG_HIGH_TEMP_COOL 90
 #define CONFIG_AML_KASLR_SEED

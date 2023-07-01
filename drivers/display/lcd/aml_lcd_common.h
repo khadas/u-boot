@@ -131,6 +131,9 @@ int aml_lcd_vbyone_lock(void);
 extern void aml_lcd_debug_probe(struct aml_lcd_drv_s *lcd_drv);
 int aml_lcd_prbs_test(unsigned int s, unsigned int mode_flag);
 
+extern int aml_lcd_expander_gpio_name_map_num(const char *name);
+extern int aml_lcd_expander_gpio_set(int gpio, int value);
+
 /* lcd driver */
 extern int get_lcd_tv_config(char *dt_addr, int load_id);
 extern int get_lcd_tablet_config(char *dt_addr, int load_id);

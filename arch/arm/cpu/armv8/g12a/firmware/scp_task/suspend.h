@@ -25,6 +25,7 @@ typedef unsigned int uint32_t;
 #define ETH_PMT_WAKEUP      10
 #define CECB_WAKEUP		11
 #define ETH_PHY_GPIO    12
+#define WOL_WAKEUP      13
 /* wake up source*/
 #define UDEFINED_WAKEUP_SRC	(1<<0)
 #define CHARGING_WAKEUP_SRC (1<<1)
@@ -40,6 +41,7 @@ typedef unsigned int uint32_t;
 #define ETH_PHY_GPIO_SRC   (1<<12)
 
 struct pwr_op {
+	void (*power_off_at_mcu)(unsigned int);
 	void (*power_off_at_24M)(unsigned int);
 	void (*power_on_at_24M)(unsigned int);
 	void (*shut_down)(void);
