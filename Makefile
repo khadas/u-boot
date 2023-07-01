@@ -246,13 +246,6 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
-ifdef CONFIG_AML_UASAN
-#use gcc version above 9.0 to support asan-instrument-allocas option
-CROSS_COMPILE ?=/opt/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
-else
-CROSS_COMPILE ?= /opt/gcc-linaro-7.3.1-2018.05-i686_aarch64-elf/bin/aarch64-elf-
-endif
-CROSS_COMPILE_T32 ?= /opt/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-
 export CROSS_COMPILE
 export CROSS_COMPILE_T32
 
