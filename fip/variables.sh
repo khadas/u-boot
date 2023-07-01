@@ -32,7 +32,7 @@ declare DEFCFG_FOLDER="board/amlogic/defconfigs"
 declare DEFCFG_FOLDER3="configs/amlogic"
 
 # for make clean
-declare BL33_PATH1="bl33/v2015"
+declare BL33_PATH1="."
 declare BL33_PATH2="bl33/v2019"
 declare BL33_PATH3="bl33/v2023"
 

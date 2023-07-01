@@ -97,7 +97,7 @@ function init_variable_late() {
 				echo "$LINE" >> "${CONFIG_FILE_TMP}"
 			fi
 		done < ${CONFIG_FILE}
-		source "${CONFIG_FILE_TMP}" &> /dev/null
+		source "${CONFIG_FILE_TMP}" &> /dev/null || true
 		rm ${CONFIG_FILE_TMP}
 	fi
 	if [ "y" == "${CONFIG_SUPPORT_CUSTOMER_BOARD}" ]; then
@@ -133,8 +133,7 @@ function build_blx_src() {
 		# some soc use v1.3
 		# some soc use v2.7
 		local version
-		check_bl31_ver $soc
-		version=$?
+		version=`check_bl31_ver $soc`
 		#echo "switch_bl31 version=${version}"
 
 		if [ ${version} == 2 ]; then

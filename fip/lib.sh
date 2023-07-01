@@ -171,6 +171,7 @@ function get_versions() {
 }
 
 function git_operate() {
+	return 0
 	# $1: path, $2: other parameters
 	GIT_OPERATE_INFO=`git --git-dir $1/.git --work-tree=$1 ${@:2}`
 	dbg "${GIT_OPERATE_INFO}"
@@ -227,14 +228,14 @@ function get_blx_bin() {
 				dbg "blxbin:${DATA[0]} blxsrc-s:${DATA[2]:0:7}"
 				# reset to history version
 				#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
-				git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
+				#git_operate2 ${BLX_BIN_FOLDER[index]} reset ${DATA[0]} --hard
 				# copy binary file
 				if [ "bl32" == "${BLX_NAME[$index]}" ]; then
 					# bl32 is optional
 					if [ "y" == "${CONFIG_NEED_BL32}" ]; then
-						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
+						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f || true
 						if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
-							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null
+							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null || true
 						fi
 					fi
 				else
@@ -266,7 +267,7 @@ function get_blx_bin() {
 					else
 						cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_BIN_SUB_FOLDER}/${BLX_BIN_NAME[index]} ${FIP_BUILD_FOLDER} -f
 						if [ "y" == "${CONFIG_FIP_IMG_SUPPORT}" ]; then
-							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null
+							cp ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/${BLX_IMG_NAME[index]} ${FIP_BUILD_FOLDER} 2>/dev/null || true
 						fi
 					fi
 					if [ -e ${BLX_BIN_FOLDER[index]}/${CUR_SOC}/bl2.v3.bin ]; then
@@ -277,7 +278,8 @@ function get_blx_bin() {
 				if [ 0 -ne ${line_num} ]; then
 					# this is not latest version, can do reset. latest version doesn't have 'git reflog'
 					#git --git-dir ${BLX_BIN_FOLDER[index]}/.git --work-tree=${BLX_BIN_FOLDER[index]} reset 'HEAD@{1}' --hard
-					git_operate2 ${BLX_BIN_FOLDER[index]} reset 'HEAD@{1}' --hard
+					#git_operate2 ${BLX_BIN_FOLDER[index]} reset 'HEAD@{1}' --hard
+					:
 				fi
 				break
 			fi

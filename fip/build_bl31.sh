@@ -114,9 +114,7 @@ function check_bl31_ver() {
 		ver=2
 	fi
 	done
-	echo "check_bl31_ver soc=$1"
-	echo "check_bl31_ver ver=$ver"
-	return ${ver}
+	echo ${ver}
 }
 
 # some soc need use bl31_v1.3
@@ -129,8 +127,7 @@ function switch_bl31() {
 		fi
 	done
 	local version
-	check_bl31_ver $1
-	version=$?
+	version=`check_bl31_ver $1`
 
 	if [ ${version} == 2 ]; then
 		echo "check bl31 ver: use v2.7"
