@@ -151,7 +151,7 @@
 	"kernel_comp_size=0x2000000\0"\
 	"pxeuuid=00000000-0000-0000-0000-000000000000\0"\
 	"bootfile=\0"\
-	"fdtfile=sm1_s905d3_ac200_debian.dtb\0"\
+	"fdtfile=amlogic/kvim3l.dtb\0"\
 	"silent=1\0"\
 	"lcd_ctrl=0x00000000\0"\
 	"outputmode=1080p60hz\0"\
