@@ -5,3 +5,11 @@ config KHADAS_VIM3
 if KHADAS_VIM3
 source "board/khadas/kvim3/Kconfig"
 endif
+
+config KHADAS_VIM3L
+	bool "Support Khadas VIM3L board"
+	default n
+
+if KHADAS_VIM3L
+source "board/khadas/kvim3l/Kconfig"
+endif
