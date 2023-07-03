@@ -533,6 +533,13 @@ exit:
 	return ret;
 }
 
+static void update_after_failed_rollback(void)
+{
+	run_command("run init_display; run storeargs; run update;", 0);
+}
+
+void rollback_failure_handler(void) __attribute__((weak, alias("update_after_failed_rollback")));
+
 static int do_GetValidSlot(
 	cmd_tbl_t *cmdtp,
 	int flag,
@@ -650,10 +657,10 @@ static int do_GetValidSlot(
 				run_command("reset", 0);
 			} else {
 				printf("rollback failed\n");
-				run_command("run init_display; run storeargs; run update;", 0);
+				rollback_failure_handler();
 			}
 		} else {
-			run_command("run init_display; run storeargs; run update;", 0);
+			rollback_failure_handler();
 		}
 	}
 
@@ -687,10 +694,10 @@ static int do_GetValidSlot(
 				run_command("reset", 0);
 			} else {
 				printf("rollback failed\n");
-				run_command("run init_display; run storeargs; run update;", 0);
+				rollback_failure_handler();
 			}
 		} else {
-			run_command("run init_display; run storeargs; run update;", 0);
+			rollback_failure_handler();
 		}
 	}
 
@@ -713,7 +720,7 @@ static int do_GetValidSlot(
 				run_command("reset", 0);
 			} else {
 				printf("rollback failed\n");
-				run_command("run init_display; run storeargs; run update;", 0);
+				rollback_failure_handler();
 			}
 		} else if (slot == 1) {
 			boot_ctrl.roll_flag = 1;
@@ -726,7 +733,7 @@ static int do_GetValidSlot(
 				run_command("reset", 0);
 			} else {
 				printf("rollback failed\n");
-				run_command("run init_display; run storeargs; run update;", 0);
+				rollback_failure_handler();
 			}
 		}
 	}
