@@ -289,17 +289,14 @@
 		"if test ${reboot_mode} = quiescent; then "\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else "\
-			"run storeargs;"\
 			"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
 		"fi;fi;"\
 		"\0"\

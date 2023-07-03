@@ -267,19 +267,16 @@
 			"setenv reboot_mode_android ""quiescent"";"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process; \
 				osd open;osd clear;run load_bmp_logo;bmp scale; \
 				vout output ${outputmode}; \
