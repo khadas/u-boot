@@ -112,8 +112,8 @@
 		"display_color_fg=0xffff\0" \
 		"display_color_bg=0\0" \
 		"dtb_mem_addr=0x01000000\0" \
-		"fb_width=1920\0" \
-		"fb_height=1080\0" \
+		"fb_width=1280\0" \
+		"fb_height=720\0" \
 		"frac_rate_policy=1\0" \
 		"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
 		"fdt_high=0x20000000\0"\
@@ -157,6 +157,7 @@
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} powermode=${powermode} kvm-arm.mode=none init_on_alloc=0 "\
 		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+		"fb_width=${fb_width} fb_height=${fb_height} "\
 		"outputmode=${outputmode} gamma=${gamma} vout_projector_mux=${vout_projector_mux};"\
 		"run check_connector_type; " \
 		"run cmdline_keys;"\
