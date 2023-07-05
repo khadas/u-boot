@@ -13,6 +13,7 @@
 
 bool check_antirollback(uint32_t kernel_version);
 
+bool is_avb_arb_available(void);
 bool set_avb_antirollback(uint32_t index, uint32_t version);
 bool get_avb_antirollback(uint32_t index, uint32_t* version);
 bool get_avb_lock_state(uint32_t* lock_state);

@@ -8,10 +8,80 @@
 #include <tee/optee_ta_avb.h>
 #include <avb_verify.h>
 #include <amlogic/anti-rollback.h>
+#include <amlogic/storage.h>
+#include <amlogic/aml_efuse.h>
+#include <mmc.h>
 
 static struct AvbOps *g_avb_ops;
 static struct udevice *g_dev;
 static struct tee_open_session_arg g_open_arg;
+
+#define TA_RPMB_UUID { 0x0ab5a718, 0xee63, 0x4115, \
+	{ 0xa0, 0xad, 0xef, 0x6e, 0xe9, 0x8f, 0xcb, 0xc7 } }
+
+#define CMD_RPMB_AUTH_KEY_INIT      0
+#define CMD_RPMB_AUTH_KEY_STATE     1
+
+static bool is_rpmb_available(void)
+{
+	int ret = 0;
+	struct udevice *dev = NULL;
+	struct tee_open_session_arg open_arg = { 0 };
+	struct tee_invoke_arg invoke_arg = { 0 };
+	const struct tee_optee_ta_uuid uuid = TA_RPMB_UUID;
+	struct tee_param param = { .attr = TEE_PARAM_ATTR_TYPE_VALUE_OUTPUT };
+	struct mmc *mmc = NULL;
+
+	if (store_get_type() != BOOT_EMMC) {
+		printf("Storage Medium isn't EMMC\n");
+		return false;
+	}
+
+	mmc = find_mmc_device(1);
+	if (!mmc) {
+		printf("Not find EMMC\n");
+		return false;
+	}
+
+	dev = tee_find_device(NULL, NULL, NULL, NULL);
+	if (!dev) {
+		printf("tee_find_device() failed\n");
+		return false;
+	}
+
+	memset(&open_arg, 0, sizeof(open_arg));
+	tee_optee_ta_uuid_to_octets(open_arg.uuid, &uuid);
+	ret = tee_open_session(dev, &open_arg, 0, NULL);
+	if (ret) {
+		printf("tee_open_session() failed, return 0x%x\n", ret);
+		return false;
+	}
+
+	if (open_arg.ret) {
+		printf("tee_open_session() failed, return 0x%x, origin 0x%x\n",
+				open_arg.ret, open_arg.ret_origin);
+		return false;
+	}
+
+	memset(&invoke_arg, 0, sizeof(invoke_arg));
+	invoke_arg.session = open_arg.session;
+	invoke_arg.func = CMD_RPMB_AUTH_KEY_STATE;
+
+	ret = tee_invoke_func(dev, &invoke_arg, 1, &param);
+	tee_close_session(dev, open_arg.session);
+
+	if (ret) {
+		printf("tee_invoke_func() failed, return 0x%x\n", ret);
+		return false;
+	}
+	if (invoke_arg.ret) {
+		printf("tee_invoke_func() failed, return 0x%x, origin 0x%x\n",
+				invoke_arg.ret, invoke_arg.ret_origin);
+		return false;
+	}
+
+	return param.u.value.a ? true : false;
+}
 
 static bool avb2_init(void)
 {
@@ -95,8 +165,17 @@ static bool write_lock_state(int lock_state)
 	return ret;
 }
 
+bool is_avb_arb_available(void)
+{
+	// secureboot + rpmb
+	return (IS_FEAT_BOOT_VERIFY() == 1) && is_rpmb_available();
+}
+
 bool set_avb_antirollback(uint32_t index, uint32_t version)
 {
+	if (!is_avb_arb_available())
+		return false;
+
 	if (avb2_init()) {
 		if (g_avb_ops->write_rollback_index(g_avb_ops, index, version)
 				== AVB_IO_RESULT_OK) {
@@ -113,6 +192,9 @@ bool set_avb_antirollback(uint32_t index, uint32_t version)
 
 bool get_avb_antirollback(uint32_t index, uint32_t *version)
 {
+	if (!is_avb_arb_available())
+		return false;
+
 	if (avb2_init()) {
 		uint64_t tmp_version = 0;
 
@@ -132,6 +214,9 @@ bool get_avb_antirollback(uint32_t index, uint32_t *version)
 
 bool get_avb_lock_state(uint32_t *lock_state)
 {
+	if (!is_avb_arb_available())
+		return false;
+
 	if (avb2_init()) {
 		bool unlock = false;
 
@@ -152,6 +237,9 @@ bool get_avb_lock_state(uint32_t *lock_state)
 
 bool avb_lock(void)
 {
+	if (!is_avb_arb_available())
+		return false;
+
 	bool ret = write_lock_state(AVB_LOCK_STATE);
 
 	if (ret)
@@ -164,6 +252,9 @@ bool avb_lock(void)
 
 bool avb_unlock(void)
 {
+	if (!is_avb_arb_available())
+		return false;
+
 	bool ret = write_lock_state(AVB_UNLOCK_STATE);
 
 	if (ret)

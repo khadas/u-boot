@@ -26,6 +26,12 @@
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
 
+/* AVB */
+#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+#define CONFIG_AVB_VERIFY 1
+#define CONFIG_SUPPORT_EMMC_RPMB 1
+#define CONFIG_AML_DEV_ID 1
+
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
 

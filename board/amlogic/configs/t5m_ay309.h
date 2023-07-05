@@ -32,6 +32,12 @@
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
 
+/* AVB */
+#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+#define CONFIG_AVB_VERIFY 1
+#define CONFIG_SUPPORT_EMMC_RPMB 1
+#define CONFIG_AML_DEV_ID 1
+
 /* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
 

@@ -25,6 +25,12 @@
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
 
+/* AVB */
+#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+#define CONFIG_AVB_VERIFY 1
+#define CONFIG_SUPPORT_EMMC_RPMB 1
+#define CONFIG_AML_DEV_ID 1
+
 /*if disable uboot console, enable it*/
 //#define CONFIG_SILENT_CONSOLE
 #ifdef CONFIG_SILENT_CONSOLE

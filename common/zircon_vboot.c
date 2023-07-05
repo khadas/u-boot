@@ -371,76 +371,74 @@ static AvbIOResult avb_atx_validate_vbmeta_public_key(AvbOps *ops, const uint8_t
 static AvbIOResult avb_read_rollback_index(AvbOps *ops, size_t rollback_index_location,
 		uint64_t *out_rollback_index)
 {
+	AvbIOResult result = AVB_IO_RESULT_OK;
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
-	uint32_t version;
-
-	if (get_avb_antirollback(rollback_index_location, &version)) {
-		*out_rollback_index = version;
-	} else {
-		printf("failed to read rollback index: %zd\n", rollback_index_location);
-		return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
-	}
-#else
-	*out_rollback_index = 0;
+	uint32_t version = 0;
 #endif
-	return AVB_IO_RESULT_OK;
+
+	*out_rollback_index = 0;
+
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
+	if (is_avb_arb_available()) {
+		if (get_avb_antirollback(rollback_index_location, &version)) {
+			*out_rollback_index = version;
+		} else {
+			printf("failed to read rollback index: %zd\n", rollback_index_location);
+			result = AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+		}
+	}
+#endif
+
+	return result;
 }
 
 static AvbIOResult avb_write_rollback_index(AvbOps *ops, size_t rollback_index_location,
 		uint64_t rollback_index)
 {
 	AvbIOResult result = AVB_IO_RESULT_OK;
+
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 	uint32_t version = rollback_index;
 
-	if (set_avb_antirollback(rollback_index_location, version)) {
-		result = AVB_IO_RESULT_OK;
-		goto out;
-	} else {
-		printf("failed to set rollback index: %zd, version: %u\n",
-			rollback_index_location, version);
-		result = AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
-		goto out;
+	if (is_avb_arb_available()) {
+		if (!set_avb_antirollback(rollback_index_location, version)) {
+			printf("failed to set rollback index: %zd, version: %u\n",
+				rollback_index_location, version);
+			result =  AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+		}
 	}
-out:
 #endif
+
 	return result;
 }
 
 static AvbIOResult read_is_device_unlocked(AvbOps *ops, bool *out_is_unlocked)
 {
 	AvbIOResult result = AVB_IO_RESULT_OK;
+	LockData_t info = { 0 };
+	char *lock_s = env_get("lock");
+
+	if (!lock_s)
+		return AVB_IO_RESULT_ERROR_IO;
+
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
-	uint32_t lock_state;
-	char *lock_s;
+	uint32_t lock_state = 0;
 
-	if (get_avb_lock_state(&lock_state)) {
-		*out_is_unlocked = !lock_state;
-		lock_s = env_get("lock");
-		if (*out_is_unlocked)
-			lock_s[4] = '0';
-		else
-			lock_s[4] = '1';
-		lock_s = env_get("lock");
-		result = AVB_IO_RESULT_OK;
-		goto out;
-	} else {
-		printf("failed to read device lock status from rpmb\n");
-		result = AVB_IO_RESULT_ERROR_IO;
-		goto out;
+	if (is_avb_arb_available()) {
+		if (get_avb_lock_state(&lock_state)) {
+			*out_is_unlocked = !lock_state;
+			if (*out_is_unlocked)
+				lock_s[4] = '0';
+			else
+				lock_s[4] = '1';
+		} else {
+			printf("failed to read device lock status from rpmb\n");
+			result = AVB_IO_RESULT_ERROR_IO;
+		}
+		return result;
 	}
-#else
-	char *lock_s;
-	LockData_t info;
-
-	lock_s = env_get("lock");
-	if (!lock_s) {
-		result = AVB_IO_RESULT_ERROR_IO;
-		goto out;
-	}
-
+#endif
 	memset(&info, 0, sizeof(struct LockData));
-
 	info.version_major = (int)(lock_s[0] - '0');
 	info.version_minor = (int)(lock_s[1] - '0');
 	info.lock_state = (int)(lock_s[4] - '0');
@@ -451,9 +449,7 @@ static AvbIOResult read_is_device_unlocked(AvbOps *ops, bool *out_is_unlocked)
 		*out_is_unlocked = false;
 	else
 		*out_is_unlocked = true;
-	result = AVB_IO_RESULT_OK;
-#endif
-out:
+
 	return result;
 }
 #endif
