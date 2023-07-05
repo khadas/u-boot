@@ -669,6 +669,7 @@ int checkhw(char * name)
 	char loc_name[64] = {0};
 	unsigned long ddr_size = 0;
 	int i;
+	cpu_id_t cpu_id = get_cpu_id();
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		ddr_size += gd->bd->bi_dram[i].size;
@@ -678,10 +679,16 @@ int checkhw(char * name)
 	printf("ddr_size is %lx\n", ddr_size);
 	switch (ddr_size) {
 	case 0x20000000:
-		strcpy(loc_name, "txhd2_t950s_be319-512m\0");
+		if (cpu_id.chip_rev == 0xA)
+			strcpy(loc_name, "txhd2-reva_t950s_be319-512m\0");
+		else
+			strcpy(loc_name, "txhd2_t950s_be319-512m\0");
 		break;
 	case 0x40000000:
-		strcpy(loc_name, "txhd2_t950s_be319\0");
+		if (cpu_id.chip_rev == 0xA)
+			strcpy(loc_name, "txhd2-reva_t950s_be319\0");
+		else
+			strcpy(loc_name, "txhd2_t950s_be319\0");
 		break;
 	default:
 		strcpy(loc_name, "txhd2_t950s_unsupport");
