@@ -34,7 +34,8 @@
 #endif
 struct dw_eth_dev *priv_tool = NULL;
 struct phy_device *p_phydev = NULL;
-struct aml_phy_dev *p_aml_phy_dev;
+struct aml_phy_dev aml_phy_dev;
+struct aml_phy_dev *p_aml_phy_dev = &aml_phy_dev;
 #ifndef ANACTRL_PLL_GATE_DIS
 #define ANACTRL_PLL_GATE_DIS 0xffffffff
 #endif
