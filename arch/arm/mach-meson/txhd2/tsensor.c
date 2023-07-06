@@ -45,10 +45,10 @@ int temp_read_entry(void)
 		printf("tsensor no trimmed, ver:0x%x\n", ver);
 		return -1;
 	}
-	ts_b = 3159;
-	ts_a = 9411;
-	ts_m = 424;
-	ts_n = 324;
+	ts_b = 2610;
+	ts_a = 7243;
+	ts_m = 461;
+	ts_n = 361;
 	/*enable thermal1*/
 	regdata = 0x62b;/*enable control*/
 	writel(regdata, TS_PLL_CFG_REG1);
