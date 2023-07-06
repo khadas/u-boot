@@ -20,7 +20,7 @@
 	#define SARADC_REG11_VREF_SEL			BIT(0)
 	#define SARADC_REG11_EOC			BIT(1)
 	#define SARADC_REG11_VREF_EN			BIT(5)
-	#define SARADC_REG11_CMV_SEL			BIT(6)
+	#define SARADC_REG11_VCM_SEL			BIT(6)
 	#define SARADC_REG11_TEMP_SEL			BIT(21)
 
 #define SARADC_REG13					0x34
@@ -28,12 +28,12 @@
 static void meson_g12a_extra_init(struct meson_saradc *priv)
 {
 	clrsetbits_le32(priv->base + SARADC_REG11,
-			SARADC_REG11_CMV_SEL |
+			SARADC_REG11_VCM_SEL |
 			SARADC_REG11_VREF_EN |
 			SARADC_REG11_EOC |
 			priv->data->reg11_bandgap_en_mask,
-			(priv->data->reg11_cmv_sel ?
-				SARADC_REG11_CMV_SEL : 0) |
+			(priv->data->reg11_vcm_sel ?
+				SARADC_REG11_VCM_SEL : 0) |
 			(priv->data->reg11_vref_en ?
 				SARADC_REG11_VREF_EN : 0) |
 			(priv->data->reg11_eoc ?
@@ -110,7 +110,7 @@ struct meson_saradc_data meson_saradc_g12a_data = {
 	.reg3_ring_counter_disable = BIT_HIGH,
 	.reg11_bandgap_en_mask	   = BIT(13),
 	.reg11_vref_en		   = BIT_LOW,
-	.reg11_cmv_sel		   = BIT_LOW,
+	.reg11_vcm_sel		   = BIT_LOW,
 	.reg11_eoc		   = BIT_HIGH,
 	.reg13_calib_factor_mask   = GENMASK(13, 8),
 	.has_bl30_integration	   = true,
@@ -127,7 +127,7 @@ struct meson_saradc_data meson_saradc_txhd2_data = {
 	.reg3_ring_counter_disable = BIT_HIGH,
 	.reg11_bandgap_en_mask	   = BIT(12),
 	.reg11_vref_en		   = BIT_HIGH,
-	.reg11_cmv_sel		   = BIT_HIGH,
+	.reg11_vcm_sel		   = BIT_HIGH,
 	.reg11_eoc		   = BIT_HIGH,
 	.reg13_calib_factor_mask   = GENMASK(15, 8),
 	.has_bl30_integration	   = true,
