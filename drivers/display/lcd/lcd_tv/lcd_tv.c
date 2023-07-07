@@ -258,6 +258,8 @@ static void lcd_list_support_mode(void)
 
 static void lcd_config_load_print(struct lcd_config_s *pconf)
 {
+	unsigned int count;
+
 	if (lcd_debug_print_flag == 0)
 		return;
 
@@ -266,6 +268,15 @@ static void lcd_config_load_print(struct lcd_config_s *pconf)
 		lcd_type_type_to_str(pconf->lcd_basic.lcd_type),
 		pconf->lcd_basic.lcd_bits,
 		pconf->lcd_basic.h_active, pconf->lcd_basic.v_active);
+
+	count = pconf->lcd_basic.h_active + pconf->lcd_timing.hsync_width
+		+ pconf->lcd_timing.hsync_bp;
+	if (count > pconf->lcd_basic.h_period)
+		LCDERR("h_timing is invalid(%d)\n", pconf->lcd_basic.h_period);
+	count = pconf->lcd_basic.v_active + pconf->lcd_timing.vsync_width
+		+ pconf->lcd_timing.vsync_bp;
+	if (count > pconf->lcd_basic.v_period)
+		LCDERR("v_timing is invalid(%d)\n", pconf->lcd_basic.v_period);
 
 	LCDPR("h_period = %d\n", pconf->lcd_basic.h_period);
 	LCDPR("v_period = %d\n", pconf->lcd_basic.v_period);
