@@ -59,7 +59,12 @@ int rk_board_init(void)
 
 	run_command("gpio set 130", 0);//GPIO4_A2 vcc 5v
 
-	uclass_get_device_by_seq(UCLASS_I2C, TP_I2C_BUS_NUM, &bus);
+	ret = uclass_get_device_by_seq(UCLASS_I2C, TP_I2C_BUS_NUM, &bus);
+	if (ret) {
+		printf("%s: No bus %d\n", __func__, TP_I2C_BUS_NUM);
+		return 0;
+	}
+
 	ret = i2c_get_chip(bus, 0x38, 1, &dev);
 	if (!ret) {
 		res = dm_i2c_read(dev, 0xA8, linebuf, 1);
