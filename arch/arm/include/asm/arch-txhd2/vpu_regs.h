@@ -30,5 +30,8 @@
 #define TCON_INTR_MASKN                            0x2022
 #define TCON_INTR                                  0x2023 /* read only */
 
+#define MIPI_DSI_PHY_BASE                          0xff648000L /* read only */
+#define MIPI_DSI_BASE                              0xff64c000L /* read only */
+
 #endif
 

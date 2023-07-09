@@ -66,7 +66,8 @@ static void lcd_mipi_control_set(struct aml_lcd_drv_s *pdrv)
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
-	if (pdrv->data->chip_type == LCD_CHIP_T7) {
+	if (pdrv->data->chip_type == LCD_CHIP_T7 ||
+		pdrv->data->chip_type == LCD_CHIP_TXHD2) {
 		switch (pdrv->index) {
 		case 0:
 			bit_lane_sel = 0;

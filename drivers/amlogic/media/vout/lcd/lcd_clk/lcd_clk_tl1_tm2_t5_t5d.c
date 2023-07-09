@@ -313,6 +313,15 @@ static void lcd_set_tcon_clk_tl1(struct aml_lcd_drv_s *pdrv)
 	}
 }
 
+static void lcd_set_dsi_phy_clk(int index)
+{
+	if (lcd_debug_print_flag & LCD_DBG_PR_ADV2)
+		LCDPR("[%d]: %s\n", index, __func__);
+	lcd_clk_setb(HHI_MIPIDSI_PHY_CLK_CNTL, 0, 0, 7);
+	lcd_clk_setb(HHI_MIPIDSI_PHY_CLK_CNTL, 0, 12, 3);
+	lcd_clk_setb(HHI_MIPIDSI_PHY_CLK_CNTL, 1, 8, 1);
+}
+
 static void lcd_clk_set_tl1(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
@@ -405,6 +414,11 @@ static void lcd_clk_set_txhd2(struct aml_lcd_drv_s *pdrv)
 	lcd_set_pll_txhd2(pdrv);
 	lcd_set_tcon_clk_txhd2(pdrv);
 	lcd_set_vid_pll_div_txhd2(cconf);
+
+	if (pdrv->config.basic.lcd_type == LCD_MIPI) {
+		// lcd_set_dsi_meas_clk(pdrv->index);
+		lcd_set_dsi_phy_clk(pdrv->index);
+	}
 }
 
 static void lcd_prbs_set_pll_vx1(struct aml_lcd_drv_s *pdrv)
