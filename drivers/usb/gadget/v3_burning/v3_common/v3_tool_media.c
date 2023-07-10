@@ -231,9 +231,15 @@ static int _bl2x_mode_check_header(p_payload_info_t pInfo)
 	p_payload_info_hdr_v2 v2hdr    = (p_payload_info_hdr_v2)hdr;
 	uint8_t gensum[SHA256_SUM_LEN];
 	const int nItemNum = hdr->byItemNum;
+	char build_info[32];
 
+	memset(build_info, 0, ARRAY_SIZE(build_info));
+	if (hdr->byVersion == 1)
+		memcpy(build_info, hdr->szTimeStamp, sizeof(hdr->szTimeStamp));
+	else
+		memcpy(build_info, v2hdr->build_info, sizeof(v2hdr->build_info));
 	printf("\naml log : info parse...\n");
-	printf("\tsztimes : %s\n", (hdr->byVersion == 1) ? hdr->szTimeStamp : v2hdr->build_info);
+	printf("\tsztimes : %s\n", build_info);
 	printf("\tversion : %d\n",hdr->byVersion);
 	printf("\tItemNum : %d\n",nItemNum);
 	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);

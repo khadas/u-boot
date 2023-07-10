@@ -19,7 +19,8 @@
 			"echo enter update; setenv upgrade_key_flag 2; saveenv; run update;"\
 		"else "\
 			"echo enter fastboot; setenv upgrade_key_flag 0; saveenv; fastboot 0;"\
-		"fi;fi;"
+		"fi;fi;" \
+	"fi;"
 #else
 #define _AML_GPIO_UPGRADE_ "echo base env no upgrade key;"
 #endif //#ifdef CONFIG_ENABLE_AML_GPIO_UPGRADE
