@@ -761,6 +761,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 		pbuffpreload = malloc(preloadsz_r);
 
+		memset((void *)pbuffpreload, 0, preloadsz_r);
+
 		if (!pbuffpreload) {
 			printf("aml log : system error! Fail to allocate memory for %s!\n",
 				partname_r);
@@ -852,6 +854,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			if (nflashloadlen_r > vendorboot_part_sz) {
 				errorP("nflashloadlen_r 0x%x > vendorboot_part_sz 0x%llx\n",
 						nflashloadlen_r, vendorboot_part_sz);
+				free(pbuffpreload);
+				pbuffpreload = 0;
 				return __LINE__;
 			}
 
