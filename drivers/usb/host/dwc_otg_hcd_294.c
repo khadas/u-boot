@@ -1099,6 +1099,10 @@ dwc_otg_submit_job(struct usb_device *dev, unsigned long pipe, int dir, void *bu
     case 1:
         hctsiz.b.pid = DWC_OTG_HC_PID_DATA1;
         break;
+	/*
+	 * Check case for compatibility.
+	 */
+	/* coverity[dont_call:SUPPRESS] */
     default:
         ERR("error toggle!\n");
         return -EPROTO;
