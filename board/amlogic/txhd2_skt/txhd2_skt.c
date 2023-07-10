@@ -483,6 +483,10 @@ int board_init(void)
 	return 0;
 #endif
 	//keep usb tool at first place of board_init
+/*
+ * This code is used for usb burn-in
+ */
+/* coverity[dont_call] */
 #ifdef CONFIG_AML_V3_FACTORY_BURN
 	if ((0x1b8ec003 != readl(P_PREG_STICKY_REG2)) && (0x1b8ec004 != readl(P_PREG_STICKY_REG2)))
 	{ aml_v3_factory_usb_burning(0, gd->bd); }
