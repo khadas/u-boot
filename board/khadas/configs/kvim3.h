@@ -297,7 +297,7 @@
 			"fi;"\
 			"\0"\
 		"load_bmp_logo="\
-			"if load mmc 1:6 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
+			"if load mmc 1:5 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
 				"bmp display ${loadaddr};"\
 				"bmp scale;"\
 			"fi;"\
