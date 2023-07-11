@@ -30,6 +30,7 @@ obj-$(CONFIG_AML_HW_SHA2) += hard_sha2.o
 obj-$(CONFIG_AML_HW_AES) += hw_aes.o
 obj-$(CONFIG_ARMV8_CE_SHA1) += sha1_ce_glue.o sha1_ce_core.o
 obj-$(CONFIG_ARMV8_CE_SHA256) += sha256_ce_glue.o sha256_ce_core.o
+obj-$(CONFIG_ARMV8_CE_AES) += aes_ce_glue.o aes_ce_core.o
 ifndef CONFIG_AML_UASAN
 obj-y	+= memcpy.o memmove.o string.o memset.o memcmp.o strcmp.o strncmp.o strlen.o strnlen.o
 endif

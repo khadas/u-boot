@@ -106,5 +106,27 @@ void aes_cbc_encrypt_blocks(u32 key_size, u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
  */
 void aes_cbc_decrypt_blocks(u32 key_size, u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
 			    u32 num_aes_blocks);
+/**
+ * aes_ecb_encrypt_blocks() - Encrypt multiple blocks of data with AES ECB.
+ *
+ * @key_size		Size of the aes key (in bits)
+ * @key_exp		Expanded key to use
+ * @src			Source data to encrypt
+ * @dst			Destination buffer
+ * @num_aes_blocks	Number of AES blocks to encrypt
+ */
+void aes_ecb_encrypt_blocks(u32 key_size, u8 *key_exp, u8 *src, u8 *dst,
+			    u32 num_aes_blocks);
 
+/**
+ * Decrypt multiple blocks of data with AES ECB.
+ *
+ * @key_size		Size of the aes key (in bits)
+ * @key_exp		Expanded key to use
+ * @src			Source data to decrypt
+ * @dst			Destination buffer
+ * @num_aes_blocks	Number of AES blocks to decrypt
+ */
+void aes_ecb_decrypt_blocks(u32 key_size, u8 *key_exp, u8 *src, u8 *dst,
+			    u32 num_aes_blocks);
 #endif /* _AES_REF_H_ */
