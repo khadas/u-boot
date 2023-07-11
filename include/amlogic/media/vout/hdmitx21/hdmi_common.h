@@ -13,6 +13,20 @@
 	#define DDC_EDIDSEG_ADDR 0x30
 #define DDC_SCDC_ADDR 0xA8
 
+#define SCDC_UPDATE_0 0x10
+#define SCDC_CONFIG_1 0x31
+#define RSED_UPDATE             BIT(6)
+#define FLT_UPDATE              BIT(5)
+#define FRL_START               BIT(4)
+#define SOURCE_TEST_UPDATE      BIT(3)
+#define READ_REQUEST_TEST       BIT(2)
+#define CED_UPDATE              BIT(1)
+#define STATUS_UPDATE           BIT(0)
+#define HDMI21_UPDATE_FLAGS     \
+	(RSED_UPDATE | FLT_UPDATE | FRL_START | SOURCE_TEST_UPDATE)
+#define HDMI20_UPDATE_FLAGS     \
+	(SOURCE_TEST_UPDATE | READ_REQUEST_TEST | CED_UPDATE | STATUS_UPDATE)
+
 #define HDMI_PACKET_TYPE_GCP 0x3
 
 #define VESA_MAX_TIMING 64
@@ -480,7 +494,31 @@ struct rx_cap {
 	unsigned int dc_30bit_420:1;
 	unsigned int dc_36bit_420:1;
 	unsigned int dc_48bit_420:1;
+	/* for frl */
 	enum frl_rate_enum max_frl_rate;
+	/* for dsc */
+	u8 dsc_10bpc:1;
+	u8 dsc_12bpc:1;
+	u8 dsc_16bpc:1;
+	u8 dsc_all_bpp:1;
+	u8 dsc_native_420:1;
+	u8 dsc_1p2:1;
+	u8 dsc_max_slices:4;
+	u8 dsc_max_frl_rate:4;
+	u8 dsc_total_chunk_bytes:6;
+
+	u32 qms_tfr_max:1;
+	u32 qms:1;
+	u32 mdelta:1;
+	u32 qms_tfr_min:1;
+	u32 neg_mvrr:1;
+	u32 fva:1;
+	u32 allm:1;
+	u32 fapa_start_loc:1;
+	u32 fapa_end_extended:1;
+	u32 cinemavrr:1;
+	u32 vrr_max;
+	u32 vrr_min;
 	unsigned char edid_version;
 	unsigned char edid_revision;
 	unsigned int ColorDeepSupport;

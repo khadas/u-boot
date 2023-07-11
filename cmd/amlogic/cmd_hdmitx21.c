@@ -11,6 +11,7 @@
 #include <amlogic/clk_measure.h>
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include <amlogic/media/dv/dolby_vision.h>
+#include <amlogic/media/vout/dsc.h>
 
 static unsigned char edid_raw_buf[512] = {0};
 /* there may be outputmode/2/3 when in multi-display case,
@@ -296,6 +297,36 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 static int do_clkmsr(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
+		clk_msr(4);
+		clk_msr(8);
+		clk_msr(16);
+		clk_msr(27);
+		clk_msr(63);
+		clk_msr(64);
+		clk_msr(66);
+		clk_msr(68);
+		clk_msr(69);
+		clk_msr(70);
+		clk_msr(71);
+		clk_msr(72);
+		clk_msr(73);
+		clk_msr(74);
+		clk_msr(75);
+		clk_msr(76);
+		clk_msr(79);
+		clk_msr(82);
+		clk_msr(89);
+		clk_msr(90);
+		clk_msr(91);
+		clk_msr(92);
+		clk_msr(93);
+		clk_msr(94);
+		clk_msr(95);
+		return CMD_RET_SUCCESS;
+	}
 	clk_msr(51);
 	clk_msr(59);
 	clk_msr(61);
@@ -333,6 +364,8 @@ static int do_off(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	hdev->vic = HDMI_UNKNOWN;
+	if (hdev->chip_type == MESON_CPU_ID_S5)
+		hdmitx_module_disable();
 	hdev->hwop.turn_off();
 	printf("turn off hdmitx\n");
 	return 1;
@@ -674,6 +707,9 @@ static int do_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	dv_cap_show(hdev);
 	dc_cap_show(hdev);
 	edid_cap_show(hdev);
+	dsc_cap_show(&hdev->RXCap);
+	printf("dsc policy: %d, enable: %d\n", hdev->dsc_policy, hdev->dsc_en);
+	printf("frl_rate: %d\n", hdev->frl_rate);
 	return 1;
 }
 
@@ -856,10 +892,12 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	if (!no_manual_output) {
 		/* check current user selected mode + color support or not */
 		para = hdmitx21_get_fmtpara(hdmimode, colorattribute);
-		if (hdmitx_edid_check_valid_mode(hdev, para))
+		if (hdmitx_edid_check_valid_mode(hdev, para)) {
 			mode_support = true;
-		else
+		} else {
+			printf("saved output mode not supported!\n");
 			mode_support = false;
+		}
 	}
 	/* three cases need to decide output by uboot mode select policy:
 	 * 1.TV changed
@@ -943,6 +981,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	hdev->para = hdmitx21_get_fmtpara(sel_hdmimode, env_get("colorattribute"));
 	hdev->vic = hdev->para->timing.vic;
 	hdmitx_mask_rx_info(hdev);
+	hdmitx21_select_frl(hdev);
 	return 0;
 }
 
@@ -1008,6 +1047,73 @@ bypass_edid_read:
 	return 0;
 }
 
+static int do_dsc_policy(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (argc < 1)
+		return cmd_usage(cmdtp);
+
+	if (strcmp(argv[1], "0") == 0)
+		hdev->dsc_policy = 0;
+	else if (strcmp(argv[1], "1") == 0)
+		hdev->dsc_policy = 1;
+	else if (strcmp(argv[1], "2") == 0)
+		hdev->dsc_policy = 2;
+	else if (strcmp(argv[1], "3") == 0)
+		hdev->dsc_policy = 3;
+	else if (strcmp(argv[1], "4") == 0)
+		hdev->dsc_policy = 4;
+	else
+		printf("note: please set dsc policy as 0~4\n");
+	if (hdev->dsc_policy <= 4)
+		printf("use dsc policy: %d\n", hdev->dsc_policy);
+
+	return CMD_RET_SUCCESS;
+}
+
+static int do_manual_frl_rate(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	unsigned int temp = 0;
+	char *ptr;
+
+	/* if rx don't support FRL, return */
+	if (!hdev->RXCap.max_frl_rate) {
+		printf("rx not support FRL\n");
+		return 0;
+	}
+
+	temp = strtoul(argv[1], &ptr, 16);
+	/* forced FRL rate setting */
+	if (temp <= 6) {
+		hdev->manual_frl_rate = temp;
+		pr_info("force set frl_rate as %d\n", hdev->manual_frl_rate);
+	} else {
+		pr_info("error: should set frl_rate in 0 ~ 6\n");
+	}
+	if (hdev->manual_frl_rate > hdev->RXCap.max_frl_rate)
+		pr_info("warning: larger than rx max_frl_rate %d\n", hdev->RXCap.max_frl_rate);
+	return 0;
+}
+
+static int do_manual_dfm_type(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	unsigned int temp = 0;
+	char *ptr;
+
+	temp = strtoul(argv[1], &ptr, 10);
+	/* forced dfm_type setting */
+	if (temp <= 2) {
+		hdev->dfm_type = temp;
+		pr_info("force set dfm_type as %d\n", hdev->dfm_type);
+	} else {
+		pr_info("error: should set frl_rate in 0 ~ 2\n");
+	}
+	return 0;
+}
+
 static cmd_tbl_t cmd_hdmi_sub[] = {
 	U_BOOT_CMD_MKENT(hpd, 1, 1, do_hpd_detect, "", ""),
 	U_BOOT_CMD_MKENT(edid, 3, 1, do_edid, "", ""),
@@ -1021,6 +1127,9 @@ static cmd_tbl_t cmd_hdmi_sub[] = {
 	U_BOOT_CMD_MKENT(get_preferred_mode, 1, 1, do_get_preferred_mode, "", ""),
 	U_BOOT_CMD_MKENT(reg, 3, 1, do_reg, "", ""),
 	U_BOOT_CMD_MKENT(get_parse_edid, 1, 1, do_get_parse_edid, "", ""),
+	U_BOOT_CMD_MKENT(dsc_policy, 1, 1, do_dsc_policy, "", ""),
+	U_BOOT_CMD_MKENT(frl_rate, 1, 1, do_manual_frl_rate, "", ""),
+	U_BOOT_CMD_MKENT(dfm_type, 1, 1, do_manual_dfm_type, "", ""),
 };
 
 static int do_hdmitx(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -1072,3 +1181,56 @@ struct hdr_info *hdmitx_get_rx_hdr_info(void)
 
 	return &hdev->RXCap.hdr_info;
 }
+
+static int do_list_dsc_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	dsc_enc_cap_show();
+	return 0;
+}
+
+static int do_dsc_debug(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	dsc_debug(argc - 1, argv + 1);
+	return 0;
+}
+
+static cmd_tbl_t cmd_dsc_sub[] = {
+	U_BOOT_CMD_MKENT(list_mode, 1, 1, do_list_dsc_mode, "", ""),
+	U_BOOT_CMD_MKENT(dbg, 20, 1, do_dsc_debug, "", ""),
+};
+
+static int do_dsc_enc(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	cmd_tbl_t *c;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
+	argc--;
+	argv++;
+
+	c = find_cmd_tbl(argv[0], &cmd_dsc_sub[0], ARRAY_SIZE(cmd_dsc_sub));
+
+	if (c)
+		return  c->cmd(cmdtp, flag, argc, argv);
+	else
+		return cmd_usage(cmdtp);
+}
+
+U_BOOT_CMD(dsc, CONFIG_SYS_MAXARGS, 0, do_dsc_enc,
+	"dsc cmd",
+	"dsc help function\n"
+	"dsc dbg state\n"
+	"    dump dsc status\n"
+	"dsc dbg dump_reg\n"
+	"    dump dsc registers and venc registers\n"
+	"dsc dbg read addr\n"
+	"    read dsc asic register\n"
+	"dsc dbg write addr value\n"
+	"    write dsc asic register\n"
+	"dsc dbg rst_dsc\n"
+	"    reset dsc enc\n"
+	"dsc list_mode\n"
+	"    show supported dsc encode mode list\n"
+);
+

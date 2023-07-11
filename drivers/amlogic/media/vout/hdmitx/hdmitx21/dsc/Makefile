@@ -1,0 +1,1 @@
+obj-$(CONFIG_AML_DSC_ENC) += dsc_drv.o dsc_config.o dsc_hw.o
