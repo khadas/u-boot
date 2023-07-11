@@ -686,3 +686,41 @@ void aes_cbc_decrypt_blocks(u32 key_len, u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
 		dst += AES_BLOCK_LENGTH;
 	}
 }
+
+void aes_ecb_encrypt_blocks(u32 key_len, u8 *key_exp, u8 *src, u8 *dst,
+			    u32 num_aes_blocks)
+{
+	u32 i;
+
+	for (i = 0; i < num_aes_blocks; i++) {
+		debug("encrypt_object: block %d of %d\n", i, num_aes_blocks);
+		debug_print_vector("AES Src", AES_BLOCK_LENGTH, src);
+
+		/* Encrypt the AES block */
+		aes_encrypt(key_len, src, key_exp, dst);
+		debug_print_vector("AES Dst", AES_BLOCK_LENGTH, dst);
+
+		/* Update pointers for next loop. */
+		src += AES_BLOCK_LENGTH;
+		dst += AES_BLOCK_LENGTH;
+	}
+}
+
+void aes_ecb_decrypt_blocks(u32 key_len, u8 *key_exp, u8 *src, u8 *dst,
+			    u32 num_aes_blocks)
+{
+	u32 i;
+
+	for (i = 0; i < num_aes_blocks; i++) {
+		debug("encrypt_object: block %d of %d\n", i, num_aes_blocks);
+		debug_print_vector("AES Src", AES_BLOCK_LENGTH, src);
+
+		/* Decrypt the AES block */
+		aes_decrypt(key_len, src, key_exp, dst);
+		debug_print_vector("AES Dst", AES_BLOCK_LENGTH, dst);
+
+		/* Update pointers for next loop. */
+		src += AES_BLOCK_LENGTH;
+		dst += AES_BLOCK_LENGTH;
+	}
+}
