@@ -141,16 +141,10 @@ int set_dsp_clk(uint32_t id, uint32_t freq_sel)
 
 	writel(control, addr);
 
-	switch (id) {
-	case 0:
+	if (id == 0)
 		printf("CLKCTRL_DSPA_CLK_CTRL0 = %x\n", readl(addr));
-		break;
-	case 1:
+	else
 		printf("CLKCTRL_DSPB_CLK_CTRL0 = %x\n", readl(addr));
-		break;
-	default:
-		break;
-	}
 
 	return ret;
 }
