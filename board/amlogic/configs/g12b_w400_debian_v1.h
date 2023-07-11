@@ -123,7 +123,7 @@
 		"port_mode=0\0"\
 		"loadaddr=0x00020000\0"\
 		"dv_fw_addr=0xa00000\0"\
-		"panel_type=lcd_2\0" \
+		"panel_type=mipi_0\0" \
 		"fdt_addr_r=0x20000000\0"\
 		"fdtoverlay_addr_r=0x00a00000\0"\
 		"fdtaddr=0x020000000\0"\
@@ -140,6 +140,7 @@
 		"lcd_ctrl=0x00000000\0" \
 		"lcd_debug=0x00000000\0" \
 		"outputmode=panel\0" \
+		"outputmode2=1080p60hz\0" \
 		"vout_init=enable\0" \
 		"hdmimode=1080p60hz\0" \
 		"colorattribute=444,8bit\0"\
@@ -335,8 +336,10 @@
 			"else "\
 				"setenv reboot_mode_android ""normal"";"\
 				"run storeargs;"\
-				"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
-				"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+				"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
+				"dovi process;osd dual_logo"\
+				"osd open;osd clear;run load_bmp_logo;bmp scale;"\
+				"vout output ${outputmode};"\
 				"dovi set;dovi pkg;vpp hdrpkt;"\
 			"fi;fi;"\
 			"\0"\
@@ -412,6 +415,33 @@
 			"forceupdate;" \
 			"bcb uboot-command;"\
 			"run switch_bootmode;"
+
+/*
+ * logo image path: device/amlogic/$(proj_name)/logo_img_files/
+ *
+ * dual logo config macro
+ * logo1: bootup.bmp/bootup_rotate.bmp (or find env "board_defined_bootup" first in uboot)
+ * logo2: bootup_rotate_secondary.bmp (for portrait screen)
+ */
+#define CONFIG_DUAL_LOGO \
+	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
+	"setenv fb_height 1080; setenv fb_width 1920;"\
+	"vout output $outputmode;osd open;osd clear;run load_bmp_logo;"\
+	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
+	"vout2 prepare panel;osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;vout2 output ${outputmode2};"\
+	"\0"\
+
+/* for portrait panel, recovery always displays on panel */
+#define CONFIG_RECOVERY_DUAL_LOGO \
+	"setenv outputmode panel;setenv display_layer osd0;"\
+	"setenv fb_height 1920; setenv fb_width 1080;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;"\
+	"bmp display $bootup_rotate_offset;bmp scale;"\
+	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
+	"vout2 prepare $outputmode2;vout2 output $outputmode2;osd open;osd clear;"\
+	"imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"\0"\
 /* single logo */
 #define CONFIG_SINGLE_LOGO \
 	"setenv display_layer osd0;osd open;osd clear;"\

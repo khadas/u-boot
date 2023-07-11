@@ -103,7 +103,7 @@
         "jtag=disable\0"\
 	"loadaddr=2080000\0"\
         "dv_fw_addr=0xa00000\0"\
-        "panel_type=lcd_1\0" \
+	"panel_type=mipi_0\0" \
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
 	"outputmode=1080p60hz\0" \
@@ -167,8 +167,8 @@
 		"hdr_priority=${hdr_priority} otg_device=${otg_device} "\
 		"reboot_mode_android=${reboot_mode_android} "\
 		"logo=${display_layer},loaded,${fb_addr} "\
-		"fb_width=${fb_width} fb_height=${fb_height} "\
-		"display_bpp=${display_bpp} outputmode=${outputmode} "\
+		"fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} "\
+		"outputmode=${outputmode} vout2=${outputmode2},enable "\
 		"vout=${outputmode},${vout_init} "\
 		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 		"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
@@ -329,8 +329,8 @@
             "else "\
                 "setenv reboot_mode_android ""normal"";"\
                 "run storeargs;"\
-                "hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;osd open;osd clear;"\
-                "run display_bmp_logo;bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
+		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process;"\
+		"osd dual_logo;dovi set;dovi pkg;vpp hdrpkt;"\
             "fi;fi;"\
             "\0"\
         "cmdline_keys="\
@@ -400,6 +400,42 @@
             "run switch_bootmode;"
 
 #define CONFIG_BOOTCOMMAND "run storeboot"
+
+/*
+ * logo image path: device/amlogic/$(proj_name)/logo_img_files/
+ *
+ * dual logo config macro
+ * logo1: bootup.bmp/bootup_rotate.bmp (or find env "board_defined_bootup" first in uboot)
+ * logo2: bootup_rotate_secondary.bmp (for portrait screen)
+ */
+#define CONFIG_DUAL_LOGO \
+	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
+	"setenv fb_height 1080; setenv fb_width 1920;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"bmp display $bootup_offset;bmp scale;"\
+	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
+	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"bmp display $bootup_offset;bmp scale;vout2 output panel;"\
+	"\0"\
+
+/* for portrait panel, recovery always displays on panel */
+#define CONFIG_RECOVERY_DUAL_LOGO \
+	"setenv outputmode panel;setenv display_layer osd0;"\
+	"setenv fb_height 1920; setenv fb_width 1080;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;"\
+	"bmp display $bootup_rotate_offset;bmp scale;"\
+	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
+	"vout2 prepare $outputmode2;vout2 output $outputmode2;osd open;osd clear;"\
+	"imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"\0"\
+
+/* buffer rotate for portrait screen */
+#define CONFIG_SINGLE_LOGO \
+	"setenv outputmode panel;setenv display_layer osd0;"\
+	"setenv fb_height 1920; setenv fb_width 1080;"\
+	"vout output panel;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;"\
+	"bmp display $bootup_rotate_offset;bmp scale;"\
+	"\0"\
 
 //#define CONFIG_ENV_IS_NOWHERE  1
 #define CONFIG_ENV_SIZE   (64*1024)

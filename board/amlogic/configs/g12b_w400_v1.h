@@ -78,7 +78,7 @@
         "jtag=disable\0"\
         "loadaddr=1080000\0"\
         "dv_fw_addr=0xa00000\0"\
-        "panel_type=lcd_2\0" \
+	"panel_type=mipi_0\0" \
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
 	"outputmode=panel\0" \
@@ -369,9 +369,11 @@
 #define CONFIG_DUAL_LOGO \
 	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
 	"setenv fb_height 1080; setenv fb_width 1920;"\
-	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"bmp display $bootup_offset;bmp scale;"\
 	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
-	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout2 output panel;"\
+	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"bmp display $bootup_offset;bmp scale;vout2 output panel;"\
 	"\0"\
 
 /* for portrait panel, recovery always displays on panel */
