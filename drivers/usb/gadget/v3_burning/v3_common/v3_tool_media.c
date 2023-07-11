@@ -225,9 +225,9 @@ static p_payload_info_t _bl2x_mode_detect(u8* dataBuf)
 }
 
 #ifdef CONFIG_SHA256
-static int _bl2x_mode_check_header(p_payload_info_t pInfo)
+static int _bl2x_mode_check_header(void *pInfo)
 {
-	p_payload_info_hdr_t hdr    = &pInfo->hdr;
+	p_payload_info_hdr_t hdr    = &((p_payload_info_t)pInfo)->hdr;
 	p_payload_info_hdr_v2 v2hdr    = (p_payload_info_hdr_v2)hdr;
 	uint8_t gensum[SHA256_SUM_LEN];
 	const int nItemNum = hdr->byItemNum;
@@ -249,7 +249,7 @@ static int _bl2x_mode_check_header(p_payload_info_t pInfo)
 	FB_MSG("nsz 0x%x\n", nsz);
 	sha256_context ctx;
 	sha256_starts(&ctx);
-	sha256_update(&ctx, (u8*)&(hdr->nMagicL), nsz);
+	sha256_update(&ctx, pInfo + 32/*(u8*)&(hdr->nMagicL)*/, nsz);
 	sha256_finish(&ctx, gensum);
 	int ret = memcmp(gensum, hdr->szSHA2, SHA256_SUM_LEN);
 	if (ret) { FBS_EXIT(_ACK, "hdr info sha256sum not matched\n"); }
