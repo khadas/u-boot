@@ -1102,7 +1102,7 @@ dwc_otg_submit_job(struct usb_device *dev, unsigned long pipe, int dir, void *bu
 	/*
 	 * Check case for compatibility.
 	 */
-	/* coverity[dont_call:SUPPRESS] */
+	/* coverity[dead_error_begin:SUPPRESS] */
     default:
         ERR("error toggle!\n");
         return -EPROTO;
