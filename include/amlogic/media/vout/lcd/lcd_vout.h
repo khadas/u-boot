@@ -606,6 +606,7 @@ struct aml_lcd_drv_s {
 	unsigned int (*tcon_table_read)(unsigned int addr);
 	unsigned int (*tcon_table_write)(unsigned int addr, unsigned int val);
 	int (*tcon_mem_tee_protect)(int mem_flag, int protect_en);
+	int (*tcon_forbidden_check)(void);
 #endif
 	void *debug_info_reg;
 	void *debug_info_if;
@@ -637,7 +638,8 @@ void aml_lcd_driver_debug_print(int index, unsigned int val);
 void aml_lcd_driver_info(int index);
 void aml_lcd_driver_reg_info(int index);
 void aml_lcd_vbyone_rst(int index);
-void aml_lcd_vbyone_cdr(int index);
+int aml_lcd_vbyone_cdr(int index);
+int aml_lcd_vbyone_lock(int index);
 void aml_lcd_edp_edid(int index);
 void aml_lcd_driver_test(int index, int num);
 int aml_lcd_driver_prbs(int index, unsigned int s, unsigned int mode_flag);

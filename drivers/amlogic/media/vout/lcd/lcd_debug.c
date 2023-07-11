@@ -1219,34 +1219,6 @@ lcd_reg_print_next:
 		info_if->reg_dump_phy(pdrv);
 }
 
-void lcd_vbyone_rst(struct aml_lcd_drv_s *pdrv)
-{
-	unsigned int offset;
-
-	offset = pdrv->data->offset_venc_if[pdrv->index];
-
-	/* realease PHY */
-	if (lcd_vcbus_read(VBO_INSGN_CTRL + offset) & 0x1) {
-		LCDPR("[%d]: clr force lockn input\n", pdrv->index);
-		lcd_vcbus_setb(VBO_INSGN_CTRL + offset, 0, 0, 1);
-	}
-	lcd_vbyone_sw_reset(pdrv);
-	LCDPR("[%d]: vbyone reset\n", pdrv->index);
-}
-
-void lcd_vbyone_cdr(struct aml_lcd_drv_s *pdrv)
-{
-	unsigned int offset;
-
-	offset = pdrv->data->offset_venc_if[pdrv->index];
-
-	/*[5:0]: vx1 fsm status*/
-	lcd_vcbus_setb(VBO_INSGN_CTRL + offset, 7, 0, 4);
-	mdelay(100);
-	LCDPR("[%d]: vbyone fsm status: 0x%08x\n",
-	      pdrv->index, lcd_vcbus_read(VBO_STATUS_L + offset));
-}
-
 /* **********************************
  * lcd debug match data
  * **********************************

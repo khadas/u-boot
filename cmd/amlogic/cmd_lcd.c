@@ -287,6 +287,11 @@ static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			pdrv->tcon_spi_print();
 		else
 			printf("no lcd tcon_spi_print\n");
+	} else if (strcmp(argv[1], "check") == 0) {
+		if (pdrv->tcon_forbidden_check)
+			pdrv->tcon_forbidden_check();
+		else
+			printf("no lcd tcon_forbidden_check\n");
 	} else {
 		ret = -1;
 	}
@@ -302,14 +307,25 @@ static int do_lcd_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc == 1)
 		return -1;
 
-	if (strcmp(argv[1], "rst") == 0)
+	if (strcmp(argv[1], "rst") == 0) {
 		aml_lcd_vbyone_rst(0);
-	else if (strcmp(argv[1], "cdr") == 0)
-		aml_lcd_vbyone_cdr(0);
-	else
-		ret = -1;
+	} else if (strcmp(argv[1], "cdr") == 0) {
+		ret = aml_lcd_vbyone_cdr(0);
+		if (ret)
+			printf("[0]: vbyone force cdr fail!\n");
+		else
+			printf("[0]: vbyone force cdr ok.\n");
+	} else if (strcmp(argv[1], "lock") == 0) {
+		ret = aml_lcd_vbyone_lock(0);
+		if (ret)
+			printf("[0]: vbyone force lock fail!\n");
+		else
+			printf("[0]: vbyone force lock ok.\n");
+	} else {
+		return 0;
+	}
 
-	return ret;
+	return 0;
 }
 
 static int do_lcd_edp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -571,12 +587,23 @@ static int do_lcd1_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc == 1)
 		return -1;
 
-	if (strcmp(argv[1], "rst") == 0)
+	if (strcmp(argv[1], "rst") == 0) {
 		aml_lcd_vbyone_rst(1);
-	else if (strcmp(argv[1], "cdr") == 0)
-		aml_lcd_vbyone_cdr(1);
-	else
-		ret = -1;
+	} else if (strcmp(argv[1], "cdr") == 0) {
+		ret = aml_lcd_vbyone_cdr(1);
+		if (ret)
+			printf("[1]: vbyone force cdr fail!\n");
+		else
+			printf("[1]: vbyone force cdr ok.\n");
+	} else if (strcmp(argv[1], "lock") == 0) {
+		ret = aml_lcd_vbyone_lock(1);
+		if (ret)
+			printf("[1]: vbyone force lock fail!\n");
+		else
+			printf("[1]: vbyone force lock ok.\n");
+	} else {
+		return 0;
+	}
 
 	return ret;
 }

@@ -138,7 +138,8 @@ unsigned int lcd_gpio_input_get(int gpio);
 void lcd_info_print(struct aml_lcd_drv_s *pdrv);
 void lcd_reg_print(struct aml_lcd_drv_s *pdrv);
 void lcd_vbyone_rst(struct aml_lcd_drv_s *pdrv);
-void lcd_vbyone_cdr(struct aml_lcd_drv_s *pdrv);
+int lcd_vbyone_cdr(struct aml_lcd_drv_s *pdrv);
+int lcd_vbyone_lock(struct aml_lcd_drv_s *pdrv);
 void lcd_debug_probe(struct aml_lcd_drv_s *pdrv);
 // int lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int s, unsigned int mode_flag);
 

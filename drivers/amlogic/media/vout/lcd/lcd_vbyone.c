@@ -476,3 +476,54 @@ void lcd_vbyone_hw_filter(struct aml_lcd_drv_s *pdrv, int flag)
 		}
 	}
 }
+
+void lcd_vbyone_rst(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int offset;
+
+	offset = pdrv->data->offset_venc_if[pdrv->index];
+
+	/* realease PHY */
+	if (lcd_vcbus_read(VBO_INSGN_CTRL + offset) & 0x1) {
+		LCDPR("[%d]: clr force lockn input\n", pdrv->index);
+		lcd_vcbus_setb(VBO_INSGN_CTRL + offset, 0, 0, 1);
+	}
+	lcd_vbyone_sw_reset(pdrv);
+	LCDPR("[%d]: vbyone reset\n", pdrv->index);
+}
+
+int lcd_vbyone_cdr(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int offset, val;
+
+	offset = pdrv->data->offset_venc_if[pdrv->index];
+
+	/*[5:0]: vx1 fsm status*/
+	lcd_vcbus_setb(VBO_INSGN_CTRL + offset, 7, 0, 4);
+	mdelay(100);
+	val = lcd_vcbus_read(VBO_STATUS_L + offset);
+	LCDPR("[%d]: vbyone fsm status: 0x%08x\n", pdrv->index, val);
+
+	if ((val & 0x3f) == 0x08)
+		return 0;
+	return -1;
+}
+
+int lcd_vbyone_lock(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int offset, val;
+
+	offset = pdrv->data->offset_venc_if[pdrv->index];
+
+	/*[5:0]: vx1 fsm status*/
+	lcd_vcbus_setb(VBO_INSGN_CTRL + offset, 7, 0, 4);
+	mdelay(100);
+	lcd_vcbus_setb(VBO_INSGN_CTRL + offset, 5, 0, 4);
+	mdelay(100);
+	val = lcd_vcbus_read(VBO_STATUS_L + offset);
+	LCDPR("[%d]: vbyone fsm status: 0x%08x\n", pdrv->index, val);
+
+	if ((val & 0x3f) == 0x20)
+		return 0;
+	return -1;
+}

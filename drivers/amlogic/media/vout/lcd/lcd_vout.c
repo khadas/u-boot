@@ -1234,15 +1234,26 @@ void aml_lcd_vbyone_rst(int index)
 	lcd_vbyone_rst(pdrv);
 }
 
-void aml_lcd_vbyone_cdr(int index)
+int aml_lcd_vbyone_cdr(int index)
 {
 	struct aml_lcd_drv_s *pdrv;
 
 	pdrv = lcd_driver_check_valid(index);
 	if (!pdrv)
-		return;
+		return -1;
 
-	lcd_vbyone_cdr(pdrv);
+	return lcd_vbyone_cdr(pdrv);
+}
+
+int aml_lcd_vbyone_lock(int index)
+{
+	struct aml_lcd_drv_s *pdrv;
+
+	pdrv = lcd_driver_check_valid(index);
+	if (!pdrv)
+		return -1;
+
+	return lcd_vbyone_lock(pdrv);
 }
 
 void aml_lcd_edp_edid(int index)
