@@ -630,10 +630,16 @@ static void vout_vmode_init(void)
 	case VMODE_LCD:
 		venc_index = (vset->viu_mux >> 4) & 0xf;
 		pdrv = aml_lcd_get_driver(venc_index);
-		width = pdrv->config.basic.h_active;
-		height = pdrv->config.basic.v_active;
-		field_height = pdrv->config.basic.v_active;
-		vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
+		if (pdrv) {
+			width = pdrv->config.basic.h_active;
+			height = pdrv->config.basic.v_active;
+			field_height = pdrv->config.basic.v_active;
+			vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
+		} else {
+			width = vset->width;
+			height = vset->height;
+			field_height = vset->field_height;
+		}
 		break;
 #endif
 	default:
@@ -643,7 +649,8 @@ static void vout_vmode_init(void)
 #ifdef CONFIG_AML_LCD
 		venc_index = (vset->viu_mux >> 4) & 0xf;
 		pdrv = aml_lcd_get_driver(venc_index);
-		vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
+		if (pdrv)
+			vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
 		printf("%s cur_enc_ppc = %d\n", __func__, vout_info.cur_enc_ppc);
 #endif
 		break;
