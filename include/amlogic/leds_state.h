@@ -72,12 +72,10 @@ uint32_t meson_ledstate_set_brightness(uint32_t led_id, uint32_t brightness);
 uint32_t meson_ledstate_set_breath(uint32_t led_id, uint32_t breath_id);
 
 /*to do:Parameters five and six are reserved parameters*/
-uint32_t meson_ledstate_set_blink_times_on(uint32_t led_id, uint32_t
-		blink_times, uint32_t blink_high, uint32_t blink_low,
-		uint32_t brightness_high, uint32_t brightness_low);
-uint32_t meson_ledstate_set_blink_times_off(uint32_t led_id,
-		uint32_t blink_times,uint32_t blink_high,uint32_t blink_low,
-		uint32_t brightness_high, uint32_t brightness_low);
+uint32_t meson_ledstate_set_blink_times_on(u32 led_id,
+		u32 blink_times, u32 blink_high, u32 blink_low);
+uint32_t meson_ledstate_set_blink_times_off(u32 led_id,
+		u32 blink_times, u32 blink_high, u32 blink_low);
 
 #endif
 /*to do*/
