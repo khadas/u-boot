@@ -712,9 +712,11 @@ static struct spicc_descriptor *spicc_create_desc_table
 		blocks = xfer[i].len / spicc->bytes_per_word;
 		desc_num += DIV_ROUND_UP(blocks, SPICC_BLOCK_MAX);
 	}
+	if (!desc_num)
+		return NULL;
 
 	desc = kcalloc(desc_num, sizeof(*desc), GFP_KERNEL);
-	if (!desc_num || !desc)
+	if (!desc)
 		return NULL;
 	desc_bk = desc;
 
