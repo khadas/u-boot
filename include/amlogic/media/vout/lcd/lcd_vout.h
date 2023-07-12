@@ -590,6 +590,19 @@ struct aml_lcd_data_s {
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
 
+struct aml_lcd_cma_mem {
+	signed char exist;
+	signed char ready;
+	unsigned char *vbase;
+	phys_addr_t pbase;
+	phys_addr_t size;
+	phys_addr_t offset;
+	unsigned int page_size;
+	unsigned int page_num;
+	unsigned int page_pos;
+	unsigned char *bitmap;
+};
+
 struct aml_lcd_drv_s {
 	unsigned int index;
 	unsigned int status;
@@ -606,6 +619,7 @@ struct aml_lcd_drv_s {
 	struct lcd_boot_ctrl_s boot_ctrl;
 	struct lcd_duration_s *std_duration;
 	void *clk_conf;
+	struct aml_lcd_cma_mem cma_pool;
 
 	int  (*outputmode_check)(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int frac);
 	int  (*config_check)(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int frac);
@@ -643,6 +657,7 @@ extern void lcd_config_bsp_init(void);
 struct aml_lcd_data_s *aml_lcd_get_data(void);
 struct aml_lcd_drv_s *aml_lcd_get_driver(int index);
 
+char *lcd_get_dt_addr(void);
 int lcd_probe(void);
 
 /* global api for cmd */

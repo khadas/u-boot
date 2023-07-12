@@ -770,7 +770,7 @@ static int lcd_tcon_data_multi_match_policy_check(struct aml_lcd_drv_s *pdrv,
 
 	if (!ctrl_part)
 		return -1;
-	if (ctrl_part->ctrl_data_flag != LCD_TCON_DATA_CTRL_FLAG_MULTI)
+	if (!(ctrl_part->ctrl_data_flag & LCD_TCON_DATA_CTRL_FLAG_MULTI))
 		return -1;
 
 	data_byte = ctrl_part->data_byte_width;
@@ -907,7 +907,7 @@ int lcd_tcon_data_multi_match_find(struct aml_lcd_drv_s *pdrv, unsigned char *da
 			ctrl_part = (struct lcd_tcon_data_part_ctrl_s *)p;
 			size = offset + (ctrl_part->data_cnt *
 					 ctrl_part->data_byte_width);
-			if (ctrl_part->ctrl_data_flag != LCD_TCON_DATA_CTRL_FLAG_MULTI)
+			if (!(ctrl_part->ctrl_data_flag & LCD_TCON_DATA_CTRL_FLAG_MULTI))
 				break;
 			ret = lcd_tcon_data_multi_match_policy_check(pdrv,
 				ctrl_part, (p + offset));
@@ -1221,7 +1221,7 @@ static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv, unsigned char *data_bu
 		return -1;
 	}
 
-	if (block_header->block_type != LCD_TCON_DATA_BLOCK_TYPE_BASIC_INIT) {
+	if (!is_block_type_basic_init(block_header->block_type)) {
 		tcon_mm_table.valid_flag |= block_header->block_flag;
 		if (block_header->block_flag == LCD_TCON_DATA_VALID_DEMURA)
 			tcon_mm_table.demura_cnt++;
@@ -1275,11 +1275,41 @@ static int lcd_tcon_data_load(struct aml_lcd_drv_s *pdrv, unsigned char *data_bu
 	return 0;
 }
 
+static int is_bin_type_dma(unsigned char *data_buf)
+{
+	struct lcd_tcon_data_block_header_s *block_header;
+
+	if (!data_buf)
+		return 0;
+
+	block_header = (struct lcd_tcon_data_block_header_s *)data_buf;
+
+	if (!is_block_type_basic_init(block_header->block_type) &&
+		is_block_ctrl_dma(block_header->block_ctrl))
+		return 1;
+
+	return 0;
+}
+
+int get_lcd_tcon_data_size(unsigned char *data_buf)
+{
+	struct lcd_tcon_data_block_header_s *block_header;
+
+	block_header = (struct lcd_tcon_data_block_header_s *)data_buf;
+
+	if (block_header)
+		return block_header->block_size;
+	else
+		return 0;
+}
 static int lcd_tcon_bin_load(struct aml_lcd_drv_s *pdrv)
 {
 	unsigned char *table;
+
 #ifdef CONFIG_CMD_INI
-	int i;
+	unsigned char *vaddr;
+	unsigned int size = 0;
+	int i, data_relocate = 0;
 #endif
 	int ret;
 
@@ -1338,6 +1368,36 @@ static int lcd_tcon_bin_load(struct aml_lcd_drv_s *pdrv)
 
 			if (!tcon_mm_table.data_mem_vaddr[i])
 				continue;
+
+			if (is_bin_type_dma(tcon_mm_table.data_mem_vaddr[i])) {
+				size = get_lcd_tcon_data_size(tcon_mm_table.data_mem_vaddr[i]);
+				if (pdrv->cma_pool.exist) {
+					vaddr = (unsigned char *)lcd_alloc_dma_buffer(pdrv, size);
+					data_relocate = 1;
+					LCDPR("%s data relocate from cma\n", __func__);
+				} else if ((unsigned long)tcon_mm_table.data_mem_vaddr[i] & 0xf) {
+					vaddr = memalign(16, size);
+					data_relocate = 1;
+					LCDPR("%s data relocate from heap\n", __func__);
+				} else {
+					vaddr = NULL;
+					data_relocate = 0;
+					LCDPR("%s data no need relocate\n", __func__);
+				}
+
+				if (data_relocate == 1) {
+					if (vaddr) {
+						memcpy(vaddr,
+							tcon_mm_table.data_mem_vaddr[i], size);
+						free(tcon_mm_table.data_mem_vaddr[i]);
+						tcon_mm_table.data_mem_vaddr[i] = vaddr;
+					} else {
+						free(tcon_mm_table.data_mem_vaddr[i]);
+						tcon_mm_table.data_mem_vaddr[i] = NULL;
+						continue;
+					}
+				}
+			}
 			lcd_tcon_data_load(pdrv, tcon_mm_table.data_mem_vaddr[i], i);
 		}
 #endif

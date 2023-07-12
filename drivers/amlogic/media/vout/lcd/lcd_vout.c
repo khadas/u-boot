@@ -26,6 +26,7 @@ static unsigned int lcd_debug_test_flag;
 struct aml_lcd_data_s *lcd_data;
 static struct aml_lcd_drv_s *lcd_driver[LCD_MAX_DRV];
 static struct lcd_debug_ctrl_s debug_ctrl;
+static char *g_dt_addr;
 //static int lcd_poweron_suspend = 1;
 char *lcd_pm_name[LCD_MAX_DRV] = {"lcd_drv0_pm", "lcd_drv1_pm", "lcd_drv2_pm"};
 
@@ -793,6 +794,11 @@ static void lcd_update_debug_bootargs(void)
 	env_set("lcd_debug", ctrl_str);
 }
 
+char *lcd_get_dt_addr(void)
+{
+	return g_dt_addr;
+}
+
 static int lcd_config_probe(void)
 {
 	int load_id = 0, load_id_lcd, load_id_temp;
@@ -811,6 +817,7 @@ static int lcd_config_probe(void)
 	dt_addr = (char *)0x06000000;
 #endif
 
+	g_dt_addr = dt_addr;
 #ifdef CONFIG_OF_LIBFDT
 	if (fdt_check_header(dt_addr) < 0) {
 		LCDERR("check dts: %s, load default lcd parameters\n",

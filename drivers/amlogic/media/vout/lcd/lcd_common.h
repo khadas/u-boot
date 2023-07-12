@@ -47,7 +47,8 @@
 /* 20230815: add full-link-training and EDID-timing for eDP */
 /* 20230816: optimize clk accuracy*/
 /* 20230821: update lcd ss support*/
-#define LCD_DRV_VERSION    "20230821"
+/* 20230823: add dma driver for tcon lut*/
+#define LCD_DRV_VERSION    "20230823"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
@@ -65,7 +66,18 @@ static inline unsigned long long lcd_do_div(unsigned long long num, unsigned int
 void lcd_display_init_test(struct aml_lcd_drv_s *pdrv);
 void lcd_display_init_reg_dump(struct aml_lcd_drv_s *pdrv);
 
+#define LCD_CMA_PAGE_SIZE_1K (1 * 1024)
+#define LCD_CMA_PAGE_SIZE_2K (2 * 1024)
+#define LCD_CMA_PAGE_SIZE_4K (4 * 1024)
+#define LCD_CMA_PAGE_SIZE_8K (8 * 1024)
+
 /* lcd common */
+void lcd_cma_pool_init(struct aml_lcd_cma_mem *cma,
+		phys_addr_t pa, unsigned long size, unsigned int page_size);
+int lcd_cma_delect_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv);
+void *lcd_cma_pool_simple_alloc(struct aml_lcd_cma_mem *cma, unsigned long size);
+void *lcd_alloc_dma_buffer(struct aml_lcd_drv_s *pdrv, unsigned long size);
+
 int lcd_type_str_to_type(const char *str);
 char *lcd_type_type_to_str(int type);
 int lcd_mode_str_to_mode(const char *str);

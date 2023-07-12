@@ -26,6 +26,7 @@
 #define LCD_TCON_DATA_BLOCK_TYPE_VAC            0x11
 #define LCD_TCON_DATA_BLOCK_TYPE_EXT            0xe0 /* pmu */
 #define LCD_TCON_DATA_BLOCK_TYPE_MAX            0xff
+#define is_block_type_basic_init(type) ((type) == LCD_TCON_DATA_BLOCK_TYPE_BASIC_INIT)
 
 /* for tconless data block part type */
 #define LCD_TCON_DATA_PART_TYPE_WR_N            0xd0
@@ -34,6 +35,7 @@
 #define LCD_TCON_DATA_PART_TYPE_RD_MASK         0xab
 #define LCD_TCON_DATA_PART_TYPE_CHK_WR_MASK     0xcb
 #define LCD_TCON_DATA_PART_TYPE_CHK_EXIT        0xce
+#define LCD_TCON_DATA_PART_TYPE_DMA             0xc0
 #define LCD_TCON_DATA_PART_TYPE_PARAM           0xf0 /* only for tool */
 #define LCD_TCON_DATA_PART_TYPE_CONTROL         0xfc
 #define LCD_TCON_DATA_PART_TYPE_DELAY           0xfd
@@ -46,15 +48,23 @@
 #define LCD_TCON_DATA_PART_FLAG_FIXED_PARAM     0x1f
 
 #define LCD_TCON_DATA_BLOCK_HEADER_SIZE         64
+#define LCD_TCON_DATA_BLOCK_EXT_HEADER_SIZE_PRE 16
 #define LCD_TCON_DATA_BLOCK_NAME_SIZE           36
 #define LCD_TCON_DATA_PART_NAME_SIZE            48
 #define LCD_TCON_INIT_BIN_NAME_SIZE             28
 #define LCD_TCON_INIT_BIN_VERSION_SIZE          8
 
 /* tcon data control define */
-/* block_ctrl */
+/* block_ctrl for normal tcon data */
 #define LCD_TCON_DATA_CTRL_FLAG_MULTI           0x01
+#define LCD_TCON_DATA_CTRL_FLAG_DMA             0x02
+#define is_block_ctrl_multi(block_ctrl) ((block_ctrl) & LCD_TCON_DATA_CTRL_FLAG_MULTI)
+#define is_block_ctrl_dma(block_ctrl) ((block_ctrl) & LCD_TCON_DATA_CTRL_FLAG_DMA)
+
+/* block_ctrl for basic init data */
 #define LCD_TCON_DATA_CTRL_FLAG_DLG             0xd0
+#define is_block_ctrl_dlg(block_ctrl) ((block_ctrl) == LCD_TCON_DATA_CTRL_FLAG_DLG)
+
 /* ctrl_method */
 #define LCD_TCON_DATA_CTRL_DEFAULT              0x00
 #define LCD_TCON_DATA_CTRL_MULTI_VFREQ          0x01
@@ -194,6 +204,17 @@ struct lcd_tcon_data_part_param_s {
 	unsigned int param_size;
 };
 
+#define LCD_TCON_DATA_PART_DMA_SIZE_PRE    (LCD_TCON_DATA_PART_NAME_SIZE + 16)
+struct lcd_tcon_data_part_dma_s {
+	char name[LCD_TCON_DATA_PART_NAME_SIZE];
+	unsigned short part_id;
+	unsigned char tuning_flag;
+	unsigned char part_type;
+	unsigned int dma_data_size;
+	unsigned char data_byte;
+	unsigned char reserved[7];
+};
+
 union lcd_tcon_data_part_u {
 	struct lcd_tcon_data_part_ctrl_s *ctrl;
 	struct lcd_tcon_data_part_wr_n_s *wr_n;
@@ -204,6 +225,7 @@ union lcd_tcon_data_part_u {
 	struct lcd_tcon_data_part_chk_exit_s *chk_exit;
 	struct lcd_tcon_data_part_delay_s *delay;
 	struct lcd_tcon_data_part_param_s *param;
+	struct lcd_tcon_data_part_dma_s *dma;
 };
 
 #define LCD_UKEY_TCON_SPI_BLOCK_SIZE_PRE          20
