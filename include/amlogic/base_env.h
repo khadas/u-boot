@@ -31,6 +31,17 @@
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 
+#ifndef CONFIG_AML_PRODUCT_MODE
+#define _AML_RUN_UPDATE_ENV  \
+	/*first usb burning, second sdc_burn, third ext-sd autoscr/recovery*/\
+	/*last udisk autoscr/recovery*/\
+	"run usb_burning;"\
+	"run recovery_from_sdcard;"\
+	"run recovery_from_udisk;"
+#else
+#define _AML_RUN_UPDATE_ENV  "echo aml_update;"
+#endif// #ifndef CONFIG_AML_PRODUCT_MODE
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS_BASE \
@@ -120,14 +131,7 @@
 		"else echo wrong OS format ${os_type}; fi;fi;"\
 		"echo try upgrade as booting failure; run update;"\
 		"\0" \
-	"update_base="\
-		/*first usb burning, second sdc_burn, third ext-sd autoscr/recovery*/\
-		/*last udisk autoscr/recovery*/\
-		"run usb_burning; "\
-		"run recovery_from_sdcard;"\
-		"run recovery_from_udisk;"\
-		"run recovery_from_flash;"\
-		"\0"\
+	"update_base=" _AML_RUN_UPDATE_ENV "\0"\
 	"recovery_from_fat_dev_base="\
 		"setenv loadaddr ${loadaddr_kernel};"\
 		"if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then "\
