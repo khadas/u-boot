@@ -80,7 +80,11 @@ static struct free_node_t *get_free_node(struct mtd_info *mtd)
 			__func__, __LINE__, index);
 		return NULL;
 	}
-	test_and_set_bit(index, (void *)&aml_chip->freeNodeBitmask);
+
+	if (test_and_set_bit(index, (void *)&aml_chip->freeNodeBitmask)) {
+		pr_info("%s: duplicate setting\n", __func__);
+		return NULL;
+	}
 #ifdef CONFIG_DBG_BITMAP
 	printk("%s %d: bitmap=%llx\n", __func__, __LINE__,
 		aml_chip->freeNodeBitmask);
