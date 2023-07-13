@@ -68,7 +68,7 @@ static const struct reg_sequence t7_sys0_pll_init_regs[] = {
 	{ .reg = ANACTRL_SYS0PLL_CTRL2, .def = 0x00023041 },
 	{ .reg = ANACTRL_SYS0PLL_CTRL3, .def = 0x0, .delay_us = 50},
 	{ .reg = ANACTRL_SYS0PLL_CTRL0, .def = 0x10011086 },
-	{ .reg = ANACTRL_SYS0PLL_CTRL2, .def = 0x00023001i, .delay_us = 20 }
+	{ .reg = ANACTRL_SYS0PLL_CTRL2, .def = 0x00023001, .delay_us = 20 },
 };
 
 struct meson_clk_pll_data t7_sys0_pll = {
@@ -131,7 +131,7 @@ static const struct reg_sequence t7_sys1_pll_init_regs[] = {
 	{ .reg = ANACTRL_SYS1PLL_CTRL2, .def = 0x00023041 },
 	{ .reg = ANACTRL_SYS1PLL_CTRL3, .def = 0x0, .delay_us = 50},
 	{ .reg = ANACTRL_SYS1PLL_CTRL0, .def = 0x10011086 },
-	{ .reg = ANACTRL_SYS1PLL_CTRL2, .def = 0x00023001i, .delay_us = 20 }
+	{ .reg = ANACTRL_SYS1PLL_CTRL2, .def = 0x00023001, .delay_us = 20 },
 };
 
 struct meson_clk_pll_data t7_sys1_pll = {
