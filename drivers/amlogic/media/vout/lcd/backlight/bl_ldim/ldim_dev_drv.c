@@ -68,8 +68,7 @@ void ldim_set_duty_pwm(struct bl_pwm_config_s *bl_pwm)
 	if (bl_pwm->pwm_duty_max == 0)
 		return;
 
-	bl_pwm->pwm_level = (bl_pwm->pwm_cnt * bl_pwm->pwm_duty +
-		((bl_pwm->pwm_duty_max + 1) >> 1)) / bl_pwm->pwm_duty_max;
+	bl_pwm_duty_to_pwm_level(bl_pwm);
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_BL_NORMAL) {
 		LDIMPR("pwm_port 0x%x: duty=%d, duty_max=%d, duty_min=%d\n",

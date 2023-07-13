@@ -16,6 +16,8 @@ void bl_pwm_set_level(struct aml_bl_drv_s *bdrv,
 		     struct bl_pwm_config_s *bl_pwm, unsigned int level);
 void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag);
 void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm);
+void bl_pwm_duty_to_pwm_level(struct bl_pwm_config_s *bl_pwm);
+void bl_level_to_pwm_level(struct bl_pwm_config_s *bl_pwm);
 void bl_pwm_reg_print(struct bl_pwm_config_s *bl_pwm);
 
 #endif
