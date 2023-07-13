@@ -2,7 +2,7 @@
  * When changing CPU, DSU may need to be changed,
  * please confirm with dvfs owner.
  */
-#define CPU_CLK                                 1512
+#define CPU_CLK                                 2016 //1512
 #define DSU_CLK                                 1200
 
 /* ddr config support multiple configs for boards which use same bootloader:
