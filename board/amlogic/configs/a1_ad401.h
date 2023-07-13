@@ -54,7 +54,7 @@
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
-        "loadaddr_rtos=0x00001000\0"\
+        "loadaddr_rtos=0x00080000\0"\
         "loadaddr_kernel=0x00020000\0"\
         "loadaddrdspa_ddr=0x3400000\0"\
 	"loadaddrdspa_psram=0x3c0000\0"\

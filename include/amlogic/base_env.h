@@ -49,7 +49,7 @@
 	"upgrade_step=0\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
-	"loadaddr_rtos=0x00001000\0"\
+	"loadaddr_rtos=0x00080000\0"\
 	"loadaddr_kernel=0x03000000\0"\
 	"fb_addr=0x00300000\0" \
 	"dolby_status=0\0" \
