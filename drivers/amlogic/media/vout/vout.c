@@ -869,8 +869,9 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 	char *projector_mux = env_get("vout_projector_mux");
 	int vout_projector_mux = 0;
 
-	if (strncmp(projector_mux, "en", 2) == 0) {
-		vout_projector_mux = 1;
+	if (projector_mux) {
+		if (strncmp(projector_mux, "en", 2) == 0)
+			vout_projector_mux = 1;
 	}
 
 	switch (index) {
