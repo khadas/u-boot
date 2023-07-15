@@ -163,7 +163,7 @@ static int validate_gpt_entries(gpt_header *gpt_h, gpt_entry *gpt_e)
 	return 0;
 }
 
-static void prepare_backup_gpt_header(gpt_header *gpt_h)
+void prepare_backup_gpt_header(gpt_header *gpt_h)
 {
 	uint32_t calc_crc32;
 	uint64_t val;
@@ -172,8 +172,12 @@ static void prepare_backup_gpt_header(gpt_header *gpt_h)
 	val = le64_to_cpu(gpt_h->my_lba);
 	gpt_h->my_lba = gpt_h->alternate_lba;
 	gpt_h->alternate_lba = cpu_to_le64(val);
-	gpt_h->partition_entry_lba =
-			cpu_to_le64(le64_to_cpu(gpt_h->last_usable_lba) + 1);
+	if (val == 1)
+		gpt_h->partition_entry_lba =
+			cpu_to_le64(le64_to_cpu(gpt_h->my_lba) - 33);
+	else
+		gpt_h->partition_entry_lba =
+			cpu_to_le64(le64_to_cpu(gpt_h->my_lba) + 1);
 	gpt_h->header_crc32 = 0;
 
 	calc_crc32 = efi_crc32((const unsigned char *)gpt_h,
@@ -408,6 +412,8 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 	if (set_protective_mbr(dev_desc) < 0)
 		goto err;
 
+	gpt_h->partition_entry_array_crc32 = 0;
+	gpt_h->header_crc32 = 0;
 	/* Generate CRC for the Primary GPT Header */
 	calc_crc32 = efi_crc32((const unsigned char *)gpt_e,
 			      le32_to_cpu(gpt_h->num_partition_entries) *
@@ -429,8 +435,7 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 	prepare_backup_gpt_header(gpt_h);
 
 	if (dev_desc->block_write(dev_desc->dev,
-				  (lbaint_t)le64_to_cpu(gpt_h->last_usable_lba)
-				  + 1,
+				  (lbaint_t)le64_to_cpu(gpt_h->partition_entry_lba),
 				  pte_blk_cnt, gpt_e) != pte_blk_cnt)
 		goto err;
 
@@ -570,13 +575,19 @@ int gpt_fill_pte(block_dev_desc_t *dev_desc,
 int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
 		char *str_guid, int parts_count)
 {
+	printf("~~~~~~~~~~~%s, %d, 0x%llx\n", __func__, __LINE__, alter_gpt_lba);
 	gpt_h->signature = cpu_to_le64(GPT_HEADER_SIGNATURE);
 	gpt_h->revision = cpu_to_le32(GPT_HEADER_REVISION_V1);
 	gpt_h->header_size = cpu_to_le32(sizeof(gpt_header));
 	gpt_h->my_lba = cpu_to_le64(1);
-	gpt_h->alternate_lba = cpu_to_le64(dev_desc->lba - 1);
+	if (alter_gpt_lba == 0) {
+		gpt_h->alternate_lba = cpu_to_le64(dev_desc->lba - 1);
+		gpt_h->last_usable_lba = cpu_to_le64(dev_desc->lba - 34);
+	} else {
+		gpt_h->alternate_lba = cpu_to_le64(alter_gpt_lba);
+		gpt_h->last_usable_lba = cpu_to_le64(dev_desc->lba - 1);
+	}
 	gpt_h->first_usable_lba = cpu_to_le64(34);
-	gpt_h->last_usable_lba = cpu_to_le64(dev_desc->lba - 34);
 	gpt_h->partition_entry_lba = cpu_to_le64(2);
 	gpt_h->num_partition_entries = cpu_to_le32(parts_count);
 	gpt_h->sizeof_partition_entry = cpu_to_le32(sizeof(gpt_entry));

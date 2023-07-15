@@ -41,6 +41,7 @@
 #define     PARTITION_RESERVED              (8*SZ_1M)  // 8MB
 #define     PARTITION_MIN_RESERVED          SZ_1M  // 1MB
 #define     MMC_BOOT_PARTITION_RESERVED     (32*SZ_1M) // 32MB
+#define		RESERVED_GPT_OFFSET             (36 * SZ_1M) //36MB
 
 #define     MMC_PARTITION_PROTECT_MASK      0x10      //low 4bit is for nand
 
@@ -128,6 +129,10 @@
 #define MMC_DDR_PARAMETER_NAME	"ddr-parameter"
 #define DDR_PARAMETER_OFFSET	(SZ_1M * 8)
 #define DDR_PARAMETER_SIZE	(8 * 512)
+
+#define MMC_GPT_ALT_NAME    "gpt_alternate"
+#define MMC_GPT_ALT_OFFSET  (SZ_1M * 9)
+#define MMC_GPT_ALT_SIZE        (512)
 
 /*
  * 2 copies dtb were stored in dtb area.
@@ -279,6 +284,12 @@ typedef struct FastbootContext {
 	uint32_t crc32;
 } FastbootContext_t;
 
+struct gpt_alternate {
+	char magic[8];
+	u64 alternate_lba;
+	u64 checksum;
+};
+
 extern unsigned int emmc_cur_partition;
 extern bool is_partition_checked;
 extern struct partitions emmc_partition_table[];
@@ -292,6 +303,11 @@ extern int get_emmc_partition_arraysize(void);
  *	>= 0 means valid partition
  */
 extern int get_partition_num_by_name(char *name);
+
+lbaint_t get_gpt_alternate(struct mmc *mmc);
+int write_gpt_alternate(lbaint_t gpt_alternate);
+int mmc_storage_read(const char *part_name, loff_t off, size_t size, void *dest);
+int mmc_storage_write(const char *part_name, loff_t off, size_t size, void *source);
 
 struct partitions* find_mmc_partition_by_name (char *name);
 struct partitions *aml_get_partition_by_name(const char *name);
