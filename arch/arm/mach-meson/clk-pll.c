@@ -31,6 +31,7 @@
 #include <asm/arch/timer.h>
 
 #define PARENT_RATE 		24000000
+#define MESON_PLL_THRESHOLD_RATE	1500000000
 //#define MESON_PLL_DEBUG	/* pll debug macro */
 
 static int __pll_round_closest_mult(struct meson_clk_pll_data *pll)
@@ -47,11 +48,17 @@ static unsigned long __pll_params_to_rate(unsigned int m, unsigned int n,
 					  struct meson_clk_pll_data *pll,
 					  unsigned int od)
 {
-	u64 rate = (u64)PARENT_RATE * m;
-	u64 frac_rate;
+	u64 rate, parent_rate, frac_rate;
+
+	if (pll->parent_rate)
+		parent_rate = pll->parent_rate;
+	else
+		parent_rate = PARENT_RATE;
+
+	rate = parent_rate * m;
 
 	if (frac && MESON_PARM_APPLICABLE(&pll->frac)) {
-		frac_rate = (u64)PARENT_RATE * frac;
+		frac_rate = parent_rate * frac;
 		if ((pll->frac.width - 2) < 0)
 			return -EINVAL;
 		if (frac & (1 << (pll->frac.width - 1)))
@@ -62,6 +69,9 @@ static unsigned long __pll_params_to_rate(unsigned int m, unsigned int n,
 						 (1 << (pll->frac.width - 2)));
 	}
 
+	if (pll->flags & CLK_MESON_PLL_POWER_OF_TWO)
+		n = 1 << n;
+
 	if (n == 0)
 		return 0;
 
@@ -71,19 +81,31 @@ static unsigned long __pll_params_to_rate(unsigned int m, unsigned int n,
 static unsigned int __pll_params_with_frac(unsigned long rate,
 					   unsigned int m,
 					   unsigned int n,
+					   unsigned int od,
 					   struct meson_clk_pll_data *pll)
 {
 	unsigned int frac_max = (1 << pll->frac.width);
-	u64 val = (u64)rate * n;
+	u64 val, parent_rate;
 
-	/* Bail out if we are already over the requested rate */
-	if (rate < PARENT_RATE * m / n)
-		return 0;
+	if (pll->parent_rate)
+		parent_rate = pll->parent_rate;
+	else
+		parent_rate = PARENT_RATE;
+	if (pll->flags & CLK_MESON_PLL_POWER_OF_TWO) {
+		val = (u64)rate << n;
+		if (rate < ((parent_rate >> n) * m >> od))
+			return 0;
+	} else {
+		val = (u64)rate * n;
+		/* Bail out if we are already over the requested rate */
+		if (rate < (div_u64(parent_rate * m, n) >> od))
+			return 0;
+	}
 
 	if (pll->flags & CLK_MESON_PLL_ROUND_CLOSEST)
-		val = DIV_ROUND_CLOSEST_ULL(val * frac_max, PARENT_RATE);
+		val = DIV_ROUND_CLOSEST_ULL(val * frac_max, parent_rate);
 	else
-		val = div_u64(val * frac_max, PARENT_RATE);
+		val = div_u64(val * frac_max, parent_rate);
 
 	val -= (u64)m * frac_max;
 
@@ -114,7 +136,8 @@ static int meson_clk_get_pll_table_index(unsigned int index,
 					 struct meson_clk_pll_data *pll,
 					 unsigned int *od)
 {
-	if (!pll->table[index].n)
+	/* In some SoCs, n = 0, so check m here */
+	if (!pll->table[index].m)
 		return -EINVAL;
 
 	*m = pll->table[index].m;
@@ -422,6 +445,7 @@ int meson_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
 	struct parm *pn = &pll->n;
 	struct parm *pod = &pll->od;
 	struct parm *pfrac = &pll->frac;
+	struct parm *pth = &pll->th;
 	const struct reg_sequence *init_regs = pll->init_regs;
 
 	if (PARENT_RATE == 0 || rate == 0) {
@@ -434,7 +458,7 @@ int meson_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
 		return ret;
 
 	if (MESON_PARM_APPLICABLE(&pll->frac))
-		frac = __pll_params_with_frac(rate, m, n, pll);
+		frac = __pll_params_with_frac(rate, m, n, od, pll);
 
 #ifdef MESON_PLL_DEBUG
 	printf("pll set rate: %s trate = %lu, m = %d, n = %d, od = %d\n",
@@ -455,6 +479,12 @@ int meson_pll_set_rate(struct meson_clk_pll_data *pll, unsigned long rate)
 			val |= n << pn->shift;
 			val |= m << pm->shift;
 			val |= od << pod->shift;
+			if (MESON_PARM_APPLICABLE(&pll->th)) {
+				val &= CLRPMASK(pth->width, pth->shift);
+				if (__pll_params_to_rate(m, n, frac, pll, 0)
+					>= MESON_PLL_THRESHOLD_RATE)
+					val |= 1 << pth->shift;
+			}
 			writel(val, pn->reg);
 		} else if (pfrac->reg == init_regs[i].reg &&
 				(MESON_PARM_APPLICABLE(&pll->frac))) {
