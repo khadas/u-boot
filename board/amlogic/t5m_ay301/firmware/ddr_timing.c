@@ -93,7 +93,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
 		//log_level = 0xff,boot few log,can test ddr window and max frequency;
 		//log_level = 4,training log;
-		.cfg_board_common_setting.log_level = 4,
+		.cfg_board_common_setting.log_level = 0xff,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
 
@@ -799,7 +799,7 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_common_setting.Is2Ttiming = CONFIG_USE_DDR_2T_MODE,
 		//log_level = 0xff,boot few log,can test ddr window and max frequency;
 		//log_level = 4,training log;
-		.cfg_board_common_setting.log_level = 4,
+		.cfg_board_common_setting.log_level = 0xff,
 		//4,//LOG_LEVEL_BASIC,
 		.cfg_board_common_setting.dbi_enable = DDR_WRITE_READ_DBI_DISABLE,
 
