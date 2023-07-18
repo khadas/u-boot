@@ -10,8 +10,8 @@
 #include <linux/bitops.h>
 #include <common.h>
 #include <linux/arm-smccc.h>
-//#include <linux/delay.h>
 #include <asm/arch/timer.h>
+#include "amlogic/pll.h"
 
 #define PLL_ENABLE              BIT(28)
 #define PLL_RESET               BIT(29)

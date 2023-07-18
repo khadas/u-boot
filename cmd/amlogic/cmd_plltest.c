@@ -408,7 +408,7 @@ Part6: C1 usage
 
 #include <common.h>
 #include <command.h>
-#include <asm/arch/pll.h>
+#include "amlogic/pll.h"
 
 static int do_plltest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	if (argc < 2) {
