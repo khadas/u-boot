@@ -111,49 +111,45 @@ int ini_set_save_file_name(const char* filename, INI_HANDLER_DATA *pHandlerData)
 }
 
 void ini_free_mem(INI_HANDLER_DATA *pHandlerData) {
-    //ALOGD("%s, entering...\n", __FUNCTION__);
+	//ALOGD("%s, entering...\n", __FUNCTION__);
 
-    INI_SECTION* pNextSec = NULL;
-    INI_SECTION* pSec = NULL;
-    for (pSec = pHandlerData->mpFirstSection; pSec != NULL;) {
-        pNextSec = pSec->pNext;
+	if (!pHandlerData)
+		return;
 
-        INI_LINE* pNextLine = NULL;
-        INI_LINE* pLine = NULL;
-        for (pLine = pSec->pLine; pLine != NULL;) {
-            pNextLine = pLine->pNext;
+	INI_SECTION *pNextSec = NULL;
+	INI_SECTION *pSec = pHandlerData->mpFirstSection;
+	INI_LINE *pNextLine = NULL;
+	INI_LINE *pLine = NULL;
 
-            if (pLine != NULL) {
+	while (pSec) {
+		pNextSec = pSec->pNext;
+		pLine = pSec->pLine;
+
+		while (pLine) {
+			pNextLine = pLine->pNext;
 #if CC_MEMORY_ALLOC_FREE_TRACE == 1
-                free_mem(__FUNCTION__, "pLine", pLine);
+			free_mem(__func__, "pLine", pLine);
 #endif
 
-                free(pLine);
-                pLine = NULL;
-            }
+			free(pLine);
+			pLine = pNextLine;
+		}
 
-            pLine = pNextLine;
-        }
-
-        if (pSec != NULL) {
 #if CC_MEMORY_ALLOC_FREE_TRACE == 1
-            free_mem(__FUNCTION__, "pSec", pSec);
+		free_mem(__func__, "pSec", pSec);
 #endif
 
-            free(pSec);
-            pSec = NULL;
-        }
+		free(pSec);
+		pSec = pNextSec;
+	}
 
-        pSec = pNextSec;
-    }
-
-    pHandlerData->mpFirstSection = NULL;
-    pHandlerData->mpCurSection = NULL;
+	pHandlerData->mpFirstSection = NULL;
+	pHandlerData->mpCurSection = NULL;
 
 #if CC_MEMORY_ALLOC_FREE_TRACE == 1
-    printAllocMemND(__FUNCTION__);
-    printFreeMemND(__FUNCTION__);
-    clearMemND();
+	printAllocMemND(__func__);
+	printFreeMemND(__func__);
+	clearMemND();
 #endif
 }
 

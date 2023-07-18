@@ -58,6 +58,10 @@ static int ReadStringData(const char *item_name, int mode, char data_buf[]) {
 
     memset((void *)tmp_buf, 0, CC_MAX_DATA_SIZE);
     rd_size = ReadIniData(item_name, tmp_buf);
+
+	if (rd_size <= 0)
+		return -1;
+
     if (check_string_data_have_header_valid(NULL, (char *)tmp_buf, CC_HEAD_CHKSUM_LEN, CC_VERSION_LEN) < 0) {
         data_buf[0] = '\0';
 

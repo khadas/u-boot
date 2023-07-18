@@ -86,7 +86,7 @@ spi_flash_probe_retry:
 	if (lcd_debug_print_flag) {
 		LCDSPI_PR("%s: spi flash read [offset=0x%x, len=%d]:\n",
 			__func__, offset, len);
-		for (i = 0; i < (len + 2); i++)
+		for (i = 0; i < len; i++)
 			printf(" 0x%02x", buf[i]);
 		printf("\n");
 	}
@@ -725,9 +725,11 @@ static int lcd_tconless_demura_conv_cspi55(struct lcd_tcon_spi_block_s *spi_bloc
 			return -1;
 		}
 		ret = lcd_tconless_spi_data_load(offset, len, crc_buf);
+
 		if (ret)
 			return -1;
 		spi_block->data_raw_check = 0;
+
 		for (i = 0; i < len; i++)
 			spi_block->data_raw_check |= (crc_buf[i] << (i * 8));
 	} else {
@@ -749,7 +751,7 @@ static int lcd_tconless_demura_conv_cspi55(struct lcd_tcon_spi_block_s *spi_bloc
 	}
 	i = buf_lut_flash[0] | buf_lut_flash[1] | buf_lut_flash[2] |
 	 buf_lut_flash[3];
-	if (i == 0 && i == 0xff) {
+	if (i == 0 || i == 0xff) {
 		LCDSPI_ERR("%s: No data in flash\n", __func__);
 		goto err0;
 	}
@@ -815,6 +817,8 @@ static int lcd_tconless_demura_conv_cspi55(struct lcd_tcon_spi_block_s *spi_bloc
 err2:
 	free(buf_plane1);
 	buf_plane1 = NULL;
+	free(buf_plane2);
+	buf_plane2 = NULL;
 err1:
 	free(buf_plane0);
 	buf_plane0 = NULL;
