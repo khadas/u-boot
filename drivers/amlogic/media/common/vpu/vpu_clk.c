@@ -217,7 +217,7 @@ static int adjust_vpu_clk(struct vpu_conf_s *vconf, unsigned int clk_level)
 	vpu_hiu_setb(clk_reg, 1, 8, 1);
 
 	/* vapb clk */
-	if (vpu_hiu_getb(vapb_reg, 8, 1) == 0) {
+	if (vapb_reg != VPU_REG_END && vpu_hiu_getb(vapb_reg, 8, 1) == 0) {
 		if (vpu_clk >= 250000000) {
 			vpu_hiu_write(vapb_reg, (0 << 9)  | /* clk_sel    //250Mhz */
 						(1 << 0));  /* clk_div */
