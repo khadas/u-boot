@@ -259,13 +259,19 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
 	struct storage_boot_entry *sbentry = ssp->boot_entry;
-	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);;
-	p_payload_info_hdr_t hdr = &pInfo->hdr;
-	p_payload_info_item_t pItem = pInfo->arrItems;
+	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);
+	p_payload_info_hdr_t hdr = NULL;
+	p_payload_info_item_t pItem = NULL;
 	int offPayload = 0, szPayload = 0;
 	unsigned int bl2e_size = 0, bl2x_size = 0;
 	char name[8] = {0};
 	int nIndex = 0;
+
+	if (!pInfo || !(&pInfo->hdr) || !(pInfo->arrItems))
+		return -1;
+
+	hdr = &pInfo->hdr;
+	pItem = pInfo->arrItems;
 
 	if (need_build == BOOT_ID_USB) {
 		for (nIndex = 1, pItem += 1;
