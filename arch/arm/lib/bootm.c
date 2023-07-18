@@ -38,6 +38,7 @@
 
 #if defined(CONFIG_KEY_PRESERVE)
 #include <asm/arch/cpu.h>
+#include <asm/arch/secure_apb.h>
 #include <asm/arch/register.h>
 #endif
 
