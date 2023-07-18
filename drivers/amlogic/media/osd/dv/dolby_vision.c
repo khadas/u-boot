@@ -42,8 +42,17 @@ static unsigned int dolby_vision_target_max[3][3] = {
 	{ 1000, 1000, 100 }, /* HDR =>  DOVI/HDR/SDR */
 	{ 600, 1000, 100 },  /* SDR =>  DOVI/HDR/SDR */
 };
-static unsigned int dolby_vision_target_graphics_max[3] = {
+
+static unsigned int dv_target_graphics_max[3] = {
 	300, 375, 100
+}; /* DOVI/HDR/SDR */
+
+static unsigned int dv_target_graphics_max_26[3] = {
+	300, 305, 300
+}; /* DOVI/HDR/SDR */
+
+static unsigned int dv_target_graphics_ll_max_26[3] = {
+	300, 300, 300
 }; /* DOVI/HDR/SDR */
 
 /* 0: video priority 1: graphic priority */
@@ -57,6 +66,7 @@ static bool dolby_vision_ll_flag;
 int dolby_vision_on;
 static char *dolby_status;
 static bool dv_fw_valid = true;
+static bool use_sink_min_max_flag;
 
 #ifndef AML_S5_DISPLAY
 #define COEFF_NORM(a) ((int)((((a) * 2048.0) + 1) / 2))
@@ -704,9 +714,15 @@ static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 	dovi_setting.video_width = w << 16;
 	dovi_setting.video_height = h << 16;
 
-	if(dst_format >= 0
-		&& dst_format <= 2)
-		graphic_max = dolby_vision_target_graphics_max[dst_format];
+	if (dst_format >= 0 && dst_format <= 2) {
+		graphic_max = dv_target_graphics_max[dst_format];
+		if (is_meson_s5()) {
+			if (request_ll_mode())
+				graphic_max = dv_target_graphics_ll_max_26[dst_format];
+			else
+				graphic_max = dv_target_graphics_max_26[dst_format];
+		}
+	}
 
 	if (dovi_setting.dst_format == FORMAT_DOVI) {
 		memset(&dovi_setting.vsvdb_tbl[0],
@@ -730,16 +746,17 @@ static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 			dovi_setting.ll_rgb_desired= 1;
 			dovi_setting.diagnostic_enable = 1;
 		}
-	} else if (dovi_setting.dst_format == FORMAT_HDR10) {
+	}
+
+	if (dovi_setting.dst_format == FORMAT_HDR10 && use_sink_min_max_flag) {
 		if (hdmitx_device->RXCap.hdr_info.hdr_lum_max) {
 			graphic_max = 50 * (2 ^ (hdmitx_device->RXCap.hdr_info.hdr_lum_max >> 5));
-			graphic_max = graphic_max * 10000
+			graphic_min = graphic_max * 10000
 				* hdmitx_device->RXCap.hdr_info.hdr_lum_min
 				* hdmitx_device->RXCap.hdr_info.hdr_lum_min
 				/ (255 * 255 * 100);
 		}
-	} else
-		;
+	}
 
 	if ((src_format >= 0 && src_format <= 2) &&
 		(dst_format >= 0 && dst_format <= 2))
