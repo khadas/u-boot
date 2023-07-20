@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <mapmem.h>
 #include <amlogic/storage.h>
+#include <tee.h>
 
 #ifdef CONFIG_NAND_FACTORY_PROVISION
 #ifndef CONFIG_YAFFS_DIRECT
@@ -41,9 +42,13 @@
 #define getenv env_get
 #endif
 
-#define FUNCID_PROVISION_SET_IV                0xB200E030
-#define FUNCID_PROVISION_ENCRYPT               0xB200E031
-#define FUNCID_PROVISION_GET_TRANSFER_ADDR     0xB2000007
+#define FACTORY_PROVISION_VERSION	"2.0"
+
+#define PROVISION_PTA_UUID \
+		{ 0x24b17b16, 0x89d1, 0x43a3, \
+		{ 0x95, 0xed, 0x19, 0x3c, 0xe1, 0xed, 0xa7, 0x15 } }
+
+#define PROVISION_PTA_CMD_EPEK_ENCRYPT       0
 
 #define SIZE_1K                 (1024)
 #define SIZE_1M                 (SIZE_1K * SIZE_1K)
@@ -74,6 +79,7 @@
 #define ACTION_REMOVE           (0x04)
 #define ACTION_CLEAR            (0x05)
 #define ACTION_LIST             (0x06)
+#define ACTION_VERSION          (0x07)
 
 #define DEV_NAME                "mmc"
 #define DEV_NO                  (1)
@@ -237,72 +243,6 @@ static struct fs_value g_fs_vals_fty[MAX_CNT_FS_VALUE] = {
 	{ 0, 0 },
 };
 
-static uint32_t get_transfer_phy_addr(uint32_t *transfer_phy_addr)
-{
-	register uint32_t x0 asm("x0") = FUNCID_PROVISION_GET_TRANSFER_ADDR;
-	register uint32_t x1 asm("x1") = 0;
-
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x1")
-			__asmeq("%2", "x0")
-			"smc    #0\n"
-			: "=r"(x0), "=r"(x1)
-			: "r"(x0));
-	} while (0);
-
-	if (x0 == 0)
-		*transfer_phy_addr = x1;
-
-	return x0;
-}
-
-static uint32_t set_iv(uint32_t transfer_addr, uint32_t iv_size)
-{
-	register uint32_t x0 asm("x0") = FUNCID_PROVISION_SET_IV;
-	register uint32_t x1 asm("x1") = iv_size;
-	register uint32_t x2 asm("x2") = transfer_addr;
-
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x0")
-			__asmeq("%2", "x1")
-			__asmeq("%3", "x2")
-			"smc    #0\n"
-			: "=r"(x0)
-			: "r"(x0), "r"(x1), "r"(x2));
-	} while (0);
-
-	return x0;
-}
-
-static uint32_t encrypt(uint32_t transfer_addr, uint32_t *data_size)
-{
-	register uint32_t x0 asm("x0") = FUNCID_PROVISION_ENCRYPT;
-	register uint32_t x1 asm("x1") = *data_size;
-	register uint32_t x2 asm("x2") = transfer_addr;
-
-	do {
-		asm volatile(
-			__asmeq("%0", "x0")
-			__asmeq("%1", "x1")
-			__asmeq("%2", "x2")
-			__asmeq("%3", "x0")
-			__asmeq("%4", "x1")
-			__asmeq("%5", "x2")
-			"smc    #0\n"
-			: "=r"(x0), "=r"(x1), "=r"(x2)
-			: "r"(x0), "r"(x1), "r"(x2));
-	} while (0);
-
-	if (x0 == 0)
-		*data_size = x1;
-
-	return x0;
-}
-
 static void usage(void)
 {
 	printf("factory_provision -- provision keybox\n\n"
@@ -313,7 +253,9 @@ static void usage(void)
 	"	- query whether the keybox exists by keybox name\n"
 	"	- when keybox exists, return data: keybox_size(4bytes)\n\n"
 	"factory_provision remove <keybox_name>\n"
-	"	- remove the keybox by keybox name\n\n");
+	"	- remove the keybox by keybox name\n\n"
+	"factory_provision version\n"
+	"	- show the factory provision version\n\n");
 }
 
 static void parse_params(int argc, char * const argv[],
@@ -363,6 +305,8 @@ static void parse_params(int argc, char * const argv[],
 			params->action = ACTION_CLEAR;
 		else if (!memcmp(argv[1], "list", strlen("list")))
 			params->action = ACTION_LIST;
+		else if (!memcmp(argv[1], "version", strlen("version")))
+			params->action = ACTION_VERSION;
 		break;
 	default:
 		break;
@@ -377,6 +321,7 @@ static int check_params(const struct input_param *params)
 	case ACTION_INIT:
 	case ACTION_CLEAR:
 	case ACTION_LIST:
+	case ACTION_VERSION:
 		break;
 	case ACTION_WRITE:
 		if (strlen(params->keybox_name) > MAX_SIZE_KEYBOX_NAME) {
@@ -417,40 +362,90 @@ exit:
 
 static int preprocess_keybox(char *keybox, uint32_t size)
 {
-	uint32_t res = 0;
+	int ret = 0;
 	struct encryption_context *enc_cxt = (struct encryption_context *)
 		(keybox + sizeof(struct keybox_header));
 	uint32_t epek_size = sizeof(enc_cxt->epek);
-	uint32_t transfer_phy_addr = 0;
-	char *transfer_buf = NULL;
+	struct udevice *dev = NULL;
+	struct tee_open_session_arg open_arg = { 0 };
+	struct tee_invoke_arg invoke_arg = { 0 };
+	struct tee_param param[2] = { 0 };
+	const struct tee_optee_ta_uuid uuid = PROVISION_PTA_UUID;
 
-	res = get_transfer_phy_addr(&transfer_phy_addr);
-	if (res) {
-		LOGE("get transfer address failed, "
-				"smc fast call ret = 0x%08X\n", res);
-		return CMD_RET_SMC_CALL_FAILED;
+	dev = tee_find_device(NULL, NULL, NULL, NULL);
+	if (!dev) {
+		LOGE("tee find device failed");
+		return CMD_RET_DEVICE_NOT_AVAILABLE;
 	}
 
-	transfer_buf = map_sysmem(transfer_phy_addr, 0);
-
-	memcpy(transfer_buf, enc_cxt->iv, sizeof(enc_cxt->iv));
-	res = set_iv(transfer_phy_addr, sizeof(enc_cxt->iv));
-	if (res) {
-		LOGE("set iv failed, smc fast call ret = 0x%08X\n", res);
-		return CMD_RET_SMC_CALL_FAILED;
+	memset(&open_arg, 0, sizeof(open_arg));
+	tee_optee_ta_uuid_to_octets(open_arg.uuid, &uuid);
+	ret = tee_open_session(dev, &open_arg, 0, NULL);
+	if (ret) {
+		LOGE("open session failed, ret = 0x%x\n", ret);
+		return CMD_RET_BAD_PARAMETER;
 	}
 
-	memcpy(transfer_buf, enc_cxt->epek, sizeof(enc_cxt->epek));
-	res = encrypt(transfer_phy_addr, &epek_size);
-	if (res) {
-		LOGE("encrypt epek failed, smc fast call ret = 0x%08X\n", res);
-		return CMD_RET_SMC_CALL_FAILED;
+	if (open_arg.ret) {
+		LOGE("open session failed, ret = 0x%x, ret_origin=0x%x\n",
+			open_arg.ret, open_arg.ret_origin);
+		return CMD_RET_BAD_PARAMETER;
 	}
-	memcpy(enc_cxt->epek, transfer_buf, epek_size);
 
-	unmap_sysmem(transfer_buf);
+	param[0].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INPUT;
+	param[0].u.memref.size = sizeof(enc_cxt->iv);
+	ret = tee_shm_alloc(dev, sizeof(enc_cxt->iv), 0, &param[0].u.memref.shm);
+	if (ret) {
+		LOGE("tee shm alloc for iv failed, ret: %#x\n", ret);
+		ret = CMD_RET_DEVICE_NO_SPACE;
+		goto exit;
+	}
 
-	return CMD_RET_SUCCESS;
+	memcpy(param[0].u.memref.shm->addr, enc_cxt->iv, sizeof(enc_cxt->iv));
+
+	param[1].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INOUT;
+	param[1].u.memref.size = epek_size;
+	ret = tee_shm_alloc(dev, epek_size, 0, &param[1].u.memref.shm);
+	if (ret) {
+		LOGE("tee shm alloc for epek failed, ret: %#x\n", ret);
+		ret = CMD_RET_DEVICE_NO_SPACE;
+		goto exit;
+	}
+
+	memcpy(param[1].u.memref.shm->addr, enc_cxt->epek, epek_size);
+
+	memset(&invoke_arg, 0, sizeof(invoke_arg));
+	invoke_arg.session = open_arg.session;
+	invoke_arg.func = PROVISION_PTA_CMD_EPEK_ENCRYPT;
+
+	ret = tee_invoke_func(dev, &invoke_arg, 2, param);
+	if (ret) {
+		LOGE("invoke failed, cmd = %u, ret= %d\n",
+			invoke_arg.func, ret);
+		ret = CMD_RET_SMC_CALL_FAILED;
+		goto exit;
+	}
+
+	if (invoke_arg.ret) {
+		LOGE("invoke failed, cmd = %u, ret = 0x%x, origin = %d\n",
+			invoke_arg.func, invoke_arg.ret, invoke_arg.ret_origin);
+		ret = CMD_RET_SMC_CALL_FAILED;
+	}
+
+	if (!ret) {
+		LOGI("encrypt epek success, size = %ld\n", param[1].u.memref.size);
+		memcpy(enc_cxt->epek, param[1].u.memref.shm->addr, param[1].u.memref.size);
+	}
+
+exit:
+	if (param[0].u.memref.shm)
+		tee_shm_free(param[0].u.memref.shm);
+
+	if (param[1].u.memref.shm)
+		tee_shm_free(param[1].u.memref.shm);
+
+	tee_close_session(dev, open_arg.session);
+	return ret;
 }
 
 static const char* get_valid_part_name(void)
@@ -900,6 +895,12 @@ static int is_storage_medium_supported(void)
 		LOGI("Being '%s' storage medium\n", medium_name);
 
 	return ret;
+}
+
+static int show_version(void)
+{
+	LOGI("version %s\n", FACTORY_PROVISION_VERSION);
+	return CMD_RET_SUCCESS;
 }
 
 #ifdef CONFIG_NAND_FACTORY_PROVISION
@@ -1366,6 +1367,11 @@ int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (ret != CMD_RET_SUCCESS)
 			goto exit;
 		break;
+	case ACTION_VERSION:
+		ret = show_version();
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
 	default:
 		break;
 	}
@@ -1391,4 +1397,6 @@ U_BOOT_CMD(
 	"	- when keybox exists, return data: keybox_size(4bytes)\n\n"
 	"remove <keybox_name>\n"
 	"	- remove the keybox by keybox name\n"
+	"version\n"
+	"	- show the factory provision version\n"
 );
