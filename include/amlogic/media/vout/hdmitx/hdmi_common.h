@@ -658,6 +658,7 @@ typedef enum {
 typedef enum {
 	HDR_POLICY_SINK   = 0,
 	HDR_POLICY_SOURCE = 1,
+	HDR_POLICY_FORCE = 2,
 } hdr_policy_e;
 
 enum {

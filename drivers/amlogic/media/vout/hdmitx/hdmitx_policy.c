@@ -476,6 +476,8 @@ int get_hdr_policy(void)
 			value = HDR_POLICY_SINK;
 		else if (strcmp(hdr_policy, "1") == 0)
 			value = HDR_POLICY_SOURCE;
+		else if (strcmp(hdr_policy, "2") == 0)
+			value = HDR_POLICY_FORCE;
 		else
 			printf("error ubootenv value of hdr_policy\n");
 	} else {

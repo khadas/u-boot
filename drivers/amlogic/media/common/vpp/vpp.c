@@ -1751,19 +1751,37 @@ static void vpp_ofifo_init(void)
 }
 
 #ifdef CONFIG_AML_HDMITX
-static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
+static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data,
+		enum force_output_format output_format)
 {
 	int i, j;
 
-	hdr_data->features =
-		(0 << 30) /*sdr output 709*/
-		| (1 << 29)	/*video available*/
-		| (5 << 26)	/* unspecified */
-		| (0 << 25)	/* limit */
-		| (1 << 24)	/* color available */
-		| (9 << 16)	/* bt2020 */
-		| (16 << 8)	/* bt2020-10 */
-		| (10 << 0);	/* bt2020c */
+	switch (output_format) {
+	case BT2020_PQ:
+		hdr_data->features =
+			(0 << 30) /*sdr output 709*/
+			| (1 << 29)	/*video available*/
+			| (5 << 26)	/* unspecified */
+			| (0 << 25)	/* limit */
+			| (1 << 24)	/*color available*/
+			| (9 << 16)
+			| (16 << 8)
+			| (10 << 0);	/* bt2020c */
+		break;
+	case BT2020_HLG:
+		hdr_data->features =
+			(0 << 30) /*sdr output 709*/
+			| (1 << 29)	/*video available*/
+			| (5 << 26)	/* unspecified */
+			| (0 << 25)	/* limit */
+			| (1 << 24)	/*color available*/
+			| (9 << 16)
+			| (18 << 8)
+			| (10 << 0);
+		break;
+	case UNKNOWN_FMT:
+		return;
+	}
 
 	for (i = 0; i < 3; i++)
 		for (j = 0; j < 2; j++)
@@ -1786,14 +1804,21 @@ static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 void hdr_tx_pkt_cb(void)
 {
 	int hdr_policy = 0;
+	int hdr_force_mode = 0; /*0: no force, 3: force hdr, 5: force hlg*/
 #ifdef CONFIG_AML_HDMITX
 	struct master_display_info_s hdr_data;
 	struct hdr_info *hdrinfo = NULL;
 #endif
 	const char *hdr_policy_env = env_get("hdr_policy");
+	const char *hdr_force_mode_env = env_get("hdr_force_mode");
 
 	if (!hdr_policy_env)
 		return;
+
+  	if (!hdr_force_mode_env)
+		hdr_force_mode = 0;
+	else
+        	hdr_force_mode = simple_strtoul(hdr_force_mode_env, NULL, 10);
 
 	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
 #ifdef CONFIG_AML_HDMITX
@@ -1810,16 +1835,50 @@ void hdr_tx_pkt_cb(void)
 			hdr_func(OSD3_HDR, SDR_HDR);
 		if (is_hdmi_mode(env_get("outputmode3")))
 			hdr_func(OSD4_HDR, SDR_HDR);
-		amvecm_cp_hdr_info(&hdr_data);
+		amvecm_cp_hdr_info(&hdr_data, BT2020_PQ);
+		hdmitx_set_drm_pkt(&hdr_data);
+	}
+
+	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
+		hdr_policy == 2 && hdr_force_mode == 3) {
+		if (is_hdmi_mode(env_get("outputmode"))) {
+			hdr_func(OSD1_HDR, SDR_HDR);
+			hdr_func(OSD2_HDR, SDR_HDR);
+			hdr_func(VD1_HDR, SDR_HDR);
+		}
+		if (is_hdmi_mode(env_get("outputmode2")))
+			hdr_func(OSD3_HDR, SDR_HDR);
+		if (is_hdmi_mode(env_get("outputmode3")))
+			hdr_func(OSD4_HDR, SDR_HDR);
+		amvecm_cp_hdr_info(&hdr_data, BT2020_PQ);
+		hdmitx_set_drm_pkt(&hdr_data);
+	}
+
+	if ((hdrinfo && hdrinfo->hdr_sup_eotf_hlg) &&
+		hdr_policy == 2 && hdr_force_mode == 5) {
+		if (is_hdmi_mode(env_get("outputmode"))) {
+			hdr_func(OSD1_HDR, SDR_HLG);
+			hdr_func(OSD2_HDR, SDR_HLG);
+			hdr_func(VD1_HDR, SDR_HLG);
+		}
+		if (is_hdmi_mode(env_get("outputmode2")))
+			hdr_func(OSD3_HDR, SDR_HLG);
+		if (is_hdmi_mode(env_get("outputmode3")))
+			hdr_func(OSD4_HDR, SDR_HLG);
+		amvecm_cp_hdr_info(&hdr_data, BT2020_HLG);
 		hdmitx_set_drm_pkt(&hdr_data);
 	}
 #endif
 
-	VPP_PR("hdr_policy = %d\n", hdr_policy);
+	VPP_PR("hdr_policy = %d, hdr_force_mode = %d\n",
+		hdr_policy, hdr_force_mode);
 #ifdef CONFIG_AML_HDMITX
-	if (hdrinfo)
+	if (hdrinfo) {
 		VPP_PR("Rx hdr_info.hdr_sup_eotf_smpte_st_2084 = %d\n",
 		       hdrinfo->hdr_sup_eotf_smpte_st_2084);
+		VPP_PR("Rx hdr_info.hdr_sup_eotf_hlg = %d\n",
+		       hdrinfo->hdr_sup_eotf_hlg);
+	}
 #endif
 }
 
