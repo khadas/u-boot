@@ -55,6 +55,7 @@ struct lcd_tcon_config_s {
 	void (*tcon_axi_mem_update)(unsigned int *table);
 	int (*tcon_enable)(struct lcd_config_s *pconf);
 	int (*tcon_disable)(struct lcd_config_s *pconf);
+	int (*tcon_forbidden_check)(void);
 };
 
 struct tcon_rmem_config_s {
@@ -211,6 +212,8 @@ int lcd_tcon_enable_tl1(struct lcd_config_s *pconf);
 int lcd_tcon_disable_tl1(struct lcd_config_s *pconf);
 int lcd_tcon_enable_t5(struct lcd_config_s *pconf);
 int lcd_tcon_disable_t5(struct lcd_config_s *pconf);
+int lcd_tcon_forbidden_check_t5(void);
+int lcd_tcon_forbidden_check_t5d(void);
 
 #endif
 

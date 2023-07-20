@@ -1147,3 +1147,29 @@ int lcd_tcon_disable_t5(struct lcd_config_s *pconf)
 
 	return 0;
 }
+
+int lcd_tcon_forbidden_check_t5(void)
+{
+	unsigned int val;
+	int ret;
+
+	val = lcd_tcon_getb(TCON_STATUS0, 0, 1);
+
+	if (val) {
+		LCDPR("lcd_tcon_forbidden_check: not forbidden\n");
+		ret = 0;
+	} else {
+		LCDPR("lcd_tcon_forbidden_check: forbidden\n");
+		ret = -1;
+	}
+
+	return ret;
+}
+
+int lcd_tcon_forbidden_check_t5d(void)
+{
+	lcd_tcon_write(0x30e, 0);
+	LCDPR("lcd_tcon_forbidden_check: done\n");
+
+	return 0;
+}

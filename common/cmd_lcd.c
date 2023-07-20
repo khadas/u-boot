@@ -420,6 +420,11 @@ static int do_lcd_tcon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			lcd_drv->lcd_tcon_spi_print();
 		else
 			printf("no lcd tcon_spi_print\n");
+	} else if (strcmp(argv[1], "check") == 0) {
+		if (lcd_drv->tcon_forbidden_check)
+			lcd_drv->tcon_forbidden_check();
+		else
+			printf("no lcd tcon_forbidden_check\n");
 	} else {
 		ret = -1;
 	}
@@ -447,15 +452,24 @@ static int do_lcd_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 		else
 			printf("no lcd vbyone rst\n");
 	} else if (strcmp(argv[1], "cdr") == 0) {
-		if (lcd_drv->lcd_vbyone_cdr)
-			lcd_drv->lcd_vbyone_cdr();
-		else
-			printf("no lcd vbyone cdr\n");
+		if (!lcd_drv->lcd_vbyone_cdr) {
+			printf("lcd_vbyone_cdr not support!\n");
+			return -1;
+		}
+		ret = lcd_drv->lcd_vbyone_cdr();
+		printf("[0]: vbyone force cdr %s!\n", ret ? "fail" : "ok");
+	} else if (strcmp(argv[1], "lock") == 0) {
+		if (!lcd_drv->lcd_vbyone_lock) {
+			printf("lcd_vbyone_lock not support!\n");
+			return -1;
+		}
+		ret = lcd_drv->lcd_vbyone_lock();
+		printf("vbyone force lock %s!\n", ret ? "fail" : "ok");
 	} else {
 		ret = -1;
 	}
 
-	return ret;
+	return 0;
 }
 
 static int do_lcd_reg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

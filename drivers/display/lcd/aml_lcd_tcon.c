@@ -754,6 +754,22 @@ void lcd_tcon_disable(struct lcd_config_s *pconf)
 		lcd_tcon_conf->tcon_disable(pconf);
 }
 
+static int lcd_tcon_forbidden_check(void)
+{
+	int ret;
+
+	ret = lcd_tcon_valid_check();
+	if (ret)
+		return -1;
+
+	if (lcd_tcon_conf->tcon_forbidden_check)
+		ret = lcd_tcon_conf->tcon_forbidden_check();
+	else
+		ret = 0;
+
+	return ret;
+}
+
 static int lcd_tcon_data_multi_match_policy_check(struct aml_lcd_drv_s *lcd_drv,
 		struct lcd_tcon_data_part_ctrl_s *ctrl_part, unsigned char *p)
 {
@@ -2099,6 +2115,7 @@ static struct lcd_tcon_config_s tcon_data_txhd = {
 	.tcon_axi_mem_update = NULL,
 	.tcon_enable = lcd_tcon_enable_txhd,
 	.tcon_disable = lcd_tcon_disable_tl1,
+	.tcon_forbidden_check = NULL,
 };
 
 static struct lcd_tcon_config_s tcon_data_tl1 = {
@@ -2137,6 +2154,7 @@ static struct lcd_tcon_config_s tcon_data_tl1 = {
 	.tcon_axi_mem_update = NULL,
 	.tcon_enable = lcd_tcon_enable_tl1,
 	.tcon_disable = lcd_tcon_disable_tl1,
+	.tcon_forbidden_check = NULL,
 };
 
 static struct lcd_tcon_config_s tcon_data_t5 = {
@@ -2175,6 +2193,7 @@ static struct lcd_tcon_config_s tcon_data_t5 = {
 	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5,
 	.tcon_enable = lcd_tcon_enable_t5,
 	.tcon_disable = lcd_tcon_disable_t5,
+	.tcon_forbidden_check = lcd_tcon_forbidden_check_t5,
 };
 
 static struct lcd_tcon_config_s tcon_data_t5d = {
@@ -2213,6 +2232,7 @@ static struct lcd_tcon_config_s tcon_data_t5d = {
 	.tcon_axi_mem_update = lcd_tcon_axi_rmem_update_t5d,
 	.tcon_enable = lcd_tcon_enable_t5,
 	.tcon_disable = lcd_tcon_disable_t5,
+	.tcon_forbidden_check = lcd_tcon_forbidden_check_t5d,
 };
 
 int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
@@ -2286,6 +2306,7 @@ int lcd_tcon_probe(char *dt_addr, struct aml_lcd_drv_s *lcd_drv, int load_id)
 #else
 	lcd_drv->tcon_mem_tee_protect = NULL;
 #endif
+	lcd_drv->tcon_forbidden_check = lcd_tcon_forbidden_check;
 
 	return ret;
 }

@@ -1128,17 +1128,40 @@ void aml_lcd_vbyone_rst(void)
 	}
 	lcd_hiu_setb(HHI_LVDS_TX_PHY_CNTL0, 0, 8, 2);
 	lcd_vcbus_write(VBO_SOFT_RST, 0);
-	LCDPR("vybone reset\n");
+	LCDPR("vbyone reset\n");
 }
 
-void aml_lcd_vbyone_cdr(void)
+int aml_lcd_vbyone_cdr(void)
 {
+	unsigned int val;
+
 	/*[5:0]: vx1 fsm status*/
 	lcd_vcbus_setb(VBO_INSGN_CTRL, 7, 0, 4);
 	mdelay(100);
-	LCDPR("vx1 fsm status: 0x%08x\n", lcd_vcbus_read(VBO_STATUS_L));
+	val = lcd_vcbus_read(VBO_STATUS_L);
+	LCDPR("vbyone fsm status: 0x%08x\n", val);
+
+	if ((val & 0x3f) == 0x08)
+		return 0;
+	return -1;
 }
 
+int aml_lcd_vbyone_lock(void)
+{
+	unsigned int val;
+
+	/*[5:0]: vx1 fsm status*/
+	lcd_vcbus_setb(VBO_INSGN_CTRL, 7, 0, 4);
+	mdelay(100);
+	lcd_vcbus_setb(VBO_INSGN_CTRL, 5, 0, 4);
+	mdelay(100);
+	val = lcd_vcbus_read(VBO_STATUS_L);
+	LCDPR("vbyone fsm status: 0x%08x\n", val);
+
+	if ((val & 0x3f) == 0x20)
+		return 0;
+	return -1;
+}
 /* **********************************
  * lcd debug match data
  * **********************************

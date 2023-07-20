@@ -1067,11 +1067,18 @@ static void lcd_vbyone_rst(void)
 	aml_lcd_vbyone_rst();
 }
 
-static void lcd_vbyone_cdr(void)
+int lcd_vbyone_cdr(void)
 {
 	if (lcd_check_valid())
-		return;
-	aml_lcd_vbyone_cdr();
+		return -1;
+	return aml_lcd_vbyone_cdr();
+}
+
+int lcd_vbyone_lock(void)
+{
+	if (lcd_check_valid())
+		return -1;
+	return aml_lcd_vbyone_lock();
 }
 
 static void aml_set_backlight_level(int level)
@@ -1169,6 +1176,7 @@ static struct aml_lcd_drv_s aml_lcd_driver = {
 #endif
 	.lcd_vbyone_rst = lcd_vbyone_rst,
 	.lcd_vbyone_cdr = lcd_vbyone_cdr,
+	.lcd_vbyone_lock = lcd_vbyone_lock,
 	.bl_on = aml_backlight_power_on,
 	.bl_off = aml_backlight_power_off,
 	.set_bl_level = aml_set_backlight_level,
