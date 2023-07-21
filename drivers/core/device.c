@@ -193,7 +193,8 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 			goto fail;
 	}
 
-	if (drv->ofdata_to_platdata && dev->of_offset >= 0) {
+	if (drv->ofdata_to_platdata && (dev->of_offset >= 0 ||
+			(strcmp(dev->driver->name, "optee") == 0))) {
 		ret = drv->ofdata_to_platdata(dev);
 		if (ret)
 			goto fail;
@@ -390,3 +391,14 @@ ulong dev_get_of_data(struct udevice *dev)
 {
 	return dev->of_id->data;
 }
+
+void *dev_get_uclass_priv(const struct udevice *dev)
+{
+	if (!dev) {
+		dm_warn("%s: null device\n", __func__);
+		return NULL;
+	}
+
+	return dev->uclass_priv;
+}
+

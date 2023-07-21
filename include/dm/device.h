@@ -322,4 +322,14 @@ int device_find_first_child(struct udevice *parent, struct udevice **devp);
  */
 int device_find_next_child(struct udevice **devp);
 
+/**
+ * dev_get_uclass_priv() - Get the private uclass data for a device
+ *
+ * This checks that dev is not NULL, but no other checks for now
+ *
+ * @dev         Device to check
+ * @return private uclass data for this device, or NULL if none
+ */
+void *dev_get_uclass_priv(const struct udevice *dev);
+
 #endif

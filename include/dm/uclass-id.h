@@ -29,6 +29,7 @@ enum uclass_id {
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SPI_FLASH,	/* SPI flash */
 	UCLASS_CROS_EC,	/* Chrome OS EC */
+	UCLASS_TEE,		/* Trusted Execution Environment device */
 	UCLASS_THERMAL,		/* Thermal sensor */
 	UCLASS_I2C,		/* I2C bus */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
