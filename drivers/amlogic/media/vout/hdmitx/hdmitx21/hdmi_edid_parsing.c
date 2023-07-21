@@ -286,18 +286,6 @@ static int edid_zero_data(unsigned char *buf)
 
 static void dump_dtd_info(struct dtd *t)
 {
-	return; /* debug only */
-	printf("%s[%d]\n", __func__, __LINE__);
-#define PR(a) pr_info("%s %d\n", #a, t->a)
-	PR(pixel_clock);
-	PR(h_active);
-	PR(h_blank);
-	PR(v_active);
-	PR(v_blank);
-	PR(h_sync_offset);
-	PR(h_sync);
-	PR(v_sync_offset);
-	PR(v_sync);
 }
 
 static int edid_parsingdrmstaticblock(struct rx_cap *prxcap,
@@ -1615,24 +1603,20 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	if (hdev->tx_max_frl_rate == FRL_NONE) {
 		if (must_frl_flag)
 			return 0;
-		/* maximum 600Mhz for tmds mode */
-		tx_bandwidth_cap = 600;
-		if (calc_tmds_clk > tx_bandwidth_cap)
+		/* Used for S1A to judge whether it exceeds the chip support */
+		/* if (hdev->data.chip_type == MESON_CPU_ID_S1A) { */
+		/* tx_bandwidth_cap = 225; */
+		/* if (calc_tmds_clk > tx_bandwidth_cap) */
+		/*	return 0; */
+		/* } */
+		if (calc_tmds_clk > rx_max_tmds_clk)
 			return 0;
-		else if (calc_tmds_clk > rx_max_tmds_clk)
-			return 0;
-		valid = 1;
 	} else {
 		if (!must_frl_flag) {
-			/* maximum 600Mhz for tmds mode */
-			tx_bandwidth_cap = 600;
-			if (calc_tmds_clk <= rx_max_tmds_clk &&
-				calc_tmds_clk <= tx_bandwidth_cap) {
-				/* is able to run under TMDS mode */
-				valid = 1;
-			} else {
+			/* used TMDS, calc_tmds_clk must less than 594, not*/
+			/* need repeat judgment(calc_tmds_clk < tx_bandwidth_cap)*/
+			if (calc_tmds_clk > rx_max_tmds_clk)
 				return 0;
-			}
 		} else {
 			/* try to check if able to run under FRL mode */
 			/* tx_frl_bandwidth = timing->pixel_freq / 1000 * 24 * 1.122 */

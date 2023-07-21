@@ -915,7 +915,8 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
 
 #ifdef CONFIG_AML_VOUT
-	info->cur_enc_ppc = 1;
+	if (info)
+		info->cur_enc_ppc = 1;
 	if (info && hdev->chip_type >= MESON_CPU_ID_S5) {
 		if (get_current_frl_rate())
 			info->cur_enc_ppc = 4;

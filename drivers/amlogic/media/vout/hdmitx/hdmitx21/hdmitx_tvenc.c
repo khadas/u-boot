@@ -581,7 +581,7 @@ void set_tv_enci_new(struct hdmitx_dev *hdev, u32 enc_index,
 	u32 SOF_LINES;
 	u32 TOTAL_PIXELS;
 	u32 TOTAL_LINES;
-	u8 input_color_format = HDMI_COLORSPACE_YUV444;
+
 
 	u32 total_pixels_venc;
 	u32 active_pixels_venc;
@@ -681,7 +681,7 @@ void set_tv_enci_new(struct hdmitx_dev *hdev, u32 enc_index,
 		// line output from 444->420 conversion will be delayed by 1 line.
 		// So for 420 mode, we need to delay Vsync by 1 line as well,
 		//to meet the VESA display timing spec.
-		(input_color_format == HDMI_COLORSPACE_YUV420) ? 1 : 0);
+		0);
 } /* set_tv_encp_new */
 
 void hdmitx21_venc_en(bool en, bool pi_mode)
