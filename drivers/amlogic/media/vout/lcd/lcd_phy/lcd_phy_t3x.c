@@ -25,6 +25,8 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, struct phy_config_s *ph
 {
 	unsigned int cntl_vinlp_pi = 0, cntl_ckdi = 0;
 	unsigned int data = 0, chreg = 0, chctl = 0;
+	unsigned int amp = 0;
+	int i = 0;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
@@ -32,9 +34,14 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, struct phy_config_s *ph
 	if (status) {
 		chreg |= ((phy_ctrl_p->ctrl_bit_on << 16) |
 			  (phy_ctrl_p->ctrl_bit_on << 0));
-		chctl |= ((0x7 << 19) | (0x7 << 3));
+		if ((phy->flag & (1 << 13)) == 0) {
+			for (i = 0; i < 16; i++)
+				phy->lane[i].amp = 0x7;
+		}
+
 		if (bypass)
 			chctl |= ((1 << 18) | (1 << 2));
+
 		if (mode) {
 			chreg |= lvds_vx1_p2p_phy_ch_tl1;
 			cntl_vinlp_pi = 0x00070000;
@@ -61,35 +68,43 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv, struct phy_config_s *ph
 
 	data = ((phy->lane[0].preem & 0xff) << 8 | (phy->lane[1].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL1, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL10, chctl);
+	amp = ((phy->lane[0].amp & 0x7) << 3 | (phy->lane[1].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL10, chctl | amp);
 
 	data = ((phy->lane[2].preem & 0xff) << 8 | (phy->lane[3].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL2, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL11, chctl);
+	amp = ((phy->lane[2].amp & 0x7) << 3 | (phy->lane[3].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL11, chctl | amp);
 
 	data = ((phy->lane[4].preem & 0xff) << 8 | (phy->lane[5].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL3, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL12, chctl);
+	amp = ((phy->lane[4].amp & 0x7) << 3 | (phy->lane[5].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL12, chctl | amp);
 
 	data = ((phy->lane[6].preem & 0xff) << 8 | (phy->lane[7].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL4, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL13, chctl);
+	amp = ((phy->lane[6].amp & 0x7) << 3 | (phy->lane[7].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL13, chctl | amp);
 
 	data = ((phy->lane[8].preem & 0xff) << 8 | (phy->lane[9].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL6, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, chctl);
+	amp = ((phy->lane[8].amp & 0x7) << 3 | (phy->lane[9].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL14, chctl | amp);
 
 	data = ((phy->lane[10].preem & 0xff) << 8 | (phy->lane[11].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL7, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, chctl);
+	amp = ((phy->lane[10].amp & 0x7) << 3 | (phy->lane[11].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL15, chctl | amp);
 
 	data = ((phy->lane[12].preem & 0xff) << 8 | (phy->lane[13].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL8, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL16, chctl);
+	amp = ((phy->lane[12].amp & 0x7) << 3 | (phy->lane[13].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL16, chctl | amp);
 
 	data = ((phy->lane[14].preem & 0xff) << 8 | (phy->lane[15].preem & 0xff) << 24);
 	lcd_ana_write(ANACTRL_DIF_PHY_CNTL9, chreg | data);
-	lcd_ana_write(ANACTRL_DIF_PHY_CNTL17, chctl);
+	amp = ((phy->lane[14].amp & 0x7) << 3 | (phy->lane[15].amp & 0x7) << 19);
+	lcd_ana_write(ANACTRL_DIF_PHY_CNTL17, chctl | amp);
 }
 
 static void lcd_phy_common_update(struct phy_config_s *phy, unsigned int com_data)

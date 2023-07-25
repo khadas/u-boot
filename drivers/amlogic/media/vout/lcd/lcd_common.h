@@ -43,7 +43,8 @@
 /* 20230505: t3x support */
 /* 20230615: txhd2 support */
 /* 20230705: t3x fix tconless phy setting */
-#define LCD_DRV_VERSION    "20230705"
+/* 20230802: add t5m,t5w,t3x set phy lane amp*/
+#define LCD_DRV_VERSION    "20230802"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
