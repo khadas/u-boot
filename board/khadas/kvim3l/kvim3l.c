@@ -681,6 +681,7 @@ static int check_forcebootsd(void)
 }
 int board_init(void)
 {
+	printf("board init\n");
 	sys_led_init();
     //Please keep CONFIG_AML_V2_FACTORY_BURN at first place of board_init
     //As NOT NEED other board init If USB BOOT MODE
@@ -771,6 +772,7 @@ void aml_config_dtb(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+	printf("board late init\n");
 	TE(__func__);
 		//update env before anyone using it
 		run_command("get_rebootmode; echo reboot_mode=${reboot_mode}; "\
