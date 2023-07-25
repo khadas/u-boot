@@ -27,6 +27,7 @@ enum sec_pll {
 	SECID_A73_CLK_SEL,
 	SECID_A73_CLK_RD,
 	SECID_A73_CLK_DYN,
+	SECID_PLL_TEST,
 };
 
 int t7_sys0_pll_prepare(struct meson_clk_pll_data *pll)
@@ -120,6 +121,7 @@ struct meson_clk_pll_data t7_sys0_pll = {
 	.smc_id = SECURE_PLL_CLK,
 	.secid_disable = SECID_SYS0_DCO_PLL_DIS,
 	.secid = SECID_SYS0_DCO_PLL,
+	.secid_test = SECID_PLL_TEST,
 	.clkmsr_id = 172,
 	.clkmsr_margin = 10,
 };
@@ -180,6 +182,7 @@ struct meson_clk_pll_data t7_sys1_pll = {
 	.smc_id = SECURE_PLL_CLK,
 	.secid_disable = SECID_SYS1_DCO_PLL_DIS,
 	.secid = SECID_SYS1_DCO_PLL,
+	.secid_test = SECID_PLL_TEST,
 	.clkmsr_id = 23,
 	.clkmsr_margin = 2
 };
@@ -244,8 +247,8 @@ struct meson_clk_pll_data t7_gp0_pll = {
 		.width   = 1,
 	},
 	.ops = &(const struct meson_pll_test_ops) {
-		//.pll_prepare = meson_pll_store_rate,
-		//.pll_unprepare = meson_pll_restore_rate,
+		.pll_prepare = meson_pll_store_rate,
+		.pll_unprepare = meson_pll_restore_rate,
 	},
 	.clkmsr_id = 20,
 	.clkmsr_margin = 2
