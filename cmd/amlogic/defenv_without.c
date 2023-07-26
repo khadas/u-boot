@@ -357,7 +357,7 @@ static int do_update_env_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const
 	//copy flash env to new buf, and skip env need modify/delete
 		const char *current_kv = (char *)pdata;//env1=val\0
 		const char *kvsep = "=";
-		char *new_kv = new_env_buf;
+		char *new_kv = new_env_buf + 4; //skip crc
 		unsigned int new_env_len = 0;
 		int env_need_update = 0;
 
