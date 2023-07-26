@@ -158,6 +158,7 @@ int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (!ret)
 		vout2_hdmi_hpd(hpd_st);
 
+	hdev->hpd_state = hpd_st;
 	return hpd_st;
 }
 #endif

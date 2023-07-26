@@ -13,11 +13,7 @@
 #include <video.h>
 #include <amlogic/fb.h>
 #ifdef CONFIG_AML_HDMITX
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmitx/hdmitx.h>
-#else
-#include <amlogic/media/vout/hdmitx21/hdmitx.h>
-#endif
+#include <amlogic/media/vout/hdmitx21/hdmitx_ext.h>
 #endif
 
 int osd_enabled = 0;
@@ -243,15 +239,9 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 #ifdef CONFIG_AML_HDMITX
 	int st = 0;
-#ifdef CONFIG_AML_HDMITX20
-	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-#else
-	struct hdmitx_dev *hdev = get_hdmitx21_device();
-#endif
 
 	/* detect hdmi plugin or not */
-	run_command("hdmitx hpd", 0);
-	st = hdev->hwop.get_hpd_state();
+	st = hdmitx_get_hpd_state_ext();
 	printf("osd: hpd_state=%c\n", st ? '1' : '0');
 
 	if (st) {

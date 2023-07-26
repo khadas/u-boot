@@ -14,6 +14,7 @@
 #else
 #include <amlogic/media/vout/hdmitx21/hdmitx_module.h>
 #endif
+#include <amlogic/media/vout/hdmitx21/hdmitx_ext.h>
 #include <amlogic/media/dv/dolby_vision.h>
 #include <amlogic/media/dv/dolby_vision_func.h>
 
@@ -417,7 +418,7 @@ static int check_tv_has_changed(struct hdmitx_dev* hdmitx_device)
 }*/
 static int check_tv_hpd_status(struct hdmitx_dev* hdmitx_device)
 {
-	return hdmitx_device->hwop.get_hpd_state();
+	return hdmitx_get_hpd_state_ext();
 }
 
 static int check_tv_support_dv(struct hdmitx_dev *hdmitx_device)

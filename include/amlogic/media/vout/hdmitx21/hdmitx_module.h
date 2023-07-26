@@ -60,6 +60,7 @@ struct hdmitx_dev {
 	int dv_en;
 	unsigned char pxp_mode; /* for running at pxp only */
 	enum amhdmitx_chip_e chip_type;
+	bool hpd_state;
 };
 
 struct hdmitx_dev *get_hdmitx21_device(void);

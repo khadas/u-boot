@@ -837,7 +837,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	 */
 	bool no_manual_output = false;
 
-	if (!hdev->hwop.get_hpd_state()) {
+	if (!hdev->hpd_state) {
 		printf("HDMI HPD low, no need parse EDID\n");
 		return 1;
 	}
@@ -1053,7 +1053,7 @@ static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *con
 
 	/* If sink is not detected there is a still a good chance it supports proper modes */
 	/* 720p is chosen as a safe compromise: supported by most sinks and looks good enough */
-	if (!hdev->hwop.get_hpd_state()) {
+	if (!hdev->hpd_state) {
 		para = hdmitx21_get_fmtpara("720p60hz", "444,8bit");
 		snprintf(pref_mode, sizeof(pref_mode), "%s", para->sname);
 		snprintf(color_attr, sizeof(color_attr), "%s", "rgb,8bit");
