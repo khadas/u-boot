@@ -109,10 +109,6 @@ int check_valid_dts(unsigned char *buffer)
 #else
 	dt_addr = (char *)buffer;
 #endif
-
-	if (!dt_addr)
-		return -1;
-
 	pr_debug("start dts,buffer=%p,dt_addr=%p\n", buffer, dt_addr);
 	ret = fdt_check_header(dt_addr);
 	if ( ret < 0 )
