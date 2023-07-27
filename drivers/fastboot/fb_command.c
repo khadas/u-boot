@@ -176,7 +176,7 @@ int fastboot_handle_command(char *cmd_string, char *response)
 	for (i = 0; i < FASTBOOT_COMMAND_COUNT; i++) {
 		if (!strcmp_l1(commands[i].command, cmd_string)) {
 			if (commands[i].dispatch) {
-				if (strcmp(cmd_parameter, NULL)) {
+				if (cmd_parameter) {
 					commands[i].dispatch(cmd_parameter,
 							response);
 				} else {
