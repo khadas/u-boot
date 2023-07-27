@@ -92,7 +92,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_BASE \
 		"silent=0\0"\
-		"systemsuspend_switch=1\0"\
+		"systemsuspend_switch=0\0"\
 		"ddr_resume=0\0"\
 		"otg_device=1\0" \
 		"panel_type=lvds_1\0" \
