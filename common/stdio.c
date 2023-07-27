@@ -26,7 +26,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct stdio_dev devs;
-static int stdio_dev_devs_flag = 0;
 struct stdio_dev *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
@@ -228,10 +227,6 @@ int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp)
 	_dev = stdio_clone(dev);
 	if(!_dev)
 		return -ENODEV;
-	if (!stdio_dev_devs_flag) {
-		INIT_LIST_HEAD(&(devs.list));
-		stdio_dev_devs_flag = 1;
-	}
 	list_add_tail(&(_dev->list), &(devs.list));
 	if (devp)
 		*devp = _dev;
@@ -312,7 +307,6 @@ int stdio_init_tables(void)
 
 	/* Initialize the list */
 	INIT_LIST_HEAD(&(devs.list));
-	stdio_dev_devs_flag = 1;
 
 	return 0;
 }

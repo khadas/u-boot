@@ -313,7 +313,6 @@ static void process_fdt_options(const void *blob)
 const char *bootdelay_process(void)
 {
 	char *s;
-	char *p;
 	int bootdelay;
 
 	bootcount_inc();
@@ -350,12 +349,8 @@ const char *bootdelay_process(void)
 
 	process_fdt_options(gd->fdt_blob);
 #ifndef CONFIG_DISABLE_AML_SERIAL
-	p = env_get("reboot_mode");
-	if (p) {
-		if (0 == strcmp(p, "bootloader")) {
-			//
-			bootdelay = -1;
-		}
+	if (0 == strcmp(env_get("reboot_mode"), "bootloader")) {
+		bootdelay = -1;
 	}
 #endif
 	stored_bootdelay = bootdelay;

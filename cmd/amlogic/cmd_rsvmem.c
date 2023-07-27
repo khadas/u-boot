@@ -418,17 +418,10 @@ static int do_rsvmem(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	c = find_cmd_tbl(argv[0], &cmd_rsvmem_sub[0], ARRAY_SIZE(cmd_rsvmem_sub));
 
-	if (c) {
-		int ret = c->cmd(cmdtp, flag, argc, argv);
-
-		if (ret < 0) {
-			/*only negative -1 is identifid as fail */
-			ret = -1;
-		}
-		return ret;
-	} else {
+	if (c)
+		return  c->cmd(cmdtp, flag, argc, argv);
+	else
 		return CMD_RET_USAGE;
-	}
 #endif
 }
 

@@ -734,10 +734,6 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 #ifdef CONFIG_MULTI_DTB
 		fdtAddr = get_multi_dt_entry(fdtAddr);
 #endif// #ifdef CONFIG_MULTI_DTB
-		if (!fdtAddr) {
-			//0 address is invalid
-			FBS_EXIT(_ACK, "invalid fdt address\n");
-		}
 		ret = fdt_check_header((char*)fdtAddr);
 		if (ret) FBS_EXIT(_ACK, "Fail in fdt check header\n");
 

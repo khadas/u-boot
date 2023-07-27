@@ -65,7 +65,7 @@ int ini_parse_file(FILE* file,
 #if !INI_USE_STACK
     line = (char*) malloc(INI_MAX_LINE);
     if (!line) {
-        return -1;
+        return -2;
     }
 #endif
 
@@ -164,7 +164,7 @@ int ini_parse_mem(const char* buf,
 #if !INI_USE_STACK
     line = (char*) malloc(INI_MAX_LINE);
     if (!line) {
-        return -1;
+        return -2;
     }
 #endif
 

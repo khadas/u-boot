@@ -16,8 +16,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 
-#define DDR_SKIP_ZERO_ADDR_START_64KB_MAP	0x10000
-
 /*
  *  With 4k page granule, a virtual address is split into 4 lookup parts
  *  spanning 9 bits each:
@@ -211,12 +209,6 @@ static void add_map(struct mm_region *map)
 	u64 blocksize;
 	int level;
 	u64 *new_table;
-
-	if ((virt == 0) && (phys == 0)) {
-		virt += DDR_SKIP_ZERO_ADDR_START_64KB_MAP;
-		phys += DDR_SKIP_ZERO_ADDR_START_64KB_MAP;
-		size -= DDR_SKIP_ZERO_ADDR_START_64KB_MAP;
-	}
 
 	while (size) {
 		pte = find_pte(virt, 0);
