@@ -51,6 +51,7 @@
 	"os_ident_addr=0x00500000\0"\
 	"loadaddr_rtos=0x00001000\0"\
 	"loadaddr_kernel=0x03000000\0"\
+	"decaddr_kernel=0x01800000\0"\
 	"fb_addr=0x00300000\0" \
 	"dolby_status=0\0" \
 	"dolby_vision_on=0\0" \

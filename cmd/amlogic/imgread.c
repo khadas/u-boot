@@ -467,11 +467,17 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 	u32 securekernelimgsz = 0;
 	char *upgrade_step_s = NULL;
 	bool cache_flag = false;
+	ulong kernelEndAddr = 0;
+	ulong kernelLoadAddr = 0;
+	ulong dtbLoadAddr = 0;
+	char strAddr[128] = {0};
 
-	if (argc > 2)
+	if (argc > 2) {
 		loadaddr = (unsigned char *)simple_strtoul(argv[2], NULL, 16);
-	else
+		env_set("loadaddr", (const char *)argv[2]);
+	} else {
 		loadaddr = (unsigned char *)simple_strtoul(env_get("loadaddr"), NULL, 16);
+	}
 
 	hdr_addr = (boot_img_hdr_t *)loadaddr;
 
@@ -561,6 +567,28 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		if (actualbootimgsz > IMG_PRELOAD_SZ) {
 			const u32 leftsz = actualbootimgsz - IMG_PRELOAD_SZ;
 
+			/* auto adjust kernel image load address avoid
+			 * touch iotrace data and secureOS memory space
+			 */
+			kernelLoadAddr =
+				env_get_ulong("loadaddr", 16, KERNEL_DEFAULT_LOAD_ADDR);
+			kernelEndAddr = kernelLoadAddr + actualbootimgsz;
+			dtbLoadAddr = env_get_ulong("dtb_mem_addr", 16, DTB_LOAD_ADDR);
+
+			if (kernelEndAddr > IOTRACE_LOAD_ADDR) {
+				kernelLoadAddr = kernelLoadAddr -
+				ALIGN((kernelEndAddr - IOTRACE_LOAD_ADDR), LOAD_ADDR_ALIGN_LENGTH);
+				if (kernelLoadAddr <= dtbLoadAddr)
+					kernelLoadAddr = KERNEL_LOAD_HIGH_ADDR;
+				sprintf(strAddr, "%lx", kernelLoadAddr);
+				memmove((void *)kernelLoadAddr, (void *)loadaddr, IMG_PRELOAD_SZ);
+				env_set("loadaddr", strAddr);
+				loadaddr = (unsigned char *)
+					env_get_ulong("loadaddr", 16, kernelLoadAddr);
+				printf("kernel overlap iotrace, reset kernelLoadAddr = 0x%lx\n",
+						kernelLoadAddr);
+			}
+
 			debugP("Left sz 0x%x\n", leftsz);
 			rc = store_logic_read(partname, flashreadoff,
 				leftsz, loadaddr + IMG_PRELOAD_SZ);
@@ -633,6 +661,28 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 		if (actualbootimgsz > IMG_PRELOAD_SZ) {
 			const u32 leftsz = actualbootimgsz - IMG_PRELOAD_SZ;
+
+			/* auto adjust kernel image load address avoid
+			 * touch iotrace data and secureOS memory space
+			 */
+			kernelLoadAddr =
+				env_get_ulong("loadaddr", 16, KERNEL_DEFAULT_LOAD_ADDR);
+			kernelEndAddr = kernelLoadAddr + actualbootimgsz;
+			dtbLoadAddr = env_get_ulong("dtb_mem_addr", 16, DTB_LOAD_ADDR);
+
+			if (kernelEndAddr > IOTRACE_LOAD_ADDR) {
+				kernelLoadAddr = kernelLoadAddr -
+				ALIGN((kernelEndAddr - IOTRACE_LOAD_ADDR), LOAD_ADDR_ALIGN_LENGTH);
+				if (kernelLoadAddr <= dtbLoadAddr)
+					kernelLoadAddr = KERNEL_LOAD_HIGH_ADDR;
+				sprintf(strAddr, "%lx", kernelLoadAddr);
+				memmove((void *)kernelLoadAddr, (void *)loadaddr, IMG_PRELOAD_SZ);
+				env_set("loadaddr", strAddr);
+				loadaddr = (unsigned char *)
+					env_get_ulong("loadaddr", 16, kernelLoadAddr);
+				printf("kernel overlap iotrace, reset kernelLoadAddr = 0x%lx\n",
+						kernelLoadAddr);
+			}
 
 			debugP("Left sz 0x%x\n", leftsz);
 
