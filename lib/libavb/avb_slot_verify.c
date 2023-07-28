@@ -90,11 +90,11 @@ static AvbSlotVerifyResult load_full_partition(AvbOps* ops,
     }
 
     if (*out_image_buf != NULL) {
-      if (part_num_read != image_size) {
-        avb_errorv(part_name, ": Read incorrect number of bytes.\n", NULL);
-        return AVB_SLOT_VERIFY_RESULT_ERROR_IO;
-      }
-      *out_image_preloaded = true;
+	*out_image_preloaded = true;
+	if (part_num_read != image_size) {
+		avb_errorv(part_name, ": Read incorrect number of bytes.\n", NULL);
+		return AVB_SLOT_VERIFY_RESULT_ERROR_IO;
+	}
     }
   }
 
@@ -283,7 +283,6 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   size_t expected_digest_len = 0;
   uint8_t expected_digest_buf[AVB_SHA512_DIGEST_SIZE];
   const uint8_t* expected_digest = NULL;
-  size_t image_size_to_hash = 0;
 
   if (!avb_hash_descriptor_validate_and_byteswap(
           (const AvbHashDescriptor*)descriptor, &hash_desc)) {
@@ -381,8 +380,7 @@ static AvbSlotVerifyResult load_and_verify_hash_partition(
   AvbSHA256Ctx sha256_ctx;
 #endif
   AvbSHA512Ctx sha512_ctx;
-
-  image_size_to_hash = hash_desc.image_size;
+	size_t image_size_to_hash = hash_desc.image_size;
   // If we allow verification error and the whole partition is smaller than
   // image size in hash descriptor, we just hash the whole partition.
   if (image_size_to_hash > image_size) {
@@ -466,8 +464,10 @@ out:
         &slot_data->loaded_partitions[slot_data->num_loaded_partitions++];
     loaded_partition->partition_name = avb_strdup(found);
     loaded_partition->data_size = image_size;
-    loaded_partition->data = image_buf;
-    loaded_partition->preloaded = image_preloaded;
+	loaded_partition->data = NULL;
+	avb_free(image_buf);
+	loaded_partition->preloaded = image_preloaded;
+	loaded_partition->verify_result = ret;
     image_buf = NULL;
   }
 
@@ -536,7 +536,8 @@ static AvbSlotVerifyResult load_requested_partitions(
       goto out;
     }
     loaded_partition->data_size = image_size;
-    loaded_partition->data = image_buf; /* Transferring the owner. */
+	loaded_partition->data = NULL;
+	avb_free(image_buf);
     loaded_partition->preloaded = image_preloaded;
     image_buf = NULL;
     image_preloaded = false;
@@ -561,7 +562,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     AvbSlotVerifyFlags flags,
     bool allow_verification_error,
     AvbVBMetaImageFlags toplevel_vbmeta_flags,
-    int rollback_index_location,
+	uint32_t rollback_index_location,
     const char* partition_name,
     size_t partition_name_len,
     const uint8_t* expected_public_key,
@@ -572,7 +573,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   char full_partition_name[AVB_PART_NAME_MAX_SIZE];
   AvbSlotVerifyResult ret;
   AvbIOResult io_ret;
-  size_t vbmeta_offset;
+	uint64_t vbmeta_offset;
   size_t vbmeta_size;
   uint8_t* vbmeta_buf = NULL;
   size_t vbmeta_num_read;
@@ -587,7 +588,7 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
   bool is_main_vbmeta;
   bool look_for_vbmeta_footer;
   AvbVBMetaData* vbmeta_image_data = NULL;
-  uint32_t rollback_index_location_to_use = 0;
+	bool is_device_unlocked;
 
   ret = AVB_SLOT_VERIFY_RESULT_OK;
 
@@ -664,6 +665,8 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
       ret = AVB_SLOT_VERIFY_RESULT_ERROR_IO;
       goto out;
     }
+    //remove this, because we customized to 512
+    //avb_assert(footer_num_read == AVB_FOOTER_SIZE);
 
     if (!avb_footer_validate_and_byteswap((const AvbFooter*)footer_buf,
                                           &footer)) {
@@ -746,37 +749,37 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
       avb_vbmeta_image_verify(vbmeta_buf, vbmeta_num_read, &pk_data, &pk_len);
   switch (vbmeta_ret) {
     case AVB_VBMETA_VERIFY_RESULT_OK:
-		{
-			bool is_device_unlocked;
+	{
+		bool is_device_unlocked;
 
-			avb_assert(pk_data && pk_len > 0);
-			io_ret = ops->read_is_device_unlocked(ops, &is_device_unlocked);
-			if (!strcmp(full_partition_name, "vbmeta") ||
-					!strcmp(full_partition_name, "vbmeta_a") ||
-					!strcmp(full_partition_name, "vbmeta_b")) {
-				if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
+		avb_assert(pk_data && pk_len > 0);
+		io_ret = ops->read_is_device_unlocked(ops, &is_device_unlocked);
+		if (!strcmp(full_partition_name, "vbmeta") ||
+				!strcmp(full_partition_name, "vbmeta_a") ||
+				!strcmp(full_partition_name, "vbmeta_b")) {
+			if (io_ret == AVB_IO_RESULT_OK && !is_device_unlocked) {
 #ifdef CONFIG_AVB2_UBOOT_SHA256
-					sha256_context boot_key_sha256_ctx;
-					uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
+				sha256_context boot_key_sha256_ctx;
+				uint8_t sha256_output[AVB_SHA256_DIGEST_SIZE];
 
-					sha256_starts(&boot_key_sha256_ctx);
-					sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
-					sha256_finish(&boot_key_sha256_ctx, sha256_output);
-					avb_memcpy(boot_key_hash, sha256_output,
-							AVB_SHA256_DIGEST_SIZE);
+				sha256_starts(&boot_key_sha256_ctx);
+				sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
+				sha256_finish(&boot_key_sha256_ctx, sha256_output);
+				avb_memcpy(boot_key_hash, sha256_output,
+						AVB_SHA256_DIGEST_SIZE);
 #else
-					AvbSHA256Ctx boot_key_sha256_ctx;
+				AvbSHA256Ctx boot_key_sha256_ctx;
 
-					avb_sha256_init(&boot_key_sha256_ctx);
-					avb_sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
-					avb_memcpy(boot_key_hash,
-							avb_sha256_final(&boot_key_sha256_ctx),
-							AVB_SHA256_DIGEST_SIZE);
+				avb_sha256_init(&boot_key_sha256_ctx);
+				avb_sha256_update(&boot_key_sha256_ctx, pk_data, pk_len);
+				avb_memcpy(boot_key_hash,
+						avb_sha256_final(&boot_key_sha256_ctx),
+						AVB_SHA256_DIGEST_SIZE);
 #endif
-				}
 			}
 		}
-      break;
+	}
+	break;
 
     case AVB_VBMETA_VERIFY_RESULT_OK_NOT_SIGNED:
     case AVB_VBMETA_VERIFY_RESULT_HASH_MISMATCH:
@@ -826,7 +829,12 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     }
   }
 
-  rollback_index_location_to_use = rollback_index_location;
+	uint32_t rollback_index_location_to_use = rollback_index_location;
+
+	if (is_main_vbmeta) {
+		rollback_index_location_to_use = vbmeta_header.rollback_index_location;
+	}
+
   /* Check if key used to make signature matches what is expected. */
   if (pk_data != NULL) {
     if (expected_public_key != NULL) {
@@ -996,17 +1004,20 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     switch (desc.tag) {
       case AVB_DESCRIPTOR_TAG_HASH: {
         AvbSlotVerifyResult sub_ret;
-        sub_ret = load_and_verify_hash_partition(ops,
+		//Amlogic modify for unlock device get boot patchlevel
+		if ((ops->read_is_device_unlocked(ops, &is_device_unlocked) == AVB_IO_RESULT_OK &&
+			!is_device_unlocked)) {
+			sub_ret = load_and_verify_hash_partition(ops,
                                                  requested_partitions,
                                                  ab_suffix,
                                                  allow_verification_error,
                                                  descriptors[n],
                                                  slot_data);
-        if (sub_ret != AVB_SLOT_VERIFY_RESULT_OK) {
-          ret = sub_ret;
-          if (!allow_verification_error || !result_should_continue(ret)) {
-            goto out;
-          }
+			if (sub_ret != AVB_SLOT_VERIFY_RESULT_OK) {
+				ret = sub_ret;
+				if (!allow_verification_error || !result_should_continue(ret))
+					goto out;
+			}
         }
       } break;
 
@@ -1240,16 +1251,16 @@ static AvbSlotVerifyResult load_and_verify_vbmeta(
     }
   }
 
-  if (rollback_index_location < 0 ||
-      rollback_index_location >= AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS) {
-    avb_errorv(
-        full_partition_name, ": Invalid rollback_index_location.\n", NULL);
-    ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_METADATA;
-    goto out;
-  }
+	if (rollback_index_location_to_use >=
+		AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS) {
+		avb_errorv(full_partition_name,
+			": Invalid rollback_index_location.\n", NULL);
+		ret = AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_METADATA;
+		goto out;
+	}
 
-  slot_data->rollback_indexes[rollback_index_location] =
-      vbmeta_header.rollback_index;
+	slot_data->rollback_indexes[rollback_index_location_to_use] =
+	    vbmeta_header.rollback_index;
 
   if (out_algorithm_type != NULL) {
     *out_algorithm_type = (AvbAlgorithmType)vbmeta_header.algorithm_type;
@@ -1367,7 +1378,7 @@ out:
 
 static bool has_system_partition(AvbOps* ops, const char* ab_suffix) {
   char part_name[AVB_PART_NAME_MAX_SIZE];
-  char* system_part_name = "system";
+	const char *system_part_name = "system";
   char guid_buf[37];
   AvbIOResult io_ret;
 
@@ -1591,6 +1602,7 @@ AvbSlotVerifyResult avb_slot_verify(AvbOps* ops,
     if (hashtree_error_mode ==
         AVB_HASHTREE_ERROR_MODE_MANAGED_RESTART_AND_EIO) {
       AvbIOResult io_ret;
+
       io_ret = avb_manage_hashtree_error_mode(
           ops, flags, slot_data, &resolved_hashtree_error_mode);
       if (io_ret != AVB_IO_RESULT_OK) {
@@ -1743,9 +1755,10 @@ const char* avb_slot_verify_result_to_string(AvbSlotVerifyResult result) {
   return ret;
 }
 
-void avb_slot_verify_data_calculate_vbmeta_digest(AvbSlotVerifyData* data,
-                                                  AvbDigestType digest_type,
-                                                  uint8_t* out_digest) {
+void avb_slot_verify_data_calculate_vbmeta_digest(const AvbSlotVerifyData *data,
+						  AvbDigestType digest_type,
+						  uint8_t *out_digest)
+{
   bool ret = false;
   size_t n;
 

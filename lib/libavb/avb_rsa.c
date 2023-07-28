@@ -73,6 +73,9 @@ static IAvbKey* iavb_parse_key_data(const uint8_t* data, size_t length) {
   return key;
 
 fail:
+	if (key != NULL)
+		avb_free(key);
+
   return NULL;
 }
 
@@ -149,12 +152,12 @@ static void modpowF4(const IAvbKey* key, uint8_t* inout) {
   uint32_t* a = (uint32_t*)avb_malloc(key->len * sizeof(uint32_t));
   uint32_t* aR = (uint32_t*)avb_malloc(key->len * sizeof(uint32_t));
   uint32_t* aaR = (uint32_t*)avb_malloc(key->len * sizeof(uint32_t));
-  uint32_t* aaa = aaR; /* Re-use location. */
-  int i;
-
   if (a == NULL || aR == NULL || aaR == NULL) {
     goto out;
   }
+
+	uint32_t *aaa = aaR; /* Re-use location. */
+	int i;
 
   /* Convert from big endian byte array to little endian word array. */
   for (i = 0; i < (int)key->len; ++i) {

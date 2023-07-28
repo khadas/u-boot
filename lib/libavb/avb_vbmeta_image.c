@@ -31,8 +31,6 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   const uint8_t* authentication_block;
   const uint8_t* auxiliary_block;
   int verification_result;
-  uint64_t block_total = 0;
-  uintptr_t data_ptr = 0;
 
   ret = AVB_VBMETA_VERIFY_RESULT_INVALID_VBMETA_HEADER;
 
@@ -82,7 +80,7 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
   }
 
   /* Ensure block sizes all add up to at most |length|. */
-  block_total = sizeof(AvbVBMetaImageHeader);
+	uint64_t block_total = sizeof(AvbVBMetaImageHeader);
   if (!avb_safe_add_to(&block_total, h.authentication_data_block_size) ||
       !avb_safe_add_to(&block_total, h.auxiliary_data_block_size)) {
     avb_error("Overflow while computing size of boot image.\n");
@@ -93,7 +91,7 @@ AvbVBMetaVerifyResult avb_vbmeta_image_verify(
     goto out;
   }
 
-  data_ptr = (uintptr_t)data;
+	uintptr_t data_ptr = (uintptr_t)data;
   /* Ensure passed in memory doesn't wrap. */
   if (!avb_safe_add(NULL, (uint64_t)data_ptr, length)) {
     avb_error("Boot image location and length mismatch.\n");
@@ -237,39 +235,40 @@ out:
 }
 
 void avb_vbmeta_image_header_to_host_byte_order(const AvbVBMetaImageHeader* src,
-                                                AvbVBMetaImageHeader* dest) {
-  avb_memcpy(dest, src, sizeof(AvbVBMetaImageHeader));
+						AvbVBMetaImageHeader *dest) {
+	avb_memcpy(dest, src, sizeof(AvbVBMetaImageHeader));
 
-  dest->required_libavb_version_major =
-      avb_be32toh(dest->required_libavb_version_major);
-  dest->required_libavb_version_minor =
-      avb_be32toh(dest->required_libavb_version_minor);
+	dest->required_libavb_version_major =
+		avb_be32toh(dest->required_libavb_version_major);
+	dest->required_libavb_version_minor =
+		avb_be32toh(dest->required_libavb_version_minor);
 
-  dest->authentication_data_block_size =
-      avb_be64toh(dest->authentication_data_block_size);
-  dest->auxiliary_data_block_size =
-      avb_be64toh(dest->auxiliary_data_block_size);
+	dest->authentication_data_block_size =
+		avb_be64toh(dest->authentication_data_block_size);
+	dest->auxiliary_data_block_size =
+		avb_be64toh(dest->auxiliary_data_block_size);
 
-  dest->algorithm_type = avb_be32toh(dest->algorithm_type);
+	dest->algorithm_type = avb_be32toh(dest->algorithm_type);
 
-  dest->hash_offset = avb_be64toh(dest->hash_offset);
-  dest->hash_size = avb_be64toh(dest->hash_size);
+	dest->hash_offset = avb_be64toh(dest->hash_offset);
+	dest->hash_size = avb_be64toh(dest->hash_size);
 
-  dest->signature_offset = avb_be64toh(dest->signature_offset);
-  dest->signature_size = avb_be64toh(dest->signature_size);
+	dest->signature_offset = avb_be64toh(dest->signature_offset);
+	dest->signature_size = avb_be64toh(dest->signature_size);
 
-  dest->public_key_offset = avb_be64toh(dest->public_key_offset);
-  dest->public_key_size = avb_be64toh(dest->public_key_size);
+	dest->public_key_offset = avb_be64toh(dest->public_key_offset);
+	dest->public_key_size = avb_be64toh(dest->public_key_size);
 
-  dest->public_key_metadata_offset =
-      avb_be64toh(dest->public_key_metadata_offset);
-  dest->public_key_metadata_size = avb_be64toh(dest->public_key_metadata_size);
+	dest->public_key_metadata_offset =
+		avb_be64toh(dest->public_key_metadata_offset);
+	dest->public_key_metadata_size = avb_be64toh(dest->public_key_metadata_size);
 
-  dest->descriptors_offset = avb_be64toh(dest->descriptors_offset);
-  dest->descriptors_size = avb_be64toh(dest->descriptors_size);
+	dest->descriptors_offset = avb_be64toh(dest->descriptors_offset);
+	dest->descriptors_size = avb_be64toh(dest->descriptors_size);
 
-  dest->rollback_index = avb_be64toh(dest->rollback_index);
-  dest->flags = avb_be32toh(dest->flags);
+	dest->rollback_index = avb_be64toh(dest->rollback_index);
+	dest->flags = avb_be32toh(dest->flags);
+	dest->rollback_index_location = avb_be32toh(dest->rollback_index_location);
 }
 
 const char* avb_vbmeta_verify_result_to_string(AvbVBMetaVerifyResult result) {
