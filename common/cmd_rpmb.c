@@ -27,7 +27,9 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 		char *pFind = strstr(pARG,"androidboot.rpmb_state");
 		if (!pFind)
 		{
-			sprintf(env_cmd,"setenv bootargs ${bootargs} androidboot.rpmb_state=%d",AML_RPMB_STATE);
+			sprintf(env_cmd,
+			"setenv bootconfig ${bootconfig} androidboot.rpmb_state=%d",
+			AML_RPMB_STATE);
 			run_command(env_cmd,0);
 		}
 		else

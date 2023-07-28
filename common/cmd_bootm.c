@@ -270,7 +270,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return nRet;
 			}
 		}
-		bootargs = getenv("bootargs");
+		bootargs = getenv("bootconfig");
 		if (!bootargs) {
 			bootargs = "\0";
 		}
@@ -289,7 +289,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			boot_params.device_locked = is_dev_unlocked? 0: 1;
 			if (is_dev_unlocked || (toplevel_vbmeta.flags &
-				AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED)) {
+				AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED) ||
+				(toplevel_vbmeta.flags &
+				AVB_VBMETA_IMAGE_FLAGS_HASHTREE_DISABLED)) {
 				bootstate = bootstate_o;
 				boot_params.verified_boot_state = 2;
 			}
@@ -315,7 +317,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				return -1;
 			}
 			sprintf(newbootargs, "%s %s %s", bootargs, out_data->cmdline, bootstate);
-			setenv("bootargs", newbootargs);
+			setenv("bootconfig", newbootargs);
 			free(newbootargs);
 			newbootargs = NULL;
 			avb_slot_verify_data_free(out_data);

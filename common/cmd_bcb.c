@@ -159,7 +159,7 @@ static int do_RunBcbCommand(
     if (RebootMode && (strstr(RebootMode, "quiescent") != NULL)) {
         printf("quiescent mode.\n");
         run_command("run storeargs", 0);
-        run_command("setenv bootargs ${bootargs} androidboot.quiescent=1;", 0);
+		run_command("setenv bootconfig ${bootconfig} androidboot.quiescent=1;", 0);
     }
 
 	ActiveSlot = getenv("active_slot");
@@ -169,7 +169,7 @@ static int do_RunBcbCommand(
 	}
 	if (ActiveSlot && !strstr(ActiveSlot, "normal")) {
 		printf("ab update mode\n");
-		run_command("setenv bootargs ${bootargs} androidboot.slot_suffix=${active_slot};",
+		run_command("setenv bootconfig ${bootconfig} androidboot.slot_suffix=${active_slot};",
 			0);
 	}
 

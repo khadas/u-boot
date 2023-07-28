@@ -38,4 +38,8 @@ config SYS_VSNPRINTF
     help
         "safe versions of the printf() functions"
 
+config XBC
+        bool "enable bootconfig"
+        help
+          This enables bootconfig.
 endmenu

@@ -73,6 +73,7 @@ obj-y += vsprintf.o
 obj-$(CONFIG_ZIRCON_BOOT_IMAGE) += kvstore.o
 
 obj-y += libavb/
+obj-y += libxbc/
 
 obj-y += rand.o
 obj-$(CONFIG_AML_UASAN) += uasan/
