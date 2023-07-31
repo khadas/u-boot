@@ -944,10 +944,16 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 		break;
 	}
 
-	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
-	if (vout_conf->viu_valid[1]) {
-		if (clk_bit < 0xff)
-			vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXHD2) {
+		vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, 0, 0, 4);
+		vout_reg_setb(VPU_VENCX_CLK_CTRL, 0, 0, 3);
+		vout_log("TXHD2:%s\n", __func__);
+	} else {
+		vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
+		if (vout_conf->viu_valid[1]) {
+			if (clk_bit < 0xff)
+				vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+		}
 	}
 
 	if (vout_projector_mux && get_cpu_id().family_id ==
