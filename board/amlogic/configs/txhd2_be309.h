@@ -339,6 +339,7 @@
 			"run cmdline_keys_base;"\
 			"\0"\
         "upgrade_key="\
+	    "gpio clear GPIOAO_11;"\
             "if gpio input GPIOAO_3; then "\
 			"echo detect upgrade key;"\
 			"if test ${boot_flag} = 0; then "\
