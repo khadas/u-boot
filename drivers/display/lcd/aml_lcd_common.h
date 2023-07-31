@@ -58,7 +58,8 @@
 /* 20230222: update tcon tee memory debug info*/
 /* 20230303: fix hdmi mode 47hz & 95hz timing*/
 /* 20230313: update tcon debug info print*/
-#define LCD_DRV_VERSION    "20230313"
+/* 20230802: add t5m,t5w,t3x set phy lane amp*/
+#define LCD_DRV_VERSION    "20230802"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
