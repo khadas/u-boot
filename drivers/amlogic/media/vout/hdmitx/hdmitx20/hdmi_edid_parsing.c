@@ -1513,7 +1513,7 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	if (!hdev || !para)
 		return 0;
 
-	if (strcmp(para->sname, "invalid") == 0)
+	if (para->sname && strcmp(para->sname, "invalid") == 0)
 		return 0;
 	/* if current limits to 1080p, here will check the freshrate and
 	 * 4k resolution
@@ -1524,7 +1524,7 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 			return 0;
 		}
 	}
-	if (!is_support_4k() && is_4k_fmt(para->sname))
+	if (!is_support_4k() && para->sname && is_4k_fmt(para->sname))
 		return false;
 	/* exclude such as: 2160p60hz YCbCr444 10bit */
 	switch (para->vic) {
