@@ -15,7 +15,7 @@
 #define OSD_LOG_LEVEL_DEBUG2 2
 #define OSD_LOG_LEVEL_DEBUG3 3
 
-extern unsigned int osd_log_level;
+extern int osd_log_level;
 
 #define osd_logl() \
 	printf(OSD_LOG_TAG "%s:%d\n", __func__, __LINE__)
@@ -24,7 +24,11 @@ extern unsigned int osd_log_level;
 	printf(OSD_LOG_TAG "%s:%d " fmt, __func__, __LINE__, ##__VA_ARGS__)
 
 #define osd_logi(fmt, ...) \
-	printf(OSD_LOG_TAG fmt, ##__VA_ARGS__)
+	do { \
+		if (osd_log_level >= OSD_LOG_LEVEL_NULL) { \
+			printf(OSD_LOG_TAG fmt, ##__VA_ARGS__); \
+		} \
+	} while (0)
 
 #define osd_loge(fmt, ...) \
 	printf(OSD_LOG_TAG "ERR: " fmt, ##__VA_ARGS__)

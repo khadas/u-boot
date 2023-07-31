@@ -316,7 +316,8 @@ static inline bool check_outputmode(void)
 {
 	char *outputmode = env_get("outputmode");
 
-	printf("outputmode %s\n", outputmode);
+	if (!(rma_test || rma_test_addr))
+		printf("outputmode %s\n", outputmode);
 
 	if (strstr(outputmode, "2160p100hz") ||
 	    strstr(outputmode, "2160p120hz") ||
@@ -360,8 +361,11 @@ int is_dolby_enable(void)
 	else
 		ret = 0;
 
-	printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, hdr_force_mode %s, ret %d\n",
-			dolby_status, dv_fw_valid, check_outputmode_valid, hdr_force_mode, ret);
+	if (!(rma_test || rma_test_addr)) {
+		printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, ",
+			dolby_status, dv_fw_valid, check_outputmode_valid);
+		printf("hdr_force_mode %s, ret %d\n", hdr_force_mode, ret);
+	}
 
 	return ret;
 }

@@ -304,6 +304,7 @@ void osd_test(void);
 void osd_enable_hw(u32 index, u32 enable);
 void osd_set_free_scale_enable_hw(u32 index, u32 enable);
 int osd_rma_test(u32 osd_index);
+int osd_rma_test_with_addr(u32 start_addr, u32 end_addr);
 unsigned int get_fb_offset(u32 index);
 unsigned int get_fb_len(u32 index);
 

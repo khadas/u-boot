@@ -139,5 +139,7 @@ void osd2_setup_hw(u32 index,
 		  const struct color_bit_define_s *color);
 #endif
 void osd_set_dimm(u32 index, u32 dim_color, u32 en);
+void stop_osd_log(void);
+void start_osd_log(void);
 
 #endif

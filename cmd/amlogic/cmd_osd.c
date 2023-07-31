@@ -147,6 +147,10 @@ static int do_osd_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	case 2:
 		osd_rma_test(simple_strtoul(argv[1], NULL, 10));
 		break;
+	case 3:
+		osd_rma_test_with_addr(simple_strtoul(argv[1], NULL, 16),
+			simple_strtoul(argv[2], NULL, 16));
+		break;
 	default:
 		return CMD_RET_USAGE;
 	}
