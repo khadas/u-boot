@@ -749,6 +749,10 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
+
+	if (*load_end >= IOTRACE_LOAD_ADDR)
+		printf("[Warning] kernel overlap iotrace, please reset decompress addr\n");
+
 	flush_cache(load, (*load_end - load) * sizeof(ulong));
 
 	printf("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
