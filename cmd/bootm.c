@@ -154,8 +154,6 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *pbootargs = env_get("bootargs");
 	char *preboot_mode = env_get("reboot_mode");
 
-	bootloader_wp_check();
-
 	if (pbootargs && preboot_mode) {
 		int nlen = strlen(pbootargs) + strlen(preboot_mode) + 16;
 		char *pnewbootargs = malloc(nlen);
@@ -386,6 +384,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif//CONFIG_CMD_BOOTCTOL_AVB
 
 	recovery_mode_process();
+	bootloader_wp_check();
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |
