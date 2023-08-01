@@ -44,7 +44,7 @@ extern unsigned int lcd_debug_print_flag;
 /* ******** clk_ctrl ******** */
 #define CLK_CTRL_LEVEL              28 /* [30:28] */
 #define CLK_CTRL_FRAC_SHIFT         24 /* [24] */
-#define CLK_CTRL_FRAC               0  /* [18:0] */
+#define CLK_CTRL_FRAC               0  /* [23:0] */
 
 
 /* **********************************
@@ -131,7 +131,7 @@ struct lcd_timing_s {
 	unsigned int pll_ctrl;  /* pll settings */
 	unsigned int div_ctrl;  /* divider settings */
 	unsigned int clk_ctrl;  /* clock settings */
-	unsigned int bit_rate; /* Hz */
+	unsigned long long bit_rate; /* Hz */
 
 	unsigned int ss_level; /* [15:12]: ss_freq, [11:8]: ss_mode,
 				* [7:0]: ss_level
@@ -263,8 +263,8 @@ struct vbyone_config_s {
 
 struct dsi_config_s {
 	unsigned char lane_num;
-	unsigned int bit_rate_max; /* MHz */
-	unsigned int bit_rate_min; /* MHz*/
+	unsigned int bit_rate_max;
+	unsigned int bit_rate_min;
 	unsigned int clk_factor; /* bit_rate/pclk */
 	unsigned int factor_numerator;
 	unsigned int factor_denominator; /* 100 */

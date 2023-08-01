@@ -903,12 +903,12 @@ static unsigned int vbyone_lane_num[] = {
 	8,
 };
 
-#define VBYONE_BIT_RATE_MAX		3100 //MHz
-#define VBYONE_BIT_RATE_MIN		600
+#define VBYONE_BIT_RATE_MAX		3100000000ULL
+#define VBYONE_BIT_RATE_MIN		600000000
 static void lcd_vbyone_config_set(struct lcd_config_s *pconf)
 {
-	unsigned int band_width, bit_rate, pclk, phy_div;
-	unsigned int byte_mode, lane_count, minlane;
+	unsigned long long band_width, bit_rate;
+	unsigned int phy_div, byte_mode, lane_count, minlane;
 	unsigned int temp, i;
 
 	if (lcd_debug_print_flag)
@@ -919,47 +919,44 @@ static void lcd_vbyone_config_set(struct lcd_config_s *pconf)
 	byte_mode = pconf->lcd_control.vbyone_config->byte_mode;
 	/* byte_mode * byte2bit * 8/10_encoding * pclk =
 	   byte_mode * 8 * 10 / 8 * pclk */
-	pclk = pconf->lcd_timing.lcd_clk / 1000; /* kHz */
-	band_width = byte_mode * 10 * pclk;
+	band_width = pconf->lcd_timing.lcd_clk;
+	band_width = byte_mode * 10 * band_width;
 
-	temp = VBYONE_BIT_RATE_MAX * 1000;
-	temp = (band_width + temp - 1) / temp;
+	temp = VBYONE_BIT_RATE_MAX;
+	temp = lcd_do_div((band_width + temp - 1), temp);
 	for (i = 0; i < 4; i++) {
 		if (temp <= vbyone_lane_num[i])
 			break;
 	}
 	minlane = vbyone_lane_num[i];
 	if (lane_count < minlane) {
-		LCDERR("vbyone lane_num(%d) is less than min(%d)\n",
+		LCDERR("vbyone lane_num(%d) is less than min(%d), change to min lane_num\n",
 			lane_count, minlane);
 		lane_count = minlane;
 		pconf->lcd_control.vbyone_config->lane_count = lane_count;
-		LCDPR("change to min lane_num %d\n", minlane);
 	}
 
-	bit_rate = band_width / lane_count;
+	bit_rate = lcd_do_div(band_width, lane_count);
 	phy_div = lane_count / lane_count;
 	if (phy_div == 8) {
 		phy_div /= 2;
-		bit_rate /= 2;
+		bit_rate = lcd_do_div(bit_rate, 2);
 	}
-	if (bit_rate > (VBYONE_BIT_RATE_MAX * 1000)) {
-		LCDERR("vbyone bit rate(%dKHz) is out of max(%dKHz)\n",
-			bit_rate, (VBYONE_BIT_RATE_MAX * 1000));
+	if (bit_rate > (VBYONE_BIT_RATE_MAX)) {
+		LCDERR("vbyone bit rate(%lldHz) is out of max(%lldHz)\n",
+			bit_rate, VBYONE_BIT_RATE_MAX);
 	}
-	if (bit_rate < (VBYONE_BIT_RATE_MIN * 1000)) {
-		LCDERR("vbyone bit rate(%dKHz) is out of min(%dKHz)\n",
-			bit_rate, (VBYONE_BIT_RATE_MIN * 1000));
+	if (bit_rate < (VBYONE_BIT_RATE_MIN)) {
+		LCDERR("vbyone bit rate(%lldHz) is out of min(%dHz)\n",
+			bit_rate, VBYONE_BIT_RATE_MIN);
 	}
-	bit_rate = bit_rate * 1000; /* Hz */
 
 	pconf->lcd_control.vbyone_config->phy_div = phy_div;
 	pconf->lcd_timing.bit_rate = bit_rate;
 
 	if (lcd_debug_print_flag) {
-		LCDPR("lane_count=%u, bit_rate = %uMHz, pclk=%u.%03uMhz\n",
-			lane_count, (bit_rate / 1000000),
-			(pclk / 1000), (pclk % 1000));
+		LCDPR("lane_count=%u, bit_rate = %lluHz, pclk=%uhz\n",
+			lane_count, bit_rate, pconf->lcd_timing.lcd_clk);
 	}
 }
 

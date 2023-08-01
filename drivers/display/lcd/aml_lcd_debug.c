@@ -170,7 +170,7 @@ static void lcd_info_print_vbyone(struct lcd_config_s *pconf)
 	printf("lane_count                 %u\n"
 		"region_num                 %u\n"
 		"byte_mode                  %u\n"
-		"bit_rate                   %uHz\n"
+		"bit_rate                   %lluHz\n"
 		"phy_vswing                 0x%x\n"
 		"phy_preemphasis            0x%x\n"
 		"hw_filter_time             0x%x\n"
@@ -257,7 +257,7 @@ static void lcd_info_print_mlvds(struct lcd_config_s *pconf)
 		"bit_swap          %u\n"
 		"phy_vswing        0x%x\n"
 		"phy_preem         0x%x\n"
-		"bit_rate          %uHz\n"
+		"bit_rate          %lluHz\n"
 		"pi_clk_sel        0x%03x\n\n",
 		pconf->lcd_control.mlvds_config->channel_num,
 		pconf->lcd_control.mlvds_config->channel_sel0,
@@ -281,7 +281,7 @@ static void lcd_info_print_p2p(struct lcd_config_s *pconf)
 		"channel_sel1      0x%08x\n"
 		"pn_swap           %u\n"
 		"bit_swap          %u\n"
-		"bit_rate          %uHz\n"
+		"bit_rate          %lluHz\n"
 		"phy_vswing        0x%x\n"
 		"phy_preem         0x%x\n\n",
 		pconf->lcd_control.p2p_config->p2p_type,
@@ -1050,6 +1050,9 @@ void aml_lcd_info_print(void)
 
 	lcd_power_info_print(lcd_drv, 1);
 	lcd_power_info_print(lcd_drv, 0);
+
+	printf("\n");
+	lcd_clk_config_print();
 }
 
 void aml_lcd_reg_print(void)

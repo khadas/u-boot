@@ -59,7 +59,8 @@
 /* 20230303: fix hdmi mode 47hz & 95hz timing*/
 /* 20230313: update tcon debug info print*/
 /* 20230802: add t5m,t5w,t3x set phy lane amp*/
-#define LCD_DRV_VERSION    "20230802"
+/* 20230816: optimize clk accuracy*/
+#define LCD_DRV_VERSION    "20230816"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
@@ -68,13 +69,13 @@
 extern void mdelay(unsigned long n);
 extern unsigned int lcd_debug_test;
 
-static inline unsigned int lcd_do_div(unsigned long long num, unsigned int den)
+static inline unsigned long long lcd_do_div(unsigned long long num, unsigned int den)
 {
 	unsigned long long ret = num;
 
 	do_div(ret, den);
 
-	return (unsigned int)ret;
+	return ret;
 }
 
 /* lcd common */
