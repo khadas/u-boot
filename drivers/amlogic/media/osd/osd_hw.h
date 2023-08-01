@@ -17,7 +17,7 @@
 #endif
 
 extern int osd_get_chip_type(void);
-extern void osd_init_hw(void);
+void osd_init_hw(u32 index);
 extern void osd_set_color_key_hw(u32 index, u32 bpp, u32 colorkey);
 extern void osd_srckey_enable_hw(u32  index, u8 enable);
 extern void osd_set_gbl_alpha_hw(u32 index, u32 gbl_alpha);
@@ -117,6 +117,7 @@ void vpp_post_proc_set(u32 vpp_index, struct vpp_post_s *vpp_post);
 void vpp_post_padding_set(u32 vpp_index, struct vpp_post_s *vpp_post);
 #endif
 void osd_init_hw_viux(u32 index);
+u32 osd_get_state(u32 index);
 
 #ifdef VEHICLE_CONFIG
 void osd_set_config_finish(void);
@@ -137,5 +138,6 @@ void osd2_setup_hw(u32 index,
 		  u32 fbmem,
 		  const struct color_bit_define_s *color);
 #endif
+void osd_set_dimm(u32 index, u32 dim_color, u32 en);
 
 #endif

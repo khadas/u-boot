@@ -184,6 +184,7 @@ enum vpp_vsync_type {
 	VPU_VPP0,
 	VPU_VPP1,
 	VPU_VPP2,
+	VPU_VPP_MAX
 };
 
 enum matrix_type_e {
@@ -271,6 +272,7 @@ struct hw_para_s {
 	u32 antiflicker_mode;
 	u32 angle[HW_OSD_COUNT];
 	u32 clone[HW_OSD_COUNT];
+	u32 vpp_index[HW_OSD_COUNT];
 	u32 bot_type;
 	u32 osd_ver;
 	u32 shift_line;
@@ -498,5 +500,6 @@ extern struct hw_osd_reg_s hw_osd_reg_array[HW_OSD_COUNT];
 #ifdef AML_S5_DISPLAY
 struct vpp_post_info_t *get_vpp_post_amdv_info(void);
 #endif
+extern int rma_test;
 
 #endif /* _OSD_H_ */

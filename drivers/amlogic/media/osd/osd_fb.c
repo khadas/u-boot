@@ -169,7 +169,7 @@ static int img_video_init = 0;
 #if defined(CONFIG_AML_MINUI)
 extern int in_fastboot_mode;
 #endif
-
+int rma_test;
 
 static void osd_layer_init(GraphicDevice *gdev, int layer)
 {
@@ -189,7 +189,7 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 			&default_color_format_array[gdev->gdfIndex];
 
 	/* if viu2 has no scaler */
-	if (index >= VIU2_OSD1 && !osd_hw.viux_scale_cap) {
+	if (is_vppx(index) && !osd_hw.viux_scale_cap) {
 		xres = gdev->winSizeX;
 		yres = gdev->winSizeY;
 		xres_virtual = gdev->winSizeX;
@@ -205,11 +205,13 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 		disp_end_y = gdev->fb_height - 1;
 	}
 #ifdef AML_OSD_HIGH_VERSION
-	if (index >= VIU2_OSD1)
+	if (is_vppx(index))
 		osd_init_hw_viux(index);
 	else
+		osd_init_hw(index);
+#else
+	osd_init_hw(index);
 #endif
-	osd_init_hw();
 	osd_setup_hw(index,
 		     xoffset,
 		     yoffset,
@@ -429,21 +431,39 @@ u32 osd_canvas_align(u32 x)
 int get_osd_layer(void)
 {
 	char *layer_str;
-	int osd_index = 0;
+	int osd_index = 0, vpp_index = 0;
+	static int last_osd, last_vpp;
 
 	layer_str = env_get("display_layer");
-	if (strcmp(layer_str, "osd0") == 0)
+	if (strcmp(layer_str, "osd0") == 0) {
 		osd_index = OSD1;
-	else if (strcmp(layer_str, "osd1") == 0)
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "osd1") == 0) {
 		osd_index = OSD2;
-	else if (strcmp(layer_str, "osd2") == 0)
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "osd2") == 0) {
 		osd_index = OSD3;
-	else if (strcmp(layer_str, "viu2_osd0") == 0)
-		osd_index = VIU2_OSD1;
-	else if (strcmp(layer_str, "viu3_osd0") == 0)
-		osd_index = VIU3_OSD1;
-	else
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "osd3") == 0) {
+		osd_index = OSD4;
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "viu2_osd0") == 0) {
+		osd_index = OSD3;
+		vpp_index = VPU_VPP1;
+	} else if (strcmp(layer_str, "viu3_osd0") == 0) {
+		osd_index = OSD4;
+		vpp_index = VPU_VPP2;
+	} else {
 		osd_loge("%s, error found\n", __func__);
+	}
+
+	osd_hw.vpp_index[osd_index] = vpp_index;
+	if (osd_index != last_osd || vpp_index != last_vpp)
+		osd_logd3("%s, osd%d --> vpp%d\n", __func__,
+			  osd_index, osd_hw.vpp_index[osd_index]);
+
+	last_osd = osd_index;
+	last_vpp = vpp_index;
 
 	return osd_index;
 }
@@ -479,26 +499,24 @@ static void *osd_hw_init(void)
 		osd_loge("osd_hw_init: invalid osd_index\n");
 		return NULL;
 	}
-	if (osd_index == OSD1) {
-		osd_layer_init(&fb_gdev, OSD1);
-	} else if (osd_index == OSD2) {
-		if (osd_hw.osd_ver == OSD_SIMPLE) {
-			osd_loge("AXG/A4/C3 not support osd2\n");
+	if (is_vpp0(osd_index)) {
+		if (osd_hw.osd_ver == OSD_SIMPLE && osd_index >= OSD2) {
+			osd_loge("AXG/A4/C3 not support osd%d\n", osd_index);
 			return NULL;
 		}
-		osd_layer_init(&fb_gdev, OSD2);
-	} else if (osd_index == VIU2_OSD1 /* OSD3 */) {
+		osd_layer_init(&fb_gdev, osd_index);
+	} else if (is_vpp1(osd_index)) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG/A4/C3 not support viu2 osd0\n");
 			return NULL;
 		}
-		osd_layer_init(&fb_gdev, VIU2_OSD1 /* OSD3 */);
-	}  else if (osd_index == VIU3_OSD1 /* OSD4 */) {
+		osd_layer_init(&fb_gdev, osd_index);
+	}  else if (is_vpp2(osd_index)) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG/A4/C3 not support viu3 osd0\n");
 			return NULL;
 		}
-		osd_layer_init(&fb_gdev, VIU3_OSD1 /* OSD4 */);
+		osd_layer_init(&fb_gdev, osd_index);
 	} else {
 		osd_loge("display_layer(%d) invalid\n", osd_index);
 		return NULL;
@@ -689,8 +707,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		return (-1);
 	}
 
-	/* if viu2 has no scaler */
-	if (osd_index >= VIU2_OSD1 && !osd_hw.viux_scale_cap) {
+	/* if viu2/viu3 has no scaler */
+	if (is_vppx(osd_index) && !osd_hw.viux_scale_cap) {
 		pwidth = info->width;
 		pheight = info->height;
 	} else {
@@ -1418,7 +1436,6 @@ struct vpp_post_info_t *get_vpp_post_amdv_info(void)
 #ifdef OSD_SCALE_ENABLE
 int video_scale_bitmap(void)
 {
-	char *layer_str = NULL;
 	int osd_index = -1;
 	int axis[4] = {};
 #ifdef AML_OSD_HIGH_VERSION
@@ -1433,25 +1450,15 @@ int video_scale_bitmap(void)
 		fb_gdev.fb_width, fb_gdev.fb_height, fb_gdev.winSizeX, fb_gdev.winSizeY);
 
 	vout_get_current_axis(axis);
-	layer_str = env_get("display_layer");
-	if (strcmp(layer_str, "osd0") == 0)
-		osd_index = OSD1;
-	else if (strcmp(layer_str, "osd1") == 0)
-		osd_index = OSD2;
-	else if (strcmp(layer_str, "osd2") == 0)
-		osd_index = OSD3;
-	else if (strcmp(layer_str, "viu2_osd0") == 0) {
-		osd_index = VIU2_OSD1;
-		if (!osd_hw.viux_scale_cap)
-			goto no_scale;
-	} else if (strcmp(layer_str, "viu3_osd0") == 0) {
-		osd_index = VIU3_OSD1;
-		if (!osd_hw.viux_scale_cap)
-			goto no_scale;
-	} else {
-		osd_logd2("video_scale_bitmap: invalid display_layer\n");
-		return (-1);
+	osd_index = get_osd_layer();
+	if (osd_index < 0) {
+		osd_loge("%s: invalid display_layer\n", __func__);
+		return -1;
 	}
+
+	/* if viu2/viu3 has no scaler */
+	if (is_vppx(osd_index) && !osd_hw.viux_scale_cap)
+		goto no_scale;
 
 #ifdef OSD_SUPERSCALE_ENABLE
 	if ((fb_gdev.fb_width * 2 != fb_gdev.winSizeX) ||
@@ -1475,11 +1482,11 @@ no_scale:
 	disp_data.y_start = axis[1];
 	disp_data.x_end = axis[0] + axis[2] - 1;
 	disp_data.y_end = axis[1] + axis[3] - 1;
-	if (osd_hw.osd_ver == OSD_HIGH_ONE && osd_index < VIU2_OSD1)
+	if (osd_hw.osd_ver == OSD_HIGH_ONE && is_vpp0(osd_index))
 		osd_update_blend(&disp_data);
 #endif
 #ifdef AML_S5_DISPLAY
-	if (osd_index < VIU2_OSD1) {
+	if (is_vpp0(osd_index)) {
 		update_vpp_input_info(vinfo);
 		vpp_post_blend_update_s5();
 	}
@@ -1696,16 +1703,27 @@ static int osd_hw_init_by_index(u32 osd_index)
 {
 	if (_osd_hw_init() < 0)
 		return -1;
-	if (osd_index == OSD1)
+	if (osd_index == OSD1) {
 		osd_layer_init(&fb_gdev, OSD1);
-	else if ( osd_index == OSD2) {
+	} else if (osd_index == OSD2) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG/A4/C3 not support osd2\n");
 			return -1;
 		}
 		osd_layer_init(&fb_gdev, OSD2);
-	}
-	else {
+	} else if (osd_index == OSD3) {
+		if (osd_hw.osd_ver == OSD_SIMPLE) {
+			osd_loge("AXG/A4/C3 not support osd3\n");
+			return -1;
+		}
+		osd_layer_init(&fb_gdev, OSD3);
+	} else if (osd_index == OSD4) {
+		if (osd_hw.osd_ver == OSD_SIMPLE) {
+			osd_loge("AXG/A4/C3 not support osd4\n");
+			return -1;
+		}
+		osd_layer_init(&fb_gdev, OSD4);
+	} else {
 		osd_loge("display_layer(%d) invalid\n", osd_index);
 		return -1;
 	}
@@ -1729,45 +1747,72 @@ static int video_display_osd(u32 osd_index)
 	unsigned long pheight = info->width;
 	unsigned long pwidth = info->height;
 #endif
-	int bpp;
+	int bpp, ret = 0;
 
-	if (fb_gdev.gdfBytesPP != 2) {
-		osd_loge("%d bit/pixel mode1, not support now\n",
-			fb_gdev.gdfBytesPP);
-		return -1;
-	}
 	bpp = fb_gdev.gdfBytesPP;
 	width = fb_gdev.fb_width;
 	height = fb_gdev.fb_height;
 	osd_set_free_scale_enable_hw(osd_index, 0x0);  // disable free_scale
+	osd_set_dimm(osd_index, 0, 0);
 	osd_enable_hw(osd_index, 1);
-
 	fb   = (uchar *)(info->vd_base);
 	osd_logd("fb=0x%p; width=%ld, height= %ld, bpp=%d\n",
 		 fb, width, height, bpp);
 
-	for (j = 0; j < height; j++) {
-		for (i = 0; i < width; i++ ) {
-			*(fb++) = 0x0;
-			*(fb++) = 0xf8;
+	switch (bpp) {
+	case 2:
+		for (j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				*(fb++) = 0x0;
+				*(fb++) = 0xf8;
+			}
 		}
+		break;
+	case 3:
+		for (j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				*(fb++) = 0x0;
+				*(fb++) = 0x0;
+				*(fb++) = 0xff;
+			}
+		}
+		break;
+	case 4:
+		for (j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				*(fb++) = 0x0;
+				*(fb++) = 0x0;
+				*(fb++) = 0xff;
+				*(fb++) = 0xff;
+			}
+		}
+		break;
+	default:
+		osd_loge("%d bit/pixel is not support\n", bpp);
+		ret = -1;
+		break;
 	}
 
 	flush_cache((unsigned long)info->vd_base, pheight * pwidth * bpp);
-	return (0);
+	return ret;
 }
 
-u32 hist_max_min[3][100], hist_spl_val[3][100],
-	hist_spl_pix_cnt[3][100], hist_cheoma_sum[3][100];
+u32 hist_max_min[4][100], hist_spl_val[4][100];
+u32 hist_spl_pix_cnt[4][100], hist_cheoma_sum[4][100];
 
 void hist_set_golden_data(void)
 {
 	u32 i = 0;
 	u32 family_id = osd_get_chip_type();
 	char *str = NULL;
-	char *hist_env_key[12] = {"hist_max_min_osd0","hist_spl_val_osd0","hist_spl_pix_cnt_osd0","hist_cheoma_sum_osd0",
-	                         "hist_max_min_osd1","hist_spl_val_osd1","hist_spl_pix_cnt_osd1","hist_cheoma_sum_osd1",
-							 "hist_max_min_osd2","hist_spl_val_osd2","hist_spl_pix_cnt_osd2","hist_cheoma_sum_osd2"};
+	char *hist_env_key[16] = {"hist_max_min_osd0", "hist_spl_val_osd0",
+				"hist_spl_pix_cnt_osd0", "hist_cheoma_sum_osd0",
+				"hist_max_min_osd1", "hist_spl_val_osd1",
+				"hist_spl_pix_cnt_osd1", "hist_cheoma_sum_osd1",
+				"hist_max_min_osd2", "hist_spl_val_osd2",
+				"hist_spl_pix_cnt_osd2", "hist_cheoma_sum_osd2",
+				"hist_max_min_osd3", "hist_spl_val_osd3",
+				"hist_spl_pix_cnt_osd3", "hist_cheoma_sum_osd3"};
 	// GXL
 	hist_max_min[OSD1][MESON_CPU_MAJOR_ID_GXL] = 0x3d3d;
 	hist_spl_val[OSD1][MESON_CPU_MAJOR_ID_GXL] = 0xc4dad1;
@@ -1816,7 +1861,7 @@ void hist_set_golden_data(void)
 	hist_cheoma_sum[OSD1][MESON_CPU_MAJOR_ID_SC2]
 						= hist_cheoma_sum[OSD2][MESON_CPU_MAJOR_ID_SC2]
 						= 0xfd20480;
-	for (i = 0; i < 12; i++) {
+	for (i = 0; i < 16; i++) {
 		str = env_get(hist_env_key[i]);
 		if (str) {
 			switch (i%4) {
@@ -1840,13 +1885,14 @@ void hist_set_golden_data(void)
 int osd_rma_test(u32 osd_index)
 {
 	u32 i = osd_index, osd_max = 1;
-	u32 hist_result[4];
+	u32 hist_result[4], osd_state;
 
+	rma_test = 1;
 	get_osd_version();
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
 		osd_max = 0;
 	} else if (osd_hw.osd_ver == OSD_HIGH_ONE) {
-		osd_max = 1; // osd3 not supported now
+		osd_max = 3; /* 0/1/2/3 */
 	}
 	if (osd_index > osd_max) {
 		osd_loge("=== osd%d is not supported, osd_max is %d ===\n", osd_index, osd_max);
@@ -1861,9 +1907,14 @@ int osd_rma_test(u32 osd_index)
 	}
 	osd_hist_enable(osd_index);
 	_udelay(50000);
+	osd_state = osd_get_state(osd_index);
+	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
 	osd_get_hist_stat(hist_result);
 	_udelay(50000);
+	osd_state = osd_get_state(osd_index);
+	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
 	osd_get_hist_stat(hist_result);
+	rma_test = 0;
 #ifndef AML_C3_DISPLAY
 	u32 family_id = osd_get_chip_type();
 

@@ -578,6 +578,8 @@ static const struct vout_set_s *vout_find_mode_by_name(const char *name)
 	const struct vout_set_s *vset = NULL;
 	int i = 0;
 
+	if (!name)
+		return NULL;
 	vset = vout_sets_dft;
 	for (i = 0; i < sizeof(vout_sets_dft) / sizeof(struct vout_set_s); i++) {
 		if (strncmp(name, vset->name, strlen(vset->name)) == 0)
@@ -636,11 +638,11 @@ static void vout_vmode_init(void)
 	uint index = 0;
 
 	index = get_osd_layer();
-	if (index < VIU2_OSD1)
+	if (is_vpp0(index))
 		outputmode = env_get("outputmode");
-	else if (index == VIU2_OSD1)
+	else if (is_vpp1(index))
 		outputmode = env_get("outputmode2");
-	else if (index == VIU3_OSD1)
+	else if (is_vpp2(index))
 		outputmode = env_get("outputmode3");
 	else
 		vout_log("%s, layer%d is not supported\n", __func__, index);

@@ -70,7 +70,7 @@ static int do_osd_close(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 1;
 
 	gdev = NULL;
-	if (index >= VIU2_OSD1) {
+	if (is_vppx(index)) {
 		osd_enable_hw(index, 0);
 		if (get_osd_viux_scale_cap())
 			osd_set_free_scale_enable_hw(index, 0);
