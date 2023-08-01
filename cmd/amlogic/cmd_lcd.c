@@ -330,16 +330,14 @@ static int do_lcd_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 
 static int do_lcd_edp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int ret = 0;
+	int ret = 0, num;
 
 	if (argc == 1)
 		return -1;
 
-	if (strcmp(argv[1], "edid") == 0)
-		aml_lcd_edp_edid(0);
-	else
-		ret = -1;
+	num = argc >= 2 ? simple_strtoul(argv[2], NULL, 10) : 0;
 
+	ret = aml_lcd_edp_debug(0, argv[1], num);
 	return ret;
 }
 
@@ -610,16 +608,14 @@ static int do_lcd1_vbyone(cmd_tbl_t *cmdtp, int flag, int argc,
 
 static int do_lcd1_edp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int ret = 0;
+	int ret = 0, num;
 
 	if (argc == 1)
 		return -1;
 
-	if (strcmp(argv[1], "edid") == 0)
-		aml_lcd_edp_edid(1);
-	else
-		ret = -1;
+	num = argc >= 2 ? simple_strtoul(argv[2], NULL, 10) : 0;
 
+	ret = aml_lcd_edp_debug(1, argv[1], num);
 	return ret;
 }
 

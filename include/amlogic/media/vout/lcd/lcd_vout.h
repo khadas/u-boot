@@ -299,30 +299,50 @@ struct dsi_config_s {
 #define EDP_EDID_STATE_APPLY    BIT(1)
 #define EDP_EDID_RETRY_MAX      3
 struct edp_config_s {
+	unsigned char HPD_level;
+	unsigned char irq_sta;
+	/* DP: both sink & source can support max */
+	/* eDP: preset in dts */
 	unsigned char max_lane_count;
 	unsigned char max_link_rate;
-	unsigned char training_mode; /* 0=fast training, 1=auto training */
-	unsigned char edid_en;
+	unsigned char enhanced_framing_en;
+	/* current actually use */
+	unsigned char lane_count;
+	unsigned char link_rate;
+	// unsigned int bit_rate; // kHz
+
+	unsigned char down_ss;
+
 	unsigned char dpcd_caps_en;
 	unsigned char sync_clk_mode;
 	unsigned char scramb_mode;
-	unsigned char enhanced_framing_en;
 	unsigned char pn_swap;
-
-	unsigned int phy_vswing;
-	unsigned int phy_preem;
+	unsigned char link_rate_update;
 
 	/* internal used */
-	unsigned char lane_count;
-	unsigned char link_rate;
-	unsigned int bit_rate;
-	unsigned char edid_state;
-	unsigned char edid_retry_cnt;
-	unsigned char link_update;
 	unsigned char training_settings;
 	unsigned char main_stream_enable;
 
-	unsigned char edid_data[128];
+	unsigned char training_mode;
+	unsigned char TPS_support;
+	unsigned char phy_update;
+
+	/* last known-good (DP), in range: 0~3 */
+	unsigned char last_good_vswing[4];
+	unsigned char last_good_preem[4];
+	/* phy preset (edp) in dts, in range: 0~0xf*/
+	unsigned char phy_vswing_preset;
+	unsigned char phy_preem_preset;
+
+	/* current setting, in range: 0~3 */
+	unsigned char curr_preem[4];
+	unsigned char curr_vswing[4];
+	/* adjust request from DPCD, in range: 0~3 */
+	unsigned char adj_req_preem[4];
+	unsigned char adj_req_vswing[4];
+
+	/* edid */
+	unsigned char edid_en;
 };
 
 struct mlvds_config_s {
@@ -640,7 +660,7 @@ void aml_lcd_driver_reg_info(int index);
 void aml_lcd_vbyone_rst(int index);
 int aml_lcd_vbyone_cdr(int index);
 int aml_lcd_vbyone_lock(int index);
-void aml_lcd_edp_edid(int index);
+int aml_lcd_edp_debug(int index, char *str, int num);
 void aml_lcd_driver_test(int index, int num);
 int aml_lcd_driver_prbs(int index, unsigned int s, unsigned int mode_flag);
 void aml_lcd_driver_unifykey_dump(int index, unsigned int flag);

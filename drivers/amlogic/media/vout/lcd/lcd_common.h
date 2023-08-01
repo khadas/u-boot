@@ -44,7 +44,8 @@
 /* 20230615: txhd2 support */
 /* 20230705: t3x fix tconless phy setting */
 /* 20230802: add t5m,t5w,t3x set phy lane amp*/
-#define LCD_DRV_VERSION    "20230802"
+/* 20230815: add full-link-training and EDID-timing for eDP */
+#define LCD_DRV_VERSION    "20230815"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
@@ -157,9 +158,12 @@ void mipi_dsi_print_info(struct lcd_config_s *pconf);
 void mipi_dsi_config_init(struct lcd_config_s *pconf);
 void mipi_dsi_link_off(struct aml_lcd_drv_s *pdrv);
 void mipi_dsi_tx_ctrl(struct aml_lcd_drv_s *pdrv, int flag);
-int dptx_edid_dump(struct aml_lcd_drv_s *pdrv);
-int dptx_edid_timing_probe(struct aml_lcd_drv_s *pdrv);
-void dptx_dpcd_dump(struct aml_lcd_drv_s *pdrv);
+
+void dptx_DPCD_dump(struct aml_lcd_drv_s *pdrv);
+// void dptx_EDID_dump(struct aml_lcd_drv_s *pdrv);
+// void dptx_EDID_timing_probe(struct aml_lcd_drv_s *pdrv);
+// void dptx_EDID_timing_select(struct aml_lcd_drv_s *pdrv, int idx);
+int eDP_debug_test(struct aml_lcd_drv_s *pdrv, char *str, int num);
 void edp_tx_ctrl(struct aml_lcd_drv_s *pdrv, int flag);
 #endif
 void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv);

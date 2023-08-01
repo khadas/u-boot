@@ -272,12 +272,8 @@ static void lcd_info_print_edp(struct lcd_config_s *pconf)
 		pconf->timing.bit_rate,
 		pconf->control.edp_cfg.training_settings,
 		pconf->control.edp_cfg.main_stream_enable,
-		pconf->control.edp_cfg.phy_vswing,
-		pconf->control.edp_cfg.phy_preem);
-	printf("edid_state            0x%x\n"
-		"edid_retry_cnt        %u\n\n",
-		pconf->control.edp_cfg.edid_state,
-		pconf->control.edp_cfg.edid_retry_cnt);
+		pconf->control.edp_cfg.phy_vswing_preset,
+		pconf->control.edp_cfg.phy_preem_preset);
 	lcd_pinmux_info_print(pconf);
 }
 
@@ -686,7 +682,7 @@ static void lcd_reg_print_edp(struct aml_lcd_drv_s *pdrv)
 	printf("EDP_TX_AUX_TRANSFER_STATUS       [0x%04x] = 0x%08x\n",
 	       reg, dptx_reg_read(index, reg));
 
-	dptx_dpcd_dump(pdrv);
+	dptx_DPCD_dump(pdrv);
 }
 
 static void lcd_reg_print_serializer(void)

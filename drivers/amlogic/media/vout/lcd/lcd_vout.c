@@ -1256,17 +1256,18 @@ int aml_lcd_vbyone_lock(int index)
 	return lcd_vbyone_lock(pdrv);
 }
 
-void aml_lcd_edp_edid(int index)
+int aml_lcd_edp_debug(int index, char *str, int num)
 {
 #ifdef CONFIG_AML_LCD_TABLET
 	struct aml_lcd_drv_s *pdrv;
 
 	pdrv = lcd_driver_check_valid(index);
 	if (!pdrv)
-		return;
+		return -1;
 
-	dptx_edid_dump(pdrv);
+	return eDP_debug_test(pdrv, str, num);
 #endif
+	return -1;
 }
 
 void aml_lcd_driver_ext_info(int index)

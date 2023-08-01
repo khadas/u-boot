@@ -191,12 +191,12 @@ static void lcd_config_load_print(struct aml_lcd_drv_s *pdrv)
 
 		LCDPR("lane_count          = %d\n", pctrl->edp_cfg.lane_count);
 		LCDPR("link_rate           = %d\n", pctrl->edp_cfg.link_rate);
-		LCDPR("bit_rate            = %d\n", pctrl->edp_cfg.bit_rate);
+		// LCDPR("bit_rate            = %d\n", pctrl->edp_cfg.bit_rate);
 		LCDPR("training_settings   = %d\n", pctrl->edp_cfg.training_settings);
 		LCDPR("main_stream_enable  = %d\n", pctrl->edp_cfg.main_stream_enable);
 
-		LCDPR("phy_vswing = 0x%x\n", pctrl->edp_cfg.phy_vswing);
-		LCDPR("phy_preem  = 0x%x\n", pctrl->edp_cfg.phy_preem);
+		LCDPR("phy_vswing = 0x%x\n", pctrl->edp_cfg.phy_vswing_preset);
+		LCDPR("phy_preem  = 0x%x\n", pctrl->edp_cfg.phy_preem_preset);
 	}
 }
 
@@ -1276,21 +1276,21 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 		if (!propdata) {
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 				LCDPR("[%d]: failed to get phy_attr\n", pdrv->index);
-			pctrl->edp_cfg.phy_vswing = 0x5;
-			pctrl->edp_cfg.phy_preem  = 0x1;
+			pctrl->edp_cfg.phy_vswing_preset = 0x5;
+			pctrl->edp_cfg.phy_preem_preset  = 0x1;
 		} else {
-			pctrl->edp_cfg.phy_vswing = be32_to_cpup((u32 *)propdata);
-			pctrl->edp_cfg.phy_preem  = be32_to_cpup((((u32 *)propdata) + 1));
+			pctrl->edp_cfg.phy_vswing_preset = be32_to_cpup((u32 *)propdata);
+			pctrl->edp_cfg.phy_preem_preset  = be32_to_cpup((((u32 *)propdata) + 1));
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				LCDPR("[%d]: set phy vswing=0x%x, preem=0x%x\n",
 				      pdrv->index,
-				      pctrl->edp_cfg.phy_vswing,
-				      pctrl->edp_cfg.phy_preem);
+				      pctrl->edp_cfg.phy_vswing_preset,
+				      pctrl->edp_cfg.phy_preem_preset);
 			}
 		}
 		phy_cfg->lane_num = 4;
-		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing & 0xf;
-		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem;
+		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing_preset & 0xf;
+		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem_preset;
 		phy_cfg->vswing = phy_cfg->vswing_level;
 		break;
 	default:
@@ -2018,15 +2018,15 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 		pctrl->edp_cfg.enhanced_framing_en = ext_lcd->lcd_spc_val6;
 		pctrl->edp_cfg.edid_en = ext_lcd->lcd_spc_val7;
 		pctrl->edp_cfg.pn_swap = 0;
-		pctrl->edp_cfg.phy_vswing = ext_lcd->lcd_spc_val8;
-		pctrl->edp_cfg.phy_preem  = ext_lcd->lcd_spc_val9;
+		pctrl->edp_cfg.phy_vswing_preset = ext_lcd->lcd_spc_val8;
+		pctrl->edp_cfg.phy_preem_preset  = ext_lcd->lcd_spc_val9;
 
 		pctrl->edp_cfg.lane_count = pctrl->edp_cfg.max_lane_count;
 		pctrl->edp_cfg.link_rate = pctrl->edp_cfg.max_link_rate;
 
 		phy_cfg->lane_num = 4;
-		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing;
-		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem;
+		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing_preset;
+		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem_preset;
 		break;
 	default:
 		break;
