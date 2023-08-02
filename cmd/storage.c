@@ -259,15 +259,21 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
 	struct storage_boot_entry *sbentry = ssp->boot_entry;
-	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);;
-	p_payload_info_hdr_t hdr = &pInfo->hdr;
-	p_payload_info_item_t pItem = pInfo->arrItems;
+	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);
+	p_payload_info_hdr_t hdr;
+	p_payload_info_item_t pItem;
 	int offPayload = 0, szPayload = 0;
 	unsigned int bl2e_size = 0, bl2x_size = 0;
 	char name[8] = {0};
 	int nIndex = 0;
 
 	if (need_build == BOOT_ID_USB) {
+		if (!pInfo)
+			return -1;
+
+		hdr = &pInfo->hdr;
+		pItem = pInfo->arrItems;
+
 		for (nIndex = 1, pItem += 1;
 		     nIndex < hdr->byItemNum; ++nIndex, ++pItem) {
 			memcpy(name, &pItem->nMagic, sizeof(unsigned int));
@@ -445,7 +451,11 @@ int storage_post_init(void)
 	ret = storage_get_and_parse_ssp(&need_build);
 	if (ret < 0)
 		return -1;
-	storage_boot_layout_general_setting(&general_boot_layout, need_build);
+
+	ret = storage_boot_layout_general_setting(&general_boot_layout, need_build);
+	if (ret < 0)
+		return ret;
+
 	storage_boot_layout_debug_info(&general_boot_layout);
 
 	return ret;
@@ -470,8 +480,11 @@ int store_init(u32 init_flag)
 		return record;
 	}
 
-	if (BOOTLOADER_MODE_ADVANCE_INIT)
-		storage_post_init();
+	if (BOOTLOADER_MODE_ADVANCE_INIT) {
+		ret = storage_post_init();
+		if (ret < 0)
+			return -1;
+	}
 
 	/*2. Enter the probe of the valid device*/
 	for (i = 0; i < ARRAY_SIZE(device_list); i++) {
