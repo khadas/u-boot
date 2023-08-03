@@ -77,4 +77,10 @@
 
 #define CONFIG_KEY_PRESERVE	1
 
+/*DDR MMU mem map*/
+#define MMU_MT_NORMAL_BASE          0x00000000
+#define MMU_MT_NORMAL_SIZE          0xF5800000
+#define MMU_MT_DEVICE_NGNRNE_BASE   0xF5800000
+#define MMU_MT_DEVICE_NGNRNE_SIZE   (0x100000000 - 0xF5800000)
+
 #endif /* _CPU_H */

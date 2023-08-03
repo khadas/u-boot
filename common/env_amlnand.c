@@ -120,7 +120,7 @@ int saveenv(void)
 	if (!buf)
 		printf("%s: failed to malloc env buffer, size:0x%lx\n",
 		       __func__, sizeof(env_t));
-	tmp_buf = (unsigned char *)(((unsigned long)buf & ARCH_DMA_MINALIGN) + ARCH_DMA_MINALIGN);
+	tmp_buf = (unsigned char *)(((unsigned long)buf & (~(ARCH_DMA_MINALIGN - 1))) + ARCH_DMA_MINALIGN);
 	env_new = (env_t *)tmp_buf;
 	ret = env_export(env_new);
 	if (ret)
@@ -163,7 +163,7 @@ void env_relocate_spec(void)
 	if (!tmp_buf)
 		printf("%s: failed to malloc env buffer, size: 0x%x\n",
 		       __func__, CONFIG_ENV_SIZE);
-	buf = (unsigned char *)(((unsigned long)tmp_buf & ARCH_DMA_MINALIGN) + ARCH_DMA_MINALIGN);
+	buf = (unsigned char *)(((unsigned long)tmp_buf & (~(ARCH_DMA_MINALIGN - 1))) + ARCH_DMA_MINALIGN);
 	ret = readenv(buf);
 	if (ret) {
 		set_default_env("!readenv() failed");
