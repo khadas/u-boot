@@ -30,7 +30,7 @@ static int unwind_frame(struct stackframe *frame)
 	stack_high = gd->start_addr_sp;
 	frame->fp = *(unsigned long *)(fp);
 
-	if (frame->fp < stack_low || fp > stack_high - 0x10)
+	if (frame->fp < stack_low || fp >= stack_high - 0x10)
 		return -1;
 
 	frame->sp = fp + 0x10;
@@ -54,7 +54,7 @@ int dump_backtrace(struct pt_regs *regs)
 	memset(&frame, 0x00, sizeof(frame));
 	if (regs) {
 		frame.fp = regs->regs[29];
-		frame.sp = regs->regs[31];
+		frame.sp = regs->regs[29];
 		frame.pc = regs->elr;
 	} else {
 		frame.fp = (unsigned long)__builtin_frame_address(0);
