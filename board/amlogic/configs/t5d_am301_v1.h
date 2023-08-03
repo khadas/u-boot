@@ -276,13 +276,6 @@
             "if test ${active_slot} != normal; then "\
 			"setenv bootconfig ${bootconfig} androidboot.slot_suffix=${active_slot};"\
             "fi;"\
-            "if test ${avb2} = 0; then "\
-                "if test ${active_slot} = _a; then "\
-                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p23;"\
-                "else if test ${active_slot} = _b; then "\
-                    "setenv bootargs ${bootargs} root=/dev/mmcblk0p24;"\
-                "fi;fi;"\
-            "fi;"\
 		"setenv bootconfig ${bootconfig} androidboot.rollback=${rollback_flag};"\
             "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
             "run update;"\
