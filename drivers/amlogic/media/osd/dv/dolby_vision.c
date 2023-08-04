@@ -65,6 +65,7 @@ static unsigned int vinfo_field_height = 1080;
 static bool dolby_vision_ll_flag;
 int dolby_vision_on;
 static char *dolby_status;
+static char *hdr_force_mode;
 static bool dv_fw_valid = true;
 static bool use_sink_min_max_flag;
 
@@ -342,6 +343,8 @@ int is_dolby_enable(void)
 
 	if (!dolby_status)
 		dolby_status = env_get("dolby_status");
+	if (!hdr_force_mode)
+		hdr_force_mode = env_get("hdr_force_mode");
 
 	check_outputmode_valid = check_outputmode();
 
@@ -351,11 +354,14 @@ int is_dolby_enable(void)
 		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
 		!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
 		ret = 1;
+	else if (!strcmp(dolby_status, DOLBY_VISION_SET_DISABLE) &&
+		!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR))
+		ret = 1;
 	else
 		ret = 0;
 
-	printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, ret %d\n",
-			dolby_status, dv_fw_valid, check_outputmode_valid, ret);
+	printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, hdr_force_mode %s, ret %d\n",
+			dolby_status, dv_fw_valid, check_outputmode_valid, hdr_force_mode, ret);
 
 	return ret;
 }
@@ -615,23 +621,35 @@ static bool is_attr_match(void)
 
 static int check_tv_support(struct hdmitx_dev *hdmitx_device)
 {
-	if (check_tv_support_dv(hdmitx_device)) {
-		if (is_attr_match()) {
-			dovi_setting.dst_format = FORMAT_DOVI;
-			printf("output dovi mode: mode is : %s  attr: %s\n",
+	if (!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR)) {
+		if (check_tv_support_hdr(hdmitx_device)) {
+			dovi_setting.dst_format = FORMAT_HDR10;
+			printf("output hdr mode: mode is : %s  attr: %s\n",
 				env_get("outputmode"), env_get("colorattribute"));
 		} else {
 			dovi_setting.dst_format = FORMAT_SDR;
-			printf("attr is not match, change to output SDR\n");
+			printf("output sdr mode: mode is : %s  attr: %s\n",
+				env_get("outputmode"), env_get("colorattribute"));
 		}
-	} else if (check_tv_support_hdr(hdmitx_device)) {
-		dovi_setting.dst_format = FORMAT_HDR10;
-		printf("output hdr mode: mode is : %s  attr: %s\n",
-			env_get("outputmode"), env_get("colorattribute"));
 	} else {
-		dovi_setting.dst_format = FORMAT_SDR;
-		printf("output sdr mode: mode is : %s  attr: %s\n",
-			env_get("outputmode"), env_get("colorattribute"));
+		if (check_tv_support_dv(hdmitx_device)) {
+			if (is_attr_match()) {
+				dovi_setting.dst_format = FORMAT_DOVI;
+				printf("output dovi mode: mode is : %s  attr: %s\n",
+					env_get("outputmode"), env_get("colorattribute"));
+			} else {
+				dovi_setting.dst_format = FORMAT_SDR;
+				printf("attr is not match, change to output SDR\n");
+			}
+		} else if (check_tv_support_hdr(hdmitx_device)) {
+			dovi_setting.dst_format = FORMAT_HDR10;
+			printf("output hdr mode: mode is : %s  attr: %s\n",
+				env_get("outputmode"), env_get("colorattribute"));
+		} else {
+			dovi_setting.dst_format = FORMAT_SDR;
+			printf("output sdr mode: mode is : %s  attr: %s\n",
+				env_get("outputmode"), env_get("colorattribute"));
+		}
 	}
 	return 0;
 }
