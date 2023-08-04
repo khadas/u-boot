@@ -628,60 +628,6 @@ unsigned long FlashRdTime = 0;
 unsigned long FlashWrTime = 0;
 #endif//#if SUM_FUNC_TIME_COST
 
-extern unsigned int get_part_tbl_from_ept(int num, char *name);
-
-static int _usb_burn_erase_mmc(int argc, char * const protect_parts[])
-{
-	int num = 0;
-	const int protect_key = 1;
-	int ret = 0;
-	unsigned int mask_flags;
-	char name[MAX_PART_NAME_LEN];
-	struct mmc *mmc;
-	const unsigned int protect_mask = MMC_PARTITION_PROTECT_MASK;
-	const int dev = EMMC_DTB_DEV;//CONFIG_SYS_MMC_BOOT_DEV;
-	const int CMD_BUF_SZ = 128;
-	char cmd_buf[CMD_BUF_SZ];
-	/*protect_key = emmckey_is_protected(mmc);*/
-
-	mmc = find_mmc_device(dev);
-	if (!mmc)
-		return 1;
-	mmc_init(mmc);
-
-	while (get_part_tbl_from_ept(num, name) != -1) {
-		mask_flags = get_part_tbl_from_ept(num, name);
-		if ((mask_flags & protect_mask) && protect_key) {
-			printf("%-10s partition is protected\n", name);
-		} else if (protect_key && !strcmp(name, MMC_RESERVED_NAME)) {
-			printf("%-10s partition is protected\n", name);
-		} else if (!strcmp(name, MMC_BOOT_NAME)) {
-			printf("%-10s partition is protected\n", name);
-		} else {
-			int i = 0;
-			int need_protect = 0;
-
-			for (; i < argc && !need_protect; ++i)
-				need_protect = !strcmp(protect_parts[i], name);
-			if (!need_protect) {
-				printf("%-10s partition is erased: ", name);
-				/*ret |= _amlmmc_erase_single_part(dev, mmc, name);*/
-				snprintf(cmd_buf, CMD_BUF_SZ, "store erase partition %s", name);
-				ret = run_command(cmd_buf, 0);
-				if (ret) {
-					DWN_MSG("Fail in %s\n", cmd_buf);
-					break;
-				}
-			} else {
-				printf("%-10s partition is Keeped\n", name);
-			}
-		}
-		num++;
-	}
-
-	return ret;
-}
-
 int optimus_burn_with_cfg_file(const char* cfgFile)
 {
     extern ConfigPara_t g_sdcBurnPara ;

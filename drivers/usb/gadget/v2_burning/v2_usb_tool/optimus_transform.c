@@ -254,7 +254,22 @@ int optimus_working (const char *cmd, char* buff)
         {
                 unsigned  erase = argc > 1 ? simple_strtoul(argv[1], NULL, 0) : 0;
 
-                ret = optimus_storage_init(erase);
+		//not usb boot and normal erase, then protect bootloader
+		if (optimus_work_mode_get() != OPTIMUS_WORK_MODE_USB_PRODUCE && erase == 1) {
+			char * const protect_parts[] = {"env"};
+
+			ret = optimus_storage_init(0);
+			if (ret) {
+				DWN_ERR("FAil in init flash for usb tool\n");
+				ret = __LINE__;
+			} else {
+				DWN_MSG("erase flash except bootloader and env\n");
+				ret = _usb_burn_erase_mmc(ARRAY_SIZE(protect_parts), protect_parts);
+				run_command("setenv upgrade_step 3; saveenv", 0);
+			}
+		} else {
+			ret = optimus_storage_init(erase);
+		}
         }
         else if(!strcmp(optCmd, "bootloader_is_old"))
         {
