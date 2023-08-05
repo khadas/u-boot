@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <malloc.h>
-#include <asm/arch/io.h>
+#include <asm/arch/register.h>
 #include <asm/arch/secure_apb.h>
 #include <asm/arch/cpu.h>
 #include <asm/cpu_id.h>
@@ -810,6 +810,11 @@ static int cvbs_config_enci(int vmode)
 // output vmode: 576cvbs, 480cvbs
 int cvbs_set_vmode(char* vmode_name)
 {
+	if (!cvbs_drv.vdac_data->vref_adj) {
+		printf("cvbsout not vref_adj:%d\n", cvbs_drv.vdac_data->vref_adj);
+		return 0;
+	}
+
 	if (!strncmp(vmode_name, "576cvbs", strlen("576cvbs"))) {
 		cvbs_mode = VMODE_PAL;
 		cvbs_config_enci(0);
@@ -905,6 +910,11 @@ static void cvbs_get_config(void)
 #endif
 	if (fdt_check_header(dt_addr) < 0)
 		return;
+
+	if (!cvbs_drv.vdac_data->vref_adj) {
+		printf("cvbsout not vref_adj:%d\n", cvbs_drv.vdac_data->vref_adj);
+		return;
+	}
 
 	parent_offset = fdt_path_offset(dt_addr, "/cvbsout");
 	if (parent_offset < 0) {

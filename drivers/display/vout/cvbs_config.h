@@ -5,7 +5,7 @@
  * Copyright (C) 2020 Amlogic, Inc. All rights reserved.
  *
  */
-
+#include <asm/arch/register.h>
 #include <amlogic/cvbs.h>
 #include "cvbs_regs.h"
 #include "cvbs.h"

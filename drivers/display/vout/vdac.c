@@ -8,8 +8,9 @@
 
 #include <common.h>
 #include <malloc.h>
-#include <asm/arch/io.h>
+#include <asm/arch/register.h>
 #include <asm/arch/secure_apb.h>
+#include <amlogic/aml_efuse.h>
 #include <asm/arch/cpu.h>
 #include <asm/cpu_id.h>
 #include "vdac.h"
@@ -153,6 +154,34 @@ int vdac_vref_adj(unsigned int value)
 	return ret;
 }
 
+static void vdac_gsw_init(void)
+{
+	unsigned int reg = HHI_VDAC_CNTL1;
+	unsigned int bit = 0;
+	int i = 0;
+	int ret;
+
+	if (!vdac_ctrl) {
+		printf("%s: vdac_ctrl is NULL\n", __func__);
+		return;
+	}
+
+	ret = efuse_get_cali_cvbs();
+	if (ret == -1)
+		return;
+
+	printf("%s: 0x%x\n", __func__, ret);
+	while (i < VDAC_CTRL_MAX) {
+		if (vdac_ctrl[i].reg == VDAC_REG_MAX)
+			break;
+		if (vdac_ctrl[i].reg == reg && vdac_ctrl[i].bit == bit) {
+			vdac_set_hiu_bits(reg, ret, bit, vdac_ctrl[i].len);
+			break;
+		}
+		i++;
+	}
+}
+
 static struct meson_vdac_ctrl_s vdac_ctrl_enable_gxl[] = {
 	{HHI_VDAC_CNTL0, 0, 9, 1},
 	{HHI_VDAC_CNTL0, 1, 10, 1},
@@ -203,6 +232,11 @@ static struct meson_vdac_ctrl_s vdac_ctrl_enable_tl1[] = {
 	{VDAC_REG_MAX, 0, 0, 0},
 };
 
+static struct meson_vdac_ctrl_s vdac_ctrl_enable_t5w[] = {
+	{HHI_VDAC_CNTL1, 0, 0, 7},  /*gsw */
+	{VDAC_REG_MAX, 0, 0, 0},
+};
+
 void vdac_ctrl_config_probe(void)
 {
 	pri_flag = 0;
@@ -229,9 +263,13 @@ void vdac_ctrl_config_probe(void)
 	case MESON_CPU_MAJOR_ID_TM2:
 		vdac_ctrl = vdac_ctrl_enable_tl1;
 		break;
+	case MESON_CPU_MAJOR_ID_T5W:
+		vdac_ctrl = vdac_ctrl_enable_t5w;
+		break;
 	default:
 		break;
 	}
+	vdac_gsw_init();
 
 	return;
 }
