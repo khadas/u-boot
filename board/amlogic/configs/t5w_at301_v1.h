@@ -889,4 +889,7 @@
 #define CONFIG_ARMV8_CE_AES  1
 //Replace avb2 software SHA256 to utilize armce
 #define CONFIG_AVB2_UBOOT_SHA256
+
+//factory provision via pta definition
+#define CFG_FACTORY_PROVISION_VIA_PTA
 #endif

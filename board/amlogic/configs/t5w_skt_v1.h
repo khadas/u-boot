@@ -870,4 +870,7 @@
 #define CONFIG_MDUMP_COMPRESS 1
 #define CONFIG_AML_POWER_DOMAIN_SEC 1
 #define CONFIG_AML_KASLR_SEED
+
+//factory provision via pta definition
+#define CFG_FACTORY_PROVISION_VIA_PTA
 #endif

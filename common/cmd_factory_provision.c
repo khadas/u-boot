@@ -11,6 +11,9 @@
 #include <fat.h>
 #include <u-boot/sha256.h>
 #include <emmc_partitions.h>
+#ifdef CFG_FACTORY_PROVISION_VIA_PTA
+#include <tee.h>
+#endif
 
 #define CMD_DEBUG         (0)
 #define CMD_LOG_TAG       "[FACTORY-PROVISION] "
@@ -29,6 +32,14 @@
 #define FUNCID_PROVISION_SET_IV                0xB200E030
 #define FUNCID_PROVISION_ENCRYPT               0xB200E031
 #define FUNCID_PROVISION_GET_TRANSFER_ADDR     0xB2000007
+
+#define FACTORY_PROVISION_VERSION	"2.0"
+
+#define PROVISION_PTA_UUID \
+		{ 0x24b17b16, 0x89d1, 0x43a3, \
+		{ 0x95, 0xed, 0x19, 0x3c, 0xe1, 0xed, 0xa7, 0x15 } }
+
+#define PROVISION_PTA_CMD_EPEK_ENCRYPT       0
 
 #define SIZE_1K                 (1024)
 #define SIZE_1M                 (SIZE_1K * SIZE_1K)
@@ -58,6 +69,7 @@
 #define ACTION_REMOVE           (0x04)
 #define ACTION_CLEAR            (0x05)
 #define ACTION_LIST             (0x06)
+#define ACTION_VERSION          (0x07)
 
 #define DEV_NAME                "mmc"
 #define DEV_NO                  (1)
@@ -220,6 +232,7 @@ static struct fs_value g_fs_vals_fty[MAX_CNT_FS_VALUE] = {
 	{ 0, 0 },
 };
 
+#ifndef CFG_FACTORY_PROVISION_VIA_PTA
 static uint32_t get_transfer_phy_addr(uint32_t *transfer_phy_addr)
 {
 	register uint32_t x0 asm("x0") = FUNCID_PROVISION_GET_TRANSFER_ADDR;
@@ -285,6 +298,7 @@ static uint32_t encrypt(uint32_t transfer_addr, uint32_t *data_size)
 
 	return x0;
 }
+#endif
 
 static void usage(void)
 {
@@ -296,7 +310,9 @@ static void usage(void)
 	"	- query whether the keybox exists by keybox name\n"
 	"	- when keybox exists, return data: keybox_size(4bytes)\n\n"
 	"factory_provision remove <keybox_name>\n"
-	"	- remove the keybox by keybox name\n\n");
+	"	- remove the keybox by keybox name\n\n"
+	"factory_provision version\n"
+	"	- show the factory provision version\n\n");
 }
 
 static void parse_params(int argc, char * const argv[],
@@ -352,6 +368,8 @@ static void parse_params(int argc, char * const argv[],
 			params->action = ACTION_CLEAR;
 		else if (!memcmp(argv[1], "list", strlen("list")))
 			params->action = ACTION_LIST;
+		else if (!memcmp(argv[1], "version", strlen("version")))
+			params->action = ACTION_VERSION;
 		break;
 	default:
 		break;
@@ -366,6 +384,7 @@ static int check_params(const struct input_param *params)
 	case ACTION_INIT:
 	case ACTION_CLEAR:
 	case ACTION_LIST:
+	case ACTION_VERSION:
 		break;
 	case ACTION_WRITE:
 		if (strlen(params->keybox_name) > MAX_SIZE_KEYBOX_NAME) {
@@ -404,6 +423,7 @@ exit:
 	return ret;
 }
 
+#ifndef CFG_FACTORY_PROVISION_VIA_PTA
 static int preprocess_keybox(char *keybox, uint32_t size)
 {
 	uint32_t res = 0;
@@ -441,6 +461,95 @@ static int preprocess_keybox(char *keybox, uint32_t size)
 
 	return CMD_RET_SUCCESS;
 }
+#else
+static int preprocess_keybox(char *keybox, uint32_t size)
+{
+	int ret = 0;
+	struct encryption_context *enc_cxt = (struct encryption_context *)
+		(keybox + sizeof(struct keybox_header));
+	u32 epek_size = sizeof(enc_cxt->epek);
+	struct udevice *dev = NULL;
+	struct tee_open_session_arg open_arg = { 0 };
+	struct tee_invoke_arg invoke_arg = { 0 };
+	struct tee_param param[2] = { 0 };
+	const struct tee_optee_ta_uuid uuid = PROVISION_PTA_UUID;
+
+	dev = tee_find_device(NULL, NULL, NULL, NULL);
+	if (!dev) {
+		LOGE("tee find device failed");
+		return CMD_RET_DEVICE_NOT_AVAILABLE;
+	}
+
+	memset(&open_arg, 0, sizeof(open_arg));
+	tee_optee_ta_uuid_to_octets(open_arg.uuid, &uuid);
+	ret = tee_open_session(dev, &open_arg, 0, NULL);
+	if (ret) {
+		LOGE("open session failed, ret = 0x%x\n", ret);
+		return CMD_RET_BAD_PARAMETER;
+	}
+
+	if (open_arg.ret) {
+		LOGE("open session failed, ret = 0x%x, ret_origin=0x%x\n",
+			open_arg.ret, open_arg.ret_origin);
+		return CMD_RET_BAD_PARAMETER;
+	}
+
+	param[0].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INPUT;
+	param[0].u.memref.size = sizeof(enc_cxt->iv);
+	ret = tee_shm_alloc(dev, sizeof(enc_cxt->iv), 0, &param[0].u.memref.shm);
+	if (ret) {
+		LOGE("tee shm alloc for iv failed, ret: %#x\n", ret);
+		ret = CMD_RET_DEVICE_NO_SPACE;
+		goto exit;
+	}
+
+	memcpy(param[0].u.memref.shm->addr, enc_cxt->iv, sizeof(enc_cxt->iv));
+
+	param[1].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INOUT;
+	param[1].u.memref.size = epek_size;
+	ret = tee_shm_alloc(dev, epek_size, 0, &param[1].u.memref.shm);
+	if (ret) {
+		LOGE("tee shm alloc for epek failed, ret: %#x\n", ret);
+		ret = CMD_RET_DEVICE_NO_SPACE;
+		goto exit;
+	}
+
+	memcpy(param[1].u.memref.shm->addr, enc_cxt->epek, epek_size);
+
+	memset(&invoke_arg, 0, sizeof(invoke_arg));
+	invoke_arg.session = open_arg.session;
+	invoke_arg.func = PROVISION_PTA_CMD_EPEK_ENCRYPT;
+
+	ret = tee_invoke_func(dev, &invoke_arg, 2, param);
+	if (ret) {
+		LOGE("invoke failed, cmd = %u, ret= %d\n",
+			invoke_arg.func, ret);
+		ret = CMD_RET_SMC_CALL_FAILED;
+		goto exit;
+	}
+
+	if (invoke_arg.ret) {
+		LOGE("invoke failed, cmd = %u, ret = 0x%x, origin = %d\n",
+			invoke_arg.func, invoke_arg.ret, invoke_arg.ret_origin);
+		ret = CMD_RET_SMC_CALL_FAILED;
+	}
+
+	if (!ret) {
+		LOGI("encrypt epek success, size = %ld\n", param[1].u.memref.size);
+		memcpy(enc_cxt->epek, param[1].u.memref.shm->addr, param[1].u.memref.size);
+	}
+
+exit:
+	if (param[0].u.memref.shm)
+		tee_shm_free(param[0].u.memref.shm);
+
+	if (param[1].u.memref.shm)
+		tee_shm_free(param[1].u.memref.shm);
+
+	tee_close_session(dev, open_arg.session);
+	return ret;
+}
+#endif
 
 static const char* get_valid_part_name(void)
 {
@@ -835,6 +944,12 @@ exit:
 	return ret;
 }
 
+static int show_version(void)
+{
+	LOGI("version %s\n", FACTORY_PROVISION_VERSION);
+	return CMD_RET_SUCCESS;
+}
+
 int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = CMD_RET_SUCCESS;
@@ -898,6 +1013,11 @@ int cmd_func(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (ret != CMD_RET_SUCCESS)
 			goto exit;
 		break;
+	case ACTION_VERSION:
+		ret = show_version();
+		if (ret != CMD_RET_SUCCESS)
+			goto exit;
+		break;
 	default:
 		break;
 	}
@@ -923,4 +1043,6 @@ U_BOOT_CMD(
 	"	- when keybox exists, return data: keybox_size(4bytes)\n\n"
 	"remove <keybox_name>\n"
 	"	- remove the keybox by keybox name\n"
+	"version\n"
+	"	- show the factory provision version\n"
 );
