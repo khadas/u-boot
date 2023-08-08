@@ -330,7 +330,7 @@ static struct lcd_clk_data_s lcd_clk_data_c3 = {
 	.enc_clk_msr_id = -1,
 	.pll_ctrl_table = pll_ctrl_table_c3,
 
-	.ss_support = 1,
+	.ss_support = 0,
 
 	.clk_generate_parameter = lcd_clk_generate_c3,
 	.pll_frac_generate = lcd_pll_frac_generate_c3,

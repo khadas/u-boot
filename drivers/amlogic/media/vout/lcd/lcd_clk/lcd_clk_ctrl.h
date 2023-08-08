@@ -109,11 +109,4 @@ enum div_sel_e {
 	CLK_DIV_SEL_MAX,
 };
 
-extern char *lcd_ss_level_table_tl1[];
-extern char *lcd_ss_freq_table_tl1[];
-extern char *lcd_ss_mode_table_tl1[];
-extern unsigned int ss_level_max;
-extern unsigned int ss_freq_max;
-extern unsigned int ss_mode_max;
-
 #endif
