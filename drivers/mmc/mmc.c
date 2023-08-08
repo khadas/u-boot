@@ -1889,7 +1889,6 @@ static int mmc_complete_init(struct mmc *mmc)
 int aml_write_chip_id(struct mmc *mmc)
 {
 	struct aml_card_sd_info *aml_priv = mmc->priv;
-	struct tuning_para *parameter = aml_priv->para;
 	struct tuning_para *para;
 	uint8_t chip_id[16];
 	void *buf;
@@ -1942,9 +1941,13 @@ int aml_write_chip_id(struct mmc *mmc)
 			printf("\n");
 			mmc->block_dev.block_write(1, off, blk, buf);
 		}
+		aml_priv->para = para;
+	} else {
+		printf("get tuning parameter failed\n");
+		free(buf);
+		return 1;
 	}
-	memcpy(parameter, buf, para_size);
-	free(buf);
+
 	return 0;
 }
 #endif
@@ -2036,8 +2039,11 @@ int aml_para_is_exist(struct mmc *mmc)
 	int temp_index;
 	long long checksum;
 	struct aml_card_sd_info *aml_priv = mmc->priv;
-	struct tuning_para *para = aml_priv->para;
 	int ret;
+	struct tuning_para *para = aml_priv->para;
+
+	if (!para)
+		return 0;
 
 	para->update = 1;
 	ret = r1p1_temp_read(1, &temperature);
@@ -2095,6 +2101,9 @@ int aml_read_tuning_para(struct mmc *mmc)
 	int ret;
 	int para_size;
 	void *addr;
+
+	if (!para)
+		return -1;
 
 	para_size = sizeof(struct tuning_para);
 
