@@ -742,7 +742,6 @@ static void lcd_mlvds_control_set(struct aml_lcd_drv_s *pdrv)
 		lcd_ana_setb(ANACTRL_LVDS_TX_PHY_CNTL1, 1, 31, 1);
 		break;
 	case LCD_CHIP_TXHD2:
-		lcd_combo_dphy_write(COMBO_DPHY_CNTL0, 0x55555);
 		/* fifo_clk_sel[7:6]: 0=div6, 1=div 7, 2=div8, 3=div10 */
 		lcd_ana_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, (div_sel << 6));
 		/* serializer_en[27:16] */

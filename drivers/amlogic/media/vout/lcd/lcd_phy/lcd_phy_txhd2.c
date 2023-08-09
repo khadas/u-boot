@@ -201,6 +201,8 @@ static void lcd_mlvds_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 		cntl14 = 0x156f1 | (phy->vswing << 12);
 		lcd_phy_cntl14_update(phy, cntl14);
 		lcd_phy_cntl_mlvds_set(pdrv, phy, status, 0, mlvds_conf->pi_clk_sel);
+
+		lcd_combo_dphy_write(COMBO_DPHY_CNTL0, 0x55555);
 	} else {
 		lcd_phy_cntl_mlvds_set(pdrv, phy, status, 0, 0);
 	}
