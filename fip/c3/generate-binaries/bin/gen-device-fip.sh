@@ -9,7 +9,9 @@ set -e
 
 EXEC_BASEDIR=$(dirname $(readlink -f $0))
 ACPU_IMAGETOOL=${EXEC_BASEDIR}/../../binary-tool/acpu-imagetool
-
+if [ ".fastboot" == "${DEVICE_VARIANT_SUFFIX}" ]; then
+	ACPU_IMAGETOOL=${EXEC_BASEDIR}/../../binary-tool/acpu-imagetool-fastboot
+fi
 BASEDIR_TOP=$(readlink -f ${EXEC_BASEDIR}/..)
 
 #
@@ -88,8 +90,8 @@ EXEC_ARGS="${EXEC_ARGS} --infile-signkey-bl32-device-lvl3=${BASEDIR_FIP_RSAKEY_R
 
 ### Input: chipset blobs ###
 EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl40=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl40.bin${input_postfix}"
-EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl31=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl31${CONFIG_CHIPSET_VARIANT}.bin${input_postfix}"
-EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl32=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl32.bin${input_postfix}"
+EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl31=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl31${DEVICE_VARIANT_SUFFIX}.bin${input_postfix}"
+EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl32=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl32${DEVICE_VARIANT_MIN_SUFFIX}.bin${input_postfix}"
 
 ### Features, flags and switches ###
 

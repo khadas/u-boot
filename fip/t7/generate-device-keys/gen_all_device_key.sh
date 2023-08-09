@@ -55,6 +55,7 @@ size=""
 template_dir=""
 rootkey_index=0
 output_dir=""
+device_soc="sc2"
 
 parse_main() {
     local i=0
@@ -82,6 +83,9 @@ parse_main() {
 		;;
             --project)
                 part="${argv[$i]}"
+		;;
+            --device-soc)
+                device_soc="${argv[$i]}"
 		;;
             --rsa-size)
                 size="${argv[$i]}"
@@ -152,7 +156,7 @@ ${EXEC_BASEDIR}/bin/derive_device_aes_rootkey.sh --key-dir "$key_dir" --mrk-bin 
 
 ${EXEC_BASEDIR}/bin/gen_device_aes_protkey.sh --rootkey-index "$rootkey_index" --key-dir "$key_dir" --project "$part" --template-dir "${template_dir}"
 
-${EXEC_BASEDIR}/bin/gen_device_root_hash.sh --rootkey-index "$rootkey_index" --key-dir "$key_dir" --project "$part" --template-dir "${template_dir}"
+${EXEC_BASEDIR}/bin/gen_device_root_hash.sh --rootkey-index "$rootkey_index" --key-dir "$key_dir" --project "$part" --device-soc "$device_soc" --template-dir "${template_dir}"
 
 ${EXEC_BASEDIR}/bin/export_dv_scs_signing_keys.sh --key-dir "$key_dir" --out-dir "$output_dir" --rootkey-index "$rootkey_index" --project "$part"
 

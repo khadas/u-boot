@@ -60,8 +60,7 @@
 
 #undef TAG
 #define TAG "VRTC"
-/* Timer handle */
-//TimerHandle_t xRTCTimer = NULL;
+
 static uint32_t last_time;
 
 void set_rtc(uint32_t val)
@@ -125,8 +124,8 @@ void vRtcInit(void)
 		printf("[%s]: mbox cmd 0x%x register fail\n", TAG, MBX_CMD_GET_RTC);
 }
 
+#ifndef configVRTC_DISABLE_ALARM
 static TimerHandle_t xRTCTimer = NULL;
-static uint32_t time_start;
 
 void alarm_set(void)
 {
@@ -136,38 +135,31 @@ void alarm_set(void)
 
 	if (val) {
 		printf("[%s]: alarm val=%d S\n", TAG, val);
-		time_start = timere_read();
 		if (xRTCTimer)
-			xTimerStart(xRTCTimer, 0);
+			xTimerChangePeriod(xRTCTimer, pdMS_TO_TICKS(val * 1000), 0);
 	}
 }
 
 void alarm_clr(void)
 {
-	time_start = 0;
-	xTimerStop(xRTCTimer, 0);
+	if (xRTCTimer)
+		xTimerStop(xRTCTimer, 0);
 }
 
 
 static void valarm_update(TimerHandle_t xTimer) {
-	uint32_t val;
+	uint32_t buf[4] = {0};
 
-	val = REG32(VRTC_PARA_REG);
 	xTimer = xTimer;
 
-	if (time_start && (timere_read() - time_start > val)) {
-		uint32_t buf[4] = {0};
-		buf[0] = RTC_WAKEUP;
-
-		printf("[%s]: vrtc alarm fired\n", TAG);
-
-		REG32(VRTC_PARA_REG) = 0;
-		STR_Wakeup_src_Queue_Send(buf);
-	}
+	buf[0] = RTC_WAKEUP;
+	printf("[%s]: vrtc alarm fired\n", TAG);
+	REG32(VRTC_PARA_REG) = 0;
+	STR_Wakeup_src_Queue_Send(buf);
 }
 
 void vCreat_alarm_timer(void)
 {
-	xRTCTimer = xTimerCreate("Timer", pdMS_TO_TICKS(1000), pdTRUE, NULL, valarm_update);
+	xRTCTimer = xTimerCreate("Timer", pdMS_TO_TICKS(1000), pdFALSE, NULL, valarm_update);
 }
-
+#endif

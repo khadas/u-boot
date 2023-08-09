@@ -19,7 +19,7 @@ SIGNING PROCESS FOR UBOOT/KERNEL
 |  |-1. run ./key.create.bash keypath to generate keys to folder keypath
 |  |    |-1. for uboot signing you must afford RSA/AES key for bl2/bl3x and place them to folder   ./key
 |  |    |-2. for kernel/recovery/dtb signing you must afford RSA/AES key and place them to folder ./key
-|  |-2. for those project which use aml_encrypt_gxl/txlx/axg/g12a/g12b/tl1/tm2/c1/t5/t5d etc for secure boot, please use following mapping table for key transfer
+|  |-2. for those project which use aml_encrypt_gxl/txlx/axg/g12a/g12b/tl1/tm2/c1/t5/t5d/t5w/txhd2 etc for secure boot, please use following mapping table for key transfer
 |       |------former key        <---->  script tool key(14 key files)-------
 |       |-1.                            /aml-key/bl2aesiv         //dd if=/dev/zero of=bl2aesiv conv=notrunc bs=1 count=16 >& /dev/null
 |       |-2.  /userkey/key.aes          /aml-key/bl2aeskey
@@ -42,13 +42,13 @@ SIGNING PROCESS FOR UBOOT/KERNEL
 |
 |--Command to signing
 |  |-1 ./sign.sh -s soc -p input -r rsakey -a aeskey -o output
-|  |             -s soc              //soc type: gxl,txlx,axg,g12a,g12b,tl1,tm2,c1,t5,t5d
+|  |             -s soc              //soc type: gxl,txlx,axg,g12a,g12b,tl1,tm2,c1,t5,t5d,t5w,txhd2
 |  |             -p input            //input folder
 |  |             -r frsakey          //rsa key folder
 |  |             -a faeskey          //aes key folder
 |  |             -o output           //output folder
 |  |-2 ./sign.sh -s soc -z package -r rsakey -a aeskey -o output
-|  |             -s soc              //soc type: gxl,txlx,axg,g12a,g12b,tl1,tm2,c1,t5,t5d
+|  |             -s soc              //soc type: gxl,txlx,axg,g12a,g12b,tl1,tm2,c1,t5,t5d,t5w,txhd2
 |  |             -z zip package file //uboot package image, e.g. gxl_skt_v1-u-boot.aml.zip
 |  |             -r frsakey          //rsa key folder
 |  |             -a faeskey          //aes key folder
@@ -105,7 +105,7 @@ EFUSE pattern process
 |
 |--function usage
 |   ./efuse.sh --generate-efuse-pattern \                    //
-|               --soc [gxl | txlx | axg | g12a | g12b | tl1 | tm2 | c1 | t5 | t5d ] \          //soc type, must afford
+|               --soc [gxl | txlx | axg | g12a | g12b | tl1 | tm2 | c1 | t5 | t5d | t5w | txhd2 ] \          //soc type, must afford
 |               [--aml-key-path path-of-key]      \          //key path, will get RSA & AES key from it
 |               [--rsa-key-path path-of-rsa-key]  \          //key path, will get RSA key from it
 |               [--enable-sb false]               \          //secure boot enable flag, default is false
@@ -149,7 +149,7 @@ FOLDER ARCHITECTURE:
 |-14.  amlogic-sign-tl1.sh  //F: tool for signing TL1/TM2 -- DO NOT MODIFY
 |-15.  signing-tool-c1     //D: tool set for signing -- DO NOT MODIFY
 |-16.  signing-tool-c1-dev //D: tool set for signing -- DO NOT MODIFY
-|-17.  amlogic-sign-c1.sh  //F: tool for signing C1/T5/T5D -- DO NOT MODIFY
+|-17.  amlogic-sign-c1.sh  //F: tool for signing C1/T5/T5D/T5W/TXHD2 -- DO NOT MODIFY
 
 ------------User defined file folder------------
 |-input  //input for script signing tool, support set with -p inputfolder

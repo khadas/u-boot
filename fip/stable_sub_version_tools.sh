@@ -94,9 +94,9 @@ declare -a BLX_PATH=(		\
 	"bl2/tee"				\
 	"bl30/src_ao"			\
 	"bl30/rtos_sdk"			\
-	"bl31_1.3/src"			\
-	"bl32_3.8/src"			\
-	"bl32_3.18/src"			\
+	"bl31_1.3/src"		\
+	"bl32_3.8/src"		\
+	"bl32_3.18/src"	\
 	"bl33/v2019"			\
 	"fip"		)
 
@@ -425,18 +425,18 @@ function modify_stable_branch_version_info() {
 		if [ $CHECK_COMMIT_FORMAT -eq 1 ]; then
 			######################### 3. git commit -m ############################
 			git commit --sign -m "
-			${BLX_PATH[${index}]}: stable branch update version: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH} [1/1]
+${BLX_PATH[${index}]}: stable branch update version: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH} [1/1]
 
-			PD#${ADD_COMMIT_MESSAGE}
+PD#${ADD_COMMIT_MESSAGE}
 
-			Problem:
-			bootloader stable branch(openlinux/bl-${STABLE_MAJOR_VERSION}) update
+Problem:
+bootloader stable branch(openlinux/bl-${STABLE_MAJOR_VERSION}) update
 
-			Solution:
-			add version to build message: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH}
+Solution:
+add version to build message: bl-${MODIFY_VER_MAJOR}.${MODIFY_VER_MINOR}.${MODIFY_VER_PATCH}
 
-			Verify:
-			ohm/oppen/tyson"
+Verify:
+ohm/oppen/tyson"
 		fi
 	fi
 }

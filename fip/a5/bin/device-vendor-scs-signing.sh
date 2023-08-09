@@ -217,6 +217,11 @@ parse_main() {
             --chipset-variant)
                 chipset_variant="${argv[$i]}"
 		;;
+            --signpipe)
+		CONFIG_SIGNPIPE=1
+                echo "Enable SignPipe"
+                export CONFIG_SIGNPIPE
+                continue ;;
             --arb-config)
                 arb_config="${argv[$i]}"
 		;;

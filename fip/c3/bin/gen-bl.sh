@@ -25,7 +25,17 @@ BASEDIR_INPUT_BLOB=$3
 
 BASEDIR_OUTPUT=$4
 
-CHIPSET_VARIANT_SUFFIX=$5
+if [ ".1m" == "$5" ]; then
+	CHIPSET_VARIANT_SUFFIX=""
+	CHIPSET_VARIANT_MIN_SUFFIX=$5
+else
+	CHIPSET_VARIANT_SUFFIX=$5
+	CHIPSET_VARIANT_MIN_SUFFIX=""
+fi
+
+if [ ".fastboot" == "${CHIPSET_VARIANT_SUFFIX}" ]; then
+	ACPU_IMAGETOOL=${EXEC_BASEDIR}/../binary-tool/acpu-imagetool-fastboot
+fi
 
 #
 # Arguments
@@ -44,7 +54,7 @@ EXEC_ARGS="${EXEC_ARGS} --infile-bl33-payload=${BASEDIR_PAYLOAD}/bl33-payload.bi
 
 EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl40=${BASEDIR_INPUT_BLOB}/blob-bl40.bin.signed"
 EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl31=${BASEDIR_INPUT_BLOB}/blob-bl31${CHIPSET_VARIANT_SUFFIX}.bin.signed"
-EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl32=${BASEDIR_INPUT_BLOB}/blob-bl32.bin.signed"
+EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl32=${BASEDIR_INPUT_BLOB}/blob-bl32${CHIPSET_VARIANT_MIN_SUFFIX}.bin.signed"
 
 ### Features, flags and switches ###
 

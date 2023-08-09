@@ -175,6 +175,8 @@ int main(void)
 	vRtcInit();
 	create_str_task();
 
+	bl30_plat_save_version();
+
 	printf("Starting task scheduler ...\r\n");
 	vTaskStartScheduler();
 

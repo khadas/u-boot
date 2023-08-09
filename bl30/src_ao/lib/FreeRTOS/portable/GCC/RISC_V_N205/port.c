@@ -85,6 +85,7 @@ void vGenerateSoftIRQ(void);
 unsigned long ulSynchTrap(unsigned long mcause, unsigned long sp, unsigned long arg1)	{
 	int i = 0;
 	uint32_t mstatus_mps_bits;
+	char *exception_info = NULL;
 
 	switch (mcause&0X00000fff)	{
 		//on User and Machine ECALL, handler the request
@@ -115,10 +116,41 @@ unsigned long ulSynchTrap(unsigned long mcause, unsigned long sp, unsigned long 
 
 			break;
 		default:
+			switch (mcause & 0xf) {
+			case 0:
+				exception_info = "Instruction address misaligned";
+				break;
+			case 1:
+				exception_info = "Instruction access fault";
+				break;
+			case 2:
+				exception_info = "Illegal instruction";
+				break;
+			case 3:
+				exception_info = "Breakpoint";
+				break;
+			case 4:
+				exception_info = "Load address misaligned";
+				break;
+			case 5:
+				exception_info = "Load access fault";
+				break;
+			case 6:
+				exception_info = "Store/AMO address misaligned";
+				break;
+			case 7:
+				exception_info = "Store/AMO access fault";
+				break;
+			default:
+				exception_info = "not defined, pls check riscv guide";
+				break;
+			}
+
 			mstatus_mps_bits = ((read_csr(mstatus) & 0x00000600) >> 9);
 			printf("In trap handler, the msubmode is 0x%lx\n", read_csr_msubmode);
 			printf("In trap handler, the mstatus.MPS is 0x%lx\n", mstatus_mps_bits);
-			printf("In trap handler, the mcause is %lx\n", mcause);
+			printf("In trap handler, the mcause is %lx, exception info: %s\n",
+				mcause, exception_info);
 			printf("In trap handler, the mepc is 0x%lx\n", read_csr(mepc));
 			printf("In trap handler, the mtval is 0x%lx\n", read_csr(mbadaddr));
 			if (mstatus_mps_bits == 0x1) {
@@ -247,6 +279,10 @@ StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t px
 
 void prvTaskExitError( void )
 {
+	char *CurrentTaskName = pcTaskGetName(xTaskGetCurrentTaskHandle());
+
+	printf("prvTaskExitError, current task is %s\n", CurrentTaskName);
+
 	/* A function that implements a task must not exit or attempt to return to
 	its caller as there is nothing to return to.  If a task wants to exit it
 	should instead call vTaskDelete( NULL ).
@@ -353,8 +389,6 @@ void vPortSetupTimer(void) {
     //eclic_set_nlbits(4);
     //eclic_set_irq_lvl_abs(ECLIC_INT_MTIP,1);
     eclic_set_intctrl(ECLIC_INT_MTIP, 10 << 4);
-
-    set_csr(mstatus, MSTATUS_MIE);
 #endif
 #endif
 }

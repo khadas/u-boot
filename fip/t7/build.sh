@@ -185,6 +185,7 @@ function mk_bl2ex() {
 			--infile-dvinit-params=${payload}/device_acs.bin \
 			--infile-csinit-params=${payload}/chip_acs.bin \
 			--infile-ddr-fwdata=${payload}/ddrfw_data.bin \
+			--scs-family=sc2	\
 			--outfile-bb1st=${output}/bb1st.sto.bin \
 			--outfile-blob-bl2e=${output}/blob-bl2e.sto.bin \
 			--outfile-blob-bl2x=${output}/blob-bl2x.bin
@@ -196,6 +197,7 @@ function mk_bl2ex() {
 			--infile-dvinit-params=${payload}/device_acs.bin \
 			--infile-csinit-params=${payload}/chip_acs.bin \
 			--infile-ddr-fwdata=${payload}/ddrfw_data.bin \
+			--scs-family=sc2		\
 			--outfile-bb1st=${output}/bb1st.usb.bin \
 			--outfile-blob-bl2e=${output}/blob-bl2e.usb.bin \
 			--outfile-blob-bl2x=${output}/blob-bl2x.bin
@@ -665,8 +667,8 @@ function process_blx() {
 		dd if=${BUILD_PATH}/device_acs.bin of=${BUILD_PATH}/dvinit-params.bin conv=notrunc &> /dev/null
 	fi
 
-	./${FIP_FOLDER}${CUR_SOC}/bin/add-dvinit-params.sh ${BUILD_PATH}/bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/dvinit-params.bin ${BUILD_PATH}/bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed
-	./${FIP_FOLDER}${CUR_SOC}/bin/add-dvinit-params.sh ${BUILD_PATH}/bb1st.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/dvinit-params.bin ${BUILD_PATH}/bb1st.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed
+	./${FIP_FOLDER}${CUR_SOC}/bin/add-dvinit-params.sh ${BUILD_PATH}/bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/dvinit-params.bin ${BUILD_PATH}/bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed ${CUR_SOC}
+	./${FIP_FOLDER}${CUR_SOC}/bin/add-dvinit-params.sh ${BUILD_PATH}/bb1st.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/dvinit-params.bin ${BUILD_PATH}/bb1st.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed ${CUR_SOC}
 
 	# fix size for BL30 128KB
 	if [ -f ${BUILD_PATH}/bl30.bin ]; then

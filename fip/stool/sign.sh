@@ -55,7 +55,7 @@ tool_type=c1
 hash_ver=3
 fi
 
-if [ ${soc} == "t5" ] || [ ${soc} == "t5d" ] || [ ${soc} == "t5w" ]; then
+if [ ${soc} == "t5" ] || [ ${soc} == "t5d" ] || [ ${soc} == "t5w" ] || [ ${soc} == "txhd2" ]; then
 soc_type=t5
 tool_type=c1
 hash_ver=3

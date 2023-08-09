@@ -56,6 +56,24 @@ function get_versions() {
 			#echo ${BLX_NAME[@]}
 			#echo ${BLX_SRC_FOLDER[@]}
 			for loop in ${!BLX_NAME[@]}; do
+				if [ ! -d ${BLX_BIN_FOLDER[loop]} ]; then
+					if [[ ${BLX_BIN_FOLDER[loop]:0:4} == "bl31" || ${BLX_BIN_FOLDER[loop]:0:4} == "bl32" ]]; then
+						echo "${BLX_BIN_FOLDER[loop]}"
+						BLX_BIN_FOLDER[loop]="${BLX_BIN_FOLDER[loop]:5}"
+						BLX_SRC_FOLDER[loop]="${BLX_SRC_FOLDER[loop]:5}"
+						if [ ! -d ${BLX_BIN_FOLDER[loop]} ]; then
+							echo "${BLX_BIN_FOLDER[loop]} need modify try to remove 1.0"
+							BLX_BIN_FOLDER[loop]="${BLX_BIN_FOLDER[loop]/"_1.0"}"
+							BLX_SRC_FOLDER[loop]="${BLX_SRC_FOLDER[loop]/"_1.0"}"
+						fi
+						if [ ! -d ${BLX_BIN_FOLDER[loop]} ]; then
+							echo "${BLX_BIN_FOLDER[loop]} need modify try to remove2.4"
+							BLX_BIN_FOLDER[loop]="${BLX_BIN_FOLDER[loop]/"_2.4"}"
+							BLX_SRC_FOLDER[loop]="${BLX_SRC_FOLDER[loop]/"_2.4"}"
+						fi
+						echo "${BLX_BIN_FOLDER[loop]}"
+					fi
+				fi
 				if [[ "${GIT_INFO[1]}" =~ "${BLX_SRC_FOLDER[$loop]}" && "${GIT_INFO[3]}" == "${BLX_SRC_GIT[$loop]}" ]]; then
 					SRC_REV[$loop]=${GIT_INFO[2]}
 					#CUR_BIN_BRANCH[$loop]=${GIT_INFO[0]}

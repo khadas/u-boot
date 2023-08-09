@@ -178,9 +178,10 @@ EXPORT_FILES+="${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-pub.pem "
 
 ### Input: Device Level-1/2 Private Key ###
 ### Required to generate Device Vendor Lvl-2 and Lvl-3 Cert ###
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 EXPORT_FILES+="${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-priv.pem "
 EXPORT_FILES+="${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-priv.pem "
-
+fi
 ### Input: Device Level-3 Cert ###
 ### Required to generate Device Vendor Lvl-3 Cert ###
 #EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/bl30-level-3-rsa-pub.pem "
@@ -205,12 +206,14 @@ EXPORT_FILES+="${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-priv.pem "
 ### Input: Device Level-3 Private Key ###
 ### Required to sign Device Vendor bootloader ###
 ### Required to sign BL30 and BL33
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/bl30-level-3-rsa-priv.pem "
 EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/bl31-level-3-rsa-priv.pem "
 EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/bl32-level-3-rsa-priv.pem "
 EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/bl33-level-3-rsa-priv.pem "
 EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/bl40-level-3-rsa-priv.pem "
 EXPORT_FILES+="${BASEDIR_FIP_RSAKEY_ROOT}/key/krnl-level-3-rsa-priv.pem "
+fi
 ### Input: DVGK derived AES-256 root key ###
 ### Required to generate Device Root cert and Lvl-1/2 cert ###
 #EXPORT_FILES+="${BASEDIR_AESKEY_ROOT}/aes256-device-rootkey-bootstage-2.bin "

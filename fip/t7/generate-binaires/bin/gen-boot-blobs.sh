@@ -9,7 +9,7 @@ set -e
 
 EXEC_BASEDIR=$(dirname $(readlink -f $0))
 ACPU_IMAGETOOL=${EXEC_BASEDIR}/../../binary-tool/acpu-imagetool
-
+SIGNPIPE_TOOL=${EXEC_BASEDIR}/../../binary-tool/demo-sign.py
 #
 # Settings
 #
@@ -22,6 +22,8 @@ BASEDIR_ROOT=${BASEDIR_ROOT:-$BASEDIR_TEMPLATE}
 #BASEDIR_RSAKEY_LVLX="${BASEDIR_ROOTRSA_X}/data/key/lvlxrsa"
 
 BASEDIR_OUTPUT_BLOB=$2
+
+SOC=$3
 
 input_postfix=.signed
 output_postfix=.device.signed
@@ -70,9 +72,10 @@ BB1ST_ARGS="${BB1ST_ARGS} --infile-blob-bl2x=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl
 BB1ST_ARGS="${BB1ST_ARGS} --infile-blob-bb1st-ref=${BASEDIR_CHIPSET_TEMPLATE}/bb1st${DEVICE_STORAGE_SUFFIX}${DEVICE_VARIANT_SUFFIX}.bin${input_postfix}"
 
 ### Input: Device Level-1/2 Private RSA keys 
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 BB1ST_ARGS="${BB1ST_ARGS} --infile-signkey-device-lvl1=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-priv.pem"
 BB1ST_ARGS="${BB1ST_ARGS} --infile-signkey-device-lvl2=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-priv.pem"
-
+fi
 ### Input: Device Level-2 Public RSA key
 BB1ST_ARGS="${BB1ST_ARGS} --infile-pubkey-device-lvl2cert=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-pub.pem"
 
@@ -84,6 +87,7 @@ BB1ST_ARGS="${BB1ST_ARGS} --val-device-scs-segid=${DEVICE_SCS_SEGID}"
 BB1ST_ARGS="${BB1ST_ARGS} --val-device-vendor-segid=${DEVICE_VENDOR_SEGID}"
 BB1ST_ARGS="${BB1ST_ARGS} --val-device-scs-vers=${DEVICE_SCS_VERS}"
 BB1ST_ARGS="${BB1ST_ARGS} --val-device-tee-vers=${DEVICE_TEE_VERS}"
+BB1ST_ARGS="${BB1ST_ARGS} --scs-family=${SOC}"
 
 ### Output: blobs ###
 BB1ST_ARGS="${BB1ST_ARGS} --outfile-bb1st=${BASEDIR_OUTPUT_BLOB}/bb1st${DEVICE_STORAGE_SUFFIX}${DEVICE_VARIANT_SUFFIX}.bin${output_postfix}"
@@ -97,9 +101,15 @@ echo ${TOOLS_ARGS}
 #
 
 set -x
-
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 ${ACPU_IMAGETOOL} \
         create-boot-blobs \
         ${BB1ST_ARGS}
-
+else
+${ACPU_IMAGETOOL} \
+        create-boot-blobs \
+	--cmd-signpipe-device-lvl1="${SIGNPIPE_TOOL} ${EXEC_BASEDIR}/../../../../dv_scs_keys/boot-blobs/rsa/${PROJECT}/rootrsa-${DEVICE_ROOTRSA_INDEX}/key/level-1-rsa-priv.pem"	\
+	--cmd-signpipe-device-lvl2="${SIGNPIPE_TOOL} ${EXEC_BASEDIR}/../../../../dv_scs_keys/boot-blobs/rsa/${PROJECT}/rootrsa-${DEVICE_ROOTRSA_INDEX}/key/level-2-rsa-priv.pem"	\
+        ${BB1ST_ARGS}
+fi
 # vim: set tabstop=2 expandtab shiftwidth=2:

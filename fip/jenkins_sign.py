@@ -226,6 +226,16 @@ def queryBuildStatus(rootJobUrl, buildNumber):
     else:
         return "NotStart"
 
+def queryBuildUser(rootJobUrl, buildNumber):
+    url = rootJobUrl + str(buildNumber) + "/api/json?tree=actions[causes[userId]]"
+
+    response = requests.get(url, auth=auth)
+
+    if response.status_code == 200:
+        result = json.loads(response.text)
+        return str(result["actions"][1]["causes"][0]["userId"])
+    else:
+        return "Error"
 
 def downloadSignedFile(rootJobUrl, buildNumber, inFileDir="", specifiedOutFilePath=""):
 
@@ -308,8 +318,15 @@ def main():
         building = queryBuildStatus(rootJobUrl, buildNumber)
         print("Building Status= " + str(building))
         if building == "False":
+            userId = queryBuildUser(rootJobUrl, buildNumber)
+            if userId.lower() != user.lower():
+                 print("The jenkins Build number user name doesn't match yours.It may be caused by too many signing requests submit to the same job.")
+                 print("Please wait a moment, and try again.")
+                 exit(1)
+
             print("Build is done. Will start to download the signed file")
             break
+
     inputFileDir = os.path.dirname(args.inputFilePath)
     downloadSignedFile(rootJobUrl, buildNumber, inputFileDir, args.outFilePath)
 

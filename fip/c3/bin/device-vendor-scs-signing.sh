@@ -160,6 +160,7 @@ Usage: $(basename $0) --help | --version
 		{--input-package  <input-package>} \\
 		{--rootkey-index [0 | 1 | 2 | 3]} \\
 		{--chipset-variant <chipset-variant>} \\
+		{--chipset-variant-min <chipset-variant-min>} \\
 		{--arb-config <arb-config-file>} \\
 		--out-dir <output-dir>
 EOF
@@ -172,6 +173,7 @@ input_dir=""
 input_package=""
 rootkey_index=0
 chipset_variant=""
+chipset_variant_min=""
 arb_config=""
 output_dir=""
 
@@ -217,6 +219,9 @@ parse_main() {
             --chipset-variant)
                 chipset_variant="${argv[$i]}"
 		;;
+            --chipset-variant-min)
+                chipset_variant_min="${argv[$i]}"
+		;;
             --arb-config)
                 arb_config="${argv[$i]}"
 		;;
@@ -241,6 +246,7 @@ trace "  input_dir ${input_dir}"
 trace "  input_package ${input_package}"
 trace "  rootkey-index ${rootkey_index}"
 trace "  chipset-variant ${chipset_variant}"
+trace "  chipset-variant-min ${chipset_variant_min}"
 trace "  arb-config ${arb_config}"
 trace "  out-dir ${output_dir}"
 
@@ -281,6 +287,12 @@ else
 	chipset_variant_suffix=".${chipset_variant}"
 fi
 
+if [ -z "${chipset_variant_min}" ] || [ "${chipset_variant_min}" == "no_variant" ]; then
+	chipset_variant_min_suffix=""
+else
+	chipset_variant_min_suffix=".${chipset_variant_min}"
+fi
+
 if [ -z "${output_dir}" ]; then
 	usage
 fi
@@ -305,6 +317,7 @@ export PROJECT=${part}
 export DEVICE_ROOTRSA_INDEX=${rootkey_index}
 
 export DEVICE_VARIANT_SUFFIX=${chipset_variant_suffix}
+export DEVICE_VARIANT_MIN_SUFFIX=${chipset_variant_min_suffix}
 
 export DEVICE_STORAGE_SUFFIX=.sto
 make -C ${BASEDIR_TOP} dv-boot-blobs

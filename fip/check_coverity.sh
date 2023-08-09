@@ -49,8 +49,8 @@ function check_cov_build_version() {
 	if [ "${COV_CONFIG}" = "0" ]; then
 		echo
 		echo -e "\e[1;35m Run cov-build error! Please check: \e[0m"
-		echo "  1.is installed ? if not, call IT. (/proj/coverity/cov-analysis-linux64-2021.12.0/bin)"
-		echo "  2.in PATH env ? if not, export it.(export PATH=/proj/coverity/cov-analysis-linux64-2021.12.0/bin/:$PATH)"
+		echo "  1.is installed ? if not, call IT. (/proj/coverity/cov-analysis-linux64-2023.3.2/bin)"
+		echo "  2.in PATH env ? if not, export it.(export PATH=/proj/coverity/cov-analysis-linux64-2023.3.2/bin/:$PATH)"
 		echo
 		exit 0
 	else
@@ -100,12 +100,12 @@ function analysis_coverity() {
 		if [ -z ${COVERITY_KEY} -o -z ${COVERITY_STREAM} ]; then
 			echo -e "\e[1;35m[4] --key or --stream is not set, push stream exit ! \e[0m"
 		else
-			cov-commit-defects --dir ${COV_IM_DIR} --auth-key-file ${COVERITY_KEY} --host 10.18.11.122 --stream ${COVERITY_STREAM} --noxrefs || err_exit "cov-format-errors error."
+			cov-commit-defects --dir ${COV_IM_DIR} --auth-key-file ${COVERITY_KEY} --host 10.18.11.93 --stream ${COVERITY_STREAM} --noxrefs || err_exit "cov-format-errors error."
 			echo -e "\e[1;35m[4] run cov-commit-defects OK. \e[0m"
 			echo ""
 			echo -e "\e[1;35m[snapshot-result] \e[0m"
 			echo "you can view the result with the [New snapshot ID] above on coverity server!"
-			echo "path: http://10.18.11.122:8080/ -> choose projects -> choose SNAPSHOTS(ALL in Project) -> choose ID"
+			echo "path: http://10.18.11.93:8080/ -> choose projects -> choose SNAPSHOTS(ALL in Project) -> choose ID"
 			echo " "
 		fi
 	fi

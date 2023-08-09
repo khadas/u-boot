@@ -61,6 +61,9 @@ while getopts "s:h:p:r:a:b:uno:" opt; do
   esac
 done
 
+if [ ${soc} == "txhd2" ]; then
+  bl2_size=94208
+fi
 
 soc_prebuilts=$prebuilts
 if [[ -z $prebuilts || ! -d $soc_prebuilts ]]; then
@@ -297,8 +300,8 @@ if [ $unsigned_only != "true" ]; then
     --bl33-arb-cvn $bl33_arb_cvn                         \
     -o            "${bl_out_dir}/u-boot.bin.${postfix}"
 
-  head -c 81920 "${bl_out_dir}/u-boot.bin.${postfix}" > "${bl_out_dir}/u-boot.bin.usb.bl2.${postfix}"
-  tail -c +81921 "${bl_out_dir}/u-boot.bin.${postfix}" > "${bl_out_dir}/u-boot.bin.usb.tpl.${postfix}"
+  head -c $bl2_size "${bl_out_dir}/u-boot.bin.${postfix}" > "${bl_out_dir}/u-boot.bin.usb.bl2.${postfix}"
+  tail -c +$(($bl2_size + 1)) "${bl_out_dir}/u-boot.bin.${postfix}" > "${bl_out_dir}/u-boot.bin.usb.tpl.${postfix}"
 	dd if=/dev/urandom of=${bl_out_dir}/u-boot.bin.${postfix}.sd.bin count=1 >& /dev/null
 	cat ${bl_out_dir}/u-boot.bin.${postfix} >> ${bl_out_dir}/u-boot.bin.${postfix}.sd.bin
 fi
@@ -313,8 +316,8 @@ fi
     --bl33 "${soc_prebuilts}/bl33.bin"                  \
     -o "${bl_out_dir}/u-boot.bin.unsigned"
 
-head -c 81920 "${bl_out_dir}/u-boot.bin.unsigned" > "${bl_out_dir}/u-boot.bin.usb.bl2.unsigned"
-tail -c +81921 "${bl_out_dir}/u-boot.bin.unsigned" > "${bl_out_dir}/u-boot.bin.usb.tpl.unsigned"
+head -c $bl2_size "${bl_out_dir}/u-boot.bin.unsigned" > "${bl_out_dir}/u-boot.bin.usb.bl2.unsigned"
+tail -c +$(($bl2_size + 1)) "${bl_out_dir}/u-boot.bin.unsigned" > "${bl_out_dir}/u-boot.bin.usb.tpl.unsigned"
 dd if=/dev/urandom of=${bl_out_dir}/u-boot.bin.unsigned.sd.bin count=1 >& /dev/null
 cat ${bl_out_dir}/u-boot.bin.unsigned >> ${bl_out_dir}/u-boot.bin.unsigned.sd.bin
 
@@ -331,7 +334,7 @@ rsa_root_hash=${soc_fw_krsa_dir}/rootkeys-hash.bin
 	-o "$rsa_root_hash"
 
 "$efuse_gen" --generate-efuse-pattern \
-	--soc t5                           \
+	--soc ${soc}                        \
 	--key-hash-ver 3                    \
 	--root-hash "$rsa_root_hash"        \
 	--aes-key "${kaes_bl2}"             \
@@ -346,7 +349,7 @@ rsa_root_hash=${soc_fw_krsa_dir}/rootkeys-hash.bin
 readonly passwordhash=${soc_fw_krsa_dir}/usb.password.hash.bin
 if [ -f $passwordhash ]; then
 	"$efuse_gen" --generate-efuse-pattern \
-	--soc t5                              \
+	--soc ${soc}                          \
 	--key-hash-ver 3                      \
 	--root-hash "$rsa_root_hash"          \
 	--aes-key "${kaes_bl2}"               \
@@ -358,7 +361,7 @@ if [ -f $passwordhash ]; then
 	-o "${bl_out_dir}/pattern.efuse"
 
 	"$efuse_gen" --generate-efuse-pattern \
-	--soc t5                              \
+	--soc ${soc}                          \
 	--enable-usb-password true            \
 	--password-hash $passwordhash         \
 	-o "${bl_out_dir}/pattern.usb.efuse"

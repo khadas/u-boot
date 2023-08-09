@@ -67,6 +67,8 @@ BB1ST_ARGS="${BB1ST_ARGS} --infile-aes256-ddr-fwdata=${BASEDIR_AESKEY_PROT_BL2}/
 ### Features, flags and switches ###
 BB1ST_ARGS="${BB1ST_ARGS} --switch-chipset-sign-bl2=0"
 
+BB1ST_ARGS="${BB1ST_ARGS} --scs-family=sc2"
+
 ### Output: blobs ###
 BB1ST_ARGS="${BB1ST_ARGS} --outfile-bb1st=${BASEDIR_OUTPUT_BLOB}/bb1st${FEAT_BL2_TEMPLATE_TYPE}${CHIPSET_VARIANT_SUFFIX}.bin${postfix}"
 

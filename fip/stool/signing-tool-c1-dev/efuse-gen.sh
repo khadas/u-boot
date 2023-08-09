@@ -27,7 +27,7 @@ usage() {
 Usage: $(basename $0) --help
        $(basename $0) --version
        $(basename $0) --generate-efuse-pattern \\
-                      --soc [gxl | txlx | axg | g12a | sm1 | a1 | c1 | t5 | t5d | t5w ] \\
+                      --soc [gxl | txlx | axg | g12a | sm1 | a1 | c1 | t5 | t5d | t5w  | txhd2 ] \\
                       [--soc-rev [a | b]] \\
                       [--root-hash rootkeys.hash] \\
                       [--password-hash password.hash] \\
@@ -293,7 +293,7 @@ generate_efuse_pattern() {
 
     if [ "$soc" != "gxl" ] && [ "$soc" != "axg" ] && [ "$soc" != "txlx" ] &&
             [ "$soc" != "g12a" ] && [ "$soc" != "sm1" ] && [ "$soc" != "a1" ] &&
-            [ "$soc" != "c1" ] && [ "$soc" != "t5" ] && [ "$soc" != "t5d" ] && [ "$soc" != "t5w" ]; then
+            [ "$soc" != "c1" ] && [ "$soc" != "t5" ] && [ "$soc" != "t5d" ] && [ "$soc" != "t5w" ] && [ "$soc" != "txhd2" ]; then
         echo Error: invalid soc: \"$soc\"
         exit 1
     fi
@@ -302,7 +302,7 @@ generate_efuse_pattern() {
     if [ "$soc" == "txlx" ] || [ "$soc" == "axg" ] || [ "$soc" == "g12a" ] || [ "$soc" == "sm1" ]; then
         keyhashver=2
     fi
-    if [ "$soc" == "a1" ] || [ "$soc" == "c1" ] || [ "$soc" == "t5" ] || [ "$soc" == "t5d" ] || [ "$soc" == "t5w" ]; then
+    if [ "$soc" == "a1" ] || [ "$soc" == "c1" ] || [ "$soc" == "t5" ] || [ "$soc" == "t5d" ] || [ "$soc" == "t5w" ] || [ "$soc" == "txhd2" ]; then
         keyhashver=3
     fi
 
@@ -439,7 +439,7 @@ generate_efuse_pattern() {
         generate_efuse_pattern_sm1
     elif [ "$soc" == "a1" ] || [ "$soc" == "c1" ]; then
         generate_efuse_pattern_a1
-    elif [ "$soc" == "t5" ] || [ "$soc" == "t5d" ] || [ "$soc" == "t5w" ]; then
+    elif [ "$soc" == "t5" ] || [ "$soc" == "t5d" ] || [ "$soc" == "t5w" ] || [ "$soc" == "txhd2" ]; then
         generate_efuse_pattern_t5
     elif [ "$soc" == "axg" ]; then
         generate_efuse_pattern_axg
@@ -1401,7 +1401,7 @@ generate_efuse_pattern_a1() {
 }
 
 generate_efuse_pattern_t5() {
-    echo -n "Generate OTP pattern for T5/T5D/T5W ... "
+    echo -n "Generate OTP pattern for T5/T5D/T5W/TXHD2 ... "
 
     # Additional args check
     if [ "$userefusefile" != "" ]; then
@@ -1427,7 +1427,7 @@ generate_efuse_pattern_t5() {
     b_a2="00"
     b_a3="00"
     if [ "$disablejtag" == "true" ]; then
-        # Disable *ALL* JTAG (AO, AP) in T5/T5D
+        # Disable *ALL* JTAG (AO, AP) in T5/T5D/T5W/TXHD2
         b_a3="$(printf %02x $(( 0x$b_a3 | 0x40 )))"
         b_a3="$(printf %02x $(( 0x$b_a3 | 0x20 )))"
         # Disable AU JTAG in T5W

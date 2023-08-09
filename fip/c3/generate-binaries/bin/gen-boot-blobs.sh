@@ -68,7 +68,7 @@ BB1ST_ARGS="${BB1ST_ARGS} --infile-template-bb1st=${BASEDIR_DEVICE_TEMPLATE}/bb1
 ### Input: blobs ###
 BB1ST_ARGS="${BB1ST_ARGS} --infile-dvinit-params=${BASEDIR_CHIPSET_TEMPLATE}/dvinit-params.bin"
 BB1ST_ARGS="${BB1ST_ARGS} --infile-blob-bl2e=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl2e${DEVICE_STORAGE_SUFFIX}${DEVICE_VARIANT_SUFFIX}.bin${input_postfix}"
-BB1ST_ARGS="${BB1ST_ARGS} --infile-blob-bl2x=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin${input_postfix}"
+BB1ST_ARGS="${BB1ST_ARGS} --infile-blob-bl2x=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl2x${DEVICE_VARIANT_SUFFIX}.bin${input_postfix}"
 BB1ST_ARGS="${BB1ST_ARGS} --infile-blob-bb1st-ref=${BASEDIR_CHIPSET_TEMPLATE}/bb1st${DEVICE_STORAGE_SUFFIX}${DEVICE_VARIANT_SUFFIX}.bin${input_postfix}"
 
 ### Input: Device Level-1/2 Private RSA keys
@@ -92,7 +92,7 @@ BB1ST_ARGS="${BB1ST_ARGS} --val-device-tee-vers=${DEVICE_TEE_VERS}"
 ### Output: blobs ###
 BB1ST_ARGS="${BB1ST_ARGS} --outfile-bb1st=${BASEDIR_OUTPUT_BLOB}/bb1st${DEVICE_STORAGE_SUFFIX}${DEVICE_VARIANT_SUFFIX}.bin${output_postfix}"
 BB1ST_ARGS="${BB1ST_ARGS} --outfile-blob-bl2e=${BASEDIR_OUTPUT_BLOB}/blob-bl2e${DEVICE_STORAGE_SUFFIX}${DEVICE_VARIANT_SUFFIX}.bin${output_postfix}"
-BB1ST_ARGS="${BB1ST_ARGS} --outfile-blob-bl2x=${BASEDIR_OUTPUT_BLOB}/blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin${output_postfix}"
+BB1ST_ARGS="${BB1ST_ARGS} --outfile-blob-bl2x=${BASEDIR_OUTPUT_BLOB}/blob-bl2x${DEVICE_VARIANT_SUFFIX}.bin${output_postfix}"
 
 echo ${TOOLS_ARGS}
 

@@ -92,6 +92,11 @@ parse_main() {
             --device-tee-vers)
                 device_tee_vers="${argv[$i]}"
 		;;
+	    --signpipe)
+                CONFIG_SIGNPIPE=1
+                echo "Enable SignPipe"
+                export CONFIG_SIGNPIPE
+                continue ;;
             --device-soc)
                 device_soc="${argv[$i]}"
         ;;
@@ -113,6 +118,7 @@ parse_main() {
 
 EXEC_BASEDIR=$(dirname $(readlink -f $0))
 ACPU_IMAGETOOL=${EXEC_BASEDIR}/../../binary-tool/acpu-imagetool
+SIGNPIPE_TOOL=${EXEC_BASEDIR}/../../binary-tool/demo-sign.py
 key_dir=""
 template_dir=""
 rootkey_index=0
@@ -201,15 +207,19 @@ check_file "${BASEDIR_RSAKEY_ROOT}/key/rootrsa-2-pub.pem"
 check_file "${BASEDIR_RSAKEY_ROOT}/key/rootrsa-3-pub.pem"
 check_file "${BASEDIR_RSAKEY_ROOT}/epk/rootcert-epks.bin"
 check_file "${BASEDIR_RSAKEY_ROOT}/nonce/rootrsa-${DEVICE_ROOTRSA_INDEX}-nonce.bin"
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 check_file "${BASEDIR_RSAKEY_ROOT}/key/rootrsa-${DEVICE_ROOTRSA_INDEX}-priv.pem"
+check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-priv.pem"
+check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-priv.pem"
+fi
 check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-pub.pem"
 check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/epk/lvl1cert-epks.bin"
 check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/nonce/device-lvl1rsa-nonce.bin"
-check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-priv.pem"
+
 check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-pub.pem"
 check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/epk/lvl2cert-epks.bin"
 check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/nonce/device-lvl2rsa-nonce.bin"
-check_file "${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-priv.pem"
+
 check_file "${BASEDIR_AESKEY_ROOT}/aes256-device-rootkey-bootstage-2.bin"
 check_file "${BASEDIR_AESKEY_ROOT}/aes256-device-rootkey-bootstage-3.bin"
 
@@ -236,15 +246,17 @@ BB1ST_ARGS="${BB1ST_ARGS} --infile-nonce-device-rootrsa=${BASEDIR_RSAKEY_ROOT}/n
 
 # Select root RSA to use
 BB1ST_ARGS="${BB1ST_ARGS} --device-rootrsa-index=${DEVICE_ROOTRSA_INDEX}"
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 BB1ST_ARGS="${BB1ST_ARGS} --infile-signkey-device-root=${BASEDIR_RSAKEY_ROOT}/key/rootrsa-${DEVICE_ROOTRSA_INDEX}-priv.pem"
-
+fi
 ### Input: Device Level-1 Cert ###
 BB1ST_ARGS="${BB1ST_ARGS} --infile-pubkey-device-lvl1cert=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-pub.pem"
 BB1ST_ARGS="${BB1ST_ARGS} --infile-epks-device-lvl1cert=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/epk/lvl1cert-epks.bin"
 BB1ST_ARGS="${BB1ST_ARGS} --infile-nonce-device-lvl1rsa=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/nonce/device-lvl1rsa-nonce.bin"
 
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 BB1ST_ARGS="${BB1ST_ARGS} --infile-signkey-device-lvl1=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-priv.pem"
-
+fi
 ### Input: Device Level-2 Cert ###
 BB1ST_ARGS="${BB1ST_ARGS} --infile-pubkey-device-lvl2cert=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-2-rsa-pub.pem"
 BB1ST_ARGS="${BB1ST_ARGS} --infile-epks-device-lvl2cert=${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/epk/lvl2cert-epks.bin"
@@ -284,9 +296,15 @@ echo ${TOOLS_ARGS}
 #
 # Main
 #
-
+if [ "1" == "${CONFIG_SIGNPIPE}" ]; then
+${ACPU_IMAGETOOL} \
+        create-boot-blobs \
+	--cmd-signpipe-device-root="${SIGNPIPE_TOOL} ${BASEDIR_RSAKEY_ROOT}/key/rootrsa-${DEVICE_ROOTRSA_INDEX}-priv.pem"        \
+        --cmd-signpipe-device-lvl1="${SIGNPIPE_TOOL} ${BASEDIR_BOOTBLOBS_RSAKEY_ROOT}/key/level-1-rsa-priv.pem" \
+        ${BB1ST_ARGS}
+else
 ${ACPU_IMAGETOOL} \
         create-boot-blobs \
         ${BB1ST_ARGS}
-
+fi
 # vim: set tabstop=2 expandtab shiftwidth=2:

@@ -19,7 +19,7 @@ BASEDIR_TOP=$(readlink -f ${EXEC_BASEDIR}/..)
 BASEDIR_TEMPLATE=$1
 BASEDIR_PAYLOAD=$2
 BASEDIR_OUTPUT_BLOB=$3
-
+SOC=sc2
 #
 # Arguments
 #
@@ -31,6 +31,8 @@ BB1ST_ARGS="${BB1ST_ARGS} --infile-template-bb1st=${BASEDIR_TEMPLATE}"
 
 ### Input: payloads ###
 BB1ST_ARGS="${BB1ST_ARGS} --infile-dvinit-params=${BASEDIR_PAYLOAD}"
+
+BB1ST_ARGS="${BB1ST_ARGS} --scs-family=${SOC}"
 
 ### Output: blobs ###
 BB1ST_ARGS="${BB1ST_ARGS} --outfile-bb1st=${BASEDIR_OUTPUT_BLOB}"

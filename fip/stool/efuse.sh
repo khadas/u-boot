@@ -5,7 +5,7 @@ usage() {
 Usage: $(basename $0) --help
        $(basename $0) --version
        $(basename $0) --generate-efuse-pattern \\
-                      --soc [gxl | txlx | axg | g12a | g12b | sm1 | tl1 | tm2 | c1 | t5 | t5d | t5w] \\
+                      --soc [gxl | txlx | axg | g12a | g12b | sm1 | tl1 | tm2 | c1 | t5 | t5d | t5w | txhd2] \\
                       [--aml-key-path path-of-key]  \\
                       [--rsa-key-path path-of-rsa-key]  \\
                       [--enable-sb false]               \\
@@ -17,7 +17,7 @@ Usage: $(basename $0) --help
                       [--enable-anti-rollback false]    \\
                       -o pattern.efuse
          $(basename $0) --audio-id audio_id_value \\
-                      --soc [axg | txhd | g12a | g12b | sm1 | tl1 | tm2 | a1 | c1 |c2 | t5 | t5d | t5w] \\
+                      --soc [axg | txhd | g12a | g12b | sm1 | tl1 | tm2 | a1 | c1 |c2 | t5 | t5d | t5w | txhd2] \\
                       -o audio_id.efuse
 
 EOF
@@ -169,7 +169,7 @@ elif [ ${soc} == "c1" ] ;  then
   tool_type=c1
   soc=c1
   hashver=3
-elif [ ${soc} == "t5" ] || [ ${soc} == "t5d" ] || [ ${soc} == "t5w" ];  then
+elif [ ${soc} == "t5" ] || [ ${soc} == "t5d" ] || [ ${soc} == "t5w" ] || [ ${soc} == "txhd2" ];  then
   tool_type=c1
   hashver=3
 else
@@ -302,7 +302,7 @@ generate_audio_id_pattern() {
     local i=0
     local patt=$(mktemp --tmpdir)
     local audio_id_efuse=$(mktemp --tmpdir)
-    # default audio_id_offset 0x138 g12a/sm1/g12b/tl1/tm2/t5/t5d/t5w
+    # default audio_id_offset 0x138 g12a/sm1/g12b/tl1/tm2/t5/t5d/t5w/txhd2
     local audio_id_offset=312
     local audio_id_size=4
      # Parse args
@@ -333,7 +333,7 @@ generate_audio_id_pattern() {
     if [ "$soc" != "axg" ] && [ "$soc" != "txhd" ] && [ "$soc" != "g12a" ] \
        && [ "$soc" != "sm1" ] && [ "$soc" != "g12b" ] && [ "$soc" != "tl1" ] && [ "$soc" != "tm2" ] \
        && [ "$soc" != "a1" ] && [ "$soc" != "c1" ] && [ "$soc" != "c2" ] \
-       && [ "$soc" != "t5" ] && [ "$soc" != "t5d" ] && [ "$soc" != "t5w" ]; then
+       && [ "$soc" != "t5" ] && [ "$soc" != "t5d" ] && [ "$soc" != "t5w" ] && [ "$soc" != "txhd2" ]; then
         echo Error: invalid soc: \"$soc\"
         exit 1
     fi

@@ -3,6 +3,10 @@
 # static
 declare BLX_BIN_SUB_CHIP="${CONFIG_CHIPSET_NAME}"
 
+if [ -n "${CONFIG_CHIPSET_VARIANT_MIN}" ]; then
+	declare CHIPSET_VARIANT_MIN_SUFFIX=".${CONFIG_CHIPSET_VARIANT_MIN}"
+fi
+
 if [ -n "${SCRIPT_ARG_CHIPSET_VARIANT}" ]; then
 	declare CHIPSET_VARIANT_SUFFIX=".${SCRIPT_ARG_CHIPSET_VARIANT}"
 elif [ -n "${CONFIG_CHIPSET_VARIANT}" ]; then
@@ -24,8 +28,8 @@ declare -a BLX_SRC_FOLDER=("bl2/core"		\
 			   "bl2/ree"		\
 			   "bl2/ree"		\
 			   "bl2/tee"		\
-			   "bl31_1.3/src"	\
-			   "bl32_3.8/src"	\
+			   "bl31/bl31_1.3/src"	\
+			   "bl32/bl32_3.8/src"	\
 			   "NULL"		\
 			   "bl33")
 
@@ -34,8 +38,8 @@ declare -a BLX_BIN_FOLDER=("bl2/bin"		\
 			   "bl2/bin"		\
 			   "bl2/bin"		\
 			   "bl2/bin"		\
-			   "bl31_1.3/bin"	\
-			   "bl32_3.8/bin"	\
+			   "bl31/bl31_1.3/bin"	\
+			   "bl32/bl32_3.8/bin"	\
 			   "bl40/bin")
 
 if [ "y" == "${CONFIG_PXP_NO_SIGNED}" ]; then
@@ -55,7 +59,7 @@ declare -a BLX_BIN_NAME=("bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
 			 "blob-bl2e.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed" \
 			 "blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
 			 "blob-bl31${CHIPSET_VARIANT_SUFFIX}.bin.signed"     \
-			 "blob-bl32.bin.signed"                              \
+			 "blob-bl32${CHIPSET_VARIANT_MIN_SUFFIX}.bin.signed" \
 			 "blob-bl40.bin.signed")
 fi
 

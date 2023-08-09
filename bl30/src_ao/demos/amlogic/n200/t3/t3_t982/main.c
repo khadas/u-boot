@@ -152,6 +152,9 @@ int main(void)
 	vETHMailboxCallback();
 	create_str_task();
 	find_static_power_dev();
+
+	bl30_plat_save_version();
+
 	printf("Starting task scheduler ...\r\n");
 	vTaskStartScheduler();
 

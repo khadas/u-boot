@@ -218,6 +218,11 @@ function mk_devfip() {
 
 	# fix size for BL32 512KB
 	if [ -f ${output}/bl32.bin ]; then
+		echo "compress bl32.bin"
+		mv -f ${output}/bl32.bin  ${output}/bl32.bin.org
+		encrypt_step --bl3sig  --input ${output}/bl32.bin.org --output ${output}/bl32.bin.org.lz4 --compress lz4 --level v3 --type bl32
+		dd if=${output}/bl32.bin.org.lz4 of=${output}/bl32.bin bs=1 skip=1824 >& /dev/null
+
 		blx_size=`stat -c %s ${output}/bl32.bin`
 		if [ $blx_size -gt 524288 ]; then
 			echo "Error: bl32 size exceed limit 524288"

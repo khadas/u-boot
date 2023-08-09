@@ -63,6 +63,11 @@ function init_vari() {
 		CHIPSET_VARIANT_SUFFIX=""
 	fi
 
+	#special case for c3(min bl32)
+	if [ "${CONFIG_CHIPSET_VARIANT_MIN}" == "1m" ]; then
+		CHIPSET_VARIANT_MIN_SUFFIX=".1m"
+	fi
+
 	if [ -n "${CONFIG_AMLOGIC_KEY_TYPE}" ]; then
 		AMLOGIC_KEY_TYPE="${CONFIG_AMLOGIC_KEY_TYPE}"
 	fi
@@ -594,7 +599,11 @@ function build_fip() {
 }
 
 function process_blx() {
+	local extra_arg=""
 
+	if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ]; then
+		extra_arg="--extraArgs ${CONFIG_CHIPSET_VARIANT}"
+	fi
 
 	# process loop
 	for loop in ${!BLX_NAME[@]}; do
@@ -605,17 +614,17 @@ function process_blx() {
 					./${FIP_FOLDER}${CUR_SOC}/bin/sign-blx.sh --blxname ${BLX_NAME[$loop]} --input ${BUILD_PATH}/${BLX_RAWBIN_NAME[$loop]} \
 						--output ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} --chipset_name ${CHIPSET_NAME} --chipset_variant ${CHIPSET_VARIANT} \
 						--key_type ${AMLOGIC_KEY_TYPE} --soc ${CUR_SOC} --chip_acs ${BUILD_PATH}/chip_acs.bin --ddr_type ${DDRFW_TYPE} \
-						--extra_args ${CONFIG_CHIPSET_VARIANT}
+						${extra_arg}
 			else
 					if [ -n "${CONFIG_JENKINS_SIGN}" ]; then
 						/usr/bin/python3 ./sign.py --type ${BLX_NAME[$loop]} --in ${BUILD_PATH}/${BLX_RAWBIN_NAME[$loop]} \
 							--out ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} --chip ${CHIPSET_NAME}  --chipVariant ${CHIPSET_VARIANT} \
 							--keyType ${AMLOGIC_KEY_TYPE}  --chipAcsFile ${BUILD_PATH}/chip_acs.bin --ddrType ${DDRFW_TYPE} \
-							--extraArgs ${CONFIG_CHIPSET_VARIANT}
+							${extra_arg}
 					else
 						/usr/bin/python3 ./${FIP_FOLDER}/jenkins_sign.py --type ${BLX_NAME[$loop]} --in ${BUILD_PATH}/${BLX_RAWBIN_NAME[$loop]} \
 							--out ${BUILD_PATH}/${BLX_BIN_NAME[$loop]} --chip ${CHIPSET_NAME} --chipVariant ${CHIPSET_VARIANT} --keyType ${AMLOGIC_KEY_TYPE} \
-							--chipAcsFile ${BUILD_PATH}/chip_acs.bin --ddrType ${DDRFW_TYPE} --extraArgs ${CONFIG_CHIPSET_VARIANT}
+							--chipAcsFile ${BUILD_PATH}/chip_acs.bin --ddrType ${DDRFW_TYPE} ${extra_arg}
 					fi
 			fi
 		fi
@@ -722,14 +731,19 @@ function build_signed() {
 		mk_ddr_fip ${BUILD_PATH}
 	fi
 
-	./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_VARIANT_SUFFIX}
+	if [ ".1m" == "${CHIPSET_VARIANT_MIN_SUFFIX}" ]; then
+		./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_VARIANT_MIN_SUFFIX}
+	else
+		./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_VARIANT_SUFFIX}
+	fi
+
 	postfix=.signed
 	mk_uboot ${BUILD_PATH} ${BUILD_PATH} ${postfix} .sto ${CHIPSET_VARIANT_SUFFIX}
 	mk_uboot ${BUILD_PATH} ${BUILD_PATH} ${postfix} .usb ${CHIPSET_VARIANT_SUFFIX}
 
 	list_pack="${BUILD_PATH}/bb1st.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/bb1st.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed"
 	list_pack="$list_pack ${BUILD_PATH}/blob-bl2e.sto${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl2e.usb${CHIPSET_VARIANT_SUFFIX}.bin.signed"
-	list_pack="$list_pack ${BUILD_PATH}/blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl31${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl32.bin.signed ${BUILD_PATH}/blob-bl40.bin.signed"
+	list_pack="$list_pack ${BUILD_PATH}/blob-bl2x${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl31${CHIPSET_VARIANT_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl32${CHIPSET_VARIANT_MIN_SUFFIX}.bin.signed ${BUILD_PATH}/blob-bl40.bin.signed"
 	list_pack="$list_pack ${BUILD_PATH}/bl30-payload.bin ${BUILD_PATH}/bl33-payload.bin ${BUILD_PATH}/dvinit-params.bin"
 	if [ -f ${BUILD_PATH}/ddr-fip.bin ]; then
 		list_pack="$list_pack ${BUILD_PATH}/ddr-fip.bin"
@@ -761,6 +775,7 @@ function build_signed() {
 			export DEVICE_ROOTRSA_INDEX=${CONFIG_DEVICE_ROOTRSA_INDEX}
 		fi
 		export DEVICE_VARIANT_SUFFIX=${CHIPSET_VARIANT_SUFFIX}
+		export DEVICE_VARIANT_MIN_SUFFIX=${CHIPSET_VARIANT_MIN_SUFFIX}
 
 		export DEVICE_STORAGE_SUFFIX=.sto
 		make -C ./${FIP_FOLDER}${CUR_SOC} dv-boot-blobs
@@ -791,11 +806,7 @@ function copy_other_soc() {
 function package() {
 	# BUILD_PATH without "/"
 	x=$((${#BUILD_PATH}-1))
-if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ]; then
-	cp ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool-fastboot ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool
-else
-	cp ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool-normal ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool
-fi
+
 	if [ "\\" == "${BUILD_PATH:$x:1}" ] || [ "/" == "${BUILD_PATH:$x:1}" ]; then
 		BUILD_PATH=${BUILD_PATH:0:$x}
 	fi
@@ -810,6 +821,6 @@ fi
 	fi
 	#copy_file
 	cleanup
-	rm ./${FIP_FOLDER}${CUR_SOC}/binary-tool/acpu-imagetool
+
 	echo "Bootloader build done!"
 }

@@ -60,9 +60,10 @@ BB1ST_ARGS="${BB1ST_ARGS} --infile-csinit-params=${BASEDIR_PAYLOAD}/csinit-param
 BB1ST_ARGS="${BB1ST_ARGS} --infile-ddr-fwdata=${BASEDIR_PAYLOAD}/ddr-fwdata.bin"
 
 ### Input: Chipset Level-1/2 Private RSA keys
-
 BB1ST_ARGS="${BB1ST_ARGS} --infile-signkey-chipset-lvl1=${BASEDIR_RSAKEY_LVLX_BL2}/level-1-rsa-priv.pem"
 BB1ST_ARGS="${BB1ST_ARGS} --infile-signkey-chipset-lvl2=${BASEDIR_RSAKEY_LVLX_BL2}/level-2-rsa-priv.pem"
+
+BB1ST_ARGS="${BB1ST_ARGS} --scs-family=sc2"
 
 ### Input: nonce for binary protection ###
 #BB1ST_ARGS="${BB1ST_ARGS} --infile-nonce-csinit-params=${BASEDIR_NONCE}/chipset/blob/csinit-params-nonce.bin"
@@ -99,6 +100,7 @@ echo ${TOOLS_ARGS}
 #
 
 set -x
+
 
 ${ACPU_IMAGETOOL} \
         create-boot-blobs \

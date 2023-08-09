@@ -9,6 +9,7 @@ set -e
 
 EXEC_BASEDIR=$(dirname $(readlink -f $0))
 ACPU_IMAGETOOL=${EXEC_BASEDIR}/../../binary-tool/acpu-imagetool
+SIGNPIPE_TOOL=${EXEC_BASEDIR}/../../binary-tool/demo-sign.py
 
 BASEDIR_TOP=$(readlink -f ${EXEC_BASEDIR}/..)
 
@@ -75,17 +76,17 @@ EXEC_ARGS="${EXEC_ARGS} --infile-bl33-payload=${BASEDIR_PAYLOAD}/bl33-payload.bi
 ### Input: Device Level-3 private RSA keys and EPKs ###
 
 # Device Vendor binaries
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 EXEC_ARGS="${EXEC_ARGS} --infile-signkey-bl30-device-lvl3=${BASEDIR_FIP_RSAKEY_ROOT}/key/bl30-level-3-rsa-priv.pem"
-EXEC_ARGS="${EXEC_ARGS} --infile-aes256-bl30-payload=${BASEDIR_FIP_AESKEY_ROOT}/genkey-prot-bl30.bin"
-
 EXEC_ARGS="${EXEC_ARGS} --infile-signkey-bl33-device-lvl3=${BASEDIR_FIP_RSAKEY_ROOT}/key/bl33-level-3-rsa-priv.pem"
-EXEC_ARGS="${EXEC_ARGS} --infile-aes256-bl33-payload=${BASEDIR_FIP_AESKEY_ROOT}/genkey-prot-bl33.bin"
-
 # Chipset Manufacturer binaries
 EXEC_ARGS="${EXEC_ARGS} --infile-signkey-bl40-device-lvl3=${BASEDIR_FIP_RSAKEY_ROOT}/key/bl40-level-3-rsa-priv.pem"
 EXEC_ARGS="${EXEC_ARGS} --infile-signkey-bl31-device-lvl3=${BASEDIR_FIP_RSAKEY_ROOT}/key/bl31-level-3-rsa-priv.pem"
 EXEC_ARGS="${EXEC_ARGS} --infile-signkey-bl32-device-lvl3=${BASEDIR_FIP_RSAKEY_ROOT}/key/bl32-level-3-rsa-priv.pem"
+fi
 
+EXEC_ARGS="${EXEC_ARGS} --infile-aes256-bl30-payload=${BASEDIR_FIP_AESKEY_ROOT}/genkey-prot-bl30.bin"
+EXEC_ARGS="${EXEC_ARGS} --infile-aes256-bl33-payload=${BASEDIR_FIP_AESKEY_ROOT}/genkey-prot-bl33.bin"
 ### Input: chipset blobs ###
 EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl40=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl40.bin${input_postfix}"
 EXEC_ARGS="${EXEC_ARGS} --infile-blob-bl31=${BASEDIR_CHIPSET_TEMPLATE}/blob-bl31.bin${input_postfix}"
@@ -109,8 +110,18 @@ EXEC_ARGS="${EXEC_ARGS} --outfile-device-fip=${BASEDIR_OUTPUT}/device-fip.bin${o
 
 set -x
 
+if [ "x" == "x${CONFIG_SIGNPIPE}" ]; then
 ${ACPU_IMAGETOOL} \
         create-device-fip \
         ${EXEC_ARGS}
-
+else
+${ACPU_IMAGETOOL} \
+        create-device-fip \
+	--cmd-signpipe-bl30-device-lvl3="${SIGNPIPE_TOOL}  ${EXEC_BASEDIR}/../../../../dv_scs_keys/fip/rsa/${PROJECT}/rootrsa-${DEVICE_ROOTRSA_INDEX}/key/bl30-level-3-rsa-priv.pem" \
+	--cmd-signpipe-bl33-device-lvl3="${SIGNPIPE_TOOL}  ${EXEC_BASEDIR}/../../../../dv_scs_keys/fip/rsa/${PROJECT}/rootrsa-${DEVICE_ROOTRSA_INDEX}/key/bl33-level-3-rsa-priv.pem" \
+	--cmd-signpipe-bl40-device-lvl3="${SIGNPIPE_TOOL}  ${EXEC_BASEDIR}/../../../../dv_scs_keys/fip/rsa/${PROJECT}/rootrsa-${DEVICE_ROOTRSA_INDEX}/key/bl40-level-3-rsa-priv.pem" \
+	--cmd-signpipe-bl31-device-lvl3="${SIGNPIPE_TOOL}  ${EXEC_BASEDIR}/../../../../dv_scs_keys/fip/rsa/${PROJECT}/rootrsa-${DEVICE_ROOTRSA_INDEX}/key/bl31-level-3-rsa-priv.pem" \
+	--cmd-signpipe-bl32-device-lvl3="${SIGNPIPE_TOOL}  ${EXEC_BASEDIR}/../../../../dv_scs_keys/fip/rsa/${PROJECT}/rootrsa-${DEVICE_ROOTRSA_INDEX}/key/bl32-level-3-rsa-priv.pem" \
+        ${EXEC_ARGS}
+fi
 # vim: set tabstop=2 expandtab shiftwidth=2:
