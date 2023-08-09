@@ -153,6 +153,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* add reboot_mode in bootargs for kernel command line */
 	char *pbootargs = env_get("bootargs");
 	char *preboot_mode = env_get("reboot_mode");
+
 	bootloader_wp_check();
 
 	if (pbootargs && preboot_mode) {
@@ -212,20 +213,32 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		loadaddr = simple_strtoul(argv[0], &endp, 16);
 		//printf("aml log : addr = 0x%x\n",loadaddr);
 	}
-#ifndef CONFIG_IMAGE_CHECK
-	int ret = 0;
 
-	ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, loadaddr, GXB_IMG_SIZE, GXB_IMG_DEC_ALL);
-
-	if (ret)
-	{
-		printf("\naml log : Sig Check %d\n", ret);
-		return ret;
-	}
-#else
 	if (IS_FEAT_BOOT_VERIFY()) {
 		int ret = 0;
+		ulong img_addr, ncheckoffset = 0;
+		static char argv0_new[12] = {0};
+		static char *argv_new;
 
+		argv_new = (char *)&argv0_new;
+		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
+#ifndef CONFIG_IMAGE_CHECK
+		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, loadaddr, GXB_IMG_SIZE,
+				GXB_IMG_DEC_ALL);
+
+		if (ret) {
+			printf("\naml log : Sig Check %d\n", ret);
+			return ret;
+		}
+#ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+		ncheckoffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+				GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
+		if (AML_D_Q_IMG_SIG_HDR_SIZE == (ncheckoffset & 0xFFFF))
+			ncheckoffset = (ncheckoffset >> 16) & 0xFFFF;
+		else
+			ncheckoffset = 0;
+#endif
+#else
 		ret = secure_image_check((uint8_t *)(unsigned long)loadaddr,
 			GXB_IMG_SIZE, GXB_IMG_DEC_ALL);
 		if (ret) {
@@ -235,22 +248,14 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Override load address argument to skip secure boot header.
 		 * Only skip if secure boot so normal boot can use plain boot.img+
 		 */
-		ulong img_addr, ncheckoffset;
-		static char argv0_new[12] = {0};
-		static char *argv_new;
-
-		memset(argv0_new, 0, sizeof(argv0_new));
-		argv_new = (char *)&argv0_new;
-
-		img_addr = genimg_get_kernel_addr(argc < 1 ? NULL : argv[0]);
 		ncheckoffset = android_image_check_offset();
+#endif
 		img_addr += ncheckoffset;
 		env_set_hex("loadaddr", img_addr);//android_image_get_ramdisk_v3 need env loadaddr
 		snprintf(argv0_new, sizeof(argv0_new), "%lx", img_addr);
 		argc = 1;
 		argv = (char **)&argv_new;
 	}
-#endif
 #endif
 
 #ifdef CONFIG_CMD_BOOTCTOL_AVB
@@ -272,6 +277,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		if (is_device_unlocked()) {
 			printf("unlock state, ignore the avb check\n");
+			rc = avb_verify(&out_data);
 			run_command("setenv bootconfig ${bootconfig} "\
 			"androidboot.verifiedbootstate=orange", 0);
 		} else {
@@ -279,29 +285,31 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			rc = avb_verify(&out_data);
 			printf("avb verification: locked = %d, result = %d\n",
 						!is_device_unlocked(), rc);
-			if (rc == AVB_SLOT_VERIFY_RESULT_OK) {
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
+			if (rc == AVB_SLOT_VERIFY_RESULT_OK && is_avb_arb_available()) {
 				uint32_t i = 0;
-				uint32_t version;
+				uint32_t version = 0;
+
 				for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++) {
+					uint64_t rb_idx = out_data->rollback_indexes[i];
+
 					if (get_avb_antirollback(i, &version) &&
-							version != (uint32_t )out_data->rollback_indexes[i]) {
-						if (!set_avb_antirollback(i, (uint32_t )out_data->rollback_indexes[i]))
-							printf("rollback(%d) = %u failed\n", i, (uint32_t )out_data->rollback_indexes[i]);
+						version != (uint32_t)rb_idx &&
+						!set_avb_antirollback(i, (uint32_t)rb_idx)) {
+						printf("rollback(%d) = %u failed\n",
+								i, (uint32_t)rb_idx);
 					}
 				}
-#endif
 			}
 
-#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
-			if (rc == AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX) {
-				if (has_boot_slot == 1) {
-					printf("ab mode\n");
-					update_rollback();
-					env_set("write_boot", "0");
-					run_command("saveenv", 0);
-					run_command("reset", 0);
-				}
+			if (is_avb_arb_available() &&
+				rc == AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX &&
+				has_boot_slot == 1) {
+				printf("ab mode\n");
+				update_rollback();
+				env_set("write_boot", "0");
+				run_command("saveenv", 0);
+				run_command("reset", 0);
 			}
 #endif
 

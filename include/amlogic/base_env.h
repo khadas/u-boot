@@ -8,6 +8,22 @@
 
 #include <asm/arch/cpu.h>
 
+#ifdef CONFIG_ENABLE_AML_GPIO_UPGRADE
+#define _AML_GPIO_UPGRADE_ \
+	"if gpio input " CONFIG_AML_GPIO_UPGRADE_KEY "; then "\
+		"echo detect upgrade key;"\
+		"if test ${upgrade_key_flag} = 0; then "\
+			"echo enter recovery; setenv upgrade_key_flag 1; saveenv;"\
+			"run recovery_from_flash;"\
+		"else if test ${upgrade_key_flag} = 1; then "\
+			"echo enter update; setenv upgrade_key_flag 2; saveenv; run update;"\
+		"else "\
+			"echo enter fastboot; setenv upgrade_key_flag 0; saveenv; fastboot 0;"\
+		"fi;fi;"
+#else
+#define _AML_GPIO_UPGRADE_ "echo base env no upgrade key;"
+#endif //#ifdef CONFIG_ENABLE_AML_GPIO_UPGRADE
+
 #ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 #define CONFIG_DTB_LOAD  "imgread dtb ${boot_part} ${dtb_mem_addr}"
 #else
@@ -36,7 +52,6 @@
 	"vendor_boot_part=vendor_boot\0"\
 	"board_logo_part=odm_ext\0" \
 	"rollback_flag=0\0"\
-	"boot_flag=0\0"\
 	"write_boot=0\0"\
 	"ddr_size=0B\0"\
 	"recovery_mode=false\0"\
@@ -58,7 +73,6 @@
 			"run init_display;run storeargs; run update; fi;"\
 		"\0"\
 	"storeargs_base="\
-		"get_bootloaderversion;" \
 		"setenv bootargs ${initargs} otg_device=${otg_device} "\
 		"logo=${display_layer},loaded,${fb_addr} "\
 		"vout=${outputmode},${vout_init} panel_type=${panel_type} "\
@@ -69,7 +83,7 @@
 		"cvbsmode=${cvbsmode} "\
 		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
 		"disable_ir=${disable_ir};"\
-		"setenv bootconfig androidboot.selinux=${EnableSelinux} "\
+		"setenv bootconfig ${initconfig} androidboot.selinux=${EnableSelinux} "\
 		"androidboot.firstboot=${firstboot} "\
 		"androidboot.bootloader=${bootloader_version} "\
 		"androidboot.hardware=amlogic "\
@@ -87,16 +101,17 @@
 			"echo system_mode in storeboot: ${system_mode};"\
 			"echo active_slot in storeboot: ${active_slot};"\
 			"if test ${system_mode} = 1; then "\
-				"setenv bootargs ${bootargs} ro rootwait skip_initramfs;"\
+				"setenv bootargs \"${bootargs} ro rootwait skip_initramfs\";"\
 			"else "\
-				"setenv bootconfig ${bootconfig} "\
-				"androidboot.force_normal_boot=1;"\
+				"setenv bootconfig \"${bootconfig} "\
+				"androidboot.force_normal_boot=1\";"\
 			"fi;"\
 			"if test ${active_slot} != normal; then "\
-				"setenv bootconfig ${bootconfig} "\
-				"androidboot.slot_suffix=${active_slot};"\
+				"setenv bootconfig \"${bootconfig} "\
+				"androidboot.slot_suffix=${active_slot}\";"\
 			"fi;"\
-			"setenv bootconfig ${bootconfig} androidboot.rollback=${rollback_flag};"\
+			"setenv bootconfig \"${bootconfig} "\
+			"androidboot.rollback=${rollback_flag}\";"\
 			"if fdt addr ${dtb_mem_addr}; then else "\
 				"echo retry common dtb; run common_dtb_load; fi;"\
 			"setenv loadaddr ${loadaddr_kernel};"\
@@ -192,7 +207,10 @@
 		"if test ${active_slot} != normal; then "\
 			"echo ab mode, read dtb from kernel;"\
 			"setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
-		"fi;"\
+		"else if test ${gpt_mode} = true; then "\
+			"echo gpt mode, read dtb from kernel;"\
+			"setenv common_dtb_load ""imgread dtb ${boot_part} ${dtb_mem_addr}"";"\
+		"fi;fi;"\
 		"\0"\
 	"load_bmp_logo_base="\
 		"if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
@@ -206,15 +224,15 @@
 			"setenv reboot_mode_android ""quiescent"";"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
-			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"setenv initconfig androidboot.quiescent=1 "\
+			"androidboot.bootreason=${reboot_mode};"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
-			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"setenv initconfig androidboot.quiescent=1 "\
+			"androidboot.bootreason=recovery,quiescent;"\
 			"osd open;osd clear;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
@@ -246,6 +264,7 @@
 		"setenv serial ${usid}; setenv serial# ${usid};"\
 	    "factory_provision init;"\
 		"\0"\
+	"upgrade_key_base=" _AML_GPIO_UPGRADE_ "\0"
 
 #endif
 

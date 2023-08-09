@@ -1156,6 +1156,46 @@ void lcd_set_vid_pll_div_dft(struct lcd_clk_config_s *cconf)
 	lcd_ana_setb(HHI_VID_PLL_CLK_DIV, 1, 19, 1);
 }
 
+void lcd_set_vid_pll_div_txhd2(struct lcd_clk_config_s *cconf)
+{
+	unsigned int shift_val, shift_sel;
+	int i;
+
+	if (lcd_debug_print_flag & LCD_DBG_PR_ADV2)
+		LCDPR("%s\n", __func__);
+
+	lcd_clk_setb(HHI_VIID_CLK_CNTL, 0, 19, 1);
+	udelay(5);
+
+	/* Disable the div output clock */
+	lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 19, 1);
+	lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
+
+	i = 0;
+	while (lcd_clk_div_table[i][0] != CLK_DIV_SEL_MAX) {
+		if (cconf->div_sel == lcd_clk_div_table[i][0])
+			break;
+		i++;
+	}
+	if (lcd_clk_div_table[i][0] == CLK_DIV_SEL_MAX)
+		LCDERR("invalid clk divider\n");
+	shift_val = lcd_clk_div_table[i][1];
+	shift_sel = lcd_clk_div_table[i][2];
+	if (shift_val == 0xffff) { /* if divide by 1 */
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 18, 1);
+	} else {
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 16, 2);
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 0, 14);
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, shift_sel, 16, 2);
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 15, 1);
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, shift_val, 0, 14);
+		lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 0, 15, 1);
+	}
+	/* Enable the final output clock */
+	lcd_ana_setb(COMBO_DPHY_VID_PLL0_DIV, 1, 19, 1);
+}
+
 void lcd_set_vclk_crt_dft(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
@@ -1177,8 +1217,7 @@ void lcd_set_vclk_crt_dft(struct aml_lcd_drv_s *pdrv)
 	lcd_clk_setb(HHI_VIID_CLK_DIV, (cconf->xd - 1), VCLK2_XD, 8);
 	udelay(5);
 	/* select vid_pll_clk */
-	lcd_clk_setb(HHI_VIID_CLK_CNTL, cconf->data->vclk_sel,
-		VCLK2_CLK_IN_SEL, 3);
+	lcd_clk_setb(HHI_VIID_CLK_CNTL, cconf->data->vclk_sel, VCLK2_CLK_IN_SEL, 3);
 #endif
 	lcd_clk_setb(HHI_VIID_CLK_CNTL, 1, VCLK2_EN, 1);
 	udelay(2);

@@ -372,7 +372,10 @@
 
 #define CONFIG_CPU_ARMV8
 
-/* #define CONFIG_MULTI_DTB    1 */
+#if defined(CONFIG_MULTI_DTB)
+/* This is for multi-dtb's gunzip decompression use */
+#define GUNZIP_BUF_SIZE	(96 * 1024)
+#endif
 
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1

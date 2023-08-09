@@ -755,7 +755,7 @@ void scene_process(struct hdmitx_dev *hdev,
 
 	/* 2. dolby vision scene process */
 	/* only for tv support dv and box enable dv */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev)) {
+	if (is_dv_preference(hdev)) {
 		dolbyvision_scene_process(&hdmidata, scene_output_info);
 	} else if (is_dolby_enabled()) {
 		/* for enable dolby vision core when
@@ -771,10 +771,15 @@ void scene_process(struct hdmitx_dev *hdev,
 	}
 	/* 3.sdr scene process */
 	/* decide final display mode and deepcolor */
-	if (is_dolby_enabled() && is_tv_support_dv(hdev))
-		; /* do nothing */
-	else
+	if (is_dv_preference(hdev)) {
+		/* do nothing
+		 * already done above, just sync with sysctrl
+		 */
+	} else if (is_hdr_preference(hdev)) {
+		hdr_scene_process(&hdmidata, scene_output_info);
+	} else {
 		sdr_scene_process(&hdmidata, scene_output_info);
+	}
 	/* not find outputmode and use default mode */
 	if (strlen(scene_output_info->final_displaymode) == 0)
 		strcpy(scene_output_info->final_displaymode, DEFAULT_HDMI_MODE);
@@ -910,8 +915,11 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 			       scene_output_info.final_deepcolor);
 			/* if change from DV TV to HDR/SDR TV, don't change
 			 * DV status to disabled, as DV core need to be enabled.
+			 * that's to say connect DV TV & output DV-> power down box ->
+			 * connect HDR/SDR TV -> power on box, the dolby_status
+			 * will keep the same as that when connect DV TV under follow sink.
 			 */
-			if (scene_output_info.final_dv_type != get_ubootenv_dv_type() &&
+			if (scene_output_info.final_dv_type != get_ubootenv_dv_status() &&
 			    scene_output_info.final_dv_type != DOLBY_VISION_DISABLE) {
 				sprintf(dv_type, "%d", scene_output_info.final_dv_type);
 				env_set("dolby_status", dv_type);
@@ -921,7 +929,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 				 * TV support, and need VPP/DV module to
 				 * update new DV output mode.
 				 */
-				printf("update dv_type: %d\n",
+				printf("update dolby_status: %d\n",
 				       scene_output_info.final_dv_type);
 			}
 		} else {
@@ -941,6 +949,15 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 			env_set("outputmode3", hdmimode);
 		env_set("colorattribute", colorattribute);
 	}
+	env_set("save_outputmode", sel_hdmimode);
+	/* ubootenv dolby_status is used for is_dv_preference() decision,
+	 * system_control save current dv output status in it.
+	 * it will be used by dv module later to decide DV output later.
+	 * if currently adaptive hdr, then we should set dolby_status to
+	 * 0, so that DV module won't enable DV.
+	 */
+	if (get_hdr_policy() == 1)
+		env_set("dolby_status", 0);
 	hdev->para = hdmitx21_get_fmtpara(sel_hdmimode, env_get("colorattribute"));
 	hdev->vic = hdev->para->timing.vic;
 	hdmitx_mask_rx_info(hdev);

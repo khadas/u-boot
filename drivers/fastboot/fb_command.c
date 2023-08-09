@@ -21,7 +21,6 @@
 #include <malloc.h>
 #include <amlogic/image_check.h>
 #include <fs.h>
-
 #if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
 #include <amlogic/anti-rollback.h>
 #endif
@@ -618,11 +617,8 @@ static void flash(char *cmd_parameter, char *response)
 	}
 
 	if (strcmp(cmd_parameter, "userdata") == 0 || strcmp(cmd_parameter, "data") == 0) {
-		rc = store_part_size("userdata");
-		if (-1 == rc)
-			strcpy(name, "data");
-		else
-			strcpy(name, "userdata");
+		fastboot_okay(NULL, response);
+		return;
 	} else if (strcmp(cmd_parameter, "dts") == 0) {
 		strcpy(name, "dtb");
 	} else {
@@ -959,6 +955,70 @@ static void snapshot_update_cmd(char *cmd_parameter, char *response)
 }
 
 #if !CONFIG_IS_ENABLED(NO_FASTBOOT_FLASHING)
+static void try_unlock_dev(u64 rc)
+{
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
+	if (is_avb_arb_available()) {
+		if (avb_unlock()) {
+			if (-1 == rc) {
+				printf("unlocking device.  Erasing data partition!\n");
+				run_command("store erase data 0 0", 0);
+			} else {
+				printf("unlocking device.  Erasing userdata partition!\n");
+				run_command("store erase userdata 0 0", 0);
+			}
+			printf("unlocking device.  Erasing metadata partition!\n");
+			run_command("store erase metadata 0 0", 0);
+		} else {
+			printf("unlock failed!\n");
+		}
+
+		return;
+	}
+#endif
+	if (-1 == rc) {
+		printf("unlocking device.  Erasing data partition!\n");
+		run_command("store erase data 0 0", 0);
+	} else {
+		printf("unlocking device.  Erasing userdata partition!\n");
+		run_command("store erase userdata 0 0", 0);
+	}
+	printf("unlocking device.  Erasing metadata partition!\n");
+	run_command("store erase metadata 0 0", 0);
+}
+
+static void try_lock_dev(u64 rc)
+{
+#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
+	if (is_avb_arb_available()) {
+		if (avb_lock()) {
+			if (-1 == rc) {
+				printf("locking device.  Erasing data partition!\n");
+				run_command("store erase data 0 0", 0);
+			} else {
+				printf("locking device.  Erasing userdata partition!\n");
+				run_command("store erase userdata 0 0", 0);
+			}
+			printf("locking device.  Erasing metadata partition!\n");
+			run_command("store erase metadata 0 0", 0);
+		} else {
+			printf("lock failed!\n");
+		}
+
+		return;
+	}
+#endif
+	if (-1 == rc) {
+		printf("locking device.  Erasing data partition!\n");
+		run_command("store erase data 0 0", 0);
+	} else {
+		printf("locking device.  Erasing userdata partition!\n");
+		run_command("store erase userdata 0 0", 0);
+	}
+	printf("locking device.  Erasing metadata partition!\n");
+	run_command("store erase metadata 0 0", 0);
+}
+
 /**
  * flashing() - lock/unlock.
  *
@@ -1159,31 +1219,7 @@ next:
 				}
 				printf("avb2: %s\n", avb_s);
 				if (strcmp(avb_s, "1") == 0) {
-#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
-					if (avb_unlock()) {
-						if (-1 == rc) {
-							printf("unlocking device.  Erasing data partition!\n");
-							run_command("store erase data 0 0", 0);
-						} else {
-							printf("unlocking device.  Erasing userdata partition!\n");
-							run_command("store erase userdata 0 0", 0);
-						}
-						printf("unlocking device.  Erasing metadata partition!\n");
-						run_command("store erase metadata 0 0", 0);
-					} else {
-						printf("unlock failed!\n");
-					}
-#else
-					if (-1 == rc) {
-						printf("unlocking device.  Erasing data partition!\n");
-						run_command("store erase data 0 0", 0);
-					} else {
-						printf("unlocking device.  Erasing userdata partition!\n");
-						run_command("store erase userdata 0 0", 0);
-					}
-					printf("unlocking device.  Erasing metadata partition!\n");
-					run_command("store erase metadata 0 0", 0);
-#endif
+					try_unlock_dev(rc);
 				}
 			}
 			info.lock_state = 0;
@@ -1204,32 +1240,7 @@ next:
 			}
 			printf("avb2: %s\n", avb_s);
 			if (strcmp(avb_s, "1") == 0) {
-#if defined(CONFIG_AML_ANTIROLLBACK) || defined(CONFIG_AML_AVB2_ANTIROLLBACK)
-				if (avb_lock()) {
-					if (-1 == rc) {
-						printf("locking device.  Erasing data partition!\n");
-						run_command("store erase data 0 0", 0);
-					} else {
-						printf("locking device.  Erasing userdata partition!\n");
-						run_command("store erase userdata 0 0", 0);
-					}
-					printf("locking device.  Erasing metadata partition!\n");
-					run_command("store erase metadata 0 0", 0);
-				} else {
-					printf("lock failed!\n");
-				}
-#else
-				if (-1 == rc) {
-					printf("locking device.  Erasing data partition!\n");
-					run_command("store erase data 0 0", 0);
-				} else {
-					printf("locking device.  Erasing userdata partition!\n");
-					run_command("store erase userdata 0 0", 0);
-				}
-				printf("locking device.  Erasing metadata partition!\n");
-				run_command("store erase metadata 0 0", 0);
-
-#endif
+				try_lock_dev(rc);
 			}
 		}
 		info.lock_state = 1;

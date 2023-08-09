@@ -6,6 +6,7 @@
 #ifndef _OSD_HW_H_
 #define _OSD_HW_H_
 
+#include <asm/arch/register.h>
 #include "osd.h"
 
 #define REG_OFFSET (0x20)
@@ -105,6 +106,9 @@ extern void osd_get_hw_para(struct hw_para_s **para);
 extern void osd_update_blend(struct pandata_s *disp_data);
 extern void osd_hist_enable(u32 osd_index);
 extern int osd_get_hist_stat(u32 *hist_result);
+#ifdef AML_C3_DISPLAY
+int test_for_c3(u32 osd_index, u32 fb_data);
+#endif
 #ifdef AML_S5_DISPLAY
 void vpp_post_blend_set(u32 vpp_index, struct vpp_post_blend_s *vpp_blend);
 void vpp_post_slice_set(u32 vpp_index, struct vpp_post_s *vpp_post);

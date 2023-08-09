@@ -36,6 +36,7 @@ unsigned _get_romcode_boot_id(void)
 #if defined(P_AO_SEC_GP_CFG0)
 	if ((familyId <= MESON_CPU_MAJOR_ID_T5D &&
 		familyId != MESON_CPU_MAJOR_ID_SC2) ||
+		familyId == MESON_CPU_MAJOR_ID_TXHD2 ||
 		familyId == MESON_CPU_MAJOR_ID_T5W) {
 		FB_DBG("cfg0 0x%08x\n", readl(P_AO_SEC_GP_CFG0));
 		boot_id = readl(P_AO_SEC_GP_CFG0) & 0xf;

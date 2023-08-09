@@ -22,6 +22,7 @@
 #include <nand.h>
 #include <search.h>
 #include <errno.h>
+#include <amlogic/aml_mtd.h>
 
 #if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_NAND) && \
 		!defined(CONFIG_SPL_BUILD)
@@ -129,7 +130,7 @@ static int writeenv(size_t offset, u_char *buf)
 	struct mtd_info *mtd;
 	u_char *char_ptr;
 
-	mtd = get_nand_dev_by_index(0);
+	mtd = get_nand_dev_by_index(1);
 	if (!mtd)
 		return 1;
 
@@ -156,7 +157,7 @@ static int writeenv(size_t offset, u_char *buf)
 
 struct nand_env_location {
 	const char *name;
-	const nand_erase_options_t erase_opts;
+	nand_erase_options_t erase_opts;
 };
 
 static int erase_and_write_env(const struct nand_env_location *location,
@@ -165,7 +166,7 @@ static int erase_and_write_env(const struct nand_env_location *location,
 	struct mtd_info *mtd;
 	int ret = 0;
 
-	mtd = get_nand_dev_by_index(0);
+	mtd = get_nand_dev_by_index(1);
 	if (!mtd)
 		return 1;
 
@@ -185,7 +186,8 @@ static int env_nand_save(void)
 	int	ret = 0;
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	int	env_idx = 0;
-	static const struct nand_env_location location[] = {
+	loff_t offset = 0;
+	static struct nand_env_location location[] = {
 		{
 			.name = "NAND",
 			.erase_opts = {
@@ -216,6 +218,12 @@ static int env_nand_save(void)
 	env_idx = (gd->env_valid == ENV_VALID);
 #endif
 
+	ret = mtd_store_get_offset("ENV", &offset, 0);
+	if (ret) {
+		printf("No Found ENV partition offset!\n");
+		return ret;
+	}
+	location[0].erase_opts.offset = offset;
 	ret = erase_and_write_env(&location[env_idx], (u_char *)env_new);
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (!ret) {
@@ -250,7 +258,7 @@ static int readenv(size_t offset, u_char *buf)
 	struct mtd_info *mtd;
 	u_char *char_ptr;
 
-	mtd = get_nand_dev_by_index(0);
+	mtd = get_nand_dev_by_index(1);
 	if (!mtd)
 		return 1;
 
@@ -351,12 +359,13 @@ done:
  */
 static int env_nand_load(void)
 {
+	loff_t offset = 0;
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 
 #if defined(CONFIG_ENV_OFFSET_OOB)
-	struct mtd_info *mtd  = get_nand_dev_by_index(0);
+	struct mtd_info *mtd  = get_nand_dev_by_index(1);
 	/*
 	 * If unable to read environment offset from NAND OOB then fall through
 	 * to the normal environment reading code below
@@ -368,8 +377,13 @@ static int env_nand_load(void)
 		return;
 	}
 #endif
+	ret = mtd_store_get_offset("ENV", &offset, 0);
+	if (ret) {
+		printf("No Found ENV partition offset!\n");
+		return ret;
+	}
 
-	ret = readenv(CONFIG_ENV_OFFSET, (u_char *)buf);
+	ret = readenv(offset, (u_char *)buf);
 	if (ret) {
 		set_default_env("readenv() failed", 0);
 		return -EIO;

@@ -12,7 +12,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  980	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1010	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    840       // VDDEE power up voltage
 
 /*Distinguish whether to use efuse to adjust vddee*/
@@ -80,8 +80,8 @@
 	"hdmimode=1080p60hz\0" \
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0" \
-	"display_width=1920\0" \
-	"display_height=1080\0" \
+	"display_width=1024\0" \
+	"display_height=600\0" \
 	"display_bpp=16\0" \
 	"display_color_index=16\0" \
 	"display_layer=osd0\0" \
@@ -89,8 +89,8 @@
 	"display_color_bg=0\0" \
 	"dtb_mem_addr=0x01000000\0" \
 	"fb_addr=0x00300000\0" \
-	"fb_width=1920\0" \
-	"fb_height=1080\0" \
+	"fb_width=1024\0" \
+	"fb_height=600\0" \
 	"hdmichecksum=0x00000000\0" \
 	"dolby_status=0\0" \
 	"dolby_vision_on=0\0" \
@@ -268,19 +268,16 @@
 			"setenv reboot_mode_android ""quiescent;"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent;"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 		"fi;fi;"\
 		"\0"\
 	"storage_param="\
@@ -314,9 +311,13 @@
 		"echo detect upgrade key; run update;"\
 	"fi;"\
 	"\0"\
+	"repeater_mcu_reset="\
+	"gpio set GPIOT_21; mdelay 1; gpio clear GPIOT_21;"\
+	"\0"\
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
+		"run repeater_mcu_reset;"\
 		"run bcb_cmd; "\
 		"run upgrade_check;"\
 		"run init_display;"\
@@ -418,7 +419,7 @@ defined(CONFIG_STORE_COMPATIBLE)
 
 /* osd */
 #define OSD_SCALE_ENABLE
-#define AML_OSD_HIGH_VERSION
+#define AML_C3_DISPLAY
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

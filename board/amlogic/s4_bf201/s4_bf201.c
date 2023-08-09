@@ -133,8 +133,8 @@ int board_init(void)
 #endif
 	board_id = ((readl(SYSCTRL_SEC_STATUS_REG4) & 0xff00) >> 8);
 	printf("board_id is %ld\n", board_id);
-	if (board_id == 2)
-		run_command("gpio set GPIOH_10", 0); //T215
+	if (board_id == 1)
+		run_command("gpio set GPIOH_10", 0); //C1A board
 	else
 		run_command("gpio set GPIOH_7", 0);
 #ifdef CONFIG_AML_HDMITX20
@@ -161,6 +161,7 @@ int board_late_init(void)
 	board_init_mem();
 	//run_command("run bcb_cmd", 0);
 
+#ifndef DTB_BIND_KERNEL
 #ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
 	if ( run_command("run common_dtb_load", 0) ) {
 		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
@@ -173,6 +174,22 @@ int board_late_init(void)
 		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
 
 #endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
+#else
+	printf("dtb bind kernel mode\n");
+	char cmd[128] = {0};
+	int ret = 0;
+
+	if (!env_get("dtb_mem_addr")) {
+		sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
+		ret = run_command(cmd, 0);
+		if (ret)
+			printf("%s : cmd[%s] fail, ret = %d\n", __func__, cmd, ret);
+	}
+	sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
+	ret = run_command(cmd, 0);
+	if (ret)
+		printf("%s : cmd[%s] fail, ret = %d\n", __func__, cmd, ret);
+#endif /* DTB_BIND_KERNEL */
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -334,52 +351,49 @@ static struct mtd_partition normal_partition_info[] = {
 	.offset = 0,
 	.size = 0,
 },
+#ifdef CONFIG_ENV_IS_IN_NAND
+{
+	.name = "ENV",
+	.offset = 0,
+	.size = SZ_256K,
+},
+#endif
 {
 	.name = "factory",
 	.offset = 0,
-	.size = 8 * SZ_1M,
+	.size = 3 * SZ_1M,
 	/* MESON_IGNORE_ERASE_CHIP will ignore store erase.chip */
 	.mask_flags = MESON_IGNORE_ERASE_CHIP,
 },
 {
 	.name = "tee",
 	.offset = 0,
-	.size = 8 * SZ_1M,
+	.size = 3 * SZ_1M,
 },
 {
 	.name = "logo",
 	.offset = 0,
-	.size = 2 * SZ_1M,
-},
-{
-	.name = "misc",
-	.offset = 0,
-	.size = 8 * SZ_1M,
+	.size = 1 * SZ_256K,
 },
 {
 	.name = "recovery",
 	.offset = 0,
-	.size = 32 * SZ_1M,
+	.size = 18 * SZ_1M,
 },
 {
 	.name = "boot",
 	.offset = 0,
-	.size = 34 * SZ_1M,
+	.size = 12 * SZ_1M,
 },
 {
 	.name = "system",
 	.offset = 0,
-	.size = 224 * SZ_1M,
-},
-{
-	.name = "vendor",
-	.offset = 0,
-	.size = 16 * SZ_1M,
+	.size = 48 * SZ_1M,
 },
 {
 	.name = "vbmeta",
 	.offset = 0,
-	.size = 1 * SZ_1M,
+	.size = 1 * SZ_256K,
 },
 /* last partition get the rest capacity */
 {

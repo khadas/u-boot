@@ -137,6 +137,24 @@ static int _aml_get_secure_boot_kernel_size(const void *ploadaddr, u32 *ptotalen
 	}
 
 	*ptotalenckernelsz = 0;
+#else
+
+#ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+	ulong ncheckoffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+			GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
+	if (AML_D_Q_IMG_SIG_HDR_SIZE == (ncheckoffset & 0xFFFF) &&
+			((ncheckoffset >> 16) & 0xFFFF)) {
+		ncheckoffset = (ncheckoffset >> 16) & 0xFFFF;
+		if (is_andr_9_image(pandhdr)) {
+			*ptotalenckernelsz = (((struct aml_boot_header_t *)(pandhdr +
+			securekernelimgsz))->img_size) + securekernelimgsz + ncheckoffset;
+		} else {
+			*ptotalenckernelsz = (((struct aml_boot_header_t *)
+						pandhdr)->img_size) + ncheckoffset;
+		}
+		return 0;
+	}
+#endif
 #endif
 	if (is_andr_9_image(pandhdr))
 		securekernelimgsz = 4096;
@@ -272,7 +290,7 @@ static int do_image_read_dtb_from_knl(const char *partname,
 	loff_t wroff = lflashreadoff;
 	size_t wrsz  = nflashloadlen;
 	unsigned char *wraddr = secondaddr;
-#if !defined(CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK) && defined(CONFIG_IMAGE_CHECK)
+#if !defined(CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK)
 	u32 securekernelimgsz = 0;
 
 	ret = _aml_get_secure_boot_kernel_size(loadaddr, &securekernelimgsz);
@@ -308,9 +326,17 @@ static int do_image_read_dtb_from_knl(const char *partname,
 		//because secure boot will use DMA which need disable MMU temp
 		//here must update the cache, otherwise nand will fail (eMMC is OK)
 		flush_cache((unsigned long)secondaddr, (unsigned long)nflashloadlen);
-
 		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (unsigned long)loadaddr,
 			GXB_IMG_SIZE, GXB_IMG_DEC_DTB);
+#ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+		ulong nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+				GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
+		if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
+			nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
+		else
+			nCheckOffset = 0;
+		secondaddr += nCheckOffset;
+#endif
 #else
 		//because secure boot will use DMA which need disable MMU temp
 		//here must update the cache, otherwise nand will fail (eMMC is OK)
@@ -351,13 +377,24 @@ static int do_image_read_dtb_from_rsv(unsigned char* loadaddr)
 	}
 #ifndef CONFIG_SKIP_KERNEL_DTB_SECBOOT_CHECK
 	if (IS_FEAT_BOOT_VERIFY()) {
+		ulong nCheckOffset = 0;
+
 		flush_cache((unsigned long)loadaddr, dtbmaxsz);
 #ifndef CONFIG_IMAGE_CHECK
 		ret = aml_sec_boot_check(AML_D_P_IMG_DECRYPT, (long)loadaddr, dtbmaxsz, 0);
+#ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+		nCheckOffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
+				GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
+		if (AML_D_Q_IMG_SIG_HDR_SIZE == (nCheckOffset & 0xFFFF))
+			nCheckOffset = (nCheckOffset >> 16) & 0xFFFF;
+		else
+			nCheckOffset = 0;
+#endif
 #else
 		ret = secure_image_check((uint8_t *)(unsigned long)loadaddr, dtbmaxsz, 0);
-		memmove(loadaddr, (void *)(loadaddr + sizeof(struct aml_boot_header_t)), dtbmaxsz);
+		nCheckOffset = sizeof(struct aml_boot_header_t);
 #endif
+		memmove(loadaddr, (void *)(loadaddr + nCheckOffset), dtbmaxsz);
 		if (ret) {
 			MsgP("decrypt dtb: Sig Check %d\n", ret);
 			return -__LINE__;
@@ -382,7 +419,6 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     } else{
         loadaddr = (unsigned char*)simple_strtoul(env_get("loadaddr"), NULL, 16);
     }
-
     if (3 < argc) lflashReadOff = simple_strtoull(argv[3], NULL, 0) ;
 
     const int fromRsv = !strcmp("_aml_dtb", argv[1]);

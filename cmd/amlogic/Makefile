@@ -21,6 +21,7 @@ obj-$(CONFIG_AML_REBOOT) += cmd_reboot.o
 obj-$(CONFIG_CMD_RSVMEM) += cmd_rsvmem.o
 
 obj-y += cmd_version.o
+obj-y += cmd_delay.o
 
 obj-$(CONFIG_CMD_CAR_PARAMS) += cmd_car_param.o
 
@@ -69,7 +70,11 @@ else
 ifdef CONFIG_MESON_T5M
 obj-y += cmd_ddr_test_t5m.o
 else
+ifdef CONFIG_MESON_TXHD2
+obj-y += cmd_ddr_test_txhd2.o
+else
 obj-y += cmd_ddr_test_g12.o
+endif
 endif
 endif
 endif

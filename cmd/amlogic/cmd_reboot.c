@@ -138,8 +138,7 @@ int do_get_rebootmode (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 			break;
 		}
 		case AMLOGIC_BOOTLOADER_REBOOT: {
-			if (dynamic_partition)
-				env_set("reboot_mode","fastboot");
+			env_set("reboot_mode", "fastboot");
 			break;
 		}
 	}

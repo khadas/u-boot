@@ -20,27 +20,25 @@
 	#define SARADC_REG11_VREF_SEL			BIT(0)
 	#define SARADC_REG11_EOC			BIT(1)
 	#define SARADC_REG11_VREF_EN			BIT(5)
-	#define SARADC_REG11_CMV_SEL			BIT(6)
-	#define SARADC_REG11_BANDGAP_EN			BIT(13)
+	#define SARADC_REG11_VCM_SEL			BIT(6)
 	#define SARADC_REG11_TEMP_SEL			BIT(21)
 
 #define SARADC_REG13					0x34
-	#define SARADC_REG13_CALIB_FACTOR_MASK		GENMASK(13, 8)
 
 static void meson_g12a_extra_init(struct meson_saradc *priv)
 {
 	clrsetbits_le32(priv->base + SARADC_REG11,
-			SARADC_REG11_CMV_SEL |
+			SARADC_REG11_VCM_SEL |
 			SARADC_REG11_VREF_EN |
 			SARADC_REG11_EOC |
-			SARADC_REG11_BANDGAP_EN,
-			(priv->data->reg11_cmv_sel ?
-				SARADC_REG11_CMV_SEL : 0) |
+			priv->data->reg11_bandgap_en_mask,
+			(priv->data->reg11_vcm_sel ?
+				SARADC_REG11_VCM_SEL : 0) |
 			(priv->data->reg11_vref_en ?
 				SARADC_REG11_VREF_EN : 0) |
 			(priv->data->reg11_eoc ?
 				SARADC_REG11_EOC : 0) |
-			SARADC_REG11_BANDGAP_EN);
+			priv->data->reg11_bandgap_en_mask);
 
 	/* select channel 6 input from temp sensor to external input */
 	clrsetbits_le32(priv->base + SARADC_REG11, SARADC_REG11_TEMP_SEL, 0);
@@ -51,7 +49,7 @@ static void meson_g12a_set_ref_voltage(struct meson_saradc *priv,
 {
 	if (mode & ADC_CAPACITY_HIGH_PRECISION_VREF) {
 		if (readl(priv->base + SARADC_REG13) &
-				SARADC_REG13_CALIB_FACTOR_MASK) {
+				priv->data->reg13_calib_factor_mask) {
 			/* select the internal voltage as reference voltage */
 			clrsetbits_le32(priv->base + SARADC_REG11,
 					SARADC_REG11_VREF_SEL, 0);
@@ -110,9 +108,28 @@ static struct meson_saradc_diff_ops meson_g12a_diff_ops = {
 
 struct meson_saradc_data meson_saradc_g12a_data = {
 	.reg3_ring_counter_disable = BIT_HIGH,
+	.reg11_bandgap_en_mask	   = BIT(13),
 	.reg11_vref_en		   = BIT_LOW,
-	.reg11_cmv_sel		   = BIT_LOW,
+	.reg11_vcm_sel		   = BIT_LOW,
 	.reg11_eoc		   = BIT_HIGH,
+	.reg13_calib_factor_mask   = GENMASK(13, 8),
+	.has_bl30_integration	   = true,
+	.self_test_channel	   = SARADC_CH_SELF_TEST,
+	.num_channels		   = MESON_SARADC_CH_MAX,
+	.resolution		   = SARADC_12BIT,
+	.dops			   = &meson_g12a_diff_ops,
+	.capacity		   = ADC_CAPACITY_AVERAGE |
+				     ADC_CAPACITY_HIGH_PRECISION_VREF,
+	.clock_rate		   = 1200000,
+};
+
+struct meson_saradc_data meson_saradc_txhd2_data = {
+	.reg3_ring_counter_disable = BIT_HIGH,
+	.reg11_bandgap_en_mask	   = BIT(12),
+	.reg11_vref_en		   = BIT_HIGH,
+	.reg11_vcm_sel		   = BIT_HIGH,
+	.reg11_eoc		   = BIT_HIGH,
+	.reg13_calib_factor_mask   = GENMASK(15, 8),
 	.has_bl30_integration	   = true,
 	.self_test_channel	   = SARADC_CH_SELF_TEST,
 	.num_channels		   = MESON_SARADC_CH_MAX,
@@ -127,6 +144,10 @@ static const struct udevice_id meson_g12a_saradc_ids[] = {
 	{
 		.compatible = "amlogic,meson-g12a-saradc",
 		.data = (ulong)&meson_saradc_g12a_data,
+	},
+	{
+		.compatible = "amlogic,meson-txhd2-saradc",
+		.data = (ulong)&meson_saradc_txhd2_data,
 	},
 	{ }
 };

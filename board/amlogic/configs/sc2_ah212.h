@@ -13,7 +13,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  939	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    810       // VDDEE power up voltage
 
 /* SMP Definitions */
@@ -25,10 +25,10 @@
 #define CONFIG_BOOTLOADER_CONTROL_BLOCK
 
 /* AVB */
-//#define CONFIG_AML_AVB2_ANTIROLLBACK 1
-//#define CONFIG_AVB_VERIFY 1
-//#define CONFIG_SUPPORT_EMMC_RPMB 1
-//#define CONFIG_AML_DEV_ID 1
+#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+#define CONFIG_AVB_VERIFY 1
+#define CONFIG_SUPPORT_EMMC_RPMB 1
+#define CONFIG_AML_DEV_ID 1
 
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
@@ -96,6 +96,7 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
         "board=ohm\0"\
+	"upgrade_key_flag=0\0"\
         "initargs="\
 		"init=/init" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 no_console_suspend "\
 		"earlycon=aml-uart,0xfe07a000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
@@ -165,18 +166,9 @@
 			"run cmdline_keys_base;"\
 			"\0"\
 		"upgrade_key="\
-		"if gpio input GPIOD_3; then "\
-			"echo detect upgrade key;"\
-			"if test ${boot_flag} = 0; then "\
-				"echo enter recovery; setenv boot_flag 1; saveenv;"\
-				"run recovery_from_flash;"\
-			"else if test ${boot_flag} = 1; then "\
-				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
-			"else "\
-				"echo enter fastboot; setenv boot_flag 0; saveenv; fastboot 0;"\
-			"fi;fi;"\
-		"fi;"\
-		"\0"\
+			"run upgrade_key_base;"\
+			"echo usr key;"\
+			"\0"\
 
 #if 1
 #define CONFIG_PREBOOT  \
@@ -389,9 +381,16 @@
 
 #define CONFIG_FIP_IMG_SUPPORT  1
 
-/* config ramdump to debug kernel panic */
+/* config ramdump to debug kernel panic:
+ *   V1.0: CONFIG_MDUMP_COMPRESS
+ *   V1.2: CONFIG_FULL_RAMDUMP + CONFIG_SUPPORT_BL33Z
+ * Be careful not to open multiple versions of CONFIGS at the same time.
+ * CONFIG_SUPPORT_BL33Z is enabled by default.
+ */
+//#define CONFIG_MDUMP_COMPRESS   1
+//#define CONFIG_COMPRESSED_ADDR  (0x10000000)
+//#define CONFIG_FAT_WRITE        1
 #define CONFIG_FULL_RAMDUMP
-//#define CONFIG_MDUMP_COMPRESS 1
 
 #define BL32_SHARE_MEM_SIZE  0x800000
 #define CONFIG_AML_KASLR_SEED

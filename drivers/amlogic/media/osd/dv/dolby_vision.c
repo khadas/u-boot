@@ -927,6 +927,10 @@ static int dolby_core2_set(
 		else
 			g_vpotch = 0x10;
 
+		/* for 1080p fb */
+		if (vsize <= 1080)
+			g_vpotch = 0x50;
+
 		if (vinfo_width <= 720)
 			g_htotal_add = 0x12c;
 	}
@@ -1294,20 +1298,20 @@ static int dolby_core3_set(
 #ifdef AML_S5_DISPLAY
 void update_core3_slice_info(u32 v_width, u32 v_height)
 {
-	/*int i;*/
-	/*struct vpp_post_info_t *post_info;*/
+	int i;
+	struct vpp_post_info_t *post_info;
 
 	/*current dv is disabled in 4k100 and 8k, only one slice*/
-	if (0/*is_meson_s5()*/) { /*get from vpp*/
-		/*post_info = get_vpp_post_amdv_info();*/
-		/*core3_slice_info.overlap_hsize = post_info->overlap_hsize;*/
-		/*core3_slice_info.slice_num = post_info->slice_num;*/
-		/*core3_slice_info.vpp_post_blend_hsize = post_info->vpp_post_blend_hsize;*/
-		/*core3_slice_info.vpp_post_blend_vsize = post_info->vpp_post_blend_vsize;*/
-		/*for (i = 0; i < POST_SLICE_NUM; i++) {*/
-			/*core3_slice_info.slice[i].hsize = post_info->slice[i].hsize;*/
-			/*core3_slice_info.slice[i].vsize = post_info->slice[i].vsize;*/
-		/*}*/
+	if (is_meson_s5()) { /*get from vpp*/
+		post_info = get_vpp_post_amdv_info();
+		core3_slice_info.overlap_hsize = post_info->overlap_hsize;
+		core3_slice_info.slice_num = post_info->slice_num;
+		core3_slice_info.vpp_post_blend_hsize = post_info->vpp_post_blend_hsize;
+		core3_slice_info.vpp_post_blend_vsize = post_info->vpp_post_blend_vsize;
+		for (i = 0; i < POST_SLICE_NUM; i++) {
+			core3_slice_info.slice[i].hsize = post_info->slice[i].hsize;
+			core3_slice_info.slice[i].vsize = post_info->slice[i].vsize;
+		}
 		if (debug_enable)
 			printf("core3_info %d %d %d %d %d %d %d %d %d %d %d %d\n",
 					  core3_slice_info.slice_num,

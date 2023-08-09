@@ -793,6 +793,10 @@ config CHIPSET_VARIANT
         string "C3 CHIPSET VARIANT"
         default ""
 
+config CHIPSET_VARIANT_MIN
+	string "C3 bl32 CHIPSET VARIANT MIN"
+	default ""
+
 config AMLOGIC_KEY_TYPE
         string "C3 AMLOGIC KEY TYPE"
         default "dev-keys"
@@ -1172,7 +1176,7 @@ config T7_AN400_LPDDR4X
 
 config T7_AN400_LPDDR4X_DEBIAN
 	bool "T7_AN400_LPDDR4X_DEBIAN"
-	select TARGET_T7_AN400_LPDDR4X_DEBIAN
+	select TARGET_T7_AN400_LPDDR4X
 	help
 	  Select T7 AN400 LPDDR4X DEBIAN config
 	  it's based in T7 AN400 LPDDR4X
@@ -1227,11 +1231,7 @@ config TARGET_T7_AN409_DDR4
 
 config TARGET_T7_AN400_LPDDR4X
 	bool "T7 AN400 lpddr4x board"
-	depends on T7_AN400_LPDDR4X
-
-config TARGET_T7_AN400_LPDDR4X_DEBIAN
-	bool "T7 AN400 lpddr4x debian board"
-	depends on T7_AN400_LPDDR4X_DEBIAN
+	depends on T7_AN400_LPDDR4X || T7_AN400_LPDDR4X_DEBIAN
 
 config TARGET_T7_AN400_MERCURY
         bool "T7 AN400 mercury board"
@@ -1536,6 +1536,76 @@ config TARGET_T5W_AT301_V1
 
 endif
 
+if MESON_TXHD2
+
+config SYS_SOC
+	default "txhd2"
+
+config DDRFW_TYPE
+	string "TXHD2 DDR FW Type"
+	default "ddr4"
+
+config BL30_SELECT
+	string "TXHD2 BL30 board config"
+	default "txhd2_skt"
+
+choice
+	prompt "TXHD2 Board"
+
+config TXHD2_SKT
+	bool "TXHD2_SKT"
+	select TARGET_TXHD2_SKT
+	help
+	  Select TXHD2 SKT(XXXX) config
+
+config TXHD2_BE301
+	bool "TXHD2_BE301"
+	select TARGET_TXHD2_BE301
+	help
+	  Select TXHD2 BE301 config
+
+config TXHD2_BE309
+	bool "TXHD2_BE309"
+	select TARGET_TXHD2_BE309
+	help
+	  Select TXHD2 BE309 config
+
+config TXHD2_BE311
+	bool "TXHD2_BE311"
+	select TARGET_TXHD2_BE311
+	help
+	  Select TXHD2 BE311 config
+
+config TXHD2_BE319
+	bool "TXHD2_BE319"
+	select TARGET_TXHD2_BE319
+	help
+	  Select TXHD2 BE319 config
+
+endchoice
+
+config TARGET_TXHD2_SKT
+	bool "TXHD2 SKT board"
+	depends on TXHD2_SKT
+
+config TARGET_TXHD2_BE301
+	bool "TXHD2 BE301 board"
+	depends on TXHD2_BE301
+
+config TARGET_TXHD2_BE309
+	bool "TXHD2 BE309 board"
+	depends on TXHD2_BE309
+
+config TARGET_TXHD2_BE311
+	bool "TXHD2 BE311 board"
+	depends on TXHD2_BE311
+
+config TARGET_TXHD2_BE319
+	bool "TXHD2 BE319 board"
+	depends on TXHD2_BE319
+
+endif
+
 if MESON_G12A
 
 config SYS_SOC
@@ -1678,9 +1748,13 @@ source "board/amlogic/t7_an408_lpddr4x/Kconfig"
 
 source "board/amlogic/t7_an409_ddr4/Kconfig"
 
+if T7_AN400_LPDDR4X
 source "board/amlogic/t7_an400_lpddr4x/Kconfig"
+endif
 
+if T7_AN400_LPDDR4X_DEBIAN
 source "board/amlogic/t7_an400_lpddr4x_debian/Kconfig"
+endif
 
 source "board/amlogic/t7_an400_mercury/Kconfig"
 
@@ -1723,6 +1797,17 @@ source "board/amlogic/a4_ba400_zircon/Kconfig"
 source "board/amlogic/a4_ba409/Kconfig"
 
 source "board/amlogic/t3x_sky/Kconfig"
+
 source "board/amlogic/t3x_bc302/Kconfig"
+
 source "board/amlogic/t3x_bc309/Kconfig"
 
+source "board/amlogic/txhd2_skt/Kconfig"
+
+source "board/amlogic/txhd2_be301/Kconfig"
+
+source "board/amlogic/txhd2_be309/Kconfig"
+
+source "board/amlogic/txhd2_be311/Kconfig"
+
+source "board/amlogic/txhd2_be319/Kconfig"

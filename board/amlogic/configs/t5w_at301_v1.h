@@ -28,7 +28,7 @@
  * platform power init config
  */
 #define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	960		// VCCK power up voltage
+#define CONFIG_VCCK_INIT_VOLTAGE	1010		// VCCK power up voltage
 #define CONFIG_VDDEE_INIT_VOLTAGE	840		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	770		// VDDEE suspend voltage
 
@@ -52,6 +52,9 @@
 
 #define CONFIG_FAT_WRITE 1
 //#define CONFIG_AML_FACTORY_PROVISION 1
+
+#define CONFIG_AML_DEV_ID
+#define CONFIG_SUPPORT_EMMC_RPMB  1
 
 #define CONFIG_AML_WATERMARK 1
 
@@ -83,6 +86,9 @@
 /*config the default parameters for adc power key*/
 #define CONFIG_ADC_POWER_KEY_CHAN   2  /*channel range: 0-7*/
 #define CONFIG_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
+
+//USB_POWEROFF
+#define AMLOGIC_USB_POWER
 
 #define CONFIG_SILENT_CONSOLE
 /* args/envs */
@@ -254,7 +260,7 @@
 		"fi;"\
 		"\0" \
 		"storeboot="\
-			"run storeboot_base;"\
+			"ddr_auto_fast_boot_check 6;run storeboot_base;"\
 			"\0"\
 		"update="\
 			"run update_base;"\
@@ -286,17 +292,14 @@
 		"if test ${reboot_mode} = quiescent; then "\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else "\
-			"run storeargs;"\
 			"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
 		"fi;fi;"\
 		"\0"\
@@ -374,7 +377,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1512 //MHz. Range: 360-2000, should be multiple of 24
+#define CONFIG_CPU_CLK			1908 //MHz. Range: 360-1908, should be multiple of 24
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0

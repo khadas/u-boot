@@ -13,7 +13,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  799	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
@@ -24,6 +24,12 @@
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
+
+/* AVB */
+#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+#define CONFIG_AVB_VERIFY 1
+#define CONFIG_SUPPORT_EMMC_RPMB 1
+#define CONFIG_AML_DEV_ID 1
 
 /*if disable uboot console, enable it*/
 //#define CONFIG_SILENT_CONSOLE
@@ -360,7 +366,10 @@
 #define CONFIG_CMD_SHA2
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 
 /* define CONFIG_UPDATE_MMU_TABLE for need update mmu */
 #define CONFIG_UPDATE_MMU_TABLE

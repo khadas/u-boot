@@ -37,6 +37,7 @@ enum scdc_addr {
 
 #define HDMITX_VIC420_OFFSET	0x100
 #define HDMITX_VESA_OFFSET	0x300
+#define HDMI_UNKNOWN	HDMI_unknown
 
 /* HDMI VIC definitions */
 enum hdmi_vic {
@@ -630,6 +631,10 @@ struct hdmi_support_mode {
 #define DOLBY_VISION_STD_ENABLE         1
 #define DOLBY_VISION_DISABLE            0
 #define DOLBY_VISION_ENABLE	1
+/* used to indicate that no ubootenv of user_prefer_dv_type,
+ * which means that user has not selected dv type on menu
+ */
+#define DV_NONE -1
 
 #define HDMI_IEEEOUI 0x000C03
 #define MODE_LEN	32

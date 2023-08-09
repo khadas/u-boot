@@ -515,6 +515,8 @@ int board_late_init(void)
 #endif
 	char outputModePre[30] = {0};
 	char outputModeCur[30] = {0};
+	char connector_type_pre[20] = {}, connector_type_cur[20] = {};
+	char *str;
 
 	if (env_get("default_env") || env_get("update_env")) {
 		printf("factory reset, need default all uboot env\n");
@@ -528,6 +530,9 @@ int board_late_init(void)
 	if (env_get("outputmode")) {
 		strncpy(outputModePre, env_get("outputmode"), 29);
 	}
+	str = env_get("connector_type");
+	if (str)
+		strncpy(connector_type_pre, str, 19);
 	run_command("run bcb_cmd", 0);
 		/*add board late init function here*/
 #ifndef DTB_BIND_KERNEL
@@ -618,6 +623,17 @@ int board_late_init(void)
 		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
 		run_command("saveenv", 0);
 	}
+
+	str = env_get("connector_type");
+	if (str) {
+		strncpy(connector_type_cur, str, 19);
+		if (strcmp(connector_type_cur, connector_type_pre)) {
+			printf("uboot connector_type change saveenv old:%s - new:%s\n",
+				connector_type_pre, connector_type_cur);
+			run_command("update_env_part -p connector_type", 0);
+		}
+	}
+
 	unsigned char chipid[16];
 	memset(chipid, 0, 16);
 	if (get_chip_id(chipid, 16) != -1) {

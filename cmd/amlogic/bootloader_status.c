@@ -358,7 +358,7 @@ void update_rollback(void)
 	run_command("reset", 0);
 }
 
-static int write_boot0(void)
+static int write_bootloader(int i)
 {
 	unsigned char *buffer = NULL;
 	int capacity_boot = 0x2000 * 512;
@@ -389,6 +389,8 @@ static int write_boot0(void)
 		strcpy((char *)partname, "bootloader_a");
 	else if (slot_name && (strcmp(slot_name, "_b") == 0))
 		strcpy((char *)partname, "bootloader_b");
+	else
+		strcpy((char *)partname, "bootloader_up");
 
 	iRet = store_logic_read(partname, 0, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
 	if (iRet) {
@@ -398,7 +400,7 @@ static int write_boot0(void)
 		return -1;
 	}
 
-	iRet = store_boot_write("bootloader", 1, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
+	iRet = store_boot_write("bootloader", i, BOOTLOADER_MAX_SIZE - BOOTLOADER_OFFSET, buffer);
 	if (iRet) {
 		printf("Failed to write boot0\n");
 		free(buffer);
@@ -634,6 +636,18 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		run_command("reset", 0);
 	}
 
+	char *write_boot = env_get("write_boot");
+
+	if (has_boot_slot == 0 && write_boot && (!strcmp(write_boot, "1"))) {
+		printf("non ab for kernel 5.15 update bootloader\n");
+		write_bootloader(1);
+		write_bootloader(2);
+		env_set("write_boot", "0");
+		env_set("upgrade_step", "1");
+		run_command("saveenv", 0);
+		run_command("reset", 0);
+	}
+
 	//check_result init
 	checkresult = env_get("check_result");
 	if (checkresult == NULL) {
@@ -674,14 +688,13 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		return -1;
 	}
 
-	char *write_boot = env_get("write_boot");
 	int rc = 0;
 	int update_flag = -1;
 	char *update_dts_gpt = NULL;
 
-	if (!strcmp(write_boot, "1")) {
+	if (write_boot && !strcmp(write_boot, "1")) {
 		printf("need to write boot0\n");
-		rc = write_boot0();
+		rc = write_bootloader(1);
 		if (rc) {
 			printf("write boot0 fail, need to rollback!\n");
 			update_rollback();
@@ -700,7 +713,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		run_command("saveenv", 0);
 	}
 
-	if (!strcmp(write_boot, "1") || (update_flag != -1)) {
+	if ((write_boot && !strcmp(write_boot, "1")) || (update_flag != -1)) {
 		printf("reset......\n");
 		env_set("write_boot", "0");
 		env_set("reboot_status", "reboot_next");

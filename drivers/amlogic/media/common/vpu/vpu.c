@@ -21,8 +21,9 @@
 /* v20220503: add c3 support */
 /* v20220517: add s5 support */
 /* v20221025: add t5m support */
-#define VPU_VERSION	"v20221025"
-
+/* v20230423: add txhd2 support */
+/* v20230529: add t3x support */
+#define VPU_VERSION	"v20230529"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -624,6 +625,39 @@ static struct vpu_data_s vpu_data_t3x = {
 	.module_init_config = vpu_module_init_config,
 };
 
+static struct vpu_data_s vpu_data_txhd2 = {
+	.chip_type = VPU_CHIP_TXHD2,
+	.chip_name = "txhd2",
+	.clk_level_dft = CLK_LEVEL_DFT_TXHD2,
+	.clk_level_max = CLK_LEVEL_MAX_TXHD2,
+	.gp_pll_valid = 0,
+
+	.vpu_clk_reg = HHI_VPU_CLK_CNTL,
+	.vpu_clkb_reg = VPU_REG_END,  //no need init clkb
+	.vapb_clk_reg = HHI_VAPBCLK_CNTL,
+	.vid_clk_reg = HHI_VID_CLK_CNTL2,
+
+	.pwrctrl_id_table = vpu_pwrctrl_id_table,
+
+	.fclk_div_table = fclk_div_table_g12a,
+	.vpu_clk_table = vpu_clk_table,
+	.test_reg = vcbus_test_reg,
+
+	.mem_pd_table = NULL,
+	.power_table = NULL,
+	.iso_table = NULL,
+	.reset_table = NULL,
+
+	.module_init_table_cnt = 0,
+	.module_init_table = NULL,
+
+	.power_on = vpu_power_on_new,
+	.power_off = vpu_power_off_new,
+	.mem_pd_init_off = vpu_mem_pd_init_off,
+	.module_init_config = vpu_module_init_config,
+	.change_clk = change_vpu_clk,
+};
+
 static void vpu_chip_detect(void)
 {
 	unsigned int cpu_type;
@@ -684,6 +718,9 @@ static void vpu_chip_detect(void)
 	case MESON_CPU_MAJOR_ID_T3X:
 		vpu_conf.data = &vpu_data_t3x;
 		break;
+	case MESON_CPU_MAJOR_ID_TXHD2:
+		vpu_conf.data = &vpu_data_txhd2;
+		break;
 	default:
 		vpu_conf.data = NULL;
 		//vpu_conf.data = &vpu_data_t3;
@@ -740,6 +777,7 @@ static int vpu_check(void)
 	case VPU_CHIP_T5M:
 	case VPU_CHIP_A4:
 	case VPU_CHIP_T3X:
+	case VPU_CHIP_TXHD2:
 		ret = 0;
 		break;
 	default:
@@ -757,16 +795,19 @@ static int get_vpu_config(void)
 	char *propdata;
 	int ret;
 
-	dt_blob = gd->fdt_blob;
+	dt_blob = (void *)env_get_ulong("dtb_mem_addr", 16, 0x1000000);
 	if (dt_blob == NULL) {
 		VPUERR("dt_blob is null, load default parameters\n");
 		goto get_vpu_config_dft;
 	}
 	ret = fdt_check_header(dt_blob);
 	if (ret < 0) {
-		VPUERR("vpu: check dts: %s, load default parameters\n",
+		dt_blob = gd->fdt_blob;
+		if (fdt_check_header(dt_blob) < 0) {
+			VPUERR("check dts: %s, load default parameters\n",
 			fdt_strerror(ret));
-		goto get_vpu_config_dft;
+			goto get_vpu_config_dft;
+		}
 	}
 	node = fdt_path_offset(dt_blob, "/vpu");
 	if (node < 0) {

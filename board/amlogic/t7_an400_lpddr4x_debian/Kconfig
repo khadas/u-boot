@@ -1,4 +1,4 @@
-if TARGET_T7_AN400_LPDDR4X_DEBIAN
+if TARGET_T7_AN400_LPDDR4X
 
 config ENV_HDMITX_ONLY
 	string
@@ -12,7 +12,7 @@ config SYS_SOC
 	default "t7"
 
 config SYS_BOARD
-	default "t7_an400_lpddr4x_debian"
+	default "t7_an400_lpddr4x"
 
 config SYS_VENDOR
 	default "amlogic"

@@ -1055,34 +1055,55 @@ for G12A, set osd2 matrix(10bit) RGB2YUV
  static void set_osd1_rgb2yuv(bool on)
  {
 	int *m = NULL;
+	u32 chip_id = get_cpu_id().family_id;
 
 	if (is_osd_high_version()) {
 		/* RGB -> 709 limit */
 		m = RGB709_to_YUV709l_coeff;
+		if (chip_id != MESON_CPU_MAJOR_ID_TXHD2) {
+			/* VPP WRAP OSD1 matrix */
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_PRE_OFFSET0_1,
+				((m[0] & 0xfff) << 16) | (m[1] & 0xfff));
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_PRE_OFFSET2,
+				m[2] & 0xfff);
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF00_01,
+				((m[3] & 0x1fff) << 16) | (m[4] & 0x1fff));
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF02_10,
+				((m[5]  & 0x1fff) << 16) | (m[6] & 0x1fff));
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF11_12,
+				((m[7] & 0x1fff) << 16) | (m[8] & 0x1fff));
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF20_21,
+				((m[9] & 0x1fff) << 16) | (m[10] & 0x1fff));
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF22,
+				m[11] & 0x1fff);
 
-		/* VPP WRAP OSD1 matrix */
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_PRE_OFFSET0_1,
-			((m[0] & 0xfff) << 16) | (m[1] & 0xfff));
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_PRE_OFFSET2,
-			m[2] & 0xfff);
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF00_01,
-			((m[3] & 0x1fff) << 16) | (m[4] & 0x1fff));
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF02_10,
-			((m[5]  & 0x1fff) << 16) | (m[6] & 0x1fff));
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF11_12,
-			((m[7] & 0x1fff) << 16) | (m[8] & 0x1fff));
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF20_21,
-			((m[9] & 0x1fff) << 16) | (m[10] & 0x1fff));
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_COEF22,
-			m[11] & 0x1fff);
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_OFFSET0_1,
+				((m[18] & 0xfff) << 16) | (m[19] & 0xfff));
+			vpp_reg_write(VPP_WRAP_OSD1_MATRIX_OFFSET2,
+				m[20] & 0xfff);
 
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_OFFSET0_1,
-			((m[18] & 0xfff) << 16) | (m[19] & 0xfff));
-		vpp_reg_write(VPP_WRAP_OSD1_MATRIX_OFFSET2,
-			m[20] & 0xfff);
-
-		vpp_reg_setb(VPP_WRAP_OSD1_MATRIX_EN_CTRL, on, 0, 1);
-
+			vpp_reg_setb(VPP_WRAP_OSD1_MATRIX_EN_CTRL, on, 0, 1);
+		} else {
+			vpp_reg_write(VPP_OSD1_MATRIX_PRE_OFFSET0_1,
+				((m[0] & 0xfff) << 16) | (m[1] & 0xfff));
+			vpp_reg_write(VPP_OSD1_MATRIX_PRE_OFFSET2,
+				m[2] & 0xfff);
+			vpp_reg_write(VPP_OSD1_MATRIX_COEF00_01,
+				((m[3] & 0x1fff) << 16) | (m[4] & 0x1fff));
+			vpp_reg_write(VPP_OSD1_MATRIX_COEF02_10,
+				((m[5]	& 0x1fff) << 16) | (m[6] & 0x1fff));
+			vpp_reg_write(VPP_OSD1_MATRIX_COEF11_12,
+				((m[7] & 0x1fff) << 16) | (m[8] & 0x1fff));
+			vpp_reg_write(VPP_OSD1_MATRIX_COEF20_21,
+				((m[9] & 0x1fff) << 16) | (m[10] & 0x1fff));
+			vpp_reg_write(VPP_OSD1_MATRIX_COEF22,
+				m[11] & 0x1fff);
+			vpp_reg_write(VPP_OSD1_MATRIX_OFFSET0_1,
+				((m[18] & 0xfff) << 16) | (m[19] & 0xfff));
+			vpp_reg_write(VPP_OSD1_MATRIX_OFFSET2,
+				m[20] & 0xfff);
+			vpp_reg_setb(VPP_OSD1_MATRIX_EN_CTRL, on, 0, 1);
+		}
 		VPP_PR("%s rgb2yuv on = %d..............\n", __func__, on);
 	} else {
 		vpp_reg_setb(VIU_OSD1_BLK0_CFG_W0, 0, 7, 1);
@@ -1834,7 +1855,10 @@ void vpp_init(void)
 	if (is_osd_high_version()) {
 		/* >= g12a: osd out is rgb */
 #ifndef AML_S5_DISPLAY
-		set_osd1_rgb2yuv(0);
+		if (chip_id != MESON_CPU_MAJOR_ID_TXHD2)
+			set_osd1_rgb2yuv(0);
+		else
+			set_osd1_rgb2yuv(1);
 		set_osd2_rgb2yuv(0);
 		if (chip_id != MESON_CPU_MAJOR_ID_TL1 &&
 		    chip_id != MESON_CPU_MAJOR_ID_S4)

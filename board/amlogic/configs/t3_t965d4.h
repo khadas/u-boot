@@ -46,6 +46,12 @@
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
 
+/* AVB */
+#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+#define CONFIG_AVB_VERIFY 1
+#define CONFIG_SUPPORT_EMMC_RPMB 1
+#define CONFIG_AML_DEV_ID 1
+
 /*hign console baudrate*/
 #define CONFIG_HIGH_CONSOLE_BAUD			0
 
@@ -65,6 +71,9 @@
 #define AML_ADC_POWER_KEY_VAL    0  /*sample value range: 0-1023*/
 
 //#define CONFIG_BOOTLOADER_CONTROL_BLOCK
+
+//USB_POWEROFF
+#define AMLOGIC_USB_POWER
 
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
@@ -104,6 +113,7 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
 	"board=t965d4\0"\
+	"upgrade_key_flag=2\0"\
 	"suspend=off\0"\
 	"powermode=on\0"\
 	"ffv_wake=off\0"\
@@ -255,17 +265,14 @@
 	"if test ${reboot_mode} = quiescent; then "\
 		"setenv dolby_status 0;"\
 		"setenv dolby_vision_on 0;"\
-		"run storeargs;"\
 		"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
 		"osd open;osd clear;"\
 	"else if test ${reboot_mode} = recovery_quiescent; then "\
 		"setenv dolby_status 0;"\
 		"setenv dolby_vision_on 0;"\
-		"run storeargs;"\
 		"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
 		"osd open;osd clear;"\
 	"else "\
-		"run storeargs;"\
 		"osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
 	"fi;fi;"\
 	"\0"\
@@ -307,17 +314,9 @@
 			"run cmdline_keys_base;"\
 			"\0"\
         "upgrade_key="\
-		"if gpio input GPIOD_3; then "\
-			"echo detect upgrade key;"\
-			"if test ${boot_flag} = 0; then "\
-				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 1;"\
-			"else if test ${boot_flag} = 1; then "\
-				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
-			"else "\
-				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
-			"fi;fi;"\
-		"fi;"\
-		"\0"\
+			"run upgrade_key_base;"\
+			"echo usr key;"\
+			"\0"\
 
 #define CONFIG_PREBOOT  \
             "run upgrade_check;"\

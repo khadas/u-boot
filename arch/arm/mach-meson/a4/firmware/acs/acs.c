@@ -26,5 +26,10 @@ dev_param_hdr_t __param_hdr __attribute__ ((section(".dev_header"))) = {
 
 	.ddr_set_magic = "ddrs_",
 	.ddr_set_length = sizeof(__ddr_setting),
+
+	.ddr_2acs_magic = "ddr2ac",
+	.ddr_2acs_length = sizeof(__bl2_ddr_reg_data),
+	.ddr_2acs_data_p = (unsigned int *)(&__bl2_ddr_reg_data),
+
 };
 

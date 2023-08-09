@@ -159,6 +159,8 @@ int board_late_init(void)
 {
 	char outputModePre[30];
 	char outputModeCur[30];
+	char connector_type_pre[20] = {}, connector_type_cur[20] = {};
+	char *str;
 
 	printf("board late init\n");
 
@@ -189,10 +191,12 @@ int board_late_init(void)
 	 * 2.use bootup resource after setup
 	 * ****************************************************
 	 */
-	char *outputmode_str = env_get("outputmode");
-
-	if (outputmode_str)
-		strlcpy(outputModePre, outputmode_str, 30);
+	str = env_get("outputmode");
+	if (str)
+		strlcpy(outputModePre, str, 30);
+	str = env_get("connector_type");
+	if (str)
+		strncpy(connector_type_pre, str, 19);
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
@@ -222,14 +226,23 @@ int board_late_init(void)
 	lcd_probe();
 #endif
 
-	outputmode_str = env_get("outputmode");
-
-	if (outputmode_str) {
-		strlcpy(outputModeCur, outputmode_str, 30);
+	str = env_get("outputmode");
+	if (str) {
+		strlcpy(outputModeCur, str, 30);
 		if (strcmp(outputModeCur, outputModePre)) {
 			printf("uboot outputMode change saveenv old:%s - new:%s\n",
 				outputModePre, outputModeCur);
 			run_command("saveenv", 0);
+		}
+	}
+
+	str = env_get("connector_type");
+	if (str) {
+		strncpy(connector_type_cur, str, 19);
+		if (strcmp(connector_type_cur, connector_type_pre)) {
+			printf("uboot connector_type change saveenv old:%s - new:%s\n",
+				connector_type_pre, connector_type_cur);
+			run_command("update_env_part -p connector_type", 0);
 		}
 	}
 

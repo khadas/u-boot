@@ -268,19 +268,16 @@
 			"setenv reboot_mode_android ""quiescent"";"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process; \
 				osd open;osd clear;run load_bmp_logo;bmp scale; \
 				vout output ${outputmode}; \
@@ -542,6 +539,6 @@
 #define AML_RSV_DTB_SIZE (128 * 1024)
 
 #define CONFIG_INITRD_HIGH_ADDR "0xFC00000"
-#define CONFIG_FDT_HIGH_ADDR "0x5000000"
+#define CONFIG_FDT_HIGH_ADDR "0x4f00000"
 #endif
 

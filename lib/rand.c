@@ -20,7 +20,7 @@ unsigned int rand_r(unsigned int *seedp)
 	return *seedp;
 }
 
-unsigned int rand(void)
+__weak unsigned int rand(void)
 {
 	return rand_r(&y);
 }

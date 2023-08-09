@@ -39,6 +39,41 @@ int dram_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_MULTI_DTB
+#define T404_ADC_VALUE	(85)	/*ID1*/
+#define AD403_ADC_VALUE (938)	/*ID11*/
+#define THRESHOLD_VALUE \
+	((AD403_ADC_VALUE - T404_ADC_VALUE) / 2 + T404_ADC_VALUE)
+
+int checkhw(char *name)
+{
+	char dtb_name[64] = {0};
+	struct udevice *dev = NULL;
+	int ret = -1;
+	unsigned int val = 0;
+
+	ret = uclass_get_device_by_name(UCLASS_ADC, "adc", &dev);
+	if (ret)
+		return ret;
+	ret = adc_set_mode(dev, 0, ADC_MODE_AVERAGE);
+	if (ret) {
+		pr_err("set adc mode fail\n");
+		return ret;
+	}
+
+	ret = adc_channel_single_shot_mode("adc", ADC_MODE_AVERAGE,  0, &val);
+	if (ret)
+		return ret;
+	if (val < THRESHOLD_VALUE)
+		strcpy(dtb_name, "a1-a113l_t404_spk\0");
+	else
+		strcpy(dtb_name, "a1-a113l_ad403_spk\0");
+	strcpy(name, dtb_name);
+	env_set("aml_dt", dtb_name);
+	return 0;
+}
+#endif
+
 /* secondary_boot_func
  * this function should be write with asm, here, it is only for compiling pass
  */

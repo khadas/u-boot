@@ -705,6 +705,7 @@ int aml_bl_pwm_reg_config_init(struct aml_lcd_data_s *pdata)
 	case LCD_CHIP_T5:
 	case LCD_CHIP_T5D:
 	case LCD_CHIP_T5W:
+	case LCD_CHIP_TXHD2:
 		bl_pwm_ctrl_conf = &bl_pwm_ctrl_conf_tl1;
 		break;
 	case LCD_CHIP_T7:

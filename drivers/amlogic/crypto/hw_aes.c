@@ -77,6 +77,10 @@ static int32_t aes_ctr_encrypt(void *key, uint32_t keylen, void *iv,
 		const void *pt, void *ct, size_t size)
 {
 	uint32_t mode = 0;
+	uint32_t iv_local[4] = {0};
+#ifdef CONFIG_MESON_TXHD2
+	uint32_t tmp = 0;
+#endif
 
 	if (keylen == AES_KEY_SIZE_128)
 		mode = DMA_MODE_AES128;
@@ -85,7 +89,19 @@ static int32_t aes_ctr_encrypt(void *key, uint32_t keylen, void *iv,
 	else
 		return -1;
 
-	return aes_cipher(key, keylen, iv, pt, ct,
+#ifdef CONFIG_MESON_TXHD2
+	memcpy(&tmp, (uint8_t *)(iv + 0), 4);
+	iv_local[3] = __builtin_bswap32(tmp);
+	memcpy(&tmp, (uint8_t *)(iv + 4), 4);
+	iv_local[2] = __builtin_bswap32(tmp);
+	memcpy(&tmp, (uint8_t *)(iv + 8), 4);
+	iv_local[1] = __builtin_bswap32(tmp);
+	memcpy(&tmp, (uint8_t *)(iv + 12), 4);
+	iv_local[0] = __builtin_bswap32(tmp);
+#else
+	memcpy(iv_local, iv, 16);
+#endif
+	return aes_cipher(key, keylen, (uint8_t *)iv_local, pt, ct,
 			1, mode, CIPHER_OP_MODE_CTR, size);
 }
 

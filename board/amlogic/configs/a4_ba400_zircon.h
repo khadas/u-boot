@@ -12,7 +12,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  900	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1010	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    830       // VDDEE power up voltage
 
 /* SMP definitions */
@@ -244,19 +244,16 @@
 			"setenv reboot_mode_android ""quiescent;"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent;"\
 			"setenv dolby_status 0;"\
 			"setenv dolby_vision_on 0;"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"osd open;osd clear;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 		"fi;fi;"\
 		"\0"\
 	"storage_param="\

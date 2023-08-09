@@ -88,12 +88,19 @@ int meson_rsv_erase_protect(struct meson_rsv_handler_t *handler,
 
 int meson_rsv_free(struct meson_rsv_info_t *rsv_info)
 {
-	struct mtd_info *mtd = rsv_info->mtd;
+	struct mtd_info *mtd;
 	struct free_node_t *tmp_node, *next_node = NULL;
 	int error = 0;
 	loff_t addr = 0;
 	struct erase_info erase_info;
 
+	if (!rsv_info) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+
+	mtd = rsv_info->mtd;
 	pr_info("free %s\n", rsv_info->name);
 
 	if (rsv_info->valid) {
@@ -127,12 +134,19 @@ int meson_rsv_free(struct meson_rsv_info_t *rsv_info)
 
 int meson_rsv_save(struct meson_rsv_info_t *rsv_info, u_char *buf)
 {
-	struct mtd_info *mtd = rsv_info->mtd;
+	struct mtd_info *mtd;
 	struct free_node_t *free_node, *temp_node;
 	struct erase_info erase_info;
 	int ret = 0, i = 1, pages_per_blk;
 	loff_t offset = 0;
 
+	if (!rsv_info) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+
+	mtd = rsv_info->mtd;
 	pages_per_blk = 1 << (mtd->erasesize_shift - mtd->writesize_shift);
 	if ((rsv_info->nvalid->status & POWER_ABNORMAL_FLAG) ||
 	    (rsv_info->nvalid->status & ECC_ABNORMAL_FLAG))
@@ -233,13 +247,20 @@ RE_SEARCH:
 
 int meson_rsv_write(struct meson_rsv_info_t *rsv_info, u_char *buf)
 {
-	struct mtd_info *mtd = rsv_info->mtd;
+	struct mtd_info *mtd;
 	struct oobinfo_t oobinfo;
 	struct mtd_oob_ops oob_ops;
 	size_t length = 0;
 	loff_t offset;
 	int ret = 0;
 
+	if (!rsv_info) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+
+	mtd = rsv_info->mtd;
 	offset = rsv_info->nvalid->blk_addr;
 	offset *= mtd->erasesize;
 	offset += ((u64)rsv_info->nvalid->page_addr) * mtd->writesize;
@@ -271,13 +292,20 @@ int meson_rsv_write(struct meson_rsv_info_t *rsv_info, u_char *buf)
 
 int meson_rsv_read(struct meson_rsv_info_t *rsv_info, u_char *buf)
 {
-	struct mtd_info *mtd = rsv_info->mtd;
+	struct mtd_info *mtd;
 	struct oobinfo_t oobinfo;
 	struct mtd_oob_ops oob_ops;
 	size_t length = 0;
 	loff_t offset;
 	int ret = 0;
 
+	if (!rsv_info) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+
+	mtd = rsv_info->mtd;
 READ_RSV_AGAIN:
 	offset = rsv_info->nvalid->blk_addr;
 	offset *= mtd->erasesize;
@@ -317,12 +345,18 @@ READ_RSV_AGAIN:
 
 int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 {
-	struct mtd_info *mtd = rsv_info->mtd;
+	struct mtd_info *mtd;
 	struct free_node_t *free_node, *temp_node = NULL;
 	int ret = 0;
 	struct erase_info erase_info;
 
+	if (!rsv_info) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
 
+	mtd = rsv_info->mtd;
 	pr_info("%s %d rsv erasing %s\n",
 			__func__, __LINE__, rsv_info->name);
 
@@ -363,7 +397,7 @@ int meson_rsv_erase(struct meson_rsv_info_t *rsv_info)
 
 int meson_rsv_scan(struct meson_rsv_info_t *rsv_info)
 {
-	struct mtd_info *mtd = rsv_info->mtd;
+	struct mtd_info *mtd;
 	struct mtd_oob_ops oob_ops;
 	struct oobinfo_t oobinfo;
 	struct free_node_t *free_node, *temp_node;
@@ -375,6 +409,13 @@ int meson_rsv_scan(struct meson_rsv_info_t *rsv_info)
 	u8 good_addr[256] = {0};
 	u32 page_num, pages_per_blk;
 
+	if (!rsv_info) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+
+	mtd = rsv_info->mtd;
 RE_RSV_INFO_EXT:
 	start = rsv_info->start;
 	end = rsv_info->end;
@@ -562,6 +603,12 @@ int meson_rsv_check(struct meson_rsv_info_t *rsv_info)
 {
 	int ret = 0;
 
+	if (!rsv_info) {
+		pr_info("%s %d rsv info has not inited yet!\n",
+			__func__, __LINE__);
+		return 1;
+	}
+
 	ret = meson_rsv_scan(rsv_info);
 	if (ret)
 		pr_info("%s %d %s info check failed ret %d\n",
@@ -660,6 +707,7 @@ int meson_rsv_init(struct mtd_info *mtd,
 	memcpy(handler->key->name, KEY_NAND_MAGIC, 4);
 	vernier += NAND_KEY_BLOCK_NUM;
 
+#ifndef DTB_BIND_KERNEL
 	handler->dtb =
 		kzalloc(sizeof(*handler->dtb), GFP_KERNEL);
 	if (!handler->dtb) {
@@ -680,6 +728,7 @@ int meson_rsv_init(struct mtd_info *mtd,
 	handler->dtb->handler = handler;
 	memcpy(handler->dtb->name, DTB_NAND_MAGIC, 4);
 	vernier += NAND_DTB_BLOCK_NUM;
+#endif
 
 	handler->ddr_para =
 		kzalloc(sizeof(*handler->ddr_para), GFP_KERNEL);
@@ -704,16 +753,22 @@ int meson_rsv_init(struct mtd_info *mtd,
 
 	if (mtd->erasesize < 0x40000) {
 		handler->key->size = mtd->erasesize >> 2;
+#ifndef DTB_BIND_KERNEL
 		/* reduce memory usage in sram */
 		handler->dtb->size = mtd->erasesize >> 1;
+#endif
 	} else {
 		if (BOOT_SNAND == medium_type) {
 			/* Reduce space use, malloc may fail */
 			handler->key->size = mtd->erasesize >> 2;
+#ifndef DTB_BIND_KERNEL
 			handler->dtb->size = mtd->erasesize >> 2;
+#endif
 		} else {
 			handler->key->size = 0x40000;
+#ifndef DTB_BIND_KERNEL
 			handler->dtb->size = 0x40000;
+#endif
 		}
 	}
 #if AML_RSV_KEY_SIZE
@@ -737,7 +792,9 @@ int meson_rsv_init(struct mtd_info *mtd,
 	pr_info("env_start=%d, size:0x%x\n", handler->env->start, handler->env->size);
 #endif
 	pr_info("key_start=%d, size:0x%x\n", handler->key->start, handler->key->size);
+#ifndef DTB_BIND_KERNEL
 	pr_info("dtb_start=%d, size:0x%x\n", handler->dtb->start, handler->dtb->size);
+#endif
 	pr_info("ddr_start=%d, size:0x%x\n", handler->ddr_para->start,
 		handler->ddr_para->size);
 
@@ -750,26 +807,28 @@ error9:
 	kfree(handler->ddr_para);
 	handler->ddr_para = NULL;
 error8:
+#ifndef DTB_BIND_KERNEL
 	kfree(handler->dtb->nvalid);
 	handler->dtb->nvalid = NULL;
 error7:
 	kfree(handler->dtb);
 	handler->dtb = NULL;
 error6:
+#endif
 	kfree(handler->key->nvalid);
 	handler->key->nvalid = NULL;
 error5:
 	kfree(handler->key);
 	handler->key = NULL;
-#ifndef CONFIG_ENV_IS_IN_NAND
 error4:
+#ifndef CONFIG_ENV_IS_IN_NAND
 	kfree(handler->env->nvalid);
 	handler->env->nvalid = NULL;
 error3:
 	kfree(handler->env);
 	handler->env = NULL;
-#endif
 error2:
+#endif
 	kfree(handler->bbt->nvalid);
 	handler->bbt->nvalid = NULL;
 error1:
@@ -1264,7 +1323,6 @@ u32 meson_rsv_ddr_para_size(void)
 	return rsv_handler->ddr_para->size;
 }
 
-
 u32 meson_rsv_env_size(void)
 {
 	if (!rsv_handler ||
@@ -1329,7 +1387,6 @@ int meson_rsv_ddr_para_erase(void)
 	}
 	return 0;
 }
-
 
 int meson_rsv_env_erase(void)
 {

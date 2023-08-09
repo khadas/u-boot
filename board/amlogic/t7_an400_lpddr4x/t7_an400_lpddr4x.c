@@ -515,8 +515,10 @@ int checkhw(char * name)
 	cpu_id_t cpu_id;
 
 	char loc_name[64] = {0};
+	char fdtfile_name[64] = {0};
 	phys_size_t ddr_size = get_ddr_memsize();
 
+	fdtfile_name[0] = '\0';
 	cpu_id = get_cpu_id();
 
 	switch (ddr_size) {
@@ -524,14 +526,29 @@ int checkhw(char * name)
 		if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
 			#ifdef CONFIG_HDMITX_ONLY
 			strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
+
+			/* for debian */
+			strncpy(fdtfile_name,
+				"t7_a311d2_an400_drm_hdmitx_only_debian.dtb\0",
+				sizeof(fdtfile_name));
 			#else
 			strcpy(loc_name, "t7_a311d2_an400\0");
+			/* for debian */
+			strncpy(fdtfile_name,
+					"t7_a311d2_an400_debian.dtb\0",
+					sizeof(fdtfile_name));
 			#endif
 		} else if (cpu_id.chip_rev == 0xC) {
 			#ifdef CONFIG_HDMITX_ONLY
 			strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only-4g\0");
+			strncpy(fdtfile_name,
+				"t7c_a311d2_an400_linux_drm_hdmitx_only_debian.dtb\0",
+				sizeof(fdtfile_name));
 			#else
 			strcpy(loc_name, "t7c_a311d2_an400-4g\0");
+			strncpy(fdtfile_name,
+					"t7c_a311d2_an400_debian.dtb\0",
+					sizeof(fdtfile_name));
 			#endif
 		}
 		break;
@@ -554,12 +571,18 @@ int checkhw(char * name)
 		}
 		break;
 	}
+
 	printf("init aml_dt to %s\n", loc_name);
 	strcpy(name, loc_name);
 	env_set("aml_dt", loc_name);
+	if (fdtfile_name[0] != '\0')
+		env_set("fdtfile", fdtfile_name);
+	else
+		strcpy(name, env_get("aml_dt"));
 #else
 	env_set("aml_dt", "t7_a311d2_an400\0");
 #endif
+
 	return 0;
 }
 

@@ -397,7 +397,15 @@
 #endif /* CONFIG_AML_SECURE_UBOOT */
 
 #define CONFIG_FIP_IMG_SUPPORT  1
-//#define CONFIG_MDUMP_COMPRESS 1
+
+/* V1.0: CONFIG_MDUMP_COMPRESS
+ * V1.2: CONFIG_FULL_RAMDUMP + CONFIG_SUPPORT_BL33Z
+ * Be careful not to open multiple versions of CONFIGS at the same time.
+ */
+//#define CONFIG_FULL_RAMDUMP
+#define CONFIG_MDUMP_COMPRESS   1
+#define CONFIG_COMPRESSED_ADDR  (0x10000000)
+#define CONFIG_FAT_WRITE        1
 
 #define BL32_SHARE_MEM_SIZE  0x100000
 

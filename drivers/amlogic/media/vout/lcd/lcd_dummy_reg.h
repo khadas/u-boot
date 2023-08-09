@@ -259,8 +259,17 @@
 #ifndef HHI_TCON_PLL_CNTL3
 #define HHI_TCON_PLL_CNTL3			(0xff63c000 + (0x023 << 2))
 #endif
+#ifndef HHI_TCON_PLL_STS
+#define HHI_TCON_PLL_STS            (0xff63c000 + (0x024 << 2))
+#endif
 #ifndef HHI_TCON_PLL_CNTL4
 #define HHI_TCON_PLL_CNTL4			(0xff63c000 + (0x0df << 2))
+#endif
+#ifndef HHI_TCON_PLL_CNTL5
+#define HHI_TCON_PLL_CNTL5          (0xff63c000 + (0x0e0 << 2))
+#endif
+#ifndef HHI_TCON_PLL_CNTL6
+#define HHI_TCON_PLL_CNTL6          (0xff63c000 + (0x0e1 << 2))
 #endif
 
 #ifndef HHI_DIF_TCON_CNTL0

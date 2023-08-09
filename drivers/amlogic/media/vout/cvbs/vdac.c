@@ -86,8 +86,8 @@ static int vdac_ctrl_config(bool on, unsigned int reg, unsigned int bit)
 static void vdac_enable_dac_input(unsigned int reg_cntl0)
 {
 	vdac_set_reg_bits(reg_cntl0, 0x2, 0, 3);
-	vdac_set_reg_bits(reg_cntl0, 0x1, 4, 1);
-	vdac_set_reg_bits(reg_cntl0, 0x1, 6, 1);
+	vdac_set_reg_bits(reg_cntl0, 0x0, 4, 1);
+	vdac_set_reg_bits(reg_cntl0, 0x0, 6, 1);
 	vdac_set_reg_bits(reg_cntl0, 0x3, 13, 3);
 	vdac_set_reg_bits(reg_cntl0, 0x10, 18, 5);
 }
@@ -114,6 +114,7 @@ static void vdac_enable_cvbs_out(bool on)
 			vdac_ctrl_config(1, reg_cntl1, 3);
 			vdac_ctrl_config(1, reg_cntl0, 0);
 			vdac_ctrl_config(1, reg_cntl0, 9);
+			vdac_ctrl_config(1, reg_cntl0, 24);
 		}
 	} else {
 		if (vdac_data->cpu_id >= VDAC_CPU_S4) {
@@ -243,7 +244,7 @@ static void vdac_gsw_init(void)
 
 static struct meson_vdac_ctrl_s vdac_ctrl_enable_g12ab[] = {
 	{HHI_VDAC_CNTL0, 0, 9, 1},
-	{HHI_VDAC_CNTL0, 1, 0, 1},
+	{HHI_VDAC_CNTL0, 2, 0, 3},
 	{HHI_VDAC_CNTL0, 0, 16, 5}, /* vref adj */
 	{HHI_VDAC_CNTL1, 0, 0, 3},  /*gsw */
 	{HHI_VDAC_CNTL1, 0, 3, 1},
@@ -252,8 +253,9 @@ static struct meson_vdac_ctrl_s vdac_ctrl_enable_g12ab[] = {
 
 static struct meson_vdac_ctrl_s vdac_ctrl_enable_sc2[] = {
 	{ANACTRL_VDAC_CTRL0, 0, 9, 1},
-	{ANACTRL_VDAC_CTRL0, 1, 0, 1},
+	{ANACTRL_VDAC_CTRL0, 2, 0, 3},
 	{ANACTRL_VDAC_CTRL0, 0, 16, 5}, /* vref adj */
+	{ANACTRL_VDAC_CTRL0, 1, 24, 1}, /* clk phase sel */
 	{ANACTRL_VDAC_CTRL1, 0, 0, 3},  /*gsw */
 	{ANACTRL_VDAC_CTRL1, 0, 3, 1},
 	{ANACTRL_VDAC_CTRL1, 0, 7, 1}, /* bandgap */
@@ -262,7 +264,7 @@ static struct meson_vdac_ctrl_s vdac_ctrl_enable_sc2[] = {
 
 static struct meson_vdac_ctrl_s vdac_ctrl_enable_s4[] = {
 	{ANACTRL_VDAC_CTRL0, 0, 9, 1},
-	{ANACTRL_VDAC_CTRL0, 1, 0, 1},
+	{ANACTRL_VDAC_CTRL0, 2, 0, 3},
 	{ANACTRL_VDAC_CTRL1, 0, 0, 7},  /*gsw */
 	{ANACTRL_VDAC_CTRL1, 1, 7, 1}, /* cdac_pwd */
 	{VDAC_REG_MAX, 0, 0, 0},

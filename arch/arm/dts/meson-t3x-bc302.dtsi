@@ -160,7 +160,8 @@
 
 	bus-width = <8>;
 	cap-mmc-highspeed;
-//	mmc-hs200-1_8v;
+	mmc-hs200-1_8v;
+	mmc-hs200-1_2v;
 	max-frequency = <200000000>;
 	non-removable;
 	disable-wp;
@@ -247,7 +248,7 @@
 };
 
 &spicc1 {	//for UWB/LocalDimm
-	status = "disabled";
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spicc1_pins_h>;
 };

@@ -33,6 +33,7 @@
     #include "dpi.h"
 #endif
 #endif
+#define REG_BASE_VCBUS                  (0xFE340000L)
 //
 // Reading file:  ./REG_LIST_RTL.h
 //

@@ -22,16 +22,78 @@
 
 #define REG_VPP_ADDR(reg)               (reg + 0L)
 
+#ifndef VIU_EOTF_CTL
 #ifdef VPP_EOTF_CTL
 #define VIU_EOTF_CTL VPP_EOTF_CTL
 #endif
+#endif
 
+#ifndef VIU_EOTF_LUT_ADDR_PORT
 #ifdef VPP_EOTF_LUT_ADDR_PORT
 #define VIU_EOTF_LUT_ADDR_PORT VPP_EOTF_LUT_ADDR_PORT
 #endif
+#endif
 
+#ifndef VIU_EOTF_LUT_DATA_PORT
 #ifdef VPP_EOTF_LUT_DATA_PORT
 #define VIU_EOTF_LUT_DATA_PORT VPP_EOTF_LUT_DATA_PORT
+#endif
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF00_01
+#define VPP_OSD1_MATRIX_COEF00_01           0x3910
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF02_10
+#define VPP_OSD1_MATRIX_COEF02_10           0x3911
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF11_12
+#define VPP_OSD1_MATRIX_COEF11_12           0x3912
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF20_21
+#define VPP_OSD1_MATRIX_COEF20_21           0x3913
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF22
+#define VPP_OSD1_MATRIX_COEF22              0x3914
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF13_14
+#define VPP_OSD1_MATRIX_COEF13_14           0x3915
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF23_24
+#define VPP_OSD1_MATRIX_COEF23_24           0x3916
+#endif
+
+#ifndef VPP_OSD1_MATRIX_COEF15_25
+#define VPP_OSD1_MATRIX_COEF15_25           0x3917
+#endif
+
+#ifndef VPP_OSD1_MATRIX_CLIP
+#define VPP_OSD1_MATRIX_CLIP                0x3918
+#endif
+
+#ifndef VPP_OSD1_MATRIX_OFFSET0_1
+#define VPP_OSD1_MATRIX_OFFSET0_1           0x3919
+#endif
+
+#ifndef VPP_OSD1_MATRIX_OFFSET2
+#define VPP_OSD1_MATRIX_OFFSET2             0x391a
+#endif
+
+#ifndef VPP_OSD1_MATRIX_PRE_OFFSET0_1
+#define VPP_OSD1_MATRIX_PRE_OFFSET0_1       0x391b
+#endif
+
+#ifndef VPP_OSD1_MATRIX_PRE_OFFSET2
+#define VPP_OSD1_MATRIX_PRE_OFFSET2         0x391c
+#endif
+
+#ifndef VPP_OSD1_MATRIX_EN_CTRL
+#define VPP_OSD1_MATRIX_EN_CTRL             0x391d
 #endif
 
 /* ********************************

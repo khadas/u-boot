@@ -9,7 +9,7 @@ acs_entry:
 	.word	__store_para
 	.word	__ddr_setting
 	.word	__bl2_ddr_reg_data
-	.word	__ddr_parameter_reg_index
+	//.word	__ddr_parameter_reg_index
 	.rept	10
 	.word	0x0
 	.endr

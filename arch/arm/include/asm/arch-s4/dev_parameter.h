@@ -32,7 +32,7 @@ typedef struct common_storage_parameter {
     uint32_t version;
     /* fip sector counts */
     uint32_t device_fip_container_size;
-    /* fip copies */
+    /* fip copies bit 0-15 fip copies , bit 16-31 bl2ex copies*/
     uint32_t device_fip_container_copies;
     /*ddrfip size*/
     uint32_t ddr_fip_container_size;

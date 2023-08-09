@@ -107,4 +107,10 @@ config CLK_MESON_T3X
         depends on CLK
         help
           This option is used to enable the meson t3x clock
+
+config CLK_MESON_TXHD2
+        bool "Support TXHD2 Clock"
+        depends on CLK
+        help
+          This option is used to enable the meson txhd2 clock
           driver

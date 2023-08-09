@@ -124,11 +124,14 @@ static int _bootloader_write(u8* dataBuf, unsigned off, unsigned binSz, const ch
 
 		if (chip_type < LAST_NOCS_TYPE) {
 			flash_boot = (unsigned char *)(V3_DOWNLOAD_VERIFY_INFO + 512);
-			const int boot_cpy = store_bootup_bootidx("bootloader");
+			int boot_cpy = 1;
+			const int usb_boot =
+				(v3tool_work_mode_get() == V3TOOL_WORK_MODE_USB_PRODUCE);
 			nocs_boot_replace nocs_normal_areas;
 			int i = 0;
 			int ret = 0;
 
+			boot_cpy = usb_boot ? 1 : store_bootup_bootidx("bootloader");
 			FB_MSG("NOCS chip %d with SCS, cur cpy %d\n", chip_type, boot_cpy);
 			ret = store_boot_read(bootName, boot_cpy, 0, flash_boot);
 			if (ret) {
@@ -601,6 +604,12 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 		if (ret)
 			FB_WRN("Failed at check dts\n");
 	} else if (gptImgSz) {
+		if (dtbImgSz > 0) {
+			FB_MSG("to check dtb\n");
+			ret = check_valid_dts(dtbLoadedAddr);
+			if (ret < 0)
+				FBS_EXIT(_ACK, "Fail at check dtb\n");
+		}
 		if (get_partition_from_dts(gptLoadedAddr))
 			FBS_EXIT(_ACK, "Fail at check gpt\n");
 		else
@@ -686,7 +695,12 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 			FB_MSG("remain bootloader as nocs scs chip\n");
 			ret = usb_burn_erase_data(1);
 		} else {
-			ret = store_erase(NULL, 0, 0, 0);
+			if (v3tool_work_mode_get() == V3TOOL_WORK_MODE_USB_PRODUCE) {
+				ret = store_erase(NULL, 0, 0, 0);
+			} else {
+				FB_MSG("remain bootloader as not usb boot\n");
+				ret = usb_burn_erase_data(1);
+			}
 		}
 		if (ret)
 			FBS_EXIT(_ACK, "Fail in erase flash, ret[%d]\n", ret);

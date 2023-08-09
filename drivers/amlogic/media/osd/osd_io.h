@@ -174,6 +174,42 @@
 #define VPP2_BLEND_DUMMY_ALPHA                     0x59ea
 #endif
 
+#ifndef VPP2_BLD_DIN1_HSCOPE
+#define VPP2_BLD_DIN1_HSCOPE                       0x59c9
+#endif
+
+#ifndef VPP2_BLD_DIN1_VSCOPE
+#define VPP2_BLD_DIN1_VSCOPE                       0x59ca
+#endif
+
+#ifndef VPP2_BLD_OUT_SIZE
+#define VPP2_BLD_OUT_SIZE                          0x59c6
+#endif
+
+#ifndef VPP1_OSD3_BLD_H_SCOPE
+#define VPP1_OSD3_BLD_H_SCOPE                      0x1d1c
+#endif
+
+#ifndef VPP1_OSD3_BLD_V_SCOPE
+#define VPP1_OSD3_BLD_V_SCOPE                      0x1d1d
+#endif
+
+#ifndef VPP1_BLEND_H_V_SIZE
+#define VPP1_BLEND_H_V_SIZE                        0x1d1a
+#endif
+
+#ifndef VPP1_BLEND_H_V_SIZE
+#define VIU_OSD3_MISC                              0x1a17
+#endif
+
+#ifndef VPP1_BLEND_H_V_SIZE
+#define OSD_PROC_1MUX3_SEL                         0x6072
+#endif
+
+#ifndef VPP1_BLEND_H_V_SIZE
+#define OSD_SYS_5MUX4_SEL                          0x6078
+#endif
+
 #ifndef VIU_OSD3_FIFO_CTRL_STAT
 #define VIU_OSD3_FIFO_CTRL_STAT                    0x3d9c
 #endif

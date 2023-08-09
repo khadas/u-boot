@@ -8,7 +8,7 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define CPU_CLK                                 1704
+#define CPU_CLK                                 1920
 #define DSU_CLK                                 1200  /* c3 does not have dsu */
 
 /* board vmin_value defines */

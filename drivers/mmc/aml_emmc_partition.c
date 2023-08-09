@@ -20,7 +20,6 @@
 #include <partition_table.h>
 #include <linux/compat.h>
 
-
 DECLARE_GLOBAL_DATA_PTR;
 /* using mbr*/
 #if (CONFIG_PTBL_MBR)

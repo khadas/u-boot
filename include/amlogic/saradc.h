@@ -66,7 +66,7 @@ struct meson_saradc_diff_ops {
  * @reg3_ring_counter_disable: to disable continuous ring counter.
  * gxl and later: 1; others(gxtvbb etc): 0
  * @reg11_vref_en: g12a and later: 0; others(axg etc): 1
- * @reg11_cmv_sel: g12a and later: 0; others(axg etc): 1
+ * @reg11_vcm_sel: g12a and later: 0; others(axg etc): 1
  * @reg11_eoc:     g12a and later: 1; others(axg etc): 0
  * @has_bl30_integration:
  * @update_vref_conf: only for C2 & A5; C2: 0; A5: 1
@@ -77,9 +77,11 @@ struct meson_saradc_diff_ops {
  */
 struct meson_saradc_data {
 	bool reg3_ring_counter_disable;
+	unsigned int reg11_bandgap_en_mask;
 	bool reg11_vref_en;
-	bool reg11_cmv_sel;
+	bool reg11_vcm_sel;
 	bool reg11_eoc;
+	unsigned int reg13_calib_factor_mask;
 	bool has_bl30_integration;
 	bool update_vref_conf;
 	unsigned char self_test_channel;

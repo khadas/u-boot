@@ -6,14 +6,15 @@
 #ifndef __MESON_RSV_H_
 #define __MESON_RSV_H_
 
-#define NAND_RSV_BLOCK_NUM 48
-
-#define NAND_GAP_BLOCK_NUM 4
-#define NAND_BBT_BLOCK_NUM 4
-#define NAND_ENV_BLOCK_NUM 8
-#define NAND_KEY_BLOCK_NUM 8
-#define NAND_DTB_BLOCK_NUM 4
-#define NAND_DDR_BLOCK_NUM 2
+#ifndef BOARD_NAND_RSV_CONFIG
+#define NAND_RSV_BLOCK_NUM	48
+#define NAND_GAP_BLOCK_NUM	4
+#define NAND_BBT_BLOCK_NUM	4
+#define NAND_ENV_BLOCK_NUM	4
+#define NAND_KEY_BLOCK_NUM	4
+#define NAND_DTB_BLOCK_NUM	4
+#define NAND_DDR_BLOCK_NUM	2
+#endif
 
 #define BBT_NAND_MAGIC	"nbbt"
 #define ENV_NAND_MAGIC	"nenv"
@@ -68,9 +69,7 @@ struct meson_rsv_handler_t {
 	unsigned long long fn_bitmask;
 	struct free_node_t *free_node[NAND_RSV_BLOCK_NUM];
 	struct meson_rsv_info_t *bbt;
-#ifndef CONFIG_ENV_IS_IN_NAND
 	struct meson_rsv_info_t *env;
-#endif
 	struct meson_rsv_info_t *key;
 	struct meson_rsv_info_t *dtb;
 	struct meson_rsv_info_t *ddr_para;

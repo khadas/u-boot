@@ -19,6 +19,9 @@ static void lcd_venc_wait_vsync(struct aml_lcd_drv_s *pdrv)
 	int line_cnt, line_cnt_previous;
 	int i = 0;
 
+#ifdef CONFIG_AML_LCD_PXP
+	return;
+#endif
 	line_cnt = 0x1fff;
 	line_cnt_previous = lcd_vcbus_getb(ENCL_INFO_READ, 16, 13);
 	while (i++ < LCD_WAIT_VSYNC_TIMEOUT) {
@@ -104,17 +107,22 @@ static void lcd_venc_set_tcon(struct aml_lcd_drv_s *pdrv)
 	lcd_vcbus_write(L_RGB_BASE_ADDR, 0x0);
 	lcd_vcbus_write(L_RGB_COEFF_ADDR, 0x400);
 
-	switch (pconf->basic.lcd_bits) {
-	case 6:
-		lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x600);
-		break;
-	case 8:
-		lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x400);
-		break;
-	case 10:
-	default:
+	if (pconf->basic.lcd_type != LCD_P2P &&
+		pconf->basic.lcd_type != LCD_MLVDS) {
+		switch (pconf->basic.lcd_bits) {
+		case 6:
+			lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x600);
+			break;
+		case 8:
+			lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x400);
+			break;
+		case 10:
+		default:
+			lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x0);
+			break;
+		}
+	} else {
 		lcd_vcbus_write(L_DITH_CNTL_ADDR,  0x0);
-		break;
 	}
 
 	switch (pconf->basic.lcd_type) {

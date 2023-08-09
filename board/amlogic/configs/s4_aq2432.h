@@ -13,7 +13,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  799	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
@@ -385,7 +385,10 @@
 #define CONFIG_CMD_SHA2
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 
 #define CONFIG_MULTI_DTB    1
 

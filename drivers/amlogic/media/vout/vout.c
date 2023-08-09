@@ -227,6 +227,7 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.mode              = VMODE_640x480p60hz,
 		.width             = 640,
 		.height            = 480,
+		.field_height      = 480,
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
@@ -715,6 +716,11 @@ static int get_window_axis(int *axis)
 		axis[1] = getenv_int("480p_y", def_y);
 		axis[2] = getenv_int("480p_w", def_w);
 		axis[3] = getenv_int("480p_h", def_h);
+	} else if (strncmp(mode, "640x480p60hz", 12) == 0) {
+		axis[0] = getenv_int("640x480p60hz_x", def_x);
+		axis[1] = getenv_int("640x480p60hz_y", def_y);
+		axis[2] = getenv_int("640x480p60hz_w", def_w);
+		axis[3] = getenv_int("640x480p60hz_h", def_h);
 	} else if (strncmp(mode, "576i", 4) == 0) {
 		axis[0] = getenv_int("576i_x", def_x);
 		axis[1] = getenv_int("576i_y", def_y);
@@ -751,10 +757,10 @@ static int get_window_axis(int *axis)
 		axis[2] = getenv_int("1080p_w", def_w);
 		axis[3] = getenv_int("1080p_h", def_h);
 	} else if (strncmp(mode, "1920x1080p", 10) == 0) {
-		axis[0] = getenv_int("1920x1080p_x", def_x);
-		axis[1] = getenv_int("1920x1080p_y", def_y);
-		axis[2] = getenv_int("1920x1080p_w", def_w);
-		axis[3] = getenv_int("1920x1080p_h", def_h);
+		axis[0] = getenv_int("1080p_x", def_x);
+		axis[1] = getenv_int("1080p_y", def_y);
+		axis[2] = getenv_int("1080p_w", def_w);
+		axis[3] = getenv_int("1080p_h", def_h);
 	} else if (strncmp(mode, "2160p", 5) == 0) {
 		axis[0] = getenv_int("2160p_x", def_x);
 		axis[1] = getenv_int("2160p_y", def_y);
@@ -771,15 +777,15 @@ static int get_window_axis(int *axis)
 		axis[2] = getenv_int("3840x1080p_w", def_w);
 		axis[3] = getenv_int("3840x1080p_h", def_h);
 	} else if (strncmp(mode, "3840x2160p", 10) == 0) {
-		axis[0] = getenv_int("3840x2160p_x", def_x);
-		axis[1] = getenv_int("3840x2160p_y", def_y);
-		axis[2] = getenv_int("3840x2160p_w", def_w);
-		axis[3] = getenv_int("3840x2160p_h", def_h);
+		axis[0] = getenv_int("2160p_x", def_x);
+		axis[1] = getenv_int("2160p_y", def_y);
+		axis[2] = getenv_int("2160p_w", def_w);
+		axis[3] = getenv_int("2160p_h", def_h);
 	} else if (strncmp(mode, "7680x4320p", 10) == 0) {
-		axis[0] = getenv_int("7680x4320p_x", def_x);
-		axis[1] = getenv_int("7680x4320p_y", def_y);
-		axis[2] = getenv_int("7680x4320p_w", def_w);
-		axis[3] = getenv_int("7680x4320p_h", def_h);
+		axis[0] = getenv_int("4320p_x", def_x);
+		axis[1] = getenv_int("4320p_y", def_y);
+		axis[2] = getenv_int("4320p_w", def_w);
+		axis[3] = getenv_int("4320p_h", def_h);
 	} else if (strncmp(mode, "panel",5) == 0) {
 		axis[0] = getenv_int("panel_x", def_x);
 		axis[1] = getenv_int("panel_y", def_y);
@@ -871,6 +877,12 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 	unsigned int clk_bit = 0xff, clk_sel = 0;
 	unsigned int vout_viu_sel = 0xf;
 	unsigned int venc_sel = mux_sel;
+	char *projector_mux = env_get("vout_projector_mux");
+	int vout_projector_mux = 0;
+
+	if (strncmp(projector_mux, "en", 2) == 0) {
+		vout_projector_mux = 1;
+	}
 
 	switch (index) {
 	case VOUT_VIU2_SEL:
@@ -917,6 +929,12 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 	if (vout_conf->viu_valid[1]) {
 		if (clk_bit < 0xff)
 			vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+	}
+
+	if (vout_projector_mux && get_cpu_id().family_id ==
+		MESON_CPU_MAJOR_ID_TXHD2) {
+		vout_reg_setb(VPP_MISC_TXHD2, 1, 27, 1);
+		vout_log("TXHD2: %s: vout_projector_mux %d\n", __func__, vout_projector_mux);
 	}
 }
 
@@ -1078,6 +1096,7 @@ void vout_probe(void)
 	case MESON_CPU_MAJOR_ID_SM1:
 	case MESON_CPU_MAJOR_ID_T5:
 	case MESON_CPU_MAJOR_ID_T5D:
+	case MESON_CPU_MAJOR_ID_TXHD2:
 		vout_conf = &vout_config_dual;
 		break;
 	case MESON_CPU_MAJOR_ID_T7:

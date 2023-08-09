@@ -13,7 +13,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  799	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
@@ -24,6 +24,12 @@
 /* Serial config */
 #define CONFIG_CONS_INDEX 2
 #define CONFIG_BAUDRATE  115200
+
+/* AVB */
+#define CONFIG_AML_AVB2_ANTIROLLBACK 1
+#define CONFIG_AVB_VERIFY 1
+#define CONFIG_SUPPORT_EMMC_RPMB 1
+#define CONFIG_AML_DEV_ID 1
 
 /*if disable uboot console, enable it*/
 //#define CONFIG_SILENT_CONSOLE
@@ -93,6 +99,7 @@
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
         "board=oppen\0"\
+	"upgrade_key_flag=2\0"\
         "initargs="\
 		"init=/init " CONFIG_KNL_LOG_LEVEL "console=ttyS0,115200 "\
 		"no_console_suspend earlycon=aml-uart,0xfe07a000 "\
@@ -163,17 +170,9 @@
 			"run cmdline_keys_base;"\
             "\0"\
         "upgrade_key="\
-		"if gpio input GPIOD_2; then "\
-			"echo detect upgrade key;"\
-			"if test ${boot_flag} = 0; then "\
-				"echo enter fastboot; setenv boot_flag 1; saveenv; fastboot 0;"\
-			"else if test ${boot_flag} = 1; then "\
-				"echo enter update; setenv boot_flag 2; saveenv; run update;"\
-			"else "\
-				"echo enter recovery; setenv boot_flag 0; saveenv; run recovery_from_flash;"\
-			"fi;fi;"\
-		"fi;"\
-		"\0"\
+			"run upgrade_key_base;"\
+			"echo usr key;"\
+			"\0"\
 
 #ifndef CONFIG_PXP_DDR
 #define CONFIG_PREBOOT  \
@@ -368,7 +367,10 @@
 #define CONFIG_CMD_SHA2
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 
 /* #define CONFIG_MULTI_DTB    1 */
 

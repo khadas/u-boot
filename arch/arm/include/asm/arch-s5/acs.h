@@ -49,6 +49,10 @@ typedef struct dev_param_hdr {
 	char				ddr_set_magic[6];
 	unsigned short		ddr_set_length;
 
+	char				ddr_2acs_magic[6];
+	unsigned short		ddr_2acs_length;
+	unsigned int		*ddr_2acs_data_p;
+
 	unsigned int		RFU[4];
 } __attribute__ ((packed)) dev_param_hdr_t;
 

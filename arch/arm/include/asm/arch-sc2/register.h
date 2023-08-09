@@ -7355,7 +7355,32 @@
 // synopsys translate_on
 //
 // Closing file:  REG_LIST_DSP_RTL.h
-//
+//========================================================================
+// RNG REG - Registers
+//========================================================================
+// -----------------------------------------------
+// REG_BASE:  REGISTER_BASE_ADDR = 0xfe440700
+// -----------------------------------------------
+#define RNG_TEE_READY                              ((0x0000  << 2) + 0xfe440700)
+#define RNG_TEE_LOCK                               ((0x0001  << 2) + 0xfe440700)
+#define RNG_TEE_CFG                                ((0x0002  << 2) + 0xfe440700)
+#define RNG_TEE_NIST_OUT                           ((0x0003  << 2) + 0xfe440700)
+#define RNG_TEE_OUT0                               ((0x0004  << 2) + 0xfe440700)
+#define RNG_TEE_OUT1                               ((0x0005  << 2) + 0xfe440700)
+#define RNG_TEE_OUT2                               ((0x0006  << 2) + 0xfe440700)
+#define RNG_TEE_OUT3                               ((0x0007  << 2) + 0xfe440700)
+#define RNG_CFG_RING                               ((0x0010  << 2) + 0xfe440700)
+#define RNG_CFG_RESEED                             ((0x0011  << 2) + 0xfe440700)
+#define RNG_CFG_HEALTH                             ((0x0012  << 2) + 0xfe440700)
+#define RNG_CFG_MISC                               ((0x0013  << 2) + 0xfe440700)
+#define RNG_REE_READY                              ((0x0020  << 2) + 0xfe440700)
+#define RNG_REE_DEBUG                              ((0x0021  << 2) + 0xfe440700)
+#define RNG_REE_CFG                                ((0x0022  << 2) + 0xfe440700)
+#define RNG_REE_OUT0                               ((0x0024  << 2) + 0xfe440700)
+#define RNG_REE_OUT1                               ((0x0025  << 2) + 0xfe440700)
+#define RNG_REE_OUT2                               ((0x0026  << 2) + 0xfe440700)
+#define RNG_REE_OUT3                               ((0x0027  << 2) + 0xfe440700)
+//========================================================================
 //
 // Reading file:  REG_LIST_DEMUX_RTL.h
 //

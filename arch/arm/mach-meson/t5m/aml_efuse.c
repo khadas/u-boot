@@ -51,6 +51,8 @@
 #define OTP_BIT_CHECK(feat) (OTP_BIT_LOAD((feat)) ? 1 : 0)
 
 /* OTP_LIC block#3 ...*/
+#define FEAT_DISABLE_DTS_AUDIO                   (80)
+#define FEAT_DISABLE_DB_AUDIO                    (81)
 #define FEAT_DISABLE_NBL2_SNOR                   (384+44)
 #define FEAT_DISABLE_NBL2_SNAND                  (384+45)
 #define FEAT_ENABLE_4BL2_SNOR                    (384+46)
@@ -115,4 +117,14 @@ int IS_FEAT_DIS_8BL2_NAND(void)
 int IS_FEAT_DIS_NBL2_NAND(void)
 {
 	return OTP_BIT_CHECK(FEAT_DISABLE_NBL2_NAND);
+}
+
+int IS_FEAT_DB_AUDIO_ENABLE(void)
+{
+	return !OTP_BIT_CHECK(FEAT_DISABLE_DB_AUDIO);
+}
+
+int IS_FEAT_DTS_ENABLE(void)
+{
+	return !OTP_BIT_CHECK(FEAT_DISABLE_DTS_AUDIO);
 }

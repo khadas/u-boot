@@ -13,7 +13,7 @@
  * platform power init config
  */
 
-#define AML_VCCK_INIT_VOLTAGE	  799	    //VCCK power up voltage
+#define AML_VCCK_INIT_VOLTAGE	  1009	    //VCCK power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    800       // VDDEE power up voltage
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
@@ -202,7 +202,7 @@
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
-#define CONFIG_ENV_SIZE   (64*1024)
+#define CONFIG_ENV_SIZE   (64 * 1024)
 #define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
 #define CONFIG_ANDROID_BOOT_IMAGE 1
@@ -219,7 +219,7 @@
 #define CONFIG_SYS_MALLOC_LEN				(256*1024)
 #else
 #define CONFIG_SYS_INIT_SP_ADDR				(0x00200000)
-#define CONFIG_SYS_MALLOC_LEN				(96*1024*1024)
+#define CONFIG_SYS_MALLOC_LEN				(8 * 1024 * 1024)
 #endif
 
 //#define CONFIG_NR_DRAM_BANKS			1
@@ -267,6 +267,25 @@
 
 #if defined(CONFIG_SPI_NAND) && defined(CONFIG_MTD_SPI_NAND) && defined(CONFIG_MESON_NFC)
 #error CONFIG_SPI_NAND/CONFIG_MTD_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
+#endif
+
+#define CONFIG_ENV_OFFSET (0)
+
+/* mtd advance mode layout board config */
+#define BOARD_DEVFIP_SIZE		0x280000
+#define BOARD_DDRFIP_SIZE		0
+#define BOARD_BL2EX_BACKUPS		2
+#define BOARD_DEVFIP_BACKUPS		2
+#define BOARD_NAND_RSV_CONFIG
+
+#ifdef BOARD_NAND_RSV_CONFIG
+#define	NAND_RSV_BLOCK_NUM	14
+#define	NAND_GAP_BLOCK_NUM	4
+#define	NAND_BBT_BLOCK_NUM	4
+#define	NAND_ENV_BLOCK_NUM	0
+#define	NAND_KEY_BLOCK_NUM	4
+#define	NAND_DTB_BLOCK_NUM	0
+#define	NAND_DDR_BLOCK_NUM	2
 #endif
 
 /* #define		CONFIG_AML_SD_EMMC 1 */
@@ -384,9 +403,14 @@
 #define CONFIG_CMD_SHA2
 
 //use hardware sha2
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 
 #define CONFIG_MULTI_DTB    1
+
+#define DTB_BIND_KERNEL	    1
 
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1
@@ -413,6 +437,7 @@
 
 /* config ramdump to debug kernel panic */
 #define CONFIG_FULL_RAMDUMP
+
 
 #endif
 

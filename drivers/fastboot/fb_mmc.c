@@ -399,7 +399,9 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 			      u32 download_bytes, char *response)
 {
 	struct blk_desc *dev_desc;
+#ifndef DTB_BIND_KERNEL
 	int ret = 0;
+#endif
 	disk_partition_t info;
 	struct mmc *mmc = find_mmc_device(CONFIG_FASTBOOT_FLASH_MMC_DEV);
 
