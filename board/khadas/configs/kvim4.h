@@ -211,7 +211,7 @@
         "initargs="\
             "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
-			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0xfe02e030 "\
+			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0xfe02e030 gamma=0 "\
             "khadas_board=VIM4 boot_source=${boot_source} "\
             "\0"\
         "upgrade_check="\
