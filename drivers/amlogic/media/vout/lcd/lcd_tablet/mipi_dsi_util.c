@@ -135,7 +135,8 @@ static void mipi_dsi_dphy_print_info(struct lcd_config_s *pconf)
 {
 	unsigned int temp;
 
-	temp = ((1000000 * 100) / (pconf->timing.bit_rate / 1000)) * 8;
+	temp = lcd_do_div(pconf->timing.bit_rate, 1000);
+	temp = ((1000000 * 100) / temp) * 8;
 	printf("MIPI DSI DPHY timing (unit: ns)\n"
 		"  UI:                %d.%02d\n"
 		"  LP TESC:           %d\n"
@@ -196,7 +197,7 @@ static void mipi_dsi_host_print_info(struct lcd_config_s *pconf)
 	struct dsi_config_s *dconf;
 
 	dconf = &pconf->control.mipi_cfg;
-	esc_clk = pconf->timing.bit_rate / 8 / dsi_phy_config.lp_tesc;
+	esc_clk = lcd_do_div(pconf->timing.bit_rate, (8 * dsi_phy_config.lp_tesc));
 	factor = dconf->factor_numerator;
 	factor = ((factor * 1000 / dconf->factor_denominator) + 5) / 10;
 
@@ -211,8 +212,8 @@ static void mipi_dsi_host_print_info(struct lcd_config_s *pconf)
 	printf("MIPI DSI Config:\n"
 		"  lane num:              %d\n"
 		"  bit rate max:          %dMHz\n"
-		"  bit rate range:        (%d~%d)kHz\n"
-		"  bit rate:              %d.%03dMHz\n"
+		"  bit rate range:        (%lld~%lld)Hz\n"
+		"  bit rate:              %lldHz\n"
 		"  pclk lanebyte factor:  %d(/100)\n"
 		"  operation mode:\n"
 		"      init:              %s(%d)\n"
@@ -224,8 +225,7 @@ static void mipi_dsi_host_print_info(struct lcd_config_s *pconf)
 		"  lp escape clock:       %d.%03dMHz\n",
 		dconf->lane_num, dconf->bit_rate_max,
 		dconf->local_bit_rate_max, dconf->local_bit_rate_min,
-		(pconf->timing.bit_rate / 1000000),
-		(pconf->timing.bit_rate % 1000000) / 1000,
+		pconf->timing.bit_rate,
 		factor,
 		operation_mode_table[dconf->operation_mode_init],
 		dconf->operation_mode_init,
@@ -532,16 +532,15 @@ static void dsi_phy_init(struct aml_lcd_drv_s *pdrv, struct dsi_phy_s *dphy,
 		       (dphy->clk_prepare << 24)));
 	dsi_phy_write(index, MIPI_DSI_CLK_TIM1, dphy->clk_pre); /* ?? */
 	/* 0x050f090d */
-	if ((pdrv->config.timing.bit_rate / 1000000) > 500) { /*MAX than 500MHZ*/
+	if (pdrv->config.timing.bit_rate > 500000000) { /*MAX than 500MHZ*/
 		dsi_phy_write(index, MIPI_DSI_HS_TIM,
 			      (dphy->hs_exit |
 			       (dphy->hs_trail << 8) |
 			       (dphy->hs_zero << 16) |
 			       (dphy->hs_prepare << 24)));
 	} else {
-		LCDPR("[%d]: %s: bit_rate: %dMhz\n",
-		      pdrv->index, __func__,
-		      (pdrv->config.timing.bit_rate / 1000000));
+		LCDPR("[%d]: %s: bit_rate: %lldhz\n",
+		      pdrv->index, __func__, pdrv->config.timing.bit_rate);
 		dsi_phy_write(index, MIPI_DSI_HS_TIM,
 			      (dphy->hs_exit |
 			       ((dphy->hs_trail / 2) << 8) |
@@ -1582,7 +1581,7 @@ int dsi_write_cmd(struct aml_lcd_drv_s *pdrv, unsigned char *payload)
 	return step;
 }
 
-static void mipi_dsi_phy_config(struct dsi_phy_s *dphy, unsigned int dsi_ui)
+static void mipi_dsi_phy_config(struct dsi_phy_s *dphy, unsigned long long dsi_ui)
 {
 	unsigned int temp, t_ui, t_req_min, t_req_max;
 	unsigned int val;
@@ -1592,7 +1591,8 @@ static void mipi_dsi_phy_config(struct dsi_phy_s *dphy, unsigned int dsi_ui)
 		return;
 	}
 
-	t_ui = (1000000 * 100) / (dsi_ui / 1000); /*100*ns */
+	t_ui = lcd_do_div(dsi_ui, 1000);
+	t_ui = (1000000 * 100) / t_ui; /*100*ns */
 	temp = t_ui * 8; /* lane_byte cycle time */
 
 	dphy->lp_tesc = ((DPHY_TIME_LP_TESC(t_ui) + temp - 1) / temp) & 0xff;
@@ -1727,7 +1727,7 @@ static void mipi_dsi_non_burst_packet_config(struct lcd_config_s *pconf)
 {
 	struct dsi_config_s *dconf = &pconf->control.mipi_cfg;
 	unsigned int lane_num, clk_factor, hactive, multi_pkt_en;
-	unsigned int bit_rate_required;
+	unsigned long long bit_rate_required;
 	unsigned int pixel_per_chunk = 0, vid_num_chunks = 0;
 	unsigned int byte_per_chunk = 0, vid_pkt_byte_per_chunk = 0;
 	unsigned int total_bytes_per_chunk = 0;
@@ -1737,14 +1737,15 @@ static void mipi_dsi_non_burst_packet_config(struct lcd_config_s *pconf)
 	lane_num = (int)(dconf->lane_num);
 	clk_factor = dconf->clk_factor;
 	hactive = pconf->basic.h_active;
-	bit_rate_required = pconf->timing.lcd_clk * 3 * dsi_vconf.data_bits;
-	bit_rate_required = bit_rate_required / lane_num;
+	bit_rate_required = pconf->timing.lcd_clk;
+	bit_rate_required = bit_rate_required * 3 * dsi_vconf.data_bits;
+	bit_rate_required = lcd_do_div(bit_rate_required, lane_num);
 	if (pconf->timing.bit_rate > bit_rate_required)
 		multi_pkt_en = 1;
 	else
 		multi_pkt_en = 0;
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("non-burst: bit_rate_required=%d, bit_rate=%d, multi_pkt_en=%d\n",
+		LCDPR("non-burst: bit_rate_required=%lld, bit_rate=%lld, multi_pkt_en=%d\n",
 		      bit_rate_required, pconf->timing.bit_rate, multi_pkt_en);
 	}
 
@@ -2012,23 +2013,19 @@ void mipi_dsi_config_init(struct lcd_config_s *pconf)
 /* bit_rate is confirm by clk_genrate, so internal clk config must after that */
 static void mipi_dsi_config_post(struct lcd_config_s *pconf)
 {
-	unsigned int pclk, lanebyteclk;
-	unsigned int den, num;
+	unsigned int pclk, den, num;
 	struct dsi_config_s *dconf = &pconf->control.mipi_cfg;
 
-	pclk = pconf->timing.lcd_clk / 1000;
+	pclk = pconf->timing.lcd_clk;
 
 	/* pclk lanebyteclk factor */
 	if (dconf->factor_numerator == 0) {
-		lanebyteclk = pconf->timing.bit_rate / 8 / 1000;
-		LCDPR("pixel_clk = %d.%03dMHz, bit_rate = %d.%03dMHz, lanebyteclk = %d.%03dMHz\n",
-			(pclk / 1000), (pclk % 1000),
-			(pconf->timing.bit_rate / 1000000),
-			((pconf->timing.bit_rate / 1000) % 1000),
-			(lanebyteclk / 1000), (lanebyteclk % 1000));
+		dconf->lane_byte_clk = lcd_do_div(pconf->timing.bit_rate, 8);
+		LCDPR("pixel_clk = %dHz, bit_rate = %lldHz, lanebyteclk = %dHz\n",
+			pclk, pconf->timing.bit_rate, dconf->lane_byte_clk);
 #if 0
 		dconf->factor_numerator = pclk;
-		dconf->factor_denominator = lanebyteclk;
+		dconf->factor_denominator = dconf->lane_byte_clk;
 #else
 		dconf->factor_numerator = 8;
 		dconf->factor_denominator = dconf->clk_factor;

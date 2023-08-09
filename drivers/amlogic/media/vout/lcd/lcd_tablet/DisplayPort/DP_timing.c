@@ -163,6 +163,7 @@ void dptx_timing_update(struct aml_lcd_drv_s *pdrv, struct dptx_detail_timing_s 
 	pconf->basic.v_period = timing->v_a + timing->v_b;
 
 	pconf->timing.lcd_clk = timing->pclk;
+	pconf->timing.enc_clk = pconf->timing.lcd_clk;
 	pconf->timing.base_pixel_clk = pconf->timing.lcd_clk;
 	sync_duration = timing->pclk / pconf->basic.h_period;
 	sync_duration = sync_duration * 100 / pconf->basic.v_period;

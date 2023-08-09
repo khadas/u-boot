@@ -45,19 +45,20 @@
 /* 20230705: t3x fix tconless phy setting */
 /* 20230802: add t5m,t5w,t3x set phy lane amp*/
 /* 20230815: add full-link-training and EDID-timing for eDP */
-#define LCD_DRV_VERSION    "20230815"
+/* 20230816: optimize clk accuracy*/
+#define LCD_DRV_VERSION    "20230816"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
 void mdelay(unsigned long n);
 
-static inline unsigned int lcd_do_div(unsigned long long num, unsigned int den)
+static inline unsigned long long lcd_do_div(unsigned long long num, unsigned int den)
 {
 	unsigned long long ret = num;
 
 	do_div(ret, den);
 
-	return (unsigned int)ret;
+	return ret;
 }
 
 void lcd_display_init_test(struct aml_lcd_drv_s *pdrv);

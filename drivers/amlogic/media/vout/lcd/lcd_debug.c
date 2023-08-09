@@ -171,7 +171,7 @@ static void lcd_info_print_vbyone(struct lcd_config_s *pconf)
 	printf("lane_count                 %u\n"
 		"region_num                 %u\n"
 		"byte_mode                  %u\n"
-		"bit_rate                   %uHz\n"
+		"bit_rate                   %lluHz\n"
 		"phy_vswing                 0x%x\n"
 		"phy_preemphasis            0x%x\n"
 		"hw_filter_time             0x%x\n"
@@ -256,7 +256,7 @@ static void lcd_info_print_edp(struct lcd_config_s *pconf)
 		"sync_clk_mode         %u\n"
 		"lane_count            %u\n"
 		"link_rate             %u\n"
-		"bit_rate              %u\n"
+		"bit_rate              %llu\n"
 		"training_settings     %u\n"
 		"main_stream_enable    %u\n"
 		"phy_vswing            0x%x\n"
@@ -288,7 +288,7 @@ static void lcd_info_print_mlvds(struct lcd_config_s *pconf)
 		"bit_swap          %u\n"
 		"phy_vswing        0x%x\n"
 		"phy_preem         0x%x\n"
-		"bit_rate          %uHz\n"
+		"bit_rate          %lluHz\n"
 		"pi_clk_sel        0x%03x\n\n",
 		pconf->control.mlvds_cfg.channel_num,
 		pconf->control.mlvds_cfg.channel_sel0,
@@ -312,7 +312,7 @@ static void lcd_info_print_p2p(struct lcd_config_s *pconf)
 		"channel_sel1      0x%08x\n"
 		"pn_swap           %u\n"
 		"bit_swap          %u\n"
-		"bit_rate          %uHz\n"
+		"bit_rate          %lluHz\n"
 		"phy_vswing        0x%x\n"
 		"phy_preem         0x%x\n\n",
 		pconf->control.p2p_cfg.p2p_type,
@@ -1082,7 +1082,6 @@ int lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int ms,
 
 void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 {
-	unsigned int lcd_clk;
 	unsigned int sync_duration;
 	struct lcd_config_s *pconf;
 	struct lcd_debug_info_if_s *info_if;
@@ -1094,21 +1093,24 @@ void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 	LCDPR("mode: %s, status: %d\n",
 	      lcd_mode_mode_to_str(pdrv->mode), pdrv->status);
 
-	lcd_clk = (pconf->timing.lcd_clk / 1000);
 	sync_duration = pconf->timing.sync_duration_num;
 	sync_duration = (sync_duration * 100 / pconf->timing.sync_duration_den);
-	LCDPR("%s, %s %ubit, %ux%u@%u.%02uHz\n"
-		"fr_adj_type       %d\n"
-		"lcd_clk           %u.%03uMHz\n"
-		"ss_level          0x%x\n\n",
+	LCDPR("%s, %s %ubit, %dppc, %ux%u@%d.%02dHz\n"
+		"lcd_clk           %uHz\n"
+		"enc_clk           %uHz\n"
+		"clk_mode          %s(%d)\n"
+		"ss_level          0x%x\n"
+		"fr_adj_type       %d\n\n",
 		pconf->basic.model_name,
 		lcd_type_type_to_str(pconf->basic.lcd_type),
-		pconf->basic.lcd_bits,
+		pconf->basic.lcd_bits, pconf->timing.ppc,
 		pconf->basic.h_active, pconf->basic.v_active,
 		(sync_duration / 100), (sync_duration % 100),
-		pconf->timing.fr_adjust_type,
-		(lcd_clk / 1000), (lcd_clk % 1000),
-		pconf->timing.ss_level);
+		pconf->timing.lcd_clk, pconf->timing.enc_clk,
+		(pconf->timing.clk_mode ? "independence" : "dependence"),
+		pconf->timing.clk_mode,
+		pconf->timing.ss_level,
+		pconf->timing.fr_adjust_type);
 
 	lcd_timing_info_print(pconf);
 
@@ -1137,6 +1139,9 @@ void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 	lcd_power_info_print(pdrv, 0);
 
 	lcd_gpio_info_print(pdrv);
+
+	printf("\n");
+	lcd_clk_config_print(pdrv);
 }
 
 void lcd_reg_print(struct aml_lcd_drv_s *pdrv)

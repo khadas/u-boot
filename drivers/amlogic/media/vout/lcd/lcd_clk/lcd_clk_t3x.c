@@ -220,7 +220,7 @@ static int _lcd_set_pll_by_cconf(struct aml_lcd_drv_s *pdrv, struct lcd_clk_conf
 		break;
 	}
 
-set_pll_retry_t7:
+set_pll_retry:
 	lcd_ana_write(reg_ctrl0, pll_ctrl);
 	udelay(10);
 	lcd_ana_setb(reg_ctrl0, 1, LCD_PLL_RST_TL1, 1);
@@ -231,7 +231,10 @@ set_pll_retry_t7:
 	udelay(10);
 	lcd_ana_write(reg_ctrl2, 0x0000110c);
 	udelay(10);
-	lcd_ana_write(reg_ctrl3, 0x10051400);
+	if (cconf->pll_fvco < 3800000000ULL)
+		lcd_ana_write(reg_ctrl3, 0x10051100);
+	else
+		lcd_ana_write(reg_ctrl3, 0x10051400);
 	udelay(10);
 	lcd_ana_setb(reg_ctrl4, 0x0100c0, 0, 24);
 	udelay(10);
@@ -246,7 +249,7 @@ set_pll_retry_t7:
 	ret = lcd_pll_wait_lock(pll_stts, LCD_PLL_LOCK_T7);
 	if (ret) {
 		if (cnt++ < PLL_RETRY_MAX)
-			goto set_pll_retry_t7;
+			goto set_pll_retry;
 		LCDERR("[%d]: pll lock failed\n", pdrv->index);
 	} else {
 		udelay(100);
@@ -958,23 +961,23 @@ lcd_prbs_test_t3_end:
 }
 
 static struct lcd_clk_data_s lcd_clk_data_t3x = {
-	.pll_od_fb = PLL_OD_FB_TL1,
-	.pll_m_max = PLL_M_MAX,
-	.pll_m_min = PLL_M_MIN,
-	.pll_n_max = PLL_N_MAX,
-	.pll_n_min = PLL_N_MIN,
-	.pll_frac_range = PLL_FRAC_RANGE_TL1,
-	.pll_frac_sign_bit = PLL_FRAC_SIGN_BIT_TL1,
-	.pll_od_sel_max = PLL_OD_SEL_MAX_TL1,
-	.pll_ref_fmax = PLL_FREF_MAX,
-	.pll_ref_fmin = PLL_FREF_MIN,
-	.pll_vco_fmax = PLL_VCO_MAX_TM2,
-	.pll_vco_fmin = PLL_VCO_MIN_TM2,
-	.pll_out_fmax = 3700 * 1000,
-	.pll_out_fmin = PLL_VCO_MIN_TL1 / 16,
-	.div_in_fmax = 3700 * 1000,
-	.div_out_fmax = 720 * 1000,
-	.xd_out_fmax = ENCL_CLK_IN_MAX_TL1,
+	.pll_od_fb = 0,
+	.pll_m_max = 511,
+	.pll_m_min = 2,
+	.pll_n_max = 1,
+	.pll_n_min = 1,
+	.pll_frac_range = (1 << 17),
+	.pll_frac_sign_bit = 18,
+	.pll_od_sel_max = 3,
+	.pll_ref_fmax = 25000000,
+	.pll_ref_fmin = 5000000,
+	.pll_vco_fmax = 6000000000ULL,
+	.pll_vco_fmin = 3000000000ULL,
+	.pll_out_fmax = 3700000000,
+	.pll_out_fmin = 187500000,
+	.div_in_fmax = 3700000000ULL,
+	.div_out_fmax = 720000000,
+	.xd_out_fmax = 720000000,
 
 	.vclk_sel = 0,
 	.enc_clk_msr_id = 62,

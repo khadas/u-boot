@@ -264,7 +264,7 @@ lcd_set_clk_retry:
 		cconf->data->vclk_crt_set(pdrv);
 	mdelay(10);
 
-	while (lcd_clk_msr_check(cconf->data->enc_clk_msr_id, (cconf->fout / 1000))) {
+	while (lcd_clk_msr_check(cconf->data->enc_clk_msr_id, cconf->fout)) {
 		if (cnt++ >= 10) {
 			LCDERR("[%d]: %s timeout\n", pdrv->index, __func__);
 			break;

@@ -2115,13 +2115,13 @@ static unsigned int vbyone_lane_num[] = {
 	8,
 };
 
-#define VBYONE_BIT_RATE_MAX		3700 //MHz
-#define VBYONE_BIT_RATE_MIN		600
+#define VBYONE_BIT_RATE_MAX		3700000000ULL //Hz
+#define VBYONE_BIT_RATE_MIN		600000000
 void lcd_vbyone_config_set(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int band_width, bit_rate, pclk, phy_div;
-	unsigned int byte_mode, lane_count, minlane;
+	unsigned int byte_mode, lane_count, minlane, phy_div;
+	unsigned long long bit_rate, band_width;
 	unsigned int temp, i;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
@@ -2132,54 +2132,51 @@ void lcd_vbyone_config_set(struct aml_lcd_drv_s *pdrv)
 	byte_mode = pconf->control.vbyone_cfg.byte_mode;
 	/* byte_mode * byte2bit * 8/10_encoding * pclk =
 	   byte_mode * 8 * 10 / 8 * pclk */
-	pclk = pconf->timing.lcd_clk / 1000; /* kHz */
-	band_width = byte_mode * 10 * pclk;
+	band_width = pconf->timing.lcd_clk;
+	band_width = byte_mode * 10 * band_width;
 
-	temp = VBYONE_BIT_RATE_MAX * 1000;
-	temp = (band_width + temp - 1) / temp;
+	temp = VBYONE_BIT_RATE_MAX;
+	temp = lcd_do_div((band_width + temp - 1), temp);
 	for (i = 0; i < 4; i++) {
 		if (temp <= vbyone_lane_num[i])
 			break;
 	}
 	minlane = vbyone_lane_num[i];
 	if (lane_count < minlane) {
-		LCDERR("vbyone lane_num(%d) is less than min(%d)\n",
+		LCDERR("vbyone lane_num(%d) is less than min(%d), change to min lane_num\n",
 			lane_count, minlane);
 		lane_count = minlane;
 		pconf->control.vbyone_cfg.lane_count = lane_count;
-		LCDPR("change to min lane_num %d\n", minlane);
 	}
 
-	bit_rate = band_width / lane_count;
+	bit_rate = lcd_do_div(band_width, lane_count);
 	phy_div = lane_count / lane_count;
 	if (phy_div == 8) {
 		phy_div /= 2;
-		bit_rate /= 2;
+		bit_rate = lcd_do_div(bit_rate, 2);
 	}
-	if (bit_rate > (VBYONE_BIT_RATE_MAX * 1000)) {
-		LCDERR("vbyone bit rate(%dKHz) is out of max(%dKHz)\n",
-			bit_rate, (VBYONE_BIT_RATE_MAX * 1000));
+	if (bit_rate > VBYONE_BIT_RATE_MAX) {
+		LCDERR("vbyone bit rate(%lldHz) is out of max(%lldHz)\n",
+			bit_rate, VBYONE_BIT_RATE_MAX);
 	}
-	if (bit_rate < (VBYONE_BIT_RATE_MIN * 1000)) {
-		LCDERR("vbyone bit rate(%dKHz) is out of min(%dKHz)\n",
-			bit_rate, (VBYONE_BIT_RATE_MIN * 1000));
+	if (bit_rate < VBYONE_BIT_RATE_MIN) {
+		LCDERR("vbyone bit rate(%lldHz) is out of min(%dHz)\n",
+			bit_rate, VBYONE_BIT_RATE_MIN);
 	}
-	bit_rate = bit_rate * 1000; /* Hz */
 
 	pconf->control.vbyone_cfg.phy_div = phy_div;
 	pconf->timing.bit_rate = bit_rate;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("lane_count=%u, bit_rate = %uMHz, pclk=%u.%03uMhz\n",
-			lane_count, (bit_rate / 1000000),
-			(pclk / 1000), (pclk % 1000));
+		LCDPR("lane_count=%u, bit_rate = %lluHz, pclk=%uhz\n",
+			lane_count, bit_rate, pconf->timing.lcd_clk);
 	}
 }
 
 void lcd_mlvds_config_set(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int bit_rate, pclk;
+	unsigned long long bit_rate, band_width;
 	unsigned int lcd_bits, channel_num;
 	unsigned int channel_sel0, channel_sel1, pi_clk_sel = 0;
 	unsigned int i, temp;
@@ -2189,15 +2186,14 @@ void lcd_mlvds_config_set(struct aml_lcd_drv_s *pdrv)
 
 	lcd_bits = pconf->basic.lcd_bits;
 	channel_num = pconf->control.mlvds_cfg.channel_num;
-	pclk = pconf->timing.lcd_clk / 1000;
-	bit_rate = lcd_bits * 3 * pclk / channel_num;
-
-	pconf->timing.bit_rate = bit_rate * 1000;
+	band_width = pconf->timing.lcd_clk;
+	band_width = lcd_bits * 3 * band_width;
+	bit_rate = lcd_do_div(band_width, channel_num);
+	pconf->timing.bit_rate = bit_rate;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("channel_num=%u, bit_rate=%u.%03uMHz, pclk=%u.%03uMhz\n",
-		      channel_num, (bit_rate / 1000), (bit_rate % 1000),
-		      (pclk / 1000), (pclk % 1000));
+		LCDPR("channel_num=%u, bit_rate=%lluHz, pclk=%uhz\n",
+		      channel_num, bit_rate, pconf->timing.lcd_clk);
 	}
 
 	/* pi_clk select */
@@ -2272,114 +2268,109 @@ void lcd_mlvds_config_set(struct aml_lcd_drv_s *pdrv)
 void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int bit_rate, pclk;
-	unsigned int lcd_bits, lane_num;
-	unsigned int clk_mode;
+	unsigned int p2p_type, lcd_bits, lane_num, clk_mode;
+	unsigned long long bit_rate, band_width;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
 	lcd_bits = pconf->basic.lcd_bits;
 	lane_num = pconf->control.p2p_cfg.lane_num;
-	pclk = pconf->timing.lcd_clk / 1000;
+	band_width = pconf->timing.lcd_clk;
+	p2p_type = pconf->control.p2p_cfg.p2p_type & 0x1f;
 	clk_mode = pconf->timing.clk_mode;
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDPR("clk_mode=%d (%s)\n", clk_mode,
 			(clk_mode == LCD_CLK_MODE_DEPENDENCE) ?
 			"dependence" : "independence");
 	}
-	switch (pconf->control.p2p_cfg.p2p_type) {
+	switch (p2p_type) {
 	case P2P_CEDS:
 	case P2P_EPI:
 		if (clk_mode == LCD_CLK_MODE_DEPENDENCE) {
-			if (pclk >= 600000)
-				bit_rate = pclk * 3 * lcd_bits / lane_num;
+			if (pconf->timing.lcd_clk >= 600000000)
+				band_width = band_width * 3 * lcd_bits;
 			else
-				bit_rate = pclk * (3 * lcd_bits + 4) / lane_num;
+				band_width = band_width * (3 * lcd_bits + 4);
 		} else {
-			bit_rate = pclk * (3 * lcd_bits + 4) / lane_num;
+			band_width = band_width * (3 * lcd_bits + 4);
 		}
 		break;
 	case P2P_CHPI: /* 8/10 coding */
-		bit_rate = (pclk * 3 * lcd_bits * 10 / 8) / lane_num;
+		band_width = lcd_do_div((band_width * 3 * lcd_bits * 10), 8);
 		break;
 	case P2P_CSPI:
 	case P2P_ISP:
 	case P2P_CMPI:
 		if (clk_mode == LCD_CLK_MODE_DEPENDENCE) {
-			if (pclk >= 600000)
-				bit_rate = pclk * 3 * lcd_bits / lane_num;
+			if (pconf->timing.lcd_clk >= 600000000)
+				band_width = band_width * 3 * lcd_bits;
 			else  /* 8/9 coding */
-				bit_rate = (pclk * 3 * lcd_bits * 9 / 8) / lane_num;
+				band_width = lcd_do_div((band_width * 3 * lcd_bits * 9), 8);
 		} else {
 			/* 8/9 coding */
-			bit_rate = (pclk * 3 * lcd_bits * 9 / 8) / lane_num;
+			band_width = lcd_do_div((band_width * 3 * lcd_bits * 9), 8);
 		}
 		break;
 	default:
-		bit_rate = pclk * 3 * lcd_bits / lane_num;
+		band_width = band_width * 3 * lcd_bits;
 		break;
 	}
-
-	pconf->timing.bit_rate = bit_rate * 1000;
+	bit_rate = lcd_do_div(band_width, lane_num);
+	pconf->timing.bit_rate = bit_rate;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("lane_num=%u, bit_rate=%u.%03uMHz, pclk=%u.%03uMhz\n",
-		      lane_num, (bit_rate / 1000), (bit_rate % 1000),
-		      (pclk / 1000), (pclk % 1000));
+		LCDPR("[%d]: lane_num=%u, bit_rate=%lluHz, pclk=%uhz\n",
+		      pdrv->index, lane_num,
+		      bit_rate, pconf->timing.lcd_clk);
 	}
 }
 
 void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int pclk, bit_rate;
-	unsigned int bit_rate_max;
 	struct dsi_config_s *dconf = &pconf->control.mipi_cfg;
-	unsigned int temp;
+	unsigned long long bit_rate, bit_rate_max, band_width;
 
 	dconf = &pconf->control.mipi_cfg;
 
 	/* unit in kHz for calculation */
-	pclk = pconf->timing.lcd_clk / 1000;
+	band_width = pconf->timing.lcd_clk;
 	if (dconf->operation_mode_display == OPERATION_VIDEO_MODE &&
 	    dconf->video_mode_type != BURST_MODE) {
-		temp = pclk * 4 * dconf->data_bits;
-		bit_rate = temp / dconf->lane_num;
+		band_width = band_width * 4 * dconf->data_bits;
 	} else {
-		temp = pclk * 3 * dconf->data_bits;
-		bit_rate = temp / dconf->lane_num;
+		band_width = band_width * 3 * dconf->data_bits;
 	}
-	//temp = bit_rate / pclk;
-	//if (temp % 2)
-	//	bit_rate += pclk;
-	dconf->local_bit_rate_min = bit_rate /* khz */;
+	bit_rate = lcd_do_div(band_width, dconf->lane_num);
+	dconf->local_bit_rate_min = bit_rate;
 
 	/* bit rate max */
 	if (dconf->bit_rate_max == 0) { /* auto calculate */
-		bit_rate_max = bit_rate + (pclk / 2);
+		bit_rate_max = bit_rate + (pconf->timing.lcd_clk / 2);
 		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDERR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+			LCDERR("[%d]: %s: invalid bit_rate_max %lldHz (max=%lldHz)\n",
 				pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 			bit_rate_max = MIPI_BIT_RATE_MAX;
 		}
 	} else { /* user define */
-		bit_rate_max = dconf->bit_rate_max * 1000;
+		bit_rate_max = dconf->bit_rate_max;
+		bit_rate_max *= 1000000;
 		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDPR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+			LCDPR("[%d]: %s: invalid bit_rate_max %lldHz (max=%lldHz)\n",
 			      pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 		}
 		if (dconf->local_bit_rate_min > bit_rate_max) {
-			LCDPR("[%d]: %s: bit_rate_max %d can't reach bandwidth requirement %d\n",
+			LCDPR("[%d]: %s: bit_rate_max %lld can't reach bw requirement %lld\n",
 				pdrv->index, __func__, bit_rate_max,
 				dconf->local_bit_rate_min);
 			//force bit_rate_max for special case
-			dconf->local_bit_rate_min = bit_rate_max - pclk;
+			dconf->local_bit_rate_min = bit_rate_max - pconf->timing.lcd_clk;
 		}
 	}
 	dconf->local_bit_rate_max = bit_rate_max;
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("[%d]: %s: local_bit_rate_max=%ukHz, local_bit_rate_min=%ukHz\n",
+		LCDPR("[%d]: %s: local_bit_rate_max=%lluHz, local_bit_rate_min=%lluHz\n",
 		      pdrv->index, __func__,
 		      dconf->local_bit_rate_max, dconf->local_bit_rate_min);
 	}
@@ -2410,6 +2401,11 @@ void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv)
 		sync_duration = lcd_do_div(temp, (v_period * h_period));
 		pconf->timing.sync_duration_num = sync_duration;
 		pconf->timing.sync_duration_den = 1000;
+	}
+	pconf->timing.enc_clk = pconf->timing.lcd_clk / pconf->timing.ppc;
+	if (pdrv->config.timing.ppc > 1) {
+		LCDPR("ppc=%d, lcd_clk=%d, enc_clk=%d\n",
+		      pdrv->config.timing.ppc, pconf->timing.lcd_clk, pconf->timing.enc_clk);
 	}
 
 	//for vrr range config
@@ -2668,12 +2664,15 @@ int lcd_vmode_change(struct aml_lcd_drv_s *pdrv)
 	if (pconf->timing.lcd_clk != pclk) {
 		if (len > 0)
 			len += sprintf(str+len, ", ");
-		len += sprintf(str + len, "pclk %u.%03uMHz->%u.%03uMHz, clk_change:%d",
-			(pconf->timing.lcd_clk / 1000000),
-			((pconf->timing.lcd_clk / 1000) % 1000),
-			(pclk / 1000000), ((pclk / 1000) % 1000),
+		len += sprintf(str + len, "pclk %uHz->%uHz, clk_change:%d",
+			pconf->timing.lcd_clk, pclk,
 			pconf->timing.clk_change);
 		pconf->timing.lcd_clk = pclk;
+		pconf->timing.enc_clk = pclk / pconf->timing.ppc;
+		if (pdrv->config.timing.ppc > 1) {
+			len += sprintf(str + len, ", ppc=%d, enc_clk=%d",
+				pdrv->config.timing.ppc, pconf->timing.enc_clk);
+		}
 	}
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		if (len > 0)
