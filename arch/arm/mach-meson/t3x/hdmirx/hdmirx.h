@@ -46,60 +46,23 @@ struct hdmirx_data_s {
  */
 #define _BIT(n)			MSK(1, (n))
 
-/* T5 phy base addr */
+/* t3x phy base addr */
 #define AMLPHY_BASE_ADDR 0xfe39c000
+#define T3X_PHY_OFFSET	0x400
 
-/* T5 HIU apll register */
+/* t3x HIU apll register */
 #define HHI_RX_APLL_CNTL0		(0x0 << 2)/*0x0*/
 #define HHI_RX_APLL_CNTL1		(0x1 << 2)/*0x4*/
 #define HHI_RX_APLL_CNTL2		(0x2 << 2)/*0x8*/
 #define HHI_RX_APLL_CNTL3		(0x3 << 2)/*0xc*/
 #define HHI_RX_APLL_CNTL4		(0x4 << 2)/*0x10*/
 
-/* T5 HIU PHY register */
-#define HHI_RX_PHY_MISC_CNTL0		(0x5 << 2)/*0x14*/
-	#define SQO_GATE		_BIT(30)
-	#define PLL_SRC_SEL		_BIT(29)
-#define HHI_RX_PHY_MISC_CNTL1		(0x6 << 2)/*0x18*/
-	#define RTERM_CNTL		MSK(4, 12)
-	#define RTERM_VALID		_BIT(0)
-#define HHI_RX_PHY_MISC_CNTL2		(0x7 << 2)/*0x1c*/
-#define HHI_RX_PHY_MISC_CNTL3		(0x8 << 2)/*0x20*/
-#define HHI_RX_PHY_DCHA_CNTL0		(0x9 << 2)/*0x24*/
-	#define HYPER_GAIN		MSK(3, 12)
-#define HHI_RX_PHY_DCHA_CNTL1		(0xa << 2)/*0x28*/
-#define HHI_RX_PHY_DCHA_CNTL2		(0xb << 2)/*0x2c*/
-	#define EYE_MONITOR_EN1		_BIT(27)/*The same as dchd_eye[19]*/
-	#define AFE_EN			_BIT(17)
-#define HHI_RX_PHY_DCHA_CNTL3		(0xc << 2)/*0x30*/
-#define HHI_RX_PHY_DCHD_CNTL0		(0xd << 2)/*0x34*/
-	#define CDR_MODE		_BIT(31)
-	#define CDR_FR_EN		_BIT(30)
-	#define EQ_EN			_BIT(29)
-	#define CDR_PH_DIV		MSK(3, 0)
-#define HHI_RX_PHY_DCHD_CNTL1		(0xe << 2)/*0x38*/
-	#define IQ_OFST_SIGN		_BIT(27)
-	#define IQ_OFST_VAL		MSK(5, 22)
-	#define EQ_BYP_VAL2		MSK(5, 17)
-	#define EQ_BYP_VAL1		MSK(5, 12)
-#define HHI_RX_PHY_DCHD_CNTL2		(0xf << 2)/*0x3c*/
-	#define DFE_HOLD		_BIT(31)
-	#define DFE_RST			_BIT(26)
-	#define TAP0_BYP		_BIT(23)
-	#define EYE_STATUS		MSK(3, 28)
-	#define ERROR_CNT		0x0
-	#define SCAN_STATE		0x1
-	#define POSITIVE_EYE_HEIGHT	0x2
-	#define NEGATIVE_EYE_HEIGHT	0x3
-	#define LEFT_EYE_WIDTH		0x4
-	#define RIGHT_EYE_WIDTH		0x5
-#define HHI_RX_PHY_DCHD_CNTL3		(0x10 << 2)/*0x40*/
-#define HHI_RX_PHY_DCHD_CNTL4		(0x11 << 2)/*0x44*/
-	#define EYE_MONITOR_EN		_BIT(19)
-	#define EYE_STATUS_EN		_BIT(18)
-	#define EYE_EN_HW_SCAN		_BIT(16)
-#define HHI_RX_PHY_MISC_STAT		(0x12 << 2)/*0x48*/
-#define HHI_RX_PHY_DCHD_STAT		(0x13 << 2)/*0x4c*/
+#define T3X_HDMIRX20PHY_DCHA_MISC1		(0x006 << 2)
+	#define T3X_20_RTERM_CNTL			MSK(4, 12)
+
+#define T3X_HDMIRX21PHY_MISC2           (0x47 << 2)
+	#define T3X_21_RTERM_CNTL			MSK(4, 0)
+
 
 void hdmirx_hw_init(unsigned int port_map,
 						  unsigned char *pedid_data,

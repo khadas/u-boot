@@ -660,7 +660,7 @@ void hdmirx_hw_init(unsigned int port_map,
 		hdmirx_data.edid_size = sizeof(edid_14);
 	}
 	/*power domain control for hdmirx */
-	pwr_ctrl_psci_smc(PM_HDMIRX, PWR_ON);
+	pwr_ctrl_psci_smc(PM_HDMIRX_WRAP, PWR_ON);
 	//hdmirx_wr_top(TOP_MEM_PD, 0);
 	hdmirx_wr_top(TOP_INTR_MASKN, 0);
 	hdmirx_wr_top(TOP_SW_RESET, 0);
@@ -720,9 +720,9 @@ unsigned int rx_set_bits(unsigned int data,
  *
  * return data read value
  */
-unsigned int hdmirx_rd_amlphy(unsigned long offset)
+unsigned int hdmirx_rd_amlphy(unsigned long offset, unsigned char port)
 {
-	unsigned long addr = offset + AMLPHY_BASE_ADDR;
+	unsigned long addr = offset + AMLPHY_BASE_ADDR + T3X_PHY_OFFSET * port;
 
 	return rx_rd_reg(addr);
 }
@@ -734,19 +734,20 @@ unsigned int hdmirx_rd_amlphy(unsigned long offset)
  *
  * return masked bits of register value
  */
+ /*
 u32 hdmirx_rd_bits_amlphy(u16 offset, u32 mask)
 {
 	return rx_get_bits(hdmirx_rd_amlphy(offset), mask);
 }
-
+*/
 /*
  * hdmirx_wr_amlphy - Write data to hdmirx amlphy reg
  * @addr: register address
  * @data: new register value
  */
-void hdmirx_wr_amlphy(unsigned int offset, unsigned int val)
+void hdmirx_wr_amlphy(unsigned int offset, unsigned int val, unsigned char port)
 {
-	unsigned long addr = offset + AMLPHY_BASE_ADDR;
+	unsigned long addr = offset + AMLPHY_BASE_ADDR + T3X_PHY_OFFSET * port;
 
 	rx_wr_reg(addr, val);
 }
@@ -757,33 +758,49 @@ void hdmirx_wr_amlphy(unsigned int offset, unsigned int val)
  * @mask: bits mask
  * @value: new register value
  */
-void hdmirx_wr_bits_amlphy(unsigned int offset,
-	unsigned int mask, unsigned int value)
-{
-	hdmirx_wr_amlphy(offset, rx_set_bits(hdmirx_rd_amlphy(offset), mask, value));
-}
+//void hdmirx_wr_bits_amlphy(unsigned int offset,
+	//unsigned int mask, unsigned int value)
+//{
+	//hdmirx_wr_amlphy(offset, rx_set_bits(hdmirx_rd_amlphy(offset), mask, value));
+//}
 
 /* set rx phy termination */
 void rx_set_phy_rterm(void)
 {
-	s64 rterm_val;
+	/* for hdmirx 2.0&2.1 phy */
+	s64 rterm_val_20, rterm_val_21;
 	unsigned int data32;
 
 	/*power domain control for hdmirx */
-	pwr_ctrl_psci_smc(PM_HDMIRX, PWR_ON);
+	pwr_ctrl_psci_smc(PM_HDMIRX_WRAP, PWR_ON);
 	extern int64_t meson_trustzone_efuse_caliItem(const char *str);
-	rterm_val = meson_trustzone_efuse_caliItem("hdmirx");
-	if (rterm_val >= 0) {
-		data32 = hdmirx_rd_amlphy(HHI_RX_PHY_MISC_CNTL1);
+	rterm_val_20 = meson_trustzone_efuse_caliItem("hdmirx");
+	rterm_val_21 = meson_trustzone_efuse_caliItem("hdmirx21");
+	if (rterm_val_20) {
+		data32 = hdmirx_rd_amlphy(T3X_HDMIRX20PHY_DCHA_MISC1, E_PORT0);
 		data32 &= (~(0xf << 12));
 		/* rterm val */
-		data32 |= (rterm_val << 12);
+		data32 |= (rterm_val_20 << 12);
 		/* rterm flag */
-		data32 |= 0x1 << 0;
-		hdmirx_wr_amlphy(HHI_RX_PHY_MISC_CNTL1, data32);
-		printf("rx trim:0x%x\n", data32);
+		data32 |= (0x1 << 0);
+		hdmirx_wr_amlphy(T3X_HDMIRX20PHY_DCHA_MISC1, data32, E_PORT0);
+		hdmirx_wr_amlphy(T3X_HDMIRX20PHY_DCHA_MISC1, data32, E_PORT1);
+		printf("rx 20 trim:0x%x\n", data32);
 	} else {
-		printf("no trim val!\n");
+		printf("no 20 trim val!\n");
+	}
+	if (rterm_val_21) {
+		data32 = hdmirx_rd_amlphy(T3X_HDMIRX21PHY_MISC2, E_PORT2);
+		data32 &= (~0xf);
+		/* rterm flag */
+		data32 |= (0x1 << 31);
+		/* rterm val */
+		data32 |= (rterm_val_21 << 0);
+		hdmirx_wr_amlphy(T3X_HDMIRX21PHY_MISC2, data32, E_PORT2);
+		hdmirx_wr_amlphy(T3X_HDMIRX21PHY_MISC2, data32, E_PORT3);
+		printf("rx 21 trim:0x%x\n", data32);
+	} else {
+		printf("no 21 trim val!\n");
 	}
 }
 
