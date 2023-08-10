@@ -945,7 +945,8 @@ void hdmitx21_select_frl(struct hdmitx_dev *hdev)
 	/* OSD bmp scale will use cur_enc_ppc of vinfo, so should update it early */
 	#ifdef CONFIG_AML_VOUT
 	info->cur_enc_ppc = 1;
-	if (info && hdev->chip_type == MESON_CPU_ID_S5) {
+	info->vpp_post_out_color_fmt = 0;
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
 		if (hdev->frl_rate > FRL_NONE)
 			info->cur_enc_ppc = 4;
 		if (hdev->dsc_en) {
@@ -1154,16 +1155,18 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		hdmitx21_set_reg_bits(PCLK2TMDS_MISC1_IVCTX, 1, 4, 1);
 	else
 		hdmitx21_set_reg_bits(PCLK2TMDS_MISC1_IVCTX, 0, 4, 1);
-	/* block hsync, this is need to enable when in DSC mode */
-	if (hdev->dsc_en)
-		hdmitx21_set_reg_bits(H21TXSB_CTRL_1_IVCTX, 1, 2, 1);
-	else
-		hdmitx21_set_reg_bits(H21TXSB_CTRL_1_IVCTX, 0, 2, 1);
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
+		/* block hsync, this is need to enable when in DSC mode */
+		if (hdev->dsc_en)
+			hdmitx21_set_reg_bits(H21TXSB_CTRL_1_IVCTX, 1, 2, 1);
+		else
+			hdmitx21_set_reg_bits(H21TXSB_CTRL_1_IVCTX, 0, 2, 1);
+	}
 	hdmitx_set_hw(hdev);
 	/* dsc program step8.4: Configure VENC timing gen to be slave mode
 	 * (receive hs/vs sync signal from DSC encoder timing gen)
 	 */
-	if (hdev->chip_type >= MESON_CPU_ID_S5 && hdev->dsc_en)
+	if (hdev->chip_type == MESON_CPU_ID_S5 && hdev->dsc_en)
 		hd21_set_reg_bits(ENCP_VIDEO_SYNC_MODE, 1, 4, 1);
 	else
 		hd21_set_reg_bits(ENCP_VIDEO_SYNC_MODE, 0, 4, 1);
@@ -1259,9 +1262,11 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	}
 
 #ifdef CONFIG_AML_VOUT
-	if (info)
+	if (info) {
 		info->cur_enc_ppc = 1;
-	if (info && hdev->chip_type >= MESON_CPU_ID_S5) {
+		info->vpp_post_out_color_fmt = 0;
+	}
+	if (info && hdev->chip_type == MESON_CPU_ID_S5) {
 		if (get_current_frl_rate())
 			info->cur_enc_ppc = 4;
 		if (hdev->dsc_en) {
@@ -1278,7 +1283,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	/* recommend flow: dsc mux->dsc configure/dsc_enc_en/dsc_tmg_en->venc_enable */
 	hd21_set_reg_bits(VPU_HDMI_SETTING, !!hdev->dsc_en, 31, 1);
 
-	if (hdev->chip_type >= MESON_CPU_ID_S5 && hdev->dsc_en) {
+	if (hdev->chip_type == MESON_CPU_ID_S5 && hdev->dsc_en) {
 		hdmitx_dsc_cvtem_pkt_send(&hdev->dsc_data.pps_data, &hdev->para->timing);
 		/* dsc program step8.5: Program DSC settings. */
 		/* dsc program step8.6: Enable DSC encoder timing gen 'reg_tmg_en' */
@@ -1323,7 +1328,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	hdmitx_set_phy(hdev);
 	hdmitx_dfm_cfg(0, 0);
 	hdev->flt_train_st = 0;
-	if (hdev->chip_type >= MESON_CPU_ID_S5) {
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
 		if (hdev->frl_rate) {
 			u32 tri_bytes_per_line = 0;
 			bool ret = 0;
@@ -1385,7 +1390,7 @@ static void hdmitx_set_frlrate_none(struct hdmitx_dev *hdev)
 	u8 data;
 
 	/* such as T7 unsupport FRL, skip frl flow */
-	if (hdev->chip_type < MESON_CPU_ID_S5)
+	if (hdev->chip_type != MESON_CPU_ID_S5)
 		return;
 
 	if (hdev->RXCap.max_frl_rate > FRL_NONE &&
