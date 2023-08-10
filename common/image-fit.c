@@ -20,10 +20,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
-#ifdef CONFIG_MULTI_DTB
-#include <amlogic/aml_dt.h>
-#endif
-
 #include <bootstage.h>
 #include <u-boot/crc.h>
 #include <u-boot/md5.h>
@@ -1635,15 +1631,6 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 	len = (ulong)size;
 
-#ifdef CONFIG_MULTI_DTB
-	/* handle amlogic type of multi-dtb
-	 * Note: if dtb is compressed, then you should care that dtb should
-	 * at end of fit image package, otherwise after decompress, memory
-	 * in itb package may corrupted
-	 */
-	if (image_type == IH_TYPE_FLATDT)
-		buf = (void *)get_multi_dt_entry((unsigned long)buf);
-#endif
 	/* verify that image data is a proper FDT blob */
 	if (image_type == IH_TYPE_FLATDT && fdt_check_header(buf)) {
 		puts("Subimage data is not a FDT");

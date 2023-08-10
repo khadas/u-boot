@@ -21,10 +21,6 @@
 #include <lzma/LzmaDec.h>
 #include <lzma/LzmaTools.h>
 #include <android_image.h>
-#ifdef CONFIG_MULTI_DTB
-#include <amlogic/aml_dt.h>
-#endif
-
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
@@ -491,6 +487,7 @@ static char *get_multi_dt_entry_avoid(char *ft_addr)
 {
 	unsigned long ftaddr;
 	char *p_ftaddr;
+	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 
 	ftaddr = (unsigned long)images.ft_addr;
 	p_ftaddr = (char*)get_multi_dt_entry(ftaddr);
@@ -504,65 +501,60 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 	TE(__func__);
 
 	int ret;
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-	u32		  fdto_totalsize = 0;
-#endif
-	int fit_img = 0;
-#ifdef CONFIG_DTB_MEM_ADDR
-	unsigned long long dtb_mem_addr =  -1;
-	char *ft_addr_bak = NULL;
-	ulong ft_len_bak = 0;
-#endif
-
-#ifdef CONFIG_FIT
-	/* fit image header is set when get kernel */
-	fit_img = images.fit_hdr_os ? 1 : 0;
-#endif
-
-	/* if fit image, we should use dtb in fit package */
-	if (!fit_img) {
-		/* find flattened device tree */
-	#ifdef CONFIG_DTB_MEM_ADDR
-		//try to do store dtb decrypt ${dtb_mem_addr}
-		//because if load dtb.img from cache/udisk maybe encrypted.
-		run_command("store dtb decrypt ${dtb_mem_addr}", 0);
-		if (getenv("dtb_mem_addr"))
-			dtb_mem_addr = getenv_hex("dtb_mem_addr", 0);
-		else
-			dtb_mem_addr = CONFIG_DTB_MEM_ADDR;
-
-		ft_addr_bak = (char *)images.ft_addr;
-		ft_len_bak = images.ft_len;
-		images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
 	#ifdef CONFIG_OF_LIBFDT_OVERLAY
-		if (get_fdto_totalsize(&fdto_totalsize) == 0)
-			fdt_set_totalsize(images.ft_addr, fdt_get_header(images.ft_addr,
-					  totalsize) + fdto_totalsize);
+	u32		  fdto_totalsize = 0;
 	#endif
-		images.ft_len = fdt_get_header(dtb_mem_addr, totalsize);
-	#endif
-		printf("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
-	#ifdef CONFIG_MULTI_DTB
-		images.ft_addr = get_multi_dt_entry_avoid(images.ft_addr);
-	#endif
+
+	/* find flattened device tree */
+	#ifdef CONFIG_DTB_MEM_ADDR
+	unsigned long long dtb_mem_addr =  -1;
+	char *ft_addr_bak;
+	ulong ft_len_bak;
+
+	//try to do store dtb decrypt ${dtb_mem_addr}
+	//because if load dtb.img from cache/udisk maybe encrypted.
+	run_command("store dtb decrypt ${dtb_mem_addr}", 0);
+	if (getenv("dtb_mem_addr")) {
+		dtb_mem_addr = getenv_hex("dtb_mem_addr", 0);
 	}
+	else
+		dtb_mem_addr = CONFIG_DTB_MEM_ADDR;
+
+	ft_addr_bak = (char *)images.ft_addr;
+	ft_len_bak = images.ft_len;
+	images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
+	#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	if (get_fdto_totalsize(&fdto_totalsize) == 0)
+		fdt_set_totalsize(images.ft_addr, fdt_get_header(images.ft_addr,
+				  totalsize) + fdto_totalsize);
+	#endif
+	images.ft_len = fdt_get_header(dtb_mem_addr, totalsize);
+	#endif
+	printf("load dtb from 0x%lx ......\n", (unsigned long)(images.ft_addr));
+	#ifdef CONFIG_MULTI_DTB
+	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
+	/* update dtb address, compatible with single dtb and multi dtbs */
+	//images.ft_addr = (char*)get_multi_dt_entry((unsigned long)images.ft_addr);  //coverity error
+	images.ft_addr = get_multi_dt_entry_avoid(images.ft_addr);
+	#endif
 	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
 			   &images.ft_addr, &images.ft_len);
-#ifdef CONFIG_DTB_MEM_ADDR
+	#ifdef CONFIG_DTB_MEM_ADDR
 	if (ret) {
 		images.ft_addr = ft_addr_bak;
 		images.ft_len = ft_len_bak;
 
-		printf("reload dtb from 0x%lx ......\n",
+		printf("load dtb from 0x%lx ......\n",
 			(unsigned long)(images.ft_addr));
-	#ifdef CONFIG_MULTI_DTB
+		#ifdef CONFIG_MULTI_DTB
+		extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
 		/* update dtb address, compatible with single dtb and multi dtbs */
 		images.ft_addr = (char*)get_multi_dt_entry((unsigned long)images.ft_addr);
-	#endif
+		#endif
 		ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
 			   &images.ft_addr, &images.ft_len);
 	}
-#endif
+	#endif
 	if (ret) {
 		puts("Could not find a valid device tree\n");
 		return 1;
@@ -570,9 +562,12 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 
 	set_working_fdt_addr(images.ft_addr);
 
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
+	#ifdef CONFIG_OF_LIBFDT_OVERLAY
 	do_fdt_overlay();
-#endif
+	#endif
+
+	ft_len_bak = images.ft_len;
+
 	TE(__func__);
 
 	return 0;
