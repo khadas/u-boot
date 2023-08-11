@@ -431,6 +431,8 @@ struct hw_osd_reg_s hw_osd_reg_array[HW_OSD_COUNT] = {
 		VIU_OSD2_BLK2_CFG_W4,
 		VIU_OSD2_FIFO_CTRL_STAT,
 
+#ifndef AML_OSD_TXHD2_DISPLAY
+
 		VPP_OSD_SCALE_COEF_IDX,
 		VPP_OSD_SCALE_COEF,
 		VPP_OSD_VSC_PHASE_STEP,
@@ -444,6 +446,22 @@ struct hw_osd_reg_s hw_osd_reg_array[HW_OSD_COUNT] = {
 		VPP_OSD_SCI_WH_M1,
 		VPP_OSD_SCO_H_START_END,
 		VPP_OSD_SCO_V_START_END,
+#else
+
+		OSD2_SCALE_COEF_IDX,
+		OSD2_SCALE_COEF,
+		OSD2_VSC_PHASE_STEP,
+		OSD2_VSC_INI_PHASE,
+		OSD2_VSC_CTRL0,
+		OSD2_HSC_PHASE_STEP,
+		OSD2_HSC_INI_PHASE,
+		OSD2_HSC_CTRL0,
+		OSD2_SC_DUMMY_DATA,
+		OSD2_SC_CTRL0,
+		OSD2_SCI_WH_M1,
+		OSD2_SCO_H_START_END,
+		OSD2_SCO_V_START_END,
+#endif
 
 		VIU2_OSD1_UNSUPPORT,
 		VIU2_OSD1_UNSUPPORT,
@@ -3011,7 +3029,10 @@ static void osd1_update_disp_freescale_enable(void)
 
 static void osd2_update_disp_freescale_enable(void)
 {
-	osd_update_disp_freescale_enable(OSD2, OSD1);
+	if (is_keystone_enable_for_txhd2())
+		osd_update_disp_freescale_enable(OSD2, OSD2);
+	else
+		osd_update_disp_freescale_enable(OSD2, OSD1);
 }
 
 #if defined(AML_T7_DISPLAY) || defined(AML_S5_DISPLAY)
@@ -3369,7 +3390,10 @@ static void osd1_update_coef(void)
 
 static void osd2_update_coef(void)
 {
-	osd_update_coef(OSD1);
+	if (is_keystone_enable_for_txhd2())
+		osd_update_coef(OSD2);
+	else
+		osd_update_coef(OSD1);
 	remove_from_update_list(OSD2, OSD_FREESCALE_COEF);
 }
 

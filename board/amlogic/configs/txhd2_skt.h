@@ -468,6 +468,7 @@
 /* osd */
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
+#define AML_OSD_TXHD2_DISPLAY
 
 /* DISPLAY */
 //#define CONFIG_AML_VOUT 1

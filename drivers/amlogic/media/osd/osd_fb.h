@@ -17,5 +17,6 @@ void img_osd_uninit(void);
 int img_display(ulong bmp_image, int x, int y);
 int img_scale(void);
 void img_raw_size_set(u32 raw_width, u32 raw_height, u32 raw_bpp);
+bool is_keystone_enable_for_txhd2(void);
 
 #endif

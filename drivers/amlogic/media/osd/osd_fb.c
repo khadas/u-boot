@@ -428,6 +428,23 @@ u32 osd_canvas_align(u32 x)
 		return (((x) + 31) & ~31);
 }
 
+bool is_keystone_enable_for_txhd2(void)
+{
+	bool ret = false;
+	char *enable_flag;
+
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_TXHD2) {
+		enable_flag = env_get("outputmode2");
+		if (!enable_flag)
+			return false;
+		if (!strcmp(enable_flag, "panel"))
+			ret = true;
+		else
+			ret = false;
+	}
+	return ret;
+}
+
 int get_osd_layer(void)
 {
 	char *layer_str;
@@ -435,6 +452,8 @@ int get_osd_layer(void)
 	static int last_osd, last_vpp;
 
 	layer_str = env_get("display_layer");
+	if (is_keystone_enable_for_txhd2())
+		layer_str = "osd1";
 	if (strcmp(layer_str, "osd0") == 0) {
 		osd_index = OSD1;
 		vpp_index = VPU_VPP0;

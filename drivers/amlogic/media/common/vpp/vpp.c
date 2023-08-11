@@ -2210,6 +2210,16 @@ void vpp_init(void)
 			set_vpp_osd2_rgb2yuv(1);
 		else
 			set_osd4_rgb2yuv(0);
+
+		/*txhd2 enable keystone in uboot need disable osd2 matrix*/
+		if (chip_id == MESON_CPU_MAJOR_ID_TXHD2) {
+			char *enable_flag;
+
+			enable_flag = env_get("outputmode2");
+			if (enable_flag && !strcmp(enable_flag, "panel"))
+				set_vpp_osd2_rgb2yuv(0);
+		}
+
 #endif
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();
