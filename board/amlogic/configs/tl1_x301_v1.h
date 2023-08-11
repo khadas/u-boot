@@ -116,6 +116,7 @@
         "active_slot=normal\0"\
         "boot_part=boot\0"\
 	"boot_flag=0\0"\
+	"vendor_boot_part=vendor_boot\0"\
         "suspend=off\0"\
         "powermode=on\0"\
         "ffv_wake=off\0"\
@@ -198,6 +199,11 @@
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = update; then "\
                     "run update;"\
+			"else if test ${reboot_mode} = quiescent; then "\
+			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"else if test ${reboot_mode} = recovery_quiescent; then "\
+			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
                 "echo cold boot: ffv_wake=${ffv_wake} powermode=${powermode} suspend=${suspend};"\
                 "if test ${ffv_wake} = on; then "\
@@ -223,7 +229,7 @@
                 "fi; "\
             "else if test ${reboot_mode} = fastboot; then "\
                 "fastboot;"\
-            "fi;fi;fi;fi;fi;"\
+			"fi;fi;fi;fi;fi;fi;fi;"\
             "\0" \
         "reset_suspend="\
             "if test ${ffv_freeze} != on; then "\
@@ -385,6 +391,10 @@
         "bcb_cmd="\
             "get_rebootmode;"\
             "get_valid_slot;"\
+			"if test ${vendor_boot_mode} = true; then "\
+				"setenv loadaddr 2080000;"\
+				"setenv dtb_mem_addr 0x1f00000;"\
+			"fi;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOAO_3; then "\
