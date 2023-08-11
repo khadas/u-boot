@@ -452,6 +452,26 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     return iRet;
 }
 
+uint32_t get_rsv_mem_size(void)
+{
+	uint32_t rsv_start, reg_size, rsv_size;
+#if defined(P_AO_SEC_GP_CFG3)
+	rsv_start = *((volatile uint32_t *)((uintptr_t)(P_AO_SEC_GP_CFG5)));
+	reg_size = *((volatile uint32_t *)((uintptr_t)(P_AO_SEC_GP_CFG3)));
+#elif defined(SYSCTRL_SEC_STATUS_REG15)
+	rsv_start = *((volatile uint32_t *)((uintptr_t)(SYSCTRL_SEC_STATUS_REG17)));
+	reg_size = *((volatile uint32_t *)((uintptr_t)(SYSCTRL_SEC_STATUS_REG15)));
+#endif
+	if ((reg_size >> 16) & 0xff)
+		rsv_size = (((reg_size & 0xffff0000) >> 16) << 16) +
+			((reg_size & 0x0000ffff) << 16);
+	else
+		rsv_size = (((reg_size & 0xffff0000) >> 16) << 10) +
+			((reg_size & 0x0000ffff) << 10);
+
+	return (rsv_start + rsv_size);
+}
+
 static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     unsigned    kernel_size;
@@ -470,6 +490,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 	ulong kernelEndAddr = 0;
 	ulong kernelLoadAddr = 0;
 	ulong dtbLoadAddr = 0;
+	ulong secMemSize = get_rsv_mem_size();
 	char strAddr[128] = {0};
 
 	if (argc > 2) {
@@ -575,7 +596,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			kernelEndAddr = kernelLoadAddr + actualbootimgsz;
 			dtbLoadAddr = env_get_ulong("dtb_mem_addr", 16, DTB_LOAD_ADDR);
 
-			if (kernelEndAddr > IOTRACE_LOAD_ADDR) {
+			if (kernelEndAddr > IOTRACE_LOAD_ADDR && kernelLoadAddr < secMemSize) {
 				kernelLoadAddr = kernelLoadAddr -
 				ALIGN((kernelEndAddr - IOTRACE_LOAD_ADDR), LOAD_ADDR_ALIGN_LENGTH);
 				if (kernelLoadAddr <= dtbLoadAddr)
@@ -583,6 +604,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 				sprintf(strAddr, "%lx", kernelLoadAddr);
 				memmove((void *)kernelLoadAddr, (void *)loadaddr, IMG_PRELOAD_SZ);
 				env_set("loadaddr", strAddr);
+				env_set("loadaddr_kernel", strAddr);
 				loadaddr = (unsigned char *)
 					env_get_ulong("loadaddr", 16, kernelLoadAddr);
 				printf("kernel overlap iotrace, reset kernelLoadAddr = 0x%lx\n",
@@ -670,7 +692,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			kernelEndAddr = kernelLoadAddr + actualbootimgsz;
 			dtbLoadAddr = env_get_ulong("dtb_mem_addr", 16, DTB_LOAD_ADDR);
 
-			if (kernelEndAddr > IOTRACE_LOAD_ADDR) {
+			if (kernelEndAddr > IOTRACE_LOAD_ADDR && kernelLoadAddr < secMemSize) {
 				kernelLoadAddr = kernelLoadAddr -
 				ALIGN((kernelEndAddr - IOTRACE_LOAD_ADDR), LOAD_ADDR_ALIGN_LENGTH);
 				if (kernelLoadAddr <= dtbLoadAddr)
@@ -678,6 +700,7 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 				sprintf(strAddr, "%lx", kernelLoadAddr);
 				memmove((void *)kernelLoadAddr, (void *)loadaddr, IMG_PRELOAD_SZ);
 				env_set("loadaddr", strAddr);
+				env_set("loadaddr_kernel", strAddr);
 				loadaddr = (unsigned char *)
 					env_get_ulong("loadaddr", 16, kernelLoadAddr);
 				printf("kernel overlap iotrace, reset kernelLoadAddr = 0x%lx\n",
