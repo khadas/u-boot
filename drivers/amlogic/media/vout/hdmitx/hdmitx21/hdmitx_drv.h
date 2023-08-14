@@ -28,5 +28,6 @@ void frl_tx_stop(struct hdmitx_dev *hdev);
 bool scdc_tx_frl_cfg1_set(u8 cfg1);
 u8 scdc_tx_update_flags_get(void);
 bool scdc_tx_update_flags_set(u8 update_flags);
+void hdmitx_soft_reset(u32 bits);
 
 #endif

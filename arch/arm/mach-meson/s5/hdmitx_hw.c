@@ -153,6 +153,32 @@ void hd21_write_reg(u32 vaddr, u32 val)
 		pr_info("Wr32[0x%08x] 0x%08x\n", paddr, val);
 }
 
+void hdmitx21_reset_reg_bit(u32 addr, u32 bit_nr)
+{
+	if (bit_nr > 31)
+		return;
+
+	hdmitx21_set_reg_bits(addr, 1, bit_nr, 1);
+	hdmitx21_set_reg_bits(addr, 0, bit_nr, 1);
+}
+
+void hdmitx21_nreset_reg_bit(u32 addr, u32 bit_nr)
+{
+	if (bit_nr > 31)
+		return;
+
+	hdmitx21_set_reg_bits(addr, 0, bit_nr, 1);
+	hdmitx21_set_reg_bits(addr, 1, bit_nr, 1);
+}
+
+bool hdmitx21_get_bit(u32 addr, u32 bit_nr)
+{
+	if (bit_nr > 31)
+		return 0;
+
+	return (hdmitx21_rd_reg(addr) & (1 << bit_nr)) == (1 << bit_nr);
+}
+
 void hd21_set_reg_bits(u32 addr, u32 value,
 		     u32 offset, u32 len)
 {
@@ -224,11 +250,6 @@ void hdmitx21_wr_reg(u32 addr, u32 val)
 		hdmitx_wr_top(addr, val);
 	else
 		hdmitx_wr_cor(addr, val);
-}
-
-bool hdmitx21_get_bit(u32 addr, u32 bit_nr)
-{
-	return (hdmitx21_rd_reg(addr) & (1 << bit_nr)) == (1 << bit_nr);
 }
 
 void hdmitx21_set_reg_bits(u32 addr, u32 value,

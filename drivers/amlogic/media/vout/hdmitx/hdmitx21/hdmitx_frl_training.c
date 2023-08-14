@@ -624,6 +624,7 @@ bool hdmitx_frl_training_main(enum frl_rate_enum frl_rate)
 	if (frl_rate == FRL_NONE)
 		return 1;
 
+	hdmitx_soft_reset(BIT(0));
 	while (ltp0123 != 0) {
 		pr_info("[FRL TRAINING] ************** TX_LTS_3_POLL_FLT_UPDATE************\n");
 		ret = TX_LTS_3_POLL_FLT_UPDATE();
