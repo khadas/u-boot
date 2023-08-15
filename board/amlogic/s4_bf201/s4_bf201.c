@@ -353,7 +353,7 @@ static struct mtd_partition normal_partition_info[] = {
 },
 #ifdef CONFIG_ENV_IS_IN_NAND
 {
-	.name = "ENV",
+	.name = "ubootenv",
 	.offset = 0,
 	.size = SZ_256K,
 },
