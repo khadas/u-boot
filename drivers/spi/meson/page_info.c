@@ -324,12 +324,6 @@ static void page_info_dump_info(void)
 
 unsigned char *page_info_post_init(struct mtd_info *mtd, struct udevice *dev)
 {
-	if (!page_info) {
-		page_info = kzalloc(MAX_BYTES_IN_BOOTINFO, GFP_KERNEL);
-		if (!page_info)
-			return NULL;
-	}
-
 	page_info_init_from_mtd_and_dts(mtd, dev);
 #ifdef __PXP_DEBUG__
 	page_info_dump_info();
@@ -345,7 +339,6 @@ int page_info_pre_init(void)
 			return -1;
 	}
 
-	page_info_initialize(DEFAULT_ECC_MODE, 0, 0);
 	return 0;
 }
 

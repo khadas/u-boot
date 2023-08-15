@@ -19,6 +19,7 @@
 #include <dm/util.h>
 #include <dm/pinctrl.h>
 #include <asm/arch/spinand.h>
+#include <amlogic/aml_pageinfo.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -505,6 +506,7 @@ static int spifc_probe(struct udevice *bus)
 		return ret;
 	}
 #endif
+	page_info_pre_init();
 	spifc_init();
 
 	return ret;

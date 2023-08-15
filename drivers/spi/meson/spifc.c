@@ -18,6 +18,7 @@
 #include <dm/lists.h>
 #include <dm/util.h>
 #include <dm/pinctrl.h>
+#include <amlogic/aml_pageinfo.h>
 
 //#define CONFIG_SPIFC_COMPATIBLE_TO_APPOLO
 
@@ -456,6 +457,8 @@ static int spifc_probe(struct udevice *bus)
 	ret = dm_gpio_set_dir_flags(&priv->cs_gpios, GPIOD_IS_OUT);
 	if (ret)
 		pr_err("%s %d set dir error!\n", __func__, __LINE__);
+
+	page_info_pre_init();
 
 	return dm_gpio_set_value(&priv->cs_gpios, 1);
 }

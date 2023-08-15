@@ -15,6 +15,7 @@
 #include <dm/util.h>
 #include <dm/pinctrl.h>
 #include <spi.h>
+#include <amlogic/aml_pageinfo.h>
 #include "page_info.h"
 
 //#define __SPI_NFC_DEBUG__
@@ -66,6 +67,7 @@ static int spi_nfc_probe(struct udevice *bus)
 	priv->info_buf = priv->data_buf + DATA_BUF_SIZE;
 
 	page_info_pre_init();
+	page_info_initialize(DEFAULT_ECC_MODE, 0, 0);
 	nfc_set_clock_and_timing(NFC_STATUS_OFF, SPINAND_FLASH);
 
 	return 0;

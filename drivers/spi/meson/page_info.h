@@ -292,6 +292,7 @@ unsigned int page_info_get_pages_in_block(void);
 unsigned char page_info_get_enable_bbt(void);
 unsigned short *page_info_get_bbt(void);
 unsigned int page_info_get_pages_in_boot(void);
-
+void page_info_initialize(unsigned int default_n2m,
+	unsigned char bus_width, unsigned char ca);
 int page_info_pre_init(void);
 #endif
