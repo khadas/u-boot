@@ -1189,6 +1189,14 @@ config T7_AN400_LPDDR4X_DEBIAN
 	  it's based in T7 AN400 LPDDR4X
 	  and add debian configs
 
+config T7_AN400_LPDDR4X_BLUEBELL
+	bool "T7_AN400_LPDDR4X_BLUEBELL"
+	select TARGET_T7_AN400_LPDDR4X_BLUEBELL
+	help
+	  Select T7 AN400 LPDDR4X BLUEBELL config
+	  it's based in T7 AN400 LPDDR4X
+	  and add bluebell configs
+
 config T7_AN400_MERCURY
 	bool "T7_AN400_MERCURY"
 	select TARGET_T7_AN400_MERCURY
@@ -1239,6 +1247,10 @@ config TARGET_T7_AN409_DDR4
 config TARGET_T7_AN400_LPDDR4X
 	bool "T7 AN400 lpddr4x board"
 	depends on T7_AN400_LPDDR4X || T7_AN400_LPDDR4X_DEBIAN
+
+config TARGET_T7_AN400_LPDDR4X_BLUEBELL
+	bool "T7 AN400 lpddr4x bluebell board"
+	depends on T7_AN400_LPDDR4X_BLUEBELL
 
 config TARGET_T7_AN400_MERCURY
         bool "T7 AN400 mercury board"
@@ -1761,6 +1773,10 @@ endif
 
 if T7_AN400_LPDDR4X_DEBIAN
 source "board/amlogic/t7_an400_lpddr4x_debian/Kconfig"
+endif
+
+if T7_AN400_LPDDR4X_BLUEBELL
+source "board/amlogic/t7_an400_lpddr4x_bluebell/Kconfig"
 endif
 
 source "board/amlogic/t7_an400_mercury/Kconfig"
