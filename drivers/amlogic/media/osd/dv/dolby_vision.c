@@ -981,6 +981,7 @@ static int dolby_core2_set(
 
 		if (vinfo_width <= 720)
 			g_htotal_add = 0x12c;
+		g_vwidth = 0x10;
 	}
 
 #ifdef AML_S5_DISPLAY
