@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <asm/arch/mailbox.h>
 #include <asm/arch/secure_apb.h>
+#include <asm/cpu_id.h>
 
 /* Bit position for size value in MHU header */
 #define SIZE_SHIFT	20
@@ -276,25 +277,35 @@ void bl40_wait_unlock(void)
 
 int send_bl40(unsigned long addr, unsigned long  length)
 {
+	unsigned int data;
+
 	if (is_sp_mode()) {
 		printf("No support loader bl40 in sp mode!\n");
 		return -1;
 	}
 
+	/* Configure rtc_clk for g12a m4 systick clock source */
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_G12A) {
+		data = readl(P_AO_RTC_ALT_CLK_CNTL0);
+		data |= (0x3 << 30);
+		writel(data, P_AO_RTC_ALT_CLK_CNTL0);
+
+		data = readl(P_AO_RTC_ALT_CLK_CNTL1);
+		data |= (0x1 << 24);
+		writel(data, P_AO_RTC_ALT_CLK_CNTL1);
+	}
+
 	while ((get_m4_check_status() & 0x3) != 0x3);
+
 	printf("Sending bl40 address and size!\n");
 	mb_message_start(HIGH_PRIORITY);
 	writel(addr, ap_mb_payload[LOW_PRIORITY]);
 	mb_message_send(SCPI_CMD_BL0_DATA_ADDR, HIGH_PRIORITY);
-	mb_message_wait(HIGH_PRIORITY);
-	mb_message_end(HIGH_PRIORITY);
-	printf("Sending bl40 address ok!\n");
 
+	printf("Sending bl40 address ok!\n");
 	mb_message_start(HIGH_PRIORITY);
 	writel(length, ap_mb_payload[LOW_PRIORITY]);
 	mb_message_send(SCPI_CMD_BL0_DATA_LEN, HIGH_PRIORITY);
-	mb_message_wait(HIGH_PRIORITY);
-	mb_message_end(HIGH_PRIORITY);
 	printf("Sending bl40 size ok!\n");
 
 	return 0;
