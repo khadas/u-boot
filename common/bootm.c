@@ -305,14 +305,12 @@ static int read_fdto_partition(void)
 
 	//run_command("get_valid_slot;", 0);
 	s1 = env_get("active_slot");
-	pr_info("active_slot is %s\n", s1);
-	if (strcmp(s1, "normal") == 0) {
+	if (s1 && (strcmp(s1, "normal") == 0))
 		strcpy(dtbo_partition, "dtbo");
-	} else if (strcmp(s1, "_a") == 0) {
+	else if (s1 && (strcmp(s1, "_a") == 0))
 		strcpy(dtbo_partition, "dtbo_a");
-	} else if (strcmp(s1, "_b") == 0) {
+	else if (s1 && (strcmp(s1, "_b") == 0))
 		strcpy(dtbo_partition, "dtbo_b");
-	}
 
 	/*
 	* Though it is really no need to parse the dtimg infos
