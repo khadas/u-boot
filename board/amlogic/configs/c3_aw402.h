@@ -164,6 +164,7 @@
 		"if mmcinfo; then run recovery_from_fat_dev; fi;"\
 		"\0"\
 	"recovery_from_flash="\
+		"run storage_param;"\
 		"setenv loadaddr ${loadaddr_kernel};"\
 		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
 		"recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\

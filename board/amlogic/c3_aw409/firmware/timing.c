@@ -9,7 +9,8 @@
 
 /* board clk defines */
 #define CPU_CLK                                 1920
-#define DSU_CLK                                 1200
+#define DSU_CLK                                 1200  /* c3 does not have dsu */
+
 /* board vmin_value defines */
 #define VMIN_FF_VALUE                           760
 #define VMIN_TT_VALUE                           790
@@ -514,6 +515,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PADCTRL_PIN_MUX_REGB,	   (0 << 12),	  (0xf << 12), 0, 0, 0 },
 	{ PADCTRL_GPIOA_O,	       (0 << 3),	  (0x1 << 3), 0, 0, 0 },
 	{ PADCTRL_GPIOA_OEN,	   (0 << 3),	  (0x1 << 3), 0, 0, 0 },
+
 };
 
 #define DEV_FIP_SIZE 0x300000

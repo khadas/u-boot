@@ -394,27 +394,27 @@ static const struct mtd_partition spinand_partitions[] = {
 	{
 	 .name = "logo",
 	 .offset = 0,
-	 .size = 2 * SZ_1M,
+	 .size = 1 * SZ_1M,
 	  },
 	{
 	 .name = "misc",
 	 .offset = 0,
-	 .size = 2 * SZ_1M,
+	 .size = 1 * SZ_1M,
 	  },
 	{
 	 .name = "recovery",
 	 .offset = 0,
-	 .size = 16 * SZ_1M,
+	 .size = 8 * SZ_1M,
 	  },
 	{
 	 .name = "boot",
 	 .offset = 0,
-	 .size = 16 * SZ_1M,
+	 .size = 10 * SZ_1M,
 	  },
 	{
 	 .name = "system",
 	 .offset = 0,
-	 .size = 96 * SZ_1M,
+	 .size = 70 * SZ_1M,
 	  },
 	/* last partition get the rest capacity */
 	{

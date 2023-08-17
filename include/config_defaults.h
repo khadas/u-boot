@@ -11,10 +11,10 @@
 
 /* Support bootm-ing different OSes */
 #define CONFIG_BOOTM_LINUX 1
-#define CONFIG_BOOTM_NETBSD 1
-#define CONFIG_BOOTM_PLAN9 1
-#define CONFIG_BOOTM_RTEMS 1
-#define CONFIG_BOOTM_VXWORKS 1
+// #define CONFIG_BOOTM_NETBSD 1
+// #define CONFIG_BOOTM_PLAN9 1
+// #define CONFIG_BOOTM_RTEMS 1
+// #define CONFIG_BOOTM_VXWORKS 1
 
 #define CONFIG_BZIP2 1
 #define CONFIG_GZIP 1
