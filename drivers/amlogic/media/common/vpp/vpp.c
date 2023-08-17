@@ -2100,10 +2100,8 @@ void hdr_tx_pkt_cb(void)
 	if (!hdr_policy_env)
 		return;
 
-  	if (!hdr_force_mode_env)
-		hdr_force_mode = 0;
-	else
-        	hdr_force_mode = simple_strtoul(hdr_force_mode_env, NULL, 10);
+	if (hdr_force_mode_env)
+		hdr_force_mode = simple_strtoul(hdr_force_mode_env, NULL, 10);
 
 	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
 #ifdef CONFIG_AML_HDMITX

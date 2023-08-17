@@ -374,8 +374,9 @@ bool request_ll_mode(void)
 	if (!dolby_status)
 		dolby_status = env_get("dolby_status");
 
-	if (!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB) ||
-		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV)) {
+	if (dolby_status &&
+		(!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB) ||
+		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV))) {
 		printf("request LL mode\n");
 		return true;
 	} else
@@ -926,6 +927,8 @@ static int dolby_core2_set(
 	uint32_t count;
 	int i;
 	uint32_t bypass_flag = 0;
+	uint32_t fb_height = 0;
+	char *fb_h = NULL;
 
 	uint32_t g_htotal_add = 0x40;
 	uint32_t g_vtotal_add = 0x80;
@@ -935,6 +938,10 @@ static int dolby_core2_set(
 	uint32_t g_vpotch;
 	uint32_t g_hpotch = 0x10;
 	u32 addr = 0;
+
+	fb_h = env_get("fb_height");
+	if (fb_h)
+		fb_height = simple_strtoul(fb_h, NULL, 10);
 
 	/* adjust core2 setting to work around*/
 	/* fixing with 1080p24hz and 480p60hz */
@@ -967,7 +974,7 @@ static int dolby_core2_set(
 			g_vpotch = 0x10;
 
 		/* for 1080p fb */
-		if (vsize <= 1080 &&
+		if (fb_height <= 1080 &&
 			vinfo_width < 7680 &&
 			vinfo_height < 4320)
 			g_vpotch = 0x50;

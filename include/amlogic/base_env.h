@@ -53,8 +53,6 @@
 	"loadaddr_kernel=0x03000000\0"\
 	"decaddr_kernel=0x01800000\0"\
 	"fb_addr=0x00300000\0" \
-	"dolby_status=0\0" \
-	"dolby_vision_on=0\0" \
 	"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
 	"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
 	"dv_fw_dir=/oem/firmware/dovi_fw.bin\0" \
