@@ -1171,3 +1171,55 @@ U_BOOT_CMD
 	"So you can execute command: update_dt"
 );
 #endif
+
+int set_successful_boot(void) {
+    char miscbuf[MISCBUF_SIZE] = {0};
+    AvbABData info;
+    int slot_num = 0;
+    bootloader_control boot_ctrl;
+    bool bootable = 0;
+    int AB_mode = 0;
+
+	boot_info_open_partition(miscbuf);
+	boot_info_load(&boot_ctrl, miscbuf);
+
+	if (!boot_info_validate(&boot_ctrl)) {
+		printf("boot-info virtual ab is invalid. Try normal ab.\n");
+		boot_info_load_normalAB(&info, miscbuf);
+		if (!boot_info_validate_normalAB(&info)) {
+            printf("boot-info is invalid.\n");
+			/*printf("boot-info is invalid. Resetting.\n");
+			boot_info_reset(&boot_ctrl);
+			boot_info_save(&boot_ctrl, miscbuf);*/
+		} else {
+			printf("update from normal ab to virtual ab\n");
+			AB_mode = 1;
+		}
+	}
+
+	if (AB_mode == 1) {
+		slot_num = get_active_slot_normalAB(&info);
+		printf("active slot = %d\n", slot_num);
+		bootable = slot_is_bootable_normalAB(&info.slots[slot_num]);
+		//bootable_b = slot_is_bootable_normalAB(&info.slots[1]);
+		/*boot_info_reset(&boot_ctrl);
+		boot_ctrl.slot_info[0].successful_boot = info.slots[0].successful_boot;
+		boot_ctrl.slot_info[1].successful_boot = info.slots[1].successful_boot;
+		boot_info_set_active_slot(&boot_ctrl, slot);
+		boot_info_save(&boot_ctrl, miscbuf);
+		slot = get_active_slot(&boot_ctrl);*/
+	} else {
+		slot_num = get_active_slot(&boot_ctrl);
+		printf("active slot = %d\n", slot_num);
+		bootable = slot_is_bootable(&boot_ctrl.slot_info[slot_num]);
+		//bootable_b = slot_is_bootable(&boot_ctrl.slot_info[1]);
+	}
+
+    if (bootable) {
+        printf("slots[%d] is bootable\n", slot_num);
+        return 0;
+    }
+
+    return -1;
+}
+

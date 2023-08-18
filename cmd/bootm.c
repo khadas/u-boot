@@ -288,16 +288,18 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				uint32_t i = 0;
 				uint32_t version = 0;
 
-				for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++) {
-					uint64_t rb_idx = out_data->rollback_indexes[i];
+                if(!set_successful_boot()) {
+    				for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++) {
+    					uint64_t rb_idx = out_data->rollback_indexes[i];
 
-					if (get_avb_antirollback(i, &version) &&
-						version != (uint32_t)rb_idx &&
-						!set_avb_antirollback(i, (uint32_t)rb_idx)) {
-						printf("rollback(%d) = %u failed\n",
-								i, (uint32_t)rb_idx);
-					}
-				}
+    					if (get_avb_antirollback(i, &version) &&
+    						version != (uint32_t)rb_idx &&
+    						!set_avb_antirollback(i, (uint32_t)rb_idx)) {
+    						printf("rollback(%d) = %u failed\n",
+    								i, (uint32_t)rb_idx);
+    					}
+    				}
+                }
 			}
 
 			if (is_avb_arb_available() &&
