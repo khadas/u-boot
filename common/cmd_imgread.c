@@ -398,8 +398,8 @@ uint32_t get_rsv_mem_size(void)
 
 static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-    unsigned    kernel_size;
-    unsigned    ramdisk_size;
+	unsigned int kernel_size = 0;
+	unsigned int ramdisk_size = 0;
     boot_img_hdr_t * hdr_addr = NULL;
     int genFmt = 0;
     unsigned actualBootImgSz = 0;
@@ -501,6 +501,21 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
         extern p_vendor_boot_img_t p_vender_boot_img;
 	p_boot_img_hdr_v3_t hdr_addr_v3 = NULL;
+	char partname_init[32] = {0};
+	u64 rc_init;
+	char *slot_name;
+	u64 size;
+
+	init_boot_ramdisk_size = 0;
+	slot_name = getenv("slot-suffixes");
+	if (slot_name && (strcmp(slot_name, "0") == 0))
+		strcpy((char *)partname_init, "init_boot_a");
+	else if (slot_name && (strcmp(slot_name, "1") == 0))
+		strcpy((char *)partname_init, "init_boot_b");
+	else
+		strcpy((char *)partname_init, "init_boot");
+
+	rc_init = store_get_partition_size((unsigned char *)partname_init, &size);
 
         /*free vendor buffer first*/
 		if (p_vender_boot_img)
@@ -528,8 +543,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
         hdr_addr_v3 = (p_boot_img_hdr_v3_t)hdr_addr;
         kernel_size    = ALIGN(hdr_addr_v3->kernel_size,0x1000);
         ramdisk_size   = ALIGN(hdr_addr_v3->ramdisk_size,0x1000);
-        debugP("kernel_size 0x%x, totalSz 0x%x\n", hdr_addr_v3->kernel_size, kernel_size);
-        debugP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr_v3->ramdisk_size, ramdisk_size);
+		MsgP("kernel_size 0x%x, totalSz 0x%x\n", hdr_addr_v3->kernel_size, kernel_size);
+		MsgP("ramdisk_size 0x%x, totalSz 0x%x\n", hdr_addr_v3->ramdisk_size, ramdisk_size);
 
         actualBootImgSz = kernel_size + ramdisk_size + 0x1000;
 
@@ -593,6 +608,64 @@ load_left_r:
 						leftSz, partName, IMG_PRELOAD_SZ);
 					return __LINE__;
 				}
+
+				if (rc_init == 0) {
+					MsgP("read from part: %s\n", partname_init);
+					unsigned int nflashloadlen_init = 0;
+					const int preloadsz_init = 0x1000 * 2;
+					unsigned char *pbuffpreload_init = 0;
+
+					nflashloadlen_init = preloadsz_init;
+					MsgP("sizeof preloadSz=%u\n", nflashloadlen_init);
+
+					pbuffpreload_init = malloc(preloadsz_init);
+
+					if (!pbuffpreload_init) {
+						printf("Fail to allocate memory for %s!\n",
+							partname_init);
+						return __LINE__;
+					}
+
+					rc = store_read_ops((unsigned char *)partname_init,
+						pbuffpreload_init, 0,
+						nflashloadlen_init);
+					if (rc) {
+						errorP("Fail to read 0x%xB from part[%s]\n",
+							nflashloadlen_init, partname_init);
+						free(pbuffpreload_init);
+						pbuffpreload_init = 0;
+						return __LINE__;
+					}
+
+					p_boot_img_hdr_v3_t pinitbootimghdr;
+
+					pinitbootimghdr = (p_boot_img_hdr_v3_t)pbuffpreload_init;
+
+					ramdisk_size = ALIGN(pinitbootimghdr->ramdisk_size,
+							0x1000);
+					MsgP("ramdisk_size 0x%x, totalSz 0x%x\n",
+						pinitbootimghdr->ramdisk_size, ramdisk_size);
+					MsgP("init_boot header_version = %d\n",
+						pinitbootimghdr->header_version);
+					init_boot_ramdisk_size = pinitbootimghdr->ramdisk_size;
+
+					if (init_boot_ramdisk_size != 0) {
+						MsgP("read ramdisk from part: %s\n", partname_init);
+						rc = store_read_ops((unsigned char *)partname_init,
+						loadaddr + kernel_size + BOOT_IMG_V3_HDR_SIZE,
+						BOOT_IMG_V3_HDR_SIZE,
+						ramdisk_size);
+					}
+					if (rc) {
+						errorP("Fail to read 0x%xB from part[%s]\n",
+							ramdisk_size, partname_init);
+						free(pbuffpreload_init);
+						pbuffpreload_init = 0;
+						return __LINE__;
+					}
+					free(pbuffpreload_init);
+					pbuffpreload_init = 0;
+				}
 			}
         }
         debugP("totalSz=0x%x\n", actualBootImgSz);
@@ -614,12 +687,10 @@ load_left_r:
         const int preloadSz_r = 0x1000;
         unsigned char * pBuffPreload = 0;
         int rc_r = 0;
-        char *slot_name;
 
-        slot_name = getenv("slot-suffixes");
-	if (strcmp(slot_name, "0") == 0)
+	if (slot_name && (strcmp(slot_name, "0") == 0))
 		strcpy(partName_r, "vendor_boot_a");
-	else if (strcmp(slot_name, "1") == 0)
+	else if (slot_name && (strcmp(slot_name, "1") == 0))
 		strcpy(partName_r, "vendor_boot_b");
 	else
 		strcpy(partName_r, "vendor_boot");
