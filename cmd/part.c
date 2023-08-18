@@ -54,7 +54,6 @@ static int do_part_list(int argc, char * const argv[])
 	int ret;
 	struct blk_desc *desc;
 	char *var = NULL;
-	bool bootable = false;
 	int i;
 
 	if (argc < 2)
@@ -63,9 +62,7 @@ static int do_part_list(int argc, char * const argv[])
 	if (argc > 2) {
 		for (i = 2; i < argc ; i++) {
 			if (argv[i][0] == '-') {
-				if (!strcmp(argv[i], "-bootable")) {
-					bootable = true;
-				} else {
+				if (strcmp(argv[i], "-bootable")) {
 					printf("Unknown option %s\n", argv[i]);
 					return CMD_RET_USAGE;
 				}
@@ -96,9 +93,6 @@ static int do_part_list(int argc, char * const argv[])
 
 			if (r != 0)
 				break;
-
-			if (bootable && !info.bootable)
-				continue;
 
 			sprintf(t, "%s%x", str[0] ? " " : "", p);
 			strcat(str, t);
