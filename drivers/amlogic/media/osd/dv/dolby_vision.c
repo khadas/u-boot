@@ -351,12 +351,12 @@ int is_dolby_enable(void)
 
 	if (!dv_fw_valid || !check_outputmode_valid)
 		ret = 0;
-	else if (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
+	else if (dolby_status && (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
 		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
-		!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
+		!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB)))
 		ret = 1;
-	else if (!strcmp(dolby_status, DOLBY_VISION_SET_DISABLE) &&
-		!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR))
+	else if (hdr_force_mode && (!strcmp(dolby_status, DOLBY_VISION_SET_DISABLE) &&
+		!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR)))
 		ret = 1;
 	else
 		ret = 0;
