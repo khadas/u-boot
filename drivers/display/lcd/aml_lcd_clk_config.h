@@ -62,9 +62,13 @@ struct lcd_clk_data_s {
 	int fifo_clk_msr_id;
 	struct lcd_clk_ctrl_s *pll_ctrl_table;
 
+	unsigned int ss_support;
 	unsigned int ss_level_max;
 	unsigned int ss_freq_max;
 	unsigned int ss_mode_max;
+	unsigned int ss_dep_base;
+	unsigned int ss_dep_sel_max;
+	unsigned int ss_str_m_max;
 	char **ss_level_table;
 	char **ss_freq_table;
 	char **ss_mode_table;
@@ -101,8 +105,12 @@ struct lcd_clk_config_s { /* unit: Hz */
 	unsigned long long pll_fout;
 	unsigned long long phy_clk;
 	unsigned int ss_level;
+	unsigned int ss_dep_sel;
+	unsigned int ss_str_m;
+	unsigned int ss_ppm;
 	unsigned int ss_freq;
 	unsigned int ss_mode;
+	unsigned int ss_en;
 	unsigned int div_sel;
 	unsigned int xd;
 	unsigned int div_sel_max;

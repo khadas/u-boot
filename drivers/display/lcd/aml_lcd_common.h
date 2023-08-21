@@ -60,7 +60,8 @@
 /* 20230313: update tcon debug info print*/
 /* 20230802: add t5m,t5w,t3x set phy lane amp*/
 /* 20230816: optimize clk accuracy*/
-#define LCD_DRV_VERSION    "20230816"
+/* 20230821: update lcd ss support*/
+#define LCD_DRV_VERSION    "20230821"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
