@@ -626,7 +626,7 @@ static bool is_attr_match(void)
 
 static int check_tv_support(struct hdmitx_dev *hdmitx_device)
 {
-	if (!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR)) {
+	if (hdr_force_mode && (!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR))) {
 		if (check_tv_support_hdr(hdmitx_device)) {
 			dovi_setting.dst_format = FORMAT_HDR10;
 			printf("output hdr mode: mode is : %s  attr: %s\n",
