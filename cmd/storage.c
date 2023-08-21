@@ -286,6 +286,7 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			pr_info("Item[%d]%4s offset 0x%08x sz 0x%x\n",
 			       nIndex, name, offPayload, szPayload);
 		}
+
 		boot_entry[BOOT_AREA_BB1ST].size = ssp->boot_entry[BOOT_AREA_BB1ST].size;
 #ifdef ADVANCE_DDRFIP_SIZE
 		ssp->boot_entry[BOOT_AREA_DDRFIP].size = ADVANCE_DDRFIP_SIZE;
@@ -480,11 +481,8 @@ int store_init(u32 init_flag)
 		return record;
 	}
 
-	if (BOOTLOADER_MODE_ADVANCE_INIT) {
-		ret = storage_post_init();
-		if (ret < 0)
-			return -1;
-	}
+	if (BOOTLOADER_MODE_ADVANCE_INIT)
+		storage_post_init();
 
 	/*2. Enter the probe of the valid device*/
 	for (i = 0; i < ARRAY_SIZE(device_list); i++) {
