@@ -821,6 +821,11 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	unsigned char def_cksum[] = {'0', 'x', '0', '0', '0', '0', '0', '0', '0', '0', '\0'};
 	char *hdmimode;
 	char *colorattribute;
+	int user_dv_mode;
+	char *last_output_mode;
+	char *last_colorattribute;
+	int last_dv_status;
+	bool over_write = false;
 	char dv_type[2] = {0};
 	struct scene_output_info scene_output_info;
 	struct hdmi_format_para *para = NULL;
@@ -845,12 +850,17 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	/* get user selected output mode/color */
 	colorattribute = env_get("user_colorattribute");
 	hdmimode = env_get("hdmimode");
+	user_dv_mode = get_ubootenv_dv_type();
+
+	last_output_mode = env_get("outputmode");
+	last_colorattribute = env_get("colorattribute");
+	last_dv_status = get_ubootenv_dv_status();
 	if (!store_checkvalue)
 		store_checkvalue = def_cksum;
 
-	printf("read hdmichecksum: %s, user hdmimode: %s, colorattribute: %s\n",
+	printf("read hdmichecksum: %s, user hdmimode: %s, colorattribute: %s, dv_type: %d\n",
 	       store_checkvalue, hdmimode ? hdmimode : "null",
-	       colorattribute ? colorattribute : "null");
+	       colorattribute ? colorattribute : "null", user_dv_mode);
 
 	for (i = 0; i < 4; i++) {
 		if (('0' <= store_checkvalue[i * 2 + 2]) && (store_checkvalue[i * 2 + 2] <= '9'))
@@ -898,6 +908,42 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 			printf("saved output mode not supported!\n");
 			mode_support = false;
 		}
+
+		/* if user selected mode/color/dv type which saved in ubootenv of
+		 * hdmimode/user_colorattribute/user_prefer_dv_type are different
+		 * with last actual output mode/color/dv type which saved in
+		 * ubootenv of outputmode/colorattribute/dolby_status, then it means
+		 * that the user selected format is over-writen by policy(for example:
+		 * firstly user has selected HDR priority to HDR, and select color
+		 * to rgb,12bit(now the "user_colorattribute" env will be "rgb,12bit"),
+		 * but then it selected HDR priority to DV, the actual output color
+		 * will be "444,8bit" or "422,12bit" according to dv type, and
+		 * the ubootenv "colorattribute" will be "444,8bit" or "422,12bit"),
+		 * then uboot should use the policy to select the output format,
+		 * otherwise, uboot use hdmimode/user_colorattribute/user_prefer_dv_type
+		 * env, while system use outputmode/colorattribute/dolby_status env,
+		 * there will be always a mode change during bootup
+		 */
+		if (mode_support) {
+			/* note that for T7 multi-display, it may store panel in
+			 * "outputmode" env, and will always run uboot policy
+			 */
+			if (!last_output_mode || strcmp(hdmimode, last_output_mode))
+				over_write = true;
+			else if (!last_colorattribute ||
+				strcmp(colorattribute, last_colorattribute))
+				over_write = true;
+			else if (user_dv_mode != last_dv_status)
+				over_write = true;
+			else
+				over_write = false;
+
+			if (over_write)
+				printf("last output_mode:%s, colorattribute:%s, dolby_status:%d\n",
+				last_output_mode ? last_output_mode : "null",
+				last_colorattribute ? last_colorattribute : "null",
+				last_dv_status);
+		}
 	}
 	/* three cases need to decide output by uboot mode select policy:
 	 * 1.TV changed
@@ -909,7 +955,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	 * uboot have some gap), then need to find proper output mode
 	 * with uboot policy.
 	 */
-	if (hdev->RXCap.edid_changed || no_manual_output || !mode_support) {
+	if (hdev->RXCap.edid_changed || no_manual_output || !mode_support || over_write) {
 		/* find proper mode if EDID changed */
 		scene_process(hdev, &scene_output_info);
 		env_set("hdmichecksum", hdev->RXCap.checksum);
