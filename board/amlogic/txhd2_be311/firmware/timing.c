@@ -188,9 +188,9 @@ pll_set_t __pll_setting = {
 #define VMIN_FT_SS                           810
 /* board vddee_value defines */
 /* SS/TT/FF=1.0/1.0/1.0 V */
-#define VMIN_EE_FF                          0x00090013
-#define VMIN_EE_TT                          0x00090013
-#define VMIN_EE_SS                          0x00090013
+#define VMIN_EE_FF                          0x00030019
+#define VMIN_EE_TT                          0x00030019
+#define VMIN_EE_SS                          0x00030019
 
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
