@@ -335,7 +335,6 @@ static inline bool check_outputmode(void)
 int is_dolby_enable(void)
 {
 	bool check_outputmode_valid = true;
-	int ret = 0;
 
 	if (!is_dolby_stb_chip()) {
 		printf("not dolby stb chip %x\n", get_cpu_id().family_id);
@@ -347,36 +346,39 @@ int is_dolby_enable(void)
 	if (!hdr_force_mode)
 		hdr_force_mode = env_get("hdr_force_mode");
 
-	check_outputmode_valid = check_outputmode();
-
-	if (!dv_fw_valid || !check_outputmode_valid)
-		ret = 0;
-	else if (dolby_status && (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
-		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
-		!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB)))
-		ret = 1;
-	else if (hdr_force_mode && (!strcmp(dolby_status, DOLBY_VISION_SET_DISABLE) &&
-		!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR)))
-		ret = 1;
-	else
-		ret = 0;
-
 	if (!(rma_test || rma_test_addr)) {
 		printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, ",
 			dolby_status, dv_fw_valid, check_outputmode_valid);
-		printf("hdr_force_mode %s, ret %d\n", hdr_force_mode, ret);
+		printf("hdr_force_mode %s\n", hdr_force_mode);
 	}
 
-	return ret;
+	check_outputmode_valid = check_outputmode();
+
+	if (!dv_fw_valid || !check_outputmode_valid)
+		return 0;
+	if (dolby_status) {
+		if (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
+			!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
+			!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
+			return 1;
+	}
+	if (dolby_status && hdr_force_mode) {
+		if (!strcmp(dolby_status, DOLBY_VISION_SET_DISABLE) &&
+			!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR))
+			return 1;
+	}
+	return 0;
 }
 bool request_ll_mode(void)
 {
 	if (!dolby_status)
 		dolby_status = env_get("dolby_status");
 
-	if (dolby_status &&
-		(!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB) ||
-		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV))) {
+	if (!dolby_status)
+		return false;
+
+	if (!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB) ||
+		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV)) {
 		printf("request LL mode\n");
 		return true;
 	} else
