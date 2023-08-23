@@ -2123,7 +2123,7 @@ void hdr_tx_pkt_cb(void)
 	}
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
-		hdr_policy == 2 && hdr_force_mode == 3) {
+		hdr_policy == 4 && hdr_force_mode == 3) {
 		if (is_hdmi_mode(env_get("outputmode"))) {
 			hdr_func(OSD1_HDR, SDR_HDR);
 			hdr_func(OSD2_HDR, SDR_HDR);
@@ -2138,7 +2138,7 @@ void hdr_tx_pkt_cb(void)
 	}
 
 	if ((hdrinfo && hdrinfo->hdr_sup_eotf_hlg) &&
-		hdr_policy == 2 && hdr_force_mode == 5) {
+		hdr_policy == 4 && hdr_force_mode == 5) {
 		if (is_hdmi_mode(env_get("outputmode"))) {
 			hdr_func(OSD1_HDR, SDR_HLG);
 			hdr_func(OSD2_HDR, SDR_HLG);
