@@ -2127,7 +2127,9 @@ show_result:
 int osd_rma_test(u32 osd_index)
 {
 	u32 i = osd_index, osd_max = 1;
+#ifndef AML_C3_DISPLAY
 	u32 hist_result[4], osd_state;
+#endif
 
 	rma_test = 1;
 	get_osd_version();
@@ -2142,12 +2144,15 @@ int osd_rma_test(u32 osd_index)
 	}
 
 	stop_osd_log();
+#ifndef AML_C3_DISPLAY
 	hist_set_golden_data();
+#endif
 	osd_logi("=== osd_rma_test for osd%d ===\n", i);
 	osd_hw_init_by_index(i, true);
 	if (-1 == video_display_osd(i)) {
 		return (-1);
 	}
+#ifndef AML_C3_DISPLAY
 	osd_hist_enable(osd_index);
 	_udelay(50000);
 	osd_state = osd_get_state(osd_index);
@@ -2158,7 +2163,6 @@ int osd_rma_test(u32 osd_index)
 	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
 	osd_get_hist_stat(hist_result);
 	rma_test = 0;
-#ifndef AML_C3_DISPLAY
 	u32 family_id = osd_get_chip_type();
 
 	start_osd_log();

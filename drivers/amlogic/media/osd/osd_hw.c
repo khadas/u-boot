@@ -3737,6 +3737,7 @@ int test_for_c3(u32 osd_index, u32 fb_data)
 		(osd_hw.free_dst_data[OSD1].x_end + 1) << 16
 		| (osd_hw.free_dst_data[OSD1].y_end + 1));
 	VSYNCOSD_WR_MPEG_REG(VPU_VOUT_PROB_POS, 0x00640064);
+	_udelay(50000);
 	probe_data = VSYNCOSD_RD_MPEG_REG(VPU_VOUT_RO_PROB);
 	r_probe = (probe_data & 0x3ff00000) >> 25;
 	g_probe = (probe_data & 0xffc00) >> 14;
