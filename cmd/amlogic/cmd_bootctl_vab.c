@@ -622,6 +622,7 @@ static int do_GetValidSlot(
 	int AB_mode = 0;
 	bool bootable_a, bootable_b;
 	bool nocs_mode = false;
+	char *dts_flag2 = NULL;
 
 	if (argc != 1)
 		return cmd_usage(cmdtp);
@@ -680,6 +681,8 @@ static int do_GetValidSlot(
 		printf("set vendor_boot_mode false\n");
 	}
 
+	dts_flag2 = env_get("dts_to_gpt");
+
 	if (slot == 0) {
 		if (bootable_a) {
 			if (has_boot_slot == 1) {
@@ -712,14 +715,20 @@ static int do_GetValidSlot(
 			if (*efuse_field.data == 1)
 				nocs_mode = true;
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
-			if (gpt_partition || nocs_mode) {
-				printf("gpt or nocs mode\n");
-				write_bootloader(2, 1);
-				env_set("expect_index", "1");
-			} else {
-				printf("normal mode\n");
+			if (dts_flag2 && (strcmp(dts_flag2, "1") == 0)) {
+				printf("back to dts\n");
 				write_bootloader(2, 0);
 				env_set("expect_index", "0");
+			} else {
+				if (gpt_partition || nocs_mode) {
+					printf("gpt or nocs mode\n");
+					write_bootloader(2, 1);
+					env_set("expect_index", "1");
+				} else {
+					printf("normal mode\n");
+					write_bootloader(2, 0);
+					env_set("expect_index", "0");
+				}
 			}
 			run_command("saveenv", 0);
 			run_command("reset", 0);
@@ -760,14 +769,21 @@ static int do_GetValidSlot(
 			if (*efuse_field.data == 1)
 				nocs_mode = true;
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
-			if (gpt_partition || nocs_mode) {
-				printf("gpt or nocs mode\n");
+			if (dts_flag2 && (strcmp(dts_flag2, "1") == 0)) {
+				printf("back to dts\n");
+				write_bootloader(2, 0);
 				write_bootloader(2, 1);
-				env_set("expect_index", "1");
-			} else {
-				printf("normal mode\n");
-				write_bootloader(1, 0);
 				env_set("expect_index", "0");
+			} else {
+				if (gpt_partition || nocs_mode) {
+					printf("gpt or nocs mode\n");
+					write_bootloader(2, 1);
+					env_set("expect_index", "1");
+				} else {
+					printf("normal mode\n");
+					write_bootloader(1, 0);
+					env_set("expect_index", "0");
+				}
 			}
 			run_command("saveenv", 0);
 			run_command("reset", 0);
@@ -787,6 +803,8 @@ static int do_SetActiveSlot(
 {
 	char miscbuf[MISCBUF_SIZE] = {0};
 	bootloader_control info;
+	struct mmc *mmc = NULL;
+	struct blk_desc *dev_desc;
 
 	if (argc != 2)
 		return cmd_usage(cmdtp);
@@ -828,13 +846,31 @@ static int do_SetActiveSlot(
 
 	printf("info.roll_flag = %d\n", info.roll_flag);
 
-	if (!gpt_partition && info.roll_flag == 1) {
-		printf("if null gpt, write dtb back when rollback\n");
-		if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
-			printf("Fail in load dtb\n");
-		} else {
-			printf("write dtb back\n");
-			run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+	if (info.roll_flag == 1) {
+		char *dts_flag = NULL;
+
+		dts_flag = env_get("dts_to_gpt");
+
+		if (!gpt_partition || (dts_flag && (strcmp(dts_flag, "1") == 0))) {
+			printf("write dtb back when rollback\n");
+			if (dts_flag && (strcmp(dts_flag, "1") == 0)) {
+				if (store_get_type() == BOOT_EMMC)
+					mmc = find_mmc_device(1);
+
+				if (mmc) {
+					dev_desc = blk_get_dev("mmc", 1);
+					if (dev_desc && dev_desc->type != DEV_TYPE_UNKNOWN) {
+						printf("valid mmc device, erase gpt\n");
+						erase_gpt_part_table(dev_desc);
+					}
+				}
+			}
+			if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
+				printf("Fail in load dtb\n");
+			} else {
+				printf("write dtb back\n");
+				run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+			}
 		}
 	}
 

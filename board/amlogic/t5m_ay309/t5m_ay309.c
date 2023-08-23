@@ -534,6 +534,7 @@ const char * const _env_args_reserve_[] =
 	"model_name",
 	"hdmimode",
 	"outputmode",
+	"dts_to_gpt",
 	NULL//Keep NULL be last to tell END
 };
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}

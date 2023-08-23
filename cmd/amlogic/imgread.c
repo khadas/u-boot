@@ -199,6 +199,13 @@ static int _aml_get_secure_boot_kernel_size(const void *ploadaddr, u32 *ptotalen
 	return 0;
 }
 
+bool android_img;
+
+bool is_android_image(void)
+{
+	return android_img;
+}
+
 static int do_image_read_dtb_from_knl(const char *partname,
 	unsigned char *loadaddr, uint64_t lflashreadinitoff)
 {
@@ -220,7 +227,10 @@ static int do_image_read_dtb_from_knl(const char *partname,
 
 	if (genimg_get_format(hdr_addr) != IMAGE_FORMAT_ANDROID) {
 		errorP("Fmt unsupported! only support 0x%x\n", IMAGE_FORMAT_ANDROID);
+		android_img = false;
 		return __LINE__;
+	} else {
+		android_img = true;
 	}
 
 	if (is_android_r_image((void *)hdr_addr)) {
@@ -364,6 +374,8 @@ static int do_image_read_dtb_from_knl(const char *partname,
 static int do_image_read_dtb_from_rsv(unsigned char* loadaddr)
 {
 	const int dtbmaxsz = store_rsv_size("dtb");
+
+	android_img = false;
 
 	if (dtbmaxsz < 0x400) {
 		errorP("dtbmaxsz(0x%x) invalid\n", dtbmaxsz);

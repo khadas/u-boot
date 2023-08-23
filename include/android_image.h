@@ -460,4 +460,5 @@ typedef struct {
 
 extern p_vendor_boot_img_t p_vender_boot_img;
 extern unsigned init_boot_ramdisk_size;
+bool is_android_image(void);
 #endif

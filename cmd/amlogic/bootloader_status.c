@@ -453,13 +453,15 @@ static int update_gpt(int flag)
 			goto exit;
 		}
 
-		if (flag == 1) {
+		if (flag == 1 || flag == 2) {
 			printf("update from dts to gpt, erase first\n");
 			erase_gpt_part_table(dev_desc);
 		}
 
 		if (is_valid_gpt_buf(dev_desc, buffer + 0x3DFE00)) {
 			printf("printf normal bootloader.img, no gpt partition table\n");
+			ret = -1;
+			goto exit;
 		} else {
 			erase_flag = check_gpt_change(dev_desc, buffer + 0x3DFE00);
 
@@ -467,6 +469,15 @@ static int update_gpt(int flag)
 				printf("Important partition changes, refused to upgrade\n");
 				ret = 1;
 				goto exit;
+			}
+
+			if (flag == 2) {
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+				env_set("dts_to_gpt", "1");
+				run_command("update_env_part -p dts_to_gpt;", 0);
+#else
+				run_command("defenv_reserve;setenv dts_to_gpt 1;saveenv;", 0);
+#endif
 			}
 
 			if (write_mbr_and_gpt_partitions(dev_desc, buffer + 0x3DFE00)) {
@@ -484,13 +495,25 @@ static int update_gpt(int flag)
 		}
 	}
 
-	if (flag == 1) {
-		printf("update from dts to gpt, resave boot0/boot1\n");
-		iRet = write_bootloader_back("1", 2);
-		if (iRet != 0) {
-			printf("Failed to write boot1\n");
-			ret = 3;
-			goto exit;
+	if (flag == 1 || flag == 2) {
+		printf("update from dts to gpt, backup old bootloader\n");
+		char *slot = NULL;
+
+		slot = env_get("slot-suffixes");
+		if (!slot) {
+			run_command("get_valid_slot", 0);
+			slot = env_get("slot-suffixes");
+		}
+		if (strcmp(slot, "0") == 0) {
+			printf("active is a, b is old, don't need backup\n");
+		} else if (strcmp(slot, "1") == 0) {
+			printf("active is b, a is old, backup boot0 to boot1\n");
+			iRet = write_bootloader_back("1", 2);
+			if (iRet != 0) {
+				printf("Failed to write boot1\n");
+				ret = 3;
+				goto exit;
+			}
 		}
 		iRet = store_boot_write("bootloader", 1, 0, buffer);
 		if (iRet) {
@@ -710,6 +733,7 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		printf("update from dts to gpt\n");
 		update_flag = update_gpt(1);
 		env_set("update_dts_gpt", "0");
+		env_set("dts_to_gpt", "1");
 		run_command("saveenv", 0);
 	}
 
@@ -723,44 +747,32 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		run_command("reset", 0);
 	}
 
-/*
 #ifdef CONFIG_MMC_MESON_GX
-	if (mmc) {
+#ifdef CONFIG_CMD_BOOTCTOL_VAB
+	if (mmc && is_android_image() && (!strcmp(rebootstatus, "reboot_next"))) {
 		struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
 
 		if (dev_desc && !strcmp(bootloaderindex, "0")) {
-			unsigned char *buffer = NULL;
-			capacity_boot = mmc->capacity_boot;
-
-			printf("do_secureboot_check_capacity_boot: %x\n", capacity_boot);
-
-			buffer = (unsigned char *)malloc(capacity_boot);
-			if (buffer) {
-				memset(buffer, 0, capacity_boot);
-				ret = store_boot_read("bootloader", 0, 0, buffer);
-				if (ret == 0) {
-					wrnP("--read bootloader ok, check valib gpt---\n");
-					if (is_valid_gpt_buf(dev_desc, buffer + 0x3DFE00)) {
-						printf("no gpt partition table\n");
-					} else {
-						printf("find gpt partition table, update it\n"
-							"and write bootloader to boot0/boot1\n");
-						ret = write_mbr_and_gpt_partitions(dev_desc,
-								buffer + 0x3DFE00);
-						if (ret == 0) {
-							printf("write gpt ok, reset\n");
-							write_bootloader_back(bootloaderindex, 1);
-							write_bootloader_back(bootloaderindex, 2);
-							run_command("reboot bootloader", 0);
-						}
-					}
-				}
-				free(buffer);
+			printf("try to read gpt data from bootloader.img\n");
+			update_flag = update_gpt(2);
+			if (update_flag != -1) {
+				printf("reset......\n");
+				env_set("reboot_status", "reboot_next");
+				env_set("expect_index", "1");
+				env_set("update_env", "1");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+				run_command("update_env_part -p reboot_status;", 0);
+				run_command("update_env_part -p expect_index;", 0);
+				run_command("update_env_part -p update_env;", 0);
+#else
+				run_command("saveenv", 0);
+#endif
+				run_command("reset", 0);
 			}
 		}
 	}
 #endif
-*/
+#endif
 
 	//no secure check need
 	if (!strcmp(rebootstatus, "reboot_init")) {

@@ -728,6 +728,7 @@ const char * const _env_args_reserve_[] =
 		"upgrade_step",
 		"model_name",
 		"memsize",
+		"dts_to_gpt",
 
 		NULL//Keep NULL be last to tell END
 };
