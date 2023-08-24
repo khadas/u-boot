@@ -258,7 +258,8 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 		/* hdmi plugin, dual logo display
 		 * CONFIG_RECOVERY_DUAL_LOGO is given priority in recovery
 		 */
-		if (!strncmp(env_get("reboot_mode"), "factory_reset", 13)) {
+		if (env_get("reboot_mode") && !strncmp(env_get("reboot_mode"),
+					"factory_reset", 13)) {
 		#if defined(CONFIG_RECOVERY_DUAL_LOGO)
 			run_command(CONFIG_RECOVERY_DUAL_LOGO, 0);
 		#else
