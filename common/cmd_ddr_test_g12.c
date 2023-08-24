@@ -95,7 +95,7 @@ int ddr_get_chip_id(void)
 	int soc_family_id = 0;
 
 	soc_family_id = get_cpu_id().family_id;
-	printf("\nsoc_family_id==0x%08x", soc_family_id);
+	printf("\nsoc_family_id=0x%8x", soc_family_id);
 
 	unsigned char chipid[16];
 #ifdef GET_CHIP_ID
@@ -110,7 +110,7 @@ int ddr_get_chip_id(void)
 	return soc_family_id;
 }
 
-char CMD_VER[] = "Ver_14";
+char CMD_VER[] = "Ver_15";
 ddr_base_address_table_t __ddr_base_address_table[] =
 {
 	//g12a
@@ -217,6 +217,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.sys_watchdog_base_address = 0,                                 //((0x0040  << 2) + 0xfe000000),
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),        //SYSCTRL_SEC_STICKY_REG1
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097  << 2) + 0xfd020400),
 		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c1
@@ -234,6 +235,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.sys_watchdog_base_address = 0,                                 //((0x0040  << 2) + 0xfe000000),
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),        //SYSCTRL_SEC_STICKY_REG1
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c2
@@ -272,6 +274,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 	},
 	//T5
 	{
@@ -286,7 +289,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
 		//#define SEC_AO_RTI_STATUS_REG3
 		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -312,7 +315,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
 		//#define SEC_AO_RTI_STATUS_REG3
 		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -368,7 +371,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),           //AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -390,7 +393,6 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe0a0000),           //AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -398,6 +400,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),             //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),            //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),            //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),   // DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
@@ -423,7 +426,7 @@ ddr_base_address_table_t __ddr_base_address_table[] =
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
 		//#define SEC_AO_RTI_STATUS_REG3
 		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
 
 		.sys_watchdog_base_address = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -1989,6 +1992,8 @@ void ddr_test_watchdog_init(uint32_t msec)
 	// src: 24MHz
 	// div: 24000 for 1ms
 	// reset ao-22 and ee-21
+	if (p_ddr_base->sys_watchdog_base_address == 0)
+		return;
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_base_address) = (1 << 24) | (1 << 25) | (1 << 22) | (1 << 21) | (24000 - 1);
 
 	// set timeout
@@ -2001,17 +2006,23 @@ void ddr_test_watchdog_init(uint32_t msec)
 
 void ddr_test_watchdog_clear(void)
 {
+	if (p_ddr_base->sys_watchdog_base_address == 0)
+		return;
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_base_address + 12) = 0;
 }
 
 void ddr_test_watchdog_disable(void)
 {
+	if (p_ddr_base->sys_watchdog_base_address == 0)
+		return;
 	// turn off internal counter and disable
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_base_address) &= ~((1 << 18) | (1 << 25));
 }
 
 void ddr_test_watchdog_enable(uint32_t sec)
 {
+	if (p_ddr_base->sys_watchdog_base_address == 0)
+		return;
 	// src: 24MHz
 	// div: 24000 for 1ms
 	// reset ao-22 and ee-21
@@ -2031,6 +2042,8 @@ void ddr_test_watchdog_enable(uint32_t sec)
 
 void ddr_test_watchdog_reset_system(void)
 {
+	if (p_ddr_base->sys_watchdog_base_address == 0)
+		return;
 	int i;
 
 	if (p_ddr_base->sys_watchdog_enable_value == 0) {
@@ -5190,7 +5203,7 @@ int ddr_test_s_cross_talk_pattern(int ddr_test_size)
 		return 0;
 }
 
-int ddr_test_s_cross_talk_pattern_quick_retrun(int ddr_test_size)
+int ddr_test_s_cross_talk_pattern_quick_return(int ddr_test_size)
 {
 	error_outof_count_flag = 1;
 #define TEST_OFFSET  0        //0X40000000
@@ -7601,8 +7614,10 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 	}
 
 	{
-		printf("\nstore rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
-		sprintf(str, "store rsv write ddr-parameter 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
+		printf("\nstore rsv write ddr-parameter 0x%08x 0x%x\n",
+		(uint32_t)(uint64_t)buffer, length);
+		sprintf(str, "store rsv write ddr-parameter 0x%08x 0x%x\n",
+		(uint32_t)(uint64_t)buffer, length);
 		run_command(str, 0);
 	}
 
@@ -7612,7 +7627,7 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 {
 	extern int store_ddr_parameter_write(uint8_t *buffer, uint32_t length);
-	printf("\nstore ddr_parameter write 0x%08x 0x%08x\n", (uint32_t)(uint64_t)buffer, length);
+	printf("\nstore ddr_parameter write 0x%08x 0x%x\n", (uint32_t)(uint64_t)buffer, length);
 	store_ddr_parameter_write((uint8_t *)buffer, length);
 
 
@@ -7860,7 +7875,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char *co
 	printf("\nEnterddr_test_dqs_window function  ddr_test_cmd 0x27 0x1080000 0x800000  0x40000000 0x800000 15 0x6  0 0 0 0 0 0 1/config\n");
 	printf("\nddr_test_cmd 0x27 cs0_test_start  cs0_test_size  cs1_test_start  cs1_test_size  ns test_index_enable  nibble_mask0 nibble_mask1 nibble_mask2 dram_type channel_mode  config_register all_together--- watchdog should >15s\n");
 	printf("\n ac write_dqs read_dqs can test together test_index_enable can enable kernel test \n");
-#define  DDR_CORSS_TALK_TEST_SIZE   0x20000
+#define  DDR_CROSS_TALK_TEST_SIZE   0x20000
 	unsigned int temp_test_error = 0;
 	unsigned int nibble_save_offset = 0;
 	unsigned int nibble_step = 0;
@@ -7881,7 +7896,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char *co
 	buf = "";
 
 	unsigned int cs0_test_start = 0x1080000;
-	unsigned int cs0_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int cs0_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	unsigned int cs1_test_start = 0;
 	unsigned int cs1_test_size = 0;
 	unsigned int enable_kernel_test = 0;
@@ -7894,7 +7909,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char *co
 	if (argc > 2) {
 		cs0_test_size = simple_strtoull_ddr(argv[2], &endp, 16);
 		if (*argv[2] == 0 || *endp != 0)
-			cs0_test_size = DDR_CORSS_TALK_TEST_SIZE;
+			cs0_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	}
 
 	if (argc > 3) {
@@ -7908,7 +7923,7 @@ int do_ddr_test_dqs_window_sticky(cmd_tbl_t *cmdtp, int flag, int argc, char *co
 			cs1_test_size = 0;
 	}
 
-	unsigned int ddr_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int ddr_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	ddr_test_size = cs0_test_size;
 	if (argc > 5) {
 		watchdog_time_s = simple_strtoull_ddr(argv[5], &endp, 0);
@@ -10043,7 +10058,7 @@ int do_ddr_auto_test_window(cmd_tbl_t *cmdtp, int flag, int argc, char *const ar
 	ddr_test_cmd = num_arry[0];
 
 	unsigned int cs0_test_start = 0x1080000;
-	unsigned int cs0_test_size = DDR_CORSS_TALK_TEST_SIZE;
+	unsigned int cs0_test_size = DDR_CROSS_TALK_TEST_SIZE;
 	unsigned int cs1_test_start = 0;
 	unsigned int cs1_test_size = 0;
 	unsigned int watchdog_time_s = 0;
@@ -10541,6 +10556,8 @@ int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item,
 		return 1;
 	}
 
+	if (p_ddr_base->ddr_boot_reason_address == 0)
+		enable_ddr_check_boot_reason = 0;
 	if (enable_ddr_check_boot_reason) {
 		boot_reason = 0;         //ddr_set_t_p->boot_reason
 		{
@@ -10602,10 +10619,16 @@ int do_ddr_auto_fastboot_check_c2(char auto_window_test_enable_item,
 			ddr_set_t_p->cfg_board_common_setting.fast_boot[0] = 0xfd;             //0xfd for check unexcept power off status
 			sha256_csum_wd_internal((unsigned char *)(uint64_t)ddr_set_add, ddr_set_size, ddr_sha_c2.sha2, 0);
 			write_size = ((ddr_set_size + SHA256_SUM_LEN + MESON_CPU_CHIP_ID_SIZE + 511) / 512) * 512;
-			{
-				ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add - SHA256_SUM_LEN), write_size);
-			}
-			sprintf(str, "g12_d2pll %d 0x11 %d 0 0 0 0 %d 0x%08x  0 %d", ddr_set_t_p->cfg_board_SI_setting_ps[0].DRAMFreq, auto_window_test_enable_item, stick_dmc_ddr_window_test_read_vref_offset_value, auto_window_test_dq_size, pattern_dis_scramble);
+			//{
+			ddr_do_store_ddr_parameter_ops((uint8_t *)(unsigned long)(ddr_set_add -
+			SHA256_SUM_LEN), write_size);
+			//}
+			sprintf(str,
+			"g12_d2pll %d 0x11 %d 0 0 0 0 %d 0x%x  0 %d",
+			ddr_set_t_p->cfg_board_SI_setting_ps[0].DRAMFreq,
+			auto_window_test_enable_item,
+			stick_dmc_ddr_window_test_read_vref_offset_value,
+			auto_window_test_dq_size, pattern_dis_scramble);
 			printf("\nstr=%s\n", str);
 
 			run_command(str, 0);
@@ -10775,7 +10798,8 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 		wr_reg((p_ddr_base->ddr_dmc_lpdd4_retraining_address), dmc_retraining_ctrl);
 		return 1;
 	}
-
+	if (p_ddr_base->ddr_boot_reason_address == 0)
+		enable_ddr_check_boot_reason = 0;
 	if (enable_ddr_check_boot_reason) {
 		boot_reason = 0; //ddr_set_t_p->boot_reason
 		{
