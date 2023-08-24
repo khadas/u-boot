@@ -396,6 +396,8 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops, const uint8_t *public
 				*out_is_trusted = true;
 				ret = AVB_IO_RESULT_OK;
 			}
+			if (is_device_unlocked())
+				ret = AVB_IO_RESULT_OK;
 		} else {
 			/**
 			 * When the custom key is set
