@@ -342,6 +342,9 @@
 #define CONFIG_SHA1 1
 #define CONFIG_MD5 1
 
+//use startdsp command
+#define CONFIG_CMD_STARTDSP
+
 /*file system*/
 #define CONFIG_DOS_PARTITION 1
 #define CONFIG_EFI_PARTITION 1

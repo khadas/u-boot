@@ -392,6 +392,12 @@
 //use hardware sha2
 #define CONFIG_AML_HW_SHA2
 
+//use startdsp command
+#define CONFIG_CMD_STARTDSP
+
+//use icache and dcache command
+#define CONFIG_CMD_CACHE
+
 /* #define CONFIG_MULTI_DTB    1 */
 
 /* support secure boot */

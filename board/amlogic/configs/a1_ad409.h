@@ -340,7 +340,8 @@
 #define CONFIG_MD5 1
 
 /* commands */
-
+//use startdsp command
+#define CONFIG_CMD_STARTDSP
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1

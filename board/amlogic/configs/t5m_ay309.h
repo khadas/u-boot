@@ -510,9 +510,6 @@
 //use sha2 command
 #define CONFIG_CMD_SHA2
 
-//use startdsp command
-#define CONFIG_CMD_STARTDSP
-
 //use cache command
 #define CONFIG_CMD_CACHE
 
