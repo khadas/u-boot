@@ -144,6 +144,7 @@ struct storage_t {
 	int (*erase_rsv)(const char *rsv_name);
 	int (*protect_rsv)(const char *rsv_name,
 			   bool ops);/*true:on false:off*/
+	int (*param_ops)(void);
 };
 
 struct device_node_t {

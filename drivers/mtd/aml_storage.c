@@ -1396,6 +1396,63 @@ static int nor_rsv_protect(const char *name, bool ops)
 	return 0;
 }
 
+int mtd_store_param_rsv(void)
+{
+	char buf[128];
+
+	env_set("mtdrsvparts", meson_rsv_get_param());
+	memset(buf, 0, sizeof(buf));
+	sprintf(buf, "setenv bootargs ${bootargs} ${mtdrsvparts}");
+
+	return run_command(buf, 0);
+}
+
+extern struct part_info *get_aml_mtdpart_by_index(struct mtd_info *master, int idx);
+int mtd_store_param_partition(void)
+{
+	struct part_info *temp;
+	int lenvir, i, re, count;
+	char buf[512];
+	char *p = buf;
+
+	count = get_aml_mtdpart_count();
+	lenvir = snprintf(buf, sizeof(buf), "%s", "mtdparts=aml-nand:");
+	p += lenvir;
+	re = sizeof(buf) - lenvir;
+	for (i = 0; i < count; i++) {
+		temp = get_aml_mtdpart_by_index(NULL, i);
+		if (!temp)
+			return -1;
+		lenvir = snprintf(p, re, "%dk@%dk(%s),",
+				 (int)(temp->size / 1024),
+				 (int)(temp->offset / 1024),
+				 temp->name);
+		re -= lenvir;
+		p += lenvir;
+	}
+	p = buf;
+	buf[strlen(p) - 1] = 0;	/* delete the last comma */
+	env_set("mtdparts", p);
+	memset(buf, 0, sizeof(buf));
+	sprintf(buf, "setenv bootargs ${bootargs} ${mtdparts}");
+
+	return run_command(buf, 0);
+}
+
+int mtd_store_param_ops(void)
+{
+	static int init;
+
+	if (init)
+		return 0;
+
+	mtd_store_param_partition();
+	mtd_store_param_rsv();
+	init = 1;
+
+	return 0;
+}
+
 void mtd_store_mount_ops(struct storage_t *store)
 {
 	store->get_part_count = mtd_store_count;
@@ -1409,6 +1466,7 @@ void mtd_store_mount_ops(struct storage_t *store)
 	store->boot_erase = mtd_store_boot_erase;
 	store->get_copies = mtd_store_boot_copy_num;
 	store->get_copy_size = mtd_store_boot_copy_size;
+	store->param_ops = mtd_store_param_ops;
 	if (store->type == BOOT_SNOR) {
 		store->get_rsv_size = nor_rsv_size;
 		store->read_rsv = nor_rsv_read;

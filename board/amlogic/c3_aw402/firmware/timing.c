@@ -527,11 +527,6 @@ __attribute__ ((section(".misc_param"))) = {
 };
 
 #define DEV_FIP_SIZE	0x300000
-#ifdef ADVANCE_DDRFIP_SIZE
-#define DDR_FIP_SIZE	ADVANCE_DDRFIP_SIZE
-#else
-#define DDR_FIP_SIZE	0x40000
-#endif
 /* for all the storage parameter */
 #ifdef CONFIG_MTD_SPI_NAND
 /* for spinand storage parameter */
@@ -540,7 +535,7 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 		.version = 0x01,
 		.device_fip_container_size = DEV_FIP_SIZE,
 		.device_fip_container_copies = 4,
-		.ddr_fip_container_size = DDR_FIP_SIZE,
+		.ddr_fip_container_size = BOARD_DDRFIP_SIZE,
 	},
 	.nand				= {
 		.version = 0x02,

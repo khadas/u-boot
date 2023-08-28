@@ -76,6 +76,8 @@ struct meson_rsv_handler_t {
 	void *priv;
 };
 
+int meson_rsv_init_param(struct mtd_info *mtd,
+			struct meson_rsv_handler_t *handler);
 int meson_rsv_bbt_read(u_char *dest, size_t size);
 int meson_rsv_key_read(u_char *dest, size_t size);
 int meson_rsv_env_read(u_char *dest, size_t size);
@@ -104,4 +106,5 @@ int meson_rsv_save(struct meson_rsv_info_t *rsv_info, u_char *buf);
 int meson_rsv_write(struct meson_rsv_info_t *rsv_info, u_char *buf);
 int meson_rsv_erase_protect(struct meson_rsv_handler_t *handler,
 uint32_t block_addr);
+char *meson_rsv_get_param(void);
 #endif/* __MESON_RSV_H_ */

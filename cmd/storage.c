@@ -288,9 +288,6 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 		}
 
 		boot_entry[BOOT_AREA_BB1ST].size = ssp->boot_entry[BOOT_AREA_BB1ST].size;
-#ifdef ADVANCE_DDRFIP_SIZE
-		ssp->boot_entry[BOOT_AREA_DDRFIP].size = ADVANCE_DDRFIP_SIZE;
-#endif
 		boot_entry[BOOT_AREA_DDRFIP].size = ssp->boot_entry[BOOT_AREA_DDRFIP].size;
 		boot_entry[BOOT_AREA_DEVFIP].size = ssp->boot_entry[BOOT_AREA_DEVFIP].size;
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
@@ -391,12 +388,16 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 				ssp->boot_backups = 1; /* Default 2 backup, consistent with rom */
 			break;
 		case BOOT_SNAND:
+			#ifdef BOARD_BL2EX_BACKUPS
+			ssp->boot_backups = BOARD_BL2EX_BACKUPS;
+			#else
 			if (IS_FEAT_EN_8BL2_SNAND())
 				ssp->boot_backups = 8;
 			else if (IS_FEAT_DIS_NBL2_SNAND())
 				ssp->boot_backups = 1;
 			else
 				ssp->boot_backups = 4; /* Default 4 backup, consistent with rom */
+			#endif
 			sip->snasp.pagesize = current->info.write_unit;
 			sip->snasp.pages_per_eraseblock =
 			current->info.erase_unit / current->info.write_unit;
@@ -1600,6 +1601,7 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 			    int flag, int argc, char * const argv[])
 {
 	boot_area_entry_t *boot_entry = general_boot_layout.boot_entry;
+	struct storage_t *store = store_get_current();
 	char bufvir[128];
 	int lenvir, i, re;
 	char *p = bufvir;
@@ -1621,6 +1623,8 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 	p = bufvir;
 	bufvir[strlen(p) - 1] = 0;	/* delete the last comma */
 	env_set("mtdbootparts", p);
+	if (store->param_ops)
+		return store->param_ops();
 
 	return 0;
 }

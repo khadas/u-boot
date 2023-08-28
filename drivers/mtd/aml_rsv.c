@@ -16,6 +16,7 @@
 
 extern int info_disprotect;
 static struct meson_rsv_handler_t *rsv_handler;
+static char rsv_param[256];
 
 static struct free_node_t *get_free_node(struct meson_rsv_info_t *rsv_info)
 {
@@ -775,11 +776,13 @@ int meson_rsv_init(struct mtd_info *mtd,
 	if (mtd->erasesize >= AML_RSV_KEY_SIZE && !(AML_RSV_KEY_SIZE & 0x3ff))
 		handler->key->size = AML_RSV_KEY_SIZE;
 #endif//#if AML_RSV_KEY_SIZE
+
+#ifndef DTB_BIND_KERNEL
 #if AML_RSV_DTB_SIZE
 	if (mtd->erasesize >= AML_RSV_DTB_SIZE && !(AML_RSV_DTB_SIZE & 0x3ff))
 		handler->dtb->size = AML_RSV_DTB_SIZE;
 #endif// #if AML_RSV_DTB_SIZE
-
+#endif
 	if ((vernier - start) > NAND_RSV_BLOCK_NUM) {
 		pr_info("ERROR: total blk number is over the limit\n");
 		ret = -ENOMEM;
@@ -797,6 +800,9 @@ int meson_rsv_init(struct mtd_info *mtd,
 #endif
 	pr_info("ddr_start=%d, size:0x%x\n", handler->ddr_para->start,
 		handler->ddr_para->size);
+
+	/* send rsv param by env */
+	meson_rsv_init_param(mtd, handler);
 
 	return ret;
 
@@ -1378,5 +1384,77 @@ int meson_rsv_dtb_erase(void)
 		return meson_rsv_erase(rsv_handler->dtb);
 	}
 	return 0;
+}
 
+int meson_rsv_init_param(struct mtd_info *mtd, struct meson_rsv_handler_t *handler)
+{
+	int lenvir, re, base;
+	char *p = rsv_param;
+
+	base = mtd->erasesize / 1024;
+	lenvir = snprintf(rsv_param, sizeof(rsv_param), "%s", "mtdrsvparts=aml-nand:");
+	p += lenvir;
+	re = sizeof(rsv_param) - lenvir;
+	lenvir = snprintf(p, re, "%dk@%dk@0k(rsv),",
+				16 * base,
+				(16 + NAND_RSV_BLOCK_NUM) * base);
+	p += lenvir;
+	re -= lenvir;
+	lenvir = snprintf(p, re, "%dk@%dk@0k(gap),",
+				16 * base,
+				(16 + NAND_GAP_BLOCK_NUM) * base);
+	p += lenvir;
+	re -= lenvir;
+
+	lenvir = snprintf(p, re, "%dk@%dk@%dk(bbt),",
+				handler->bbt->start * base,
+				handler->bbt->end * base,
+				handler->bbt->size / 1024);
+	p += lenvir;
+	re -= lenvir;
+
+#ifdef CONFIG_ENV_IS_IN_NAND
+	lenvir = snprintf(p, re, "0k@0k@0k(env),");
+	p += lenvir;
+	re -= lenvir;
+#else
+	lenvir = snprintf(p, re, "%dk@%dk@%dk(env),",
+				handler->env->start * base,
+				handler->env->end * base,
+				handler->env->size / 1024);
+	p += lenvir;
+	re -= lenvir;
+#endif
+
+	lenvir = snprintf(p, re, "%dk@%dk@%dk(key),",
+				handler->key->start * base,
+				handler->key->end * base,
+				handler->key->size / 1024);
+	p += lenvir;
+	re -= lenvir;
+
+#ifdef DTB_BIND_KERNEL
+	lenvir = snprintf(p, re, "0k@0k@0k(dtb),");
+	p += lenvir;
+	re -= lenvir;
+#else
+	lenvir = snprintf(p, re, "%dk@%dk@%dk(dtb),",
+				handler->dtb->start * base,
+				handler->dtb->end * base,
+				handler->dtb->size / 1024);
+	p += lenvir;
+	re -= lenvir;
+#endif
+
+	lenvir = snprintf(p, re, "%dk@%dk@%dk(ddr_para),",
+				handler->ddr_para->start * base,
+				handler->ddr_para->end * base,
+				handler->ddr_para->size / 1024);
+
+	return 0;
+}
+
+char *meson_rsv_get_param(void)
+{
+	return rsv_param;
 }

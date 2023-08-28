@@ -518,17 +518,16 @@ __attribute__ ((section(".misc_param"))) = {
 
 };
 
-#define DEV_FIP_SIZE 0x300000
-#define DDR_FIP_SIZE 0x40000
 /* for all the storage parameter */
 #ifdef CONFIG_MTD_SPI_NAND
 /* for spinand storage parameter */
 storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common				= {
 		.version = 0x01,
-		.device_fip_container_size = DEV_FIP_SIZE,
-		.device_fip_container_copies = 4,
-		.ddr_fip_container_size = DDR_FIP_SIZE,
+		.device_fip_container_size = BOARD_DEVFIP_SIZE,
+		.device_fip_container_copies = ((BOARD_BL2EX_BACKUPS << 16) |
+						BOARD_DEVFIP_BACKUPS),
+		.ddr_fip_container_size = BOARD_DDRFIP_SIZE,
 	},
 	.nand				= {
 		.version = 0x02,
@@ -540,7 +539,7 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 		.setup_data.spi_nand_page_size = 2048,
 		/* planes per lun get from info page, not used here */
 		.reserved.spi_nand_planes_per_lun = (1 << 0) | (64 << 8) | (0x3b << 16),
-		.reserved_area_blk_cnt = 48,
+		.reserved_area_blk_cnt = NAND_RSV_BLOCK_NUM,
 		.page_per_block = 64,
 		.use_param_page_list = 0,
 	},
@@ -549,9 +548,10 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 	.common					= {
 		.version			= 0x01,
-		.device_fip_container_size	= DEV_FIP_SIZE,
-		.device_fip_container_copies	= 4,
-		.ddr_fip_container_size		= DDR_FIP_SIZE,
+		.device_fip_container_size	= BOARD_DEVFIP_SIZE,
+		.device_fip_container_copies	= ((BOARD_BL2EX_BACKUPS << 16) |
+						   BOARD_DEVFIP_BACKUPS),
+		.ddr_fip_container_size		= BOARD_DDRFIP_SIZE,
 	},
 	.nand					= {
 		.version			= 0x01,
@@ -565,7 +565,7 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 						  (0 << 13) |			  \
 						  (64 << 6) |			  \
 						  (8 << 0),
-		.reserved_area_blk_cnt		= 48,
+		.reserved_area_blk_cnt		= NAND_RSV_BLOCK_NUM,
 		.page_per_block			= 64,
 		.use_param_page_list		= 0,
 	},

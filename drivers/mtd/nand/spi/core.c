@@ -1428,10 +1428,13 @@ static int spinand_probe(struct udevice *dev)
 		pr_info("reading bbt info from %s!\n", mtd->name);
 		meson_rsv_read(spinand->rsv->bbt, spinand->bbt);
 	}
-
+#ifndef CONFIG_ENV_IS_IN_NAND
 	meson_rsv_check(spinand->rsv->env);
+#endif
 	meson_rsv_check(spinand->rsv->key);
+#ifndef DTB_BIND_KERNEL
 	meson_rsv_check(spinand->rsv->dtb);
+#endif
 #ifdef CONFIG_DDR_PARAMETER_SUPPORT
 	meson_rsv_check(spinand->rsv->ddr_para);
 #endif
