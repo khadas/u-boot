@@ -183,29 +183,29 @@ pll_set_t __pll_setting = {
 #define PWMAB_MISC_REG_AB       ((0x0002 << 2) + 0xffd1b000)
 
 /* board vmin_value defines */
-#define VMIN_FT_FF                           770
-#define VMIN_FT_TT                           800
-#define VMIN_FT_SS                           810
+#define VMIN_FT_GROUP1                           1010
+#define VMIN_FT_GROUP2                           980
+#define VMIN_FT_GROUP3                           930
 /* board vddee_value defines */
-/* SS/TT/FF=1.0/1.0/1.0 V */
-#define VMIN_EE_FF                          0x00090013
-#define VMIN_EE_TT                          0x00090013
-#define VMIN_EE_SS                          0x00090013
+/* GROUP1/2/3=1.06/1.03/0.96 V */
+#define VMIN_EE_GROUP1                          0x00030019
+#define VMIN_EE_GROUP2                          0x00060016
+#define VMIN_EE_GROUP3                          0x000D000F
 
 bl2_reg_t __bl2_reg[] = {
 	/* demo, user defined override register */
 	/* vmin value init */
-	{0,	VMIN_FT_FF,	0xffffffff,	0,	BL2_VMIN_FT__FLAG_1, 0},
-	{0,	VMIN_FT_TT,	0xffffffff,	0,	BL2_VMIN_FT__FLAG_2, 0},
-	{0,	VMIN_FT_SS,	0xffffffff,	0,	BL2_VMIN_FT__FLAG_3, 0},
+	{0,	VMIN_FT_GROUP1,	0xffffffff,	0,	BL2_VMIN_FT__FLAG_1, 0},
+	{0,	VMIN_FT_GROUP2,	0xffffffff,	0,	BL2_VMIN_FT__FLAG_2, 0},
+	{0,	VMIN_FT_GROUP3,	0xffffffff,	0,	BL2_VMIN_FT__FLAG_3, 0},
 	/* eg: PWM init */
 	/* PWM_A VCCK_VAL_REG */
 	{ PWMAB_PWM_A,		       VCCK_VAL_REG,			   0xffffffff,	 0, BL2_INIT_STAGE_1, 0 },
 	/* PWMAO_B VDDEE_VAL_REG */
 #ifdef CONFIG_PDVFS_ENABLE
-	{AO_PWM_PWM_B,	VMIN_EE_FF,	0xffffffff,	0,	BL2_VMIN_EE__FLAG_1, 0},
-	{AO_PWM_PWM_B,	VMIN_EE_TT,	0xffffffff,	0,	BL2_VMIN_EE__FLAG_2, 0},
-	{AO_PWM_PWM_B,	VMIN_EE_SS,	0xffffffff,	0,	BL2_VMIN_EE__FLAG_3, 0},
+	{AO_PWM_PWM_B,	VMIN_EE_GROUP1,	0xffffffff,	0,	BL2_VMIN_EE__FLAG_1, 0},
+	{AO_PWM_PWM_B,	VMIN_EE_GROUP2,	0xffffffff,	0,	BL2_VMIN_EE__FLAG_2, 0},
+	{AO_PWM_PWM_B,	VMIN_EE_GROUP3,	0xffffffff,	0,	BL2_VMIN_EE__FLAG_3, 0},
 #else
 	{ AO_PWM_PWM_B,	VDDEE_VAL_REG,	0xffffffff,	0,	BL2_INIT_STAGE_1, 0 },
 #endif
