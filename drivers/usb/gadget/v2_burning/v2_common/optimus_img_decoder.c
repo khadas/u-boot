@@ -7,6 +7,7 @@
  */
 
 #include "../v2_sdc_burn/optimus_sdc_burn_i.h"
+static int image_check_last_verify_item(HIMAGE hImg);
 
 //FIMXE:
 COMPILE_TYPE_CHK(128 == sizeof(ItemInfo_V1), _op_a);
@@ -111,6 +112,11 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
             DWN_ERR("max itemNum(%d)<actual itemNum (%d)\n", MAX_ITEM_NUM, hImg->imgHead.itemNum);
             goto _err;
     }
+
+	if (image_check_last_verify_item(hImg)) {
+		DWN_ERR("Fail in check image integrity\n");
+		return NULL;
+	}
 
     return hImg;
 _err:
@@ -414,6 +420,38 @@ __u64 image_get_item_size_by_index(HIMAGE hImg, const int itemId)
     DWN_DBG("get item [%s, %s] at %d\n", pItem->itemMainType, pItem->itemSubType, itemId);
 
     return pItem->itemSz;
+}
+
+static int image_check_last_verify_item(HIMAGE hImg)
+{
+	int i = 0;
+	int last_index = get_total_itemnr(hImg) - 1;
+	ItemInfo *cur_info = NULL;
+	const int rd_len = 32;
+	char rd_buf[rd_len];
+	char *Vry_head = "sha1sum ";
+
+	for (i = last_index; i >= 0; --i) {
+		cur_info = get_item(hImg, i);
+		if (!cur_info) {
+			DWN_ERR("Fail in get item by id\n");
+			return -__LINE__;
+		}
+		if (strcmp(cur_info->itemMainType, "VERIFY"))
+			continue;
+		break;//find last verify item
+	}
+	if (image_item_read(hImg, cur_info, rd_buf, rd_len)) {
+		DWN_ERR("Fail read last vry item\n");
+		return -__LINE__;
+	}
+	DWN_DBG("rd_buf %s\n", rd_buf);
+	if (strncmp(rd_buf, Vry_head, strlen(Vry_head))) {
+		DWN_ERR("verify item head error\n");
+		return -__LINE__;
+	}
+
+	return 0;
 }
 
 u64 optimus_img_decoder_get_data_parts_size(HIMAGE hImg, int* hasBootloader)
