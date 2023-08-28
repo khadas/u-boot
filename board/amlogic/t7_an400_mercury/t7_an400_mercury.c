@@ -43,6 +43,7 @@
 #include <asm/arch/pwr_ctrl.h>
 #include <amlogic/board.h>
 
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void sys_led_init(void)
@@ -139,7 +140,6 @@ int board_init(void)
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
 	/*set vcc5V*/
 	run_command("gpio set GPIOH_1", 0);
-	run_command("gpio set GPIOY_8", 1);
 	return 0;
 }
 
@@ -541,15 +541,29 @@ phys_size_t get_ddr_memsize(void)
 int checkhw(char *name)
 {
 #ifdef CONFIG_MULTI_DTB
+       char *p_aml_dt = env_get("aml_dt");
+       cpu_id_t cpu_id;
+
+       printf("aml_dt:%s\n", p_aml_dt);
+       if (!p_aml_dt) {
 	char loc_name[64] = {0};
 	phys_size_t ddr_size = get_ddr_memsize();
+        cpu_id = get_cpu_id();
 
 	switch (ddr_size) {
 	case CONFIG_T7_3G_SIZE:
 		strcpy(loc_name, "t7_a311d2_an400-3g\0");
 		break;
 	case CONFIG_T7_4G_SIZE:
-		strcpy(loc_name, "t7_a311d2_an400\0");
+		//strcpy(loc_name, "t7_a311d2_an400\0");
+                printf("DDR size: 0x%llx, ", ddr_size);
+                if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+                    strcpy(loc_name, "t7_a311d2_an400-mercury\0");
+                    printf("set  t7_a311d2_an400-mercury\n");
+                } else if (cpu_id.chip_rev == 0xC) {
+                    strcpy(loc_name, "t7c_a311d2_an400-mercury\0");
+                    printf("set  t7c_a311d2_an400-mercury\n");
+                }
 		break;
 	case CONFIG_T7_6G_SIZE:
 		strcpy(loc_name, "t7_a311d2_an400-6g\0");
@@ -566,6 +580,9 @@ int checkhw(char *name)
 	printf("init aml_dt to %s\n", loc_name);
 	strcpy(name, loc_name);
 	env_set("aml_dt", loc_name);
+	} else {
+		strcpy(name, env_get("aml_dt"));
+	}
 #else
 	env_set("aml_dt", "t7_a311d2_an400\0");
 #endif
