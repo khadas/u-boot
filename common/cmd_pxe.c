@@ -18,6 +18,8 @@
 #include "menu.h"
 #include "cli.h"
 #include <environment.h>
+#include "splash.h"
+#include "lcd.h"
 
 #define MAX_TFTP_PATH_LEN 127
 
@@ -43,8 +45,8 @@ static char *from_env(const char *envvar)
 
 	ret = getenv(envvar);
 
-	if (!ret)
-		printf("missing environment variable: %s\n", envvar);
+//	if (!ret)
+//		printf("missing environment variable: %s\n", envvar);
 
 	return ret;
 }
@@ -479,10 +481,13 @@ struct pxe_label {
 	char *initrd;
 	char *fdt;
 	char *fdtdir;
+	char *fdtoverlays;
+	char *fdtoverlaydir;
 	int ipappend;
 	int attempted;
 	int localboot;
 	int localboot_val;
+	char *localcmd;
 	struct list_head list;
 };
 
@@ -501,6 +506,7 @@ struct pxe_label {
 struct pxe_menu {
 	char *title;
 	char *default_label;
+	char *bmp;
 	int timeout;
 	int prompt;
 	struct list_head labels;
@@ -557,6 +563,15 @@ static void label_destroy(struct pxe_label *label)
 	if (label->fdtdir)
 		free(label->fdtdir);
 
+	if (label->fdtoverlays)
+		free(label->fdtoverlays);
+
+	if (label->fdtoverlaydir)
+		free(label->fdtoverlaydir);
+
+	if (label->localcmd)
+		free(label->localcmd);
+
 	free(label);
 }
 
@@ -587,7 +602,10 @@ static int label_localboot(struct pxe_label *label)
 {
 	char *localcmd;
 
-	localcmd = from_env("localcmd");
+	if (label->localcmd)
+		localcmd = label->localcmd;
+	else
+		localcmd = from_env("localcmd");
 
 	if (!localcmd)
 		return -ENOENT;
@@ -661,6 +679,191 @@ static void env_helper(cmd_tbl_t *cmdtp, struct pxe_label *label)
 }
 
 /*
+ * Loads fdt overlays specified in 'fdtoverlays'.
+ */
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+static void label_boot_fdtoverlay(cmd_tbl_t *cmdtp, struct pxe_label *label)
+{
+	struct fdt_header *working_fdt;
+	char *fdtoverlay_addr_env;
+	char *fdtoverlay, *fdtoverlay_dir;
+	ulong fdtoverlay_addr;
+	ulong fdt_addr;
+	int err;
+	char overlayext[] = ".dtbo";
+	char path[MAX_TFTP_PATH_LEN + 1];
+
+	fdtoverlay = label->fdtoverlays;
+	fdtoverlay_dir = getenv("fdt_overlays_dir");
+
+	if (!fdtoverlay)
+		fdtoverlay = getenv("fdt_overlays");
+
+	if (!fdtoverlay)
+		return;
+
+	if (!fdtoverlay_dir)
+		fdtoverlay_dir = label->fdtoverlaydir;
+
+	/* Get the main fdt and map it */
+	fdt_addr = simple_strtoul(getenv("fdt_addr_r"), NULL, 16);
+	working_fdt = map_sysmem(fdt_addr, 0);
+	err = fdt_check_header(working_fdt);
+	if (err)
+		return;
+
+	/* Get the specific overlay loading address */
+	fdtoverlay_addr_env = getenv("fdtoverlay_addr_r");
+	if (!fdtoverlay_addr_env) {
+		printf("Invalid fdtoverlay_addr_r for loading overlays\n");
+		return;
+	}
+
+	fdtoverlay_addr = simple_strtoul(fdtoverlay_addr_env, NULL, 16);
+	/* Cycle over the overlay files and apply them in order */
+	do {
+		struct fdt_header *blob;
+		char *overlayfile;
+		char *end;
+		int len;
+
+		/* Drop leading spaces */
+		while (*fdtoverlay == ' ')
+			++fdtoverlay;
+
+		/* Copy a single filename if multiple provided */
+		end = strstr(fdtoverlay, " ");
+		if (end) {
+			len = (int)(end - fdtoverlay);
+			overlayfile = malloc(len + 1);
+			strncpy(overlayfile, fdtoverlay, len);
+			overlayfile[len] = '\0';
+		} else
+			overlayfile = fdtoverlay;
+
+		if (!strlen(overlayfile))
+			goto skip_overlay;
+
+		/* make overlay path */
+		sprintf(path, "%s%s%s%s",
+				fdtoverlay_dir ? fdtoverlay_dir : "",
+				fdtoverlay_dir ? "/" : "",
+				overlayfile,
+				strstr(overlayfile, overlayext) ? "" : overlayext);
+
+		/* Load overlay file */
+		err = get_relfile_envaddr(cmdtp, path, "fdtoverlay_addr_r");
+		if (err < 0) {
+			printf("Failed loading overlay '%s'\n", overlayfile);
+			goto skip_overlay;
+		}
+
+		/* Resize main fdt */
+		fdt_shrink_to_minimum(working_fdt);
+
+		blob = map_sysmem(fdtoverlay_addr, 0);
+		err = fdt_check_header(blob);
+		if (err) {
+			printf("Invalid overlay %s, skipping\n",
+				overlayfile);
+			goto skip_overlay;
+		}
+
+		err = fdt_overlay_apply(working_fdt, blob);
+		if (err) {
+			printf("Failed to apply overlay %s, skipping\n",
+					overlayfile);
+			goto skip_overlay;
+		}
+
+		printf("fdt overlay: %s - apply\n", overlayfile);
+
+		skip_overlay:
+		if (end)
+			free(overlayfile);
+	} while ((fdtoverlay = strstr(fdtoverlay, " ")));
+}
+
+static void fdt_overlay_helper(cmd_tbl_t *cmdtp, struct pxe_label
+                 *label, char *fdtfile)
+{
+	char *overlay_dir_ext = ".overlays";
+	char *overlay_env_ext = ".overlay.env";
+	char *overlay_vars[] = { "fdt_overlays", "fdt_overlays_dir" };
+	char *overlay_env = NULL;
+	char *overlay_dir = NULL;
+	unsigned long addr, file_size = 0;
+	int len;
+
+	char *fdtoverlay_addr_r = getenv("fdtoverlay_addr_r");
+	if (!fdtoverlay_addr_r)
+		return;
+
+	len = strlen(fdtfile) + strlen(overlay_env_ext) + 1;
+	overlay_env = malloc(len);
+	if (!overlay_env)
+		goto cleanup;
+
+	snprintf(overlay_env, len, "%s%s", fdtfile, overlay_env_ext);
+	if (!get_relfile_envaddr(cmdtp, overlay_env, "fdtoverlay_addr_r"))
+		goto cleanup;
+
+	if (strict_strtoul(from_env("filesize"), 16, &file_size))
+		goto cleanup;
+
+	if (file_size < 1)
+		goto cleanup;
+
+	len = strlen(fdtfile) + strlen(overlay_dir_ext) + 1;
+	overlay_dir = malloc(len);
+	if (!overlay_dir)
+		goto cleanup;
+
+	snprintf(overlay_dir, len, "%s%s", fdtfile, overlay_dir_ext);
+
+	setenv("fdt_overlays_dir", label->fdtoverlaydir);
+	setenv("fdt_overlays", NULL);
+
+	addr = simple_strtoul(fdtoverlay_addr_r, NULL, 16);
+
+	if (!himport_r(&env_htab, map_sysmem(addr , 0), file_size,
+				'\n', H_NOCLEAR, 0, 2, overlay_vars))
+		goto cleanup;
+
+	char *fdt_overlays = getenv("fdt_overlays");
+
+	if (!fdt_overlays)
+		goto cleanup;
+	char *fdt_overlays_dir = getenv("fdt_overlays_dir");
+
+	if (!fdt_overlays_dir) {
+		len = strlen(fdtfile) + strlen(overlay_dir_ext) + 1;
+		overlay_dir = malloc(len);
+		if (!overlay_dir)
+			goto cleanup;
+
+		fdt_overlays_dir = overlay_dir;
+		snprintf(overlay_dir, len, "%s%s", fdtfile, overlay_dir_ext);
+		setenv("fdt_overlays_dir", overlay_dir);
+	}
+
+	printf("%s: %s\n %s: %s\n", __func__, overlay_env,
+		fdt_overlays_dir ? fdt_overlays_dir: "", fdt_overlays);
+
+	label_boot_fdtoverlay(cmdtp, label);
+
+cleanup:
+	if (overlay_env)
+		free(overlay_env);
+	if (overlay_dir)
+		free(overlay_dir);
+
+	setenv("fdt_overlays_dir", NULL);
+	setenv("fdt_overlays", NULL);
+}
+#endif
+
+/*
  * Boot according to the contents of a pxe_label.
  *
  * If we can't boot for any reason, we return.  A successful boot never
@@ -698,6 +901,14 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	}
 
 	if (label->kernel == NULL) {
+
+		if (label->localcmd) {
+			//printf("%s:::: %s\n", __func__, label->localcmd);
+			run_command_list(label->localcmd, strlen(label->localcmd), -1);
+			/* restart menu again */
+			return 2;
+		}
+
 		printf("No kernel given, skipping %s\n",
 				label->name);
 		return 1;
@@ -820,15 +1031,23 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 
 		if (fdtfile) {
 			int err = get_relfile_envaddr(cmdtp, fdtfile, "fdt_addr_r");
-			free(fdtfilefree);
 			if (err < 0) {
 				printf("Skipping %s for failure retrieving fdt\n",
 						label->name);
+				free(fdtfilefree);
 				goto cleanup;
 			}
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+			if (label->fdtoverlays)
+				label_boot_fdtoverlay(cmdtp, label);
+			else
+				fdt_overlay_helper(cmdtp, label, fdtfile);
+#endif
 		} else {
 			bootm_argv[3] = NULL;
 		}
+		if (fdtfilefree)
+			free(fdtfilefree);
 	}
 
 	if (!bootm_argv[3])
@@ -843,31 +1062,38 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
 	buf = map_sysmem(kernel_addr, 0);
 
-	env_helper(cmdtp, label);
+	if (label->localcmd) {
+		int err;
+		//printf("%s:::: %s\n", __func__, label->localcmd);
+		err  = run_command_list(label->localcmd, strlen(label->localcmd), -1);
+		if (err)
+			return 2;
+	}
 
 	if ((label->ipappend & 0x3) || label->append) {
 		char bootargs[CONFIG_SYS_CBSIZE] = "";
 		char finalbootargs[CONFIG_SYS_CBSIZE];
 
 		if (strlen(label->append ?: "") +
-		    strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
+			strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
 			printf("bootarg overflow %zd+%zd+%zd+1 > %zd\n",
-			       strlen(label->append ?: ""),
-			       strlen(ip_str), strlen(mac_str),
-			       sizeof(bootargs));
+			strlen(label->append ?: ""),
+			strlen(ip_str), strlen(mac_str),
+			sizeof(bootargs));
 			return 1;
+		} else {
+			if (label->append)
+				strncpy(bootargs, label->append,
+					sizeof(bootargs));
+			strcat(bootargs, ip_str);
+			strcat(bootargs, mac_str);
+
+			cli_simple_process_macros(bootargs, finalbootargs);
+			setenv("bootargs", finalbootargs);
+			printf("append: %s\n", finalbootargs);
 		}
-
-		if (label->append)
-			strncpy(bootargs, label->append,
-		sizeof(bootargs));
-		strcat(bootargs, ip_str);
-		strcat(bootargs, mac_str);
-
-		cli_simple_process_macros(bootargs, finalbootargs);
-		setenv("bootargs", finalbootargs);
-		printf("append: %s\n", finalbootargs);
 	}
+
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
 		do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
@@ -904,13 +1130,19 @@ enum token_type {
 	T_APPEND,
 	T_INITRD,
 	T_LOCALBOOT,
+	T_LOCALCMD,
+	T_LOCALCMD2,
+	T_LOCALCMD3,
 	T_DEFAULT,
 	T_PROMPT,
 	T_INCLUDE,
 	T_FDT,
 	T_FDTDIR,
+	T_FDTOVERLAYS,
+	T_FDTOVERLAYDIR,
 	T_ONTIMEOUT,
 	T_IPAPPEND,
+	T_BACKGROUND,
 	T_INVALID
 };
 
@@ -935,6 +1167,9 @@ static const struct token keywords[] = {
 	{"kernel", T_KERNEL},
 	{"linux", T_LINUX},
 	{"localboot", T_LOCALBOOT},
+	{"localcmd", T_LOCALCMD},
+	{"!", T_LOCALCMD2},
+	{"#!", T_LOCALCMD3},
 	{"append", T_APPEND},
 	{"initrd", T_INITRD},
 	{"include", T_INCLUDE},
@@ -942,8 +1177,11 @@ static const struct token keywords[] = {
 	{"fdt", T_FDT},
 	{"devicetreedir", T_FDTDIR},
 	{"fdtdir", T_FDTDIR},
+	{"fdtoverlays", T_FDTOVERLAYS},
+	{"fdtoverlaydir", T_FDTOVERLAYDIR},
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
+	{"background", T_BACKGROUND,},
 	{NULL, T_INVALID}
 };
 
@@ -1062,7 +1300,7 @@ static void get_token(char **p, struct token *t, enum lex_state state)
 	 * eat comments. note that string literals can't begin with #, but
 	 * can contain a # after their first character.
 	 */
-	if (*c == '#') {
+	if (*c == '#' && *(c+1) != '!' ) {
 		while (*c && *c != '\n')
 			c++;
 	}
@@ -1220,6 +1458,9 @@ static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
 		err = handle_include(cmdtp, c, base, cfg,
 						nest_level + 1);
 		break;
+	case T_BACKGROUND:
+		err = parse_sliteral(c, &cfg->bmp);
+		break;
 
 	default:
 		printf("Ignoring malformed menu command: %.*s\n",
@@ -1310,6 +1551,7 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 	int len;
 	char *s = *c;
 	struct pxe_label *label;
+	char *add, *p;
 	int err;
 
 	label = label_create();
@@ -1370,9 +1612,41 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 				err = parse_sliteral(c, &label->fdtdir);
 			break;
 
+		case T_FDTOVERLAYS:
+			if (!label->fdtoverlays)
+				err = parse_sliteral(c, &label->fdtoverlays);
+			break;
+
+		case T_FDTOVERLAYDIR:
+			if (!label->fdtoverlaydir)
+				err = parse_sliteral(c, &label->fdtoverlaydir);
+			break;
+
 		case T_LOCALBOOT:
 			label->localboot = 1;
 			err = parse_integer(c, &label->localboot_val);
+			break;
+
+		case T_LOCALCMD:
+		case T_LOCALCMD2:
+		case T_LOCALCMD3:
+			if (label->localcmd) {
+				err = parse_sliteral(c, &add);
+				if (err) {
+					p = realloc(label->localcmd,
+								strlen(label->localcmd) +
+								strlen(add) + 2);
+					if (p) {
+						label->localcmd = p;
+						sprintf(label->localcmd,
+								"%s\n%s",
+								label->localcmd, add);
+					}
+					free(add);
+				}
+			} else {
+				err = parse_sliteral(c, &label->localcmd);
+			}
 			break;
 
 		case T_IPAPPEND:
@@ -1635,6 +1909,27 @@ static void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 	struct menu *m;
 	int err;
 
+again:
+	if (IS_ENABLED(CONFIG_CMD_BMP)) {
+		/* display BMP if available */
+		if (cfg->bmp) {
+			unsigned long load_addr;
+			char *envaddr;
+			envaddr = from_env("loadaddr");
+
+			if (envaddr && strict_strtoul(envaddr, 16, &load_addr) > -1) {
+
+				if (get_relfile(cmdtp, cfg->bmp, load_addr)) {
+					bmp_display(load_addr, -1, -1);
+					run_command("osd enable\n", 0);
+				} else {
+					printf("Skipping background bmp %s for failure\n",
+							cfg->bmp);
+				}
+			}
+		}
+	}
+
 	m = pxe_menu_to_menu(cfg);
 	if (!m)
 		return;
@@ -1656,6 +1951,11 @@ static void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 
 	if (err == 1) {
 		err = label_boot(cmdtp, choice);
+		/* err == 2 means restart this menu again with timeout=0 */
+		if (err == 2) {
+			cfg->timeout=0;
+			goto again;
+		}
 		if (!err)
 			return;
 	} else if (err != -ENOENT) {
