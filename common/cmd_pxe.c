@@ -1074,7 +1074,6 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 
 	if ((label->ipappend & 0x3) || label->append) {
 		char bootargs[CONFIG_SYS_CBSIZE] = "";
-		char finalbootargs[CONFIG_SYS_CBSIZE];
 
 		if (strlen(label->append ?: "") +
 			strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
@@ -1090,14 +1089,8 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			strcat(bootargs, ip_str);
 			strcat(bootargs, mac_str);
 
-			int max_loop=32;
-			do {
-				cli_simple_process_macros(bootargs, finalbootargs);
-				cli_simple_process_macros(finalbootargs, bootargs);
-			} while (strcmp(bootargs, finalbootargs) && max_loop--);
-
-			setenv("bootargs", bootargs);
-			printf("append: %s\n", bootargs);
+			env_resolve("bootargs", bootargs);
+			printf("append: %s\n", getenv("bootargs"));
 		}
 	}
 
