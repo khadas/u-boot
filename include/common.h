@@ -325,6 +325,16 @@ ulong getenv_hex(const char *varname, ulong default_val);
 int getenv_yesno(const char *var);
 int	saveenv	     (void);
 int	setenv	     (const char *, const char *);
+/**
+ * env_resolve() - resolve to environment variable
+ *
+ * Same as env_set but make deep resolve for variable
+ *
+ * @varname: Variable to adjust
+ * @value: Value to resolve for the variable, or NULL or "" to delete the variable
+ * @return 0 if OK, 1 on error
+ */
+int env_resolve(const char *varname, const char *value);
 int setenv_ulong(const char *varname, ulong value);
 int setenv_hex(const char *varname, ulong value);
 /**
