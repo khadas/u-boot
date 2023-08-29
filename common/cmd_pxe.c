@@ -1096,8 +1096,8 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 				cli_simple_process_macros(finalbootargs, bootargs);
 			} while (strcmp(bootargs, finalbootargs) && max_loop--);
 
-			setenv("bootargs", finalbootargs);
-			printf("append: %s\n", finalbootargs);
+			setenv("bootargs", bootargs);
+			printf("append: %s\n", bootargs);
 		}
 	}
 
