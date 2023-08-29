@@ -2063,8 +2063,9 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long pxefile_addr_r;
 	struct pxe_menu *cfg;
 	char *pxefile_addr_str;
-	char *filename;
+	char *filename, *filename_bak = NULL;
 	int prompt = 0;
+	int ret = 1;
 
 	is_pxe = false;
 
@@ -2085,9 +2086,10 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		pxefile_addr_str = argv[4];
 	}
 
-	if (argc < 6)
-		filename = getenv("bootfile");
-	else {
+	filename = getenv("bootfile");
+	if (argc > 5) {
+		filename_bak = malloc(strlen(filename) + 1);
+		strcpy(filename_bak, filename);
 		filename = argv[5];
 		setenv("bootfile", filename);
 	}
@@ -2100,26 +2102,26 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		do_getfile = do_get_any;
 	else {
 		printf("Invalid filesystem: %s\n", argv[3]);
-		return 1;
+		goto ret;
 	}
 	fs_argv[1] = argv[1];
 	fs_argv[2] = argv[2];
 
 	if (strict_strtoul(pxefile_addr_str, 16, &pxefile_addr_r) < 0) {
 		printf("Invalid pxefile address: %s\n", pxefile_addr_str);
-		return 1;
+		goto ret;
 	}
 
 	if (get_pxe_file(cmdtp, filename, pxefile_addr_r) < 0) {
 		printf("Error reading config file\n");
-		return 1;
+		goto ret;
 	}
 
 	cfg = parse_pxefile(cmdtp, pxefile_addr_r);
 
-	if (cfg == NULL) {
+	if (!cfg) {
 		printf("Error parsing config file\n");
-		return 1;
+		goto ret;
 	}
 
 	if (prompt)
@@ -2129,7 +2131,14 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	destroy_pxe_menu(cfg);
 
-	return 0;
+	ret = 0;
+
+ret:
+	if (filename_bak) {
+		setenv("bootfile", filename_bak);
+		free(filename_bak);
+	}
+	return ret;
 }
 
 U_BOOT_CMD(
