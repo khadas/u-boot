@@ -168,7 +168,7 @@
 };
 
 &saradc {
-	compatible = "amlogic,meson-a5-saradc", "amlogic,meson-saradc";
+	compatible = "amlogic,meson-a4-saradc", "amlogic,meson-saradc";
 	clocks = <&xtal>,
 		 <&clkc CLKID_SARADC_SEL>,
 		 <&clkc CLKID_SARADC_DIV>,

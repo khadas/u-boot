@@ -7,29 +7,30 @@
 #include <amlogic/saradc.h>
 #include <asm/io.h>
 
-#define SARADC_C2_DISCARD_DATA_CNT				30
+#define SARADC_C2_DISCARD_DATA_CNT			30
 #define SARADC_C2_SAVE_DATA_CNT				1
 
-#define SARADC_C2_FIFO_RD					0x18
+#define SARADC_C2_FIFO_RD				0x18
 	#define SARADC_C2_FIFO_RD_CHAN_ID_SHIFT		(22)
 	#define SARADC_C2_FIFO_RD_CHAN_ID_MASK		GENMASK(24, 22)
 	#define SARADC_C2_FIFO_RD_SAMPLE_VALUE_MASK	GENMASK(21, 0)
 
 #define SARADC_C2_REG11					0x2c
-	#define SARADC_C2_REG11_CALIB_FACTOR_MASK		GENMASK(18, 12)
+	#define SARADC_C2_REG11_CALIB_FACTOR_MASK	GENMASK(18, 12)
 
 #define SARADC_C2_REG13					0x34
 #define SARADC_C2_REG14					0x38
-	#define SARADC_C2_REG13_VREF_SEL			BIT(19)
-	#define SARADC_C2_REG13_VBG_SEL				BIT(16)
-	#define SARADC_C2_REG13_EN_VCM0P9			BIT(1)
-
+	#define SARADC_C2_REG13_VREF_SEL		BIT(19)
+	#define SARADC_C2_REG13_VCM_SEL			BIT(18)
+	#define SARADC_C2_REG13_VBG_SEL			BIT(16)
+	#define SARADC_C2_REG13_DEM_EN			BIT(7)
+	#define SARADC_C2_REG13_EN_VCM0P9		BIT(1)
 
 #define SARADC_C2_CH0_CTRL1				0x4c
 	#define SARADC_C2_CH0_CTRL1_CHAN_MUX_SEL_MASK	GENMASK(23, 21)
 	#define SARADC_C2_CH0_CTRL1_CHAN_MUX_SEL_SHIFT	(21)
 	#define SARADC_C2_CH0_CTRL1_AUX_DIFF_EN		BIT(17)
-	#define SARADC_C2_CH0_CTRL1_AUX_MODE_SEL		BIT(0)
+	#define SARADC_C2_CH0_CTRL1_AUX_MODE_SEL	BIT(0)
 
 #define SARADC_C2_CH0_CTRL2				0x50
 #define SARADC_C2_CH0_CTRL3				0x54
@@ -104,6 +105,39 @@ static void meson_c2_set_ref_voltage(struct meson_saradc *priv,
 	}
 }
 
+static inline bool meson_a4_check_high_precision(struct meson_saradc *priv,
+						 unsigned int mode)
+{
+	return !!((mode & ADC_CAPACITY_HIGH_PRECISION_VREF) &&
+		  (readl(priv->base + SARADC_C2_REG11) &
+		  SARADC_C2_REG11_CALIB_FACTOR_MASK));
+}
+
+static void meson_a4_set_ref_voltage(struct meson_saradc *priv,
+				     unsigned int mode, int ch)
+{
+	uint32_t val;
+
+	/* configured in single-ended mode */
+	val = SARADC_C2_REG13_VBG_SEL |
+	      SARADC_C2_REG13_EN_VCM0P9 |
+	      SARADC_C2_REG13_VREF_SEL |
+	      SARADC_C2_REG13_VCM_SEL |
+	      SARADC_C2_REG13_DEM_EN;
+
+	if (meson_a4_check_high_precision(priv, mode)) {
+		clrsetbits_le32(priv->base + SARADC_C2_REG13, val, 0);
+		clrsetbits_le32(priv->base + SARADC_C2_REG14, val, 0);
+		clrsetbits_le32(priv->base + SARADC_C2_CH0_CTRL1 +
+				ch * 12, val, 0);
+	} else {
+		clrsetbits_le32(priv->base + SARADC_C2_REG13, val, val);
+		clrsetbits_le32(priv->base + SARADC_C2_REG14, val, val);
+		clrsetbits_le32(priv->base + SARADC_C2_CH0_CTRL1 +
+				ch * 12, val, val);
+	}
+}
+
 static void meson_c2_set_ch7_mux(struct meson_saradc *priv, int ch, int mux)
 {
 	clrsetbits_le32(priv->base + SARADC_C2_CH0_CTRL1 + ch * 12,
@@ -140,12 +174,43 @@ static int meson_c2_get_fifo_data(struct meson_saradc *priv,
 	return data;
 }
 
+static int meson_a4_get_fifo_data(struct meson_saradc *priv,
+				  struct adc_uclass_platdata *uc_pdata, int val)
+{
+	unsigned int data;
+
+	data = val & uc_pdata->data_mask;
+
+	if (meson_a4_check_high_precision(priv, priv->current_mode)) {
+		/* return the 10-bit sampling value */
+		data = data >> 2;
+	} else {
+		/*
+		 * Calibration formula:
+		 *   code = round((adc_code - 1023) / 2)
+		 */
+		data = data > 0x3ff ? data - 0x3ff : 0;
+		data >>= 1;
+		data = data > 0x3ff ? 0x3ff : data;
+	}
+
+	return data;
+}
+
 static struct meson_saradc_diff_ops meson_c2_diff_ops = {
 	.enable_decim_filter	= meson_c2_enable_decim_filter,
 	.set_ref_voltage	= meson_c2_set_ref_voltage,
 	.get_fifo_channel	= meson_c2_get_fifo_channel,
 	.set_ch7_mux		= meson_c2_set_ch7_mux,
 	.get_fifo_data		= meson_c2_get_fifo_data,
+};
+
+static struct meson_saradc_diff_ops meson_a4_diff_ops = {
+	.enable_decim_filter	= meson_c2_enable_decim_filter,
+	.set_ref_voltage	= meson_a4_set_ref_voltage,
+	.get_fifo_channel	= meson_c2_get_fifo_channel,
+	.set_ch7_mux		= meson_c2_set_ch7_mux,
+	.get_fifo_data		= meson_a4_get_fifo_data,
 };
 
 struct meson_saradc_data meson_saradc_c2_data = {
@@ -181,6 +246,17 @@ struct meson_saradc_data meson_saradc_a5_data = {
 	.clock_rate		   = 600000,
 };
 
+struct meson_saradc_data meson_saradc_a4_data = {
+	.has_bl30_integration	   = true,
+	.self_test_channel	   = SARADC_CH_SELF_TEST,
+	.num_channels		   = MESON_SARADC_CH_MAX,
+	.resolution		   = SARADC_12BIT,
+	.dops			   = &meson_a4_diff_ops,
+	.capacity		   = ADC_CAPACITY_AVERAGE |
+				     ADC_CAPACITY_HIGH_PRECISION_VREF,
+	.clock_rate		   = 600000,
+};
+
 static const struct udevice_id meson_c2_saradc_ids[] = {
 	{
 		.compatible = "amlogic,meson-c2-saradc",
@@ -189,6 +265,10 @@ static const struct udevice_id meson_c2_saradc_ids[] = {
 	{
 		.compatible = "amlogic,meson-a5-saradc",
 		.data = (ulong)&meson_saradc_a5_data,
+	},
+	{
+		.compatible = "amlogic,meson-a4-saradc",
+		.data = (ulong)&meson_saradc_a4_data,
 	},
 	{ }
 };
