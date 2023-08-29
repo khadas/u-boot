@@ -939,6 +939,10 @@ static int lcd_tcon_data_set(struct aml_lcd_drv_s *pdrv,
 			continue;
 		}
 
+		/* skip pdf case */
+		if (block_header->block_type == LCD_TCON_DATA_BLOCK_TYPE_PDF)
+			continue;
+
 		if (is_block_ctrl_multi(block_header->block_ctrl)) {
 			ret = lcd_tcon_data_multi_match_find(pdrv, data_buf);
 			if (ret == 0)

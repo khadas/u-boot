@@ -24,6 +24,7 @@
 #define LCD_TCON_DATA_BLOCK_TYPE_OD_LUT         0x05
 #define LCD_TCON_DATA_BLOCK_TYPE_LOD_LUT        0x06
 #define LCD_TCON_DATA_BLOCK_TYPE_VAC            0x11
+#define LCD_TCON_DATA_BLOCK_TYPE_PDF            0x20
 #define LCD_TCON_DATA_BLOCK_TYPE_EXT            0xe0 /* pmu */
 #define LCD_TCON_DATA_BLOCK_TYPE_MAX            0xff
 #define is_block_type_basic_init(type) ((type) == LCD_TCON_DATA_BLOCK_TYPE_BASIC_INIT)
@@ -37,6 +38,9 @@
 #define LCD_TCON_DATA_PART_TYPE_CHK_EXIT        0xce
 #define LCD_TCON_DATA_PART_TYPE_DMA             0xc0
 #define LCD_TCON_DATA_PART_TYPE_PARAM           0xf0 /* only for tool */
+#define LCD_TCON_DATA_PART_TYPE_PDF_ACTION      0xf1
+#define LCD_TCON_DATA_PART_TYPE_PDF_ACTION_DST  0xf2
+#define LCD_TCON_DATA_PART_TYPE_PDF_ACTION_SRC  0xf3
 #define LCD_TCON_DATA_PART_TYPE_CONTROL         0xfc
 #define LCD_TCON_DATA_PART_TYPE_DELAY           0xfd
 
