@@ -213,6 +213,7 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 {
 	int   i, len;
 	char  *name, *value, *s;
+	bool  resolve = 0;
 	ENTRY e, *ep;
 	int env_flag = H_INTERACTIVE;
 
@@ -225,6 +226,9 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 			switch (*arg) {
 			case 'f':		/* force */
 				env_flag |= H_FORCE;
+				break;
+			case 'r':               /* resolve */
+				resolve = 1;
 				break;
 			default:
 				return CMD_RET_USAGE;
@@ -269,6 +273,26 @@ static int _do_env_set(int flag, int argc, char * const argv[])
 	}
 	if (s != value)
 		*--s = '\0';
+
+	/*
+	* deep Resolve vars via process_macros
+	*/
+	if (resolve) {
+		int max_loop = 32;
+		char value2[CONFIG_SYS_CBSIZE];
+
+		do {
+			cli_simple_process_macros(value, value2);
+			if (!strcmp(value, value2))
+				break;
+			value = realloc(value, strlen(value2));
+			if (!value) {
+				printf("## Can't realloc %d bytes\n", len);
+				return 1;
+			}
+			strcpy(value, value2);
+		} while (max_loop--);
+	}
 
 	e.key	= name;
 	e.data	= value;
@@ -1286,6 +1310,8 @@ U_BOOT_CMD_COMPLETE(
 	"set environment variables",
 	"[-f] name value ...\n"
 	"    - [forcibly] set environment variable 'name' to 'value ...'\n"
+	"[-r] name value ...\n"
+	"    - [resolve] resolve 'value ...' to environment variable\n"
 	"setenv [-f] name\n"
 	"    - [forcibly] delete environment variable 'name'",
 	var_complete
