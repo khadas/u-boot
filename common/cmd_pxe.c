@@ -1062,6 +1062,8 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
 	buf = map_sysmem(kernel_addr, 0);
 
+	env_helper(cmdtp, label);
+
 	if (label->localcmd) {
 		int err;
 		//printf("%s:::: %s\n", __func__, label->localcmd);
@@ -1088,7 +1090,12 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			strcat(bootargs, ip_str);
 			strcat(bootargs, mac_str);
 
-			cli_simple_process_macros(bootargs, finalbootargs);
+			int max_loop=32;
+			do {
+				cli_simple_process_macros(bootargs, finalbootargs);
+				cli_simple_process_macros(finalbootargs, bootargs);
+			} while (strcmp(bootargs, finalbootargs) && max_loop--);
+
 			setenv("bootargs", finalbootargs);
 			printf("append: %s\n", finalbootargs);
 		}
