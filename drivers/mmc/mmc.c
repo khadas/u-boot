@@ -2132,9 +2132,14 @@ int aml_read_tuning_para(struct mmc *mmc)
 
 int mmc_init(struct mmc *mmc)
 {
-	struct aml_card_sd_info *aml_priv = mmc->priv;
+	struct aml_card_sd_info *aml_priv = NULL;
 	int err = IN_PROGRESS, i;
 	unsigned start;
+
+	if (!mmc)
+		return -ENODEV;
+
+	aml_priv = mmc->priv;
 
 	if (mmc->has_init)
 		return 0;
