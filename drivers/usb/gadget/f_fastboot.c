@@ -748,20 +748,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 #endif
 		}
 	} else if (!strcmp_l1("super-partition-name", cmd)) {
-		char *slot_name;
-		slot_name = getenv("slot-suffixes");
-		if (has_boot_slot == 0) {
-			strncat(response, "super", chars_left);
-		} else {
-			printf("slot-suffixes: %s\n", slot_name);
-			if (strcmp(slot_name, "0") == 0) {
-				printf("active_slot is %s\n", "a");
-				strncat(response, "super_a", chars_left);
-			} else if (strcmp(slot_name, "1") == 0) {
-				printf("active_slot is %s\n", "b");
-				strncat(response, "super_b", chars_left);
-			}
-		}
+		strncat(response, "super", chars_left);
 	} else if (!strcmp_l1("downloadsize", cmd)) {
 		char str_num[12];
 
