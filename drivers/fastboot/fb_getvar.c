@@ -267,23 +267,10 @@ static void getvar_is_userspace(char *var_parameter, char *response)
 
 static void getvar_super_partition_name(char *var_parameter, char *response)
 {
-	char *slot_name;
-	slot_name = env_get("slot-suffixes");
-	char name[64] = {0};
-	if (has_boot_slot == 0) {
-		strncpy(name, "super-partition-name: super", 64);
-	} else {
-		printf("slot-suffixes: %s\n", slot_name);
-		if (strcmp(slot_name, "0") == 0) {
-			strncpy(name, "super-partition-name: super_a", 64);
-		} else if (strcmp(slot_name, "1") == 0) {
-			strncpy(name, "super-partition-name: super_b", 64);
-		}
-	}
 	if (busy_flag == 1)
-		fastboot_busy(name, response);
+		fastboot_busy("super-partition-name: super", response);
 	else
-		fastboot_okay(name, response);
+		fastboot_okay("super", response);
 }
 
 static void getvar_is_logical(char *var_parameter, char *response)
