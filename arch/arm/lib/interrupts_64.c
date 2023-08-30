@@ -11,6 +11,8 @@
 #include "stacktrace_64.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int interrupt_init(void)
 {
 	return 0;
@@ -29,6 +31,7 @@ int disable_interrupts(void)
 void show_regs(struct pt_regs *regs)
 {
 	int i;
+	gd->flags &= ~GD_FLG_SILENT;
 
 	printf("ELR:     %lx\n", regs->elr);
 	printf("LR:      %lx\n", regs->regs[30]);
