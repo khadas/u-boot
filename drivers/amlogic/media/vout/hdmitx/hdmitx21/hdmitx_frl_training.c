@@ -476,6 +476,11 @@ static void TX_LTS_P_POLL_FRL_START(void)
 	//Step2:write FLT_start to 0
 	scdc21_wr_sink(0x10, hdmi21_update_reg & (~0x10));//Update_flag registers,0x10
 
+	/* for dsc snow screen issue, reset pfifo before av enable */
+	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 1, 1, 1);
+	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 0, 1, 1);
+	/* clear pfifo intr */
+	hdmitx21_set_reg_bits(INTR2_SW_TPI_IVCTX, 0, 1, 1);
 	//Step3:start FRL transmission with AV data
 	//--Enable AV and h21tx_sb
 	block_hsync = !!(hdmitx21_rd_reg(H21TXSB_CTRL_1_IVCTX) & 0x4);
