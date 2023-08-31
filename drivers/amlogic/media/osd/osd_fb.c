@@ -434,10 +434,10 @@ bool is_keystone_enable_for_txhd2(void)
 	char *enable_flag;
 
 	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_TXHD2) {
-		enable_flag = env_get("outputmode2");
+		enable_flag = env_get("vout_projector_mux");
 		if (!enable_flag)
 			return false;
-		if (!strcmp(enable_flag, "panel"))
+		if (!strcmp(enable_flag, "enable"))
 			ret = true;
 		else
 			ret = false;
@@ -452,6 +452,7 @@ int get_osd_layer(void)
 	static int last_osd, last_vpp;
 
 	layer_str = env_get("display_layer");
+	/*if uboot enable keystone logo will display on OSD2*/
 	if (is_keystone_enable_for_txhd2())
 		layer_str = "osd1";
 	if (strcmp(layer_str, "osd0") == 0) {
