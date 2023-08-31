@@ -14,8 +14,8 @@
 #include <amlogic/storage.h>
 #include <emmc_partitions.h>
 
-u32 kMaxDownloadSizeDefault = 0x10000000;
-u32 kMaxFetchSizeDefault = 0x10000000;
+u32 kMaxDownloadSizeDefault = 0x8000000;
+u32 kMaxFetchSizeDefault = 0x8000000;
 
 static void getvar_version(char *var_parameter, char *response);
 static void getvar_bootloader_version(char *var_parameter, char *response);
