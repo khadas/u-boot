@@ -75,8 +75,8 @@ extern int store_write_ops(
 extern int is_partition_logical(char* parition_name);
 #endif
 
-u32 kMaxDownloadSizeDefault = 0x10000000;
-u32 kMaxFetchSizeDefault = 0x10000000;
+u32 kMaxDownloadSizeDefault = 0x8000000;
+u32 kMaxFetchSizeDefault = 0x8000000;
 
 #ifdef CONFIG_FASTBOOT_WRITING_CMD
 static void cb_fetch(struct usb_ep *outep, struct usb_request *outreq);
