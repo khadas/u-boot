@@ -256,6 +256,32 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+	char *fastboot_step = env_get("fastboot_step");
+
+	if (fastboot_step && (strcmp(fastboot_step, "2") == 0)) {
+		//come to here, means new burn bootloader.img is OK, reset env
+		printf("new burn bootloader.img is OK, write other bootloader\n");
+		char *gpt_mode = env_get("gpt_mode");
+		char *nocs_mode = env_get("nocs_mode");
+
+		env_set("fastboot_step", "0");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p fastboot_step;", 0);
+#else
+		run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
+#endif
+
+		if ((gpt_mode && !strcmp(gpt_mode, "true")) ||
+			(nocs_mode && !strcmp(nocs_mode, "true"))) {
+			printf("gpt or disable user bootloader mode\n");
+			run_command("copy_slot_bootable 2 1", 0);
+		} else {
+			printf("normal mode\n");
+			run_command("copy_slot_bootable 1 0", 0);
+			run_command("copy_slot_bootable 1 2", 0);
+		}
+	}
+
 #ifdef CONFIG_CMD_BOOTCTOL_AVB
 	int rc = 0;
 	char *avb_s = env_get("avb2");

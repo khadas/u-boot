@@ -399,6 +399,7 @@ const char * const _env_args_reserve_[] =
 	"upgrade_step",
 	"bootloader_version",
 	"dts_to_gpt",
+	"fastboot_step",
 
 	NULL//Keep NULL be last to tell END
 };

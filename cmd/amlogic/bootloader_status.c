@@ -15,6 +15,7 @@
 #include <asm/arch/efuse.h>
 #include <amlogic/aml_rollback.h>
 #include <part.h>
+#include <cli.h>
 
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 extern efuse_obj_field_t efuse_field;
@@ -187,7 +188,8 @@ static void run_recovery_from_cache(void) {
 	run_command("reboot", 0);//need reboot old bootloader
 }
 
-int write_bootloader_back(const char* bootloaderindex, int dstindex) {
+int write_bootloader_back(const char *bootloaderindex, int dstindex)
+{
 	int iRet = 0;
 	int copy = 0;
 	int ret = -1;
@@ -576,11 +578,19 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	//if recovery mode, need disable dv, if factoryreset, need default uboot env
 	aml_recovery();
 
+#ifdef CONFIG_MMC_MESON_GX
+	if (mmc)
+		gpt_flag = aml_gpt_valid(mmc);
+#endif
+	if (gpt_flag == 0)
+		ret = 0;
+
 #if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
 	run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
 
 	if (*efuse_field.data == 1) {
 		wrnP("efuse_field.data == 1\n");
+		ret = 0;
 		env_set("nocs_mode", "true");
 	} else {
 		wrnP("efuse_field.data != 1\n");
@@ -598,21 +608,6 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 	if (rebootmode && (strcmp(rebootmode, "rescueparty") == 0)) {
 		printf("rebootmode is rescueparty, need rollback\n");
 		char *slot;
-
-#ifdef CONFIG_MMC_MESON_GX
-		if (mmc)
-			gpt_flag = aml_gpt_valid(mmc);
-#endif
-		if (gpt_flag == 0)
-			ret = 0;
-
-#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
-		run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
-
-		//dis_user_flag = run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
-		if (*efuse_field.data == 1)
-			ret = 0;
-#endif//#ifdef CONFIG_EFUSE_OBJ_API
 
 #ifdef CONFIG_FASTBOOT
 		struct misc_virtual_ab_message message;
@@ -772,6 +767,36 @@ static int do_secureboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char * cons
 		}
 	}
 #endif
+
+	char *fastboot_step = env_get("fastboot_step");
+
+	if (mmc && fastboot_step && (strcmp(fastboot_step, "1") == 0)) {
+		printf("reboot to new bootloader burned by fastboot\n");
+		env_set("update_env", "1");
+		env_set("fastboot_step", "2");
+		run_command("saveenv", 0);
+		if (rebootmode && (strcmp(rebootmode, "fastboot") == 0))
+			run_command("reboot next,bootloader", 0);
+		else
+			run_command("reboot next", 0);
+	}
+	if (mmc && fastboot_step && (strcmp(fastboot_step, "2") == 0)) {
+		struct blk_desc *dev_desc = mmc_get_blk_desc(mmc);
+
+		if (dev_desc && ((ret == 0 && !strcmp(bootloaderindex, "1")) ||
+			(ret != 0 && !strcmp(bootloaderindex, "0")))) {
+			printf("new bootloader error, please fastboot to another one\n");
+			env_set("fastboot_step", "0");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+			run_command("update_env_part -p fastboot_step;", 0);
+#else
+			run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
+#endif
+
+			cli_init();
+			cli_loop();
+		}
+	}
 #endif
 
 	//no secure check need

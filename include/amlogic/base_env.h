@@ -65,6 +65,7 @@
 	"rollback_flag=0\0"\
 	"write_boot=0\0"\
 	"ddr_size=0B\0"\
+	"fastboot_step=0\0"\
 	"recovery_mode=false\0"\
 	"retry_recovery_times=7\0"\
 	"androidboot.dtbo_idx=0\0"\
