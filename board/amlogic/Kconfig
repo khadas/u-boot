@@ -836,6 +836,10 @@ config CHIPSET_VARIANT_MIN
 	string "C3 bl32 CHIPSET VARIANT MIN"
 	default ""
 
+config CHIPSET_VARIANT_IPC
+	string "C3 CHIPSET VARIANT IPC"
+	default ""
+
 config AMLOGIC_KEY_TYPE
         string "C3 AMLOGIC KEY TYPE"
         default "dev-keys"
