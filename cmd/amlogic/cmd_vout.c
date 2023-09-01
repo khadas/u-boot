@@ -27,6 +27,8 @@
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
+#include <amlogic/cpu_id.h>
+
 #ifdef CONFIG_AML_HDMITX
 static int vout_hdmi_hpd(int hpd_st)
 {
@@ -361,6 +363,11 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 #endif
 #ifdef CONFIG_AML_LCD
 	unsigned int venc_index;
+#endif
+
+#ifdef CONFIG_AML_VPP
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXHD2)
+		vpp_matrix_update(VPP_CM_RGB);
 #endif
 
 	if (argc != 2)
