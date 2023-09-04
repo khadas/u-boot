@@ -61,7 +61,8 @@
 /* 20230802: add t5m,t5w,t3x set phy lane amp*/
 /* 20230816: optimize clk accuracy*/
 /* 20230821: update lcd ss support*/
-#define LCD_DRV_VERSION    "20230821"
+/* 20230912: bypass phy data buffer */
+#define LCD_DRV_VERSION    "20230912"
 
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
