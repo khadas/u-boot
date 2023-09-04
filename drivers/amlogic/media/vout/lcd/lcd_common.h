@@ -54,7 +54,8 @@
 /* 20230915: update phy setting for txhd2 */
 /* 20230918: support ultra refresh rate function*/
 /* 20231011: t3x dual display support */
-#define LCD_DRV_VERSION    "20231011"
+/* 20231012: optimize clk management*/
+#define LCD_DRV_VERSION    "20231012"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
@@ -96,11 +97,11 @@ void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv);
 void lcd_timing_init_config(struct lcd_config_s *pconf);
 int lcd_vmode_change(struct aml_lcd_drv_s *pdrv);
 void lcd_pinmux_set(struct aml_lcd_drv_s *pdrv, int status);
-void lcd_vbyone_config_set(struct aml_lcd_drv_s *pdrv);
-void lcd_mlvds_config_set(struct aml_lcd_drv_s *pdrv);
-void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv);
-void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv);
-void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv);
+void lcd_vbyone_bit_rate_config(struct aml_lcd_drv_s *pdrv);
+void lcd_mlvds_bit_rate_config(struct aml_lcd_drv_s *pdrv);
+void lcd_p2p_bit_rate_config(struct aml_lcd_drv_s *pdrv);
+void lcd_mipi_dsi_bit_rate_config(struct aml_lcd_drv_s *pdrv);
+void lcd_edp_bit_rate_config(struct aml_lcd_drv_s *pdrv);
 
 /* lcd venc */
 void lcd_wait_vsync(struct aml_lcd_drv_s *pdrv);
@@ -118,7 +119,7 @@ void lcd_clk_config_print(struct aml_lcd_drv_s *pdrv);
 void lcd_get_ss(struct aml_lcd_drv_s *pdrv);
 int lcd_set_ss(struct aml_lcd_drv_s *pdrv, unsigned int level,
 	       unsigned int freq, unsigned int mode);
-void lcd_update_clk(struct aml_lcd_drv_s *pdrv);
+void lcd_update_clk_frac(struct aml_lcd_drv_s *pdrv);
 void lcd_set_clk(struct aml_lcd_drv_s *pdrv);
 void lcd_disable_clk(struct aml_lcd_drv_s *pdrv);
 void lcd_clk_generate_parameter(struct aml_lcd_drv_s *pdrv);

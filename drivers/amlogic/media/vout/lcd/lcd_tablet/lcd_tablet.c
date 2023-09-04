@@ -64,7 +64,6 @@ static void lcd_config_init(struct aml_lcd_drv_s *pdrv)
 {
 	lcd_basic_timing_range_update(pdrv);
 	lcd_timing_init_config(&pdrv->config);
-	lcd_tablet_config_update(pdrv);
 	lcd_clk_generate_parameter(pdrv);
 }
 

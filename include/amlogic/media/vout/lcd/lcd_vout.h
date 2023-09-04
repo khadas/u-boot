@@ -141,14 +141,17 @@ struct lcd_timing_s {
 	unsigned int pll_ctrl;  /* pll settings */
 	unsigned int div_ctrl;  /* divider settings */
 	unsigned int clk_ctrl;  /* clock settings */
+	unsigned int pll_ctrl2;  /* pll settings */
+	unsigned int div_ctrl2;  /* divider settings */
+	unsigned int clk_ctrl2;  /* clock settings */
 	unsigned long long bit_rate; /* Hz */
 	unsigned int enc_clk;
 	unsigned int clk_mode;  /* 0=dependence mode, 1=independence mode */
 	unsigned int ppc;
 
-	unsigned int ss_level; /* [15:12]: ss_freq, [11:8]: ss_mode,
-				* [7:0]: ss_level
-				*/
+	unsigned int ss_level;
+	unsigned int ss_freq;
+	unsigned int ss_mode;
 
 	unsigned int sync_duration_num;
 	unsigned short sync_duration_den;
@@ -616,6 +619,7 @@ struct aml_lcd_drv_s {
 	int init_frac;
 	unsigned int output_vmode;
 	unsigned int power_on_suspend;
+	unsigned char clk_conf_num;
 
 	struct lcd_config_s config;
 	struct aml_lcd_data_s *data;

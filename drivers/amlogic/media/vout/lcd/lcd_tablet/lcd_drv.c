@@ -841,24 +841,6 @@ static void lcd_vbyone_control_off(struct aml_lcd_drv_s *pdrv)
 	}
 }
 
-void lcd_tablet_config_update(struct aml_lcd_drv_s *pdrv)
-{
-	/* update interface timing */
-	switch (pdrv->config.basic.lcd_type) {
-	case LCD_VBYONE:
-		lcd_vbyone_config_set(pdrv);
-		break;
-	case LCD_MIPI:
-		lcd_mipi_dsi_config_set(pdrv);
-		break;
-	case LCD_EDP:
-		lcd_edp_config_set(pdrv);
-		break;
-	default:
-		break;
-	}
-}
-
 void lcd_tablet_driver_init_pre(struct aml_lcd_drv_s *pdrv)
 {
 	int ret;

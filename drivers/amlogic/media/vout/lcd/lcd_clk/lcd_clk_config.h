@@ -50,11 +50,11 @@ struct lcd_clk_data_s {
 	unsigned long long div_in_fmax;
 	unsigned int div_out_fmax;
 	unsigned int xd_out_fmax;
-
-	unsigned char vclk_sel;
-	unsigned char clk1_path_sel;//display 1 clk path sel tcon_pll0/1
-	int enc_clk_msr_id;
-	struct lcd_clk_ctrl_s *pll_ctrl_table;
+	unsigned int od_cnt;
+	unsigned int have_tcon_div;
+	unsigned int have_pll_div;
+	//0:pll_clk_phase, 1:pll_clk2, 2:vid_pll_clk
+	unsigned int phy_clk_location;
 
 	unsigned int ss_support;
 	unsigned int ss_level_max;
@@ -64,14 +64,22 @@ struct lcd_clk_data_s {
 	unsigned int ss_dep_sel_max;
 	unsigned int ss_str_m_max;
 
+	unsigned char vclk_sel;
+	unsigned char clk1_path_sel;//display 1 clk path sel tcon_pll0/1
+	int enc_clk_msr_id;
+
+	//for some parameter changed to different lcd interface
+	void (*clk_parameter_init)(struct aml_lcd_drv_s *pdrv);
 	void (*clk_generate_parameter)(struct aml_lcd_drv_s *pdrv);
 	void (*pll_frac_generate)(struct aml_lcd_drv_s *pdrv);
 	void (*set_ss_level)(struct aml_lcd_drv_s *pdrv);
 	void (*set_ss_advance)(struct aml_lcd_drv_s *pdrv);
 	void (*clk_ss_enable)(struct aml_lcd_drv_s *pdrv, int status);
+	void (*pll_frac_set)(struct aml_lcd_drv_s *pdrv, unsigned int frac);
 	void (*clk_set)(struct aml_lcd_drv_s *pdrv);
 	void (*vclk_crt_set)(struct aml_lcd_drv_s *pdrv);
 	void (*clk_disable)(struct aml_lcd_drv_s *pdrv);
+	void (*clktree_set)(struct aml_lcd_drv_s *pdrv);
 	void (*clk_config_init_print)(struct aml_lcd_drv_s *pdrv);
 	void (*clk_config_print)(struct aml_lcd_drv_s *pdrv);
 	void (*prbs_clk_config)(struct aml_lcd_drv_s *pdrv, unsigned int lcd_prbs_mode);
@@ -100,6 +108,7 @@ struct lcd_clk_config_s { /* unit: Hz */
 	unsigned int pll_frac_half_shift;
 	unsigned long long pll_fout;
 	unsigned long long phy_clk;
+	unsigned int pll_div_fout;
 	unsigned int ss_level;
 	unsigned int ss_dep_sel;
 	unsigned int ss_str_m;
@@ -123,6 +132,7 @@ struct lcd_clk_config_s { /* unit: Hz */
 enum lcd_clk_mode_e {
 	LCD_CLK_MODE_DEPENDENCE = 0,  /* pclk and phy use same pll */
 	LCD_CLK_MODE_INDEPENDENCE,    /* pclk and phy use different pll */
+	LCD_CLK_MODE_DEPENDENCE_ADAPT, /* pclk and phy use same pll, and bit_rate adapt to pclk */
 	LCD_CLK_MODE_MAX,
 };
 

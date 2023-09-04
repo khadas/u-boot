@@ -31,6 +31,7 @@ static char *lcd_ss_mode_table_dft[] = {
 struct lcd_clk_config_s *get_lcd_clk_config(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
+	int i;
 
 	if (!pdrv)
 		return NULL;
@@ -40,10 +41,12 @@ struct lcd_clk_config_s *get_lcd_clk_config(struct aml_lcd_drv_s *pdrv)
 		return NULL;
 	}
 	cconf = (struct lcd_clk_config_s *)pdrv->clk_conf;
-	if (!cconf->data) {
-		LCDERR("[%d]: %s: clk config data is null\n",
-		       pdrv->index, __func__);
-		return NULL;
+	for (i = 0; i < pdrv->clk_conf_num; i++) {
+		if (!cconf[i].data) {
+			LCDERR("[%d]: %s: clk config data is null\n",
+				pdrv->index, __func__);
+			return NULL;
+		}
 	}
 
 	return cconf;
@@ -53,6 +56,37 @@ struct lcd_clk_config_s *get_lcd_clk_config(struct aml_lcd_drv_s *pdrv)
  * lcd clk function api
  * ****************************************************
  */
+void lcd_clk_frac_generate(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_clk_config_s *cconf;
+
+	cconf = get_lcd_clk_config(pdrv);
+	if (!cconf || !cconf->data)
+		return;
+
+	/* update bit_rate by interface */
+	switch (pdrv->config.basic.lcd_type) {
+	case LCD_VBYONE:
+		lcd_vbyone_bit_rate_config(pdrv);
+		break;
+	case LCD_MLVDS:
+		lcd_mlvds_bit_rate_config(pdrv);
+		break;
+	case LCD_P2P:
+		lcd_p2p_bit_rate_config(pdrv);
+		break;
+	case LCD_MIPI:
+		lcd_mipi_dsi_bit_rate_config(pdrv);
+		break;
+	case LCD_EDP:
+		lcd_edp_bit_rate_config(pdrv);
+	default:
+		break;
+	}
+	if (cconf->data->pll_frac_generate)
+		cconf->data->pll_frac_generate(pdrv);
+}
+
 void lcd_clk_generate_parameter(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
@@ -65,18 +99,40 @@ void lcd_clk_generate_parameter(struct aml_lcd_drv_s *pdrv)
 	if (!cconf || !cconf->data)
 		return;
 
+	/* update bit_rate by interface */
+	switch (pdrv->config.basic.lcd_type) {
+	case LCD_VBYONE:
+		lcd_vbyone_bit_rate_config(pdrv);
+		break;
+	case LCD_MLVDS:
+		lcd_mlvds_bit_rate_config(pdrv);
+		break;
+	case LCD_P2P:
+		lcd_p2p_bit_rate_config(pdrv);
+		break;
+	case LCD_MIPI:
+		lcd_mipi_dsi_bit_rate_config(pdrv);
+		break;
+	case LCD_EDP:
+		lcd_edp_bit_rate_config(pdrv);
+	default:
+		break;
+	}
+
+	if (cconf->data->clk_parameter_init)
+		cconf->data->clk_parameter_init(pdrv);
 	if (cconf->data->clk_generate_parameter)
 		cconf->data->clk_generate_parameter(pdrv);
 
-	ss_level = pconf->timing.ss_level & 0xff;
+	ss_level = pconf->timing.ss_level;
 	cconf->ss_level = (ss_level >= cconf->data->ss_level_max) ?
 				ss_level >= cconf->data->ss_level_max : ss_level;
 
-	ss_freq = (pconf->timing.ss_level >> 8) & 0xff;
+	ss_freq = pconf->timing.ss_freq;
 	cconf->ss_freq = (ss_freq >= cconf->data->ss_freq_max) ?
 				cconf->data->ss_freq_max : ss_freq;
 
-	ss_mode = (pconf->timing.ss_level >> 12) & 0xff;
+	ss_mode = pconf->timing.ss_mode;
 	cconf->ss_mode = (ss_mode >= cconf->data->ss_mode_max) ? 0 : ss_mode;
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV2) {
 		LCDPR("[%d]: %s: ss_level=%d, ss_freq=%d, ss_mode=%d\n",
@@ -163,45 +219,31 @@ lcd_set_ss_end:
 }
 
 /* for frame rate change */
-void lcd_update_clk(struct aml_lcd_drv_s *pdrv)
+void lcd_update_clk_frac(struct aml_lcd_drv_s *pdrv)
 {
-	struct lcd_clk_config_s *cconf;
-	struct lcd_clk_ctrl_s *table;
-	unsigned int offset, reg, val;
-	int i = 0;
+	struct lcd_clk_config_s *cconf, *phyconf, *pixconf;
 
 	cconf = get_lcd_clk_config(pdrv);
 	if (!cconf || !cconf->data)
 		return;
 
-	if (cconf->data->pll_frac_generate)
-		cconf->data->pll_frac_generate(pdrv);
-
-	offset = cconf->pll_offset;
-
-	if (!cconf->data->pll_ctrl_table)
-		return;
-	table = cconf->data->pll_ctrl_table;
-	while (i < LCD_CLK_CTRL_CNT_MAX) {
-		if (table[i].flag == LCD_CLK_CTRL_END)
-			break;
-		if (table[i].flag == LCD_CLK_CTRL_FRAC) {
-			reg = table[i].reg + offset;
-			val = lcd_ana_read(reg);
-			lcd_ana_setb(reg, cconf->pll_frac, table[i].bit, table[i].len);
-			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-				LCDPR("[%d]: %s: pll_frac reg 0x%x: 0x%08x->0x%08x\n",
-					pdrv->index, __func__, reg,
-					val, lcd_ana_read(reg));
-			}
-		}
-		i++;
+	if (pdrv->config.timing.clk_mode == LCD_CLK_MODE_INDEPENDENCE) {
+		phyconf = &cconf[0];
+		pixconf = &cconf[1];
+		if (phyconf->data->pll_frac_set)
+			phyconf->data->pll_frac_set(pdrv, phyconf->pll_frac);
+		if (pixconf->data->pll_frac_set)
+			pixconf->data->pll_frac_set(pdrv, pixconf->pll_frac);
+		LCDPR("[%d]: %s: phy pll_frac=0x%x, pix pll_frac=0x%x\n",
+			pdrv->index, __func__, phyconf->pll_frac, pixconf->pll_frac);
+	} else {
+		if (cconf->data->pll_frac_set)
+			cconf->data->pll_frac_set(pdrv, cconf->pll_frac);
+		LCDPR("[%d]: %s: pll_frac=0x%x\n", pdrv->index, __func__, cconf->pll_frac);
 	}
-
-	LCDPR("[%d]: %s: pll_frac=0x%x\n", pdrv->index, __func__, cconf->pll_frac);
 }
 
-/* for timing change */
+/* for timing init */
 void lcd_set_clk(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
@@ -230,6 +272,9 @@ lcd_set_clk_retry:
 		}
 		goto lcd_set_clk_retry;
 	}
+
+	if (cconf->data->clktree_set)
+		cconf->data->clktree_set(pdrv);
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
@@ -274,22 +319,15 @@ int aml_lcd_prbs_test(struct aml_lcd_drv_s *pdrv, unsigned int ms, unsigned int 
 	return 0;
 }
 
-void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf)
+static int lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_s *cconf)
 {
 	unsigned int i;
-	struct lcd_clk_config_s *pclk_conf;
-	unsigned int clk_mode = pdrv->config.timing.clk_mode;
-	unsigned int loop_num = 1;
 
-	if (clk_mode == LCD_CLK_MODE_INDEPENDENCE)
-		loop_num = 2;
-
-	for (i = 0; i < loop_num; i++) {
-		pclk_conf = &cconf[i];
-		pclk_conf->pll_id = 0;
-		pclk_conf->pll_offset = 0;
-		pclk_conf->fin = FIN_FREQ;
+	for (i = 0; i < pdrv->clk_conf_num; i++) {
+		cconf[i].pll_id = i;
+		cconf[i].fin = FIN_FREQ;
 	}
+
 	switch (pdrv->data->chip_type) {
 	case LCD_CHIP_G12A:
 	case LCD_CHIP_SM1:
@@ -319,7 +357,7 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 	case LCD_CHIP_T3: /* only one pll */
 		lcd_clk_config_chip_init_t3(pdrv, cconf);
 		break;
-	case LCD_CHIP_T3X: /* only one pll */
+	case LCD_CHIP_T3X:
 		lcd_clk_config_chip_init_t3x(pdrv, cconf);
 		break;
 	case LCD_CHIP_T5W:
@@ -336,24 +374,34 @@ void lcd_clk_config_chip_init(struct aml_lcd_drv_s *pdrv, struct lcd_clk_config_
 		break;
 	default:
 		LCDPR("[%d]: %s: invalid chip type\n", pdrv->index, __func__);
-		return;
+		return -1;
 	}
 
-	cconf->pll_od_fb = cconf->data->pll_od_fb;
-	if (lcd_debug_print_flag & LCD_DBG_PR_ADV2) {
-		if (cconf->data->clk_config_init_print)
-			cconf->data->clk_config_init_print(pdrv);
+	for (i = 0; i < pdrv->clk_conf_num; i++) {
+		if (!cconf[i].data) {
+			LCDERR("[%d]: %s: cconf[%d] data is NULL\n",
+				pdrv->index, __func__, i);
+			return -1;
+		}
+		if (lcd_debug_print_flag & LCD_DBG_PR_ADV2) {
+			if (cconf[i].data->clk_config_init_print)
+				cconf[i].data->clk_config_init_print(pdrv);
+		}
 	}
+
+	return 0;
 }
 
 void lcd_clk_config_probe(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
-	unsigned int size = sizeof(struct lcd_clk_config_s);
-	unsigned int clk_mode = pdrv->config.timing.clk_mode;
+	unsigned int size;
 
-	if (clk_mode == LCD_CLK_MODE_INDEPENDENCE)
-		size = 2 * sizeof(struct lcd_clk_config_s);
+	if (pdrv->config.timing.clk_mode == LCD_CLK_MODE_INDEPENDENCE)
+		pdrv->clk_conf_num = 2;
+	else
+		pdrv->clk_conf_num = 1;
+	size = pdrv->clk_conf_num * sizeof(struct lcd_clk_config_s);
 
 	if (!pdrv->clk_conf) {
 		cconf = (struct lcd_clk_config_s *)malloc(size);

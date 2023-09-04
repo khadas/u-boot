@@ -131,21 +131,27 @@ static struct lcd_clk_data_s lcd_clk_data_a4 = {
 	.div_in_fmax = 0,
 	.div_out_fmax = 0,
 	.xd_out_fmax = 75000000,
+	.od_cnt = 1,
+	.have_tcon_div = 0,
+	.have_pll_div = 0,
+	.phy_clk_location = 1,
 
 	.vclk_sel = 0xff, //unassigned
 	.enc_clk_msr_id = -1,
-	.pll_ctrl_table = NULL,
 
 	.ss_support = 0,
 
+	.clk_parameter_init = NULL,
 	.clk_generate_parameter = NULL,
 	.pll_frac_generate = NULL,
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_ss_enable = NULL,
+	.pll_frac_set = NULL,
 	.clk_set = lcd_clk_set_a4,
 	.vclk_crt_set = lcd_set_vclk_crt_a4,
 	.clk_disable = lcd_clk_disable_a4,
+	.clktree_set = NULL,
 	.clk_config_init_print = NULL,
 	.clk_config_print = lcd_clk_config_print_a4,
 	.prbs_clk_config = NULL,

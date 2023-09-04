@@ -109,4 +109,6 @@ enum div_sel_e {
 	CLK_DIV_SEL_MAX,
 };
 
+extern unsigned int lcd_clk_div_table[][3];
+
 #endif

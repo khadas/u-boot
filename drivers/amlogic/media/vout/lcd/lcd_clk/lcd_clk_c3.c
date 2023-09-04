@@ -12,14 +12,6 @@
 #include "lcd_clk_ctrl.h"
 #include "lcd_clk_utils.h"
 
-static struct lcd_clk_ctrl_s pll_ctrl_table_c3[] = {
-	/* flag             reg                 bit              len*/
-	{LCD_CLK_CTRL_EN,   ANACTRL_GP0PLL_CTRL0, 28,   1},
-	{LCD_CLK_CTRL_RST,  ANACTRL_GP0PLL_CTRL0, 29,   1},
-	{LCD_CLK_CTRL_FRAC, ANACTRL_GP0PLL_CTRL1, 0,    17},
-	{LCD_CLK_CTRL_END,  LCD_CLK_REG_END,      0,    0},
-};
-
 static const unsigned int od_table[6] = {1, 2, 4, 8, 16, 32};
 
 static void lcd_set_pll(struct aml_lcd_drv_s *pdrv)
@@ -104,28 +96,10 @@ static void lcd_set_vclk_crt(struct aml_lcd_drv_s *pdrv)
 
 static void lcd_clk_disable_c3(struct aml_lcd_drv_s *pdrv)
 {
-	struct lcd_clk_config_s *cconf;
-	struct lcd_clk_ctrl_s *table;
-	int i = 0;
-
-	cconf = get_lcd_clk_config(pdrv);
-	if (!cconf)
-		return;
-
 	lcd_clk_setb(CLKCTRL_VOUTENC_CLK_CTRL, 0, 24, 1);
 
-	if (!cconf->data->pll_ctrl_table)
-		return;
-	table = cconf->data->pll_ctrl_table;
-	while (i < LCD_CLK_CTRL_CNT_MAX) {
-		if (table[i].flag == LCD_CLK_CTRL_END)
-			break;
-		if (table[i].flag == LCD_CLK_CTRL_EN)
-			lcd_ana_setb(table[i].reg, 0, table[i].bit, table[i].len);
-		else if (table[i].flag == LCD_CLK_CTRL_RST)
-			lcd_ana_setb(table[i].reg, 1, table[i].bit, table[i].len);
-		i++;
-	}
+	lcd_ana_setb(ANACTRL_GP0PLL_CTRL0, 0, 28, 1); //disable
+	lcd_ana_setb(ANACTRL_GP0PLL_CTRL0, 0, 29, 1); //reset
 }
 
 static void lcd_pll_frac_generate_c3(struct aml_lcd_drv_s *pdrv)
@@ -325,21 +299,27 @@ static struct lcd_clk_data_s lcd_clk_data_c3 = {
 	.div_in_fmax = 1600000000,
 	.div_out_fmax = 1600000000,
 	.xd_out_fmax = 200000000,
+	.od_cnt = 1,
+	.have_tcon_div = 0,
+	.have_pll_div = 0,
+	.phy_clk_location = 1,
 
 	.vclk_sel = 4, //gp0_pll
 	.enc_clk_msr_id = -1,
-	.pll_ctrl_table = pll_ctrl_table_c3,
 
 	.ss_support = 0,
 
+	.clk_parameter_init = NULL,
 	.clk_generate_parameter = lcd_clk_generate_c3,
 	.pll_frac_generate = lcd_pll_frac_generate_c3,
 	.set_ss_level = NULL,
 	.set_ss_advance = NULL,
 	.clk_ss_enable = NULL,
+	.pll_frac_set = NULL,
 	.clk_set = lcd_clk_set_c3,
 	.vclk_crt_set = lcd_set_vclk_crt,
 	.clk_disable = lcd_clk_disable_c3,
+	.clktree_set = NULL,
 	.clk_config_init_print = lcd_clk_config_init_print_dft,
 	.clk_config_print = lcd_clk_config_print_c3,
 	.prbs_clk_config = NULL,

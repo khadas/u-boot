@@ -1113,7 +1113,6 @@ void aml_lcd_driver_set_ss(int index, unsigned int level, unsigned int freq,
 			   unsigned int mode)
 {
 	struct aml_lcd_drv_s *pdrv;
-	unsigned int temp;
 	int ret;
 
 	pdrv = lcd_driver_check_valid(index);
@@ -1125,24 +1124,14 @@ void aml_lcd_driver_set_ss(int index, unsigned int level, unsigned int freq,
 		return;
 	}
 
-	temp = pdrv->config.timing.ss_level;
 	ret = lcd_set_ss(pdrv, level, freq, mode);
 	if (ret == 0) {
-		if (level < 0xff) {
-			temp &= ~(0xff);
-			temp |= level;
-			pdrv->config.timing.ss_level = temp;
-		}
-		if (freq < 0xff) {
-			temp &= ~((0xf << LCD_CLK_SS_BIT_FREQ) << 8);
-			temp |= ((freq << LCD_CLK_SS_BIT_FREQ) << 8);
-			pdrv->config.timing.ss_level = temp;
-		}
-		if (mode < 0xff) {
-			temp &= ~((0xf << LCD_CLK_SS_BIT_MODE) << 8);
-			temp |= ((mode << LCD_CLK_SS_BIT_MODE) << 8);
-			pdrv->config.timing.ss_level = temp;
-		}
+		if (level < 0xff)
+			pdrv->config.timing.ss_level = level;
+		if (freq < 0xff)
+			pdrv->config.timing.ss_freq = freq;
+		if (mode < 0xff)
+			pdrv->config.timing.ss_mode = mode;
 	}
 }
 

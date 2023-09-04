@@ -182,7 +182,6 @@ void dptx_timing_update(struct aml_lcd_drv_s *pdrv, struct dptx_detail_timing_s 
 	pconf->basic.screen_height = timing->v_size;
 
 	lcd_timing_init_config(pconf);
-	lcd_tablet_config_update(pdrv);
 	lcd_clk_generate_parameter(pdrv);
 
 	lcd_set_clk(pdrv);

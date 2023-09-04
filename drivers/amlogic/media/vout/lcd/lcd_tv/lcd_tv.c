@@ -375,7 +375,6 @@ static int lcd_config_check(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int
 
 	/* update clk & timing config */
 	lcd_vmode_change(pdrv);
-	lcd_tv_config_update(pdrv);
 	lcd_clk_generate_parameter(pdrv);
 
 	return 0;
