@@ -375,7 +375,8 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1512 //MHz. Range: 360-2000, should be multiple of 24
+//MHz. Range: 1000-1600, should be multiple of 24
+#define CONFIG_CPU_CLK					1416
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
