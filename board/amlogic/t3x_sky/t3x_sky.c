@@ -504,6 +504,7 @@ int checkhw(char *name)
 	char loc_name[64] = {0};
 	unsigned long ddr_size = 0;
 	int i;
+	cpu_id_t cpu_id = get_cpu_id();
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		ddr_size += gd->bd->bi_dram[i].size;
@@ -520,16 +521,28 @@ int checkhw(char *name)
 	} else {
 		switch (ddr_size) {
 		case 0x80000000:
-			strcpy(loc_name, "t3x_t968d4_sky-2g\0");
+			if (cpu_id.chip_rev == 0xA)
+				strcpy(loc_name, "t3x-reva_t968d4_sky-2g\0");
+			else if (cpu_id.chip_rev == 0xB)
+				strcpy(loc_name, "t3x_t968d4_sky-2g\0");
 			break;
 		case 0xc0000000:
-			strcpy(loc_name, "t3x_t968d4_sky-3g\0");
+			if (cpu_id.chip_rev == 0xA)
+				strcpy(loc_name, "t3x-reva_t968d4_sky-3g\0");
+			else if (cpu_id.chip_rev == 0xB)
+				strcpy(loc_name, "t3x_t968d4_sky-3g\0");
 			break;
 		case 0xe0000000:
-			strcpy(loc_name, "t3x_t968d4_sky\0");
+			if (cpu_id.chip_rev == 0xA)
+				strcpy(loc_name, "t3x-reva_t968d4_sky\0");
+			else if (cpu_id.chip_rev == 0xB)
+				strcpy(loc_name, "t3x_t968d4_sky\0");
 			break;
 		case 0x200000000:
-			strcpy(loc_name, "t3x_t968d4_sky-8g\0");
+			if (cpu_id.chip_rev == 0xA)
+				strcpy(loc_name, "t3x-reva_t968d4_sky-8g\0");
+			else if (cpu_id.chip_rev == 0xB)
+				strcpy(loc_name, "t3x_t968d4_sky-8g\0");
 			break;
 		default:
 			strcpy(loc_name, "t3x_t968d4_unsupport");
