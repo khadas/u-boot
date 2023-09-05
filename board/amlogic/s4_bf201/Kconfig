@@ -14,7 +14,7 @@ config SYS_CONFIG_NAME
 
 config DTB_BIND_KERNEL
     bool "load dtb from boot part but not flash rsv"
-    default n
+    default y
 
 config AML_REBOOT
        bool "reboot cmd"

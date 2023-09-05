@@ -24,6 +24,7 @@
 #include <asm/arch/bl31_apis.h>
 #include <amlogic/aml_mtd.h>
 #include <amlogic/aml_mmc.h>
+#include <amlogic/board.h>
 
 #ifdef CONFIG_AML_VPU
 #include <amlogic/media/vpu/vpu.h>
@@ -148,52 +149,7 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-	run_command("aml_update_env", 0);
-
-#if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
-	board_init_mem();
-	//run_command("run bcb_cmd", 0);
-
-#ifndef DTB_BIND_KERNEL
-#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
-	if ( run_command("run common_dtb_load", 0) ) {
-		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
-		run_command("if test ${reboot_mode} = fastboot; then "\
-			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
-	}
-
-	//load dtb here then users can directly use 'fdt' command
-	run_command("if fdt addr ${dtb_mem_addr}; then "\
-		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
-
-#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
-#else
-	printf("dtb bind kernel mode\n");
-	char cmd[128] = {0};
-	int ret = 0;
-
-	if (!env_get("dtb_mem_addr")) {
-		sprintf(cmd, "setenv dtb_mem_addr 0x%x", CONFIG_DTB_MEM_ADDR);
-		ret = run_command(cmd, 0);
-		if (ret)
-			printf("%s : cmd[%s] fail, ret = %d\n", __func__, cmd, ret);
-	}
-	sprintf(cmd, "imgread dtb ${boot_part} ${dtb_mem_addr}");
-	ret = run_command(cmd, 0);
-	if (ret)
-		printf("%s : cmd[%s] fail, ret = %d\n", __func__, cmd, ret);
-#endif /* DTB_BIND_KERNEL */
-
-#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
-	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
-	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
-#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
-	{ aml_v3_factory_usb_burning(0, gd->bd); }
-#endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-
-#endif// #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
+	aml_board_late_init_front(NULL);
 
 #ifdef CONFIG_AML_VPU
 	vpu_probe();

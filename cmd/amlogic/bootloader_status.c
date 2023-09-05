@@ -988,6 +988,15 @@ static int do_update_uboot_env(cmd_tbl_t *cmdtp,
 	int argc,
 	char * const argv[])
 {
+	const int write_boot = env_get_ulong("write_boot", 10, 0);
+	const int update_dts_gpt = env_get_ulong("update_dts_gpt", 10, 0);
+
+	//skip update env if need update bootloader
+	if (write_boot || update_dts_gpt) {
+		run_command("echo write_boot ${write_boot}, update_dts_gpt ${update_dts_gpt}", 0);
+		return 0;
+	}
+
 	//default uboot env need before anyone use it
 	//after factory reset
 	if (env_get("default_env")) {

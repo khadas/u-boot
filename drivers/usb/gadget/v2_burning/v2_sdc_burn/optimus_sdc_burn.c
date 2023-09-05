@@ -865,7 +865,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         //erase after bootloader for usb disk
 	#ifdef CONFIG_MMC
 		if (store_get_type() == BOOT_EMMC) {
-			ret = usb_burn_erase_data(1);
+			ret = usb_burn_erase_data(0x3);
 		} else {
 			ret = run_command("echo store erase.chip 0; store erase.chip 0", 0);
 		}

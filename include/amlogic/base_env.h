@@ -131,7 +131,9 @@
 		"else echo wrong OS format ${os_type}; fi;fi;"\
 		"echo try upgrade as booting failure; run update;"\
 		"\0" \
-	"update_base=" _AML_RUN_UPDATE_ENV "\0"\
+	"update_base=" _AML_RUN_UPDATE_ENV \
+		"run recovery_from_flash;" \
+		"\0"\
 	"recovery_from_fat_dev_base="\
 		"setenv loadaddr ${loadaddr_kernel};"\
 		"if fatload ${fatload_dev} 0 ${loadaddr} aml_autoscript; then "\

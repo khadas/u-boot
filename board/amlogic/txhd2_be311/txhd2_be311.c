@@ -39,7 +39,7 @@
 #include <dm.h>
 #include <asm/arch/timer.h>
 #include <partition_table.h>
-
+#include <amlogic/board.h>
 #include <asm/armv8/mmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -513,42 +513,8 @@ int board_late_init(void)
 #ifdef CONFIG_PXP_EMULATOR
         return 0;
 #endif
-	char outputModePre[30] = {0};
-	char outputModeCur[30] = {0};
-	char connector_type_pre[20] = {}, connector_type_cur[20] = {};
-	char *str;
+	aml_board_late_init_front(NULL);
 
-	if (env_get("default_env") || env_get("update_env")) {
-		printf("factory reset, need default all uboot env\n");
-		run_command("defenv_reserv;setenv upgrade_step 2; saveenv;", 0);
-	}
-
-		//update env before anyone using it
-	run_command("get_rebootmode; echo reboot_mode=${reboot_mode};", 0);
-		run_command("if itest ${upgrade_step} == 1; then "\
-						"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
-	if (env_get("outputmode")) {
-		strncpy(outputModePre, env_get("outputmode"), 29);
-	}
-	str = env_get("connector_type");
-	if (str)
-		strncpy(connector_type_pre, str, 19);
-	run_command("run bcb_cmd", 0);
-
-#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
-	if (run_command("run common_dtb_load", 0)) {
-		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
-		run_command("if test ${reboot_mode} = fastboot; then "\
-			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
-	}
-
-	//load dtb here then users can directly use 'fdt' command
-	run_command("if fdt addr ${dtb_mem_addr}; then "\
-		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
-#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtbi
-
-	/* load unifykey */
-	run_command("keyunify init 0x1234", 0);
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -570,59 +536,8 @@ int board_late_init(void)
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
 #endif
+	aml_board_late_init_tail(NULL);
 
-#ifdef CONFIG_AML_V3_FACTORY_BURN
-	if (0x1b8ec003 == readl(P_PREG_STICKY_REG2))
-		aml_v3_factory_usb_burning(1, gd->bd);
-#endif// #ifdef CONFIG_AML_V3_FACTORY_BURN
-#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
-	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
-	run_command("amlsecurecheck", 0);
-	run_command("update_tries", 0);
-
-	TE(__func__);
-	if (env_get("outputmode")) {
-		strncpy(outputModeCur, env_get("outputmode"), 29);
-	}
-	if (strcmp(outputModeCur,outputModePre)) {
-		printf("uboot outputMode change saveenv old:%s - new:%s\n",outputModePre,outputModeCur);
-		run_command("saveenv", 0);
-	}
-
-	str = env_get("connector_type");
-	if (str) {
-		strncpy(connector_type_cur, str, 19);
-		if (strcmp(connector_type_cur, connector_type_pre)) {
-			printf("uboot connector_type change saveenv old:%s - new:%s\n",
-				connector_type_pre, connector_type_cur);
-			run_command("update_env_part -p connector_type", 0);
-		}
-	}
-
-	unsigned char chipid[16];
-
-	memset(chipid, 0, 16);
-	if (get_chip_id(chipid, 16) != -1) {
-		char chipid_str[32];
-		int i, j;
-		char buf_tmp[4];
-
-		memset(chipid_str, 0, 32);
-		char *buff = &chipid_str[0];
-
-		for (i = 0, j = 0; i < 12; ++i) {
-			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
-			if (strcmp(buf_tmp, "00") != 0) {
-				sprintf(buff + j, "%02x", chipid[15 - i]);
-				j = j + 2;
-			}
-		}
-		env_set("cpu_id", chipid_str);
-		printf("buff: %s\n", buff);
-	} else {
-		env_set("cpu_id", "1234567890");
-	}
 	return 0;
 }
 #endif
