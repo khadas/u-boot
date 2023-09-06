@@ -4271,6 +4271,10 @@ void vpp_post_blend_set(u32 vpp_index,
 
 	VSYNCOSD_WR_MPEG_REG(VPP_POSTBLND_H_V_SIZE,
 		vpp_blend->bld_out_w | vpp_blend->bld_out_h << 16);
+	/* fix display issue for t3x revb */
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_T3X)
+		VSYNCOSD_WR_MPEG_REG(VIU_VD3_MISC,
+			vpp_blend->bld_out_h);
 	VSYNCOSD_WR_MPEG_REG(VPP_POST_BLEND_BLEND_DUMMY_DATA,
 		vpp_blend->bld_dummy_data);
 	VSYNCOSD_WR_MPEG_REG_BITS(VPP_POST_BLEND_DUMMY_ALPHA,
