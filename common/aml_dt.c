@@ -401,11 +401,14 @@ unsigned long __attribute__((unused))	get_multi_dt_entry(unsigned long fdt_addr)
 		}
 
 	}break;
-	default: goto exit; break;
+	default:
+	{
+		lreturn = fdt_addr;
+		goto exit;
+	}break;
 	}
 
 exit:
-
 	if (zip_buf)
 	{
 		free(zip_buf);

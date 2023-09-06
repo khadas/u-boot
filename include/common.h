@@ -98,6 +98,8 @@ typedef volatile unsigned char	vu_char;
 #define pr_fmt(fmt) fmt
 #endif
 
+#define DDR_SKIP_ZERO_ADDR_START_64KB_MAP	0x10000
+
 /*
  * Output a debug text when condition "cond" is met. The "cond" should be
  * computed by a preprocessor in the best case, allowing for the best

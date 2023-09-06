@@ -901,7 +901,7 @@ static int booti_setup(bootm_headers_t *images)
 	 * If we are not at the correct run-time location, set the new
 	 * correct location and then move the image there.
 	 */
-	dst = gd->bd->bi_dram[0].start + le32_to_cpu(ih->text_offset);
+	dst = gd->bd->bi_dram[0].start + DDR_SKIP_ZERO_ADDR_START_64KB_MAP + le32_to_cpu(ih->text_offset);
 	if (images->ep != dst) {
 		void *src;
 
