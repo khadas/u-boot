@@ -1663,7 +1663,7 @@ static void set_phy_by_mode(struct hdmitx_dev *hdev, unsigned int mode)
 	 */
 	/* coverity[tainted_return_value] */
 	s_phyidx = getenv("phy_idx");
-	if (s_phyidx[0] == '1' || s_phyidx[0] == '2')
+	if (s_phyidx && (s_phyidx[0] == '1' || s_phyidx[0] == '2'))
 		idx = s_phyidx[0] - '0';
 
 	switch (mode) {
