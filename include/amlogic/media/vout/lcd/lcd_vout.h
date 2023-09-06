@@ -150,7 +150,7 @@ struct lcd_timing_s {
 				* [7:0]: ss_level
 				*/
 
-	unsigned short sync_duration_num;
+	unsigned int sync_duration_num;
 	unsigned short sync_duration_den;
 
 	unsigned int hstart;

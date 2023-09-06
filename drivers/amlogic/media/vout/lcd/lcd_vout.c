@@ -467,8 +467,7 @@ static void lcd_module_enable(struct aml_lcd_drv_s *pdrv, char *mode, unsigned i
 	}
 
 	sync_duration = pconf->timing.sync_duration_num;
-	sync_duration = (sync_duration * 100 /
-			 pconf->timing.sync_duration_den);
+	sync_duration = (sync_duration * 100) / pconf->timing.sync_duration_den;
 	LCDPR("[%d]: enable: %s, %s, %ux%u@%u.%02uHz\n",
 	      pdrv->index, pconf->basic.model_name,
 	      lcd_type_type_to_str(pconf->basic.lcd_type),

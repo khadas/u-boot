@@ -334,7 +334,7 @@ static int do_lcd_edp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc == 1)
 		return -1;
 
-	num = argc >= 2 ? simple_strtoul(argv[2], NULL, 10) : 0;
+	num = argc > 2 ? simple_strtoul(argv[2], NULL, 10) : 0;
 
 	ret = aml_lcd_edp_debug(0, argv[1], num);
 	return ret;
@@ -612,7 +612,7 @@ static int do_lcd1_edp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	if (argc == 1)
 		return -1;
 
-	num = argc >= 2 ? simple_strtoul(argv[2], NULL, 10) : 0;
+	num = argc > 2 ? simple_strtoul(argv[2], NULL, 10) : 0;
 
 	ret = aml_lcd_edp_debug(1, argv[1], num);
 	return ret;

@@ -274,9 +274,9 @@ static void lcd_set_pll_t3x(struct aml_lcd_drv_s *pdrv)
 static void lcd_set_phy_dig_div_t3x(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_clk_config_s *cconf;
-	unsigned int reg_edp_clk_div, reg_dphy_tx_ctrl1;
+	unsigned int reg_dphy_tx_ctrl1;
 	unsigned int reg_dphy_tx_ctrl0;
-	unsigned int port_sel, bit_div_en, bit_div0, bit_div1, bit_rst;
+	unsigned int port_sel, bit_rst;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV2)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
@@ -284,24 +284,17 @@ static void lcd_set_phy_dig_div_t3x(struct aml_lcd_drv_s *pdrv)
 	if (!cconf)
 		return;
 
-	reg_edp_clk_div = COMBO_DPHY_EDP_PIXEL_CLK_DIV;
 	switch (cconf->pll_id) {
 	case 1:
 		reg_dphy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL0;
 		reg_dphy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY1_CNTL1;
 		port_sel = 1;
-		bit_div_en = 25;
-		bit_div0 = 8;
-		bit_div1 = 12;
 		bit_rst = 20;
 		break;
 	case 2:
 		reg_dphy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL0;
 		reg_dphy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY2_CNTL1;
 		port_sel = 2;
-		bit_div_en = 26;
-		bit_div0 = 0;
-		bit_div1 = 4;
 		bit_rst = 7;
 		break;
 	case 0:
@@ -309,9 +302,6 @@ static void lcd_set_phy_dig_div_t3x(struct aml_lcd_drv_s *pdrv)
 		reg_dphy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0;
 		reg_dphy_tx_ctrl1 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL1;
 		port_sel = 0;
-		bit_div_en = 24;
-		bit_div0 = 0;
-		bit_div1 = 4;
 		bit_rst = 19;
 		break;
 	}
@@ -332,22 +322,6 @@ static void lcd_set_phy_dig_div_t3x(struct aml_lcd_drv_s *pdrv)
 	lcd_combo_dphy_setb(reg_dphy_tx_ctrl1, 1, 0, 1);
 
 	switch (pdrv->config.basic.lcd_type) {
-	case LCD_EDP:
-		if (port_sel == 2) {
-			LCDERR("[%d]: %s: invalid port: %d\n",
-			       pdrv->index, __func__, port_sel);
-			return;
-		}
-		// Disable edp_div clock
-		lcd_combo_dphy_setb(reg_edp_clk_div, 0, bit_div_en, 1);
-		lcd_combo_dphy_setb(reg_edp_clk_div, cconf->edp_div0, bit_div0, 4);
-		lcd_combo_dphy_setb(reg_edp_clk_div, cconf->edp_div1, bit_div1, 4);
-		// Enable edp_div clock
-		lcd_combo_dphy_setb(reg_edp_clk_div, 1, bit_div_en, 1);
-		// sel edp_div clock
-		lcd_combo_dphy_setb(reg_dphy_tx_ctrl1, 1, 4, 1);
-		break;
-	case LCD_MIPI:
 	case LCD_VBYONE:
 		if (port_sel == 2) {
 			LCDERR("[%d]: %s: invalid port: %d\n",

@@ -106,11 +106,11 @@ static void lcd_clk_config_print_a4(struct aml_lcd_drv_s *pdrv)
 	if (!cconf)
 		return;
 
-	LCDPR("lcd clk config:\n"
-		"vclk_sel      %d\n"
-		"xd:           %d\n"
-		"fout:         %dHz\n\n",
-		cconf->data->vclk_sel, cconf->xd, cconf->fout);
+	LCDPR("[%d]: lcd clk config:\n"
+		"  vclk_sel: %d\n"
+		"  xd:       %d\n"
+		"  fout:     %dHz\n\n",
+		pdrv->index, cconf->data->vclk_sel, cconf->xd, cconf->fout);
 }
 
 static struct lcd_clk_data_s lcd_clk_data_a4 = {
