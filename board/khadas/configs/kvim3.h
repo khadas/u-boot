@@ -155,6 +155,7 @@
         "spi_state=0\0"\
         "fusb302_state=0\0"\
         "factory_mac=0\0"\
+        "m2x_board_exist=0\0" \
         "ext_ethernet=0\0"\
         "reboot_mode_android=""normal""\0"\
         "fs_type=""rootfstype=ramfs""\0"\
@@ -169,7 +170,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
-            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} nativeui=${nativeui} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} spi_state=${spi_state} fusb302_state=${fusb302_state} hwver=${hwver} factory_mac=${factory_mac} lcd_exist=${lcd_exist} ext_board_exist=${ext_board_exist}; "\
+            "setenv bootargs ${initargs} hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} logo=${display_layer},loaded,${fb_addr} fb_width=${fb_width} fb_height=${fb_height} vout2=${outputmode2},enable vout=${outputmode},enable panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} nativeui=${nativeui} hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag} wol_enable=${wol_enable} spi_state=${spi_state} fusb302_state=${fusb302_state} hwver=${hwver} factory_mac=${factory_mac} lcd_exist=${lcd_exist} ext_board_exist=${ext_board_exist} m2x_board_exist=${m2x_board_exist}; "\
 	        "setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
             "run cmdline_keys;"\
             "\0"\

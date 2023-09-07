@@ -773,6 +773,7 @@ int board_late_init(void)
 		/*add board late init function here*/
 		run_command("kbi check_panel", 0);//kbi check_panel - check TS050 or TS101
 		run_command("kbi check_camera", 0);//kbi check_camera - check OS08A10 or IMX415
+		run_command("kbi check_m2x", 0);//check M2X
 #ifndef DTB_BIND_KERNEL
 		int ret;
 		ret = run_command("store dtb read $dtb_mem_addr", 1);

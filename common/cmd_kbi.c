@@ -1278,6 +1278,37 @@ static int do_check_panel(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	printf("panel_type=%s   khadas_mipi_id=%d   id=0---default old_TS050   id=1,lcd_1---old_TS050   id=2,lcd_2---TS101   id=3,lcd_3---new_TS050\n",getenv("panel_type"), khadas_mipi_id);
 	return 0;
 }
+
+//#define M2X_ADD bus-3 I2C_M3
+//#define ES8316_CHIP_ADDR "0x10"
+int khadas_m2x_id = 0;
+static int do_check_m2x(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+{
+	uint8_t dat[1] = {0};
+
+	tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
+	mdelay(5);
+	tca6408_output_set_value((0<<6), (1<<6));
+	mdelay(20);
+	tca6408_output_set_value((1<<6), (1<<6));
+	mdelay(50);
+
+	sw_i2c_read(0x20, 0x10, dat, 1);
+	khadas_m2x_id = dat[0];
+
+	printf("M2X id=0x%x\n",khadas_m2x_id);
+	if(khadas_m2x_id == 0x1) {
+		khadas_m2x_id = 1;
+		setenv("khadas_m2x_id", "1");
+		setenv("m2x_board_exist", "1");
+	} else {
+			khadas_m2x_id = 0;
+			setenv("khadas_m2x_id", "0");
+			setenv("m2x_board_exist", "0");
+		}
+	printf("m2x_board_exist=%s khadas_m2x_id=%d		id=0---no M2X   id=1---M2X exists\n",getenv("m2x_board_exist"), khadas_m2x_id);
+	return 0;
+}
 #endif
 
 static int get_ircode(char reg)
@@ -1558,6 +1589,7 @@ static cmd_tbl_t cmd_kbi_sub[] = {
 	U_BOOT_CMD_MKENT(tststatus, 1, 1, do_kbi_tststatus, "", ""),
 	U_BOOT_CMD_MKENT(check_panel, 1, 1, do_check_panel, "", ""),
 	U_BOOT_CMD_MKENT(check_camera, 1, 1, do_check_camera, "", ""),
+	U_BOOT_CMD_MKENT(check_m2x, 1, 1, do_check_m2x, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(forcebootsd, 1, 1, do_kbi_forcebootsd, "", ""),
 	U_BOOT_CMD_MKENT(wolreset, 1, 1, do_kbi_wolreset, "", ""),
@@ -1641,6 +1673,7 @@ static char kbi_help_text[] =
 		"kbi tststatus clear - clear TST status\n"
 		"kbi check_camera - check OS08A10 or IMX415\n"
 		"kbi check_panel - check old_TS050 or TS101 or new_TS050\n"
+		"kbi check_m2x - check M2X\n"
 		"\n"
 #endif
 		"kbi forcebootsd\n"
