@@ -200,7 +200,7 @@
 		"earlycon=aml_uart,0xfe078000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
 		"amlogic_board=t7_an400_lpddr4x_debian "\
 		"ramoops.console_size=0x4000 loop.max_part=4 scsi_mod.scan=async "\
-		"xhci_hcd.quirks=0x800000 loglevel=4 scramble_reg=0xfe02e030 "\
+		"xhci_hcd.quirks=0x800000 loglevel=4 scramble_reg=0xfe02e030 boot_source=emmc "\
 		"gamma=0 "\
 		"\0"\
 	"upgrade_check="\
