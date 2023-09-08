@@ -1647,6 +1647,12 @@ config TXHD2_BE311
 	help
 	  Select TXHD2 BE311 config
 
+config TXHD2_BE312
+	bool "TXHD2_BE312"
+	select TARGET_TXHD2_BE312
+	help
+		Select TXHD2 BE312 config
+
 config TXHD2_BE319
 	bool "TXHD2_BE319"
 	select TARGET_TXHD2_BE319
@@ -1670,6 +1676,10 @@ config TARGET_TXHD2_BE309
 config TARGET_TXHD2_BE311
 	bool "TXHD2 BE311 board"
 	depends on TXHD2_BE311
+
+config TARGET_TXHD2_BE312
+	bool "TXHD2 BE312 board"
+	depends on TXHD2_BE312
 
 config TARGET_TXHD2_BE319
 	bool "TXHD2 BE319 board"
@@ -1896,5 +1906,7 @@ source "board/amlogic/txhd2_be301/Kconfig"
 source "board/amlogic/txhd2_be309/Kconfig"
 
 source "board/amlogic/txhd2_be311/Kconfig"
+
+source "board/amlogic/txhd2_be312/Kconfig"
 
 source "board/amlogic/txhd2_be319/Kconfig"
