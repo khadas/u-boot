@@ -270,6 +270,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),
 		//SYSCTRL_SEC_STICKY_REG1
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097  << 2) + 0xfd020400),
 		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c1
@@ -291,6 +292,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),
 		//SYSCTRL_SEC_STICKY_REG1
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c2
@@ -334,7 +336,8 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
-		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 	},
 	//T5
 	{
@@ -349,7 +352,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
 		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
 		//#define SEC_AO_RTI_STATUS_REG3
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -373,8 +376,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
 		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
-		//#define SEC_AO_RTI_STATUS_REG3
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -433,8 +435,8 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
-		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -460,7 +462,6 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -469,6 +470,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
@@ -497,7 +499,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -510,7 +512,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
 		.ddr_phy_base_address_1 = 0xfb000000,
 		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
@@ -529,12 +531,11 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
-		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_dmc_sticky0 = ((0x200 << 2) + 0xfe036000),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -543,19 +544,20 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
-		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
 		.ddr_phy_base_address_1 = 0xfb000000,
-		.ddr_dmc_base_address_1 = 0xfe034000,
-		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
-		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
-		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
-		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
-		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+		.ddr_dmc_base_address_1 = 0xfe032000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe032400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe032400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe032000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe032000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
 	},
 //gxlx3
 	{
@@ -571,7 +573,6 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -580,6 +581,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xc8839000),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xc8839000),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097  << 2) + 0xc8839000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xc8839000),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
@@ -608,7 +610,6 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -617,6 +618,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197  << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
@@ -645,7 +647,6 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -654,6 +655,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197  << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
@@ -682,7 +684,6 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -691,6 +692,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197  << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
@@ -719,7 +721,6 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -728,9 +729,9 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097  << 2) + 0xff638400),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
-
 	},
 	// force id use id mask
 	{
@@ -746,7 +747,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -2473,6 +2474,8 @@ void ddr_test_watchdog_init(uint32_t msec)
 	// src: 24MHz
 	// div: 24000 for 1ms
 	// reset ao-22 and ee-21
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add) =
 		(1 << 24) | (1 << 25) | (1 << 22) | (1 << 21) | (24000 - 1);
 
@@ -2489,12 +2492,16 @@ void ddr_test_watchdog_init(uint32_t msec)
 
 void ddr_test_watchdog_clear(void)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add + 12) =
 		0;
 }
 
 void ddr_test_watchdog_disable(void)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	// turn off internal counter and disable
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add) &=
 		~((1 << 18) | (1 << 25));
@@ -2502,6 +2509,8 @@ void ddr_test_watchdog_disable(void)
 
 void ddr_test_watchdog_enable(uint32_t sec)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	// src: 24MHz
 	// div: 24000 for 1ms
 	// reset ao-22 and ee-21
@@ -2526,6 +2535,8 @@ void ddr_test_watchdog_enable(uint32_t sec)
 
 void ddr_test_watchdog_reset_system(void)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	int i;
 
 	if (p_ddr_base->sys_watchdog_enable_value == 0) {
@@ -8247,9 +8258,9 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 	}
 
 	{
-		printf("\nstore rsv write ddr-parameter 0x%8x 0x%8x\n",
+		printf("\nstore rsv write ddr-parameter 0x%8x 0x%x\n",
 		       (uint32_t)(uint64_t)buffer, length);
-		sprintf(str, "store rsv write ddr-parameter 0x%8x 0x%8x\n",
+		sprintf(str, "store rsv write ddr-parameter 0x%8x 0x%x\n",
 			(uint32_t)(uint64_t)buffer, length);
 		run_command(str, 0);
 	}
@@ -8261,7 +8272,7 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 {
 	//extern int store_ddr_parameter_write(uint8_t *buffer, uint32_t length);
 
-	printf("\nstore ddr_parameter write 0x%8x 0x%8x\n", (uint32_t)(uint64_t)buffer, length);
+	printf("\nstore ddr_parameter write 0x%8x 0x%x\n", (uint32_t)(uint64_t)buffer, length);
 	store_ddr_parameter_write((uint8_t *)buffer, length);
 
 	return 1;
@@ -8727,8 +8738,9 @@ int do_ddr_s5_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		dmc_ddr_config_channel_id = (test_index / 100);
 		if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_T5M)
 			dmc_ddr_config_channel_id = 1;
-	} else
+	} else {
 		dmc_ddr_config_channel_id = 0;
+	}
 	test_index = (test_index % 100);         //for DDR_PHY 1
 	dmc_change_channel(dmc_ddr_config_channel_id);
 	dmc_retraining_ctrl = rd_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address);
@@ -9098,9 +9110,9 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				do_ddr_display_s5_ddr_information((cmd_tbl_t *)cmdtp,
 								  (int)flag, (int)argc2, (argv2));
 				//dmc_ddr_config_channel_id = 2;
-				if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5) ||
-					(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5M) ||
-					(p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3X)) {
+				if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5 ||
+					p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5M ||
+					p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3X) {
 					if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S5)
 						dmc_ddr_config_channel_id = 2;
 					else
@@ -9637,6 +9649,8 @@ int do_ddr_auto_fastboot_check_s5(char auto_window_test_enable_item,
 		return 1;
 	}
 
+	if (p_ddr_base->ddr_boot_reason_address == 0)
+		enable_ddr_check_boot_reason = 0;
 	if (enable_ddr_check_boot_reason) {
 		boot_reason = 0; //ddr_set_t_p->boot_reason
 		{
@@ -9888,7 +9902,8 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 		wr_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address, dmc_retraining_ctrl);
 		return 1;
 	}
-
+	if (p_ddr_base->ddr_boot_reason_address == 0)
+		enable_ddr_check_boot_reason = 0;
 	if (enable_ddr_check_boot_reason) {
 		boot_reason = 0; //ddr_set_t_p->boot_reason
 		{
