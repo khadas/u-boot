@@ -106,7 +106,6 @@
 #define CONFIG_ISO_PARTITION 1
 #define CONFIG_AML_PARTITION 1
 #define CONFIG_EFI_PARTITION 1
-#define CONFIG_PTBL_MBR	(1)
 
 #define CONFIG_CMD_NET 1
 #define CONFIG_CMD_TFTPBOOT 1
@@ -206,7 +205,7 @@
 	"initargs="\
 		"rootflags=data=writeback rw rootfstype=ext4 console=tty0 console=ttyS0,115200 no_console_suspend " \
 		" earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
-		"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 "\
+		"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 boot_source=emmc "\
 		"\0"\
 	"upgrade_check="\
 		"echo upgrade_step=${upgrade_step}; "\
