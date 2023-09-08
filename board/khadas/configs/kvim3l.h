@@ -350,9 +350,10 @@
         "kbi trigger wol r;"\
         "setenv bootargs ${bootargs} wol_enable=${wol_enable};"\
         "if test ${power_state} = 1; then "\
-            "kbi trigger wol w 1;"\
             "kbi poweroff;"\
-       "fi;"\
+        "else "\
+            "kbi wolreset;"\
+        "fi;"\
        "\0"\
 	"port_mode_change="\
 		"echo port_mode_change::::"\
