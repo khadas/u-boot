@@ -347,6 +347,21 @@ static bool is_framerate_priority(void)
 	return !framerate_priority || (strcmp(framerate_priority, "true") == 0);
 }
 
+/* Hdr Resolution Priority enable or not, false:disable true:enable
+ * note that the ubootenv name may be confused. the actual meaning is:
+ * when connected to HDR TV which only support 4K60hz 420_8bit maximum,
+ * if this ubootenv is true/null, then it will select 1080p deep_color
+ * (thus to output HDR) as netflix request;
+ * if this ubootenv is false, then it will select 4k with 8bit(SDR)
+ * for special project usage.
+ */
+static bool is_hdr_resolution_priority(void)
+{
+	char *hdr_resolution_priority = getenv("hdr_resolution_priority");
+
+	return !hdr_resolution_priority || (strcmp(hdr_resolution_priority, "true") == 0);
+}
+
 /* import from kernel */
 static inline bool package_id_is(unsigned int id)
 {
@@ -486,7 +501,8 @@ bool is_hdr_preference(struct hdmitx_dev *hdev)
 		return false;
 	if ((hdr_priority == DOLBY_VISION_PRIORITY ||
 		hdr_priority == HDR10_PRIORITY) &&
-		is_tv_support_hdr(hdev))
+		is_tv_support_hdr(hdev) &&
+		is_hdr_resolution_priority())
 		return true;
 	else
 		return false;
