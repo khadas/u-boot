@@ -50,7 +50,8 @@
 /* 20230823: add dma driver for tcon lut*/
 /* 20230906: support pdf action */
 /* 20230907: t3x revB OD secure memory support */
-#define LCD_DRV_VERSION    "20230907"
+/* 20230912: bypass phy data buffer */
+#define LCD_DRV_VERSION    "20230912"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 
