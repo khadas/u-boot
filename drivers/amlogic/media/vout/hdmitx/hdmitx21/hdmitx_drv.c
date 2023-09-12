@@ -1966,7 +1966,7 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 	unsigned int hdr_transfer_feature = 0;
 	unsigned int hdr_color_feature = 0;
 	unsigned int hdr_mode = 0;
-
+	char *hdr_status;
 	/*
 	 *hdr_color_feature: bit 23-16: color_primaries
 	 *	1:bt709  0x9:bt2020
@@ -2024,28 +2024,33 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 		drm_db[0] = 0x02; /* SMPTE ST 2084 */
 		hdmi_drm_infoframe_rawset(drm_hb, db);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);
+		hdr_status = "HDR10-GAMMA_ST2084";
 		break;
 	case 2:
 		/*non standard*/
 		drm_db[0] = 0x02; /* no standard SMPTE ST 2084 */
 		hdmi_drm_infoframe_rawset(drm_hb, db);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);
+		hdr_status = "HDR10-others";
 		break;
 	case 3:
 		/*HLG*/
 		drm_db[0] = 0x03;/* HLG is 0x03 */
 		hdmi_drm_infoframe_rawset(drm_hb, db);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);
+		hdr_status = "HDR10-GAMMA_HLG";
 		break;
 	case 0:
 	default:
 		/*other case*/
 		hdmi_drm_infoframe_rawset(NULL, NULL);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);
+		hdr_status = "SDR";
 		break;
 	}
 
-	pr_info("%s[%d]\n", __func__, __LINE__);
+	pr_info("%s, tf=%d, cf=%d, hdmi_hdr_status: %s\n",
+		__func__, hdr_transfer_feature, hdr_color_feature, hdr_status);
 }
 
 void hdmitx_set_vsif_pkt(enum eotf_type type,
@@ -2061,6 +2066,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 	unsigned char len = 0;
 	unsigned int vic = hdev->vic;
 	unsigned int hdmi_vic_4k_flag = 0;
+	char *hdr_status = NULL;
 
 	if (hdev->RXCap.dv_info.ieeeoui != DV_IEEE_OUI)
 		return;
@@ -2121,6 +2127,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_FUL);
 			}
 			hdev->dv_en = 1;
+			hdr_status = "DolbyVision-Std";
 		} else {
 			if (hdmi_vic_4k_flag)
 				hdmi_vend_infoframe_rawset(VEN_HB, db1);
@@ -2131,6 +2138,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
 			hdev->dv_en = 0;
+			hdr_status = "SDR";
 		}
 	}
 	/*ver1_12  with low_latency = 1 and ver2 use Dolby VSIF*/
@@ -2190,6 +2198,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			if (hdmi_vic_4k_flag)
 				hdmi_avi_infoframe_config(CONF_AVI_VIC, vic);
 			hdev->dv_en = 1;
+			hdr_status = "DolbyVision-Std";
 		}
 		/*Dolby Vision low-latency case*/
 		else if  (type == EOTF_T_LL_MODE) {
@@ -2215,6 +2224,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			if (hdmi_vic_4k_flag)
 				hdmi_avi_infoframe_config(CONF_AVI_VIC, vic);
 			hdev->dv_en = 1;
+			hdr_status = "DolbyVision-Lowlatency";
 		} else { /*SDR case*/
 			if (hdmi_vic_4k_flag) {
 				VEN_HB[2] = 0x5;
@@ -2241,10 +2251,12 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
 			hdev->dv_en = 0;
+			hdr_status = "SDR";
 		}
 	}
 	hdmitx21_dither_config(hdev);
-	pr_info("%s[%d]\n", __func__, __LINE__);
+	pr_info("%s, eotf=%d, tunel_mode=%d, hdmi_hdr_status:%s\n",
+		__func__, type, tunnel_mode, hdr_status ? hdr_status : "SDR");
 }
 
 void hdmitx_set_hdr10plus_pkt(unsigned int flag,

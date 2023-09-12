@@ -121,7 +121,8 @@ int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *st;
 	int hpd_st = 0;
 	unsigned long i = 0;
-	unsigned long hdmitx_hpd_wait_cnt = 10;
+	/* some TV sets pull hpd high 1.3S after detect pwr5v high */
+	unsigned long hdmitx_hpd_wait_cnt = 15;
 #ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 #else
