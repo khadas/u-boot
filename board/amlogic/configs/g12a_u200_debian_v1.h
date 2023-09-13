@@ -330,7 +330,7 @@
 		"fi;"\
 		"\0"\
 	"load_bmp_logo="\
-		"if load mmc 1:6 ${loadaddr} /usr/share/amlbian/logo/logo.bmp; then "\
+		"if load mmc 1:3 ${loadaddr} /usr/share/amlbian/logo/logo.bmp; then "\
 			"bmp display ${loadaddr};"\
 			"bmp scale;"\
 		"fi;"\
