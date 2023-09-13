@@ -1393,6 +1393,15 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 			pr_info("%s hc_active: %d, need full_bw: %d, tri_bytes_per_line: %d, dfm_type: %d\n",
 				__func__, hc_active, ret, tri_bytes_per_line, hdev->dfm_type);
 		}
+
+		/* fix dsc snow screen issue and dsc cts HFR1-85,Iter-04 snow screen:
+		 * reset pfifo before training
+		 */
+		if (hdev->dsc_en) {
+			hdmitx_soft_reset(BIT(5));
+			/* clear pfifo intr */
+			hdmitx21_set_reg_bits(INTR2_SW_TPI_IVCTX, 0, 1, 1);
+		}
 		if (hdev->RXCap.max_frl_rate && hdev->frl_rate)
 			hdev->flt_train_st = hdmitx_frl_training_main(hdev->frl_rate);
 	}
