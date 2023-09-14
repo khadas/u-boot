@@ -29158,6 +29158,7 @@
 //
 // Closing file:  ./ge2d_regs.h
 //
+#define REG_BASE_VCBUS                             (0xfe350000L)
 
 #include "extra_register.h"
 

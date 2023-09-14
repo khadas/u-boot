@@ -1583,6 +1583,20 @@ void osd_update_blend(struct pandata_s *disp_data)
 }
 #endif
 
+#ifdef AML_C3_DISPLAY
+void osd_update_blend_c3(void)
+{
+	u32 blend_width, blend_height;
+
+	blend_width = osd_hw.free_dst_data[0].x_end - osd_hw.free_dst_data[0].x_start + 1;
+	blend_height = osd_hw.free_dst_data[0].y_end - osd_hw.free_dst_data[0].y_start + 1;
+	osd_reg_write(hw_osd_vout_blend_reg.vpu_vout_blend_size,
+		blend_width << 16 | blend_height);
+	osd_reg_write(hw_osd_vout_blend_reg.vpu_vout_bld_src0_hpos, (blend_width - 1) << 16);
+	osd_reg_write(hw_osd_vout_blend_reg.vpu_vout_bld_src0_vpos, (blend_height - 1) << 16);
+}
+#endif
+
 static void osd_update_mif_linear_addr(u32 index)
 {
 	u32 line_stride, bpp;
@@ -1874,7 +1888,8 @@ void osd_setup_hw(u32 index,
 		osd_hw.fb_gem[index].height = yres_virtual;
 
 		if (osd_hw.osd_ver == OSD_SIMPLE &&
-			osd_get_chip_type() != MESON_CPU_MAJOR_ID_A4) {
+			osd_get_chip_type() != MESON_CPU_MAJOR_ID_A4 &&
+			osd_get_chip_type() != MESON_CPU_MAJOR_ID_C3) {
 			u32 line_stride, fmt_mode, bpp;
 
 			bpp = color->bpp/8;
@@ -3718,6 +3733,7 @@ static void osd2_update_enable(void)
 	remove_from_update_list(OSD2, OSD_ENABLE);
 }
 
+#ifndef OSD_SLT_DISABLE
 int test_for_c3(u32 osd_index, u32 fb_data)
 {
 	/*C3 slt test by probe,*/
@@ -3753,6 +3769,7 @@ int test_for_c3(u32 osd_index, u32 fb_data)
 	printf("b_fb = %x b_probe = %x\n", b_fb, b_probe);
 	return -1;
 }
+#endif
 #endif
 
 static void osd3_update_enable(void)
@@ -5186,7 +5203,8 @@ void osd_init_hw(u32 index)
 		    || (osd_get_chip_type() == MESON_CPU_MAJOR_ID_MTVD)) {
 			data32 |= 18 << 5;  /* hold_fifo_lines */
 		} else if (osd_hw.osd_ver == OSD_SIMPLE &&
-					osd_get_chip_type() != MESON_CPU_MAJOR_ID_A4) {
+					osd_get_chip_type() != MESON_CPU_MAJOR_ID_A4 &&
+					osd_get_chip_type() != MESON_CPU_MAJOR_ID_C3) {
 			data32 &= ~(0x1f << 5); /* bit[9:5] HOLD_FIFO_LINES */
 			data32 |= 0x18 << 5;
 		} else {
@@ -5203,7 +5221,8 @@ void osd_init_hw(u32 index)
 		}
 		/* burst_len_sel: 3=64 */
 		if (osd_hw.osd_ver == OSD_HIGH_ONE ||
-			osd_get_chip_type() == MESON_CPU_MAJOR_ID_A4) {
+			osd_get_chip_type() == MESON_CPU_MAJOR_ID_A4 ||
+			osd_get_chip_type() == MESON_CPU_MAJOR_ID_C3) {
 			data32 |= 1 << 10;
 			data32 |= 1 << 31;
 		} else
@@ -5241,7 +5260,8 @@ void osd_init_hw(u32 index)
 #endif
 		/* just disable osd to avoid booting hang up */
 		data32 = 0x0 << 0;
-		if (osd_get_chip_type() != MESON_CPU_MAJOR_ID_A4)
+		if (osd_get_chip_type() != MESON_CPU_MAJOR_ID_A4 &&
+			osd_get_chip_type() != MESON_CPU_MAJOR_ID_C3)
 			data32 |= OSD_GLOBAL_ALPHA_DEF << 12;
 		else
 			data32 |= 0x100 << 12;
@@ -5348,7 +5368,8 @@ void osd_init_hw(u32 index)
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_S5 ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5W ||
 	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T5M ||
-	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X)
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_T3X ||
+	    osd_get_chip_type() == MESON_CPU_MAJOR_ID_C3)
 		osd_hw.mif_linear = 1;
 
 	return;

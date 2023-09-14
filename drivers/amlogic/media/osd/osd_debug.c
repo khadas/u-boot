@@ -522,6 +522,23 @@ static void osd_debug_dump_register_all(void)
 
 	dump_vpp_post_reg();
 #endif
+
+#ifdef AML_C3_DISPLAY
+	reg = VPU_VOUT_BLEND_CTRL;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = VPU_VOUT_BLEND_DUMDATA;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = VPU_VOUT_BLEND_SIZE;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = VPU_VOUT_BLD_SRC0_HPOS;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = VPU_VOUT_BLD_SRC0_VPOS;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = VPU_VOUT_BLD_SRC1_HPOS;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+	reg = VPU_VOUT_BLD_SRC1_VPOS;
+	osd_logi("reg[0x%x]: 0x%08x\n", REG_INDEX_VCBUS(reg), osd_reg_read(reg));
+#endif
 }
 
 static void osd_test_colorbar(void)

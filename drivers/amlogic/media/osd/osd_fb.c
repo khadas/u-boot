@@ -401,7 +401,8 @@ static void get_osd_version(void)
 	u32 family_id = osd_get_chip_type();
 
 	if (family_id == MESON_CPU_MAJOR_ID_AXG ||
-		family_id == MESON_CPU_MAJOR_ID_A4)
+		family_id == MESON_CPU_MAJOR_ID_A4 ||
+		family_id == MESON_CPU_MAJOR_ID_C3)
 		osd_hw.osd_ver = OSD_SIMPLE;
 	else if (family_id < MESON_CPU_MAJOR_ID_G12A)
 		osd_hw.osd_ver = OSD_NORMAL;
@@ -1505,6 +1506,10 @@ no_scale:
 	if (osd_hw.osd_ver == OSD_HIGH_ONE && is_vpp0(osd_index))
 		osd_update_blend(&disp_data);
 #endif
+#ifdef AML_C3_DISPLAY
+	osd_update_blend_c3();
+#endif
+
 #ifdef AML_S5_DISPLAY
 	if (is_vpp0(osd_index)) {
 		update_vpp_input_info(vinfo);
@@ -1950,6 +1955,7 @@ static int osd_rma_test_new(u32 osd_index)
 	osd_state = osd_get_state(osd_index);
 	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
 	osd_get_hist_stat(hist_result);
+#ifndef OSD_SLT_DISABLE
 #ifndef AML_C3_DISPLAY
 	u32 family_id = osd_get_chip_type();
 
@@ -1976,6 +1982,11 @@ static int osd_rma_test_new(u32 osd_index)
 	/*second parameter according to  data in video_display_osd function which write to fb*/
 	return test_for_c3(osd_index, 0xf800);
 #endif
+#else
+	osd_logi("=== osd slt test is not supported. ===\n");
+	return 0;
+#endif
+
 }
 
 int osd_rma_test_with_addr(u32 start_addr, u32 end_addr)
@@ -2153,6 +2164,7 @@ int osd_rma_test(u32 osd_index)
 	if (-1 == video_display_osd(i)) {
 		return (-1);
 	}
+#ifndef OSD_SLT_DISABLE
 #ifndef AML_C3_DISPLAY
 	osd_hist_enable(osd_index);
 	_udelay(50000);
@@ -2183,5 +2195,9 @@ int osd_rma_test(u32 osd_index)
 #else
 	/*second parameter according to  data in video_display_osd function which write to fb*/
 	return test_for_c3(osd_index, 0xf800);
+#endif
+#else
+	osd_logi("=== osd slt test is not supported. ===\n");
+	return 0;
 #endif
 }

@@ -79,8 +79,22 @@
 	"loadaddr_kernel=0x01080000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \
+	"panel_type=mipi_0\0" \
+	"outputmode=panel\0" \
+	"hdmimode=none\0" \
+	"colorattribute=444,8bit\0"\
+	"cvbsmode=576cvbs\0" \
+	"display_width=1024\0" \
+	"display_height=600\0" \
+	"display_bpp=16\0" \
+	"display_color_index=16\0" \
+	"display_layer=osd0\0" \
+	"display_color_fg=0xffff\0" \
+	"display_color_bg=0\0" \
 	"dtb_mem_addr=0x01000000\0" \
 	"fb_addr=0x00300000\0" \
+	"fb_width=1024\0" \
+	"fb_height=600\0" \
 	"hdr_policy=0\0" \
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
 	"sdcburncfg=aml_sdc_burn.ini\0"\
@@ -195,7 +209,7 @@
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64 * 1024)
-//#define CONFIG_FIT 1
+#define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
 
 //#define CONFIG_ANDROID_BOOT_IMAGE 1
@@ -300,8 +314,9 @@
 #define AML_VPU_CLK_LEVEL_DFT 4
 
 /* osd */
-//#define OSD_SCALE_ENABLE
-//#define AML_OSD_HIGH_VERSION
+#define OSD_SCALE_ENABLE
+#define AML_C3_DISPLAY
+#define OSD_SLT_DISABLE
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

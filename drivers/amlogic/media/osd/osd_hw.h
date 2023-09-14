@@ -108,6 +108,7 @@ extern void osd_hist_enable(u32 osd_index);
 extern int osd_get_hist_stat(u32 *hist_result);
 #ifdef AML_C3_DISPLAY
 int test_for_c3(u32 osd_index, u32 fb_data);
+void osd_update_blend_c3(void);
 #endif
 #ifdef AML_S5_DISPLAY
 void vpp_post_blend_set(u32 vpp_index, struct vpp_post_blend_s *vpp_blend);
