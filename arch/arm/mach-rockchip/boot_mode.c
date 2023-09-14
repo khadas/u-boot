@@ -205,6 +205,9 @@ int rockchip_get_boot_mode(void)
 		case BOOT_QUIESCENT:
 			printf("boot mode: quiescent\n");
 			boot_mode[PL] = BOOT_MODE_QUIESCENT;
+		case BOOT_REBOOT_TEST:
+			printf("boot mode: reboot test\n");
+			boot_mode[PL] = BOOT_MODE_REBOOT_TEST;
 			break;
 		default:
 			printf("boot mode: None\n");
@@ -256,12 +259,17 @@ int setup_boot_mode(void)
 #endif
 	case BOOT_MODE_LOADER:
 		printf("enter Rockusb!\n");
-		env_set("preboot", "setenv preboot; download");
-		run_command("download", 0);
+		env_set("preboot", "setenv preboot; rockusb 0 ${devtype} ${devnum}; rbrom");
+		run_command("gpio clear 138; gpio clear 139; gpio set 140;", 0);
+		run_command("rockusb 0 ${devtype} ${devnum}", 0);
 		break;
 	case BOOT_MODE_CHARGING:
 		printf("enter charging!\n");
 		env_set("preboot", "setenv preboot; charge");
+		break;
+	case BOOT_MODE_REBOOT_TEST:
+		printf("enter reboot test mode!\n");
+		env_set("reboot_mode", "reboot_test");
 		break;
 	}
 

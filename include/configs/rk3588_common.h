@@ -66,7 +66,8 @@
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \
-	"fdt_addr_r=0x08300000\0" \
+	"fdt_addr_r=0x0a100000\0" \
+	"fdtoverlay_addr_r=0x00300000\0" \
 	"kernel_addr_r=0x00400000\0" \
 	"kernel_addr_c=0x05480000\0" \
 	"ramdisk_addr_r=0x0a200000\0"
@@ -79,6 +80,12 @@
 	"partitions=" PARTS_RKIMG \
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \
+	"check_reboot_mode=" \
+	"if test X${reboot_mode} = Xreboot_test; then "\
+		"echo Reboot test mode detected;"\
+		"setenv bootargs ${bootargs} reboot_test;" \
+	"fi;"\
+	"\0"\
 	BOOTENV
 #endif
 
@@ -86,7 +93,8 @@
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 
-#define CONFIG_PREBOOT
+#define CONFIG_PREBOOT \
+	 "run check_reboot_mode;"
 #define CONFIG_LIB_HW_RAND
 
 #endif

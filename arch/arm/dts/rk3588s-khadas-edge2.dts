@@ -29,3 +29,9 @@
 		};
 	};
 };
+
+&i2c6 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c6m3_xfer>;
+};

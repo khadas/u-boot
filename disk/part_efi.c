@@ -486,9 +486,16 @@ static int part_test_efi(struct blk_desc *dev_desc)
 				    head_gpt_valid, backup_gpt_valid))
 			printf("Backup GPT repair fail!\n");
 	} else if (head_gpt_valid == 0 && backup_gpt_valid == 1) {
+#ifdef CONFIG_GPT_REPAIR_FROM_BACKUP
+/* this part its danger and wrong, no need restore wrong backup gpt
+   for valid MBR image!
+*/
 		if (part_efi_repair(dev_desc, b_gpt_pte, b_gpt_head,
 				    head_gpt_valid, backup_gpt_valid))
 			printf("Primary GPT repair fail!\n");
+#else
+		ret = -1;
+#endif
 	} else if (head_gpt_valid == 0 && backup_gpt_valid == 0) {
 		ret = -1;
 	}

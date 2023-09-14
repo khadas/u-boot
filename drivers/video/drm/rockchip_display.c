@@ -23,6 +23,7 @@
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch-rockchip/resource_img.h>
+#include <i2c.h>
 
 #include "bmp_helper.h"
 #include "rockchip_display.h"
@@ -37,6 +38,7 @@
 #include <asm/io.h>
 
 #define DRIVER_VERSION	"v1.0.1"
+#define TP_I2C_BUS_NUM 6
 
 /***********************************************************************
  *  Rockchip UBOOT DRM driver version
@@ -429,6 +431,11 @@ static int display_get_timing_from_dts(struct rockchip_panel *panel,
 	struct ofnode_phandle_args args;
 	ofnode dt, timing, mcu_panel;
 	int ret;
+	if(!strcmp(env_get("lcd_panel"), "ts101")){
+		dt = dev_read_subnode(panel->dev, "display-timings1");
+	} else {
+		dt = dev_read_subnode(panel->dev, "display-timings");
+	}
 
 	mcu_panel = dev_read_subnode(panel->dev, "mcu-panel");
 	dt = dev_read_subnode(panel->dev, "display-timings");
@@ -1147,10 +1154,14 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	struct rockchip_logo_cache *logo_cache;
 	struct bmp_header *header;
 	void *dst = NULL, *pdst;
-	int size, len;
+	int size;
 	int ret = 0;
 	int reserved = 0;
 	int dst_size;
+
+	ulong logo_addr_r;
+
+	logo_addr_r = env_get_ulong("logo_addr_r", 16, 0);
 
 	if (!logo || !bmp_name)
 		return -EINVAL;
@@ -1163,14 +1174,14 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 		return 0;
 	}
 
-	header = malloc(RK_BLK_SIZE);
-	if (!header)
-		return -ENOMEM;
+	env_set("logo_file", bmp_name);
+	run_command(env_get("logocmd"), 0);
 
-	len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
-	if (len != RK_BLK_SIZE) {
-		ret = -EINVAL;
-		goto free_header;
+	header = (void *)logo_addr_r;
+
+	if (header->signature[0] != 'B' || header->signature[1] != 'M') {
+	    printf("!!!RK logo not valid bmp\n");
+	    return 0;
 	}
 
 	logo->bpp = get_unaligned_le16(&header->bit_count);
@@ -1182,23 +1193,10 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	    logo->height = -logo->height;
 	size = get_unaligned_le32(&header->file_size);
 	if (!can_direct_logo(logo->bpp)) {
-		if (size > MEMORY_POOL_SIZE) {
-			printf("failed to use boot buf as temp bmp buffer\n");
-			ret = -ENOMEM;
-			goto free_header;
-		}
-		pdst = get_display_buffer(size);
-
+		pdst = (void *)logo_addr_r;
 	} else {
 		pdst = get_display_buffer(size);
 		dst = pdst;
-	}
-
-	len = rockchip_read_resource_file(pdst, bmp_name, 0, size);
-	if (len != size) {
-		printf("failed to load bmp %s\n", bmp_name);
-		ret = -ENOENT;
-		goto free_header;
 	}
 
 	if (!can_direct_logo(logo->bpp)) {
@@ -1234,8 +1232,6 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	flush_dcache_range((ulong)dst, ALIGN((ulong)dst + dst_size, CONFIG_SYS_CACHELINE_SIZE));
 
 free_header:
-
-	free(header);
 
 	return ret;
 #else
