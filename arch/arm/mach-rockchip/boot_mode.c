@@ -208,6 +208,7 @@ int rockchip_get_boot_mode(void)
 		case BOOT_REBOOT_TEST:
 			printf("boot mode: reboot test\n");
 			boot_mode[PL] = BOOT_MODE_REBOOT_TEST;
+			clear_boot_reg = 1;
 			break;
 		default:
 			printf("boot mode: None\n");
