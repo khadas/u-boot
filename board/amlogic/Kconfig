@@ -540,6 +540,14 @@ config S4_AP222
 	help
 		Select S4 AP222(XXXX) config
 
+config S4_AP222_DEBIAN
+	bool "S4_AP222_DEBIAN"
+	select TARGET_S4_AP222
+	help
+	  Select S4 AP222 DEBIAN config
+	  it's based in S4 AP222
+	  and add debian configs
+
 config S4_AP22CB
 	bool "S4_AP22CB"
 	select TARGET_S4_AP22CB
@@ -620,7 +628,7 @@ config TARGET_S4_SKT
 
 config TARGET_S4_AP222
 	bool "S4 AP222 board"
-	depends on S4_AP222
+	depends on S4_AP222 || S4_AP222_DEBIAN
 
 config TARGET_S4_AP22CB
 	bool "S4 AP22CB board"
@@ -1711,7 +1719,13 @@ source "board/amlogic/c1_ae409/Kconfig"
 
 source "board/amlogic/s4_skt/Kconfig"
 
+if S4_AP222
 source "board/amlogic/s4_ap222/Kconfig"
+endif
+
+if S4_AP222_DEBIAN
+source "board/amlogic/s4_ap222_debian/Kconfig"
+endif
 
 source "board/amlogic/s4_ap22cb/Kconfig"
 
