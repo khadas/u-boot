@@ -337,7 +337,6 @@ static void fix_bootargs(void)
 		"dolby_vision_on=",
 		"hdr_policy=",
 		"hdr_priority=",
-		"osd_reverse=",
 		"disable_ir=",
 		"lcd_debug=",
 		"recovery_offset=",
