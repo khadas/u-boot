@@ -2865,6 +2865,26 @@ int mmc_start_init(struct mmc *mmc)
 	return err;
 }
 
+int enable_mmc_reset(struct mmc *mmc)
+{
+	int err;
+	u8 ext_csd[512] = {0};
+
+	memset(ext_csd, 0, 512);
+	err = mmc_get_ext_csd(mmc, ext_csd);
+	if (err)
+		return err;
+
+	if (ext_csd[EXT_CSD_CMD_SET_NORMAL] == 1)
+		return 0;
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			EXT_CSD_RST_N_FUNCTION, 1);
+	if (err)
+		printf("set mmc reset enable failed\n");
+	return err;
+}
+
 static int mmc_complete_init(struct mmc *mmc)
 {
 	int err = 0;
@@ -2879,6 +2899,8 @@ static int mmc_complete_init(struct mmc *mmc)
 		mmc->has_init = 0;
 	else
 		mmc->has_init = 1;
+
+	enable_mmc_reset(mmc);
 	return err;
 }
 
