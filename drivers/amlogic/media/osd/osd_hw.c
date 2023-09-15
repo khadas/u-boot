@@ -3771,12 +3771,18 @@ static void osd_update_disp_osd_reverse(u32 index)
 
 	switch (osd_hw.osd_reverse[index]) {
 	case REVERSE_XY:
+	case OSD1_REVERSE_XY:
+	case OSD2_REVERSE_XY:
 		val = 3;
 		break;
 	case REVERSE_X:
+	case OSD1_REVERSE_X:
+	case OSD2_REVERSE_X:
 		val = 1;
 		break;
 	case REVERSE_Y:
+	case OSD1_REVERSE_Y:
+	case OSD2_REVERSE_Y:
 		val = 2;
 		break;
 	default:
@@ -4623,7 +4629,7 @@ void osd2_config_with_dimm(int *axis)
 #if defined(AML_T7_DISPLAY) || defined(AML_S5_DISPLAY)
 void osd_init_hw_viux(u32 index)
 {
-	u32 group, idx, reverse_val = 0;
+	u32 group, idx;
 	char *osd_reverse;
 	char *s = NULL;
 	/* 1:vd1  2:osd1 else :close */
@@ -4775,15 +4781,32 @@ void osd_init_hw_viux(u32 index)
 
 	if (osd_reverse) {
 		if (!strcmp(osd_reverse, "all,true"))
-			reverse_val = REVERSE_XY;
+			osd_hw.osd_reverse[index] = REVERSE_XY;
+		else if (!strcmp(osd_reverse, "osd0,true") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_XY;
+		else if (!strcmp(osd_reverse, "osd1,true") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_XY;
 		else if (!strcmp(osd_reverse, "all,x_rev"))
-			reverse_val = REVERSE_X;
+			osd_hw.osd_reverse[index] = REVERSE_X;
+		else if (!strcmp(osd_reverse, "osd0,x_rev") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_X;
+		else if (!strcmp(osd_reverse, "osd1,x_rev") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_X;
 		else if (!strcmp(osd_reverse, "all,y_rev"))
-			reverse_val = REVERSE_Y;
+			osd_hw.osd_reverse[index] = REVERSE_Y;
+		else if (!strcmp(osd_reverse, "osd0,y_rev") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_Y;
+		else if (!strcmp(osd_reverse, "osd1,y_rev") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_Y;
 		else
-			reverse_val = REVERSE_NONE;
+			osd_hw.osd_reverse[index] = REVERSE_NONE;
 	}
-	osd_hw.osd_reverse[index] = reverse_val;
 
 	osd_hw.rotation_pandata[index].x_start = 0;
 	osd_hw.rotation_pandata[index].y_start = 0;
@@ -4798,7 +4821,7 @@ void osd_init_hw_viux(u32 index)
 #else
 void osd_init_hw_viux(u32 index)
 {
-	u32 group, idx, data32, holdline = 4, reverse_val = 0;
+	u32 group, idx, data32, holdline = 4;
 	char *osd_reverse;
 	char *s;
 
@@ -4864,15 +4887,32 @@ void osd_init_hw_viux(u32 index)
 
 	if (osd_reverse) {
 		if (!strcmp(osd_reverse, "all,true"))
-			reverse_val = REVERSE_XY;
+			osd_hw.osd_reverse[index] = REVERSE_XY;
+		else if (!strcmp(osd_reverse, "osd0,true") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_XY;
+		else if (!strcmp(osd_reverse, "osd1,true") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_XY;
 		else if (!strcmp(osd_reverse, "all,x_rev"))
-			reverse_val = REVERSE_X;
+			osd_hw.osd_reverse[index] = REVERSE_X;
+		else if (!strcmp(osd_reverse, "osd0,x_rev") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_X;
+		else if (!strcmp(osd_reverse, "osd1,x_rev") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_X;
 		else if (!strcmp(osd_reverse, "all,y_rev"))
-			reverse_val = REVERSE_Y;
+			osd_hw.osd_reverse[index] = REVERSE_Y;
+		else if (!strcmp(osd_reverse, "osd0,y_rev") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_Y;
+		else if (!strcmp(osd_reverse, "osd1,y_rev") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_Y;
 		else
-			reverse_val = REVERSE_NONE;
+			osd_hw.osd_reverse[index] = REVERSE_NONE;
 	}
-	osd_hw.osd_reverse[index] = reverse_val;
 
 	osd_hw.rotation_pandata[index].x_start = 0;
 	osd_hw.rotation_pandata[index].y_start = 0;
@@ -5066,7 +5106,7 @@ static void switch_osd_to_dmcx(u32 dmc_num)
 
 void osd_init_hw(u32 index)
 {
-	u32 group, idx, data32, data2, holdline = 8, reverse_val = 0;
+	u32 group, idx, data32, data2, holdline = 8;
 	char *osd_reverse;
 	char *s;
 
@@ -5244,15 +5284,32 @@ void osd_init_hw(u32 index)
 
 	if (osd_reverse) {
 		if (!strcmp(osd_reverse, "all,true"))
-			reverse_val = REVERSE_XY;
+			osd_hw.osd_reverse[index] = REVERSE_XY;
+		else if (!strcmp(osd_reverse, "osd0,true") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_XY;
+		else if (!strcmp(osd_reverse, "osd1,true") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_XY;
 		else if (!strcmp(osd_reverse, "all,x_rev"))
-			reverse_val = REVERSE_X;
+			osd_hw.osd_reverse[index] = REVERSE_X;
+		else if (!strcmp(osd_reverse, "osd0,x_rev") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_X;
+		else if (!strcmp(osd_reverse, "osd1,x_rev") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_X;
 		else if (!strcmp(osd_reverse, "all,y_rev"))
-			reverse_val = REVERSE_Y;
+			osd_hw.osd_reverse[index] = REVERSE_Y;
+		else if (!strcmp(osd_reverse, "osd0,y_rev") &&
+				index == OSD1)
+			osd_hw.osd_reverse[index] = OSD1_REVERSE_Y;
+		else if (!strcmp(osd_reverse, "osd1,y_rev") &&
+				index == OSD2)
+			osd_hw.osd_reverse[index] = OSD2_REVERSE_Y;
 		else
-			reverse_val = REVERSE_NONE;
+			osd_hw.osd_reverse[index] = REVERSE_NONE;
 	}
-	osd_hw.osd_reverse[index] = reverse_val;
 
 	osd_hw.rotation_pandata[index].x_start = 0;
 	osd_hw.rotation_pandata[index].y_start = 0;
