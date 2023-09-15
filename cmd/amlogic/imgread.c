@@ -140,6 +140,10 @@ static int _aml_get_secure_boot_kernel_size(const void *ploadaddr, u32 *ptotalen
 #else
 
 #ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+	if (!secure_boot_enabled) {
+		*ptotalenckernelsz = 0;
+		return 0;
+	}
 	ulong ncheckoffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
 			GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
 	if (AML_D_Q_IMG_SIG_HDR_SIZE == (ncheckoffset & 0xFFFF) &&
