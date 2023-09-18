@@ -190,10 +190,19 @@ static void getvar_off_mode_charge(char *var_parameter, char *response)
 
 static void getvar_variant(char *var_parameter, char *response)
 {
-	if (busy_flag == 1)
-		fastboot_busy("variant: US", response);
-	else
-		fastboot_okay("US", response);
+	const char *tmp = env_get("board");
+
+	if (busy_flag == 1) {
+		if (tmp)
+			fastboot_response("variant: ", response, "%s", tmp);
+		else
+			fastboot_busy("variant: Value not set", response);
+	} else {
+		if (tmp)
+			fastboot_okay(tmp, response);
+		else
+			fastboot_fail("Value not set", response);
+	}
 }
 
 static void getvar_battery_soc_ok(char *var_parameter, char *response)
