@@ -19,7 +19,7 @@ unsigned int dma_array_refs;
  * paddr: 16bytes aligned
  * size: 16bytes aligned
  */
-void lcd_tcon_lut_dma_mif_set(phys_addr_t paddr, unsigned int size)
+void lcd_tcon_lut_dma_mif_set_t5m(phys_addr_t paddr, unsigned int size)
 {
 	unsigned int cmd_cnt = 0;
 
@@ -41,39 +41,42 @@ void lcd_tcon_lut_dma_mif_set(phys_addr_t paddr, unsigned int size)
 	lcd_vcbus_write(VPU_LUT_DMA_INTR_SEL, 0);//0:sel tcon 1:sel venc2
 }
 
-void lcd_tcon_lut_dma_enable(void)
+void lcd_tcon_lut_dma_enable_t5m(struct aml_lcd_drv_s *pdrv)
 {
-	lcd_tcon_setb(0x367, 1, 0, 14); //  intr trig pixel
-	lcd_tcon_setb(0x367, 1, 16, 1); // enale tcon intr
-	lcd_tcon_setb(0x367, 1, 16, 1); // enale tcon intr
-	lcd_tcon_setb(0x367, 1, 16, 1); // enale tcon intr
+	if (!pdrv)
+		return;
+
 	lcd_tcon_setb(0x367, 1, 16, 1); // enale tcon intr
 	lcd_tcon_setb(0x207, 1, 31, 1); //enable dma clk
 }
 
-void lcd_tcon_lut_dma_disable(void)
+void lcd_tcon_lut_dma_disable_t5m(struct aml_lcd_drv_s *pdrv)
 {
-	lcd_tcon_setb(0x367, 0, 16, 1); // disable tcon intr
-	lcd_tcon_setb(0x367, 0, 16, 1); // disable tcon intr
-	lcd_tcon_setb(0x367, 0, 16, 1); // disable tcon intr
+	if (!pdrv)
+		return;
+
 	lcd_tcon_setb(0x367, 0, 16, 1); // disable tcon intr
 	lcd_tcon_setb(0x207, 0, 31, 1); //disable dma
 }
 
 void lcd_tcon_dma_data_init_trans(struct aml_lcd_drv_s *pdrv)
 {
+	struct lcd_tcon_config_s *tcon = get_lcd_tcon_config();
 	int i = 0;
+
+	if (!tcon || !tcon->lut_dma_mif_set || !tcon->lut_dma_enable || !tcon->lut_dma_disable)
+		return;
 
 	if (!dma_array_refs)
 		return;
 
 	lcd_wait_vsync(pdrv);
 	for (i = 0; i < dma_array_refs; i++) {
-		lcd_tcon_lut_dma_mif_set(dma_trans[i][0], dma_trans[i][1]);
-		lcd_tcon_lut_dma_enable();
+		tcon->lut_dma_mif_set(dma_trans[i][0], dma_trans[i][1]);
+		tcon->lut_dma_enable(pdrv);
 		lcd_wait_vsync(pdrv);
 	}
-	lcd_tcon_lut_dma_disable();
+	tcon->lut_dma_disable(pdrv);
 }
 
 void lcd_tcon_od_pre_disable(unsigned char *table)
@@ -1247,7 +1250,8 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
 		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
-	lcd_tcon_dma_data_init_trans(pdrv);
+	if (tcon_conf->lut_dma_data_init_trans)
+		lcd_tcon_dma_data_init_trans(pdrv);
 
 	return 0;
 }
