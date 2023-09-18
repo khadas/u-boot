@@ -356,9 +356,7 @@
 			"setenv reboot_mode_android ""normal"";"\
 			"run storeargs;"\
 			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
-			"dovi process;osd dual_logo"\
-			"osd open;osd clear;run load_bmp_logo;bmp scale;"\
-			"vout output ${outputmode};"\
+			"dovi process;osd dual_logo;"\
 			"dovi set;dovi pkg;vpp hdrpkt;"\
 		"fi;fi;"\
 		"\0"\
@@ -443,12 +441,13 @@
  * logo2: bootup_rotate_secondary.bmp (for portrait screen)
  */
 #define CONFIG_DUAL_LOGO \
-	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
+	"setenv outputmode panel;setenv display_layer osd0;"\
 	"setenv fb_height 1080; setenv fb_width 1920;"\
-	"vout output $outputmode;osd open;osd clear;run load_bmp_logo;"\
-	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
-	"vout2 prepare panel;osd open;osd clear;"\
-	"run load_bmp_logo;bmp scale;vout2 output ${outputmode2};"\
+	"vout output ${outputmode};osd open;osd clear;run load_bmp_logo;"\
+	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
+	"vout2 prepare ${outputmode2};"\
+	"vout2 output ${outputmode2};osd open;osd clear;"\
+	"run load_bmp_logo;bmp scale;"\
 	"\0"\
 
 /* for portrait panel, recovery always displays on panel */
