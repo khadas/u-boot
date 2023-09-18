@@ -1150,20 +1150,18 @@ int lcd_tcon_disable_t5(struct lcd_config_s *pconf)
 
 int lcd_tcon_forbidden_check_t5(void)
 {
-	unsigned int val;
-	int ret;
+	unsigned int val_tcon, val_tcon_UHD;
 
-	val = lcd_tcon_getb(TCON_STATUS0, 0, 1);
+	val_tcon = lcd_tcon_getb(TCON_STATUS0, 0, 1);
 
-	if (val) {
-		LCDPR("lcd_tcon_forbidden_check: not forbidden\n");
-		ret = 0;
-	} else {
-		LCDPR("lcd_tcon_forbidden_check: forbidden\n");
-		ret = -1;
-	}
+	lcd_tcon_setb(0x451, 1, 6, 1);
+	val_tcon_UHD = lcd_tcon_getb(0x451, 6, 1);
 
-	return ret;
+	LCDPR("lcd tcon forbidden status: FHD: %s; UHD: %s\n",
+		val_tcon ? "OK" : "forbidden",
+		(val_tcon && val_tcon_UHD) ? "OK" : "forbidden");
+
+	return 0;
 }
 
 int lcd_tcon_forbidden_check_t5d(void)
