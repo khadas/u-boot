@@ -727,6 +727,8 @@ const char * const _env_args_reserve_[] =
 		"model_name",
 		"memsize",
 		"dts_to_gpt",
+		"reboot_status",
+		"expect_index",
 
 		NULL//Keep NULL be last to tell END
 };

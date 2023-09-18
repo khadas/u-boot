@@ -643,6 +643,8 @@ const char * const _env_args_reserve_[] =
 		"memsize",
 		"dts_to_gpt",
 		"fastboot_step",
+		"reboot_status",
+		"expect_index",
 
 		NULL//Keep NULL be last to tell END
 };

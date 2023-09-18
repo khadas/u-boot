@@ -445,6 +445,8 @@ const char * const _env_args_reserve_[] =
 	"outputmode",
 	"dts_to_gpt",
 	"fastboot_step",
+	"reboot_status",
+	"expect_index",
 	NULL//Keep NULL be last to tell END
 };
 int __attribute__((weak)) mmc_initialize(bd_t *bis){ return 0;}
