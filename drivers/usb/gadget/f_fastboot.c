@@ -718,7 +718,17 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	} else if (!strcmp_l1("off-mode-charge", cmd)) {
 		strncat(response, "0", chars_left);
 	} else if (!strcmp_l1("variant", cmd)) {
-		strncat(response, "US", chars_left);
+		char *device = NULL;
+#ifdef DEVICE_PRODUCT
+		device = DEVICE_PRODUCT;
+#else
+		device = getenv("device_product");
+#endif
+		if (device)
+			strncat(response, device, chars_left);
+		else
+			strcpy(response, "FAILSet variant");
+
 	} else if (!strcmp_l1("battery-soc-ok", cmd)) {
 		strncat(response, "yes", chars_left);
 	} else if (!strcmp_l1("battery-voltage", cmd)) {
