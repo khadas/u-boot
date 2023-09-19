@@ -953,6 +953,14 @@ config SC2_AH212
 	help
 	  Select SC2 AH212 config
 
+config SC2_AH212_DEBIAN
+	bool "SC2_AH212_DEBIAN"
+	select TARGET_SC2_AH212
+	help
+	  Select SC2 AH212 DEBIAN config
+	  it's based in SC2 AH212
+	  and add debian configs
+
 config SC2_AH232
 	bool "SC2_AH232"
 	select TARGET_SC2_AH232
@@ -995,7 +1003,7 @@ config TARGET_SC2_AH219
 
 config TARGET_SC2_AH212
 	bool "SC2 AH212 board"
-	depends on SC2_AH212
+	depends on SC2_AH212 || SC2_AH212_DEBIAN
 
 config TARGET_SC2_AH232
 	bool "SC2 AH232 board"
@@ -1762,6 +1770,10 @@ source "board/amlogic/a5_av409/Kconfig"
 source "board/amlogic/sc2_skt/Kconfig"
 
 source "board/amlogic/sc2_ah219/Kconfig"
+
+if SC2_AH212_DEBIAN
+source "board/amlogic/sc2_ah212_debian/Kconfig"
+endif
 
 source "board/amlogic/sc2_ah212/Kconfig"
 
