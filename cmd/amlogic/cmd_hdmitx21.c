@@ -730,9 +730,172 @@ static int xtochar(int num, char *checksum)
 	return 0;
 }
 
+/* hdr_priority definition:
+ *   strategy1: bit[3:0]
+ *       0: original cap
+ *       1: disable dolby vision cap
+ *       2: disable dolby vision and hdr/hlg cap
+ *   strategy2:
+ *       bit4: 1: disable dv  0:enable dv
+ *       bit5: 1: disable hdr10/hdr10+  0: enable hdr10/hdr10+
+ *       bit6: 1: disable hlg  0: enable hlg
+ *   bit28-bit31 choose strategy: bit[31:28]
+ *       0: strategy1
+ *       1: strategy2
+ */
+
+/* for uboot, there is no need to dynamically change the hdr_priority as
+ * kernel. So below functions only implement the disable_xxx_info() function,
+ * and leave the enable_xxx_info as blank
+ */
+
+/* dv_info */
+static void enable_dv_info(struct dv_info *des, const struct dv_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_dv_info(struct dv_info *des)
+{
+	if (!des)
+		return;
+
+	memset(des, 0, sizeof(*des));
+}
+
+/* hdr10 */
+static void enable_hdr10_info(struct hdr_info *des, const struct hdr_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_hdr10_info(struct hdr_info *des)
+{
+	if (!des)
+		return;
+
+	des->hdr_sup_eotf_smpte_st_2084 = 0;
+	des->hdr_sup_SMD_type1 = 0;
+	des->hdr_lum_max = 0;
+	des->hdr_lum_avg = 0;
+	des->hdr_lum_min = 0;
+}
+
+/* hdr10plus */
+static void enable_hdr10p_info(struct hdr10_plus_info *des, const struct hdr10_plus_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_hdr10p_info(struct hdr10_plus_info *des)
+{
+	if (!des)
+		return;
+
+	memset(des, 0, sizeof(*des));
+}
+
+/* hlg */
+static void enable_hlg_info(struct hdr_info *des, const struct hdr_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_hlg_info(struct hdr_info *des)
+{
+	if (!des)
+		return;
+
+	des->hdr_sup_eotf_hlg = 0;
+}
+
+static void enable_all_hdr_info(struct rx_cap *prxcap)
+{
+	if (!prxcap)
+		return;
+}
+
+static void update_hdr_strategy1(struct rx_cap *prxcap, u32 strategy)
+{
+	if (!prxcap)
+		return;
+
+	switch (strategy) {
+	case 0:
+		enable_all_hdr_info(prxcap);
+		break;
+	case 1:
+		disable_dv_info(&prxcap->dv_info);
+		break;
+	case 2:
+		disable_dv_info(&prxcap->dv_info);
+		disable_hdr10_info(&prxcap->hdr_info);
+		disable_hdr10p_info(&prxcap->hdr10plus_info);
+		disable_hlg_info(&prxcap->hdr_info);
+		break;
+	default:
+		break;
+	}
+}
+
+static void update_hdr_strategy2(struct rx_cap *prxcap, u32 strategy)
+{
+	if (!prxcap)
+		return;
+
+	/* bit4: 1 disable dv  0 enable dv */
+	if (strategy & BIT(4))
+		disable_dv_info(&prxcap->dv_info);
+	else
+		enable_dv_info(&prxcap->dv_info, NULL);
+	/* bit5: 1 disable hdr10/hdr10+   0 enable hdr10/hdr10+ */
+	if (strategy & BIT(5)) {
+		disable_hdr10_info(&prxcap->hdr_info);
+		disable_hdr10p_info(&prxcap->hdr10plus_info);
+	} else {
+		enable_hdr10_info(&prxcap->hdr_info, NULL);
+		enable_hdr10p_info(&prxcap->hdr10plus_info, NULL);
+	}
+	/* bit6: 1 disable hlg   0 enable hlg */
+	if (strategy & BIT(6))
+		disable_hlg_info(&prxcap->hdr_info);
+	else
+		enable_hlg_info(&prxcap->hdr_info, NULL);
+}
+
+static int hdmitx_set_hdr_priority(struct rx_cap *prxcap, u32 hdr_priority)
+{
+	u32 choose = 0;
+	u32 strategy = 0;
+
+	if (!prxcap)
+		return -1;
+
+	printf("%s, set hdr_prio: %u\n", __func__, hdr_priority);
+	/* choose strategy: bit[31:28] */
+	choose = (hdr_priority >> 28) & 0xf;
+	switch (choose) {
+	case 0:
+		strategy = hdr_priority & 0xf;
+		update_hdr_strategy1(prxcap, strategy);
+		break;
+	case 1:
+		strategy = hdr_priority & 0xf0;
+		update_hdr_strategy2(prxcap, strategy);
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
 static void get_parse_edid_data(struct hdmitx_dev *hdev)
 {
-	char *hdr_priority = env_get("hdr_priority");
+	int hdr_priority = get_hdr_strategy_priority();
 
 	hdev->hwop.read_edid(hdev->rawedid);
 
@@ -742,21 +905,9 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 	/* parse edid data */
 	hdmi_edid_parsing(hdev->rawedid, &hdev->RXCap);
 
-	if (!hdr_priority)
+	if (hdr_priority == -1)
 		return;
-	/* if hdr_priority is 2, then mark both dv_info and hdr_info */
-	if (strcmp(hdr_priority, "2") == 0) {
-		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
-		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
-		memset(&hdev->RXCap.hdr10plus_info, 0, sizeof(struct hdr10_plus_info));
-		pr_info("hdr_priority: %s and clear dv/hdr_info\n", hdr_priority);
-		return;
-	}
-	/* if hdr_priority is 1, then mark dv_info */
-	if (hdr_priority && (strcmp(hdr_priority, "1") == 0)) {
-		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
-		pr_info("hdr_priority: %s and clear dv_info\n", hdr_priority);
-	}
+	hdmitx_set_hdr_priority(&hdev->RXCap, hdr_priority);
 }
 
 /* policy process: to find the output mode/attr/dv_type */

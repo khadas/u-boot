@@ -447,18 +447,34 @@ static bool is_low_powermode(void)
 	return false;
 }
 
+/* for application, the actually hdr_priority may be 0x10000030
+ * and the string hdr_priority will be like 268435504
+ * so here needs coverting such string to hex value
+ */
+int get_hdr_strategy_priority(void)
+{
+	unsigned int hdr_strategy_priority = 0;
+
+	hdr_strategy_priority = env_get_ulong("hdr_priority", 10, ~0UL);
+	return (int)hdr_strategy_priority;
+}
+
 static int get_hdr_priority(void)
 {
-	char *hdr_priority = env_get("hdr_priority");
+	unsigned int hdr_priority = get_hdr_strategy_priority();
 	hdr_priority_e value = DOLBY_VISION_PRIORITY;
 
-	if (hdr_priority) {
-		if (strcmp(hdr_priority, "2") == 0)
-			value = SDR_PRIORITY;
-		else if (strcmp(hdr_priority, "1") == 0)
-			value = HDR10_PRIORITY;
-		else
-			value = DOLBY_VISION_PRIORITY;
+	if (hdr_priority != -1) {
+		if (((hdr_priority >> 28) & 0xf) == 0) {
+			unsigned int strategy1 = hdr_priority & 0xf;
+
+			if (strategy1 == 2)
+				value = SDR_PRIORITY;
+			else if (strategy1 == 1)
+				value = HDR10_PRIORITY;
+			else
+				value = DOLBY_VISION_PRIORITY;
+		}
 	} else {
 		value = DOLBY_VISION_PRIORITY;
 	}

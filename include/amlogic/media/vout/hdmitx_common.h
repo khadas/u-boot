@@ -21,4 +21,6 @@ enum amhdmitx_chip_e {
 	MESON_CPU_ID_S5,
 };
 
+int get_hdr_strategy_priority(void);
+
 #endif
