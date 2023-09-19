@@ -1623,7 +1623,7 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 	p = bufvir;
 	bufvir[strlen(p) - 1] = 0;	/* delete the last comma */
 	env_set("mtdbootparts", p);
-	if (store->param_ops)
+	if (store->type == BOOT_SNAND && store->param_ops)
 		return store->param_ops();
 
 	return 0;
