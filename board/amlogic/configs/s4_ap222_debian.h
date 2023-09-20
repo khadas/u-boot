@@ -200,7 +200,10 @@
 		"run recovery_from_flash_base;"\
 		"\0"\
 	"bcb_cmd="\
-		"run bcb_cmd_base;"\
+		"get_avb_mode;"\
+		"get_valid_slot;"\
+		"fdt addr ${fdtaddr}; "\
+		"load mmc 1:4 ${fdtaddr} dtb.img;"\
 		"\0"\
 	"load_bmp_logo="\
 		"if load mmc 1:4 ${loadaddr} /usr/share/amlbian/logo/logo.bmp; then "\
@@ -421,8 +424,6 @@ defined(CONFIG_STORE_COMPATIBLE)
 
 //Replace avb2 software SHA256 to utilize armce
 #define CONFIG_AVB2_UBOOT_SHA256
-
-#define CONFIG_MULTI_DTB	1
 
 /* support secure boot */
 #define CONFIG_AML_SECURE_UBOOT   1
