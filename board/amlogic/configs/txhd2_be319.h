@@ -125,6 +125,7 @@
 		"lock=10101000\0"\
 		"cvbs_drv=0\0"\
 		"osd_reverse=0\0"\
+		"reverse_ctrl=0\0"\
 		"video_reverse=0\0"\
 	"board=t950s\0"\
 		"suspend=off\0"\
