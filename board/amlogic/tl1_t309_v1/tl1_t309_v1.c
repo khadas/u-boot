@@ -750,6 +750,8 @@ int board_late_init(void)
 		run_command("saveenv", 0);
 	}
 
+	run_command("update_tries", 0);
+
 	unsigned char chipid[16];
 
 	memset(chipid, 0, 16);
