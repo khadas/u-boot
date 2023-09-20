@@ -529,7 +529,10 @@
 
 #define CONFIG_SHA1 1
 #define CONFIG_MD5 1
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 
 /* commands */
 /* #define CONFIG_CMD_PLLTEST 1 */
