@@ -32,7 +32,13 @@
 #endif
 /* debug info*/
 #define CONFIG_MPT_DEBUG 	(0)
+/*CONFIG_AML_GPT meas gpt is from ept*/
+/*else gpt is individual*/
+#ifdef CONFIG_AML_GPT
+#define GPT_PRIORITY             (0)
+#else
 #define GPT_PRIORITY             (1)
+#endif /* CONFIG_AML_GPT */
 
 #define apt_err(fmt, ...) printf( "%s()-%d: " fmt , \
                   __func__, __LINE__, ##__VA_ARGS__)
@@ -1026,6 +1032,7 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 	struct _iptbl *ept = p_iptbl_ept;
 	struct partitions *partitions = ept->partitions;
 	int parts_num = ept->count;
+	int gpt_part_num;
 	uint64_t offset;
 	uint64_t size;
 	char name[PARTNAME_SZ];
@@ -1054,21 +1061,23 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 			return 1;
 	}
 
-	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
+	gpt_part_num = le32_to_cpu(gpt_head->num_partition_entries);
+	for (i = 0; i < gpt_part_num; i++) {
 		if (!is_pte_valid(&gpt_pte[i]))
 			break;
 
-		offset = le64_to_cpu(gpt_pte[i].starting_lba<<9ULL);
-		if (partitions[i].offset != offset) {
-			printf("Caution! GPT offset had been changed\n");
+		offset = le64_to_cpu(gpt_pte[i].starting_lba << 9ULL);
+		/* ept skip bootloader */
+		if (partitions[i + 1].offset != offset) {
+			printf("Caution! GPT  %d offset had been changed\n", i);
 			gpt_changed = 1;
 			break;
 		}
 
-		size = ((le64_to_cpu(gpt_pte[i].ending_lba)+1) -
+		size = ((le64_to_cpu(gpt_pte[i].ending_lba) + 1) -
 			le64_to_cpu(gpt_pte[i].starting_lba)) << 9ULL;
-		if (partitions[i].size != size) {
-			printf("Caution! GPT size had been changed\n");
+		if ((i != gpt_part_num - 1) && partitions[i + 1].size != size) {
+			printf("Caution! GPT %d size had been changed\n", i);
 			gpt_changed = 1;
 			break;
 		}
@@ -1080,14 +1089,15 @@ int is_gpt_changed(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 		memset(name, 0, PARTNAME_SZ);
 		for (k = 0; k < efiname_len; k++)
 			name[k] = (char)gpt_pte[i].partition_name[k];
-		if (strcmp(name, partitions[i].name) != 0) {
-			printf("Caution! GPT name had been changed\n");
+		if (strcmp(name, partitions[i + 1].name) != 0) {
+			printf("Caution! GPT name %d had been changed\n", i);
 			gpt_changed = 1;
 			break;
 		}
 
 	}
-	if ((i != parts_num) && (gpt_changed == 0)) {
+
+	if ((i != parts_num - 1) && gpt_changed == 0) {
 		gpt_changed = 1;
 		printf("Caution! GPT number had been changed\n");
 	}
@@ -1128,12 +1138,12 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 
 	strncpy((char *)partitions, (char *)emmc_partition_table, sizeof(struct partitions));
 
-	for (i = 1; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
+	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		if (!is_pte_valid(&gpt_pte[i]))
 			break;
 
-		partitions[i].offset = le64_to_cpu(gpt_pte[i].starting_lba<<9ULL);
-		partitions[i].size = ((le64_to_cpu(gpt_pte[i].ending_lba)+1) -
+		partitions[i + 1].offset = le64_to_cpu(gpt_pte[i].starting_lba << 9ULL);
+		partitions[i + 1].size = ((le64_to_cpu(gpt_pte[i].ending_lba) + 1) -
 			le64_to_cpu(gpt_pte[i].starting_lba)) << 9ULL;
 
 		/* partition name */
@@ -1141,9 +1151,9 @@ int fill_ept_by_gpt(struct mmc *mmc, struct _iptbl *p_iptbl_ept)
 			/ sizeof(efi_char16_t);
 		dosname_len = sizeof(partitions[i].name);
 
-		memset(partitions[i].name, 0, sizeof(partitions[i].name));
+		memset(partitions[i + 1].name, 0, sizeof(partitions[i].name));
 		for (k = 0; k < min(dosname_len, efiname_len); k++)
-			partitions[i].name[k] = (char)gpt_pte[i].partition_name[k];
+			partitions[i + 1].name[k] = (char)gpt_pte[i].partition_name[k];
 	}
 
 	free(gpt_pte);
@@ -1154,6 +1164,7 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part) {
 	struct partitions *part = ept->partitions;
 	int count = ept->count;
 	int i;
+	/* ept keep bootloader but gpt remove bootloader */
 	for (i = 0; i < count - 1; i++) {
 		disk_part[i].start = part[i + 1].offset >> 9;
 		strcpy((char *)disk_part[i].name, part[i+1].name);
