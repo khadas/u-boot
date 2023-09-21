@@ -73,16 +73,16 @@ static void lcd_phy_cntl_lvds_set(struct aml_lcd_drv_s *pdrv, struct phy_config_
 			for (i = 0; i < 10; i++)
 				phy->lane[i].amp = 0x5;
 		}
-		chreg = (p2p_phy_ch_reg_lvds | (1 << 16) | (1 << 0)) & 0xe1c5e1c5;
+		data = (p2p_phy_ch_reg_lvds | (1 << 16) | (1 << 0)) & 0xe1c5e1c5;
 		chdig = p2p_phy_ch_dig_lvds;
 		for (i = 0; i < 5; i++) {
 			bitl = i * 2;
 			bith = i * 2 + 1;
 
-			data = chreg;
-			data |= (((phy->lane[bitl].preem & 0xf) << 9) |
+			chreg = data;
+			chreg |= (((phy->lane[bitl].preem & 0xf) << 9) |
 				 ((phy->lane[bith].preem & 0xf) << 25));
-			data |= (((phy->lane[bitl].amp & 0x7) << 3) |
+			chreg |= (((phy->lane[bitl].amp & 0x7) << 3) |
 				 ((phy->lane[bith].amp & 0x7) << 19));
 
 			if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
@@ -92,7 +92,7 @@ static void lcd_phy_cntl_lvds_set(struct aml_lcd_drv_s *pdrv, struct phy_config_
 					bith, phy->lane[bith].preem, phy->lane[bith].amp);
 			}
 
-			lcd_ana_write(chreg_reg[i], data);
+			lcd_ana_write(chreg_reg[i], chreg);
 			lcd_ana_write(chdig_reg[i], chdig);
 		}
 	} else {
@@ -126,8 +126,8 @@ static void lcd_lvds_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 static void lcd_phy_cntl_mlvds_set(struct aml_lcd_drv_s *pdrv, struct phy_config_s *phy,
 		unsigned int status, unsigned int ckdi)
 {
-	unsigned int cntl13 = 0, data = 0, chreg = 0;
-	unsigned int chdig[5] = {0}, i, bitl, bith;
+	unsigned int cntl13 = 0, data = 0, chreg = 0, chdig = 0;
+	unsigned int i, bitl, bith;
 
 	if (!phy_ctrl_p)
 		return;
@@ -135,7 +135,6 @@ static void lcd_phy_cntl_mlvds_set(struct aml_lcd_drv_s *pdrv, struct phy_config
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("%s: %d, ckdi:0x%x\n", __func__, status, ckdi);
 
-	memset(chdig, 0, sizeof(chdig));
 	if (status) {
 		cntl13 = ckdi & 0x3ff;  //ckd_sel
 		lcd_ana_setb(HHI_DIF_CSI_PHY_CNTL13, cntl13, 16, 10);
@@ -146,37 +145,42 @@ static void lcd_phy_cntl_mlvds_set(struct aml_lcd_drv_s *pdrv, struct phy_config
 			for (i = 0; i < 10; i++)
 				phy->lane[i].amp = 0x5;
 		}
-		chreg = (p2p_phy_ch_reg_lvds | (1 << 16) | (1 << 0)) & 0xe1c5e1c5;
+		data = p2p_phy_ch_reg_lvds & 0xe1c7e1c7;
 		for (i = 0; i < 5; i++) {
 			bitl = i * 2;
 			bith = i * 2 + 1;
+			chreg = data;
+			chdig = p2p_phy_ch_dig_mlvds;
 
-			data = chreg;
-			data |= (((phy->lane[bitl].preem & 0xf) << 9) |
+			chreg |= (((phy->lane[bitl].preem & 0xf) << 9) |
 				 ((phy->lane[bith].preem & 0xf) << 25));
-			data |= (((phy->lane[bitl].amp & 0x7) << 3) |
+			chreg |= (((phy->lane[bitl].amp & 0x7) << 3) |
 				 ((phy->lane[bith].amp & 0x7) << 19));
 
-			chdig[i] = p2p_phy_ch_dig_mlvds;
-			if ((ckdi & (1 << bitl)) == 0) //data bypass
-				chdig[i] |= (1 << 2);
-			if ((ckdi & (1 << bith)) == 0) //data bypass
-				chdig[i] |= (1 << 18);
+			if ((ckdi & (1 << bitl)) == 0) { //data lane
+				chdig |= (1 << 2);
+				chreg = (chreg | (1 << 0)) & ~(1 << 1);
+			}
+			if ((ckdi & (1 << bith)) == 0) { //data lane
+				chdig |= (1 << 18);
+				chreg = (chreg | (1 << 16)) & ~(1 << 17);
+			}
 			if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
 				LCDPR("%s: chreg[%d]=0x%08x, chdig[%d]=0x%08x\n",
-					__func__, i, data, i, chdig[i]);
+					__func__, i, chreg, i, chdig);
 			}
-			lcd_ana_write(chreg_reg[i], data);
-			lcd_ana_write(chdig_reg[i], chdig[i]);
+			lcd_ana_write(chreg_reg[i], chreg);
+			lcd_ana_write(chdig_reg[i], chdig);
 		}
 	} else {
 		chreg = ((3 << 17) | (3 << 1));
+		chdig = 0;
 
 		lcd_ana_write(HHI_DIF_CSI_PHY_CNTL13, 0);
 		lcd_ana_write(HHI_DIF_CSI_PHY_CNTL15, 0);
 		for (i = 0; i < 5; i++) {
 			lcd_ana_write(chreg_reg[i], chreg);
-			lcd_ana_write(chdig_reg[i], chdig[i]);
+			lcd_ana_write(chdig_reg[i], chdig);
 		}
 	}
 }
