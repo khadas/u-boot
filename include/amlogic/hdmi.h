@@ -663,6 +663,7 @@ struct hdmitx_dev {
 	/* Add dongle_mode, clock, phy may be different from mbox */
 	unsigned int dongle_mode;
 	bool config_csc_en;
+	bool hpd_state;
 };
 
 #define MODE_LEN	32
@@ -771,6 +772,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type, enum mode_type tunnel_mode,
 	struct dv_vsif_para *data);
 void hdmitx_set_hdr10plus_pkt(unsigned int flag,
 	struct hdr10plus_para *data);
+bool hdmitx_get_hpd_state_ext(void);
 
 /*
  * Must be called at uboot

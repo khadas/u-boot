@@ -260,7 +260,7 @@ static int check_tv_has_changed(struct hdmitx_dev* hdmitx_device)
 
 static int check_tv_hpd_status(struct hdmitx_dev* hdmitx_device)
 {
-	return hdmitx_device->HWOp.get_hpd_state();
+	return hdmitx_get_hpd_state_ext();
 }
 
 
