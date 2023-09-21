@@ -190,10 +190,14 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 			printf("........ success\n");
 			fastboot_okay("");
 			return;
-		} else if (get_partition_info_efi_by_name(dev_desc, cmd, &info)) {
-			error("cannot find partition: '%s'\n", cmd);
-			fastboot_fail("cannot find partition");
-			return;
+		} else if (strncmp(cmd, "bootloader", 10)) {
+			if (strcmp(cmd, "dtb") != 0) {
+				if (get_partition_info_efi_by_name(dev_desc, cmd, &info)) {
+					error("cannot find partition: '%s'\n", cmd);
+					fastboot_fail("cannot find partition");
+					return;
+				}
+			}
 		}
 	}
 #endif
