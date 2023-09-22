@@ -341,7 +341,7 @@
 				spi-max-frequency = <20000000>;
 				spi-tx-bus-width = <4>;
 				spi-rx-bus-width = <4>;
-				status = "okay";
+				status = "disabled";
 			};
 			spi-nand@1 {
 				compatible = "spi-nand";
@@ -349,7 +349,7 @@
 				spi-max-frequency = <20000000>;
 				spi-tx-bus-width = <4>;
 				spi-rx-bus-width = <4>;
-				status = "disabled";
+				status = "okay";
 			};
 		};
 

@@ -20,6 +20,7 @@
 #include "nfc.h"
 
 //#define __PXP_DEBUG__
+
 #define PAGEINFO_QUICK_INIT
 #define MAX_BYTES_IN_BOOTINFO	(512)
 
@@ -146,12 +147,27 @@ struct boot_info {
 		unsigned int bbt_start_page;
 		/* from SPI NAND datasheet */
 		unsigned int block_size;
+
+#ifdef XOR_BBT_SCAN_SUPPORT_BOOTINFO
+#define	MAX_F_BAD_BLOCK_NUM	64
+#else
 #define	MAX_F_BAD_BLOCK_NUM	16
+#endif
 		unsigned short bbt[MAX_F_BAD_BLOCK_NUM];
 		/* when enable_bbt == 1, the bad block skipping mechanism is
 		 * enabled and bbt[] array is used.
 		 */
 		unsigned char enable_bbt;
+#ifdef XOR_BBT_SCAN_SUPPORT_BOOTINFO
+		/* decide usb update or gang programmer */
+		unsigned char is_gang_programer;
+		/*bit15-0 xor bbt start block */
+		/*bit23-16 xor bbt block number */
+		/*bit31-24 xor bbt pages */
+		unsigned int xor_bbt_start_block;
+		/* bit15-0  total blocks in chip */
+		unsigned int block_num_in_chip;
+#endif
 	} dev_cfg1;
 
 	struct {

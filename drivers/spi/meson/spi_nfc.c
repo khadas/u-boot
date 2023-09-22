@@ -26,7 +26,7 @@
 #define SPI_NFC_DEBUG(...)
 #endif
 
-unsigned char spinand_in = 1;
+unsigned char disable_host_ecc;
 
 struct spi_nfc_priv {
 	unsigned char save_cmd;
@@ -69,6 +69,10 @@ static int spi_nfc_probe(struct udevice *bus)
 	page_info_pre_init();
 	page_info_initialize(DEFAULT_ECC_MODE, 0, 0);
 	nfc_set_clock_and_timing(NFC_STATUS_OFF, SPINAND_FLASH);
+
+#ifdef CONFIG_AML_SPI_NFC_DISABLE_HOST_ECC
+	disable_host_ecc = 1;
+#endif
 
 	return 0;
 }
@@ -139,7 +143,7 @@ static void spi_nfc_covert_buf_to_host(struct spi_nfc_priv *priv,
 	SPI_NFC_DEBUG("oob is %s\n", (oob_required) ? "required" : "not required");
 	SPI_NFC_DEBUG("auto_oob is %s\n", (auto_oob) ? "set" : "not set");
 
-	DUMP_BUFFER(oob_pos, OOB_BUF_SIZE, 4, 16);
+	DUMP_BUFFER(oob_pos, 64, 4, 16);
 	if (oob_only || oob_required) {
 		if (auto_oob)
 			spi_nfc_auto_oob_ops(oob_temp, oob_pos,
@@ -161,7 +165,7 @@ static void spi_nfc_covert_buf_to_host(struct spi_nfc_priv *priv,
 static int spi_nfc_ooblayout_ecc(struct mtd_info *mtd, int section,
 			       struct mtd_oob_region *oobregion)
 {
-	if (section >= 8)
+	if (section >= (mtd->writesize >> 9))
 		return -ERANGE;
 
 	oobregion->offset =  2 + (section * (2 + 14));
@@ -173,7 +177,7 @@ static int spi_nfc_ooblayout_ecc(struct mtd_info *mtd, int section,
 static int spi_nfc_ooblayout_free(struct mtd_info *mtd, int section,
 				struct mtd_oob_region *oobregion)
 {
-	if (section >= 8)
+	if (section >= (mtd->writesize >> 9))
 		return -ERANGE;
 
 	oobregion->offset = section * (2 + 14);
@@ -192,9 +196,12 @@ static void spi_nfc_xfer_prepare(struct udevice *dev)
 	struct dm_spi_slave_platdata *plat;
 	struct mtd_info *mtd;
 
+	if (disable_host_ecc)
+		return;
+
 	plat = dev_get_parent_platdata(dev);
 	if (!plat->cs) {
-		spinand_in = 0;
+		disable_host_ecc = 1;
 		return;
 	}
 
@@ -208,6 +215,7 @@ static void spi_nfc_xfer_prepare(struct udevice *dev)
 			      page_info->dev_cfg0.page_size,
 			      page_info->dev_cfg1.block_size);
 		mtd_set_ooblayout(mtd, &spi_nfc_ecc_ooblayout);
+		mtd->oobavail = (mtd->writesize / 512) * 2;
 	}
 }
 
@@ -225,14 +233,14 @@ static int spi_nfc_dma_xfer(struct spi_nfc_priv *priv,
 	raw = ((flags & SPI_XFER_RAW) != 0);
 	auto_oob = ((flags & SPI_XFER_AUTO_OOB) != 0);
 
-	SPI_NFC_DEBUG("flags = %lx user_buf = %p len = 0x%x spinand = %d  %s\n",
-		       flags, user_buf, len, spinand_in,
-		       (read) ? "read" : "write");
+	SPI_NFC_DEBUG("flags = %lx user_buf = %p len = 0x%x disable_host_ecc = %d %s\n",
+		      flags, user_buf, len, disable_host_ecc,
+		      (read) ? "read" : "write");
 
 	page_size = page_info_get_page_size();
 	oob_pos = (oob_only) ? user_buf : (user_buf + page_size);
 
-	if (raw || !spinand_in) {
+	if (raw || disable_host_ecc) {
 		buf = user_buf;
 		nfc_raw_size_ext_convert(len);
 		n2m_cmd = (read) ? N2M_RAW : M2N_RAW;
@@ -255,11 +263,11 @@ static int spi_nfc_dma_xfer(struct spi_nfc_priv *priv,
 	flush_dcache_range((unsigned long)buf,
 			   (unsigned long)buf + len);
 
-	if (spinand_in)
-		priv->save_addr &= ~((page_size << 9) - 1);
+	SPI_NFC_DEBUG("n2m_cmd = %x ecc_steps = %x save_addr = %x addr_len = %x\n",
+		      n2m_cmd, ecc_steps, priv->save_addr, priv->save_addr_len);
 
-	SPI_NFC_DEBUG("n2m_cmd = %x ecc_steps = %x save_addr = %x\n",
-		       n2m_cmd, ecc_steps, priv->save_addr);
+	if (!disable_host_ecc)
+		priv->save_addr &= ~((page_size << ((read) ? 9 : 1)) - 1);
 
 	ret = NFC_SEND_CMD_ADDR(priv->save_cmd,
 				(uint8_t *)&priv->save_addr,
@@ -285,7 +293,7 @@ static int spi_nfc_dma_xfer(struct spi_nfc_priv *priv,
 		return ret;
 	}
 
-	if (raw || !spinand_in) {
+	if (raw || disable_host_ecc) {
 		DUMP_BUFFER(buf, len, len / 16, 16);
 		return 0;
 	}

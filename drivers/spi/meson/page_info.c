@@ -195,6 +195,7 @@ static int page_info_version_init(void)
 	return page_info->version;
 }
 
+extern unsigned char disable_host_ecc;
 static void page_info_init_from_mtd_and_dts(struct mtd_info *mtd,
 					    struct udevice *udev)
 {
@@ -260,6 +261,8 @@ static void page_info_init_from_mtd_and_dts(struct mtd_info *mtd,
 
 	ecc_steps = mtd->writesize >> 9;
 	page_info->host_cfg.n2m_cmd = (DEFAULT_ECC_MODE & (~0x3F)) | ecc_steps;
+	if (disable_host_ecc)
+		page_info->host_cfg.n2m_cmd = N2M_RAW | mtd->writesize;
 	page_info->host_cfg.frequency_index = 0xFF;
 	page_info->dev_cfg1.ca_lanes = 0;
 	page_info->dev_cfg1.cs_deselect_time = 0xFF;
@@ -295,7 +298,7 @@ static void page_info_dump_info(void)
 	enable_bbt = page_info_get_enable_bbt();
 	bus_width = page_info_get_data_lanes_mode();
 	cmd_lanes = page_info_get_cmd_lanes_mode();
-	addr_lanes = page_info_get_cmd_lanes_mode();
+	addr_lanes = page_info_get_addr_lanes_mode();
 
 	frequency_index = page_info_get_frequency_index();
 	mode = page_info_get_work_mode();

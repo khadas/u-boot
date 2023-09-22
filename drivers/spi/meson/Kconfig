@@ -1,3 +1,5 @@
+if DM_SPI
+
 config AML_SPICC
 	bool "Amlogic SPICC Driver"
 	help
@@ -35,3 +37,13 @@ config AML_SPI_NFC
 	  Enable support for SPI Flash Controller with host ECC on meson SoCs.
 	  It should be set when user want SPI NAND or SPI NOR on meson SoCs.
 	  If SPI NAND/SPI FLASH is enabled, please open it in defconfig
+
+config AML_SPI_NFC_DISABLE_HOST_ECC
+	bool "disable Host ECC Driver"
+	default y if AML_SPI_NFC
+	help
+	  Disable host ECC on meson SoCs.
+	  It should be set when user use SPI NAND without ECC or want to use
+	  Host ECC.
+
+endif

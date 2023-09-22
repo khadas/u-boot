@@ -1294,7 +1294,6 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	enum boot_type_e medium_type = store_get_type();
 	struct storage_startup_parameter *ssp = &g_ssp;
 
-
 	int ret = 0;
 	struct storage_t *store = store_get_current();
 	int bl2_size = BL2_SIZE;
@@ -1313,7 +1312,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 		bl2_cpynum = ssp->boot_backups;
-	} else	{
+	} else {
 		bootloader_maxsize = bl2_size + tpl_per_size;
 		bl2_cpynum = CONFIG_BL2_COPY_NUM;
 		if (size > bootloader_maxsize) {
