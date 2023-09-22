@@ -9,6 +9,9 @@
 #ifndef __HDMI_H__
 #define __HDMI_H__
 
+/* the default max_tmds_clk is 165MHz/5 in H14b Table 8-16 */
+#define DEFAULT_MAX_TMDS_CLK    33
+
 /* Little-Endian format */
 enum scdc_addr {
 	SINK_VER = 0x01,
