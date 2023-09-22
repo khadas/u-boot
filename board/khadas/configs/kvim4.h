@@ -164,7 +164,7 @@
         "otg_device=1\0" \
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
-        "hdmimode=dummy_l\0" \
+        "hdmimode=none\0" \
         "cvbsmode=dummy_l\0" \
 		"colorattribute=444,8bit\0"\
 		"vout_init=enable\0" \
