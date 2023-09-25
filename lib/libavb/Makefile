@@ -16,5 +16,5 @@ obj-y += avb_sysdeps_posix.o
 obj-y += avb_util.o
 obj-y += avb_vbmeta_image.o
 obj-y += avb_version.o
-obj-y += testkey.o
+obj-y += testkey.o prodkey.o
 ccflags-y += -DAVB_COMPILATION -DAVB_ENABLE_DEBUG
