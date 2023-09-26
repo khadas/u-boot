@@ -38,18 +38,14 @@ static int vout_hdmi_hpd(int hpd_st)
 	char *colorattribute;
 
 #ifdef CONFIG_AML_LCD
-	mipi_lcd_exist = env_get("mipi_lcd_exist");
-	if (0 == strcmp(mipi_lcd_exist, "1"))
-		env_set("outputmode", "panel1");
-	else
-		env_set("outputmode", "panel");
-
+	env_set("outputmode", "panel");
 	mode = env_get("outputmode");
 	mux_sel = aml_lcd_driver_outputmode_check(mode, 0);
 	venc_sel = mux_sel & 0xf;
 	if (venc_sel == VIU_MUX_ENCL) {
 		printf("%s: lcd no need hpd detect\n", __func__);
 		// free(mode);
+		mipi_lcd_exist = env_get("mipi_lcd_exist");
 		if (0 == strcmp(mipi_lcd_exist, "1"))
 			return 0;
 	}
@@ -69,8 +65,8 @@ static int vout_hdmi_hpd(int hpd_st)
 		env_set("hdmichecksum", "0x00000000");
 		//run_command("saveenv", 0);
 	} else {
-//		if (!strstr(env_get("outputmode"), "hz"))
-//			env_set("outputmode", hdmimode);
+		if (!strstr(env_get("outputmode"), "hz"))
+			env_set("outputmode", hdmimode);
 	}
 
 	return 1;
