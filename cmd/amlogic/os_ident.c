@@ -30,10 +30,12 @@ static int do_os_ident(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 	ret = genimg_get_format(img_addr);
 	switch (ret) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 		case IMAGE_FORMAT_LEGACY:
 			debug_print("IMAGE_FORMAT_LEGACY format\n");
 			env_set("os_type", "rtos");
 			break;
+#endif
 		case IMAGE_FORMAT_FIT:
 			debug_print("IMAGE_FORMAT_FIT format\n");
 			/* ignore fdt format, it's not an OS */
