@@ -368,6 +368,9 @@ defined(CONFIG_STORE_COMPATIBLE)
 	#define CONFIG_SYS_MAX_NAND_DEVICE  2
 #endif
 
+/* temporarily skip mtd part param */
+#define SKIP_MTD_PART_PARAM            1
+
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 7
 

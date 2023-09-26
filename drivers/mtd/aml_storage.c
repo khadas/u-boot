@@ -1441,6 +1441,7 @@ int mtd_store_param_partition(void)
 
 int mtd_store_param_ops(void)
 {
+#ifndef SKIP_MTD_PART_PARAM
 	static int init;
 
 	if (init)
@@ -1450,6 +1451,7 @@ int mtd_store_param_ops(void)
 	mtd_store_param_rsv();
 	init = 1;
 
+#endif
 	return 0;
 }
 
