@@ -124,11 +124,7 @@
 	"outputmode2=1080p60hz\0" \
 	"cvbsmode=576cvbs\0" \
 	"storeargs_hdmitx="\
-		"if test ${mipi_lcd_exist} != 1; then "\
-			"setenv vout2_args ;"\
-		"else "\
-			"setenv vout2_args vout2=${outputmode2},enable;"\
-		"fi;"\
+		"setenv vout2_args vout2=${outputmode2},enable;"\
 		"setenv bootargs ${bootargs} powermode=${powermode} "\
 		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 		"outputmode=${outputmode} hdmitx=${cecconfig},${colorattribute} "\
