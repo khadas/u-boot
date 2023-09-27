@@ -56,6 +56,15 @@ static void lcd_timing_info_print(struct lcd_config_s * pconf)
 		pconf->basic.v_period_min, pconf->basic.v_period_max,
 		pconf->basic.frame_rate_min, pconf->basic.frame_rate_max,
 		pconf->basic.lcd_clk_min, pconf->basic.lcd_clk_max);
+
+	printf("base_pixel_clk  %d\n"
+		"base_h_period   %d\n"
+		"base_v_period   %d\n"
+		"base_frame_rate %d\n\n",
+		pconf->timing.base_pixel_clk,
+		pconf->timing.base_h_period,
+		pconf->timing.base_v_period,
+		pconf->timing.base_frame_rate);
 }
 
 static void lcd_gpio_info_print(struct aml_lcd_drv_s *pdrv)
@@ -1124,9 +1133,9 @@ void lcd_info_print(struct aml_lcd_drv_s *pdrv)
 	if (pconf->cus_ctrl.flag) {
 		LCDPR("\nlcd cus_ctrl:\n"
 			"ctrl_flag:         0x%x\n"
-			"dlg_flag:          %u\n",
+			"ufr_flag:          %u\n",
 			pconf->cus_ctrl.flag,
-			pconf->cus_ctrl.dlg_flag);
+			pconf->cus_ctrl.ufr_flag);
 	}
 
 	lcd_power_info_print(pdrv, 1);

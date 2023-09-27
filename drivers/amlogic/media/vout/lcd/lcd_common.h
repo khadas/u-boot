@@ -52,7 +52,8 @@
 /* 20230907: t3x revB OD secure memory support */
 /* 20230912: bypass phy data buffer */
 /* 20230915: update phy setting for txhd2 */
-#define LCD_DRV_VERSION    "20230915"
+/* 20230918: support ultra refresh rate function*/
+#define LCD_DRV_VERSION    "20230918"
 
 extern unsigned long clk_util_clk_msr(unsigned long clk_mux);
 

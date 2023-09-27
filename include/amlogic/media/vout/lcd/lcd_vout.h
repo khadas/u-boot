@@ -482,7 +482,7 @@ struct lcd_pinmux_ctrl_s {
 
 struct cus_ctrl_config_s {
 	unsigned int flag;
-	unsigned char dlg_flag;
+	unsigned char ufr_flag;
 };
 
 #define LCD_ENABLE_RETRY_MAX    3
