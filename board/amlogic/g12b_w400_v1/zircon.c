@@ -54,19 +54,6 @@ static const char BOOTLOADER_VERSION[] = "zircon-bootloader=0.12";
 
 static const char CMDLINE_DEBUG[] = "devmgr.log-to-debuglog=true";
 
-
-static const zbi_cpu_config_t cpu_config = {
-    .cluster_count = 2,
-    .clusters = {
-        {
-            .cpu_count = 2,
-        },
-        {
-            .cpu_count = 4,
-        },
-    },
-};
-
 static zbi_mem_range_t mem_config[] = {
     {
         .type = ZBI_MEM_RANGE_RAM,
@@ -118,12 +105,6 @@ static const dcfg_arm_psci_driver_t psci_driver = {
 
 static const dcfg_arm_generic_timer_driver_t timer_driver = {
     .irq_phys = 30,
-};
-
-static const dcfg_amlogic_hdcp_driver_t hdcp_driver = {
-    .preset_phys = 0xc1104000,
-    .hiu_phys = 0xc883c000,
-    .hdmitx_phys = 0xc883a000,
 };
 
 static const zbi_platform_id_t platform_id = {
