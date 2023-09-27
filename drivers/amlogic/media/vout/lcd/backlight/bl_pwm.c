@@ -219,7 +219,7 @@ static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_tl1 = {
 };
 
 static struct bl_pwm_ctrl_config_s bl_pwm_ctrl_conf_t7 = {
-	.pwm_div_flag = 0,
+	.pwm_div_flag = 1,
 	.pwm_vs_flag = 1,
 	.pwm_clk = pwm_clk_ctrl_t7,
 	.pwm_misc = pwm_misc_t7,
