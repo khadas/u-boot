@@ -81,7 +81,7 @@
 	"panel_type=mipi_0\0" \
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
-	"outputmode=panel\0" \
+	"outputmode=1080p60hz\0" \
 	"vout_init=disable\0" \
         "hdmimode=1080p60hz\0" \
         "colorattribute=444,8bit\0"\
