@@ -2215,8 +2215,8 @@ void vpp_init(void)
 		if (chip_id == MESON_CPU_MAJOR_ID_TXHD2) {
 			char *enable_flag;
 
-			enable_flag = env_get("outputmode2");
-			if (enable_flag && !strcmp(enable_flag, "panel"))
+			enable_flag = env_get("vout_projector_mux");
+			if (enable_flag && !strcmp(enable_flag, "enable"))
 				set_vpp_osd2_rgb2yuv(0);
 		}
 
