@@ -67,6 +67,7 @@ static bool dolby_vision_ll_flag;
 int dolby_vision_on;
 static char *dolby_status;
 static char *hdr_force_mode;
+static char *hdr_policy;
 static bool dv_fw_valid = true;
 static bool use_sink_min_max_flag;
 
@@ -346,6 +347,8 @@ int is_dolby_enable(void)
 		dolby_status = env_get("dolby_status");
 	if (!hdr_force_mode)
 		hdr_force_mode = env_get("hdr_force_mode");
+	if (!hdr_policy)
+		hdr_policy = env_get("hdr_policy");
 
 	if (!(rma_test || rma_test_addr)) {
 		printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, ",
@@ -358,10 +361,18 @@ int is_dolby_enable(void)
 	if (!dv_fw_valid || !check_outputmode_valid)
 		return 0;
 	if (dolby_status) {
-		if (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
-			!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
-			!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
-			return 1;
+		if (hdr_policy) {
+			if ((!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB)) &&
+				!strcmp(hdr_policy, "0"))
+				return 1;
+		} else {
+			if (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
+				return 1;
+		}
 	}
 	if (dolby_status && hdr_force_mode) {
 		if (!strcmp(dolby_status, DOLBY_VISION_SET_DISABLE) &&
