@@ -121,10 +121,6 @@ static void lcd_venc_set(struct aml_lcd_drv_s *pdrv)
 	lcd_vcbus_setb(VPU_VOUT_DE_PX_EN,    pconf->timing.hstart, 16, 13);
 	lcd_vcbus_setb(VPU_VOUT_DE_PX_EN,    pconf->timing.hend,  0, 13);
 
-	//OSD reg required to be set by hai.cao
-	lcd_vcbus_setb(VPU_VOUT_BLEND_SIZE, pconf->basic.h_active, 0, 12);
-	lcd_vcbus_setb(VPU_VOUT_BLEND_SIZE, pconf->basic.v_active, 16, 12);
-
 	lcd_vcbus_setb(VPU_VOUT_CORE_CTRL, 1, 0, 1); //venc_en
 }
 
