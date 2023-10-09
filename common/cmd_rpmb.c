@@ -19,7 +19,7 @@ static int do_rpmb_state(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 
 #define AML_RPMB_STATE (((readl(AO_SEC_GP_CFG7))>>22) & 0x01)
 
-	char *pARG = getenv("bootargs");
+	char *pARG = getenv("bootconfig");
 	char env_cmd[128] = {0};
 
 	if (pARG)
