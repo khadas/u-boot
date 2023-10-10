@@ -392,14 +392,14 @@ int get_aml_partition_count(void)
 #if (defined(CONFIG_SPI_NAND) || defined(CONFIG_MTD_SPI_NAND))
 static const struct mtd_partition spinand_partitions[] = {
 	{
-	 .name = "logo",
+	 .name = "misc",
 	 .offset = 0,
-	 .size = 2 * SZ_1M,
+	 .size = 1 * SZ_256K,
 	  },
 	{
 	 .name = "recovery",
 	 .offset = 0,
-	 .size = 16 * SZ_1M,
+	 .size = 20 * SZ_1M,
 	  },
 	{
 	 .name = "boot",
@@ -409,7 +409,7 @@ static const struct mtd_partition spinand_partitions[] = {
 	{
 	 .name = "system",
 	 .offset = 0,
-	 .size = 64 * SZ_1M,
+	 .size = 80 * SZ_1M,
 	  },
 	/* last partition get the rest capacity */
 	{
