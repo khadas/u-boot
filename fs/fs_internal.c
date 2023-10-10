@@ -9,20 +9,13 @@
 #include <compiler.h>
 #include <part.h>
 #include <memalign.h>
-#include <asm/arch/cpu.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 	       lbaint_t sector, int byte_offset, int byte_len, char *buf)
 {
 	unsigned block_len;
 	int log2blksz;
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-	char *sec_buf = (char *)noncached_alloc((blk ? blk->blksz : 0), ARCH_DMA_MINALIGN);
-#else
 	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (blk ? blk->blksz : 0));
-#endif
 	if (blk == NULL) {
 		printf("** Invalid Block Device Descriptor (NULL)\n");
 		return 0;
@@ -53,13 +46,7 @@ int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 		}
 		readlen = min((int)blk->blksz - byte_offset,
 			      byte_len);
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-		gd->flags &= ~GD_FLG_CACHE_EN;
 		memcpy(buf, sec_buf + byte_offset, readlen);
-		gd->flags |= GD_FLG_CACHE_EN;
-#else
-		memcpy(buf, sec_buf + byte_offset, readlen);
-#endif
 		buf += readlen;
 		byte_len -= readlen;
 		sector++;
@@ -72,21 +59,11 @@ int fs_devread(struct blk_desc *blk, disk_partition_t *partition,
 	block_len = byte_len & ~(blk->blksz - 1);
 
 	if (block_len == 0) {
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-		u8 *p = (u8 *)noncached_alloc(blk->blksz, ARCH_DMA_MINALIGN);
-#else
 		ALLOC_CACHE_ALIGN_BUFFER(u8, p, blk->blksz);
-#endif
 		block_len = blk->blksz;
 		blk_dread(blk, partition->start + sector, 1,
 			  (void *)p);
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-		gd->flags &= ~GD_FLG_CACHE_EN;
 		memcpy(buf, p, byte_len);
-		gd->flags |= GD_FLG_CACHE_EN;
-#else
-		memcpy(buf, p, byte_len);
-#endif
 		return 1;
 	}
 

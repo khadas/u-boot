@@ -2172,11 +2172,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 	if (!mmc->ext_csd)
 		mmc->ext_csd = ext_csd;
 #else
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-	u8 *ext_csd = (u8 *)noncached_alloc(MMC_MAX_BLOCK_LEN, ARCH_DMA_MINALIGN);
-#else
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
-#endif
 	if (IS_SD(mmc) || (mmc->version < MMC_VERSION_4))
 		return 0;
 
@@ -2190,6 +2186,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		mmc->ext_csd = malloc(MMC_MAX_BLOCK_LEN);
 	if (!mmc->ext_csd)
 		return -ENOMEM;
+
 	memcpy(mmc->ext_csd, ext_csd, MMC_MAX_BLOCK_LEN);
 #endif
 	if (ext_csd[EXT_CSD_REV] >= ARRAY_SIZE(mmc_versions))

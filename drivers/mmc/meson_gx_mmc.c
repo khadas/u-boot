@@ -580,6 +580,11 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		else
 			return ret;
 	}
+
+	if (data && data->dest && data->flags == MMC_DATA_READ)
+		invalidate_dcache_range((ulong)data->dest,
+			(ulong)data->dest + data->blocksize * data->blocks);
+
 	return ret;
 }
 
