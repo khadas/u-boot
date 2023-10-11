@@ -867,6 +867,12 @@ config C3_AW409
 	help
 		Select C3 AW409 config
 
+config C3_AW409_EMMC
+	bool "C3_AW409_EMMC"
+	select TARGET_C3_AW409_EMMC
+	help
+		Select C3 AW409 EMMC config
+
 config C3_AW402
 	bool "C3_AW402"
 	select TARGET_C3_AW402
@@ -893,6 +899,10 @@ config TARGET_C3_SKT
 config TARGET_C3_AW409
 	bool "C3 AW409 board"
 	depends on C3_AW409
+
+config TARGET_C3_AW409_EMMC
+	bool "C3 AW409 EMMC board"
+	depends on C3_AW409_EMMC
 
 config TARGET_C3_AW402
 	bool "C3 AW402 board"
@@ -1870,6 +1880,8 @@ source "board/amlogic/t3_t965d4/Kconfig"
 source "board/amlogic/c3_skt/Kconfig"
 
 source "board/amlogic/c3_aw409/Kconfig"
+
+source "board/amlogic/c3_aw409_emmc/Kconfig"
 
 source "board/amlogic/c3_aw402/Kconfig"
 

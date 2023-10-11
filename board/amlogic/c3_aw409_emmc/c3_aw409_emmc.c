@@ -30,13 +30,6 @@
 #ifdef CONFIG_AML_VPP
 #include <amlogic/media/vpp/vpp.h>
 #endif
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmitx/hdmitx_module.h>
-#endif
-#ifdef CONFIG_AML_CVBS
-#include <amlogic/media/vout/aml_cvbs.h>
-#endif
-
 #ifdef CONFIG_AML_LCD
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
@@ -89,12 +82,6 @@ int active_clk(void)
 	return 0;
 }
 
-#ifdef CONFIG_AML_HDMITX20
-static void hdmitx_set_hdmi_5v(void)
-{
-	/*Power on VCC_5V for HDMI_5V */
-}
-#endif
 void board_init_mem(void)
 {
 #if 1
@@ -141,10 +128,6 @@ int board_init(void)
 
 #if 0
 	active_clk();
-#endif
-#ifdef CONFIG_AML_HDMITX20
-	hdmitx_set_hdmi_5v();
-	hdmitx_init();
 #endif
 #endif // #if !defined(CONFIG_PXP_DDR) //bypass below operations for pxp
 	pinctrl_devices_active(PIN_CONTROLLER_NUM);
@@ -199,9 +182,6 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_VPP
 	vpp_init();
-#endif
-#ifdef CONFIG_AML_CVBS
-	cvbs_init();
 #endif
 #ifdef CONFIG_AML_LCD
 	lcd_probe();
@@ -394,27 +374,27 @@ static const struct mtd_partition spinand_partitions[] = {
 	{
 	 .name = "logo",
 	 .offset = 0,
-	 .size = 1 * SZ_1M,
+	 .size = 2 * SZ_1M,
 	  },
 	{
 	 .name = "misc",
 	 .offset = 0,
-	 .size = 1 * SZ_1M,
+	 .size = 2 * SZ_1M,
 	  },
 	{
 	 .name = "recovery",
 	 .offset = 0,
-	 .size = 10 * SZ_1M,
+	 .size = 16 * SZ_1M,
 	  },
 	{
 	 .name = "boot",
 	 .offset = 0,
-	 .size = 10 * SZ_1M,
+	 .size = 16 * SZ_1M,
 	  },
 	{
 	 .name = "system",
 	 .offset = 0,
-	 .size = 70 * SZ_1M,
+	 .size = 128 * SZ_1M,
 	  },
 	/* last partition get the rest capacity */
 	{
