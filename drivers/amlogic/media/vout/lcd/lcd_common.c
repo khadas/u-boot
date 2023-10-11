@@ -2411,6 +2411,12 @@ void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv)
 			band_width = lcd_do_div((band_width * 3 * lcd_bits * 9), 8);
 		}
 		break;
+	case P2P_USIT:
+		if (clk_mode == LCD_CLK_MODE_DEPENDENCE)
+			band_width = band_width * 3 * lcd_bits;
+		else
+			band_width = lcd_do_div((band_width * 3 * lcd_bits * 10), 9);
+		break;
 	default:
 		band_width = band_width * 3 * lcd_bits;
 		break;
