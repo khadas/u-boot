@@ -396,6 +396,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_BIN2) {
 				i2c_addr = ext_config->i2c_addr;
 				lcd_extern_init_reg_check2(i2c_bus,
@@ -409,6 +411,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD2) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN_DATA)) {
@@ -424,6 +428,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD2_BIN2) {
 				i2c_addr = ext_config->i2c_addr2;
 				lcd_extern_init_reg_check2(i2c_bus,
@@ -437,6 +443,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD3) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN_DATA)) {
@@ -452,6 +460,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD3_BIN2) {
 				i2c_addr = ext_config->i2c_addr3;
 				lcd_extern_init_reg_check2(i2c_bus,
@@ -465,6 +475,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD4) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN_DATA)) {
@@ -480,6 +492,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD4_BIN2) {
 				i2c_addr = ext_config->i2c_addr4;
 				lcd_extern_init_reg_check2(i2c_bus,
@@ -493,6 +507,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 2],
 							       size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_MULTI_FR) {
 				;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_MULTI) {
@@ -524,6 +540,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 4],
 							       size - 2);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD2_MULTI) {
 				if (!ext_driver)
 					goto power_cmd_dynamic_i2c_next;
@@ -553,6 +571,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 4],
 							       size - 2);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD3_MULTI) {
 				if (!ext_driver)
 					goto power_cmd_dynamic_i2c_next;
@@ -582,6 +602,8 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 4],
 							       size - 2);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD4_MULTI) {
 				if (!ext_driver)
 					goto power_cmd_dynamic_i2c_next;
@@ -611,28 +633,38 @@ static int lcd_extern_power_cmd_dynamic_size(unsigned char *table, int flag)
 							       i2c_addr,
 							       &table[i + 4],
 							       size - 2);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr,
 					&table[i+2], (size-1));
+				if (ret)
+					goto power_cmd_dynamic_err;
 				if (table[i+1+size] > 0)
 					mdelay(table[i+1+size]);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD2_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr2,
 					&table[i+2], (size-1));
+				if (ret)
+					goto power_cmd_dynamic_err;
 				if (table[i+1+size] > 0)
 					mdelay(table[i+1+size]);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD3_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr3,
 					&table[i+2], (size-1));
+				if (ret)
+					goto power_cmd_dynamic_err;
 				if (table[i+1+size] > 0)
 					mdelay(table[i+1+size]);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD4_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr4,
 					&table[i+2], (size - 1));
+				if (ret)
+					goto power_cmd_dynamic_err;
 				if (table[i+1+size] > 0)
 					mdelay(table[i+1+size]);
 			} else {
@@ -682,8 +714,12 @@ power_cmd_dynamic_i2c_next:
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 				ret = lcd_extern_spi_write(&table[i+2], size);
+				if (ret)
+					goto power_cmd_dynamic_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
 				ret = lcd_extern_spi_write(&table[i+2], (size-1));
+				if (ret)
+					goto power_cmd_dynamic_err;
 				if (table[i+1+size] > 0)
 					mdelay(table[i+1+size]);
 			} else {
@@ -703,7 +739,10 @@ power_cmd_dynamic_spi_next:
 		break;
 	}
 
-	return ret;
+	return 0;
+
+power_cmd_dynamic_err:
+	return -1;
 }
 
 static int lcd_extern_power_cmd_fixed_size(unsigned char *table, int flag)
@@ -753,46 +792,62 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table, int flag)
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr,
 					&table[i+1], (cmd_size-1));
+				if (ret)
+					goto power_cmd_fixed_err;
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD2) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD2_BIN_DATA)) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr2,
 					&table[i+1], (cmd_size-1));
+				if (ret)
+					goto power_cmd_fixed_err;
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD3) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD3_BIN_DATA)) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr3,
 					&table[i+1], (cmd_size-1));
+				if (ret)
+					goto power_cmd_fixed_err;
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD4) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD4_BIN_DATA)) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr4,
 					&table[i+1], (cmd_size-1));
+				if (ret)
+					goto power_cmd_fixed_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr,
 					&table[i+1], (cmd_size-2));
+				if (ret)
+					goto power_cmd_fixed_err;
 				if (table[i+cmd_size-1] > 0)
 					mdelay(table[i+cmd_size-1]);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD2_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr2,
 					&table[i+1], (cmd_size-2));
+				if (ret)
+					goto power_cmd_fixed_err;
 				if (table[i+cmd_size-1] > 0)
 					mdelay(table[i+cmd_size-1]);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD3_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr3,
 					&table[i+1], (cmd_size-2));
+				if (ret)
+					goto power_cmd_fixed_err;
 				if (table[i+cmd_size-1] > 0)
 					mdelay(table[i+cmd_size-1]);
 			} else if (type == LCD_EXT_CMD_TYPE_CMD4_DELAY) {
 				ret = aml_lcd_extern_i2c_write(ext_config->i2c_bus,
 					ext_config->i2c_addr4,
 					&table[i+1], (cmd_size-2));
+				if (ret)
+					goto power_cmd_fixed_err;
 				if (table[i+cmd_size-1] > 0)
 					mdelay(table[i+cmd_size-1]);
 			} else {
@@ -830,8 +885,12 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table, int flag)
 			} else if ((type == LCD_EXT_CMD_TYPE_CMD) ||
 				   (type == LCD_EXT_CMD_TYPE_CMD_BIN)) {
 				ret = lcd_extern_spi_write(&table[i+1], (cmd_size-1));
+				if (ret)
+					goto power_cmd_fixed_err;
 			} else if (type == LCD_EXT_CMD_TYPE_CMD_DELAY) {
 				ret = lcd_extern_spi_write(&table[i+1], (cmd_size-2));
+				if (ret)
+					goto power_cmd_fixed_err;
 				if (table[i+cmd_size-1] > 0)
 					mdelay(table[i+cmd_size-1]);
 			} else {
@@ -850,7 +909,10 @@ static int lcd_extern_power_cmd_fixed_size(unsigned char *table, int flag)
 		break;
 	}
 
-	return ret;
+	return 0;
+
+power_cmd_fixed_err:
+	return -1;
 }
 
 static int lcd_extern_power_ctrl(int flag)
