@@ -300,12 +300,12 @@ static struct mtd_partition normal_partition_info[] = {
 {
 	.name = "recovery",
 	.offset = 0,
-	.size = 32 * SZ_1M,
+	.size = 40 * SZ_1M,
 },
 {
 	.name = "boot",
 	.offset = 0,
-	.size = 20 * SZ_1M,
+	.size = 32 * SZ_1M,
 },
 {
 	.name = "system",
