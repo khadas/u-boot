@@ -12,6 +12,7 @@
 
 #define SCPI_CMD_SENSOR_VALUE 0x1C
 #define SCPI_CMD_SET_USR_DATA 0x20
+#define SCPI_CMD_WAKEUP_REASON_GET 0x30
 #define SCPI_CMD_OPEN_SCP_LOG 0xC4
 #define SCPI_CMD_THERMAL_CALIB 0xC5
 
@@ -58,5 +59,6 @@ int thermal_calibration(unsigned int type, unsigned int data);
 int thermal_get_value(unsigned int sensor_id, unsigned int *value);
 int send_usr_data(unsigned int client_id, unsigned int *val, unsigned int size);
 void send_pwm_delt(int32_t vcck_delt, int32_t ee_delt);
+int wakeup_reason_get_value(unsigned int *reason);
 
  #endif

@@ -12,6 +12,7 @@
 
 #define SCPI_CMD_SENSOR_VALUE 0x1C
 #define SCPI_CMD_SET_USR_DATA 0x20
+#define SCPI_CMD_WAKEUP_REASON_GET 0x30
 #define SCPI_CMD_OPEN_SCP_LOG 0xC4
 #define SCPI_CMD_THERMAL_CALIB 0xC5
 
@@ -72,4 +73,5 @@ void set_boot_first_timeout(unsigned int command);
 #ifdef CONFIG_RING
 int efuse_get_value(unsigned char *efuseinfo);
 #endif
- #endif
+int wakeup_reason_get_value(unsigned int *reason);
+#endif

@@ -11,6 +11,7 @@
 #define __GXBB_MAILBOX_H_
 
 #define SCPI_CMD_SENSOR_VALUE 0x1C
+#define SCPI_CMD_WAKEUP_REASON_GET 0x30
 #define SCPI_CMD_OPEN_SCP_LOG 0xC4
 #define SCPI_CMD_THERMAL_CALIB 0xC5
 
@@ -48,4 +49,5 @@ void open_scp_log(unsigned int channel);
 int thermal_calibration(unsigned int type, unsigned int data);
 int thermal_get_value(unsigned int sensor_id, unsigned int *value);
 void set_boot_first_timeout(unsigned int command);
- #endif
+int wakeup_reason_get_value(unsigned int *reason);
+#endif

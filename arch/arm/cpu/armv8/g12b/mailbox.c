@@ -220,6 +220,25 @@ void set_boot_first_timeout(unsigned int command)
 	mb_message_end(LOW_PRIORITY);
 }
 
+int wakeup_reason_get_value(unsigned int *reason)
+{
+	unsigned int *response;
+	unsigned int size;
+
+	mb_message_start(LOW_PRIORITY);
+	writel(0, ap_mb_payload[LOW_PRIORITY]);
+	mb_message_send(((0x4 << SIZE_SHIFT) | SCPI_CMD_WAKEUP_REASON_GET),
+			LOW_PRIORITY);
+	mb_message_receive((void *)&response, &size, LOW_PRIORITY);
+	mb_message_end(LOW_PRIORITY);
+
+	*reason = *(response + 1);
+	if (*response != SCPI_SUCCESS)
+		return -1;
+	else
+		return 0;
+}
+
 #ifdef CONFIG_RING
 int efuse_get_value(unsigned char *efuseinfo)
 {

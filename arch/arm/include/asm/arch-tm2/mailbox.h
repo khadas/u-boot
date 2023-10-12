@@ -12,6 +12,7 @@
 
 #define SCPI_CMD_SENSOR_VALUE 0x1C
 #define SCPI_CMD_SET_USR_DATA 0x20
+#define SCPI_CMD_WAKEUP_REASON_GET 0x30
 #define SCPI_CMD_INIT_DSP 0x34
 #define SCPI_CMD_OPEN_SCP_LOG 0xC4
 #define SCPI_CMD_THERMAL_CALIB 0xC5
@@ -74,4 +75,5 @@ void init_dsp_jtag(unsigned int id);
 #ifdef CONFIG_RING
 int efuse_get_value(unsigned char *efuseinfo);
 #endif
+int wakeup_reason_get_value(unsigned int *reason);
 #endif

@@ -12,6 +12,7 @@
 
 #define SCPI_CMD_SENSOR_VALUE 0x1C
 #define SCPI_CMD_SET_USR_DATA 0x20
+#define SCPI_CMD_WAKEUP_REASON_GET 0x30
 #define SCPI_CMD_OPEN_SCP_LOG 0xC4
 #define SCPI_CMD_THERMAL_CALIB 0xC5
 
@@ -76,4 +77,5 @@ int send_bl40(unsigned long addr, unsigned long size);
 #ifdef CONFIG_RING
 int efuse_get_value(unsigned char *efuseinfo);
 #endif
+int wakeup_reason_get_value(unsigned int *reason);
 #endif
