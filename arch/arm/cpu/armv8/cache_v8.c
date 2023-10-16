@@ -380,8 +380,8 @@ void dcache_disable(void)
 	if (!(sctlr & CR_C))
 		return;
 
-	set_sctlr(sctlr & ~(CR_C|CR_M));
 	gd->flags &= ~GD_FLG_CACHE_EN;
+	set_sctlr(sctlr & ~(CR_C | CR_M));
 
 	__asm_flush_dcache_all();
 	flush_l3_cache();
