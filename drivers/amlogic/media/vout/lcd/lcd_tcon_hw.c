@@ -1193,12 +1193,12 @@ int lcd_tcon_enable_t5(struct aml_lcd_drv_s *pdrv)
 	if (mm_table->version)
 		lcd_tcon_data_set(pdrv, mm_table);
 
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
-
-	if (rmem)
-		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 
@@ -1238,6 +1238,9 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
 	if (mm_table->version)
 		lcd_tcon_data_set(pdrv, mm_table);
 
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
 #ifdef CONFIG_AMLOGIC_TEE
 	lcd_tcon_mem_tee_protect(1);
 #endif
@@ -1245,9 +1248,6 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
-
-	if (rmem)
-		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 	if (tcon_conf->lut_dma_data_init_trans)
@@ -1289,6 +1289,9 @@ int lcd_tcon_enable_txhd2(struct aml_lcd_drv_s *pdrv)
 	if (mm_table->version)
 		lcd_tcon_data_set(pdrv, mm_table);
 
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
 #ifdef CONFIG_AMLOGIC_TEE
 	lcd_tcon_mem_tee_protect(1);
 #endif
@@ -1296,9 +1299,6 @@ int lcd_tcon_enable_txhd2(struct aml_lcd_drv_s *pdrv)
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
-
-	if (rmem)
-		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 
