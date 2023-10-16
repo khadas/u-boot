@@ -61,20 +61,22 @@ int tee_invoke_func(struct udevice *dev, struct tee_invoke_arg *arg,
 	return tee_get_ops(dev)->invoke_func(dev, arg, num_param, param);
 }
 
-static u32 shm_alloc(void)
+static int shm_alloc(u32 *addr)
 {
 	int i = 0;
 
 	for (i = 0; i < SHM_NUM; i++) {
-		if (i == SHM_NUM)
-			return -EFAULT;
 		if (shm_malc[i].flag == 0)
 			break;
 	}
 
+	if (i == SHM_NUM)
+		return -ENOMEM;
+
 	shm_malc[i].flag = 1;
 
-	return shm_malc[i].addr;
+	*addr = shm_malc[i].addr;
+	return 0;
 }
 
 static void shm_free(unsigned long addr)
@@ -91,7 +93,11 @@ int __tee_shm_add(struct udevice *dev, ulong align, void *addr, ulong size,
 	struct tee_shm *shm;
 	void *p = addr;
 	int rc;
-	u32 shm_addr = shm_alloc();
+	u32 shm_addr = 0;
+
+	rc = shm_alloc(&shm_addr);
+	if (rc < 0)
+		return rc;
 
 	if (flags & TEE_SHM_ALLOC)
 		p = map_sysmem(shm_addr, shm_buffer);
