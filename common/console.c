@@ -792,6 +792,10 @@ int console_init_m(void)
 		//gd->flags |= GD_FLG_SILENT;
 	}
 #endif
+
+	extern int get_bootloader_build_message(void);
+	get_bootloader_build_message();
+
 	return 0;
 }
 

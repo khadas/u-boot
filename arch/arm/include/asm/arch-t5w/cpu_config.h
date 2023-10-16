@@ -57,6 +57,44 @@
 /* BL2 SPL size */
 #define BL2_SIZE			(80 * 1024)
 
+#define DDR_BUFFER_BASE	(0x1200000)
+#define DDR_VER_BUFF_BASE_ADDR        (DDR_BUFFER_BASE + 1024 * 65) //ddr buffer
+#define DDR_VER_BUFF_SIZE     (0x400)
+
+#define PARAM_MESSAGE       0x04
+#define VERSION_1       0x01
+
+#ifdef DDR_VER_BUFF_BASE_ADDR
+#define CONFIG_DDR_VER_BUFF
+#endif
+/***************************************************************************
+ * This structure provides version information and the size of the
+ * structure, attributes for the structure it represents
+ ***************************************************************************/
+typedef struct param_header {
+	uint8_t type;		/* type of the structure */
+	uint8_t version;    /* version of this structure */
+	uint16_t size;      /* size of this structure in bytes */
+	uint32_t attr;      /* attributes: unused bits SBZ */
+} param_header_t;
+
+/* build message structure for BL2x to BL33 */
+typedef struct build_messages {
+	param_header_t h;
+	uint64_t bl2_message_addr;
+	uint64_t bl2_message_size;
+	uint64_t bl2e_message_addr;		//reserve space for new soc
+	uint64_t bl2e_message_size;		//reserve space for new soc
+	uint64_t bl2x_message_addr;		//reserve space for new soc
+	uint64_t bl2x_message_size;		//reserve space for new soc
+	uint64_t bl30_message_addr;
+	uint64_t bl30_message_size;
+	uint64_t bl31_message_addr;
+	uint64_t bl31_message_size;
+	uint64_t bl32_message_addr;
+	uint64_t bl32_message_size;
+} build_messages_t;
+
 //for signature test
 //#define CONFIG_AML_SIG_TEST_BUILD
 
