@@ -734,6 +734,21 @@ typedef enum {
 	HDR_POLICY_FORCE = 4,
 } hdr_policy_e;
 
+#define DV_SINK_LED    0
+#define DV_SOURCE_LED  1
+#define FORCE_DV       2
+#define FORCE_HDR10    3
+#define FORCE_HLG      5
+
+typedef enum {
+	MESON_HDR_FORCE_MODE_INVALID    = 0,
+	MESON_HDR_FORCE_MODE_SDR        = 1,
+	MESON_HDR_FORCE_MODE_DV         = 2,
+	MESON_HDR_FORCE_MODE_HDR10      = 3,
+	MESON_HDR_FORCE_MODE_HDR10PLUS  = 4,  //need to do
+	MESON_HDR_FORCE_MODE_HLG        = 5,
+} hdr_force_mode_e;
+
 enum {
 	RESOLUTION_PRIORITY = 0,
 	FRAMERATE_PRIORITY  = 1,
@@ -747,6 +762,8 @@ typedef struct input_hdmi_data {
 	hdr_priority_e hdr_priority;
 	/* dynamic range policy,0 :follow sink, 1: match content */
 	hdr_policy_e hdr_policy;
+	/* save user force hdr mode 1 :force sdr, 2: force dv, 3: force hdr10, 5:force hlg */
+	hdr_force_mode_e hdr_force_mode;
 	struct rx_cap *prxcap;
 } hdmi_data_t;
 
