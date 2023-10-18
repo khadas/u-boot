@@ -244,11 +244,11 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 
+	aml_board_late_init_front(NULL);
+
 #ifdef CONFIG_T7_AN400_LPDDR4X_DEBIAN
 	SetCurrentDtbFile();
 #endif
-
-	aml_board_late_init_front(NULL);
 
 	board_boot_freertos();
 #ifdef CONFIG_AML_VPU
