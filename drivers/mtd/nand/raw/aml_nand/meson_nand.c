@@ -919,7 +919,7 @@ int meson_nfc_probe(struct udevice *dev)
 	controller->nand_clk_reg = (void *)clk_regs;
 
 	spi_cfg = fdtdec_get_addr(blob, node, "spi_cfg");
-	if (spi_cfg != FDT_ADDR_T_NONE && !pre_scan->pre_scan_flag) {
+	if (spi_cfg != FDT_ADDR_T_NONE) {
 		printf("nfc select slc nand mode!\n");
 		controller->spi_cfg = (void *)spi_cfg;
 		AMLNF_WRITE_REG(controller->spi_cfg, 0);
