@@ -394,7 +394,7 @@ static const struct mtd_partition spinand_partitions[] = {
 	{
 	 .name = "logo",
 	 .offset = 0,
-	 .size = 1 * SZ_1M,
+	 .size = 2 * SZ_1M,
 	  },
 	{
 	 .name = "misc",

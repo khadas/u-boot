@@ -82,8 +82,8 @@
 	"hdmimode=none\0" \
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0" \
-	"display_width=1920\0" \
-	"display_height=1080\0" \
+	"display_width=1024\0" \
+	"display_height=600\0" \
 	"display_bpp=16\0" \
 	"display_color_index=16\0" \
 	"display_layer=osd0\0" \
@@ -91,8 +91,8 @@
 	"display_color_bg=0\0" \
 	"dtb_mem_addr=0x01000000\0" \
 	"fb_addr=0x00300000\0" \
-	"fb_width=1920\0" \
-	"fb_height=1080\0" \
+	"fb_width=1024\0" \
+	"fb_height=600\0" \
 	"hdmichecksum=0x00000000\0" \
 	"dolby_status=0\0" \
 	"dolby_vision_on=0\0" \
@@ -264,27 +264,9 @@
 		"else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
 		"\0"\
 	"init_display="\
-		"get_rebootmode;"\
-		"echo reboot_mode:::: ${reboot_mode};"\
-		"if test ${reboot_mode} = quiescent; then "\
-			"setenv reboot_mode_android ""quiescent"";"\
-			"setenv dolby_status 0;"\
-			"setenv dolby_vision_on 0;"\
-			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-			"osd open;osd clear;"\
-		"else if test ${reboot_mode} = recovery_quiescent; then "\
-			"setenv reboot_mode_android ""quiescent"";"\
-			"setenv dolby_status 0;"\
-			"setenv dolby_vision_on 0;"\
-			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-			"osd open;osd clear;"\
-		"else "\
 			"setenv reboot_mode_android ""normal"";"\
-			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process; \
-				osd open;osd clear;run load_bmp_logo;bmp scale; \
-				vout output ${outputmode}; \
-				dovi set;dovi pkg;vpp hdrpkt;"\
-		"fi;fi;"\
+				"osd open;osd clear;run load_bmp_logo;bmp scale; \
+				vout output ${outputmode};"\
 		"\0"\
 	"storage_param="\
 		"setenv bootargs ${bootargs} ${emmc_quirks}; "\
@@ -321,6 +303,7 @@
 #ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_PREBOOT  \
 		"run upgrade_check;"\
+		"run init_display;"\
 		"run storeargs;"\
 		"bcb uboot-command;"\
 		"run switch_bootmode;"

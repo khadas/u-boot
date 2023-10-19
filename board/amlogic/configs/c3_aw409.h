@@ -124,7 +124,8 @@
 	"if itest ${upgrade_step} == 3; then run storeargs; run update; fi;"\
 	"\0"\
 	"storeargs="\
-		"setenv bootargs ${initargs} otg_device=${otg_device};"\
+		"setenv bootargs ${initargs} otg_device=${otg_device} "\
+		"logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
 		"\0"\
 	"bootcmd="\
 		"run storeboot_ramdisk;"\
@@ -190,22 +191,24 @@
 	"bcb_cmd="\
 		"get_valid_slot;"\
 		"\0"\
+	"load_bmp_logo="\
+		"if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi;" \
+		"\0"\
+	"init_display="\
+			"setenv reboot_mode_android ""normal"";"\
+			"osd open;osd clear;run load_bmp_logo;bmp scale;\
+			vout output ${outputmode};"\
+		"\0"\
 	"storage_param="\
 		"store param;"\
 		"setenv bootargs ${bootargs} ${mtdbootparts}; "\
 		"\0"\
 	"\0"\
 
-/*
+
 #define CONFIG_PREBOOT  \
-		"run bcb_cmd; "\
-		"run upgrade_check;"\
-		"run storeargs;"\
-		"bcb uboot-command;"\
-		"run switch_bootmode;"
- */
-#define CONFIG_PREBOOT  \
-			"run storeargs;"
+			"run storeargs;"\
+			"run init_display;"
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
 #define CONFIG_ENV_SIZE   (64 * 1024)

@@ -258,8 +258,7 @@
 		"fi;"\
 		"\0"\
 	"load_bmp_logo="\
-		"if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
-		"else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
+		"if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi;" \
 		"\0"\
 	"init_display="\
 		"get_rebootmode;"\
@@ -319,6 +318,7 @@
 #ifndef CONFIG_PXP_EMULATOR
 #define CONFIG_PREBOOT  \
 		"run upgrade_check;"\
+		"run init_display;"\
 		"run storeargs;"\
 		"bcb uboot-command;"\
 		"run switch_bootmode;"
