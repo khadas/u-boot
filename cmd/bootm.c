@@ -264,13 +264,6 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		char *gpt_mode = env_get("gpt_mode");
 		char *nocs_mode = env_get("nocs_mode");
 
-		env_set("fastboot_step", "0");
-#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
-		run_command("update_env_part -p fastboot_step;", 0);
-#else
-		run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
-#endif
-
 		if ((gpt_mode && !strcmp(gpt_mode, "true")) ||
 			(nocs_mode && !strcmp(nocs_mode, "true"))) {
 			printf("gpt or disable user bootloader mode\n");
@@ -280,6 +273,13 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			run_command("copy_slot_bootable 1 0", 0);
 			run_command("copy_slot_bootable 1 2", 0);
 		}
+
+		env_set("fastboot_step", "0");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p fastboot_step;", 0);
+#else
+		run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
+#endif
 	}
 
 #ifdef CONFIG_CMD_BOOTCTOL_AVB

@@ -1034,11 +1034,15 @@ static int do_CopySlot(
 	else if (strcmp(argv[2], "0") == 0)
 		dest = 0;
 
+	char *fastboot_step = env_get("fastboot_step");
+
 	if (copy == 1) {
-		if (boot_ctrl.slot_info[0].successful_boot == 1)
+		if ((fastboot_step && (strcmp(fastboot_step, "2") == 0)) ||
+				boot_ctrl.slot_info[0].successful_boot == 1)
 			write_bootloader(copy, dest);
 	} else if (copy == 2) {
-		if (boot_ctrl.slot_info[1].successful_boot == 1) {
+		if ((fastboot_step && (strcmp(fastboot_step, "2") == 0)) ||
+				boot_ctrl.slot_info[1].successful_boot == 1) {
 			write_bootloader(copy, dest);
 		} else {
 			env_set("update_env", "1");

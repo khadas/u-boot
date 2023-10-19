@@ -411,12 +411,6 @@ void check_fastboot_step(void)
 	if (fastboot_step && (strcmp(fastboot_step, "2") == 0)) {
 		//come to here, means new burn bootloader.img is OK, reset env
 		printf("new burn bootloader.img is OK, write other bootloader\n");
-		env_set("fastboot_step", "0");
-#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
-		run_command("update_env_part -p fastboot_step;", 0);
-#else
-		run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
-#endif
 
 		if ((gpt_mode && !strcmp(gpt_mode, "true")) ||
 			(nocs_mode && !strcmp(nocs_mode, "true"))) {
@@ -427,6 +421,13 @@ void check_fastboot_step(void)
 			run_command("copy_slot_bootable 1 0", 0);
 			run_command("copy_slot_bootable 1 2", 0);
 		}
+
+		env_set("fastboot_step", "0");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p fastboot_step;", 0);
+#else
+		run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
+#endif
 	}
 }
 
