@@ -432,12 +432,14 @@ static size_t mtd_store_logic_part_size(struct mtd_info *mtd,
 	loff_t start, end;
 	u32 cnt = 0;
 
-	start = part->offset / mtd->erasesize;
-	end = (part->offset + part->size) / mtd->erasesize;
+	start = part->offset;
+	end = part->offset + part->size;
 
-	while (start++ < end)
+	while (start < end) {
 		if (mtd_block_isbad(mtd, start))
 			cnt++;
+		start += mtd->erasesize;
+	}
 	return part->size - cnt * mtd->erasesize;
 }
 
