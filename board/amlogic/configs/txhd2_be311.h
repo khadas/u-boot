@@ -377,7 +377,7 @@
 
 /* cpu */
 //MHz. Range: 1000-2000, should be multiple of 24
-#define CONFIG_CPU_CLK					1416
+#define CONFIG_CPU_CLK					1464
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0

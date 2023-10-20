@@ -28,8 +28,8 @@
  * platform power init config
  */
 #define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	1080		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	1000		// VDDEE power up voltage
+#define CONFIG_VCCK_INIT_VOLTAGE	1130		// VCCK power up voltage
+#define CONFIG_VDDEE_INIT_VOLTAGE	1060		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	860		// VDDEE suspend voltage
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
@@ -377,7 +377,7 @@
 
 /* cpu */
 //MHz. Range: 1000-1600, should be multiple of 24
-#define CONFIG_CPU_CLK					1416
+#define CONFIG_CPU_CLK					1464
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
