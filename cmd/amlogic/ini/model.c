@@ -19,10 +19,16 @@
 
 #ifndef CONFIG_YOCTO
 #define DEFAULT_MODEL_SUM_PATH1 "/odm/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL1_SUM_PATH1 "/odm/etc/tvconfig/model/model1_sum.ini"
+#define DEFAULT_MODEL2_SUM_PATH1 "/odm/etc/tvconfig/model/model2_sum.ini"
 #else
 #define DEFAULT_MODEL_SUM_PATH1 "/vendor/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL1_SUM_PATH1 "/vendor/etc/tvconfig/model/model1_sum.ini"
+#define DEFAULT_MODEL2_SUM_PATH1 "/vendor/etc/tvconfig/model/model2_sum.ini"
 #endif
 #define DEFAULT_MODEL_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL1_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model1_sum.ini"
+#define DEFAULT_MODEL2_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model2_sum.ini"
 #define AML_START		"amlogic_start"
 #define AML_END			"amlogic_end"
 
@@ -4254,9 +4260,19 @@ const char *get_model_sum_path(int index)
 	model_path = env_get(str);
 	if (model_path == NULL) {
 		if (dynamic_partition) {
-			return DEFAULT_MODEL_SUM_PATH2;
+			if (index == 2)
+				return DEFAULT_MODEL2_SUM_PATH2;
+			else if (index == 1)
+				return DEFAULT_MODEL1_SUM_PATH2;
+			else
+				return DEFAULT_MODEL_SUM_PATH2;
 		} else {
-			return DEFAULT_MODEL_SUM_PATH1;
+			if (index == 2)
+				return DEFAULT_MODEL2_SUM_PATH1;
+			else if (index == 1)
+				return DEFAULT_MODEL1_SUM_PATH1;
+			else
+				return DEFAULT_MODEL_SUM_PATH1;
 		}
 	}
 
