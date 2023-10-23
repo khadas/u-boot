@@ -20,7 +20,9 @@ typedef struct _ImgSrcIf{
 
         char            partName[28];       //partIndex <= 28 (+4 if partIndex not used)
         unsigned        partIndex;      //partIndex and part
-        unsigned char   resrv[512 - 32 - 24];
+	unsigned int	pkg_sz_part1;
+	unsigned int	pkg_sz_part2;
+	unsigned char   resrv[512 - 32 - 24 - 8];
 }ImgSrcIf_t;
 
 COMPILE_TYPE_CHK(512  == sizeof(ImgSrcIf_t), bb);
@@ -49,6 +51,7 @@ typedef struct _AmlFirmwareItem0_s
 }ItemInfo;
 
 static int _hFile = -1;
+static int _is_part2_pkg;
 
 //open a Amlogic firmware image
 //return value is a handle
@@ -77,12 +80,18 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
     }
     else
     {
+	    pImgSrcIf->pkg_sz_part1 = (unsigned)do_fat_get_fileSz(imgPath);
+	    env_set("usb_burn_part1_img", imgPath);
+	    run_command("setenv usb_burn_part2_img ${usb_burn_part1_img}.part2", 0);
+	    pImgSrcIf->pkg_sz_part2 = (unsigned)do_fat_get_fileSz(env_get("usb_burn_part2_img"));
+
             int pFile = do_fat_fopen(imgPath);
             if (pFile < 0) {
                     DWN_ERR("Fail to open file %s\n", imgPath);
                     goto _err;
             }
             _hFile = pFile;
+	    _is_part2_pkg = 0;
 
             ret = do_fat_fread(pFile, (u8*)&hImg->imgHead, HeadSz);
             if (ret != HeadSz) {
@@ -91,6 +100,12 @@ HIMAGE image_open(const char* interface, const char* device, const char* part, c
             }
 
             pImgSrcIf->devAlignSz = do_fat_get_bytesperclust(pFile);
+	    DWN_MSG("pkg_sz_part1/2 0x%x/0x%x\n",
+		    pImgSrcIf->pkg_sz_part1, pImgSrcIf->pkg_sz_part2);
+	if (pImgSrcIf->pkg_sz_part1 + pImgSrcIf->pkg_sz_part2 > hImg->imgHead.imageSz) {
+		DWN_ERR("pkg_sz_part1/2 head sz 0x%llx\n", hImg->imgHead.imageSz);
+		goto _err;
+	}
     }
 
     if (IMAGE_MAGIC != hImg->imgHead.magic) {
@@ -180,6 +195,47 @@ static const ItemInfo* image_item_get_item_info_byid(HIMAGE hImg, const int item
         return &theItem;
 }
 
+static int _do_pkg_fseek(HIMAGE hImg, s64 pkg_offset, int wherehence)
+{
+	ImgInfo_t *imgInfo          = (ImgInfo_t *)hImg;
+	const u32 pkg_sz_part1 = imgInfo->imgSrcIf.pkg_sz_part1;
+	int i = 0;
+
+	if (wherehence) {
+		DWN_ERR("only start supported\n");
+		return -__LINE__;
+	}
+	DWN_DBG("pkg offset 0x%llx\n", pkg_offset);
+	if (_is_part2_pkg) {
+		if (pkg_offset < pkg_sz_part1) {
+			DWN_MSG("change to pkg part1\n");
+			do_fat_fclose(_hFile);
+			_hFile = do_fat_fopen(env_get("usb_burn_part1_img"));
+			_is_part2_pkg = 0;
+		}
+	} else {
+		if (pkg_offset >= pkg_sz_part1) {
+			DWN_MSG("to pkg part2 4 off 0x%llx\n", pkg_offset);
+			do_fat_fclose(_hFile);
+			_hFile = do_fat_fopen(env_get("usb_burn_part2_img"));
+			_is_part2_pkg = 1;
+		}
+	}
+	if (_hFile < 0) {
+		DWN_ERR("Err file index\n");
+		return -__LINE__;
+	}
+
+	pkg_offset -= _is_part2_pkg * (s64)pkg_sz_part1;
+	i = do_fat_fseek(_hFile, pkg_offset, wherehence);
+	if (i) {
+		DWN_ERR("fail to seek, offset is 0x%x\n", (u32)pkg_offset);
+		return -__LINE__;
+	}
+
+	return 0;
+}
+
 //open a item in the image
 //@hImage: image handle;
 //@mainType, @subType: main type and subtype to index the item, such as ["IMAGE", "SYSTEM"]
@@ -216,7 +272,7 @@ HIMAGEITEM image_item_open(HIMAGE hImg, const char* mainType, const char* subTyp
     if (IMAGE_IF_TYPE_STORE != imgInfo->imgSrcIf.devIf)
     {
 		DWN_MSG("Item offset 0x%llx\n", pItem->offsetInImage);
-		i = do_fat_fseek(_hFile, pItem->offsetInImage, 0);
+		i = _do_pkg_fseek(hImg, pItem->offsetInImage, 0);
 		if (i) {
 			DWN_ERR("fail to seek, offset is 0x%x\n", (u32)pItem->offsetInImage);
 			return NULL;
@@ -276,6 +332,7 @@ int image_item_get_type(HIMAGEITEM hItem)
 int image_item_read(HIMAGE hImg, HIMAGEITEM hItem, void* pBuf, const __u32 wantSz)
 {
     ImgInfo_t* imgInfo = (ImgInfo_t*)hImg;
+	ImgSrcIf_t *img_src = &imgInfo->imgSrcIf;
     unsigned readSz = 0;
 
     if (IMAGE_IF_TYPE_STORE == imgInfo->imgSrcIf.devIf)
@@ -331,11 +388,30 @@ int image_item_read(HIMAGE hImg, HIMAGEITEM hItem, void* pBuf, const __u32 wantS
     }
     else
     {
-            readSz = do_fat_fread(_hFile, pBuf, wantSz);
-            if (readSz != wantSz) {
-                    DWN_ERR("want to read 0x%x, but 0x%x\n", wantSz, readSz);
-                    return __LINE__;
-            }
+	long fpos = 0;
+	int part2_need = wantSz;
+	int part1_need = 0;
+	const unsigned pkg_sz_part1 = img_src->pkg_sz_part1;
+
+	fpos = do_fat_ftell(_hFile);
+	if (!_is_part2_pkg && fpos + wantSz > pkg_sz_part1) {
+		part2_need  = fpos + wantSz - pkg_sz_part1;
+		part1_need = wantSz - part2_need;
+		readSz = do_fat_fread(_hFile, pBuf, part1_need);
+		if (readSz != part1_need) {
+			DWN_ERR("want read 0x%x, but 0x%x\n", part1_need, readSz);
+			return __LINE__;
+		}
+		if (_do_pkg_fseek(hImg, pkg_sz_part1, 0)) {
+			DWN_ERR("Fail in pkg seek\n");
+			return __LINE__;
+		}
+	}
+	readSz = do_fat_fread(_hFile, pBuf + part1_need, part2_need);
+	if (readSz != part2_need) {
+		DWN_ERR("want to read 0x%x, but 0x%x\n", part2_need, readSz);
+		return __LINE__;
+	}
     }
 
     return 0;
@@ -367,11 +443,11 @@ HIMAGEITEM get_item(HIMAGE hImg, int itemId)
 
     if (IMAGE_IF_TYPE_STORE != imgInfo->imgSrcIf.devIf)
     {
-            ret = do_fat_fseek(_hFile, pItem->offsetInImage, 0);
-            if (ret) {
-                    DWN_ERR("fail to seek, offset is 0x%x, ret=%d\n", (u32)pItem->offsetInImage, ret);
-                    return NULL;
-            }
+	ret = _do_pkg_fseek(hImg, pItem->offsetInImage, 0);
+	if (ret) {
+		DWN_ERR("fail to seek, offset is 0x%x, ret=%d\n", (u32)pItem->offsetInImage, ret);
+		return NULL;
+	}
     }
     imgInfo->imgSrcIf.itemCurSeekOffsetInImg = pItem->offsetInImage;
 

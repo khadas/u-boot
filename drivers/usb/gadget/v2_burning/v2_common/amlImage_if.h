@@ -123,5 +123,7 @@ int get_subtype_nr(HIMAGE hImg, const char* main_type);
 
 int get_subtype_nm_by_index(HIMAGE hImg, const char* main_type, const char** sub_type, const int itemIndex);
 
+long do_fat_ftell(int fd);
+
 #endif//ifndef __AMLIMAGE_IF_H__
 
