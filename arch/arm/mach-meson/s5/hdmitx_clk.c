@@ -711,53 +711,78 @@ static void set_hdmitx_s5_htx_pll(struct hdmitx_dev *hdev)
 	set21_s5_htxpll_clk_out(htx_vco, div);
 }
 
+static void set_hpll_sspll(enum hdmi_vic vic)
+{
+	switch (vic) {
+	case HDMI_16_1920x1080p60_16x9:
+	case HDMI_31_1920x1080p50_16x9:
+	case HDMI_4_1280x720p60_16x9:
+	case HDMI_19_1280x720p50_16x9:
+	case HDMI_5_1920x1080i60_16x9:
+	case HDMI_20_1920x1080i50_16x9:
+		hd21_set_reg_bits(ANACTRL_HDMIPLL_CTRL5, 3, 2, 2);
+		/* 2: 1000ppm  1: 500ppm */
+		hd21_set_reg_bits(ANACTRL_HDMIPLL_CTRL5, 2, 12, 4);
+		/* s5_sspll enable */
+		hd21_set_reg_bits(ANACTRL_HDMIPLL_CTRL5, 1, 11, 1);
+		break;
+	default:
+		break;
+	}
+}
+
 static void set_hdmitx_htx_pll(struct hdmitx_dev *hdev)
 {
 	enum hdmi_colorspace cs = hdev->para->cs;
 	enum hdmi_color_depth cd = hdev->para->cd;
+	enum hdmi_vic vic = hdev->para->timing.vic;
 	u8 clk_div_val = VID_PLL_DIV_5;
+	char *sspll_dis = NULL;
 
 	//if (hdev->pxp_mode) /* skip VCO setting */
 	//	return;
 
-	if (1) {
-		set_hdmitx_s5_htx_pll(hdev);
-		if (hdev->frl_rate)
-			set_frl_hpll_od(hdev->frl_rate);
-		if (cs != HDMI_COLORSPACE_YUV422) {
-			if (cd == COLORDEPTH_36B)
-				clk_div_val = VID_PLL_DIV_7p5;
-			else if (cd == COLORDEPTH_30B)
-				clk_div_val = VID_PLL_DIV_6p25;
-			else
-				clk_div_val = VID_PLL_DIV_5;
-		}
-		set_tmds_vid_clk_div(0, VID_PLL_DIV_5);
-		set_tmds_vid_clk_div(1, clk_div_val);
-		// set crt_vid_mux_div
-		//[19] disable clk_div0
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 0, 19, 1);
-		// bit[18:16] crt_vid_mux_div source select
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 0, 16, 3);
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_DIV, 0, 0, 8);
-		// bit[2:0] crt_vid_mux_div div1/2/4 enable
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 7, 0, 3);
-		// cts_enc_clk div and enable
-		hd21_set_reg_bits(CLKCTRL_VIID_CLK0_DIV, 0, 12, 4);
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 3, 1);
-		// enc0_hdmi_tx_fe_clk div and enable
-		hd21_set_reg_bits(CLKCTRL_ENC0_HDMI_CLK_CTRL, 0, 20, 4);
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 9, 1);
-		// enc0_hdmi_tx_pnx_clk div and enable
-		hd21_set_reg_bits(CLKCTRL_ENC0_HDMI_CLK_CTRL, 0, 24, 4);
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 10, 1);
-		// enc0_hdmi_tx_pixel_clk div and enable
-		hd21_set_reg_bits(CLKCTRL_ENC0_HDMI_CLK_CTRL, 0, 16, 4);
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 5, 1);
-		//[19] enable clk_div0
-		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 1, 19, 1);
-		return;
+	sspll_dis = env_get("sspll_dis");
+
+	set_hdmitx_s5_htx_pll(hdev);
+	if (!hdev->frl_rate && cd == COLORDEPTH_24B &&
+		(!sspll_dis || !strcmp(sspll_dis, "0")))
+		set_hpll_sspll(vic);
+	if (hdev->frl_rate)
+		set_frl_hpll_od(hdev->frl_rate);
+	if (cs != HDMI_COLORSPACE_YUV422) {
+		if (cd == COLORDEPTH_36B)
+			clk_div_val = VID_PLL_DIV_7p5;
+		else if (cd == COLORDEPTH_30B)
+			clk_div_val = VID_PLL_DIV_6p25;
+		else
+			clk_div_val = VID_PLL_DIV_5;
 	}
+	set_tmds_vid_clk_div(0, VID_PLL_DIV_5);
+	set_tmds_vid_clk_div(1, clk_div_val);
+	// set crt_vid_mux_div
+	//[19] disable clk_div0
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 0, 19, 1);
+	// bit[18:16] crt_vid_mux_div source select
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 0, 16, 3);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_DIV, 0, 0, 8);
+	// bit[2:0] crt_vid_mux_div div1/2/4 enable
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 7, 0, 3);
+	// cts_enc_clk div and enable
+	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_DIV, 0, 12, 4);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 3, 1);
+	// enc0_hdmi_tx_fe_clk div and enable
+	hd21_set_reg_bits(CLKCTRL_ENC0_HDMI_CLK_CTRL, 0, 20, 4);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 9, 1);
+	// enc0_hdmi_tx_pnx_clk div and enable
+	hd21_set_reg_bits(CLKCTRL_ENC0_HDMI_CLK_CTRL, 0, 24, 4);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 10, 1);
+	// enc0_hdmi_tx_pixel_clk div and enable
+	hd21_set_reg_bits(CLKCTRL_ENC0_HDMI_CLK_CTRL, 0, 16, 4);
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 5, 1);
+	//[19] enable clk_div0
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 1, 19, 1);
+	return;
 }
 
 static int likely_frac_rate_mode(char *m)
