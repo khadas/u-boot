@@ -137,8 +137,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"firstboot=1\0"\
 	"upgrade_step=0\0"\
-	"jtag=disable\0"\
-	"port_mode=0\0"\
 	"loadaddr=0x00020000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"panel_type=mipi_0\0" \
@@ -156,7 +154,6 @@
 	"fdtfile=sm1_s905d3_ac200_debian.dtb\0"\
 	"silent=1\0"\
 	"lcd_ctrl=0x00000000\0"\
-	"lcd_debug=0x00000000\0"\
 	"outputmode=1080p60hz\0"\
 	"vout_init=enable\0"\
 	"hdmimode=1080p60hz\0"\
@@ -203,14 +200,16 @@
 	"Irq_check_en=0\0"\
 	"reboot_mode_android=""normal""\0"\
 	"initargs="\
-		"rootflags=data=writeback rw rootfstype=ext4 console=tty0 console=ttyS0,115200 no_console_suspend " \
-		" earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
-		"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 "\
+		"rootflags=data=writeback rw rootfstype=ext4 loglevel=4 "\
+		"console=tty0 console=ttyS0,115200 no_console_suspend "\
+		"earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 "\
+		"ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
+		"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 boot_source=emmc "\
 		"\0"\
 	"upgrade_check="\
 		"echo upgrade_step=${upgrade_step}; "\
 		"if itest ${upgrade_step} == 3; then "\
-			"run init_display; run storeargs; run update;"\
+			"run init_display;run update;"\
 		"else fi;"\
 		"\0"\
 	"storeargs="\
@@ -239,27 +238,21 @@
 		"get_rebootmode;"\
 		"if test ${reboot_mode} = factory_reset; then "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 			"run recovery_from_flash;"\
 		"else if test ${reboot_mode} = update; then "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 			"run update;"\
 		"else if test ${reboot_mode} = quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
-			"run storeargs;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
 			"run recovery_from_flash;"\
 		"else if test ${reboot_mode} = cold_boot; then "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 		"else if test ${reboot_mode} = fastboot; then "\
 			"setenv reboot_mode_android ""normal"";"\
-			"run storeargs;"\
 			"fastboot;"\
 		"fi;fi;fi;fi;fi;fi;"\
 		"\0"\
@@ -276,7 +269,7 @@
 	"factory_reset_poweroff_protect="\
 		"echo wipe_data=${wipe_data}; echo wipe_cache=${wipe_cache};"\
 		"if test ${wipe_data} = failed; then "\
-			"run init_display; run storeargs;"\
+			"run init_display;"\
 			"if mmcinfo; then "\
 				"run recovery_from_sdcard;"\
 			"fi;"\
@@ -286,7 +279,7 @@
 			"run recovery_from_flash;"\
 		"fi; "\
 		"if test ${wipe_cache} = failed; then "\
-			"run init_display; run storeargs;"\
+			"run init_display;"\
 			"if mmcinfo; then "\
 				"run recovery_from_sdcard;"\
 			"fi;"\
@@ -425,14 +418,10 @@
 		"boot_targets=spi usb0 mmc0 mmc1 storeboot pxe dhcp\0"
 
 #define CONFIG_PREBOOT  \
-			"run bcb_cmd; "\
-			"run factory_reset_poweroff_protect;"\
 			"run upgrade_check;"\
 			"run init_display;"\
 			"run storeargs;"\
 			"run upgrade_key;" \
-			"run port_mode_change;"\
-			"forceupdate;" \
 			"bcb uboot-command;"\
 			"run switch_bootmode;"
 
@@ -478,7 +467,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64 << 20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1200 //MHz. Range: 360-2000, should be multiple of 24
+#define CONFIG_CPU_CLK	1920 //MHz. Range: 360-2000, should be multiple of 24
 
 /* ATTENTION */
 /* DDR configs move to board/amlogic/[board]/firmware/timing.c */
@@ -517,10 +506,6 @@
  */
 /* axg only support slc nand */
 /* swither for mtd nand which is for slc only. */
-/* support for mtd */
-#define CONFIG_AML_MTD 1
-/* support for nftl */
-//#define CONFIG_AML_NAND	1
 
 #if defined(CONFIG_AML_NAND) && defined(CONFIG_AML_MTD)
 #error CONFIG_AML_NAND/CONFIG_AML_MTD can not support at the sametime;
