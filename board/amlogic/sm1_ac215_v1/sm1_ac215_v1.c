@@ -801,9 +801,9 @@ phys_size_t get_effective_memsize(void)
 {
 	// >>16 -> MB, <<20 -> real size, so >>16<<20 = <<4
 #if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	return (((readl(AO_SEC_GP_CFG0)) & 0xFFFF0000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
+	return (((readl(AO_SEC_GP_CFG0)) & 0xFFF80000) << 4) - CONFIG_SYS_MEM_TOP_HIDE;
 #else
-	return (((readl(AO_SEC_GP_CFG0)) & 0xFFFF0000) << 4);
+	return (((readl(AO_SEC_GP_CFG0)) & 0xFFF80000) << 4);
 #endif
 }
 
@@ -828,27 +828,27 @@ int checkhw(char * name)
 	if (MESON_CPU_MAJOR_ID_SM1 == cpu_id.family_id) {
 		switch (ddr_size) {
 			case 0x80000000:
-				if (!strcmp(ddr_mode, "1g")) {
-					strcpy(loc_name, "sm1_ac214_1g\0");
+				if (ddr_mode && !strcmp(ddr_mode, "1g")) {
+					strcpy(loc_name, "sm1_ac215_1g\0");
 					break;
 				}
-				strcpy(loc_name, "sm1_ac214_2g\0");
+				strcpy(loc_name, "sm1_ac215_2g\0");
 				break;
 			case 0x40000000:
-				strcpy(loc_name, "sm1_ac214_1g\0");
+				strcpy(loc_name, "sm1_ac215_1g\0");
 				break;
 			case 0x2000000:
-				strcpy(loc_name, "sm1_ac214_512m\0");
+				strcpy(loc_name, "sm1_ac215_512m\0");
 				break;
 			default:
-				strcpy(loc_name, "sm1_ac214_unsupport");
+				strcpy(loc_name, "sm1_ac215_unsupport");
 				break;
 		}
 	}
 	else {
 		switch (ddr_size) {
 			case 0x80000000:
-				if (!strcmp(ddr_mode, "1g")) {
+				if (ddr_mode && !strcmp(ddr_mode, "1g")) {
 					strcpy(loc_name, "g12a_u212_1g\0");
 					break;
 				}
