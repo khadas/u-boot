@@ -2875,7 +2875,7 @@ int enable_mmc_reset(struct mmc *mmc)
 	if (err)
 		return err;
 
-	if (ext_csd[EXT_CSD_CMD_SET_NORMAL] == 1)
+	if (ext_csd[EXT_CSD_RST_N_FUNCTION] == 1)
 		return 0;
 
 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
