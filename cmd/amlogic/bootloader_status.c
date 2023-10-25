@@ -455,11 +455,6 @@ static int update_gpt(int flag)
 			goto exit;
 		}
 
-		if (flag == 1 || flag == 2) {
-			printf("update from dts to gpt, erase first\n");
-			erase_gpt_part_table(dev_desc);
-		}
-
 		if (is_valid_gpt_buf(dev_desc, buffer + 0x3DFE00)) {
 			printf("printf normal bootloader.img, no gpt partition table\n");
 			ret = -1;
@@ -471,6 +466,11 @@ static int update_gpt(int flag)
 				printf("Important partition changes, refused to upgrade\n");
 				ret = 1;
 				goto exit;
+			}
+
+			if (flag == 1 || flag == 2) {
+				printf("update from dts to gpt, erase first\n");
+				erase_gpt_part_table(dev_desc);
 			}
 
 			if (flag == 2) {
