@@ -1177,10 +1177,12 @@ void trans_ept_to_diskpart(struct _iptbl *ept, disk_partition_t *disk_part)
 		strcpy((char *)disk_part[i].name, part[i+1].name);
 		gen_rand_uuid_str(disk_part[i].uuid, UUID_STR_FORMAT_STD);
 		disk_part[i].bootable = 0;
-//		if ( i == (count - 2))
-//			disk_part[i].size = (part[i + 1].size - 34 * 512) >> 9;
-//		else
+		if (i == (count - 2) && alter_gpt_lba == 0)
+			disk_part[i].size = (part[i + 1].size - 34 * 512) >> 9;
+		else
 			disk_part[i].size = (part[i + 1].size) >> 9;
+		apt_info("%s, 0x%lx, %lx\n", disk_part[i].name,
+				disk_part[i].start, disk_part[i].size);
 	}
 	return;
 }
@@ -1236,6 +1238,9 @@ int confirm_gpt(struct mmc *mmc)
 	if (dcount < 1)
 		return 1;
 
+	alter_gpt_lba = find_alter_gpt_lba(p_iptbl_ept);
+	printf("alter gpt 0x%llx\n", alter_gpt_lba);
+
 	disk_partition = malloc(PAD_TO_BLOCKSIZE(sizeof(disk_partition_t) * dcount,
 							dev_desc));
 	if (disk_partition == NULL)
@@ -1250,9 +1255,6 @@ int confirm_gpt(struct mmc *mmc)
 		return -ENOMEM;
 	}
 	gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
-
-	alter_gpt_lba = find_alter_gpt_lba(p_iptbl_ept);
-	printf("alter gpt 0x%llx\n", alter_gpt_lba);
 
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 				gpt_head, &gpt_pte) != 1) {
