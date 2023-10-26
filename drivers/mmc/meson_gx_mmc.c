@@ -485,9 +485,13 @@ static void mmc_setup_desc(struct udevice *dev, struct mmc_cmd *cmd,
 	}
 
 	meson_mmc_cmd = &(desc_cur->cmd_info);
-	/* It takes longer to erase large amounts of data */
+	/*
+	 * It takes longer to erase large amounts of data
+	 * and stop transmission and switch
+	 */
 	if (cmd->cmdidx == MMC_CMD_ERASE ||
-	    cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+	    cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION ||
+	    cmd->cmdidx == MMC_CMD_SWITCH)
 		*meson_mmc_cmd |= (15 << 12);
 	*meson_mmc_cmd |= CMD_CFG_END_OF_CHAIN;
 }
@@ -555,7 +559,8 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 #endif
 
 	if (!data && cmd->cmdidx != MMC_CMD_ERASE &&
-	    cmd->cmdidx != MMC_CMD_STOP_TRANSMISSION)
+	    cmd->cmdidx != MMC_CMD_STOP_TRANSMISSION &&
+	    cmd->cmdidx != MMC_CMD_SWITCH)
 		timeout = EMMC_NORAML_CMD_NO_ERASE_DATA_TIMEOUT;
 
 	start = get_timer(0);
