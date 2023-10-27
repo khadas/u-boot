@@ -25,8 +25,7 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv,
 	unsigned int cntl_vinlp_pi = 0, cntl_ckdi = 0;
 	unsigned int data = 0, chreg, chctl = 0;
 	unsigned int amp = 0;
-	int i = 0;
-	uint8_t bit;
+	uint8_t bit, i = 0, lane_idx = 0;
 
 	uint32_t preem_reg[8] = {
 		ANACTRL_DIF_PHY_CNTL1, ANACTRL_DIF_PHY_CNTL2,
@@ -44,7 +43,7 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv,
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
 
-	chreg = phy_ctrl_p->ctrl_bit_on ? 0x0 : 0x1;
+	chreg = phy_ctrl_p->ctrl_bit_on ? 0x1 : 0x0;
 
 	if (status) {
 		if ((phy->flag & (1 << 13)) == 0) {
@@ -81,10 +80,11 @@ static void lcd_phy_cntl_set(struct aml_lcd_drv_s *pdrv,
 	while (i < 16) {
 		if (flag & (1 << i)) {
 			bit = i % 2 ? 16 : 0;
-			data = (phy->lane[i].preem & 0xff) << 8 | chreg;
-			amp = (phy->lane[i].amp & 0x7) << 3 | chctl;
+			data = (phy->lane[lane_idx].preem & 0xff) << 8 | chreg;
+			amp = (phy->lane[lane_idx].amp & 0x7) << 3 | chctl;
 			lcd_ana_setb(preem_reg[i / 2], data, bit, 16);
 			lcd_ana_setb(amp_reg[i / 2], amp, bit, 16);
+			lane_idx++;
 		}
 		i++;
 	}
@@ -122,7 +122,7 @@ static void lcd_lvds_phy_set(struct aml_lcd_drv_s *pdrv, int status)
 		return;
 	}
 
-	flag = pdrv->config.control.lvds_cfg.dual_port ? 0x3ff : 0x1f;
+	flag = pdrv->config.control.lvds_cfg.dual_port ? 0x1f1f : 0x1f;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_ADV)
 		LCDPR("%s: %d\n", __func__, status);
