@@ -345,7 +345,7 @@
 			"run bcb_cmd_base;"\
 			"\0"\
         "load_bmp_logo="\
-            "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:4 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
+            "if load mmc 0:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:2 ${loadaddr} /usr/share/fenix/logo/logo.bmp || load mmc 1:3 ${loadaddr} /usr/share/fenix/logo/logo.bmp; then "\
                 "bmp display ${loadaddr};"\
                 "bmp scale;"\
             "fi;"\
