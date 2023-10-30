@@ -178,7 +178,6 @@ int board_late_init(void)
 		printf("factory reset, need default all uboot env.\n");
 		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
 	}
-	board_init_mem();
 
 #if !defined(CONFIG_PXP_DDR)	//bypass below operations for pxp
 	run_command("echo upgrade_step $upgrade_step; \
@@ -198,10 +197,13 @@ int board_late_init(void)
 		0);
 	}
 #endif //#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
+*/
 
 #ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE	//try auto upgrade from ext-sdcard
 	aml_try_factory_sdcard_burning(0, gd->bd);
 #endif //#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
+
+/*
 	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
 #if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
 	if (readl(SYSCTRL_SEC_STICKY_REG2) == 0x1b8ec003) {
