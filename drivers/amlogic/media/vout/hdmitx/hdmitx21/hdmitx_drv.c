@@ -1061,7 +1061,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	}
 	/* dsc program step8.1: Make sure VENC timing gen is disabled. */
 	hdmitx21_venc_en(0, 0);
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, (hdev->enc_idx == 0) ? 0 : 1, 1);
 	/* dsc program step8.3: Program VPU/HDMI setting. */
 	/* below crt_video_encp* is ENC for T7 */
 	if (hdev->chip_type == MESON_CPU_ID_T7) {
@@ -1217,7 +1216,11 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		videocode == HDMI_98_4096x2160p24_256x135)
 		hdmi_set_vend_spec_infofram(hdev, videocode);
 
-	// [1   0] enc_idx, only for t7, s5 is differnet
+	// [1   0] src_sel, t7 and s5 is differnet
+	// for t7:
+	// 0=disable hdmi source; 1=select VENC0 data to hdmi; 2=select VENC2 data to hdmi
+	// for s5:
+	// 0=disable hdmi source; 1=venc output to hdmi; 3=vencp output to hdmi
 	// [    2] inv_hsync. 1=Invert Hsync polarity.
 	// [    3] inv_vsync. 1=Invert Vsync polarity.
 	// [    4] inv_dvi_clk. 1=Invert clock to external DVI,
@@ -1226,12 +1229,12 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	// YUV444/422/RGB. Output CrYCb, CY0, or RGB to hdmitx.
 	// [ 7: 5] comp_map_post. Data from vfmt is CrYCb(444), CY0(422), CY0Y1(420) or RGB,
 	//         map the data to desired format before go to hdmitx:
-	// 0=output {2, 1,0};
+	// 0=output {2,1,0};
 	// 1=output {1,0,2};
 	// 2=output {1,2,0};
 	// 3=output {0,2,1};
-	// 4=output {0, 1,2};
-	// 5=output {2.0,1};
+	// 4=output {0,1,2};
+	// 5=output {2,0,1};
 	// 6,7=Rsrv.
 	// [11: 8] wr_rate_pre. 0=A write every clk1; 1=A write every 2 clk1; ...;
 	//                      15=A write every 16 clk1.
@@ -1252,12 +1255,20 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	//                       15=A write every 16 clk1.
 	// [27:24] rd_rate_post. 0=A read every clk2; 1=A read every 2 clk2; ...;
 	//                       15=A read every 16 clk2.
-	//TODO: add other bit information
+	// only for s5:
+	// [29:28] cntl_hdmi_in_fmt
+	// 0=1ppc;
+	// 1=2ppc;
+	// 2=4ppc;
+	// only for s5:
+	// [   31] cntl_dsc_mux_en
+	// 0=vpu to hdmitx
+	// 1=vpu to dsc
 	data32 = 0;
 	switch (hdev->chip_type) {
 	case MESON_CPU_ID_S5:
 		/* move enable de-couple fifo to the end */
-		data32 |= (0 << 0);
+		data32 |= (1 << 0);
 		data32 |= (((para->cs != HDMI_COLORSPACE_YUV420 &&
 					hdev->frl_rate) ? 1 : 0) << 1);
 		data32 |= (para->timing.h_pol << 2);
@@ -1267,6 +1278,20 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 			data32 |= ((para->cs == HDMI_COLORSPACE_YUV420 ? 2 : 1) << 28);
 		else
 			data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 8);
+
+		if (hdev->dsc_en) {
+			/* for dsc y420/y444, no need comp_map_post */
+			data32 &= (~(0x7 << 5));
+			if (hdev->para->cs == HDMI_COLORSPACE_YUV422)
+				data32 |= (5 << 5);
+			/* no up_sample and data split */
+			hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 0, 3);
+			data32 &= (~(1 << 1));
+			/* 4ppc to dsc module */
+			data32 |= (2 << 28);
+		}
+		/* recommend flow: dsc mux->dsc configure/dsc_enc_en/dsc_tmg_en->venc_enable */
+		data32 |= ((!!hdev->dsc_en) << 31);
 		break;
 	case MESON_CPU_ID_T7:
 	default:
@@ -1279,19 +1304,7 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 20);
 		break;
 	}
-
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
-	if (hdev->dsc_en) {
-		/* for dsc y420/y444, no need comp_map_post */
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 5, 3);
-		if (hdev->para->cs == HDMI_COLORSPACE_YUV422)
-			hd21_set_reg_bits(VPU_HDMI_SETTING, 5, 5, 3);
-		/* no up_sample and data split */
-		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 0, 3);
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 1, 1);
-		/* 4ppc to dsc module */
-		hd21_set_reg_bits(VPU_HDMI_SETTING, 2, 28, 2);
-	}
 
 #ifdef CONFIG_AML_VOUT
 	if (info) {
@@ -1312,8 +1325,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		pr_info("vpp_post_out_color_fmt: %d\n", info->vpp_post_out_color_fmt);
 	}
 #endif
-	/* recommend flow: dsc mux->dsc configure/dsc_enc_en/dsc_tmg_en->venc_enable */
-	hd21_set_reg_bits(VPU_HDMI_SETTING, !!hdev->dsc_en, 31, 1);
 
 	if (hdev->chip_type == MESON_CPU_ID_S5 && hdev->dsc_en) {
 		hdmitx_dsc_cvtem_pkt_send(&hdev->dsc_data.pps_data, &hdev->para->timing);
@@ -1322,8 +1333,6 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		aml_dsc_enable(true);
 	}
 	/* enable venc */
-	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 0, 1);
-	mdelay(1);
 	if (para->timing.pi_mode == 0 &&
 	    (para->timing.v_active == 480 || para->timing.v_active == 576))
 		hdmitx21_venc_en(1, 0);

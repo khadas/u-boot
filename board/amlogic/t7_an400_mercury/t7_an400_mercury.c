@@ -278,6 +278,7 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_HDMITX21
 	hdmitx_set_hdmi_5v();
+	hdmitx21_chip_type_init(MESON_CPU_ID_T7);
 	hdmitx21_init();
 #endif
 #ifdef CONFIG_AML_VPP
