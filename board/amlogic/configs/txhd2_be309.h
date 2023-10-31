@@ -148,7 +148,8 @@
 		"setenv bootconfig ${bootconfig} androidboot.connector_type=${connector_type};"\
 		"\0"\
         "initargs="\
-			"init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000 loglevel=4 "\
+			"init=/init console=ttyS0,115200 no_console_suspend "\
+			"earlycon=aml_uart,0xff803000 loglevel=7 "\
 			"printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
 			"ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xff6345c4 "\
             "\0"\
