@@ -213,7 +213,7 @@
 	"init_display="\
 		"get_rebootmode;"\
 		"echo reboot_mode:::: ${reboot_mode};"\
-		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
+		"hdmitx hpd;hdmitx get_parse_edid;"\
 		"dovi process;watermark_init;osd open;osd clear;run load_bmp_logo;"\
 		"bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
 		"\0"\

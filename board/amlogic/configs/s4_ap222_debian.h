@@ -217,7 +217,7 @@
 		"echo reboot_mode:::: ${reboot_mode};"\
 		"setenv reboot_mode_android ""normal"";"\
 		"setenv initconfig androidboot.bootreason=${reboot_mode};"\
-		"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;"\
+		"hdmitx hpd;hdmitx get_parse_edid;"\
 		"dovi process;setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;"\
 		"bmp scale;vout output ${outputmode};dovi set;dovi pkg;vpp hdrpkt;"\
 		"\0"\

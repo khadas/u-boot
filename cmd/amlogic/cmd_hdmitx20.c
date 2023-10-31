@@ -950,8 +950,8 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 		byte_num += 8;
 	}
 
-	if (0)
-		dump_full_edid(hdev->rawedid);
+	/* dump edid raw data */
+	dump_full_edid(hdev->rawedid);
 
 	/* parse edid data */
 	hdmi_edid_parsing(hdev->rawedid, &hdev->RXCap);
@@ -1214,75 +1214,6 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 	hdmitx_mask_rx_info(hdev);
 	return 0;
 }
-static int do_get_preferred_mode(cmd_tbl_t * cmdtp, int flag, int argc,
-	char * const argv[])
-{
-	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-	struct hdmi_format_para *para;
-	char pref_mode[64];
-	char color_attr[64];
-	char *hdmi_read_edid;
-
-	hdmi_read_edid = env_get("hdmi_read_edid");
-	if (hdmi_read_edid && (hdmi_read_edid[0] == '0'))
-		return 0;
-
-	if (!hdev) {
-		printf("null hdmitx dev\n");
-		return CMD_RET_FAILURE;
-	}
-
-	memset(hdev->rawedid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
-	memset(pref_mode, 0, sizeof(pref_mode));
-	memset(color_attr, 0, sizeof(color_attr));
-
-	/* If sink is not detected there is a still a good chance it supports proper modes */
-	/* 720p is chosen as a safe compromise: supported by most sinks and looks good enough */
-	if (!hdev->hpd_state) {
-		para = hdmi_get_fmt_paras(HDMI_1280x720p60_16x9);
-		if (!para)
-			goto bypass_edid_read;
-		snprintf(pref_mode, sizeof(pref_mode), "%s", para->sname);
-		snprintf(color_attr, sizeof(color_attr), "%s", "rgb,8bit");
-		printk("no sink, fallback to %s[%d]\n", para->sname, HDMI_1280x720p60_16x9);
-		goto bypass_edid_read;
-	}
-
-	get_parse_edid_data(hdev);
-
-	para = hdmi_get_fmt_paras(hdev->RXCap.preferred_mode);
-
-	if (para) {
-		sprintf(pref_mode, "preferred_mode %s", para->sname);
-		if (hdev->RXCap.pref_colorspace & (1 << 5))
-			sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
-		else if (hdev->RXCap.pref_colorspace & (1 << 4))
-			sprintf(color_attr, "setenv colorattribute %s", "422,8bit");
-		else
-			sprintf(color_attr, "setenv colorattribute %s", "rgb,8bit");
-	} else {
-		hdev->RXCap.preferred_mode = HDMI_720x480p60_16x9;
-		para = hdmi_get_fmt_paras(HDMI_720x480p60_16x9);
-		if (!para)
-			goto bypass_edid_read;
-		sprintf(pref_mode, "setenv hdmimode %s", para->sname);
-		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
-	}
-	printk("sink preferred_mode is %s[%d]\n", para->sname, hdev->RXCap.preferred_mode);
-
-bypass_edid_read:
-	/* save to ENV */
-	/*
-	run_command(pref_mode, 0);
-	run_command(color_attr, 0);
-	run_command("saveenv", 0);
-	*/
-	printk("hdr mode is %d\n", hdev->RXCap.hdr_info.hdr_sup_eotf_smpte_st_2084);
-	printk("dv  mode is ver:%d  len: %x\n", hdev->RXCap.dv_info.ver, hdev->RXCap.dv_info.length);
-	printk("hdr10+ mode is %d\n", hdev->RXCap.hdr10plus_info.application_version);
-
-	return 0;
-}
 
 static cmd_tbl_t cmd_hdmi_sub[] = {
 	U_BOOT_CMD_MKENT(hpd, 1, 1, do_hpd_detect, "", ""),
@@ -1293,7 +1224,6 @@ static cmd_tbl_t cmd_hdmi_sub[] = {
 	U_BOOT_CMD_MKENT(off, 1, 1, do_off, "", ""),
 	U_BOOT_CMD_MKENT(dump, 1, 1, do_dump, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_info, "", ""),
-	U_BOOT_CMD_MKENT(get_preferred_mode, 1, 1, do_get_preferred_mode, "", ""),
 	U_BOOT_CMD_MKENT(reg, 3, 1, do_reg, "", ""),
 	U_BOOT_CMD_MKENT(get_parse_edid, 1, 1, do_get_parse_edid, "", ""),
 };
@@ -1321,8 +1251,6 @@ U_BOOT_CMD(hdmitx, CONFIG_SYS_MAXARGS, 0, do_hdmitx,
 	"hdmitx version:20200618\n"
 	"hdmitx hpd\n"
 	"    Detect hdmi rx plug-in\n"
-	"hdmitx get_preferred_mode\n"
-	"    Read full edid data, parse edid, and get preferred mode\n"
 #if 0
 	"hdmitx edid read ADDRESS\n"
 	"    Read hdmi rx edid from ADDRESS(0x00~0xff)\n"

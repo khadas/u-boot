@@ -917,8 +917,8 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 
 	hdev->hwop.read_edid(hdev->rawedid);
 
-	if (1)
-		dump_full_edid(hdev->rawedid);
+	/* dump edid raw data */
+	dump_full_edid(hdev->rawedid);
 
 	/* parse edid data */
 	hdmi_edid_parsing(hdev->rawedid, &hdev->RXCap);
@@ -1200,68 +1200,6 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	return 0;
 }
 
-static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct hdmitx_dev *hdev = get_hdmitx21_device();
-	const struct hdmi_timing *tp;
-	unsigned char *edid = hdev->rawedid;
-
-	struct hdmi_format_para *para;
-	char pref_mode[64];
-	char color_attr[64];
-	char *hdmi_read_edid;
-
-	para = hdmitx21_get_fmtpara("480p60hz", "444,8bit");
-	hdmi_read_edid = env_get("hdmi_read_edid");
-	if (hdmi_read_edid && (hdmi_read_edid[0] == '0'))
-		return 0;
-
-	memset(edid, 0, EDID_BLK_SIZE * EDID_BLK_NO);
-	memset(pref_mode, 0, sizeof(pref_mode));
-	memset(color_attr, 0, sizeof(color_attr));
-
-	/* If sink is not detected there is a still a good chance it supports proper modes */
-	/* 720p is chosen as a safe compromise: supported by most sinks and looks good enough */
-	if (!hdev->hpd_state) {
-		para = hdmitx21_get_fmtpara("720p60hz", "444,8bit");
-		snprintf(pref_mode, sizeof(pref_mode), "%s", para->sname);
-		snprintf(color_attr, sizeof(color_attr), "%s", "rgb,8bit");
-		printf("no sink, fallback to %s[%d]\n", para->sname, HDMI_4_1280x720p60_16x9);
-		goto bypass_edid_read;
-	}
-
-	get_parse_edid_data(hdev);
-	tp = hdmitx21_gettiming_from_vic(hdev->RXCap.preferred_mode);
-	if (tp)
-		para = hdmitx21_get_fmtpara(tp->name, env_get("colorattribute"));
-
-	if (para) {
-		sprintf(pref_mode, "preferred_mode %s", para->sname);
-		if (hdev->RXCap.pref_colorspace & (1 << 5))
-			sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
-		else if (hdev->RXCap.pref_colorspace & (1 << 4))
-			sprintf(color_attr, "setenv colorattribute %s", "422,8bit");
-		else
-			sprintf(color_attr, "setenv colorattribute %s", "rgb,8bit");
-	} else {
-		hdev->RXCap.preferred_mode = HDMI_3_720x480p60_16x9;
-		para = hdmitx21_get_fmtpara("480p60hz", "444,8bit");
-		sprintf(pref_mode, "setenv hdmimode %s", para->sname);
-		sprintf(color_attr, "setenv colorattribute %s", "444,8bit");
-	}
-	printf("sink preferred_mode is %s[%d]\n", para->sname, hdev->RXCap.preferred_mode);
-
-bypass_edid_read:
-	printf("hdr mode is %d\n",
-		hdev->RXCap.hdr_info.hdr_sup_eotf_smpte_st_2084);
-	printf("dv  mode is ver:%d  len: %x\n", hdev->RXCap.dv_info.ver,
-		hdev->RXCap.dv_info.length);
-	printf("hdr10+ mode is %d\n",
-		hdev->RXCap.hdr10plus_info.application_version);
-
-	return 0;
-}
-
 static int do_dsc_policy(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
@@ -1339,7 +1277,6 @@ static cmd_tbl_t cmd_hdmi_sub[] = {
 	U_BOOT_CMD_MKENT(off, 1, 1, do_off, "", ""),
 	U_BOOT_CMD_MKENT(dump, 1, 1, do_dump, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_info, "", ""),
-	U_BOOT_CMD_MKENT(get_preferred_mode, 1, 1, do_get_preferred_mode, "", ""),
 	U_BOOT_CMD_MKENT(reg, 3, 1, do_reg, "", ""),
 	U_BOOT_CMD_MKENT(get_parse_edid, 1, 1, do_get_parse_edid, "", ""),
 	U_BOOT_CMD_MKENT(dsc_policy, 1, 1, do_dsc_policy, "", ""),
@@ -1370,8 +1307,6 @@ U_BOOT_CMD(hdmitx, CONFIG_SYS_MAXARGS, 0, do_hdmitx,
 	"hdmitx version:20200618\n"
 	"hdmitx hpd\n"
 	"    Detect hdmi rx plug-in\n"
-	"hdmitx get_preferred_mode\n"
-	"    Read full edid data, parse edid, and get preferred mode\n"
 	"hdmitx output [list | FORMAT | bist PATTERN]\n"
 	"    list: list support formats\n"
 	"    FORMAT can be 720p60/50hz, 1080i60/50hz, 1080p60hz, etc\n"
