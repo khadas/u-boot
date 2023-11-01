@@ -859,7 +859,6 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 			LCDPR("%s: end step %d, %s, type=0x%02x, size=%d\n",
 			      __func__, step, p, part_type, size);
 		}
-		data_offset += size;
 		step++;
 	}
 
