@@ -149,7 +149,7 @@
         "video_reverse=0\0"\
         "board=oppen\0"\
         "initargs="\
-            "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "console=ttyS0,921600 console=tty0 no_console_suspend fsck.repair=yes net.ifnames=0 "\
+            "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "no_console_suspend fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0x0xfe02e030 khadas_board=VIM1S boot_source=${boot_source} "\
 			"cma_first_wm_low=on "\
             "\0"\
