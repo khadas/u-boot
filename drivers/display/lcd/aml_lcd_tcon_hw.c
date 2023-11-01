@@ -1110,15 +1110,16 @@ int lcd_tcon_enable_t5(struct lcd_config_s *pconf)
 	/* step 3:  tcon data set */
 	if (mm_table->version)
 		lcd_tcon_data_set(mm_table);
+
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
 	if (tcon_conf->tcon_axi_mem_secure)
 		tcon_conf->tcon_axi_mem_secure();
 
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
-
-	if (rmem)
-		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 
