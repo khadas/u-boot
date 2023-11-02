@@ -915,6 +915,7 @@ out:
 
 static int avb_init(void)
 {
+	int factory_part_num = get_partition_num_by_name(PART_NAME_FTY);
 	enum boot_type_e type = store_get_type();
 
 	memset(&avb_ops_, 0, sizeof(AvbOps));
@@ -927,15 +928,14 @@ static int avb_init(void)
 	avb_ops_.read_is_device_unlocked = read_is_device_unlocked;
 	avb_ops_.get_unique_guid_for_partition = get_unique_guid_for_partition;
 	avb_ops_.get_size_of_partition = get_size_of_partition;
-	if (type == BOOT_NAND_MTD || type == BOOT_SNAND) {
+
+	if (type == BOOT_NAND_MTD || type == BOOT_SNAND || factory_part_num < 0) {
 		avb_ops_.read_persistent_value = NULL;
 		avb_ops_.write_persistent_value = NULL;
 	} else {
 		avb_ops_.read_persistent_value = read_persistent_value;
 		avb_ops_.write_persistent_value = write_persistent_value;
 	}
-
-	//avb_ops_.user_data = NULL;
 
 	return 0;
 }
@@ -977,6 +977,7 @@ int avb_verify(AvbSlotVerifyData** out_data)
 	int i = 0;
 	AvbHashtreeErrorMode hashtree_error_mode =
 		AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE;
+	int factory_part_num = get_partition_num_by_name(PART_NAME_FTY);
 	enum boot_type_e type = store_get_type();
 
 	s1 = env_get("active_slot");
@@ -1018,7 +1019,7 @@ int avb_verify(AvbSlotVerifyData** out_data)
 	if (is_device_unlocked() || (upgradestep && (!strcmp(upgradestep, "3"))))
 		flags |= AVB_SLOT_VERIFY_FLAGS_ALLOW_VERIFICATION_ERROR;
 
-	if (type == BOOT_NAND_MTD || type == BOOT_SNAND)
+	if (type == BOOT_NAND_MTD || type == BOOT_SNAND || factory_part_num < 0)
 		hashtree_error_mode =
 			AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE;
 	else
