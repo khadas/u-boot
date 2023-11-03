@@ -220,7 +220,7 @@ ulong android_image_get_kload(const boot_img_hdr_t *hdr)
 	if (is_android_r_image((void*)hdr))
 		return android_image_get_kload_v3((void*)hdr);
 	else
-		return hdr->kernel_addr;
+		return CONFIG_KERNEL_LOAD_ADDR;
 }
 
 bool copy_bootconfig_to_cmdline(void)

@@ -5,6 +5,12 @@ config RAMDISK_MEM_ADDR
         help
 	"select ramdisk load address"
 
+config KERNEL_LOAD_ADDR
+		hex
+		default 0x9000000
+		help
+	"select kernel load address"
+
 config GXB_SKT_V1
 	bool "Support amlogic gxbaby skt v1 board"
 	default n
