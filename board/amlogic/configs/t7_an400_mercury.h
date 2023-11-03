@@ -83,11 +83,13 @@
 	"panel_type=mipi_2\0" \
 	"panel1_type=lvds_3\0" \
 	"panel2_type=lvds_1\0" \
+	"lcd_ctrl=0x00000000\0" \
 	"lcd1_ctrl=0x00000000\0" \
 	"lcd2_ctrl=0x00000000\0" \
 	"outputmode=panel\0" \
 	"outputmode2=panel1\0" \
 	"outputmode3=1080p60hz\0" \
+	"connector2_type=HDMI_A\0" \
 	"hdmitx_hpd_wait_cnt=0\0" \
 	"viu2_hold_line=4\0" \
 	"cvbsmode=576cvbs\0" \
@@ -117,8 +119,8 @@
 		"cvbsmode=dummy_l\0" \
 		"colorattribute=444,8bit\0"\
 		"vout_init=enable\0" \
-		"display_width=1920\0" \
-		"display_height=1080\0" \
+		"display_width=1280\0" \
+		"display_height=800\0" \
 		"hdmichecksum=0x00000000\0" \
 		"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
 		"display_bpp=16\0" \
@@ -128,8 +130,8 @@
 		"display_color_bg=0\0" \
 		"dtb_mem_addr=0x01000000\0" \
 		"fb_addr=0x00300000\0" \
-		"fb_width=1920\0" \
-		"fb_height=1080\0" \
+		"fb_width=1280\0" \
+		"fb_height=800\0" \
 		"frac_rate_policy=1\0" \
 		"hdr_policy=0\0" \
 		"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
