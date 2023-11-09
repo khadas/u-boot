@@ -201,6 +201,8 @@ static void cmdline_handle(void)
 {
 #ifdef CONFIG_ROCKCHIP_PRELOADER_ATAGS
 	struct tag *t;
+	char *lcd_panel;
+	char lcd_panel_buf[32] = {0};
 
 	t = atags_get_tag(ATAG_PUB_KEY);
 	if (t) {
@@ -210,6 +212,14 @@ static void cmdline_handle(void)
 		else
 			env_update("bootargs", "fuse.programmed=0");
 	}
+
+    lcd_panel = env_get("lcd_panel");
+    if(lcd_panel)
+    {
+        snprintf(lcd_panel_buf, 32, "lcd_panel=%s", lcd_panel);
+        env_update("bootargs", lcd_panel_buf);
+    }
+
 #endif
 }
 

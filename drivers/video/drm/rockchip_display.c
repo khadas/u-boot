@@ -273,7 +273,12 @@ static int display_get_timing_from_dts(struct panel_state *panel_state,
 	int val, flags = 0;
 	ofnode timing, native_mode;
 
-	timing = dev_read_subnode(panel->dev, "display-timings");
+	if(!strcmp(env_get("lcd_panel"), "ts101")){
+		timing = dev_read_subnode(panel->dev, "display-timings1");
+	} else {
+		timing = dev_read_subnode(panel->dev, "display-timings");
+	}
+
 	if (!ofnode_valid(timing))
 		return -ENODEV;
 
