@@ -24,6 +24,10 @@
 #include "rockchip_crtc.h"
 #include "rockchip_connector.h"
 #include "rockchip_panel.h"
+#include <i2c.h>
+#include <dm.h>
+
+#define TP_I2C_BUS_NUM 2
 
 struct rockchip_cmd_header {
 	u8 data_type;
@@ -392,6 +396,45 @@ static const struct rockchip_panel_funcs rockchip_panel_funcs = {
 	.disable = panel_simple_disable,
 };
 
+static int detect_panel_type(void)
+{
+	int ret;
+	int res = 0;
+	uchar linebuf[1];
+	struct udevice *bus;
+	struct udevice *dev;
+
+	uclass_get_device_by_seq(UCLASS_I2C, TP_I2C_BUS_NUM, &bus);
+	ret = i2c_get_chip(bus, 0x38, 1, &dev);
+	if (!ret) {
+		res = dm_i2c_read(dev, 0xA8, linebuf, 1);
+		if (!res) {
+			printf("TP05 id=0x%x\n", linebuf[0]);
+			if (linebuf[0] == 0x51){//TS050 = 0x1f
+				env_set("lcd_panel","ts050");
+			} else if (linebuf[0] == 0x79) {//new ts050
+				env_set("lcd_panel","newts050");
+			}
+		}
+	}
+	if(ret || res) {
+		ret = i2c_get_chip(bus, 0x14, 1, &dev);
+		if (!ret) {
+			res = dm_i2c_read(dev, 0x9e, linebuf, 1);
+			if (!res){
+				printf("TP10 id=0x%x\n", linebuf[0]);
+				if (linebuf[0] == 0x00) {//TS101
+					env_set("lcd_panel","ts101");
+				}
+			} else {
+				env_set("lcd_panel","tsxx");
+			}
+		}
+	}
+
+	return 0;
+}
+
 static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(dev);
@@ -412,7 +455,14 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 						MEDIA_BUS_FMT_RBG888_1X24);
 	plat->bpc = dev_read_u32_default(dev, "bpc", 8);
 
-	data = dev_read_prop(dev, "panel-init-sequence", &len);
+	detect_panel_type();
+
+	if (!strcmp(env_get("lcd_panel"), "newts050")){
+		data = dev_read_prop(dev, "panel-init-sequence2", &len);
+	} else {
+		data = dev_read_prop(dev, "panel-init-sequence", &len);
+	}
+
 	if (data) {
 		plat->on_cmds = calloc(1, sizeof(*plat->on_cmds));
 		if (!plat->on_cmds)
