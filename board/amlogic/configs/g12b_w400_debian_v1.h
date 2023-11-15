@@ -187,7 +187,7 @@
 		"initargs="\
 			"rootflags=data=writeback rw rootfstype=ext4 console=tty0 console=ttyS0,115200 no_console_suspend " \
 			" earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
-			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 boot_source=emmc "\
+			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 "\
 			"\0"\
 		"upgrade_check="\
 			"echo upgrade_step=${upgrade_step}; "\
@@ -197,7 +197,8 @@
 			"\0"\
 		"storeargs="\
 			"get_bootloaderversion;" \
-			"setenv bootargs ${initargs} hdr_policy=${hdr_policy}  hdr_priority=${hdr_priority} "\
+			"setenv bootargs ${initargs} hdr_policy=${hdr_policy} "\
+			"hdr_priority=${hdr_priority} "\
 			"otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} "\
 			"logo=${display_layer},loaded,${fb_addr} "\
 			"fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} "\
@@ -210,7 +211,9 @@
 			"cvbsmode=${cvbsmode} osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
 			"irq_check_en=${Irq_check_en}  androidboot.selinux=${EnableSelinux} "\
 			"androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-			"setenv bootargs ${bootargs} androidboot.hardware=amlogic androidboot.bootloader=${bootloader_version} androidboot.build.expect.baseband=N/A;"\
+			"setenv bootargs ${bootargs} androidboot.hardware=amlogic "\
+				"androidboot.bootloader=${bootloader_version} "\
+				"androidboot.build.expect.baseband=N/A boot_source=${boot_source};"\
 			"run cmdline_keys;"\
 			"\0"\
 		"switch_bootmode="\

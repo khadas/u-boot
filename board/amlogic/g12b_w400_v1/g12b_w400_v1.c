@@ -667,6 +667,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+extern void board_set_boot_source(void);
 int board_late_init(void)
 {
 	TE(__func__);
@@ -714,8 +715,13 @@ int board_late_init(void)
 		}
 #endif// #ifndef DTB_BIND_KERNEL
 
-		/* load unifykey */
-		run_command("keyunify init 0x1234", 0);
+	/* load unifykey */
+	run_command("keyunify init 0x1234", 0);
+
+#ifdef CONFIG_G12B_W400_DEBIAN_V1
+	// Set boot source
+	board_set_boot_source();
+#endif
 
 	/* reset vout init state */
 	run_command("setenv vout_init disable", 0);
