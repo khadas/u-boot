@@ -146,7 +146,7 @@
 		"console=ttyS0,921600 console=tty0 no_console_suspend "\
 		"earlycon=aml-uart,0xfe07a000 ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
 		"ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xfe02e030 "\
-		"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 boot_source=emmc "\
+		"scsi_mod.scan=async xhci_hcd.quirks=0x800000 gamma=0 "\
 		"cma_first_wm_low=on "\
 		"\0"\
 	"upgrade_check="\
@@ -155,7 +155,8 @@
 	"storeargs="\
 		"get_bootloaderversion;" \
 		"run storeargs_base;"\
-		"setenv bootargs ${bootargs} ${emmc_quirks} kvm-arm.mode=none init_on_alloc=0;"\
+		"setenv bootargs ${bootargs} ${emmc_quirks} kvm-arm.mode=none init_on_alloc=0 "\
+			"boot_source=${boot_source};"\
 		"run cmdline_keys;"\
 		"\0"\
 	"switch_bootmode="\

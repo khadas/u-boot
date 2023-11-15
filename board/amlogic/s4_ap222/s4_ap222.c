@@ -146,6 +146,11 @@ int board_late_init(void)
 	printf("board late init\n");
 	aml_board_late_init_front(NULL);
 
+#ifdef CONFIG_S4_AP222_DEBIAN
+	// Set boot source
+	board_set_boot_source();
+#endif
+
 #ifdef CONFIG_AB_UPDATE
 	extern int ab_mode(void);
 	ab_mode();

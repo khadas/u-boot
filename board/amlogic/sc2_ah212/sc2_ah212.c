@@ -34,7 +34,6 @@
 #include <amlogic/media/vout/aml_cvbs.h>
 #endif
 #include <amlogic/board.h>
-
 #include "avb2_kpub.c"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -165,6 +164,10 @@ int board_late_init(void)
 	printf("board late init\n");
 	aml_board_late_init_front(NULL);
 
+#ifdef CONFIG_SC2_AH212_DEBIAN
+	// Set boot source
+	board_set_boot_source();
+#endif
 	/* reset vout init state */
 	run_command("setenv vout_init disable", 0);
 #ifdef CONFIG_AML_VPU

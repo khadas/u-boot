@@ -9,3 +9,4 @@ int aml_board_late_init_front(void *arg);
 
 int aml_board_late_init_tail(void *arg);
 
+void board_set_boot_source(void);

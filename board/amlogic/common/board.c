@@ -18,6 +18,7 @@
 #include <amlogic/aml_v2_burning.h>
 #include <amlogic/board.h>
 #include <asm/arch/secure_apb.h>
+#include <asm/arch/romboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 #define UNUSED(x) (void)(x)
@@ -301,3 +302,61 @@ int aml_board_late_init_tail(void *arg)
 }
 #endif//#ifdef CONFIG_BOARD_LATE_INIT
 
+static int board_get_bootid(void)
+{
+	const cpu_id_t cpuid = get_cpu_id();
+	const int familyId	 = cpuid.family_id;
+	int boot_id = 0;
+
+#ifdef SYSCTRL_SEC_STATUS_REG2
+	if (MESON_CPU_MAJOR_ID_SC2 <= familyId && MESON_CPU_MAJOR_ID_C2 != familyId &&
+		familyId != MESON_CPU_MAJOR_ID_T5W) {
+		boot_id = readl(SYSCTRL_SEC_STATUS_REG2);
+		boot_id = (boot_id >> 4) & 0xf;
+	}
+#endif// #ifdef SYSCTRL_SEC_STATUS_REG2
+
+#if defined(P_AO_SEC_GP_CFG0)
+	if ((familyId <= MESON_CPU_MAJOR_ID_T5D &&
+		familyId != MESON_CPU_MAJOR_ID_SC2) ||
+		familyId == MESON_CPU_MAJOR_ID_TXHD2 ||
+		familyId == MESON_CPU_MAJOR_ID_T5W) {
+		boot_id = readl(P_AO_SEC_GP_CFG0) & 0xf;
+	}
+#endif// #if defined(P_AO_SEC_GP_CFG0)
+
+	return boot_id;
+}
+
+void board_set_boot_source(void)
+{
+	const char *source;
+
+	switch (board_get_bootid()) {
+	case BOOT_ID_EMMC:
+		source = "emmc";
+		break;
+
+	case BOOT_ID_NAND:
+		source = "nand";
+		break;
+
+	case BOOT_ID_SPI:
+		source = "spi";
+		break;
+
+	case BOOT_ID_SDCARD:
+		source = "sd";
+		break;
+
+	case BOOT_ID_USB:
+		source = "usb";
+		break;
+
+	default:
+		source = "unknown";
+	}
+
+	env_set("boot_source", source);
+	printf("%s, boot_source: %s\n", __func__, source);
+}

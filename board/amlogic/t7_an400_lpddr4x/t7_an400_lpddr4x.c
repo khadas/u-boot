@@ -247,7 +247,11 @@ int board_late_init(void)
 	aml_board_late_init_front(NULL);
 
 #ifdef CONFIG_T7_AN400_LPDDR4X_DEBIAN
+	/* Select fdtfile */
 	SetCurrentDtbFile();
+
+	/* Set boot source*/
+	board_set_boot_source();
 #endif
 
 	board_boot_freertos();
