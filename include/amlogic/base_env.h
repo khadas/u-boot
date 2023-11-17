@@ -31,6 +31,12 @@
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 
+#ifdef CONFIG_AB_SYSTEM
+#define CINFIG_KNL_READ "if imgread kernel ${recovery_part} ${loadaddr}; then bootm ${loadaddr}; fi;"
+#else
+#define CINFIG_KNL_READ "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"
+#endif
+
 #ifndef CONFIG_AML_PRODUCT_MODE
 #define _AML_RUN_UPDATE_ENV  \
 	/*first usb burning, second sdc_burn, third ext-sd autoscr/recovery*/\
@@ -185,7 +191,7 @@
 			"recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
 			"setenv bootconfig ${bootconfig} "\
 			"androidboot.slot_suffix=${active_slot};"\
-			"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+			CINFIG_KNL_READ \
 			"else "\
 				"if test ${vendor_boot_mode} = true; then "\
 				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
