@@ -3703,6 +3703,7 @@ static void vop2_dither_setup(struct vop2 *vop2, int bus_format, int crtc_id)
 			DITHER_DOWN_MODE_SHIFT, dither_down_mode, false);
 }
 
+char hdmi_out_mode[32];
 static int rockchip_vop2_init(struct display_state *state)
 {
 	struct crtc_state *cstate = &state->crtc_state;
@@ -3742,6 +3743,8 @@ static int rockchip_vop2_init(struct display_state *state)
 	       vop2_get_vrefresh(state),
 	       get_output_if_name(conn_state->output_if, output_type_name),
 	       cstate->crtc_id);
+
+	snprintf(hdmi_out_mode, 32, "hdmimode=%dx%d", mode->crtc_hdisplay, mode->vdisplay);
 
 	if (mode->hdisplay > VOP2_MAX_VP_OUTPUT_WIDTH) {
 		cstate->splice_mode = true;

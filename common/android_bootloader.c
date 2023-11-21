@@ -1377,6 +1377,8 @@ int android_bootloader_boot_flow(struct blk_desc *dev_desc,
 	extern int is_mipi_lcd_exit;
 	snprintf(lcd_id_buf2, 32, "is_mipi_lcd_exit=%d", is_mipi_lcd_exit);
 	env_update("bootargs", lcd_id_buf2);
+	extern char hdmi_out_mode[32];
+	env_update("bootargs", hdmi_out_mode);
 	debug("ANDROID: bootargs: \"%s\"\n", command_line);
 
 #ifdef CONFIG_SUPPORT_OEM_DTB
