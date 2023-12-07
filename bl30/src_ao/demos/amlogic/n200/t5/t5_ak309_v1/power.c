@@ -153,8 +153,8 @@ void str_power_on(int shutdown_flag)
 			printf("VDDCPU/VDDQ set gpio val fail\n");
 			return;
 		}
-		/*Wait 10ms for VDDCPU stable*/
-		vTaskDelay(pdMS_TO_TICKS(10));
+		/*Wait 20ms for VDDCPU stable*/
+		vTaskDelay(pdMS_TO_TICKS(20));
 	}
 
 	/***power on 5v***/

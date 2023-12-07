@@ -587,6 +587,7 @@ add_upgrade_check() {
 		i=$((i + 1))
 	done
 
+    local imagesize=$(wc -c < $1)
     local sig="$TMP/sig"
 		dd if=/dev/zero of=${sig} bs=1 count=12 &> /dev/null         #szPad0[12]
 		echo -n 'SCPT' >> ${sig}                                     #szPad0[4]
@@ -608,7 +609,10 @@ add_upgrade_check() {
 		fi
 
 		dd if=/dev/zero of=${sig} bs=1 count=20 oflag=append conv=notrunc &> /dev/null		 #szPad1[16],szPad2[4]
-		dd if=/dev/urandom of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null	 #szPad3[12]
+		#dd if=/dev/urandom of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null	 #szPad3[12]
+		openssl dgst -sha256 -binary -out $TMP/$(basename ${sig}).sha ${sig}
+		dd if=$TMP/$(basename ${sig}).sha of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null	 #szPad3[12]
+		rm -f $TMP/$(basename ${sig}).sha
 
 		# Add arb cvn
 		echo $arb_magic > $TMP/upg_chk_cvn
@@ -629,9 +633,15 @@ add_upgrade_check() {
 		dd if=$TMP/upg_chk_cvn of=${sig} bs=1 count=4 oflag=append conv=notrunc &> /dev/null    #nIMGCVN
 
 		dd if=/dev/zero of=${sig} bs=1 count=84 oflag=append conv=notrunc &> /dev/null     #szPad31[80],szPad4[4]
-		dd if=/dev/urandom of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null  #szPad5[12]
+		#dd if=/dev/urandom of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null  #szPad5[12]
+		openssl dgst -sha256 -binary -out $TMP/$(basename ${sig}).sha ${sig}
+		dd if=$TMP/$(basename ${sig}).sha of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null	 #szPad5[12]
+		rm -f $TMP/$(basename ${sig}).sha
 		dd if=/dev/zero of=${sig} bs=1 count=116 oflag=append conv=notrunc &> /dev/null    #szPad5[112],szPad6[4]
-		dd if=/dev/urandom of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null  #szPad7[12]
+		#dd if=/dev/urandom of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null  #szPad7[12]
+		openssl dgst -sha256 -binary -out $TMP/$(basename ${sig}).sha ${sig}
+		dd if=$TMP/$(basename ${sig}).sha of=${sig} bs=1 count=12 oflag=append conv=notrunc &> /dev/null	 #szPad7[12]
+		rm -f $TMP/$(basename ${sig}).sha
 		dd if=/dev/zero of=${sig} bs=1 count=112 oflag=append conv=notrunc &> /dev/null    #szPad7[112]
 
 		modulus=`openssl rsa -in $2  -modulus -noout`

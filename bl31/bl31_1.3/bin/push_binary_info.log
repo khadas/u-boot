@@ -1,0 +1,4 @@
+remote: remote: Processing changes: (\)remote: Processing changes: refs: 1 (\)remote: Processing changes: refs: 1, done            
+To ssh://scgit.amlogic.com:29418/firmware/bin/bl31
+   6bd276637..e398997c2  HEAD -> amlogic-dev-2.7
+

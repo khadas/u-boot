@@ -31,7 +31,12 @@ __BEGIN_DECLS
 /* The size should be the number of 2^n */
 #define NAPOT_SIZE(size)	(((size) - 1) >> 3)
 
+extern uint32_t _text;
+extern uint32_t _etext;
+
 void pmp_open_all_space(void);
+
+uint32_t config_pmp(void);
 
 void switch_m2u_mode(void);
 

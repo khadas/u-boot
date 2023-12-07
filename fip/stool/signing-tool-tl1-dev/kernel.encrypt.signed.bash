@@ -4,7 +4,7 @@ set -e  #exit if get error
 #set -x
 
 ToolPath="$(cd $(dirname $0); pwd)/.."
-kerenlFile=$1
+kernelFile=$1
 keyPath=$2
 outPut=$3
 
@@ -16,18 +16,18 @@ if [ "$#" -ne 3 ];  then
     echo "arg num $# err"
     usage
 fi
-if [ ! -f "$kerenlFile" ]; then
-    echo "$kerenlFile is not existed kernel filw"
+if [ ! -f "$kernelFile" ]; then
+    echo "$kernelFile is not existed kernel file"
     usage
 fi
 if [ ! -d "$keyPath" ]; then
-    echo "not dir path for key, choose path containning key"
+    echo "not dir path for key, choose path containing key"
     usage
 fi
 
 
 ${ToolPath}/signing-tool-tl1/sign-boot-tl1.sh --sign-kernel \
-        -i ${kerenlFile} \
+        -i ${kernelFile} \
         -k ${keyPath}/kernelkey.pem \
         -a ${keyPath}/kernelaeskey  \
         --iv ${keyPath}/kernelaesiv \

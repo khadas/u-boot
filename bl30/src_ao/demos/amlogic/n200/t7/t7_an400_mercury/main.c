@@ -145,6 +145,7 @@ void hardware_init(void);
 void hardware_init()
 {
 	config_eclic_irqs();
+	config_pmp();
 }
 
 // Test target board
