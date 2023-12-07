@@ -1430,11 +1430,12 @@ extern struct part_info *get_aml_mtdpart_by_index(struct mtd_info *master, int i
 int mtd_store_param_partition(void)
 {
 	struct part_info *temp;
-	int lenvir, i, re, count;
+	int lenvir, i, re, count = 0;
 	char buf[512];
 	char *p = buf;
-
+#ifdef CONFIG_AML_MTDPART
 	count = get_aml_mtdpart_count();
+#endif
 	lenvir = snprintf(buf, sizeof(buf), "%s", "mtdparts=aml-nand:");
 	p += lenvir;
 	re = sizeof(buf) - lenvir;
