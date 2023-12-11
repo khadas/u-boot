@@ -193,7 +193,7 @@
 		"Irq_check_en=0\0"\
 		"reboot_mode_android=""normal""\0"\
 		"initargs="\
-			"rootflags=data=writeback rw rootfstype=ext4 loglevel=4 " \
+			"rootflags=data=writeback rw rootfstype=ext4 " \
 			"no_console_suspend " \
 			"earlycon=aml-uart,0xff803000 ramoops.pstore_en=1 " \
 			"ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
