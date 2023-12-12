@@ -222,12 +222,17 @@
 		"\0"\
 	"storeargs="\
 		"get_bootloaderversion;" \
+		"if test ${lcd_exist} != 1; then "\
+			"setenv vout2_args ;"\
+		"else "\
+			"setenv vout2_args vout2=${outputmode2},enable;"\
+		"fi;"\
 		"setenv bootargs ${initargs} phy_idx=${phy_idx} hdr_policy=${hdr_policy} "\
 			"hdr_priority=${hdr_priority} otg_device=${otg_device} "\
 			"reboot_mode_android=${reboot_mode_android} "\
 			"logo=${display_layer},loaded,${fb_addr} "\
 			"fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} "\
-			"outputmode=${outputmode} vout2=${outputmode2},enable "\
+			"outputmode=${outputmode} ${vout2_args} "\
 			"vout=${outputmode},${vout_init} "\
 			"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 			"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
