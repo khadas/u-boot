@@ -51,7 +51,7 @@ int aml_check_is_ready_for_sdc_produce(void)
     cmd = "fatsize mmc 0 ${sdcburncfg}";
     ret = run_command(cmd, 0);
     filesize = getenv("filesize");
-    if (strcmp(filesize, "0") == 0) {
+    if (NULL == filesize || strcmp(filesize, "0") == 0) {
         DWN_DBG("%s not exist\n", sdc_cfg_file);
         return 0;
     }
