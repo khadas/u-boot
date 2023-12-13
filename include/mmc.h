@@ -700,6 +700,7 @@ struct mmc {
 				  */
 	int refix;
 	u32 quirks;
+	bool enable_mmc_hw_reset;
 };
 
 struct mmc_hwpart_conf {

@@ -2867,8 +2867,11 @@ int mmc_start_init(struct mmc *mmc)
 
 int enable_mmc_reset(struct mmc *mmc)
 {
-	int err;
+	int err = 0;
 	u8 ext_csd[512] = {0};
+
+	if (!IS_MMC(mmc) || !mmc->enable_mmc_hw_reset)
+		return err;
 
 	memset(ext_csd, 0, 512);
 	err = mmc_get_ext_csd(mmc, ext_csd);

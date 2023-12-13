@@ -1532,6 +1532,9 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 			return ret;
 	}
 
+	if (aml_card_type_mmc(host) && dev_read_bool(dev, "cap-mmc-hw-reset"))
+		pdata->mmc.enable_mmc_hw_reset = true;
+
 	clk_get_by_name(dev, "clkin", &host->div2);
 	clk_get_by_name(dev, "xtal", &host->xtal);
 	clk_get_by_name(dev, "mux", &host->mux);
