@@ -2078,8 +2078,10 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	filename = env_get("bootfile");
 	if (argc > 5) {
-		filename_bak = malloc(strlen(filename) + 1);
-		strcpy(filename_bak, filename);
+		if (filename) {
+			filename_bak = malloc(strlen(filename) + 1);
+			strcpy(filename_bak, filename);
+		}
 		filename = argv[5];
 		env_set("bootfile", filename);
 	}
