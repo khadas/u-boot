@@ -79,10 +79,109 @@ char *lcd_mode_mode_to_str(int mode)
 	return lcd_mode_table[mode];
 }
 
+void lcd_cma_pool_init(struct aml_lcd_cma_mem *cma,
+		phys_addr_t pa, unsigned long size, unsigned int page_size)
+{
+	LCDPR("%s pa:0x%llx, size:0x%lx, page_size:0x%x\n", __func__, pa, size, page_size);
+	cma->page_size = page_size;
+	cma->size = (size / page_size) * page_size;
+	cma->page_num = cma->size / cma->page_size;
+	cma->page_pos = 0;
+	cma->offset = 0;
+	cma->pbase = pa;
+	cma->vbase = (unsigned char *)cma->pbase;
+	cma->ready = 1;
+}
+
+int lcd_cma_detect_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
+{
+	int parent_offset, cell_size;
+	char *propdata;
+	char name[128];
+
+	if (!dt_addr || !pdrv)
+		return 0;
+
+	parent_offset = fdt_path_offset(dt_addr, "/reserved-memory");
+	if (parent_offset < 0) {
+		LCDERR("can't find node: /reserved-memory\n");
+		return 0;
+	}
+	cell_size = fdt_address_cells(dt_addr, parent_offset);
+	if (pdrv->index == 0)
+		sprintf(name, "/reserved-memory/linux,lcd-cma");
+	else
+		sprintf(name, "/reserved-memory/linux,lcd%d-cma", pdrv->index);
+	parent_offset = fdt_path_offset(dt_addr, name);
+	if (parent_offset < 0) {
+		LCDERR("can't find node: %s\n", name);
+		return 0;
+	}
+	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "reg", NULL);
+	if (!propdata) {
+		LCDPR("warning: failed to get lcd-cma memory from dts\n");
+		return 0;
+	}
+
+	memset(&pdrv->cma_pool, 0, sizeof(struct aml_lcd_cma_mem));
+	if (cell_size == 2) {
+		pdrv->cma_pool.pbase = be32_to_cpup((((u32 *)propdata) + 1));
+		pdrv->cma_pool.size = be32_to_cpup((((u32 *)propdata) + 3));
+	} else {
+		pdrv->cma_pool.pbase = be32_to_cpup(((u32 *)propdata));
+		pdrv->cma_pool.size = be32_to_cpup((((u32 *)propdata) + 1));
+	}
+	pdrv->cma_pool.exist = 1;
+
+	return 1;
+}
+
+//Its a one-time-deal for uboot, no free. think twice before use this
+void *lcd_cma_pool_simple_alloc(struct aml_lcd_cma_mem *cma, unsigned long size)
+{
+	unsigned int pages;
+	void *va = NULL;
+
+	if (!cma || !cma->vbase || cma->page_size == 0)
+		return NULL;
+
+	pages = (size + cma->page_size - 1) / cma->page_size;
+	if (pages > cma->page_num - cma->page_pos)
+		return NULL;
+
+	va = cma->vbase + cma->page_pos * cma->page_size;
+	cma->page_pos += pages;
+
+	return va;
+}
+
+void *lcd_alloc_dma_buffer(struct aml_lcd_drv_s *pdrv, unsigned long size)
+{
+	void *addr = NULL;
+	struct aml_lcd_cma_mem *cma;
+
+	if (!pdrv)
+		return NULL;
+
+	cma = &pdrv->cma_pool;
+
+	if (cma->ready) {
+		addr = lcd_cma_pool_simple_alloc(cma, size);
+	} else if (cma->exist) {
+		lcd_cma_pool_init(cma, cma->pbase, cma->size, LCD_CMA_PAGE_SIZE_4K);
+		addr = lcd_cma_pool_simple_alloc(cma, size);
+	} else {
+		addr = memalign(16, size);
+	}
+
+	return addr;
+}
+
 static void lcd_config_load_print(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
 	union lcd_ctrl_config_u *pctrl;
+	unsigned int count;
 
 	LCDPR("[%d]: %s, %s, %dbit, %dx%d\n",
 		pdrv->index,
@@ -90,6 +189,15 @@ static void lcd_config_load_print(struct aml_lcd_drv_s *pdrv)
 		lcd_type_type_to_str(pconf->basic.lcd_type),
 		pconf->basic.lcd_bits,
 		pconf->basic.h_active, pconf->basic.v_active);
+
+	count = pconf->basic.h_active + pconf->timing.hsync_width
+		+ pconf->timing.hsync_bp;
+	if (count > pconf->basic.h_period)
+		LCDERR("h_timing is invalid(%d)\n", pconf->basic.h_period);
+	count = pconf->basic.v_active + pconf->timing.vsync_width
+		+ pconf->timing.vsync_bp;
+	if (count > pconf->basic.v_period)
+		LCDERR("v_timing is invalid(%d)\n", pconf->basic.v_period);
 
 	if ((lcd_debug_print_flag & LCD_DBG_PR_NORMAL) == 0)
 		return;
@@ -113,6 +221,8 @@ static void lcd_config_load_print(struct aml_lcd_drv_s *pdrv)
 
 	LCDPR("fr_adjust_type = %d\n", pconf->timing.fr_adjust_type);
 	LCDPR("ss_level = %d\n", pconf->timing.ss_level);
+	LCDPR("ss_freq = %d\n", pconf->timing.ss_freq);
+	LCDPR("ss_mode = %d\n", pconf->timing.ss_mode);
 	LCDPR("clk_auto = %d\n", pconf->timing.clk_auto);
 	LCDPR("pixel_clk = %d\n", pconf->timing.lcd_clk);
 
@@ -181,12 +291,12 @@ static void lcd_config_load_print(struct aml_lcd_drv_s *pdrv)
 
 		LCDPR("lane_count          = %d\n", pctrl->edp_cfg.lane_count);
 		LCDPR("link_rate           = %d\n", pctrl->edp_cfg.link_rate);
-		LCDPR("bit_rate            = %d\n", pctrl->edp_cfg.bit_rate);
+		// LCDPR("bit_rate            = %d\n", pctrl->edp_cfg.bit_rate);
 		LCDPR("training_settings   = %d\n", pctrl->edp_cfg.training_settings);
 		LCDPR("main_stream_enable  = %d\n", pctrl->edp_cfg.main_stream_enable);
 
-		LCDPR("phy_vswing = 0x%x\n", pctrl->edp_cfg.phy_vswing);
-		LCDPR("phy_preem  = 0x%x\n", pctrl->edp_cfg.phy_preem);
+		LCDPR("phy_vswing = 0x%x\n", pctrl->edp_cfg.phy_vswing_preset);
+		LCDPR("phy_preem  = 0x%x\n", pctrl->edp_cfg.phy_preem_preset);
 	}
 }
 
@@ -198,7 +308,7 @@ int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 	char *propdata, *p, snode[10];
 	const char *str;
 	unsigned int temp;
-	int i, j;
+	int i;
 
 	if (pdrv->index == 0)
 		sprintf(snode, "/lcd");
@@ -282,8 +392,9 @@ int lcd_base_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 			i++;
 		}
 	}
-	for (j = i; j < LCD_CPU_GPIO_NUM_MAX; j++)
-		strcpy(pconf->power.cpu_gpio[j], "invalid");
+
+	for (; i < LCD_CPU_GPIO_NUM_MAX; i++)
+		strcpy(pconf->power.cpu_gpio[i], "invalid");
 
 #endif
 	return 0;
@@ -294,7 +405,7 @@ int lcd_base_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 	struct lcd_dft_config_s *dft_conf;
 	unsigned int temp;
 	char (*lcd_gpio)[LCD_CPU_GPIO_NAME_MAX];
-	int i, j;
+	int i;
 
 	dft_conf = pdrv->data->dft_conf[pdrv->index];
 	if (!dft_conf) {
@@ -331,8 +442,9 @@ int lcd_base_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 		strcpy(pdrv->config.power.cpu_gpio[i], lcd_gpio[i]);
 		i++;
 	}
-	for (j = i; j < LCD_CPU_GPIO_NUM_MAX; j++)
-		strcpy(pdrv->config.power.cpu_gpio[j], "invalid");
+
+	for (; i < LCD_CPU_GPIO_NUM_MAX; i++)
+		strcpy(pdrv->config.power.cpu_gpio[i], "invalid");
 
 	return 0;
 }
@@ -365,10 +477,13 @@ static int lcd_power_load_from_dts(struct aml_lcd_drv_s *pdrv,
 			pstep[i].delay = temp;
 			if (pstep[i].type == LCD_POWER_TYPE_CLK_SS) {
 				temp = pstep[i].value;
-				pdrv->config.timing.ss_level |= temp << 8;
+				pdrv->config.timing.ss_freq = temp & 0xf;
+				pdrv->config.timing.ss_mode = (temp >> 4) & 0xf;
 				if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-					LCDPR("[%d]: clk_ss value=0x%x, final ss_level=0x%x\n",
-					      pdrv->index, temp, pdrv->config.timing.ss_level);
+					LCDPR("[%d]: clk_ss value=0x%x: ss_freq=%d, ss_mode=%d\n",
+					      pdrv->index, temp,
+					      pdrv->config.timing.ss_freq,
+					      pdrv->config.timing.ss_mode);
 				}
 			} else if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
 #ifdef CONFIG_AML_LCD_EXTERN
@@ -451,10 +566,13 @@ static int lcd_power_load_from_unifykey(struct aml_lcd_drv_s *pdrv,
 
 		if (pstep[i].type == LCD_POWER_TYPE_CLK_SS) {
 			temp = pstep[i].value;
-			pdrv->config.timing.ss_level |= temp << 8;
+			pdrv->config.timing.ss_freq = temp & 0xf;
+			pdrv->config.timing.ss_mode = (temp >> 4) & 0xf;
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-				LCDPR("[%d]: clk_ss value=0x%x, final ss_level=0x%x\n",
-				      pdrv->index, temp, pdrv->config.timing.ss_level);
+				LCDPR("[%d]: clk_ss value=0x%x: ss_freq=%d, ss_mode=%d\n",
+					pdrv->index, temp,
+					pdrv->config.timing.ss_freq,
+					pdrv->config.timing.ss_mode);
 			}
 		} else if (pstep[i].type == LCD_POWER_TYPE_EXTERN) {
 #ifdef CONFIG_AML_LCD_EXTERN
@@ -786,6 +904,81 @@ lcd_pinmux_load_config_next:
 	return 0;
 }
 
+static void lcd_mlvds_phy_ckdi_config(struct aml_lcd_drv_s *pdrv)
+{
+	unsigned int channel_sel0, channel_sel1, pi_clk_sel = 0;
+	unsigned int i, temp;
+
+	channel_sel0 = pdrv->config.control.mlvds_cfg.channel_sel0;
+	channel_sel1 = pdrv->config.control.mlvds_cfg.channel_sel1;
+
+	/* pi_clk select */
+	switch (pdrv->data->chip_type) {
+	case LCD_CHIP_TL1:
+	case LCD_CHIP_TM2:
+		/* mlvds channel:    //tx 12 channels
+		 *    0: clk_a
+		 *    1: d0_a
+		 *    2: d1_a
+		 *    3: d2_a
+		 *    4: d3_a
+		 *    5: d4_a
+		 *    6: clk_b
+		 *    7: d0_b
+		 *    8: d1_b
+		 *    9: d2_b
+		 *   10: d3_b
+		 *   11: d4_b
+		 */
+		for (i = 0; i < 8; i++) {
+			temp = (channel_sel0 >> (i * 4)) & 0xf;
+			if (temp == 0 || temp == 6)
+				pi_clk_sel |= (1 << i);
+		}
+		for (i = 0; i < 4; i++) {
+			temp = (channel_sel1 >> (i * 4)) & 0xf;
+			if (temp == 0 || temp == 6)
+				pi_clk_sel |= (1 << (i + 8));
+		}
+		break;
+	case LCD_CHIP_T5:
+	case LCD_CHIP_T5D:
+	case LCD_CHIP_T3:
+	case LCD_CHIP_T5W:
+	case LCD_CHIP_T5M:
+	case LCD_CHIP_TXHD2:
+		/* mlvds channel:    //tx 8 channels
+		 *    0: d0_a
+		 *    1: d1_a
+		 *    2: d2_a
+		 *    3: clk_a
+		 *    4: d0_b
+		 *    5: d1_b
+		 *    6: d2_b
+		 *    7: clk_b
+		 */
+		for (i = 0; i < 8; i++) {
+			temp = (channel_sel0 >> (i * 4)) & 0xf;
+			if (temp == 3 || temp == 7)
+				pi_clk_sel |= (1 << i);
+		}
+		for (i = 0; i < 4; i++) {
+			temp = (channel_sel1 >> (i * 4)) & 0xf;
+			if (temp == 3 || temp == 7)
+				pi_clk_sel |= (1 << (i + 8));
+		}
+		break;
+	default:
+		break;
+	}
+
+	pdrv->config.control.mlvds_cfg.pi_clk_sel = pi_clk_sel;
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		LCDPR("channel_sel0=0x%08x, channel_sel1=0x%08x, pi_clk_sel=0x%03x\n",
+		      channel_sel0, channel_sel1, pi_clk_sel);
+	}
+}
+
 static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 {
 #ifdef CONFIG_OF_LIBFDT
@@ -922,7 +1115,10 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 		pconf->timing.lcd_clk = 60;
 	} else {
 		pconf->timing.fr_adjust_type = (unsigned char)(be32_to_cpup((u32 *)propdata));
-		pconf->timing.ss_level = be32_to_cpup((((u32 *)propdata) + 1));
+		temp = be32_to_cpup((((u32 *)propdata) + 1));
+		pconf->timing.ss_level = temp & 0xff;
+		pconf->timing.ss_freq = (temp >> 8) & 0xf;
+		pconf->timing.ss_mode = (temp >> 12) & 0xf;
 		pconf->timing.clk_auto = (unsigned char)(be32_to_cpup((((u32 *)propdata) + 2)));
 		temp = be32_to_cpup((((u32 *)propdata) + 3));
 		if (temp > 0) {
@@ -1154,6 +1350,8 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 			phy_cfg->lane[i].amp = 0;
 			phy_cfg->lane[i].preem = temp;
 		}
+
+		lcd_mlvds_phy_ckdi_config(pdrv);
 		break;
 	case LCD_P2P:
 		propdata = (char *)fdt_getprop(dt_addr, child_offset, "p2p_attr", NULL);
@@ -1266,21 +1464,21 @@ static int lcd_config_load_from_dts(char *dt_addr, struct aml_lcd_drv_s *pdrv)
 		if (!propdata) {
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 				LCDPR("[%d]: failed to get phy_attr\n", pdrv->index);
-			pctrl->edp_cfg.phy_vswing = 0x5;
-			pctrl->edp_cfg.phy_preem  = 0x1;
+			pctrl->edp_cfg.phy_vswing_preset = 0x5;
+			pctrl->edp_cfg.phy_preem_preset  = 0x1;
 		} else {
-			pctrl->edp_cfg.phy_vswing = be32_to_cpup((u32 *)propdata);
-			pctrl->edp_cfg.phy_preem  = be32_to_cpup((((u32 *)propdata) + 1));
+			pctrl->edp_cfg.phy_vswing_preset = be32_to_cpup((u32 *)propdata);
+			pctrl->edp_cfg.phy_preem_preset  = be32_to_cpup((((u32 *)propdata) + 1));
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 				LCDPR("[%d]: set phy vswing=0x%x, preem=0x%x\n",
 				      pdrv->index,
-				      pctrl->edp_cfg.phy_vswing,
-				      pctrl->edp_cfg.phy_preem);
+				      pctrl->edp_cfg.phy_vswing_preset,
+				      pctrl->edp_cfg.phy_preem_preset);
 			}
 		}
 		phy_cfg->lane_num = 4;
-		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing & 0xf;
-		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem;
+		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing_preset & 0xf;
+		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem_preset;
 		phy_cfg->vswing = phy_cfg->vswing_level;
 		break;
 	default:
@@ -1360,13 +1558,22 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 			phy_cfg->lane[i].preem =
 				*(p + LCD_UKEY_PHY_LANE_CTRL + 4 * i) |
 				(*(p + LCD_UKEY_PHY_LANE_CTRL + 4 * i + 1) << 8);
+			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+				LCDPR("%s: lane[%d]: preem=0x%x\n",
+					__func__, i,
+					phy_cfg->lane[i].preem);
+			}
+		}
+	}
+
+	if (phy_cfg->flag & (1 << 13)) {
+		for (i = 0; i < phy_cfg->lane_num; i++) {
 			phy_cfg->lane[i].amp =
 				*(p + LCD_UKEY_PHY_LANE_CTRL + 4 * i + 2) |
 				(*(p + LCD_UKEY_PHY_LANE_CTRL + 4 * i + 3) << 8);
 			if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-				LCDPR("%s: lane[%d]: preem=0x%x, amp=0x%x\n",
+				LCDPR("%s: lane[%d]: amp=0x%x\n",
 					__func__, i,
-					phy_cfg->lane[i].preem,
 					phy_cfg->lane[i].amp);
 			}
 		}
@@ -1383,10 +1590,10 @@ static int lcd_config_load_from_unifykey_v2(struct lcd_config_s *pconf,
 	if (cus_ctrl->flag & 0x1) {
 		temp = (*(p + LCD_UKEY_CUS_CTRL_ATTR_0) |
 			*(p + LCD_UKEY_CUS_CTRL_ATTR_0 + 1) << 8);
-		cus_ctrl->dlg_flag = temp & 0x3;
+		cus_ctrl->ufr_flag = temp & 0x3;
 		if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-			LCDPR("%s: dlg_flag=%d\n",
-			      __func__, cus_ctrl->dlg_flag);
+			LCDPR("%s: ufr_flag=%d\n",
+			      __func__, cus_ctrl->ufr_flag);
 		}
 	}
 
@@ -1668,6 +1875,8 @@ static int lcd_config_load_from_unifykey(struct aml_lcd_drv_s *pdrv)
 			phy_cfg->lane[i].amp = 0;
 			phy_cfg->lane[i].preem = temp;
 		}
+
+		lcd_mlvds_phy_ckdi_config(pdrv);
 		break;
 	case LCD_P2P:
 		pctrl->p2p_cfg.p2p_type =
@@ -1931,6 +2140,8 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 			phy_cfg->lane[i].amp = 0;
 			phy_cfg->lane[i].preem = temp;
 		}
+
+		lcd_mlvds_phy_ckdi_config(pdrv);
 		break;
 	case LCD_P2P:
 		pctrl->p2p_cfg.p2p_type = ext_lcd->lcd_spc_val0;
@@ -1999,15 +2210,15 @@ static int lcd_config_load_from_bsp(struct aml_lcd_drv_s *pdrv)
 		pctrl->edp_cfg.enhanced_framing_en = ext_lcd->lcd_spc_val6;
 		pctrl->edp_cfg.edid_en = ext_lcd->lcd_spc_val7;
 		pctrl->edp_cfg.pn_swap = 0;
-		pctrl->edp_cfg.phy_vswing = ext_lcd->lcd_spc_val8;
-		pctrl->edp_cfg.phy_preem  = ext_lcd->lcd_spc_val9;
+		pctrl->edp_cfg.phy_vswing_preset = ext_lcd->lcd_spc_val8;
+		pctrl->edp_cfg.phy_preem_preset  = ext_lcd->lcd_spc_val9;
 
 		pctrl->edp_cfg.lane_count = pctrl->edp_cfg.max_lane_count;
 		pctrl->edp_cfg.link_rate = pctrl->edp_cfg.max_link_rate;
 
 		phy_cfg->lane_num = 4;
-		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing;
-		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem;
+		phy_cfg->vswing_level = pctrl->edp_cfg.phy_vswing_preset;
+		phy_cfg->preem_level = pctrl->edp_cfg.phy_preem_preset;
 		break;
 	default:
 		break;
@@ -2078,6 +2289,7 @@ int lcd_get_config(char *dt_addr, int load_id, struct aml_lcd_drv_s *pdrv)
 	if (pdrv->index)
 		pdrv->config.timing.ppc = 1;
 
+	lcd_cma_detect_dts(dt_addr, pdrv);
 	lcd_config_load_print(pdrv);
 	lcd_pinmux_load_config(pdrv);
 
@@ -2096,13 +2308,13 @@ static unsigned int vbyone_lane_num[] = {
 	8,
 };
 
-#define VBYONE_BIT_RATE_MAX		3700 //MHz
-#define VBYONE_BIT_RATE_MIN		600
-void lcd_vbyone_config_set(struct aml_lcd_drv_s *pdrv)
+#define VBYONE_BIT_RATE_MAX		3700000000ULL //Hz
+#define VBYONE_BIT_RATE_MIN		600000000
+void lcd_vbyone_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int band_width, bit_rate, pclk, phy_div;
-	unsigned int byte_mode, lane_count, minlane;
+	unsigned int byte_mode, lane_count, minlane, phy_div;
+	unsigned long long bit_rate, band_width;
 	unsigned int temp, i;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
@@ -2113,260 +2325,180 @@ void lcd_vbyone_config_set(struct aml_lcd_drv_s *pdrv)
 	byte_mode = pconf->control.vbyone_cfg.byte_mode;
 	/* byte_mode * byte2bit * 8/10_encoding * pclk =
 	   byte_mode * 8 * 10 / 8 * pclk */
-	pclk = pconf->timing.lcd_clk / 1000; /* kHz */
-	band_width = byte_mode * 10 * pclk;
+	band_width = pconf->timing.lcd_clk;
+	band_width = byte_mode * 10 * band_width;
 
-	temp = VBYONE_BIT_RATE_MAX * 1000;
-	temp = (band_width + temp - 1) / temp;
+	temp = VBYONE_BIT_RATE_MAX;
+	temp = lcd_do_div((band_width + temp - 1), temp);
 	for (i = 0; i < 4; i++) {
 		if (temp <= vbyone_lane_num[i])
 			break;
 	}
 	minlane = vbyone_lane_num[i];
 	if (lane_count < minlane) {
-		LCDERR("vbyone lane_num(%d) is less than min(%d)\n",
+		LCDERR("vbyone lane_num(%d) is less than min(%d), change to min lane_num\n",
 			lane_count, minlane);
 		lane_count = minlane;
 		pconf->control.vbyone_cfg.lane_count = lane_count;
-		LCDPR("change to min lane_num %d\n", minlane);
 	}
 
-	bit_rate = band_width / lane_count;
+	bit_rate = lcd_do_div(band_width, lane_count);
 	phy_div = lane_count / lane_count;
 	if (phy_div == 8) {
 		phy_div /= 2;
-		bit_rate /= 2;
+		bit_rate = lcd_do_div(bit_rate, 2);
 	}
-	if (bit_rate > (VBYONE_BIT_RATE_MAX * 1000)) {
-		LCDERR("vbyone bit rate(%dKHz) is out of max(%dKHz)\n",
-			bit_rate, (VBYONE_BIT_RATE_MAX * 1000));
+	if (bit_rate > VBYONE_BIT_RATE_MAX) {
+		LCDERR("vbyone bit rate(%lldHz) is out of max(%lldHz)\n",
+			bit_rate, VBYONE_BIT_RATE_MAX);
 	}
-	if (bit_rate < (VBYONE_BIT_RATE_MIN * 1000)) {
-		LCDERR("vbyone bit rate(%dKHz) is out of min(%dKHz)\n",
-			bit_rate, (VBYONE_BIT_RATE_MIN * 1000));
+	if (bit_rate < VBYONE_BIT_RATE_MIN) {
+		LCDERR("vbyone bit rate(%lldHz) is out of min(%dHz)\n",
+			bit_rate, VBYONE_BIT_RATE_MIN);
 	}
-	bit_rate = bit_rate * 1000; /* Hz */
 
 	pconf->control.vbyone_cfg.phy_div = phy_div;
 	pconf->timing.bit_rate = bit_rate;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("lane_count=%u, bit_rate = %uMHz, pclk=%u.%03uMhz\n",
-			lane_count, (bit_rate / 1000000),
-			(pclk / 1000), (pclk % 1000));
+		LCDPR("lane_count=%u, bit_rate = %lluHz, pclk=%uhz\n",
+			lane_count, bit_rate, pconf->timing.lcd_clk);
 	}
 }
 
-void lcd_mlvds_config_set(struct aml_lcd_drv_s *pdrv)
+void lcd_mlvds_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int bit_rate, pclk;
+	unsigned long long bit_rate, band_width;
 	unsigned int lcd_bits, channel_num;
-	unsigned int channel_sel0, channel_sel1, pi_clk_sel = 0;
-	unsigned int i, temp;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
 	lcd_bits = pconf->basic.lcd_bits;
 	channel_num = pconf->control.mlvds_cfg.channel_num;
-	pclk = pconf->timing.lcd_clk / 1000;
-	bit_rate = lcd_bits * 3 * pclk / channel_num;
-
-	pconf->timing.bit_rate = bit_rate * 1000;
+	band_width = pconf->timing.lcd_clk;
+	band_width = lcd_bits * 3 * band_width;
+	bit_rate = lcd_do_div(band_width, channel_num);
+	pconf->timing.bit_rate = bit_rate;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("channel_num=%u, bit_rate=%u.%03uMHz, pclk=%u.%03uMhz\n",
-		      channel_num, (bit_rate / 1000), (bit_rate % 1000),
-		      (pclk / 1000), (pclk % 1000));
-	}
-
-	/* pi_clk select */
-	channel_sel0 = pconf->control.mlvds_cfg.channel_sel0;
-	channel_sel1 = pconf->control.mlvds_cfg.channel_sel1;
-	switch (pdrv->data->chip_type) {
-	case LCD_CHIP_TL1:
-	case LCD_CHIP_TM2:
-		/* mlvds channel:    //tx 12 channels
-		 *    0: clk_a
-		 *    1: d0_a
-		 *    2: d1_a
-		 *    3: d2_a
-		 *    4: d3_a
-		 *    5: d4_a
-		 *    6: clk_b
-		 *    7: d0_b
-		 *    8: d1_b
-		 *    9: d2_b
-		 *   10: d3_b
-		 *   11: d4_b
-		 */
-		for (i = 0; i < 8; i++) {
-			temp = (channel_sel0 >> (i * 4)) & 0xf;
-			if (temp == 0 || temp == 6)
-				pi_clk_sel |= (1 << i);
-		}
-		for (i = 0; i < 4; i++) {
-			temp = (channel_sel1 >> (i * 4)) & 0xf;
-			if (temp == 0 || temp == 6)
-				pi_clk_sel |= (1 << (i + 8));
-		}
-		break;
-	case LCD_CHIP_T5:
-	case LCD_CHIP_T5D:
-	case LCD_CHIP_T3:
-	case LCD_CHIP_T5W:
-	case LCD_CHIP_T5M:
-	case LCD_CHIP_TXHD2:
-		/* mlvds channel:    //tx 8 channels
-		 *    0: d0_a
-		 *    1: d1_a
-		 *    2: d2_a
-		 *    3: clk_a
-		 *    4: d0_b
-		 *    5: d1_b
-		 *    6: d2_b
-		 *    7: clk_b
-		 */
-		for (i = 0; i < 8; i++) {
-			temp = (channel_sel0 >> (i * 4)) & 0xf;
-			if (temp == 3 || temp == 7)
-				pi_clk_sel |= (1 << i);
-		}
-		for (i = 0; i < 4; i++) {
-			temp = (channel_sel1 >> (i * 4)) & 0xf;
-			if (temp == 3 || temp == 7)
-				pi_clk_sel |= (1 << (i + 8));
-		}
-		break;
-	default:
-		break;
-	}
-
-	pconf->control.mlvds_cfg.pi_clk_sel = pi_clk_sel;
-	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("channel_sel0=0x%08x, channel_sel1=0x%08x, pi_clk_sel=0x%03x\n",
-		      channel_sel0, channel_sel1, pi_clk_sel);
+		LCDPR("channel_num=%u, bit_rate=%lluHz, pclk=%uhz\n",
+		      channel_num, bit_rate, pconf->timing.lcd_clk);
 	}
 }
 
-void lcd_p2p_config_set(struct aml_lcd_drv_s *pdrv)
+void lcd_p2p_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int bit_rate, pclk;
-	unsigned int lcd_bits, lane_num;
-	unsigned int clk_mode;
+	unsigned int p2p_type, lcd_bits, lane_num, clk_mode;
+	unsigned long long bit_rate, band_width;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("[%d]: %s\n", pdrv->index, __func__);
 
 	lcd_bits = pconf->basic.lcd_bits;
 	lane_num = pconf->control.p2p_cfg.lane_num;
-	pclk = pconf->timing.lcd_clk / 1000;
+	band_width = pconf->timing.lcd_clk;
+	p2p_type = pconf->control.p2p_cfg.p2p_type & 0x1f;
 	clk_mode = pconf->timing.clk_mode;
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		LCDPR("clk_mode=%d (%s)\n", clk_mode,
 			(clk_mode == LCD_CLK_MODE_DEPENDENCE) ?
 			"dependence" : "independence");
 	}
-	switch (pconf->control.p2p_cfg.p2p_type) {
+	switch (p2p_type) {
 	case P2P_CEDS:
 	case P2P_EPI:
-		if (clk_mode == LCD_CLK_MODE_DEPENDENCE) {
-			if (pclk >= 600000)
-				bit_rate = pclk * 3 * lcd_bits / lane_num;
-			else
-				bit_rate = pclk * (3 * lcd_bits + 4) / lane_num;
-		} else {
-			bit_rate = pclk * (3 * lcd_bits + 4) / lane_num;
-		}
+		if (clk_mode == LCD_CLK_MODE_DEPENDENCE)
+			band_width = band_width * 3 * lcd_bits;
+		else //independence & dependence_adapt
+			band_width = band_width * (3 * lcd_bits + 4);
 		break;
 	case P2P_CHPI: /* 8/10 coding */
-		bit_rate = (pclk * 3 * lcd_bits * 10 / 8) / lane_num;
+		band_width = lcd_do_div((band_width * 3 * lcd_bits * 10), 8);
 		break;
 	case P2P_CSPI:
 	case P2P_ISP:
 	case P2P_CMPI:
 		if (clk_mode == LCD_CLK_MODE_DEPENDENCE) {
-			if (pclk >= 600000)
-				bit_rate = pclk * 3 * lcd_bits / lane_num;
-			else  /* 8/9 coding */
-				bit_rate = (pclk * 3 * lcd_bits * 9 / 8) / lane_num;
-		} else {
+			band_width = band_width * 3 * lcd_bits;
+		} else { //independence & dependence_adapt
 			/* 8/9 coding */
-			bit_rate = (pclk * 3 * lcd_bits * 9 / 8) / lane_num;
+			band_width = lcd_do_div((band_width * 3 * lcd_bits * 9), 8);
 		}
 		break;
+	case P2P_USIT:
+		if (clk_mode == LCD_CLK_MODE_DEPENDENCE)
+			band_width = band_width * 3 * lcd_bits;
+		else //independence & dependence_adapt
+			band_width = lcd_do_div((band_width * 3 * lcd_bits * 10), 9);
+		break;
 	default:
-		bit_rate = pclk * 3 * lcd_bits / lane_num;
+		band_width = band_width * 3 * lcd_bits;
 		break;
 	}
-
-	pconf->timing.bit_rate = bit_rate * 1000;
+	bit_rate = lcd_do_div(band_width, lane_num);
+	pconf->timing.bit_rate = bit_rate;
 
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("lane_num=%u, bit_rate=%u.%03uMHz, pclk=%u.%03uMhz\n",
-		      lane_num, (bit_rate / 1000), (bit_rate % 1000),
-		      (pclk / 1000), (pclk % 1000));
+		LCDPR("[%d]: lane_num=%u, bit_rate=%lluHz, pclk=%uhz\n",
+		      pdrv->index, lane_num,
+		      bit_rate, pconf->timing.lcd_clk);
 	}
 }
 
-void lcd_mipi_dsi_config_set(struct aml_lcd_drv_s *pdrv)
+void lcd_mipi_dsi_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 {
 	struct lcd_config_s *pconf = &pdrv->config;
-	unsigned int pclk, bit_rate;
-	unsigned int bit_rate_max;
 	struct dsi_config_s *dconf = &pconf->control.mipi_cfg;
-	unsigned int temp;
+	unsigned long long bit_rate, bit_rate_max, band_width;
 
 	dconf = &pconf->control.mipi_cfg;
 
 	/* unit in kHz for calculation */
-	pclk = pconf->timing.lcd_clk / 1000;
+	band_width = pconf->timing.lcd_clk;
 	if (dconf->operation_mode_display == OPERATION_VIDEO_MODE &&
 	    dconf->video_mode_type != BURST_MODE) {
-		temp = pclk * 4 * dconf->data_bits;
-		bit_rate = temp / dconf->lane_num;
+		band_width = band_width * 4 * dconf->data_bits;
 	} else {
-		temp = pclk * 3 * dconf->data_bits;
-		bit_rate = temp / dconf->lane_num;
+		band_width = band_width * 3 * dconf->data_bits;
 	}
-	//temp = bit_rate / pclk;
-	//if (temp % 2)
-	//	bit_rate += pclk;
-	dconf->local_bit_rate_min = bit_rate /* khz */;
+	bit_rate = lcd_do_div(band_width, dconf->lane_num);
+	dconf->local_bit_rate_min = bit_rate;
 
 	/* bit rate max */
 	if (dconf->bit_rate_max == 0) { /* auto calculate */
-		bit_rate_max = bit_rate + (pclk / 2);
+		bit_rate_max = bit_rate + (pconf->timing.lcd_clk / 2);
 		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDERR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+			LCDERR("[%d]: %s: invalid bit_rate_max %lldHz (max=%lldHz)\n",
 				pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 			bit_rate_max = MIPI_BIT_RATE_MAX;
 		}
 	} else { /* user define */
-		bit_rate_max = dconf->bit_rate_max * 1000;
+		bit_rate_max = dconf->bit_rate_max;
+		bit_rate_max *= 1000000;
 		if (bit_rate_max > MIPI_BIT_RATE_MAX) {
-			LCDPR("[%d]: %s: invalid bit_rate_max %dkHz (max=%dkHz)\n",
+			LCDPR("[%d]: %s: invalid bit_rate_max %lldHz (max=%lldHz)\n",
 			      pdrv->index, __func__, bit_rate_max, MIPI_BIT_RATE_MAX);
 		}
 		if (dconf->local_bit_rate_min > bit_rate_max) {
-			LCDPR("[%d]: %s: bit_rate_max %d can't reach bandwidth requirement %d\n",
+			LCDPR("[%d]: %s: bit_rate_max %lld can't reach bw requirement %lld\n",
 				pdrv->index, __func__, bit_rate_max,
 				dconf->local_bit_rate_min);
 			//force bit_rate_max for special case
-			dconf->local_bit_rate_min = bit_rate_max - pclk;
+			dconf->local_bit_rate_min = bit_rate_max - pconf->timing.lcd_clk;
 		}
 	}
 	dconf->local_bit_rate_max = bit_rate_max;
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
-		LCDPR("[%d]: %s: local_bit_rate_max=%ukHz, local_bit_rate_min=%ukHz\n",
+		LCDPR("[%d]: %s: local_bit_rate_max=%lluHz, local_bit_rate_min=%lluHz\n",
 		      pdrv->index, __func__,
 		      dconf->local_bit_rate_max, dconf->local_bit_rate_min);
 	}
 }
 
-void lcd_edp_config_set(struct aml_lcd_drv_s *pdrv)
+void lcd_edp_bit_rate_config(struct aml_lcd_drv_s *pdrv)
 {
 	//todo
 }
@@ -2380,7 +2512,7 @@ void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv)
 	//for basic timing
 	h_period = pconf->basic.h_period;
 	v_period = pconf->basic.v_period;
-	if (pconf->timing.lcd_clk < 200) { /* regard as frame_rate */
+	if (pconf->timing.lcd_clk < 500) { /* regard as frame_rate */
 		sync_duration = pconf->timing.lcd_clk;
 		pconf->timing.lcd_clk = sync_duration * h_period * v_period;
 		pconf->timing.sync_duration_num = sync_duration;
@@ -2391,6 +2523,11 @@ void lcd_basic_timing_range_update(struct aml_lcd_drv_s *pdrv)
 		sync_duration = lcd_do_div(temp, (v_period * h_period));
 		pconf->timing.sync_duration_num = sync_duration;
 		pconf->timing.sync_duration_den = 1000;
+	}
+	pconf->timing.enc_clk = pconf->timing.lcd_clk / pconf->timing.ppc;
+	if (pdrv->config.timing.ppc > 1) {
+		LCDPR("ppc=%d, lcd_clk=%d, enc_clk=%d\n",
+		      pdrv->config.timing.ppc, pconf->timing.lcd_clk, pconf->timing.enc_clk);
 	}
 
 	//for vrr range config
@@ -2649,12 +2786,15 @@ int lcd_vmode_change(struct aml_lcd_drv_s *pdrv)
 	if (pconf->timing.lcd_clk != pclk) {
 		if (len > 0)
 			len += sprintf(str+len, ", ");
-		len += sprintf(str + len, "pclk %u.%03uMHz->%u.%03uMHz, clk_change:%d",
-			(pconf->timing.lcd_clk / 1000000),
-			((pconf->timing.lcd_clk / 1000) % 1000),
-			(pclk / 1000000), ((pclk / 1000) % 1000),
+		len += sprintf(str + len, "pclk %uHz->%uHz, clk_change:%d",
+			pconf->timing.lcd_clk, pclk,
 			pconf->timing.clk_change);
 		pconf->timing.lcd_clk = pclk;
+		pconf->timing.enc_clk = pclk / pconf->timing.ppc;
+		if (pdrv->config.timing.ppc > 1) {
+			len += sprintf(str + len, ", ppc=%d, enc_clk=%d",
+				pdrv->config.timing.ppc, pconf->timing.enc_clk);
+		}
 	}
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
 		if (len > 0)

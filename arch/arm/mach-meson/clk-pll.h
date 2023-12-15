@@ -10,8 +10,8 @@
 #include <linux/bitops.h>
 #include <common.h>
 #include <linux/arm-smccc.h>
-//#include <linux/delay.h>
 #include <asm/arch/timer.h>
+#include "amlogic/pll.h"
 
 #define PLL_ENABLE              BIT(28)
 #define PLL_RESET               BIT(29)
@@ -41,6 +41,7 @@ struct pll_params_table {
 	}
 
 #define CLK_MESON_PLL_ROUND_CLOSEST	BIT(0)
+#define CLK_MESON_PLL_POWER_OF_TWO			BIT(1)
 
 struct parm {
 	uint32_t reg;
@@ -99,6 +100,7 @@ struct meson_clk_pll_data {
 	struct parm rst;
 	struct parm l;
 	struct parm frac;
+	struct parm th; /* threshold */
 	struct parm od;
 	struct parm en;
 	/* mpll parm */
@@ -122,6 +124,7 @@ struct meson_clk_pll_data {
 	u8 secid_test;
 	u8 clkmsr_id;
 	u8 clkmsr_margin;
+	u32 parent_rate;
 };
 
 static inline unsigned int meson_parm_read(struct parm *p)

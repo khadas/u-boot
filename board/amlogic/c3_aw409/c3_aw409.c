@@ -399,22 +399,22 @@ static const struct mtd_partition spinand_partitions[] = {
 	{
 	 .name = "misc",
 	 .offset = 0,
-	 .size = 2 * SZ_1M,
+	 .size = 1 * SZ_1M,
 	  },
 	{
 	 .name = "recovery",
 	 .offset = 0,
-	 .size = 16 * SZ_1M,
+	 .size = 10 * SZ_1M,
 	  },
 	{
 	 .name = "boot",
 	 .offset = 0,
-	 .size = 16 * SZ_1M,
+	 .size = 10 * SZ_1M,
 	  },
 	{
 	 .name = "system",
 	 .offset = 0,
-	 .size = 96 * SZ_1M,
+	 .size = 70 * SZ_1M,
 	  },
 	/* last partition get the rest capacity */
 	{
@@ -480,6 +480,8 @@ const char *const _env_args_reserve_[] = {
 	"lock",
 	"upgrade_step",
 	"bootloader_version",
+	"dts_to_gpt",
+	"fastboot_step",
 
 	NULL			//Keep NULL be last to tell END
 };

@@ -499,6 +499,7 @@ struct panel_misc_s {
 	char outputmode[64];
 	char connector_type[64];
 	unsigned char panel_reverse;
+	unsigned char display_layer;
 };
 
 struct lcd_tcon_spi_block_s {

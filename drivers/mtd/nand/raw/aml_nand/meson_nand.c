@@ -859,7 +859,7 @@ int meson_nfc_probe(struct udevice *dev)
 {
 	struct aml_nand_platform *plat = NULL;
 	const void *blob = gd->fdt_blob;
-	fdt_addr_t regs, clk_regs;
+	fdt_addr_t regs, clk_regs, spi_cfg;
 	int node;
 	int i, ret = 0;
 
@@ -917,6 +917,13 @@ int meson_nfc_probe(struct udevice *dev)
 		return 1;
 	}
 	controller->nand_clk_reg = (void *)clk_regs;
+
+	spi_cfg = fdtdec_get_addr(blob, node, "spi_cfg");
+	if (spi_cfg != FDT_ADDR_T_NONE) {
+		printf("nfc select slc nand mode!\n");
+		controller->spi_cfg = (void *)spi_cfg;
+		AMLNF_WRITE_REG(controller->spi_cfg, 0);
+	}
 
 	for (i=0; i<aml_nand_mid_device.dev_num; i++) {
 		plat = &aml_nand_mid_device.aml_nand_platform[i];

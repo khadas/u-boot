@@ -63,7 +63,7 @@
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
-        "loadaddr_rtos=0x00001000\0"\
+        "loadaddr_rtos=0x00080000\0"\
         "loadaddr_kernel=0x00020000\0"\
         "otg_device=1\0" \
         "panel_type=lcd_1\0" \
@@ -340,7 +340,8 @@
 #define CONFIG_MD5 1
 
 /* commands */
-
+//use startdsp command
+#define CONFIG_CMD_STARTDSP
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1

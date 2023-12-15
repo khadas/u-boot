@@ -12,18 +12,32 @@
 #include <asm/arch/pwr_ctrl.h>
 #include <serial.h>
 
-#ifndef CONFIG_CLK_P1_TYPE
-#ifndef PM_DSPA
-#define PM_DSPA PM_DSP
-#endif
-#ifndef PM_DSPB
-#define PM_DSPB 99
-#endif
-#endif
+// --------------------------------------------------
+//                    set_dsp_clk
+// --------------------------------------------------
 
 /*
- * clk_util_set_dsp_clk
- * freq_sel: 0:800MHz  fclk_2p5
+ * set_dsp_clk
+ * freq_sel:
+ *      [ for A1 (fclk = 1536M) ]
+ *           0:384MHz  fclk_2/2
+ *           1:308MHz  fclk_5
+ *           2:256MHz  fclk_3/2
+ *           3:24MHz   oscin
+ *     default:384MHz  fclk_4
+ *
+ *      [ for C1 and C2 ]
+ *           0:400MHz  fclk_5
+ *           1:333MHz  fclk_3/2
+ *           2:250MHz  fclk_2/4
+ *           3:200MHz  fclk_5/2
+ *           4:100MHz  fclk_5/4
+ *           5:24MHz   oscin
+ *           6:3MHz    oscin/8
+ *     default:400MHz  fclk_5
+ *
+ *      [ for Others ]
+ *           0:800MHz  fclk_2p5
  *           1:667MHz  fclk_3
  *           2:500MHz  fclk_4
  *           3:400MHz  fclk_2p5/2
@@ -34,7 +48,6 @@
  *           8:24MHz   oscin
  *           9:3MHz    oscin/3
  *     default:800MHz  fclk_2p5
- *      others:286MHz  fclk_7
  */
 
 int set_dsp_clk(uint32_t id, uint32_t freq_sel)
@@ -50,7 +63,8 @@ int set_dsp_clk(uint32_t id, uint32_t freq_sel)
 	case 0:
 		addr = CLKCTRL_DSPA_CLK_CTRL0;
 		break;
-#if defined(CONFIG_CLK_MESON_T7) || defined(CONFIG_CLK_MESON_P1)
+#if defined(CONFIG_CLK_MESON_A1) || defined(CONFIG_CLK_MESON_C1) || \
+		defined(CONFIG_CLK_MESON_T7) || defined(CONFIG_CLK_MESON_P1)
 	case 1:
 		addr = CLKCTRL_DSPB_CLK_CTRL0;
 		break;
@@ -68,10 +82,77 @@ int set_dsp_clk(uint32_t id, uint32_t freq_sel)
 	// Make sure not busy from last setting and we currently match the last setting
 
 	control = readl(addr);
-	printf("control = 0x%x\n", control);
 	printf("CLKCTRL_DSP_CLK_CTRL0 = %x\n", readl(addr));
 
 	switch (freq_sel) {
+#if defined(CONFIG_CLK_MESON_A1)
+	case 0:
+		clk_sel = 1;
+		clk_div = 1;
+		dsp_clk_tag = "fclk2/2:384MHz";
+		break;
+	case 1:
+		clk_sel = 3;
+		clk_div = 0;
+		dsp_clk_tag = "fclk5:308MHz";
+		break;
+	case 2:
+		clk_sel = 2;
+		clk_div = 1;
+		dsp_clk_tag = "fclk3/2:256MHz";
+		break;
+	case 3:
+		clk_sel = 0;
+		clk_div = 0;
+		dsp_clk_tag = "oscin:24MHz";
+		break;
+	default:
+		clk_sel = 5;
+		clk_div = 0;
+		dsp_clk_tag = "fclk4:384MHz (default)";
+		break;
+#elif defined(CONFIG_CLK_MESON_C1) || defined(CONFIG_CLK_MESON_C2)
+	case 0:
+		clk_sel = 3;
+		clk_div = 0;
+		dsp_clk_tag = "fclk5:400MHz";
+		break;
+	case 1:
+		clk_sel = 2;
+		clk_div = 1;
+		dsp_clk_tag = "fclk3/2:333MHz";
+		break;
+	case 2:
+		clk_sel = 5;
+		clk_div = 1;
+		dsp_clk_tag = "fclk4/2:250MHz";
+		break;
+	case 3:
+		clk_sel = 3;
+		clk_div = 1;
+		dsp_clk_tag = "fclk5/2:200MHz";
+		break;
+	case 4:
+		clk_sel = 3;
+		clk_div = 3;
+		dsp_clk_tag = "fclk5/4:100MHz";
+		break;
+	case 5:
+		clk_sel = 0;
+		clk_div = 0;
+		dsp_clk_tag = "oscin:24MHz";
+		break;
+	case 6:
+		clk_sel = 0;
+		clk_div = 7;
+		dsp_clk_tag = "oscin/8:3MHz";
+		break;
+	default:
+		clk_sel = 3;
+		clk_div = 0;
+		dsp_clk_tag = "fclk5:400MHz (default)";
+		break;
+#else
 	case 0:
 		clk_sel = 1;
 		clk_div = 0;
@@ -127,6 +208,7 @@ int set_dsp_clk(uint32_t id, uint32_t freq_sel)
 		clk_div = 0;
 		dsp_clk_tag = "fclk2p5:800MHz (default)";
 		break;
+#endif
 	}
 
 	printf("CLK_UTIL:dsp[%d]:%s\n", id, dsp_clk_tag);
@@ -141,16 +223,10 @@ int set_dsp_clk(uint32_t id, uint32_t freq_sel)
 
 	writel(control, addr);
 
-	switch (id) {
-	case 0:
+	if (id == 0)
 		printf("CLKCTRL_DSPA_CLK_CTRL0 = %x\n", readl(addr));
-		break;
-	case 1:
+	else
 		printf("CLKCTRL_DSPB_CLK_CTRL0 = %x\n", readl(addr));
-		break;
-	default:
-		break;
-	}
 
 	return ret;
 }
@@ -185,11 +261,19 @@ static int do_startdsp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	StatVectorSel = (addr != 0xfffa0000);
 	cfg0 = 0x1 | StatVectorSel << 1 | strobe << 2;
 
+#if defined(CONFIG_CLK_MESON_A1) || defined(CONFIG_CLK_MESON_C1) || \
+		defined(CONFIG_CLK_MESON_T7) || defined(CONFIG_CLK_MESON_P1)
 	power_set_dsp((dspid == 0) ? PM_DSPA : PM_DSPB, PWR_ON);
+#else
+	power_set_dsp(PM_DSPA, PWR_ON);
+#endif
 	udelay(100);
+
 	if (set_dsp_clk(dspid, freq_sel))
 		return -1;
+
 	udelay(100);
+
 	init_dsp(dspid, addr, cfg0);
 	printf("dsp init over!\n");
 
@@ -202,6 +286,6 @@ U_BOOT_CMD(
 	"\narg[0]: cmd\n"
 	"arg[1]: dspid\n"
 	"arg[2]: dspboot.bin load address!\n"
-	"arg[3]: dsp clk set 0:800M 1:667M 2:500M 3:400M 4:333M 5:250M 6:200M 7:100M 8:24M 9:3M"
+	"arg[3]: dsp clk set\nfor A1: 0:384M 1:308M 2:256M 3:24M\nfor C1 and C2: 0:400M 1:333M 2:250M 3:200M 4:100M 5:24M 6:3M\nfor others: 0:800M 1:667M 2:500M 3:400M 4:333M 5:250M 6:200M 7:100M 8:24M 9:3M\n"
 );
 

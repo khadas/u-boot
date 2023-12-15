@@ -105,7 +105,7 @@ void spi_release_bus(struct spi_slave *slave)
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	     const void *dout, void *din, unsigned long flags)
 {
-	return dm_spi_xfer(slave->dev, bitlen, dout, din, flags);
+	return dm_spi_xfer(slave->dev, bitlen, dout, din, flags | slave->flags);
 }
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -406,6 +406,9 @@ int spi_slave_ofdata_to_platdata(struct udevice *dev,
 	case 4:
 		mode |= SPI_TX_QUAD;
 		break;
+	case 8:
+		mode |= SPI_TX_OCTAL;
+		break;
 	default:
 		warn_non_spl("spi-tx-bus-width %d not supported\n", value);
 		break;
@@ -420,6 +423,9 @@ int spi_slave_ofdata_to_platdata(struct udevice *dev,
 		break;
 	case 4:
 		mode |= SPI_RX_QUAD;
+		break;
+	case 8:
+		mode |= SPI_RX_OCTAL;
 		break;
 	default:
 		warn_non_spl("spi-rx-bus-width %d not supported\n", value);

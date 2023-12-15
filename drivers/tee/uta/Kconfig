@@ -1,0 +1,6 @@
+# UTA User Trusted Application Configuration
+config TEE_UTA
+	bool "Support User TA"
+	depends on OPTEE
+	help
+		The user TA can be loaded

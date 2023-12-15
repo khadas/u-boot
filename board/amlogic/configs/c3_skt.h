@@ -70,7 +70,7 @@
 	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
-	"loadaddr_rtos=0x00001000\0"\
+	"loadaddr_rtos=0x00080000\0"\
 	"loadaddr_kernel=0x03080000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \

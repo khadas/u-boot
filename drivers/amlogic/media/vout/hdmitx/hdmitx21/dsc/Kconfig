@@ -1,0 +1,5 @@
+config AML_DSC_ENC
+	bool "Amlogic DSC encoder driver"
+	depends on AML_HDMITX21
+	help
+		support for dsc encoder

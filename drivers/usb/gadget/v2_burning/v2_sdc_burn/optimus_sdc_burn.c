@@ -416,27 +416,11 @@ static int _optimus_sdc_burn_dtb_load(HIMAGE hImg, int is_gpt)
         rc = (wrLen == itemSz) ? 0 : __LINE__;
     }
 	if (!rc && !is_gpt) {
-        extern int check_valid_dts(unsigned char *buffer);
-        rc =  check_valid_dts(dtbTransferBuf);
-        DWN_MSG("check dts: rc %d\n", rc);
-	if (!rc) {
-#ifdef CONFIG_MULTI_DTB
-	extern unsigned long get_multi_dt_entry(unsigned long fdt_addr);
-	dtbTransferBuf = (unsigned char *)get_multi_dt_entry((unsigned long)dtbTransferBuf);
-	if (!dtbTransferBuf) {
-		DWN_ERR("Fail in parse multi dtb\n");
-		return __LINE__;
-	}
-#endif
-	unsigned fdtsz    = fdt_totalsize((char *)dtbTransferBuf);
-
-	DWN_MSG("local upgrade dts/sz 0x%p/0x%x\n", (char *)OPTIMUS_DTB_LOAD_ADDR, fdtsz);
-	if (fdtsz > 0x200000) {
-		DWN_ERR("Err fdtsz 0x%x\n", fdtsz);
-		return __LINE__;
-	}
-	memmove((char *)OPTIMUS_DTB_LOAD_ADDR, dtbTransferBuf, fdtsz);
-        }
+		if (itemSz > 0x200000) {
+			DWN_ERR("Err dt sz 0x%llx\n", itemSz);
+			return __LINE__;
+		}
+		memmove((char *)OPTIMUS_DTB_LOAD_ADDR, dtbTransferBuf, itemSz);
 	} else if (is_gpt) {
 		memmove((char *)V2_GPT_LOAD_ADDR, dtbTransferBuf, itemSz);
     }
@@ -881,7 +865,7 @@ int optimus_burn_with_cfg_file(const char* cfgFile)
         //erase after bootloader for usb disk
 	#ifdef CONFIG_MMC
 		if (store_get_type() == BOOT_EMMC) {
-			ret = usb_burn_erase_data(1);
+			ret = usb_burn_erase_data(0x3);
 		} else {
 			ret = run_command("echo store erase.chip 0; store erase.chip 0", 0);
 		}

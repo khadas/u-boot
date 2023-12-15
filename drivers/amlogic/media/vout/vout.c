@@ -78,6 +78,33 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCI,
 	},
+	{ /* VMODE_480CVBS*/
+		.name              = "ntsc_m",
+		.mode              = VMODE_480CVBS,
+		.width             = 720,
+		.height            = 480,
+		.field_height      = 240,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCI,
+	},
+	{ /* VMODE_480CVBS*/
+		.name              = "pal_m",
+		.mode              = VMODE_480CVBS,
+		.width             = 720,
+		.height            = 480,
+		.field_height      = 240,
+		.viu_color_fmt     = VPP_CM_YUV,
+		 .viu_mux           = VIU_MUX_ENCI,
+	},
+	{ /* VMODE_480CVBS*/
+		.name              = "pal_n",
+		.mode              = VMODE_576CVBS,
+		.width             = 720,
+		.height            = 576,
+		.field_height      = 288,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCI,
+	},
 	{ /* VMODE_480P */
 		.name              = "480p",
 		.mode              = VMODE_480P,
@@ -475,6 +502,16 @@ static const struct vout_set_s vout_sets_dft[] = {
 		.viu_color_fmt     = VPP_CM_YUV,
 		.viu_mux           = VIU_MUX_ENCP,
 	},
+	{ /* VMODE_3840x2160p144hz */
+		.name              = "3840x2160p144hz",
+		.mode              = VMODE_3840x2160p144hz,
+		.width             = 3840,
+		.height            = 2160,
+		.field_height      = 2160,
+		.viu_color_fmt     = VPP_CM_YUV,
+		.viu_mux           = VIU_MUX_ENCP,
+	},
+
 	{ /* VMODE_7680x4320p24hz */
 		.name              = "7680x4320p24hz",
 		.mode              = VMODE_7680x4320p24hz,
@@ -559,6 +596,8 @@ static const struct vout_set_s *vout_find_mode_by_name(const char *name)
 	const struct vout_set_s *vset = NULL;
 	int i = 0;
 
+	if (!name)
+		return NULL;
 	vset = vout_sets_dft;
 	for (i = 0; i < sizeof(vout_sets_dft) / sizeof(struct vout_set_s); i++) {
 		if (strncmp(name, vset->name, strlen(vset->name)) == 0)
@@ -617,11 +656,11 @@ static void vout_vmode_init(void)
 	uint index = 0;
 
 	index = get_osd_layer();
-	if (index < VIU2_OSD1)
+	if (is_vpp0(index))
 		outputmode = env_get("outputmode");
-	else if (index == VIU2_OSD1)
+	else if (is_vpp1(index))
 		outputmode = env_get("outputmode2");
-	else if (index == VIU3_OSD1)
+	else if (is_vpp2(index))
 		outputmode = env_get("outputmode3");
 	else
 		vout_log("%s, layer%d is not supported\n", __func__, index);
@@ -638,10 +677,16 @@ static void vout_vmode_init(void)
 	case VMODE_LCD:
 		venc_index = (vset->viu_mux >> 4) & 0xf;
 		pdrv = aml_lcd_get_driver(venc_index);
-		width = pdrv->config.basic.h_active;
-		height = pdrv->config.basic.v_active;
-		field_height = pdrv->config.basic.v_active;
-		vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
+		if (pdrv) {
+			width = pdrv->config.basic.h_active;
+			height = pdrv->config.basic.v_active;
+			field_height = pdrv->config.basic.v_active;
+			vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
+		} else {
+			width = vset->width;
+			height = vset->height;
+			field_height = vset->field_height;
+		}
 		break;
 #endif
 	default:
@@ -651,7 +696,8 @@ static void vout_vmode_init(void)
 #ifdef CONFIG_AML_LCD
 		venc_index = (vset->viu_mux >> 4) & 0xf;
 		pdrv = aml_lcd_get_driver(venc_index);
-		vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
+		if (pdrv)
+			vout_info.cur_enc_ppc = pdrv->config.timing.ppc;
 		printf("%s cur_enc_ppc = %d\n", __func__, vout_info.cur_enc_ppc);
 #endif
 		break;
@@ -880,8 +926,9 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 	char *projector_mux = env_get("vout_projector_mux");
 	int vout_projector_mux = 0;
 
-	if (strncmp(projector_mux, "en", 2) == 0) {
-		vout_projector_mux = 1;
+	if (projector_mux) {
+		if (strncmp(projector_mux, "en", 2) == 0)
+			vout_projector_mux = 1;
 	}
 
 	switch (index) {
@@ -925,10 +972,16 @@ static void vout_viu_mux_default(int index, unsigned int mux_sel)
 		break;
 	}
 
-	vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
-	if (vout_conf->viu_valid[1]) {
-		if (clk_bit < 0xff)
-			vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXHD2) {
+		vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, 0, 0, 4);
+		vout_reg_setb(VPU_VENCX_CLK_CTRL, 0, 0, 3);
+		vout_log("TXHD2:%s\n", __func__);
+	} else {
+		vout_reg_setb(VPU_VIU_VENC_MUX_CTRL, vout_viu_sel, 0, 4);
+		if (vout_conf->viu_valid[1]) {
+			if (clk_bit < 0xff)
+				vout_reg_setb(VPU_VENCX_CLK_CTRL, clk_sel, clk_bit, 1);
+		}
 	}
 
 	if (vout_projector_mux && get_cpu_id().family_id ==

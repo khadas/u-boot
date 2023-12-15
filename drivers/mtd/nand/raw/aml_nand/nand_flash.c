@@ -899,6 +899,10 @@ struct aml_nand_flash_dev aml_nand_flash_ids[] = {
 	{NULL,}
 };
 
+u8 support_data_rcy_id[][MAX_ID_LEN] = {
+	{NAND_MFR_MACRONIX, 0xdc},
+};
+
 /* detects factory bad blocks for the following samsung nand,
  * it needs to detect the first byte of the spare area at
  * the first page and the second page
@@ -1258,7 +1262,7 @@ static struct aml_nand_flash_dev *aml_nand_get_flash_type(struct mtd_info *mtd,
 	return type;
 }
 
-
+u8 recovery_flag;
 static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 {
 	int i, busw, nand_maf_id, valid_chip_num = 1;
@@ -1309,6 +1313,12 @@ static int aml_nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	aml_chip->T_REA = aml_type->T_REA;
 	aml_chip->T_RHOH = aml_type->T_RHOH;
 	aml_chip->mfr_type = aml_type->id[0];
+	for (i = 0; i < ARRAY_SIZE(support_data_rcy_id); i++) {
+		if (aml_chip->mfr_type == support_data_rcy_id[i][0] &&
+			aml_type->id[1] == support_data_rcy_id[i][1]) {
+			recovery_flag = 1;
+		}
+	}
 #ifdef CONFIG_PARAMETER_PAGE
 	aml_nand_read_parameter_page(mtd, CE0, &para_page);
 	display_para_page(para_page, 0);

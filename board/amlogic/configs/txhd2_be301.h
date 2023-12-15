@@ -28,8 +28,8 @@
  * platform power init config
  */
 #define CONFIG_PLATFORM_POWER_INIT
-#define CONFIG_VCCK_INIT_VOLTAGE	1080		// VCCK power up voltage
-#define CONFIG_VDDEE_INIT_VOLTAGE	1000		// VDDEE power up voltage
+#define CONFIG_VCCK_INIT_VOLTAGE	1130		// VCCK power up voltage
+#define CONFIG_VDDEE_INIT_VOLTAGE	1060		// VDDEE power up voltage
 #define CONFIG_VDDEE_SLEEP_VOLTAGE	860		// VDDEE suspend voltage
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
@@ -92,7 +92,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_BASE \
 		"silent=0\0"\
-		"systemsuspend_switch=1\0"\
+		"systemsuspend_switch=0\0"\
 		"ddr_resume=0\0"\
 		"otg_device=1\0" \
 		"panel_type=lvds_1\0" \
@@ -125,6 +125,7 @@
 		"lock=10101000\0"\
 		"cvbs_drv=0\0"\
 		"osd_reverse=0\0"\
+		"reverse_ctrl=0\0"\
 		"video_reverse=0\0"\
 	"board=t950s\0"\
 		"suspend=off\0"\
@@ -147,7 +148,8 @@
 		"setenv bootconfig ${bootconfig} androidboot.connector_type=${connector_type};"\
 		"\0"\
         "initargs="\
-			"init=/init console=ttyS0,115200 no_console_suspend earlycon=aml_uart,0xff803000 loglevel=4 "\
+			"init=/init console=ttyS0,115200 no_console_suspend "\
+			"earlycon=aml_uart,0xff803000 loglevel=7 "\
 			"printk.devkmsg=on ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
 			"ramoops.console_size=0x4000 loop.max_part=4 scramble_reg=0xff6345c4 "\
             "\0"\
@@ -375,7 +377,8 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1512 //MHz. Range: 360-2000, should be multiple of 24
+//MHz. Range: 1000-1600, should be multiple of 24
+#define CONFIG_CPU_CLK					1464
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
@@ -470,6 +473,7 @@
 /* osd */
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
+#define AML_OSD_TXHD2_DISPLAY
 
 /* DISPLAY */
 //#define CONFIG_AML_VOUT 1
@@ -525,7 +529,10 @@
 
 #define CONFIG_SHA1 1
 #define CONFIG_MD5 1
-#define CONFIG_AML_HW_SHA2
+//#define CONFIG_AML_HW_SHA2
+
+//Replace avb2 software SHA256 to utilize armce
+#define CONFIG_AVB2_UBOOT_SHA256
 
 /* commands */
 /* #define CONFIG_CMD_PLLTEST 1 */

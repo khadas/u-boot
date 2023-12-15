@@ -178,8 +178,6 @@ const struct hdmi_timing *hdmitx21_match_dtd_timing(struct dtd *t)
 			return timing;
 		timing++;
 	}
-	if (i == hdmitx21_timing_size())
-		return NULL;
 	return NULL;
 }
 

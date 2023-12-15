@@ -117,8 +117,7 @@ unsigned int hdmirx_rd_top(unsigned long addr)
 	int data;
 	unsigned int dev_offset = 0;
 
-	dev_offset = TOP_DWC_BASE_OFFSET +
-		HDMIRX_DWC_BASE_OFFSET;
+	dev_offset = 0xff618000;
 	if ((addr >= TOP_EDID_ADDR_S) &&
 		(addr <= TOP_EDID_PORT3_ADDR_E)) {
 		data = rx_rd_reg_b(dev_offset + addr);
@@ -138,8 +137,7 @@ void hdmirx_wr_top(unsigned long addr, unsigned long data)
 {
 	unsigned long dev_offset = 0;
 
-	dev_offset = TOP_DWC_BASE_OFFSET +
-		HDMIRX_DWC_BASE_OFFSET;
+	dev_offset = 0xff618000;
 	if ((addr >= TOP_EDID_ADDR_S) &&
 		(addr <= TOP_EDID_PORT3_ADDR_E)) {
 		rx_wr_reg_b(dev_offset + addr, (unsigned char)data);
@@ -704,11 +702,11 @@ void rx_clk_init(void)
 /* pinmux SCL/SDA/HPD/PWR5V of all port */
 void rx_set_pinmux(void)
 {
-	unsigned int mux = readl(P_PERIPHS_PIN_MUX_B);
-	writel(0x11111111, P_PERIPHS_PIN_MUX_A);
-	writel((mux & 0xFFFF0000) | 0x1111 , P_PERIPHS_PIN_MUX_B);
-	printf("set pinmux A:0x%x\n", readl(P_PERIPHS_PIN_MUX_A));
-	printf("set pinmux B:0x%x\n", readl(P_PERIPHS_PIN_MUX_B));
+	//unsigned int mux = readl(P_PERIPHS_PIN_MUX_B);
+	writel(0x11111111, TXHD2_PINMUX_2);
+	//writel((mux & 0xFFFF0000) | 0x1111 , P_PERIPHS_PIN_MUX_B);
+	printf("set TXHD2_PINMUX_2:0x%x\n", readl(TXHD2_PINMUX_2));
+	//printf("set pinmux B:0x%x\n", readl(P_PERIPHS_PIN_MUX_B));
 }
 
 /* set rx phy termination */

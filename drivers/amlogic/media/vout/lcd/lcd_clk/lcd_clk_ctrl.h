@@ -9,17 +9,6 @@
 #include "../lcd_reg.h"
 #include "lcd_clk_config.h"
 
-/* **********************************
- * COMMON
- * **********************************
- */
-#define PLL_M_MIN                   2
-#define PLL_M_MAX                   511
-#define PLL_N_MIN                   1
-#define PLL_N_MAX                   1
-#define PLL_FREF_MIN                (5 * 1000)
-#define PLL_FREF_MAX                (25 * 1000)
-
 /* G12A */
 /* ******** register bit ******** */
 /* PLL_CNTL bit: GP0 */
@@ -29,14 +18,6 @@
 #define LCD_PLL_OD_GP0_G12A          16
 #define LCD_PLL_N_GP0_G12A           10
 #define LCD_PLL_M_GP0_G12A           0
-
-/* ******** frequency limit (unit: kHz) ******** */
-#define PLL_OD_FB_GP0_G12A           0
-#define PLL_FRAC_RANGE_GP0_G12A      (0x1 << 17)
-#define PLL_FRAC_SIGN_BIT_GP0_G12A   18
-#define PLL_OD_SEL_MAX_GP0_G12A      5
-#define PLL_VCO_MIN_GP0_G12A         (3000 * 1000)
-#define PLL_VCO_MAX_GP0_G12A         (6000 * 1000)
 
 /* PLL_CNTL bit: hpll */
 #define LCD_PLL_LOCK_HPLL_G12A       31
@@ -48,18 +29,6 @@
 #define LCD_PLL_OD3_HPLL_G12A        20
 #define LCD_PLL_OD2_HPLL_G12A        18
 #define LCD_PLL_OD1_HPLL_G12A        16
-
-/* ******** frequency limit (unit: kHz) ******** */
-#define PLL_OD_FB_HPLL_G12A          0
-#define PLL_FRAC_RANGE_HPLL_G12A     (0x1 << 17)
-#define PLL_FRAC_SIGN_BIT_HPLL_G12A  18
-#define PLL_OD_SEL_MAX_HPLL_G12A     3
-#define PLL_VCO_MIN_HPLL_G12A        (3000 * 1000)
-#define PLL_VCO_MAX_HPLL_G12A        (6000 * 1000)
-
-/* video */
-#define CRT_VID_CLK_IN_MAX_G12A      (6000 * 1000)
-#define ENCL_CLK_IN_MAX_G12A         (200 * 1000)
 
 /* **********************************
  * TL1
@@ -77,35 +46,6 @@
 #define LCD_PLL_OD2_TL1              23
 #define LCD_PLL_OD1_TL1              21
 
-/* ******** frequency limit (unit: kHz) ******** */
-#define PLL_OD_FB_TL1                0
-#define PLL_FRAC_RANGE_TL1           (0x1 << 17)
-#define PLL_FRAC_SIGN_BIT_TL1        18
-#define PLL_OD_SEL_MAX_TL1           3
-#define PLL_VCO_MIN_TL1              (3384 * 1000)
-#define PLL_VCO_MAX_TL1              (6024 * 1000)
-
-/* video */
-#define CLK_DIV_IN_MAX_TL1           (3100 * 1000)
-#define CRT_VID_CLK_IN_MAX_TL1       (3100 * 1000)
-#define ENCL_CLK_IN_MAX_TL1          (750 * 1000)
-
-/* **********************************
- * TM2
- * **********************************
- */
-#define PLL_VCO_MIN_TM2              (3000 * 1000)
-#define PLL_VCO_MAX_TM2              (6000 * 1000)
-
-/* **********************************
- * T5D
- * **********************************
- */
-/* video */
-#define CLK_DIV_IN_MAX_T5D          (3100 * 1000)
-#define CRT_VID_CLK_IN_MAX_T5D      (3100 * 1000)
-#define ENCL_CLK_IN_MAX_T5D	        (400 * 1000)
-
 /* **********************************
  * T7
  * **********************************
@@ -116,22 +56,11 @@
 #define LCD_PLL_LOCK_T7              31
 
 /* **********************************
- * A4
- * **********************************
- */
-#define VPU_VOUT_CLK_IN_MAX_A4       (75 * 1000)
-
-/* **********************************
  * C3
  * **********************************
  */
-#define PLL_CLK_OUT_MIN_C3           (375 * 1000)
-#define PLL_CLK_OUT_MAX_C3           (6000 * 1000)
-#define PLL_OD_SEL_MAX_C3            5
-#define CRT_VID_CLK_IN_MAX_C3        (1600 * 1000)
 #define CRT_VID_DIV_MAX_C3           128
 #define PHY_CLK_DIV_MAX_C3           128
-#define ENCL_CLK_IN_MAX_C3           (200 * 1000)
 
 /* **********************************
  * Spread Spectrum
@@ -145,9 +74,9 @@
 /* ******** clk calculation *********/
 #define PLL_WAIT_LOCK_CNT           200
  /* frequency unit: kHz */
-#define FIN_FREQ                    (24 * 1000)
+#define FIN_FREQ                    (24 * 1000000)
 /* clk max error */
-#define MAX_ERROR                   (2 * 1000)
+#define MAX_ERROR                   (2 * 1000000)
 
 /* ******** register bit ******** */
 /* divider */
@@ -180,11 +109,6 @@ enum div_sel_e {
 	CLK_DIV_SEL_MAX,
 };
 
-extern char *lcd_ss_level_table_tl1[];
-extern char *lcd_ss_freq_table_tl1[];
-extern char *lcd_ss_mode_table_tl1[];
-extern unsigned int ss_level_max;
-extern unsigned int ss_freq_max;
-extern unsigned int ss_mode_max;
+extern unsigned int lcd_clk_div_table[][3];
 
 #endif

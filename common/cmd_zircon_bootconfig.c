@@ -34,15 +34,15 @@ static int do_zircon_bootconfig(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		return -1;
 	}
 
-	rc = kvs_load(&kvs, buffer, sizeof(buffer));
+	rc = kvs_load(&kvs, buffer, ZX_SYSCONFIG_KVSTORE_SIZE);
 	if (rc < 0) {
-		rc = store_read(sysconfig, sizeof(buffer), ZX_SYSCONFIG_BOOT_DEFAULT_OFFSET,
-				buffer);
+		rc = store_read(sysconfig, ZX_SYSCONFIG_KVSTORE_SIZE,
+				ZX_SYSCONFIG_BOOT_DEFAULT_OFFSET, buffer);
 		if (rc) {
 			printf("do_sysconfig: store_read_ops failed for %s\n", sysconfig);
 			return 0;
 		}
-		rc = kvs_load(&kvs, buffer, sizeof(buffer));
+		rc = kvs_load(&kvs, buffer, ZX_SYSCONFIG_KVSTORE_SIZE);
 		if (rc < 0) {
 			printf("do_sysconfig: kvs_load failed for %s (%d)\n", sysconfig, rc);
 			return 0;

@@ -14,7 +14,6 @@
 
 //**********************************
 
-void lcd_tv_config_update(struct aml_lcd_drv_s *pdrv);
 void lcd_tv_driver_init_pre(struct aml_lcd_drv_s *pdrv);
 int lcd_tv_driver_init(struct aml_lcd_drv_s *pdrv);
 void lcd_tv_driver_disable(struct aml_lcd_drv_s *pdrv);

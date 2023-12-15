@@ -622,6 +622,7 @@ static int do_GetValidSlot(
 	int AB_mode = 0;
 	bool bootable_a, bootable_b;
 	bool nocs_mode = false;
+	char *dts_flag2 = NULL;
 
 	if (argc != 1)
 		return cmd_usage(cmdtp);
@@ -680,6 +681,8 @@ static int do_GetValidSlot(
 		printf("set vendor_boot_mode false\n");
 	}
 
+	dts_flag2 = env_get("dts_to_gpt");
+
 	if (slot == 0) {
 		if (bootable_a) {
 			if (has_boot_slot == 1) {
@@ -712,14 +715,20 @@ static int do_GetValidSlot(
 			if (*efuse_field.data == 1)
 				nocs_mode = true;
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
-			if (gpt_partition || nocs_mode) {
-				printf("gpt or nocs mode\n");
-				write_bootloader(2, 1);
-				env_set("expect_index", "1");
-			} else {
-				printf("normal mode\n");
+			if (dts_flag2 && (strcmp(dts_flag2, "1") == 0)) {
+				printf("back to dts\n");
 				write_bootloader(2, 0);
 				env_set("expect_index", "0");
+			} else {
+				if (gpt_partition || nocs_mode) {
+					printf("gpt or nocs mode\n");
+					write_bootloader(2, 1);
+					env_set("expect_index", "1");
+				} else {
+					printf("normal mode\n");
+					write_bootloader(2, 0);
+					env_set("expect_index", "0");
+				}
 			}
 			run_command("saveenv", 0);
 			run_command("reset", 0);
@@ -760,14 +769,21 @@ static int do_GetValidSlot(
 			if (*efuse_field.data == 1)
 				nocs_mode = true;
 #endif//#ifdef CONFIG_EFUSE_OBJ_API
-			if (gpt_partition || nocs_mode) {
-				printf("gpt or nocs mode\n");
+			if (dts_flag2 && (strcmp(dts_flag2, "1") == 0)) {
+				printf("back to dts\n");
+				write_bootloader(2, 0);
 				write_bootloader(2, 1);
-				env_set("expect_index", "1");
-			} else {
-				printf("normal mode\n");
-				write_bootloader(1, 0);
 				env_set("expect_index", "0");
+			} else {
+				if (gpt_partition || nocs_mode) {
+					printf("gpt or nocs mode\n");
+					write_bootloader(2, 1);
+					env_set("expect_index", "1");
+				} else {
+					printf("normal mode\n");
+					write_bootloader(1, 0);
+					env_set("expect_index", "0");
+				}
 			}
 			run_command("saveenv", 0);
 			run_command("reset", 0);
@@ -787,6 +803,8 @@ static int do_SetActiveSlot(
 {
 	char miscbuf[MISCBUF_SIZE] = {0};
 	bootloader_control info;
+	struct mmc *mmc = NULL;
+	struct blk_desc *dev_desc;
 
 	if (argc != 2)
 		return cmd_usage(cmdtp);
@@ -828,13 +846,31 @@ static int do_SetActiveSlot(
 
 	printf("info.roll_flag = %d\n", info.roll_flag);
 
-	if (!gpt_partition && info.roll_flag == 1) {
-		printf("if null gpt, write dtb back when rollback\n");
-		if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
-			printf("Fail in load dtb\n");
-		} else {
-			printf("write dtb back\n");
-			run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+	if (info.roll_flag == 1) {
+		char *dts_flag = NULL;
+
+		dts_flag = env_get("dts_to_gpt");
+
+		if (!gpt_partition || (dts_flag && (strcmp(dts_flag, "1") == 0))) {
+			printf("write dtb back when rollback\n");
+			if (dts_flag && (strcmp(dts_flag, "1") == 0)) {
+				if (store_get_type() == BOOT_EMMC)
+					mmc = find_mmc_device(1);
+
+				if (mmc) {
+					dev_desc = blk_get_dev("mmc", 1);
+					if (dev_desc && dev_desc->type != DEV_TYPE_UNKNOWN) {
+						printf("valid mmc device, erase gpt\n");
+						erase_gpt_part_table(dev_desc);
+					}
+				}
+			}
+			if (run_command("imgread dtb ${boot_part} ${dtb_mem_addr}", 0)) {
+				printf("Fail in load dtb\n");
+			} else {
+				printf("write dtb back\n");
+				run_command("emmc dtb_write ${dtb_mem_addr} 0", 0);
+			}
 		}
 	}
 
@@ -998,11 +1034,15 @@ static int do_CopySlot(
 	else if (strcmp(argv[2], "0") == 0)
 		dest = 0;
 
+	char *fastboot_step = env_get("fastboot_step");
+
 	if (copy == 1) {
-		if (boot_ctrl.slot_info[0].successful_boot == 1)
+		if ((fastboot_step && (strcmp(fastboot_step, "2") == 0)) ||
+				boot_ctrl.slot_info[0].successful_boot == 1)
 			write_bootloader(copy, dest);
 	} else if (copy == 2) {
-		if (boot_ctrl.slot_info[1].successful_boot == 1) {
+		if ((fastboot_step && (strcmp(fastboot_step, "2") == 0)) ||
+				boot_ctrl.slot_info[1].successful_boot == 1) {
 			write_bootloader(copy, dest);
 		} else {
 			env_set("update_env", "1");
@@ -1135,3 +1175,55 @@ U_BOOT_CMD
 	"So you can execute command: update_dt"
 );
 #endif
+
+int set_successful_boot(void) {
+    char miscbuf[MISCBUF_SIZE] = {0};
+    AvbABData info;
+    int slot_num = 0;
+    bootloader_control boot_ctrl;
+    bool bootable = 0;
+    int AB_mode = 0;
+
+	boot_info_open_partition(miscbuf);
+	boot_info_load(&boot_ctrl, miscbuf);
+
+	if (!boot_info_validate(&boot_ctrl)) {
+		printf("boot-info virtual ab is invalid. Try normal ab.\n");
+		boot_info_load_normalAB(&info, miscbuf);
+		if (!boot_info_validate_normalAB(&info)) {
+            printf("boot-info is invalid.\n");
+			/*printf("boot-info is invalid. Resetting.\n");
+			boot_info_reset(&boot_ctrl);
+			boot_info_save(&boot_ctrl, miscbuf);*/
+		} else {
+			printf("update from normal ab to virtual ab\n");
+			AB_mode = 1;
+		}
+	}
+
+	if (AB_mode == 1) {
+		slot_num = get_active_slot_normalAB(&info);
+		printf("active slot = %d\n", slot_num);
+		bootable = slot_is_bootable_normalAB(&info.slots[slot_num]);
+		//bootable_b = slot_is_bootable_normalAB(&info.slots[1]);
+		/*boot_info_reset(&boot_ctrl);
+		boot_ctrl.slot_info[0].successful_boot = info.slots[0].successful_boot;
+		boot_ctrl.slot_info[1].successful_boot = info.slots[1].successful_boot;
+		boot_info_set_active_slot(&boot_ctrl, slot);
+		boot_info_save(&boot_ctrl, miscbuf);
+		slot = get_active_slot(&boot_ctrl);*/
+	} else {
+		slot_num = get_active_slot(&boot_ctrl);
+		printf("active slot = %d\n", slot_num);
+		bootable = slot_is_bootable(&boot_ctrl.slot_info[slot_num]);
+		//bootable_b = slot_is_bootable(&boot_ctrl.slot_info[1]);
+	}
+
+    if (bootable) {
+        printf("slots[%d] is bootable\n", slot_num);
+        return 0;
+    }
+
+    return -1;
+}
+

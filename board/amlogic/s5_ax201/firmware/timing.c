@@ -32,7 +32,7 @@
 
 //#define  S5_LPDDR4_REF 1
 #define S5_LPDDR4_SKT 1
-#define S5_DDR4_SKT 1
+//#define S5_DDR4_SKT 1
 #define MAX_VALID_CONFIGS 4 //timming_max_valid_configs
 #define CONFIG_BOARD_TIMMING
 unsigned char lpddr4_ac_pinmux[] = {
@@ -480,33 +480,78 @@ DDR_TIMMING_OFFSET(PARA)) << 16) | ((DDR_TIMMING_OFFSET_SIZE(PARA)) << 28) | (VA
 //#if 1
 uint32_t __bl2_ddr_reg_data[] __attribute__ ((section(".ddr_2acs_data"))) = {
 	DDR_ID_START_MASK,
-	//DDR_TIMMING_TUNE_ADC_MULT_START(DDR_ID_FROM_ADC_MULT, VX, VX, V3, VX, VX, VX),
-    //data start
-	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch0_size_MB,
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-	//DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch1_size_MB,
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch0_size_MB,
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
-	//DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch1_size_MB,
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
-    //                    (DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_ADC_MULT_START(DDR_ID_FROM_ADC_MULT, VX, VX, V2, VX, VX, VX),
+	//data start,
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch0_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch1_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch0_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch1_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+
+	DDR_TIMMING_TUNE_ADC_MULT_START(DDR_ID_FROM_ADC_MULT, VX, VX, V4, VX, VX, VX),
+	//data start,
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch0_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch1_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch0_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch1_size_MB,
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX3 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_ADC_MULT_START(DDR_ID_FROM_ADC_MULT, VX, VX, V6, VX, VX, VX),
+	//data start,
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch0_size_MB,
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING0_F(cfg_board_common_setting.dram_ch1_size_MB,
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch0_size_MB,
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
+	DDR_TIMMING_TUNE_TIMMING1_F(cfg_board_common_setting.dram_ch1_size_MB,
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS0_BYTE_23_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_01_SIZE_256_ID_OFFSET) +
+	(DRAM_SIZE_ID_256MBX4 << CONFIG_CS1_BYTE_23_SIZE_256_ID_OFFSET)),
 };
 
 //#endif
 
-#define  CACLU_CLK_LP4   1848 //1792//600 //1200 //(1900)// (1440)//(1008)
+#define  CACLU_CLK_LP4   1848 //1848 //1792// 600 //1200 //(1900)// (1440)//(1008)
 //ddr_set_ps0_only_t ddr_set_t_default[2] = {
 //__attribute__ ((section(".ddr_param")))
 ddr_set_ps0_only_t __ddr_setting[]
@@ -563,49 +608,51 @@ __attribute__ ((section(".ddr_param"))) = {
 		// .cfg_board_common_setting.ac_pinmux = {
 		//2, 3, 1, 0, 5, 4, 0, 0, 0, 0, 1, 3, 5, 2, 4, 0 },
 		.cfg_board_common_setting.ddr_dqs_swap = 0,
-		//.cfg_board_common_setting.ddr_dq_remap = { 27,
-		//31,
-		//29,
-		//35,
-		//24,
-		//28,
-		//26,
-		//30,
-		//25,
-		//22,
-		//23,
-		//21,
-		//34,
-		//20,
-		//17,
-		//16,
-		//18,
-		//19,
-		//13,
-		//9,
-		//11,
-		//33,
-		//10,
-		//8,
-		//14,
-		//12,
-		//15,
-		//5,
-		//4,
-		//1,
-		//32,
-		//0,
-		//3,
-		//7,
-		//2,
-		//6, },
+		.cfg_board_common_setting.ddr_dq_remap = {//use for ref pinmux
+		26,
+		31,
+		29,
+		35,
+		24,
+		28,
+		25,
+		30,
+		27,
+		22,
+		23,
+		21,
+		34,
+		20,
+		17,
+		16,
+		18,
+		19,
+		8,
+		14,
+		11,
+		33,
+		10,
+		13,
+		9,
+		12,
+		15,
+		5,
+		4,
+		0,
+		32,
+		6,
+		2,
+		7,
+		1,
+		3,
+	},
 		.cfg_board_common_setting.ddr_vddee_setting = {
 			0
 		},
 		.cfg_board_SI_setting_ps.DRAMFreq = CACLU_CLK_LP4,
 		// .cfg_ddr_training_delay_ps.DRAMFreq = 600,// 2112,//,cfg_ddr_training_delay_ps
 		//.cfg_ddr_training_delay_ps.PllBypassEn = 0,
-		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
+		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,//0xfe,
 		.cfg_board_SI_setting_ps.dfi_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
 		.cfg_board_SI_setting_ps.clk_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
 		.cfg_board_SI_setting_ps.cs_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
@@ -617,13 +664,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.dram_data_drv_ohm = DDR_DRAM_LPDDR4_DRV_40_OHM,
 		.cfg_board_SI_setting_ps.dram_data_odt_ohm = DDR_DRAM_LPDDR4_ODT_40_OHM,
 		.cfg_board_SI_setting_ps.dram_data_wr_odt_ohm = DDR_DRAM_DDR_WR_ODT_0_OHM,
-		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 120, //240,
+		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 240, //240, //240 for 2rank
 		.cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm =
 			DDR_DRAM_LPDDR4_ODT_40_OHM,
 		.cfg_board_SI_setting_ps.lpddr4_dram_vout_range =
 			DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
 		//.cfg_ddr_training_delay_ps.dfe_offset = 0,
-		.cfg_board_SI_setting_ps.vref_ac_permil = 260,//420,
+		.cfg_board_SI_setting_ps.vref_ac_permil = 0,//400,//260,//420, //600 for lp4x
 		.cfg_board_SI_setting_ps.vref_soc_data_permil = 0,
 		.cfg_board_SI_setting_ps.vref_dram_data_permil = 0,
 		.cfg_board_SI_setting_ps.max_core_timmming_frequency = 0,
@@ -692,7 +739,8 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.dram_data_drv_ohm = 40,
 		.cfg_board_SI_setting_ps.dram_data_odt_ohm = 60,
 		.cfg_board_SI_setting_ps.dram_data_wr_odt_ohm = 0,
-		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 120,//240,//120,
+		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 255,
+		//dram_ac_odt_ohm lpddr4x 2rank use 255 lp4 use 240 ohm(bl2) will better
 		.cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm =
 			DDR_DRAM_LPDDR4_ODT_40_OHM,
 		.cfg_board_SI_setting_ps.lpddr4_dram_vout_range =
@@ -1402,7 +1450,7 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[8] = 0x1bf,//447，0xe8
 		.cfg_ddr_training_delay_ps.ac_trace_delay[9] = 0x1bf,//447，0xea
 		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 0x92,//146，0xec
-		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 0xbf,//191，0xee
+		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 0xbf + 10,//191，0xee
 		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 0x92,//146，0xf0
 		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 0xbf,//191，0xf2
 		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 0x92,//146，0xf4
@@ -1411,13 +1459,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 0x9d,//157，0xfa
 		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 0xa2,//162，0xfc
 		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 0x8d,//141，0xfe
-		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 0x92,//146，0x100
+		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 0x92 - 10,//146，0x100
 		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 0x0,//0，0x102
 		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 0x0,//0，0x104
 		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 0x1bf,//447，0x106
 		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 0x1bf,//447，0x108
 		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0xbf,//191，0x10a
-		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0xbf,//191，0x10c
+		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0xbf + 10,//191，0x10c
 		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0x92,//146，0x10e
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 0x92,//146，0x110
 		.cfg_ddr_training_delay_ps.ac_trace_delay[29] = 0x92,//146，0x112
@@ -1722,49 +1770,50 @@ __attribute__ ((section(".ddr_param"))) = {
 		// .cfg_board_common_setting.ac_pinmux = {
 		//2, 3, 1, 0, 5, 4, 0, 0, 0, 0, 1, 3, 5, 2, 4, 0 },
 		.cfg_board_common_setting.ddr_dqs_swap = 0,
-		//.cfg_board_common_setting.ddr_dq_remap= { 23,
-		//20,
-		//21,
-		//34,
-		//16,
-		//18,
-		//17,
-		//19,
-		//22,
-		//24,
-		//28,
-		//26,
-		//35,
-		//25,
-		//29,
-		//31,
-		//30,
-		//27,
-		//7,
-		//6,
-		//0,
-		//32,
-		//1,
-		//5,
-		//3,
-		//4,
-		//2,
-		//12,
-		//14,
-		//15,
-		//33,
-		//9,
-		//11,
-		//13,
-		//8,
-		//10, },
+		.cfg_board_common_setting.ddr_dq_remap = { //use for ref pinmux
+		16,
+		20,
+		21,
+		34,
+		22,
+		18,
+		17,
+		19,
+		23,
+		24,
+		28,
+		26,
+		35,
+		25,
+		29,
+		30,
+		31,
+		27,
+		0,
+		1,
+		2,
+		32,
+		3,
+		7,
+		4,
+		6,
+		5,
+		11,
+		14,
+		15,
+		33,
+		8,
+		10,
+		13,
+		12,
+		9,},
 		.cfg_board_common_setting.ddr_vddee_setting = {
 			0
 		},
 		.cfg_board_SI_setting_ps.DRAMFreq = CACLU_CLK_LP4,
 		// .cfg_ddr_training_delay_ps.DRAMFreq = 600,// 2112,//,cfg_ddr_training_delay_ps
 		//.cfg_ddr_training_delay_ps.PllBypassEn = 0,
-		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,
+		.cfg_board_SI_setting_ps.training_SequenceCtrl = 0,//0xfe,
 		.cfg_board_SI_setting_ps.dfi_odt_config = DDR_DRAM_ODT_W_CS0_ODT0,
 		.cfg_board_SI_setting_ps.clk_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
 		.cfg_board_SI_setting_ps.cs_drv_ohm = DDR_SOC_AC_DRV_40_OHM,
@@ -1776,13 +1825,13 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.dram_data_drv_ohm = DDR_DRAM_LPDDR4_DRV_40_OHM,
 		.cfg_board_SI_setting_ps.dram_data_odt_ohm = DDR_DRAM_LPDDR4_ODT_40_OHM,
 		.cfg_board_SI_setting_ps.dram_data_wr_odt_ohm = DDR_DRAM_DDR_WR_ODT_0_OHM,
-		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 120, //240,
+		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 240, //240,//240 for 2rank
 		.cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm =
 			DDR_DRAM_LPDDR4_ODT_40_OHM,
 		.cfg_board_SI_setting_ps.lpddr4_dram_vout_range =
 			DDR_DRAM_LPDDR4_OUTPUT_1_3_VDDQ,
 		//.cfg_ddr_training_delay_ps.dfe_offset = 0,
-		.cfg_board_SI_setting_ps.vref_ac_permil = 260,//420,
+		.cfg_board_SI_setting_ps.vref_ac_permil = 0,//400, //260,//420,//600 for lp4x
 		.cfg_board_SI_setting_ps.vref_soc_data_permil = 0,
 		.cfg_board_SI_setting_ps.vref_dram_data_permil = 0,
 		.cfg_board_SI_setting_ps.max_core_timmming_frequency = 0,
@@ -1824,7 +1873,8 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_board_SI_setting_ps.dram_data_drv_ohm = 40,
 		.cfg_board_SI_setting_ps.dram_data_odt_ohm = 60,
 		.cfg_board_SI_setting_ps.dram_data_wr_odt_ohm = 0,
-		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 120,//240,//120,
+		.cfg_board_SI_setting_ps.dram_ac_odt_ohm = 255,//240,//120,
+		//dram_ac_odt_ohm lpddr4x 2rank use 255 lp4 use 240 ohm(bl2) will better
 		.cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm =
 			DDR_DRAM_LPDDR4_ODT_40_OHM,
 		.cfg_board_SI_setting_ps.lpddr4_dram_vout_range =
@@ -2535,19 +2585,19 @@ __attribute__ ((section(".ddr_param"))) = {
 		.cfg_ddr_training_delay_ps.ac_trace_delay[10] = 0xb6,//182，0xec
 		.cfg_ddr_training_delay_ps.ac_trace_delay[11] = 0xbf,//191，0xee
 		.cfg_ddr_training_delay_ps.ac_trace_delay[12] = 0xb6,//182，0xf0
-		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 0xbf,//191，0xf2
+		.cfg_ddr_training_delay_ps.ac_trace_delay[13] = 0xbf + 40,//191，0xf2
 		.cfg_ddr_training_delay_ps.ac_trace_delay[14] = 0xb6,//182，0xf4
-		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 0x7d,//125，0xf6
-		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 0x90,//144，0xf8
+		.cfg_ddr_training_delay_ps.ac_trace_delay[15] = 0x7d + 30,//125，0xf6
+		.cfg_ddr_training_delay_ps.ac_trace_delay[16] = 0x90 + 20,//144，0xf8
 		.cfg_ddr_training_delay_ps.ac_trace_delay[17] = 0x90,//144，0xfa
-		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 0x93,//147，0xfc
-		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 0xb1,//177，0xfe
+		.cfg_ddr_training_delay_ps.ac_trace_delay[18] = 0x93 + 30,//147，0xfc
+		.cfg_ddr_training_delay_ps.ac_trace_delay[19] = 0xb1 + 10,//177，0xfe
 		.cfg_ddr_training_delay_ps.ac_trace_delay[20] = 0xb6,//182，0x100
 		.cfg_ddr_training_delay_ps.ac_trace_delay[21] = 0x0,//0，0x102
 		.cfg_ddr_training_delay_ps.ac_trace_delay[22] = 0x0,//0，0x104
 		.cfg_ddr_training_delay_ps.ac_trace_delay[23] = 0x1bf,//447，0x106
 		.cfg_ddr_training_delay_ps.ac_trace_delay[24] = 0x1bf,//447，0x108
-		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0xbf,//191，0x10a
+		.cfg_ddr_training_delay_ps.ac_trace_delay[25] = 0xbf + 40,//191，0x10a
 		.cfg_ddr_training_delay_ps.ac_trace_delay[26] = 0xbf,//191，0x10c
 		.cfg_ddr_training_delay_ps.ac_trace_delay[27] = 0xb6,//182，0x10e
 		.cfg_ddr_training_delay_ps.ac_trace_delay[28] = 0xb6,//182，0x110
@@ -4280,6 +4330,7 @@ __attribute__ ((section(".clk_param"))) = {
 #define VCCK_A_VAL                              AML_VDD_CPUA_INIT_VOLTAGE
 #define VCCK_B_VAL                              AML_VDD_CPUB_INIT_VOLTAGE
 #define VDD_GPU_VAL                             AML_VDDGPU_INIT_VOLTAGE
+#define VDD_NPU_VAL                             AML_VDDNPU_INIT_VOLTAGE
 
 /* VDDEE_VAL_REG AX201 board by  designed  value */
 #if   (VDDEE_VAL == 720)
@@ -4517,6 +4568,49 @@ __attribute__ ((section(".clk_param"))) = {
 #error "VDD_GPU val out of range\n"
 #endif
 
+/* VDD_NPU PWM table */
+#if   (VDD_NPU_VAL == 690)
+#define VDD_NPU_VAL_REG 0x120000
+#elif (VDD_NPU_VAL == 700)
+#define VDD_NPU_VAL_REG 0x110001
+#elif (VDD_NPU_VAL == 710)
+#define VDD_NPU_VAL_REG 0x100002
+#elif (VDD_NPU_VAL == 720)
+#define VDD_NPU_VAL_REG 0xf0003
+#elif (VDD_NPU_VAL == 730)
+#define VDD_NPU_VAL_REG 0xe0004
+#elif (VDD_NPU_VAL == 740)
+#define VDD_NPU_VAL_REG 0xd0005
+#elif (VDD_NPU_VAL == 750)
+#define VDD_NPU_VAL_REG 0xc0006
+#elif (VDD_NPU_VAL == 760)
+#define VDD_NPU_VAL_REG 0xb0007
+#elif (VDD_NPU_VAL == 770)
+#define VDD_NPU_VAL_REG 0xa0008
+#elif (VDD_NPU_VAL == 780)
+#define VDD_NPU_VAL_REG 0x90009
+#elif (VDD_NPU_VAL == 790)
+#define VDD_NPU_VAL_REG 0x8000a
+#elif (VDD_NPU_VAL == 800)
+#define VDD_NPU_VAL_REG 0x7000b
+#elif (VDD_NPU_VAL == 810)
+#define VDD_NPU_VAL_REG 0x6000c
+#elif (VDD_NPU_VAL == 820)
+#define VDD_NPU_VAL_REG 0x5000d
+#elif (VDD_NPU_VAL == 830)
+#define VDD_NPU_VAL_REG 0x4000e
+#elif (VDD_NPU_VAL == 840)
+#define VDD_NPU_VAL_REG 0x3000f
+#elif (VDD_NPU_VAL == 850)
+#define VDD_NPU_VAL_REG 0x20010
+#elif (VDD_NPU_VAL == 860)
+#define VDD_NPU_VAL_REG 0x10011
+#elif (VDD_NPU_VAL == 870)
+#define VDD_NPU_VAL_REG 0x12
+#else
+#error "VDD_NPU val out of range\n"
+#endif
+
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
@@ -4536,6 +4630,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PWMAB_PWM_A,		   VCCK_B_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_A,		   VDD_GPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_B,		   VCCK_A_VAL_REG,  0xffffffff, 0, 0, 0 },
+	{ PWMEF_PWM_A,		   VDD_NPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMAB_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
 				(0x3 << 0) | (0x1 << 15) | (0x1 << 23), 0, 0, 0 },
 	{ PWMCD_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),

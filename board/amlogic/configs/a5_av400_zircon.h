@@ -68,43 +68,16 @@
 	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
-	"loadaddr_rtos=0x00001000\0"\
+	"loadaddr_rtos=0x00080000\0"\
 	"loadaddr_kernel=0x03080000\0"\
-	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \
-	"panel_type=lcd_1\0" \
-	"outputmode=1080p60hz\0" \
-	"hdmimode=none\0" \
-	"colorattribute=444,8bit\0"\
-	"cvbsmode=576cvbs\0" \
-	"display_width=1920\0" \
-	"display_height=1080\0" \
-	"display_bpp=16\0" \
-	"display_color_index=16\0" \
-	"display_layer=osd0\0" \
-	"display_color_fg=0xffff\0" \
-	"display_color_bg=0\0" \
 	"dtb_mem_addr=0x01000000\0" \
-	"fb_addr=0x00300000\0" \
-	"fb_width=1920\0" \
-	"fb_height=1080\0" \
-	"hdmichecksum=0x00000000\0" \
-	"dolby_status=0\0" \
-	"dolby_vision_on=0\0" \
-	"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
-	"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
-	"dv_fw_dir=/reserved/firmware/dovi_fw.bin\0" \
-	"frac_rate_policy=1\0" \
-	"hdr_policy=0\0" \
 	"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
 	"fdt_high=0x20000000\0"\
 	"sdcburncfg=aml_sdc_burn.ini\0"\
 	"EnableSelinux=enforcing\0" \
 	"loglevel=8\0" \
 	"lock=10101000\0"\
-	"cvbs_drv=0\0"\
-	"osd_reverse=0\0"\
-	"video_reverse=0\0"\
 	"active_slot=normal\0"\
 	"boot_part=boot\0"\
 	"vendor_boot_part=vendor_boot\0"\
@@ -131,12 +104,7 @@
 	"storeargs="\
 		"get_bootloaderversion;" \
 		"setenv bootargs ${initargs} ${fs_type} otg_device=${otg_device} "\
-			"logo=${display_layer},loaded,${fb_addr} vout=${outputmode},enable panel_type=${panel_type} "\
-			"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
-			"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} " \
-			"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
-			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} cvbsmode=${cvbsmode} "\
-			"osd_reverse=${osd_reverse} video_reverse=${video_reverse} irq_check_en=${Irq_check_en}  "\
+			"irq_check_en=${Irq_check_en}  "\
 			"androidboot.selinux=${EnableSelinux} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 		"setenv bootargs ${bootargs} androidboot.bootloader=${bootloader_version} androidboot.hardware=amlogic;"\
 		"run cmdline_keys;"\
@@ -210,22 +178,12 @@
 		"echo reboot_mode:::: ${reboot_mode};"\
 		"if test ${reboot_mode} = quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
-			"setenv dolby_status 0;"\
-			"setenv dolby_vision_on 0;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-			"osd open;osd clear;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
-			"setenv dolby_status 0;"\
-			"setenv dolby_vision_on 0;"\
 			"setenv bootargs ${bootargs} androidboot.quiescent=1;"\
-			"osd open;osd clear;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
-			"hdmitx hpd;hdmitx get_preferred_mode;hdmitx get_parse_edid;dovi process; \
-				osd open;osd clear;run load_bmp_logo;bmp scale; \
-				vout output ${outputmode}; \
-				dovi set;dovi pkg;vpp hdrpkt;"\
 		"fi;fi;"\
 		"\0"\
 	"storage_param="\
@@ -358,8 +316,8 @@
 #define AML_VPU_CLK_LEVEL_DFT 7
 
 /* osd */
-#define OSD_SCALE_ENABLE
-#define AML_OSD_HIGH_VERSION
+// #define OSD_SCALE_ENABLE
+// #define AML_OSD_HIGH_VERSION
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

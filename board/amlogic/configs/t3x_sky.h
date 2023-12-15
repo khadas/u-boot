@@ -89,7 +89,7 @@
 		"jtag=disable\0"\
 		"loadaddr=0x00020000\0"\
 		"os_ident_addr=0x00500000\0"\
-		"loadaddr_rtos=0x00001000\0"\
+		"loadaddr_rtos=0x00080000\0"\
 		"loadaddr_kernel=0x03080000\0"\
 		"otg_device=1\0" \
 		"panel_type=lvds_1\0" \
@@ -428,7 +428,7 @@
 #define VPU_DEBUG_PRINT 7
 
 /* LCD */
-#define CONFIG_AML_LCD_PXP 1
+//#define CONFIG_AML_LCD_PXP 1
 
 /* osd */
 #define OSD_SCALE_ENABLE

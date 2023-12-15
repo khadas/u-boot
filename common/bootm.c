@@ -95,10 +95,19 @@ static inline void boot_start_lmb(bootm_headers_t *images) { }
 static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
+#ifdef CONFIG_DTB_MEM_ADDR
+	unsigned long long dtb_mem_addr =  -1;
+#endif
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
-
 	boot_start_lmb(&images);
+#ifdef CONFIG_DTB_MEM_ADDR
+	if (env_get("dtb_mem_addr"))
+		dtb_mem_addr = simple_strtoul(env_get("dtb_mem_addr"), NULL, 16);
+	else
+		dtb_mem_addr = CONFIG_DTB_MEM_ADDR;
+	images.ft_addr = (char *)map_sysmem(dtb_mem_addr, 0);
+#endif
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_START, "bootm_start");
 	images.state = BOOTM_STATE_START;
@@ -590,6 +599,10 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
+
+	extern uint32_t get_rsv_mem_size(void);
+	if (load_end >= IOTRACE_LOAD_ADDR && load < get_rsv_mem_size())
+		printf("[Warning] kernel overlap iotrace, please reset decompress addr\n");
 
 	flush_len = load_end - load;
 	if (flush_start < load)

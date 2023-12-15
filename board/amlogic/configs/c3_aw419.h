@@ -71,7 +71,7 @@
 	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
-	"loadaddr_rtos=0x00001000\0"\
+	"loadaddr_rtos=0x00080000\0"\
 	"loadaddr_kernel=0x03080000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \
@@ -80,8 +80,8 @@
 	"hdmimode=none\0" \
 	"colorattribute=444,8bit\0"\
 	"cvbsmode=576cvbs\0" \
-	"display_width=1920\0" \
-	"display_height=1080\0" \
+	"display_width=1024\0" \
+	"display_height=600\0" \
 	"display_bpp=16\0" \
 	"display_color_index=16\0" \
 	"display_layer=osd0\0" \
@@ -89,8 +89,8 @@
 	"display_color_bg=0\0" \
 	"dtb_mem_addr=0x01000000\0" \
 	"fb_addr=0x00300000\0" \
-	"fb_width=1920\0" \
-	"fb_height=1080\0" \
+	"fb_width=1024\0" \
+	"fb_height=600\0" \
 	"hdmichecksum=0x00000000\0" \
 	"dolby_status=0\0" \
 	"dolby_vision_on=0\0" \
@@ -258,8 +258,7 @@
 		"fi;"\
 		"\0"\
 	"load_bmp_logo="\
-		"if rdext4pic ${board_logo_part} $loadaddr; then bmp display $logoLoadAddr; " \
-		"else if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi; fi;" \
+		"if imgread pic logo bootup $loadaddr; then bmp display $bootup_offset; fi;" \
 		"\0"\
 	"init_display="\
 		"get_rebootmode;"\
@@ -412,12 +411,15 @@
 	#define CONFIG_SYS_MAX_NAND_DEVICE  2
 #endif
 
+/* temporarily skip mtd part param */
+#define SKIP_MTD_PART_PARAM		1
 /* vpu */
 #define AML_VPU_CLK_LEVEL_DFT 4
 
 /* osd */
 #define OSD_SCALE_ENABLE
-#define AML_OSD_HIGH_VERSION
+#define AML_C3_DISPLAY
+#define OSD_SLT_DISABLE
 
 /* USB
  * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard

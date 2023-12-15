@@ -105,7 +105,7 @@
 		"fb_height=1080\0" \
 		"frac_rate_policy=1\0" \
 		"usb_burning=" CONFIG_USB_TOOL_ENTRY "\0" \
-		"fdt_high=0x20000000\0"\
+		"fdt_high=0xa000000\0"\
 		"sdcburncfg=aml_sdc_burn.ini\0"\
 		"EnableSelinux=enforcing\0" \
 		"recovery_part=recovery\0"\
@@ -134,7 +134,7 @@
 		"no_console_suspend earlycon=aml-uart,0xfe07a000 scramble_reg=0xfe02e030 "\
 		"ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
 		"loop.max_part=4 scsi_mod.scan=async xhci_hcd.quirks=0x800000 "\
-		"loglevel=4 isolcpus=4 "\
+		"loglevel=7 aml_isolcpus=4 "\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -509,9 +509,6 @@
 
 //use sha2 command
 #define CONFIG_CMD_SHA2
-
-//use startdsp command
-#define CONFIG_CMD_STARTDSP
 
 //use cache command
 #define CONFIG_CMD_CACHE

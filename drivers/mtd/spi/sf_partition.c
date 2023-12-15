@@ -17,6 +17,7 @@
 #include <mtd.h>
 #include <amlogic/aml_mtd.h>
 #include <amlogic/storage.h>
+#include <amlogic/cpu_id.h>
 
 /* Hard code, all partitions are aligned in block size, fast erasing */
 #define SPINOR_ALIGNED_SIZE		(64 * 1024)
@@ -43,6 +44,7 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 	struct mtd_partition *temp, *parts_nm;
 	loff_t off;
 	int ret = 1;
+	cpu_id_t cpu_id = get_cpu_id();
 
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER)
 		part_num = nbparts + 5;
@@ -88,6 +90,9 @@ static int _spinor_add_partitions(struct mtd_info *mtd,
 
 		off = temp[BOOT_AREA_DEVFIP].offset + temp[BOOT_AREA_DEVFIP].size;
 		parts_nm = &temp[5];
+
+		if (cpu_id.family_id == MESON_CPU_MAJOR_ID_A4)
+			off = DIV_ROUND_UP(off, 0x1000) << 12;
 	} else {
 		temp[0].name = BOOT_LOADER;
 		temp[0].offset = 0;

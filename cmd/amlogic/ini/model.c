@@ -19,10 +19,16 @@
 
 #ifndef CONFIG_YOCTO
 #define DEFAULT_MODEL_SUM_PATH1 "/odm/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL1_SUM_PATH1 "/odm/etc/tvconfig/model/model1_sum.ini"
+#define DEFAULT_MODEL2_SUM_PATH1 "/odm/etc/tvconfig/model/model2_sum.ini"
 #else
 #define DEFAULT_MODEL_SUM_PATH1 "/vendor/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL1_SUM_PATH1 "/vendor/etc/tvconfig/model/model1_sum.ini"
+#define DEFAULT_MODEL2_SUM_PATH1 "/vendor/etc/tvconfig/model/model2_sum.ini"
 #endif
 #define DEFAULT_MODEL_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model_sum.ini"
+#define DEFAULT_MODEL1_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model1_sum.ini"
+#define DEFAULT_MODEL2_SUM_PATH2 "/odm_ext/etc/tvconfig/model/model2_sum.ini"
 #define AML_START		"amlogic_start"
 #define AML_END			"amlogic_end"
 
@@ -2420,6 +2426,8 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 {
 	int tmp_val = 0;
 	const char *ini_value = NULL;
+	const char *display_layer = NULL;
+	char *rev_ctrl = NULL;
 	char buf[64] = {0};
 
 	ini_value = IniGetString("panel_misc", "panel_misc_version", "null");
@@ -2469,46 +2477,90 @@ static int handle_panel_misc(struct panel_misc_s *p_misc)
 		run_command("setenv connector_type null", 0);
 	}
 
-	ini_value = IniGetString("panel_misc", "panel_reverse", "null");
-	if (model_debug_flag & DEBUG_MISC)
-		ALOGD("%s, panel_reverse is (%s)\n", __func__, ini_value);
-	if (strcmp(ini_value, "null") == 0 || strcmp(ini_value, "0") == 0 ||
-		strcmp(ini_value, "false") == 0 || strcmp(ini_value, "no_rev") == 0) {
-		p_misc->panel_reverse = 0;
-	} else if (strcmp(ini_value, "true") == 0 || strcmp(ini_value, "1") == 0 ||
-		strcmp(ini_value, "have_rev") == 0) {
-		p_misc->panel_reverse = 1;
-	} else if (strcmp(ini_value, "x_rev") == 0 || strcmp(ini_value, "2") == 0) {
-		p_misc->panel_reverse = 2;
-	} else if (strcmp(ini_value, "y_rev") == 0 || strcmp(ini_value, "3") == 0) {
-		p_misc->panel_reverse = 3;
-	} else {
-		p_misc->panel_reverse = 0;
+	rev_ctrl = env_get("reverse_ctrl");
+	if (!rev_ctrl || strcmp(rev_ctrl, "0") == 0) {
+		ini_value = IniGetString("panel_misc", "panel_reverse", "null");
+		if (model_debug_flag & DEBUG_MISC)
+			ALOGD("%s, panel_reverse is (%s)\n", __func__, ini_value);
+		if (strcmp(ini_value, "null") == 0 || strcmp(ini_value, "0") == 0 ||
+			strcmp(ini_value, "false") == 0 || strcmp(ini_value, "no_rev") == 0) {
+			p_misc->panel_reverse = 0;
+		} else if (strcmp(ini_value, "true") == 0 || strcmp(ini_value, "1") == 0 ||
+			strcmp(ini_value, "have_rev") == 0) {
+			p_misc->panel_reverse = 1;
+		} else if (strcmp(ini_value, "x_rev") == 0 || strcmp(ini_value, "2") == 0) {
+			p_misc->panel_reverse = 2;
+		} else if (strcmp(ini_value, "y_rev") == 0 || strcmp(ini_value, "3") == 0) {
+			p_misc->panel_reverse = 3;
+		} else {
+			p_misc->panel_reverse = 0;
+		}
+		if (p_misc->panel_reverse) {
+			display_layer = IniGetString("panel_misc", "display_layer", "null");
+			if (!display_layer)
+				p_misc->display_layer = 4;
+			else if (strcmp(display_layer, "osd0") == 0 ||
+					strcmp(display_layer, "0") == 0)
+				p_misc->display_layer = 0;
+			else if (strcmp(display_layer, "osd1") == 0 ||
+					strcmp(display_layer, "1") == 0)
+				p_misc->display_layer = 1;
+			else
+				p_misc->display_layer = 4;
+		}
+		switch (p_misc->panel_reverse) {
+		case 1:
+			run_command("setenv panel_reverse 1", 0);
+			switch (p_misc->display_layer) {
+			case 0:
+				run_command("setenv osd_reverse osd0,true", 0);
+				break;
+			case 1:
+				run_command("setenv osd_reverse osd1,true", 0);
+				break;
+			default:
+				run_command("setenv osd_reverse all,true", 0);
+				break;
+			}
+			run_command("setenv video_reverse 1", 0);
+			break;
+		case 2:
+			run_command("setenv panel_reverse 2", 0);
+			switch (p_misc->display_layer) {
+			case 0:
+				run_command("setenv osd_reverse osd0,x_rev", 0);
+				break;
+			case 1:
+				run_command("setenv osd_reverse osd1,x_rev", 0);
+				break;
+			default:
+				run_command("setenv osd_reverse all,x_rev", 0);
+				break;
+			}
+			run_command("setenv video_reverse 2", 0);
+			break;
+		case 3:
+			run_command("setenv panel_reverse 3", 0);
+			switch (p_misc->display_layer) {
+			case 0:
+				run_command("setenv osd_reverse osd0,y_rev", 0);
+				break;
+			case 1:
+				run_command("setenv osd_reverse osd1,y_rev", 0);
+				break;
+			default:
+				run_command("setenv osd_reverse all,y_rev", 0);
+				break;
+			}
+			run_command("setenv video_reverse 3", 0);
+			break;
+		default:
+			run_command("setenv panel_reverse 0", 0);
+			run_command("setenv osd_reverse n", 0);
+			run_command("setenv video_reverse 0", 0);
+			break;
+		}
 	}
-
-	switch (p_misc->panel_reverse) {
-	case 1:
-		run_command("setenv panel_reverse 1", 0);
-		run_command("setenv osd_reverse all,true", 0);
-		run_command("setenv video_reverse 1", 0);
-		break;
-	case 2:
-		run_command("setenv panel_reverse 2", 0);
-		run_command("setenv osd_reverse all,x_rev", 0);
-		run_command("setenv video_reverse 2", 0);
-		break;
-	case 3:
-		run_command("setenv panel_reverse 3", 0);
-		run_command("setenv osd_reverse all,y_rev", 0);
-		run_command("setenv video_reverse 3", 0);
-		break;
-	default:
-		run_command("setenv panel_reverse 0", 0);
-		run_command("setenv osd_reverse n", 0);
-		run_command("setenv video_reverse 0", 0);
-		break;
-	}
-
 	return 0;
 }
 
@@ -4208,9 +4260,19 @@ const char *get_model_sum_path(int index)
 	model_path = env_get(str);
 	if (model_path == NULL) {
 		if (dynamic_partition) {
-			return DEFAULT_MODEL_SUM_PATH2;
+			if (index == 2)
+				return DEFAULT_MODEL2_SUM_PATH2;
+			else if (index == 1)
+				return DEFAULT_MODEL1_SUM_PATH2;
+			else
+				return DEFAULT_MODEL_SUM_PATH2;
 		} else {
-			return DEFAULT_MODEL_SUM_PATH1;
+			if (index == 2)
+				return DEFAULT_MODEL2_SUM_PATH1;
+			else if (index == 1)
+				return DEFAULT_MODEL1_SUM_PATH1;
+			else
+				return DEFAULT_MODEL_SUM_PATH1;
 		}
 	}
 

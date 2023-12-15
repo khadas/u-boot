@@ -17,6 +17,12 @@
 #define _BA0_(c, x) _BA1_(c, x)
 #define BUILD_ASSERT(cond) _BA0_(cond, __LINE__)
 
+#define IOTRACE_LOAD_ADDR		0x4F00000
+#define KERNEL_LOAD_HIGH_ADDR		0xD000000
+#define KERNEL_DEFAULT_LOAD_ADDR	0x3000000
+#define DTB_LOAD_ADDR			0x1000000
+#define LOAD_ADDR_ALIGN_LENGTH		0x100000
+
 #define BOOT_IMG_HDR_SIZE         (0x800)
 #define BOOT_IMG_V3_HDR_SIZE      (0x1000)
 #define VENDOR_BOOT_IMG_HDR_SIZE  (0x1000)
@@ -454,4 +460,5 @@ typedef struct {
 
 extern p_vendor_boot_img_t p_vender_boot_img;
 extern unsigned init_boot_ramdisk_size;
+bool is_android_image(void);
 #endif

@@ -270,6 +270,11 @@ static struct meson_vdac_ctrl_s vdac_ctrl_enable_s4[] = {
 	{VDAC_REG_MAX, 0, 0, 0},
 };
 
+static struct meson_vdac_ctrl_s vdac_ctrl_enable_t5w[] = {
+	{HHI_VDAC_CNTL1, 0, 0, 7},  /*gsw */
+	{VDAC_REG_MAX, 0, 0, 0},
+};
+
 struct vdac_data_s vdac_data_g12ab = {
 	.cpu_id = VDAC_CPU_G12AB,
 	.reg_ctrl0 = HHI_VDAC_CNTL0,
@@ -298,6 +303,41 @@ struct vdac_data_s vdac_data_s4d = {
 	.vdac_ctrl = vdac_ctrl_enable_s4,
 };
 
+struct vdac_data_s vdac_data_t3 = {
+	.cpu_id = VDAC_CPU_T3,
+	.reg_ctrl0 = ANACTRL_VDAC_CTRL0,
+	.reg_ctrl1 = ANACTRL_VDAC_CTRL1,
+	.vdac_ctrl = vdac_ctrl_enable_s4,
+};
+
+struct vdac_data_s vdac_data_t5w = {
+	.cpu_id = VDAC_CPU_T5W,
+	.reg_ctrl0 = HHI_VDAC_CNTL0,
+	.reg_ctrl1 = HHI_VDAC_CNTL1,
+	.vdac_ctrl = vdac_ctrl_enable_t5w,
+};
+
+struct vdac_data_s vdac_data_t5m = {
+	.cpu_id = VDAC_CPU_T5M,
+	.reg_ctrl0 = ANACTRL_VDAC_CTRL0,
+	.reg_ctrl1 = ANACTRL_VDAC_CTRL1,
+	.vdac_ctrl = vdac_ctrl_enable_s4,
+};
+
+struct vdac_data_s vdac_data_t3x = {
+	.cpu_id = VDAC_CPU_T3X,
+	.reg_ctrl0 = ANACTRL_VDAC_CTRL0,
+	.reg_ctrl1 = ANACTRL_VDAC_CTRL1,
+	.vdac_ctrl = vdac_ctrl_enable_s4,
+};
+
+struct vdac_data_s vdac_data_txhd2 = {
+	.cpu_id = VDAC_CPU_TXHD2,
+	.reg_ctrl0 = HHI_VDAC_CNTL0,
+	.reg_ctrl1 = HHI_VDAC_CNTL1,
+	.vdac_ctrl = vdac_ctrl_enable_t5w,
+};
+
 void vdac_ctrl_config_probe(void)
 {
 	pri_flag = 0;
@@ -315,6 +355,21 @@ void vdac_ctrl_config_probe(void)
 		break;
 	case MESON_CPU_MAJOR_ID_S4D:
 		vdac_data = &vdac_data_s4d;
+		break;
+	case MESON_CPU_MAJOR_ID_T3:
+		vdac_data = &vdac_data_t3;
+		break;
+	case MESON_CPU_MAJOR_ID_T5W:
+		vdac_data = &vdac_data_t5w;
+		break;
+	case MESON_CPU_MAJOR_ID_T5M:
+		vdac_data = &vdac_data_t5m;
+		break;
+	case MESON_CPU_MAJOR_ID_T3X:
+		vdac_data = &vdac_data_t3x;
+		break;
+	case MESON_CPU_MAJOR_ID_TXHD2:
+		vdac_data = &vdac_data_txhd2;
 		break;
 	default:
 		vdac_data = &vdac_data_s4d;

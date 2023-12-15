@@ -14,6 +14,7 @@
 #else
 #include <amlogic/media/vout/hdmitx21/hdmitx_module.h>
 #endif
+#include <amlogic/media/vout/hdmitx21/hdmitx_ext.h>
 #include <amlogic/media/dv/dolby_vision.h>
 #include <amlogic/media/dv/dolby_vision_func.h>
 
@@ -42,8 +43,17 @@ static unsigned int dolby_vision_target_max[3][3] = {
 	{ 1000, 1000, 100 }, /* HDR =>  DOVI/HDR/SDR */
 	{ 600, 1000, 100 },  /* SDR =>  DOVI/HDR/SDR */
 };
-static unsigned int dolby_vision_target_graphics_max[3] = {
+
+static unsigned int dv_target_graphics_max[3] = {
 	300, 375, 100
+}; /* DOVI/HDR/SDR */
+
+static unsigned int dv_target_graphics_max_26[3] = {
+	300, 305, 300
+}; /* DOVI/HDR/SDR */
+
+static unsigned int dv_target_graphics_ll_max_26[3] = {
+	300, 300, 300
 }; /* DOVI/HDR/SDR */
 
 /* 0: video priority 1: graphic priority */
@@ -56,7 +66,10 @@ static unsigned int vinfo_field_height = 1080;
 static bool dolby_vision_ll_flag;
 int dolby_vision_on;
 static char *dolby_status;
+static char *hdr_force_mode;
+static char *hdr_policy;
 static bool dv_fw_valid = true;
+static bool use_sink_min_max_flag;
 
 #ifndef AML_S5_DISPLAY
 #define COEFF_NORM(a) ((int)((((a) * 2048.0) + 1) / 2))
@@ -305,7 +318,8 @@ static inline bool check_outputmode(void)
 {
 	char *outputmode = env_get("outputmode");
 
-	printf("outputmode %s\n", outputmode);
+	if (!(rma_test || rma_test_addr))
+		printf("outputmode %s\n", outputmode);
 
 	if (strstr(outputmode, "2160p100hz") ||
 	    strstr(outputmode, "2160p120hz") ||
@@ -323,7 +337,6 @@ static inline bool check_outputmode(void)
 int is_dolby_enable(void)
 {
 	bool check_outputmode_valid = true;
-	int ret = 0;
 
 	if (!is_dolby_stb_chip()) {
 		printf("not dolby stb chip %x\n", get_cpu_id().family_id);
@@ -332,27 +345,49 @@ int is_dolby_enable(void)
 
 	if (!dolby_status)
 		dolby_status = env_get("dolby_status");
+	if (!hdr_force_mode)
+		hdr_force_mode = env_get("hdr_force_mode");
+	if (!hdr_policy)
+		hdr_policy = env_get("hdr_policy");
+
+	if (!(rma_test || rma_test_addr)) {
+		printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, ",
+			dolby_status, dv_fw_valid, check_outputmode_valid);
+		printf("hdr_force_mode %s\n", hdr_force_mode);
+	}
 
 	check_outputmode_valid = check_outputmode();
 
 	if (!dv_fw_valid || !check_outputmode_valid)
-		ret = 0;
-	else if (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
-		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
-		!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
-		ret = 1;
-	else
-		ret = 0;
-
-	printf("dolby_status %s, dv_fw_valid %d, outmodevalid %d, ret %d\n",
-			dolby_status, dv_fw_valid, check_outputmode_valid, ret);
-
-	return ret;
+		return 0;
+	if (dolby_status) {
+		if (hdr_policy) {
+			if ((!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB)) &&
+				!strcmp(hdr_policy, "0"))
+				return 1;
+		} else {
+			if (!strcmp(dolby_status, DOLBY_VISION_SET_STD) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV) ||
+				!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB))
+				return 1;
+		}
+	}
+	if (dolby_status && hdr_force_mode) {
+		if (!strcmp(dolby_status, DOLBY_VISION_SET_DISABLE) &&
+			!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR))
+			return 1;
+	}
+	return 0;
 }
 bool request_ll_mode(void)
 {
 	if (!dolby_status)
 		dolby_status = env_get("dolby_status");
+
+	if (!dolby_status)
+		return false;
 
 	if (!strcmp(dolby_status, DOLBY_VISION_SET_LL_RGB) ||
 		!strcmp(dolby_status, DOLBY_VISION_SET_LL_YUV)) {
@@ -394,7 +429,7 @@ static int check_tv_has_changed(struct hdmitx_dev* hdmitx_device)
 }*/
 static int check_tv_hpd_status(struct hdmitx_dev* hdmitx_device)
 {
-	return hdmitx_device->hwop.get_hpd_state();
+	return hdmitx_get_hpd_state_ext();
 }
 
 static int check_tv_support_dv(struct hdmitx_dev *hdmitx_device)
@@ -605,23 +640,35 @@ static bool is_attr_match(void)
 
 static int check_tv_support(struct hdmitx_dev *hdmitx_device)
 {
-	if (check_tv_support_dv(hdmitx_device)) {
-		if (is_attr_match()) {
-			dovi_setting.dst_format = FORMAT_DOVI;
-			printf("output dovi mode: mode is : %s  attr: %s\n",
+	if (hdr_force_mode && (!strcmp(hdr_force_mode, DOLBY_VISION_FORCE_HDR))) {
+		if (check_tv_support_hdr(hdmitx_device)) {
+			dovi_setting.dst_format = FORMAT_HDR10;
+			printf("output hdr mode: mode is : %s  attr: %s\n",
 				env_get("outputmode"), env_get("colorattribute"));
 		} else {
 			dovi_setting.dst_format = FORMAT_SDR;
-			printf("attr is not match, change to output SDR\n");
+			printf("output sdr mode: mode is : %s  attr: %s\n",
+				env_get("outputmode"), env_get("colorattribute"));
 		}
-	} else if (check_tv_support_hdr(hdmitx_device)) {
-		dovi_setting.dst_format = FORMAT_HDR10;
-		printf("output hdr mode: mode is : %s  attr: %s\n",
-			env_get("outputmode"), env_get("colorattribute"));
 	} else {
-		dovi_setting.dst_format = FORMAT_SDR;
-		printf("output sdr mode: mode is : %s  attr: %s\n",
-			env_get("outputmode"), env_get("colorattribute"));
+		if (check_tv_support_dv(hdmitx_device)) {
+			if (is_attr_match()) {
+				dovi_setting.dst_format = FORMAT_DOVI;
+				printf("output dovi mode: mode is : %s  attr: %s\n",
+					env_get("outputmode"), env_get("colorattribute"));
+			} else {
+				dovi_setting.dst_format = FORMAT_SDR;
+				printf("attr is not match, change to output SDR\n");
+			}
+		} else if (check_tv_support_hdr(hdmitx_device)) {
+			dovi_setting.dst_format = FORMAT_HDR10;
+			printf("output hdr mode: mode is : %s  attr: %s\n",
+				env_get("outputmode"), env_get("colorattribute"));
+		} else {
+			dovi_setting.dst_format = FORMAT_SDR;
+			printf("output sdr mode: mode is : %s  attr: %s\n",
+				env_get("outputmode"), env_get("colorattribute"));
+		}
 	}
 	return 0;
 }
@@ -704,9 +751,15 @@ static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 	dovi_setting.video_width = w << 16;
 	dovi_setting.video_height = h << 16;
 
-	if(dst_format >= 0
-		&& dst_format <= 2)
-		graphic_max = dolby_vision_target_graphics_max[dst_format];
+	if (dst_format >= 0 && dst_format <= 2) {
+		graphic_max = dv_target_graphics_max[dst_format];
+		if (is_meson_s5()) {
+			if (request_ll_mode())
+				graphic_max = dv_target_graphics_ll_max_26[dst_format];
+			else
+				graphic_max = dv_target_graphics_max_26[dst_format];
+		}
+	}
 
 	if (dovi_setting.dst_format == FORMAT_DOVI) {
 		memset(&dovi_setting.vsvdb_tbl[0],
@@ -730,16 +783,17 @@ static int dolby_vision_parse(struct hdmitx_dev *hdmitx_device)
 			dovi_setting.ll_rgb_desired= 1;
 			dovi_setting.diagnostic_enable = 1;
 		}
-	} else if (dovi_setting.dst_format == FORMAT_HDR10) {
+	}
+
+	if (dovi_setting.dst_format == FORMAT_HDR10 && use_sink_min_max_flag) {
 		if (hdmitx_device->RXCap.hdr_info.hdr_lum_max) {
 			graphic_max = 50 * (2 ^ (hdmitx_device->RXCap.hdr_info.hdr_lum_max >> 5));
-			graphic_max = graphic_max * 10000
+			graphic_min = graphic_max * 10000
 				* hdmitx_device->RXCap.hdr_info.hdr_lum_min
 				* hdmitx_device->RXCap.hdr_info.hdr_lum_min
 				/ (255 * 255 * 100);
 		}
-	} else
-		;
+	}
 
 	if ((src_format >= 0 && src_format <= 2) &&
 		(dst_format >= 0 && dst_format <= 2))
@@ -887,6 +941,8 @@ static int dolby_core2_set(
 	uint32_t count;
 	int i;
 	uint32_t bypass_flag = 0;
+	uint32_t fb_height = 0;
+	char *fb_h = NULL;
 
 	uint32_t g_htotal_add = 0x40;
 	uint32_t g_vtotal_add = 0x80;
@@ -896,6 +952,10 @@ static int dolby_core2_set(
 	uint32_t g_vpotch;
 	uint32_t g_hpotch = 0x10;
 	u32 addr = 0;
+
+	fb_h = env_get("fb_height");
+	if (fb_h)
+		fb_height = simple_strtoul(fb_h, NULL, 10);
 
 	/* adjust core2 setting to work around*/
 	/* fixing with 1080p24hz and 480p60hz */
@@ -928,11 +988,14 @@ static int dolby_core2_set(
 			g_vpotch = 0x10;
 
 		/* for 1080p fb */
-		if (vsize <= 1080)
+		if (fb_height <= 1080 &&
+			vinfo_width < 7680 &&
+			vinfo_height < 4320)
 			g_vpotch = 0x50;
 
 		if (vinfo_width <= 720)
 			g_htotal_add = 0x12c;
+		g_vwidth = 0x10;
 	}
 
 #ifdef AML_S5_DISPLAY

@@ -123,8 +123,10 @@
 				"run update;"\
 			"else if test ${reboot_mode} = quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
 			"else if test ${reboot_mode} = recovery_quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
 				"run recovery_from_flash;"\
 			"else if test ${reboot_mode} = cold_boot; then "\
 			"else if test ${reboot_mode} = fastboot; then "\

@@ -53,7 +53,8 @@ static void aml_set_audio_spdif_clk(void)
 {
 	/*mpll0: 491520000 */
 	// TODO
-	hhi_write(0, 0x543);
+	if (0)
+		hhi_write(0, 0x543);
 	//hhi_write(ANACTRL_MPLL_CTRL0, 0x543);
 	//hhi_write(ANACTRL_MPLL_CTRL1, 0xC040046B);
 	//hhi_write(ANACTRL_MPLL_CTRL2, 0x40000033);

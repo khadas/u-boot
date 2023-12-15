@@ -23,7 +23,8 @@
 #define REFIX_BLK_CNT		(100)
 #define CALI_PATTERN_ADDR   (0x13800)
 #define TUNING_NUM_PER_POINT 40
-#define MMC_MAX_DESC_NUM	512
+/* Limit up to 32 descriptors */
+#define MMC_MAX_DESC_NUM	32
 #define MAX_RESPONSE_BYTES	4
 
 /* unknown */

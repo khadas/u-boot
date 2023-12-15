@@ -6,6 +6,7 @@
 #include <common.h>
 #include <crypto_internal.h>
 #include <amlogic/aml_crypto.h>
+#include <uboot_aes.h>
 
 //#define AES_TEST_CASE
 
@@ -238,6 +239,35 @@ static int aes_test_128ECB(void)
 	return 0;
 }
 
+#ifdef CONFIG_AES
+static int aes_test_128ECB_SW(void)
+{
+	uint8_t dst[16] = {0};
+	u8 key_exp[AES256_EXPAND_KEY_LENGTH];
+
+	printf("AES 128 ECB ENC SW:");
+	/* First we expand the key. */
+	aes_expand_key(aes128ecb_key, sizeof(aes128ecb_key), key_exp);
+
+	aes_ecb_encrypt_blocks(AES128_KEY_LENGTH, key_exp, aes128ecb_plain, dst,
+			sizeof(aes128ecb_plain) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes128ecb_cipher, sizeof(aes128ecb_cipher)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	printf("AES 128 ECB DEC SW:");
+	aes_ecb_decrypt_blocks(AES128_KEY_LENGTH, key_exp, aes128ecb_cipher, dst,
+			sizeof(aes128ecb_cipher) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes128ecb_plain, sizeof(aes128ecb_plain)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	return 0;
+}
+#endif
+
 static uint8_t aes128cbc_key[16] = {
 	0xc2, 0x86, 0x69, 0x6d, 0x88, 0x7c, 0x9a, 0xa0,
 	0x61, 0x1b, 0xbb, 0x3e, 0x20, 0x25, 0xa4, 0x5a,
@@ -286,6 +316,35 @@ static int aes_test_128CBC(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_AES
+static int aes_test_128CBC_SW(void)
+{
+	uint8_t dst[32] = {0};
+	u8 key_exp[AES256_EXPAND_KEY_LENGTH];
+
+	printf("AES 128 CBC ENC SW:");
+	/* First we expand the key. */
+	aes_expand_key(aes128cbc_key, sizeof(aes128cbc_key), key_exp);
+
+	aes_cbc_encrypt_blocks(AES128_KEY_LENGTH, key_exp, aes128cbc_iv,
+			aes128cbc_plain, dst, sizeof(aes128cbc_plain) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes128cbc_cipher, sizeof(aes128cbc_cipher)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	printf("AES 128 CBC DEC SW:");
+	aes_cbc_decrypt_blocks(AES128_KEY_LENGTH, key_exp, aes128cbc_iv,
+			aes128cbc_cipher, dst, sizeof(aes128cbc_cipher) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes128cbc_plain, sizeof(aes128cbc_plain)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	return 0;
+}
+#endif
 
 static uint8_t aes128ctr_key[16] = {
 	0x7e, 0x24, 0x06, 0x78, 0x17, 0xfa, 0xe0, 0xd7,
@@ -380,6 +439,36 @@ static int aes_test_256ECB(void)
 	return 0;
 }
 
+#ifdef CONFIG_AES
+static int aes_test_256ECB_SW(void)
+{
+	uint8_t dst[32] = {0};
+	u8 key_exp[AES256_EXPAND_KEY_LENGTH];
+
+	printf("AES 256 ECB ENC SW:");
+
+	/* First we expand the key. */
+	aes_expand_key(aes256ecb_key, sizeof(aes256ecb_key), key_exp);
+
+	aes_ecb_encrypt_blocks(AES256_KEY_LENGTH, key_exp, aes256ecb_plain, dst,
+			sizeof(aes256ecb_plain) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes256ecb_cipher, sizeof(aes256ecb_cipher)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	printf("AES 256 ECB DEC SW:");
+	aes_ecb_decrypt_blocks(AES256_KEY_LENGTH, key_exp, aes256ecb_cipher, dst,
+			sizeof(aes256ecb_cipher) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes256ecb_plain, sizeof(aes256ecb_plain)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	return 0;
+}
+#endif
+
 static uint8_t aes256cbc_key[32] = {
 	0x4a, 0xed, 0x92, 0x44, 0x1b, 0x24, 0x6d, 0x5c,
 	0xdf, 0x04, 0xcf, 0x9e, 0x57, 0x86, 0x52, 0xc5,
@@ -430,6 +519,36 @@ static int aes_test_256CBC(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_AES
+static int aes_test_256CBC_SW(void)
+{
+	uint8_t dst[32] = {0};
+	u8 key_exp[AES256_EXPAND_KEY_LENGTH];
+
+	printf("AES 256 CBC ENC SW:");
+
+	/* First we expand the key. */
+	aes_expand_key(aes256cbc_key, sizeof(aes256cbc_key), key_exp);
+
+	aes_cbc_encrypt_blocks(AES256_KEY_LENGTH, key_exp, aes256cbc_iv,
+			aes256cbc_plain, dst, sizeof(aes256cbc_plain) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes256cbc_cipher, sizeof(aes256cbc_cipher)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	printf("AES 256 CBC DEC SW:");
+	aes_cbc_decrypt_blocks(AES256_KEY_LENGTH, key_exp, aes256cbc_iv,
+			aes256cbc_cipher, dst, sizeof(aes256cbc_cipher) / AES_BLOCK_LENGTH);
+	if (!memcmp(dst, aes256cbc_plain, sizeof(aes256cbc_plain)))
+		printf("PASS\n");
+	else
+		printf("FAIL\n");
+
+	return 0;
+}
+#endif
 
 static uint8_t aes256ctr_key[32] = {
 	0x4a, 0xed, 0x92, 0x44, 0x1b, 0x24, 0x6d, 0x5c,
@@ -505,6 +624,14 @@ static int do_aes_test(uint32_t test_case)
 		return aes_test_256CBC();
 	case 6:
 		return aes_test_256CTR();
+#ifdef CONFIG_AES
+	case 7:
+		aes_test_128ECB_SW();
+		aes_test_128CBC_SW();
+		aes_test_256ECB_SW();
+		aes_test_256CBC_SW();
+		return 0;
+#endif
 	default:
 		printf("Unknown test case\n");
 		return 0;

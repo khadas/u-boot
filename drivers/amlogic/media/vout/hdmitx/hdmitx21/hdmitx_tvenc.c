@@ -11,6 +11,9 @@
  * and send data to ENCP_DVI/DE_H/V* via a fifo (pixel delay)
  * The input timing of HDMITx is from ENCP_DVI/DE_H/V*
  */
+/* note, venc setting will be override on dsc encoder side
+ * so this function is optional when dsc_en = 1
+ */
 static void config_tv_enc_calc(struct hdmitx_dev *hdev, enum hdmi_vic vic)
 {
 	const struct hdmi_timing *tp = NULL;
@@ -43,6 +46,9 @@ static void config_tv_enc_calc(struct hdmitx_dev *hdev, enum hdmi_vic vic)
 		hpara_div = 4;
 	if (hdev->frl_rate && y420_mode == 0)
 		hpara_div = 2;
+	/* force 4 slices input to dsc encoder when dsc enabled */
+	if (hdev->dsc_en)
+		hpara_div = 4;
 	timing.h_total /= hpara_div;
 	timing.h_blank /= hpara_div;
 	timing.h_front /= hpara_div;
@@ -50,10 +56,11 @@ static void config_tv_enc_calc(struct hdmitx_dev *hdev, enum hdmi_vic vic)
 	timing.h_back /= hpara_div;
 	timing.h_active /= hpara_div;
 
-	if (hdev->dsc_en) {
-		hsync_st = tp->h_front - 1;
-		vsync_st = tp->v_front - 1;
-	}
+	/* it will flash screen under 8k50/60hz if with this sync_st */
+	/* if (hdev->dsc_en) { */
+	/* hsync_st = tp->h_front - 1; */
+	/* vsync_st = tp->v_front - 1; */
+	/* } */
 
 	de_h_end = tp->h_total - (tp->h_front - hsync_st);
 	de_h_begin = de_h_end - tp->h_active;
@@ -363,7 +370,15 @@ void set_tv_encp_new(struct hdmitx_dev *hdev, u32 enc_index,
 		config_tv_enc_calc(hdev, vic);
 		break;
 	}
-	if (hdev->frl_rate && hdev->para->cs != HDMI_COLORSPACE_YUV420)
+	/* for dsc mode enable, vpp post 4 slice->4ppc to hdmi, no up_sample
+	 * for frl mode enable & non_y420 mode, vpp post 4 slice into VENC
+	 * with vpp horizontal size divide 4(7680 / 4), VENC get sample from
+	 * vpp every two clk(upsample = 1) with 4ppc, and then split to 2ppc
+	 * to hdmi module
+	 */
+	if (hdev->dsc_en)
+		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 0, 3);
+	else if (hdev->frl_rate && hdev->para->cs != HDMI_COLORSPACE_YUV420)
 		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 1, 0, 3);
 	else
 		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 0, 3);
@@ -400,8 +415,9 @@ static void config_tv_enci(enum hdmi_vic vic)
 		hd21_write_reg(ENCI_VFIFO2VD_LINE_BOT_END, 18 + 240);
 		hd21_write_reg(ENCI_VFIFO2VD_CTL, (0x4e << 8) | 1);     // enable vfifo2vd
 		hd21_write_reg(ENCI_DBG_FLDLN_RST, 0x0f05);
-		hd21_write_reg(ENCI_SYNC_VSO_EVNLN, 0x0508);
-		hd21_write_reg(ENCI_SYNC_VSO_ODDLN, 0x0508);
+		/* adujst timming for s5 480i */
+		hd21_write_reg(ENCI_SYNC_VSO_EVNLN, 0x0003);
+		hd21_write_reg(ENCI_SYNC_VSO_ODDLN, 0x0003);
 		hd21_write_reg(ENCI_SYNC_HSO_BEGIN, 11 - 2);
 		hd21_write_reg(ENCI_SYNC_HSO_END, 31 - 2);
 		hd21_write_reg(ENCI_DBG_FLDLN_RST, 0xcf05);
@@ -580,7 +596,7 @@ void set_tv_enci_new(struct hdmitx_dev *hdev, u32 enc_index,
 	u32 SOF_LINES;
 	u32 TOTAL_PIXELS;
 	u32 TOTAL_LINES;
-	u8 input_color_format = HDMI_COLORSPACE_YUV444;
+
 
 	u32 total_pixels_venc;
 	u32 active_pixels_venc;
@@ -680,7 +696,7 @@ void set_tv_enci_new(struct hdmitx_dev *hdev, u32 enc_index,
 		// line output from 444->420 conversion will be delayed by 1 line.
 		// So for 420 mode, we need to delay Vsync by 1 line as well,
 		//to meet the VESA display timing spec.
-		(input_color_format == HDMI_COLORSPACE_YUV420) ? 1 : 0);
+		0);
 } /* set_tv_encp_new */
 
 void hdmitx21_venc_en(bool en, bool pi_mode)

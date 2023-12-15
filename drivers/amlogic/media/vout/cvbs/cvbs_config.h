@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
  */
-
+#include <asm/arch/register.h>
 #include "cvbs_reg.h"
 #include "cvbs.h"
 

@@ -15,7 +15,6 @@
 struct storage_t *snor_storage;
 static struct spi_flash *spi_flash;
 
-
 extern const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash);
 extern void mtd_store_set(struct mtd_info *mtd, int dev);
 extern void mtd_store_mount_ops(struct storage_t *store);
@@ -75,6 +74,7 @@ int spi_flash_fit_storage(struct spi_flash *flash)
 	if (ret)
 		return ret;
 	mtd_store_set(spi_flash_get_mtd(), 0);
+
 	return ret;
 }
 

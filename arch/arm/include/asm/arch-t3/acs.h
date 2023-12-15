@@ -36,18 +36,24 @@ typedef struct dev_param_hdr {
 
 	char				bl2_regs_magic[6];
 	unsigned short		bl2_regs_length;
+	unsigned *bl2_regs_sta;
 
 	char				board_clk_magic[6];
 	unsigned short		board_clk_length;
+	board_clk_set_t *board_clk_sta;
 
 	char				opt_reg_magic[6];
 	unsigned short		opt_reg_length;
+	register_ops_t *opt_reg_sta;
 
 	char				sto_set_magic[6];
 	unsigned short		sto_set_length;
+	storage_parameter_t *sto_set_sta;
 
 	char				ddr_set_magic[6];
 	unsigned short		ddr_set_length;
+	ddr_set_ps0_only_t *ddr_set_sta;
+
 
 	unsigned int		RFU[4];
 } __attribute__ ((packed)) dev_param_hdr_t;

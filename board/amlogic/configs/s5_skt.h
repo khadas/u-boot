@@ -25,10 +25,11 @@
 /*
  * platform power init config
  */
-#define AML_VDDEE_INIT_VOLTAGE			840		// VDDEE power up voltage
+#define AML_VDDEE_INIT_VOLTAGE			870		// VDDEE power up voltage
 #define AML_VDD_CPUA_INIT_VOLTAGE		999		// VCCK A power up voltage
 #define AML_VDD_CPUB_INIT_VOLTAGE		999		// VCCK B power up voltage
-#define AML_VDDGPU_INIT_VOLTAGE			840		// VDDGPU power up voltage
+#define AML_VDDGPU_INIT_VOLTAGE			900		// VDDGPU power up voltage
+#define AML_VDDNPU_INIT_VOLTAGE			840		// VDDNPU power up voltage
 
 /* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
@@ -81,7 +82,7 @@
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
-        "loadaddr_rtos=0x00001000\0"\
+        "loadaddr_rtos=0x00080000\0"\
         "loadaddr_kernel=0x03080000\0"\
         "dv_fw_addr=0xa00000\0"\
         "otg_device=1\0" \
@@ -169,8 +170,10 @@
                     "run update;"\
             "else if test ${reboot_mode} = quiescent; then "\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+		    "setenv vout_init enable;"\
             "else if test ${reboot_mode} = recovery_quiescent; then "\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+		    "setenv vout_init enable;"\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else if test ${reboot_mode} = fastboot; then "\

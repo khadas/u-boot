@@ -400,7 +400,9 @@ int lcd_venc_op_init_t3x(struct lcd_venc_op_s *venc_op)
 	if (!venc_op)
 		return -1;
 
-	LCDPR("%s\n", __func__);
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
+		LCDPR("%s\n", __func__);
+
 	venc_op->wait_vsync = lcd_venc_wait_vsync;
 	venc_op->get_max_lcnt = lcd_venc_get_max_lint_cnt;
 	venc_op->venc_debug_test = lcd_venc_debug_test;

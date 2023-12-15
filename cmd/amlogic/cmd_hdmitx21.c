@@ -12,6 +12,7 @@
 #include <amlogic/media/vout/hdmitx21/hdmitx.h>
 #include <amlogic/media/dv/dolby_vision.h>
 #include <amlogic/edid-decode.h>
+#include <amlogic/media/vout/dsc.h>
 
 static unsigned char edid_raw_buf[512] = {0};
 /* there may be outputmode/2/3 when in multi-display case,
@@ -314,6 +315,36 @@ static int do_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 static int do_clkmsr(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
+		clk_msr(4);
+		clk_msr(8);
+		clk_msr(16);
+		clk_msr(27);
+		clk_msr(63);
+		clk_msr(64);
+		clk_msr(66);
+		clk_msr(68);
+		clk_msr(69);
+		clk_msr(70);
+		clk_msr(71);
+		clk_msr(72);
+		clk_msr(73);
+		clk_msr(74);
+		clk_msr(75);
+		clk_msr(76);
+		clk_msr(79);
+		clk_msr(82);
+		clk_msr(89);
+		clk_msr(90);
+		clk_msr(91);
+		clk_msr(92);
+		clk_msr(93);
+		clk_msr(94);
+		clk_msr(95);
+		return CMD_RET_SUCCESS;
+	}
 	clk_msr(51);
 	clk_msr(59);
 	clk_msr(61);
@@ -351,6 +382,8 @@ static int do_off(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
 	hdev->vic = HDMI_UNKNOWN;
+	if (hdev->chip_type == MESON_CPU_ID_S5)
+		hdmitx_module_disable();
 	hdev->hwop.turn_off();
 	printf("turn off hdmitx\n");
 	return 1;
@@ -692,6 +725,9 @@ static int do_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	dv_cap_show(hdev);
 	dc_cap_show(hdev);
 	edid_cap_show(hdev);
+	dsc_cap_show(&hdev->RXCap);
+	printf("dsc policy: %d, enable: %d\n", hdev->dsc_policy, hdev->dsc_en);
+	printf("frl_rate: %d\n", hdev->frl_rate);
 	return 1;
 }
 
@@ -712,9 +748,172 @@ static int xtochar(int num, char *checksum)
 	return 0;
 }
 
+/* hdr_priority definition:
+ *   strategy1: bit[3:0]
+ *       0: original cap
+ *       1: disable dolby vision cap
+ *       2: disable dolby vision and hdr/hlg cap
+ *   strategy2:
+ *       bit4: 1: disable dv  0:enable dv
+ *       bit5: 1: disable hdr10/hdr10+  0: enable hdr10/hdr10+
+ *       bit6: 1: disable hlg  0: enable hlg
+ *   bit28-bit31 choose strategy: bit[31:28]
+ *       0: strategy1
+ *       1: strategy2
+ */
+
+/* for uboot, there is no need to dynamically change the hdr_priority as
+ * kernel. So below functions only implement the disable_xxx_info() function,
+ * and leave the enable_xxx_info as blank
+ */
+
+/* dv_info */
+static void enable_dv_info(struct dv_info *des, const struct dv_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_dv_info(struct dv_info *des)
+{
+	if (!des)
+		return;
+
+	memset(des, 0, sizeof(*des));
+}
+
+/* hdr10 */
+static void enable_hdr10_info(struct hdr_info *des, const struct hdr_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_hdr10_info(struct hdr_info *des)
+{
+	if (!des)
+		return;
+
+	des->hdr_sup_eotf_smpte_st_2084 = 0;
+	des->hdr_sup_SMD_type1 = 0;
+	des->hdr_lum_max = 0;
+	des->hdr_lum_avg = 0;
+	des->hdr_lum_min = 0;
+}
+
+/* hdr10plus */
+static void enable_hdr10p_info(struct hdr10_plus_info *des, const struct hdr10_plus_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_hdr10p_info(struct hdr10_plus_info *des)
+{
+	if (!des)
+		return;
+
+	memset(des, 0, sizeof(*des));
+}
+
+/* hlg */
+static void enable_hlg_info(struct hdr_info *des, const struct hdr_info *src)
+{
+	if (!des || !src)
+		return;
+}
+
+static void disable_hlg_info(struct hdr_info *des)
+{
+	if (!des)
+		return;
+
+	des->hdr_sup_eotf_hlg = 0;
+}
+
+static void enable_all_hdr_info(struct rx_cap *prxcap)
+{
+	if (!prxcap)
+		return;
+}
+
+static void update_hdr_strategy1(struct rx_cap *prxcap, u32 strategy)
+{
+	if (!prxcap)
+		return;
+
+	switch (strategy) {
+	case 0:
+		enable_all_hdr_info(prxcap);
+		break;
+	case 1:
+		disable_dv_info(&prxcap->dv_info);
+		break;
+	case 2:
+		disable_dv_info(&prxcap->dv_info);
+		disable_hdr10_info(&prxcap->hdr_info);
+		disable_hdr10p_info(&prxcap->hdr10plus_info);
+		disable_hlg_info(&prxcap->hdr_info);
+		break;
+	default:
+		break;
+	}
+}
+
+static void update_hdr_strategy2(struct rx_cap *prxcap, u32 strategy)
+{
+	if (!prxcap)
+		return;
+
+	/* bit4: 1 disable dv  0 enable dv */
+	if (strategy & BIT(4))
+		disable_dv_info(&prxcap->dv_info);
+	else
+		enable_dv_info(&prxcap->dv_info, NULL);
+	/* bit5: 1 disable hdr10/hdr10+   0 enable hdr10/hdr10+ */
+	if (strategy & BIT(5)) {
+		disable_hdr10_info(&prxcap->hdr_info);
+		disable_hdr10p_info(&prxcap->hdr10plus_info);
+	} else {
+		enable_hdr10_info(&prxcap->hdr_info, NULL);
+		enable_hdr10p_info(&prxcap->hdr10plus_info, NULL);
+	}
+	/* bit6: 1 disable hlg   0 enable hlg */
+	if (strategy & BIT(6))
+		disable_hlg_info(&prxcap->hdr_info);
+	else
+		enable_hlg_info(&prxcap->hdr_info, NULL);
+}
+
+static int hdmitx_set_hdr_priority(struct rx_cap *prxcap, u32 hdr_priority)
+{
+	u32 choose = 0;
+	u32 strategy = 0;
+
+	if (!prxcap)
+		return -1;
+
+	printf("%s, set hdr_prio: %u\n", __func__, hdr_priority);
+	/* choose strategy: bit[31:28] */
+	choose = (hdr_priority >> 28) & 0xf;
+	switch (choose) {
+	case 0:
+		strategy = hdr_priority & 0xf;
+		update_hdr_strategy1(prxcap, strategy);
+		break;
+	case 1:
+		strategy = hdr_priority & 0xf0;
+		update_hdr_strategy2(prxcap, strategy);
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
 static void get_parse_edid_data(struct hdmitx_dev *hdev)
 {
-	char *hdr_priority = env_get("hdr_priority");
+	int hdr_priority = get_hdr_strategy_priority();
 
 	hdev->hwop.read_edid(hdev->rawedid);
 
@@ -724,21 +923,9 @@ static void get_parse_edid_data(struct hdmitx_dev *hdev)
 	/* parse edid data */
 	hdmi_edid_parsing(hdev->rawedid, &hdev->RXCap);
 
-	if (!hdr_priority)
+	if (hdr_priority == -1)
 		return;
-	/* if hdr_priority is 2, then mark both dv_info and hdr_info */
-	if (strcmp(hdr_priority, "2") == 0) {
-		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
-		memset(&hdev->RXCap.hdr_info, 0, sizeof(struct hdr_info));
-		memset(&hdev->RXCap.hdr10plus_info, 0, sizeof(struct hdr10_plus_info));
-		pr_info("hdr_priority: %s and clear dv/hdr_info\n", hdr_priority);
-		return;
-	}
-	/* if hdr_priority is 1, then mark dv_info */
-	if (hdr_priority && (strcmp(hdr_priority, "1") == 0)) {
-		memset(&hdev->RXCap.dv_info, 0, sizeof(struct dv_info));
-		pr_info("hdr_priority: %s and clear dv_info\n", hdr_priority);
-	}
+	hdmitx_set_hdr_priority(&hdev->RXCap, hdr_priority);
 }
 
 /* policy process: to find the output mode/attr/dv_type */
@@ -803,6 +990,11 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	unsigned char def_cksum[] = {'0', 'x', '0', '0', '0', '0', '0', '0', '0', '0', '\0'};
 	char *hdmimode;
 	char *colorattribute;
+	int user_dv_mode;
+	char *last_output_mode;
+	char *last_colorattribute;
+	int last_dv_status;
+	bool over_write = false;
 	char dv_type[2] = {0};
 	struct scene_output_info scene_output_info;
 	struct hdmi_format_para *para = NULL;
@@ -814,7 +1006,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	 */
 	bool no_manual_output = false;
 
-	if (!hdev->hwop.get_hpd_state()) {
+	if (!hdev->hpd_state) {
 		printf("HDMI HPD low, no need parse EDID\n");
 		return 1;
 	}
@@ -827,12 +1019,17 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	/* get user selected output mode/color */
 	colorattribute = env_get("user_colorattribute");
 	hdmimode = env_get("hdmimode");
+	user_dv_mode = get_ubootenv_dv_type();
+
+	last_output_mode = env_get("outputmode");
+	last_colorattribute = env_get("colorattribute");
+	last_dv_status = get_ubootenv_dv_status();
 	if (!store_checkvalue)
 		store_checkvalue = def_cksum;
 
-	printf("read hdmichecksum: %s, user hdmimode: %s, colorattribute: %s\n",
+	printf("read hdmichecksum: %s, user hdmimode: %s, colorattribute: %s, dv_type: %d\n",
 	       store_checkvalue, hdmimode ? hdmimode : "null",
-	       colorattribute ? colorattribute : "null");
+	       colorattribute ? colorattribute : "null", user_dv_mode);
 
 	for (i = 0; i < 4; i++) {
 		if (('0' <= store_checkvalue[i * 2 + 2]) && (store_checkvalue[i * 2 + 2] <= '9'))
@@ -874,10 +1071,48 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	if (!no_manual_output) {
 		/* check current user selected mode + color support or not */
 		para = hdmitx21_get_fmtpara(hdmimode, colorattribute);
-		if (hdmitx_edid_check_valid_mode(hdev, para))
+		if (hdmitx_edid_check_valid_mode(hdev, para)) {
 			mode_support = true;
-		else
+		} else {
+			printf("saved output mode not supported!\n");
 			mode_support = false;
+		}
+
+		/* if user selected mode/color/dv type which saved in ubootenv of
+		 * hdmimode/user_colorattribute/user_prefer_dv_type are different
+		 * with last actual output mode/color/dv type which saved in
+		 * ubootenv of outputmode/colorattribute/dolby_status, then it means
+		 * that the user selected format is over-writen by policy(for example:
+		 * firstly user has selected HDR priority to HDR, and select color
+		 * to rgb,12bit(now the "user_colorattribute" env will be "rgb,12bit"),
+		 * but then it selected HDR priority to DV, the actual output color
+		 * will be "444,8bit" or "422,12bit" according to dv type, and
+		 * the ubootenv "colorattribute" will be "444,8bit" or "422,12bit"),
+		 * then uboot should use the policy to select the output format,
+		 * otherwise, uboot use hdmimode/user_colorattribute/user_prefer_dv_type
+		 * env, while system use outputmode/colorattribute/dolby_status env,
+		 * there will be always a mode change during bootup
+		 */
+		if (mode_support) {
+			/* note that for T7 multi-display, it may store panel in
+			 * "outputmode" env, and will always run uboot policy
+			 */
+			if (!last_output_mode || strcmp(hdmimode, last_output_mode))
+				over_write = true;
+			else if (!last_colorattribute ||
+				strcmp(colorattribute, last_colorattribute))
+				over_write = true;
+			else if (user_dv_mode != last_dv_status)
+				over_write = true;
+			else
+				over_write = false;
+
+			if (over_write)
+				printf("last output_mode:%s, colorattribute:%s, dolby_status:%d\n",
+				last_output_mode ? last_output_mode : "null",
+				last_colorattribute ? last_colorattribute : "null",
+				last_dv_status);
+		}
 	}
 	/* three cases need to decide output by uboot mode select policy:
 	 * 1.TV changed
@@ -889,7 +1124,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	 * uboot have some gap), then need to find proper output mode
 	 * with uboot policy.
 	 */
-	if (hdev->RXCap.edid_changed || no_manual_output || !mode_support) {
+	if (hdev->RXCap.edid_changed || no_manual_output || !mode_support || over_write) {
 		/* find proper mode if EDID changed */
 		scene_process(hdev, &scene_output_info);
 		env_set("hdmichecksum", hdev->RXCap.checksum);
@@ -961,6 +1196,7 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	hdev->para = hdmitx21_get_fmtpara(sel_hdmimode, env_get("colorattribute"));
 	hdev->vic = hdev->para->timing.vic;
 	hdmitx_mask_rx_info(hdev);
+	hdmitx21_select_frl(hdev);
 	return 0;
 }
 
@@ -986,7 +1222,7 @@ static int do_get_preferred_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *con
 
 	/* If sink is not detected there is a still a good chance it supports proper modes */
 	/* 720p is chosen as a safe compromise: supported by most sinks and looks good enough */
-	if (!hdev->hwop.get_hpd_state()) {
+	if (!hdev->hpd_state) {
 		para = hdmitx21_get_fmtpara("720p60hz", "444,8bit");
 		snprintf(pref_mode, sizeof(pref_mode), "%s", para->sname);
 		snprintf(color_attr, sizeof(color_attr), "%s", "rgb,8bit");
@@ -1026,6 +1262,73 @@ bypass_edid_read:
 	return 0;
 }
 
+static int do_dsc_policy(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (argc < 1)
+		return cmd_usage(cmdtp);
+
+	if (strcmp(argv[1], "0") == 0)
+		hdev->dsc_policy = 0;
+	else if (strcmp(argv[1], "1") == 0)
+		hdev->dsc_policy = 1;
+	else if (strcmp(argv[1], "2") == 0)
+		hdev->dsc_policy = 2;
+	else if (strcmp(argv[1], "3") == 0)
+		hdev->dsc_policy = 3;
+	else if (strcmp(argv[1], "4") == 0)
+		hdev->dsc_policy = 4;
+	else
+		printf("note: please set dsc policy as 0~4\n");
+	if (hdev->dsc_policy <= 4)
+		printf("use dsc policy: %d\n", hdev->dsc_policy);
+
+	return CMD_RET_SUCCESS;
+}
+
+static int do_manual_frl_rate(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	unsigned int temp = 0;
+	char *ptr;
+
+	/* if rx don't support FRL, return */
+	if (!hdev->RXCap.max_frl_rate) {
+		printf("rx not support FRL\n");
+		return 0;
+	}
+
+	temp = strtoul(argv[1], &ptr, 16);
+	/* forced FRL rate setting */
+	if (temp <= 6) {
+		hdev->manual_frl_rate = temp;
+		pr_info("force set frl_rate as %d\n", hdev->manual_frl_rate);
+	} else {
+		pr_info("error: should set frl_rate in 0 ~ 6\n");
+	}
+	if (hdev->manual_frl_rate > hdev->RXCap.max_frl_rate)
+		pr_info("warning: larger than rx max_frl_rate %d\n", hdev->RXCap.max_frl_rate);
+	return 0;
+}
+
+static int do_manual_dfm_type(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	unsigned int temp = 0;
+	char *ptr;
+
+	temp = strtoul(argv[1], &ptr, 10);
+	/* forced dfm_type setting */
+	if (temp <= 2) {
+		hdev->dfm_type = temp;
+		pr_info("force set dfm_type as %d\n", hdev->dfm_type);
+	} else {
+		pr_info("error: should set frl_rate in 0 ~ 2\n");
+	}
+	return 0;
+}
+
 static cmd_tbl_t cmd_hdmi_sub[] = {
 	U_BOOT_CMD_MKENT(hpd, 1, 1, do_hpd_detect, "", ""),
 	U_BOOT_CMD_MKENT(edid, 3, 1, do_edid, "", ""),
@@ -1039,6 +1342,9 @@ static cmd_tbl_t cmd_hdmi_sub[] = {
 	U_BOOT_CMD_MKENT(get_preferred_mode, 1, 1, do_get_preferred_mode, "", ""),
 	U_BOOT_CMD_MKENT(reg, 3, 1, do_reg, "", ""),
 	U_BOOT_CMD_MKENT(get_parse_edid, 1, 1, do_get_parse_edid, "", ""),
+	U_BOOT_CMD_MKENT(dsc_policy, 1, 1, do_dsc_policy, "", ""),
+	U_BOOT_CMD_MKENT(frl_rate, 1, 1, do_manual_frl_rate, "", ""),
+	U_BOOT_CMD_MKENT(dfm_type, 1, 1, do_manual_dfm_type, "", ""),
 };
 
 static int do_hdmitx(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -1090,3 +1396,56 @@ struct hdr_info *hdmitx_get_rx_hdr_info(void)
 
 	return &hdev->RXCap.hdr_info;
 }
+
+static int do_list_dsc_mode(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	dsc_enc_cap_show();
+	return 0;
+}
+
+static int do_dsc_debug(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	dsc_debug(argc - 1, argv + 1);
+	return 0;
+}
+
+static cmd_tbl_t cmd_dsc_sub[] = {
+	U_BOOT_CMD_MKENT(list_mode, 1, 1, do_list_dsc_mode, "", ""),
+	U_BOOT_CMD_MKENT(dbg, 20, 1, do_dsc_debug, "", ""),
+};
+
+static int do_dsc_enc(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+{
+	cmd_tbl_t *c;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
+	argc--;
+	argv++;
+
+	c = find_cmd_tbl(argv[0], &cmd_dsc_sub[0], ARRAY_SIZE(cmd_dsc_sub));
+
+	if (c)
+		return  c->cmd(cmdtp, flag, argc, argv);
+	else
+		return cmd_usage(cmdtp);
+}
+
+U_BOOT_CMD(dsc, CONFIG_SYS_MAXARGS, 0, do_dsc_enc,
+	"dsc cmd",
+	"dsc help function\n"
+	"dsc dbg state\n"
+	"    dump dsc status\n"
+	"dsc dbg dump_reg\n"
+	"    dump dsc registers and venc registers\n"
+	"dsc dbg read addr\n"
+	"    read dsc asic register\n"
+	"dsc dbg write addr value\n"
+	"    write dsc asic register\n"
+	"dsc dbg rst_dsc\n"
+	"    reset dsc enc\n"
+	"dsc list_mode\n"
+	"    show supported dsc encode mode list\n"
+);
+

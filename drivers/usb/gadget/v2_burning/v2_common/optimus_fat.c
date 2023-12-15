@@ -1062,7 +1062,7 @@ int do_fat_fseek(int fd, const int64_t offset, int wherehence)
                  return -__LINE__;
     }
     if ( pos >= hFile->filesize ) {
-        DWN_ERR("seek %lld err from wherehence %d\n", offset, wherehence);
+	DWN_ERR("seek 0x%llx err from %d, fsz 0x%llx\n", offset, wherehence, hFile->filesize);
         return -__LINE__;
     }
     const int64_t newFileOffset = pos; ////////
@@ -1122,6 +1122,13 @@ long do_fat_fread(int fd, __u8 *buffer, unsigned long maxsize)
     DWN_DBG("update fpos 0x%llx, curclust 0x%x\n", hFile->fileOffset, hFile->curclust);
 
     return actRead;
+}
+
+long do_fat_ftell(int fd)
+{
+	struct fopen_para *hFile = _hFile[fd];
+
+	return hFile->fileOffset;
 }
 
 s64 do_fat_get_fileSz(const char* imgItemPath)

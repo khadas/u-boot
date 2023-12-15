@@ -9,6 +9,7 @@
 #include <nand.h>
 #include <errno.h>
 #include <linux/mtd/concat.h>
+#include <amlogic/storage.h>
 
 #ifndef CONFIG_SYS_NAND_BASE_LIST
 #define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
@@ -146,7 +147,7 @@ unsigned long nand_size(void)
 void nand_init(void)
 {
 	static int initialized;
-
+	enum boot_type_e medium_type = store_get_type();
 	/*
 	 * Avoid initializing NAND Flash multiple times,
 	 * otherwise it will calculate a wrong total size.
@@ -157,7 +158,15 @@ void nand_init(void)
 
 #ifdef CONFIG_SYS_NAND_SELF_INIT
 	printf("board nand init\n");
-	board_nand_init();
+#ifdef CONFIG_MESON_NFC
+	if (medium_type == BOOT_NAND_MTD)
+		board_nand_init();
+#endif
+#ifdef CONFIG_MTD_SPI_NAND
+	extern void board_spinand_init(void);
+	if (medium_type == BOOT_SNAND)
+		board_spinand_init();
+#endif
 #else
 	int i;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)

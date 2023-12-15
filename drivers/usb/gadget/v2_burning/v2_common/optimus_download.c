@@ -749,8 +749,8 @@ int optimus_storage_init(int toErase)
 
 	ret = get_partition_from_dts(is_gpt ? gpt_load_addr : dtbLoadedAddr);
 	if (ret) {
-		DWN_ERR("Failed at check part table\n");
-		return __LINE__;
+		DWN_WRN("Failed at check part table\n");
+		//return __LINE__;
 	}
 
     ret = store_init(1);
@@ -819,7 +819,11 @@ int optimus_storage_init(int toErase)
 #ifdef CONFIG_MULTI_DTB
         fdtAddr = get_multi_dt_entry(fdtAddr);
 #endif// #ifdef CONFIG_MULTI_DTB
-        ret = fdt_check_header((char*)fdtAddr);
+	if (!fdtAddr) {
+		//0 address is invalid
+		return __LINE__;
+	}
+	ret = fdt_check_header((char*)fdtAddr);
         unsigned fdtsz    = fdt_totalsize((char*)fdtAddr);
         if (ret || !fdtsz ) {
             DWN_ERR("Fail in fdt check header\n");
@@ -1174,7 +1178,7 @@ int optimus_set_burn_complete_flag(void)
 {
     int rc = 0;
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-    const int IsTplLoadedFromBurningPackage = aml_burn_check_uboot_loaded_for_burn(0);
+	const int IsTplLoadedFromBurningPackage = 0;//aml_burn_check_uboot_loaded_for_burn(0);
     char upgrade_step[8];
 
     if (IsTplLoadedFromBurningPackage)

@@ -662,7 +662,8 @@ static void lcd_vbyone_control_off(struct aml_lcd_drv_s *pdrv)
 	unsigned int reg_dphy_tx_ctrl0, reg_dphy_tx_ctrl1;
 
 	lcd_vbyone_disable(pdrv);
-	if (pdrv->data->chip_type == LCD_CHIP_T7) {
+	if (pdrv->data->chip_type == LCD_CHIP_T7 ||
+		pdrv->data->chip_type == LCD_CHIP_T3X) {
 		switch (pdrv->index) {
 		case 0:
 			reg_dphy_tx_ctrl0 = COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0;
@@ -680,7 +681,7 @@ static void lcd_vbyone_control_off(struct aml_lcd_drv_s *pdrv)
 		/* disable fifo */
 		lcd_combo_dphy_setb(reg_dphy_tx_ctrl1, 0, 6, 2);
 		/* disable lane */
-		lcd_combo_dphy_setb(reg_dphy_tx_ctrl0, 0, 16, 8);
+		lcd_combo_dphy_setb(reg_dphy_tx_ctrl0, 0, 16, 16);
 	} else if (pdrv->data->chip_type == LCD_CHIP_T3) {
 		switch (pdrv->index) {
 		case 0:
@@ -742,7 +743,6 @@ static void lcd_mlvds_control_set(struct aml_lcd_drv_s *pdrv)
 		lcd_ana_setb(ANACTRL_LVDS_TX_PHY_CNTL1, 1, 31, 1);
 		break;
 	case LCD_CHIP_TXHD2:
-		lcd_combo_dphy_write(COMBO_DPHY_CNTL0, 0x55555);
 		/* fifo_clk_sel[7:6]: 0=div6, 1=div 7, 2=div8, 3=div10 */
 		lcd_ana_write(COMBO_DPHY_EDP_LVDS_TX_PHY0_CNTL0, (div_sel << 6));
 		/* serializer_en[27:16] */
@@ -907,26 +907,6 @@ static void lcd_p2p_disable(struct aml_lcd_drv_s *pdrv)
 	}
 }
 #endif
-
-void lcd_tv_config_update(struct aml_lcd_drv_s *pdrv)
-{
-	/* update interface timing */
-	switch (pdrv->config.basic.lcd_type) {
-	case LCD_VBYONE:
-		lcd_vbyone_config_set(pdrv);
-		break;
-#ifdef CONFIG_AML_LCD_TCON
-	case LCD_MLVDS:
-		lcd_mlvds_config_set(pdrv);
-		break;
-	case LCD_P2P:
-		lcd_p2p_config_set(pdrv);
-		break;
-#endif
-	default:
-		break;
-	}
-}
 
 void lcd_tv_driver_init_pre(struct aml_lcd_drv_s *pdrv)
 {

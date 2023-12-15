@@ -141,14 +141,8 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
-	//default uboot env need before anyone use it
-	if (env_get("default_env")) {
-		printf("factory reset, need default all uboot env.\n");
-		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
-	}
+	run_command("aml_update_env", 0);
 
-	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
-			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
 	board_init_mem();
 	run_command("run bcb_cmd", 0);
 
@@ -448,6 +442,10 @@ const char * const _env_args_reserve_[] =
 	"lock",
 	"upgrade_step",
 	"bootloader_version",
+	"dts_to_gpt",
+	"fastboot_step",
+	"reboot_status",
+	"expect_index",
 
 	NULL//Keep NULL be last to tell END
 };

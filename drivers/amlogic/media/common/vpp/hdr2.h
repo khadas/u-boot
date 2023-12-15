@@ -50,6 +50,12 @@ enum hdr_process_sel {
 	HDR_p_MAX
 };
 
+enum force_output_format {
+	UNKNOWN_FMT = 0,
+	BT2020_PQ,
+	BT2020_HLG
+};
+
 #define MTX_ON  1
 #define MTX_OFF 0
 

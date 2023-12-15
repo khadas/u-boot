@@ -8,7 +8,7 @@
 #include <asm/arch/ddr_define.h>
 
 /* board clk defines */
-#define CPU_CLK					1512
+#define CPU_CLK					1992
 #define TIMMING_MAX_CONFIG		1
 
 ddr_set_t __ddr_setting[] __attribute__ ((section(".ddr_settings"))) = {

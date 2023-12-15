@@ -29,6 +29,7 @@
 #include <spi.h>
 #include <amlogic/aml_rsv.h>
 #include <amlogic/aml_mtd.h>
+#include <amlogic/aml_pageinfo.h>
 #include <linux/log2.h>
 #include <asm/arch/cpu_config.h>
 #include <amlogic/storage.h>
@@ -258,6 +259,9 @@ static int spinand_read_from_cache_op(struct spinand_device *spinand,
 	u16 column = 0;
 	int ret;
 
+	if (req->mode == MTD_OPS_RAW)
+		spinand->slave->flags |= SPI_XFER_RAW;
+
 	if (req->datalen) {
 		adjreq.datalen = nanddev_page_size(nand);
 		adjreq.dataoffs = 0;
@@ -271,11 +275,16 @@ static int spinand_read_from_cache_op(struct spinand_device *spinand,
 		adjreq.ooboffs = 0;
 		adjreq.oobbuf.in = spinand->oobbuf;
 		nbytes += nanddev_per_page_oobsize(nand);
+		spinand->slave->flags |= SPI_XFER_OOB;
 		if (!buf) {
 			buf = spinand->oobbuf;
 			column = nanddev_page_size(nand);
+			spinand->slave->flags |= SPI_XFER_OOB_ONLY;
 		}
 	}
+
+	if (req->mode == MTD_OPS_AUTO_OOB)
+		spinand->slave->flags |= SPI_XFER_AUTO_OOB;
 
 	spinand_cache_op_adjust_colum(spinand, &adjreq, &column);
 	op.addr.val = column;
@@ -293,27 +302,32 @@ static int spinand_read_from_cache_op(struct spinand_device *spinand,
 			return ret;
 
 		ret = spi_mem_exec_op(spinand->slave, &op);
-		if (ret)
+		if (ret) {
+			spinand->slave->flags &= ~SPI_XFER_NFC_MASK_FLAG;
 			return ret;
+		}
 
 		buf += op.data.nbytes;
 		nbytes -= op.data.nbytes;
 		op.addr.val += op.data.nbytes;
 	}
 
+	spinand->slave->flags &= ~SPI_XFER_NFC_MASK_FLAG;
+
 	if (req->datalen)
 		memcpy(req->databuf.in, spinand->databuf + req->dataoffs,
 		       req->datalen);
 
 	if (req->ooblen) {
-		if (req->mode == MTD_OPS_AUTO_OOB)
+		if (req->mode == MTD_OPS_AUTO_OOB) {
 			mtd_ooblayout_get_databytes(mtd, req->oobbuf.in,
 						    spinand->oobbuf,
 						    req->ooboffs,
 						    req->ooblen);
-		else
+		} else {
 			memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
 			       req->ooblen);
+		}
 	}
 
 	return 0;
@@ -346,19 +360,23 @@ static int spinand_write_to_cache_op(struct spinand_device *spinand,
 	}
 
 	if (req->ooblen) {
-		if (req->mode == MTD_OPS_AUTO_OOB)
+		if (req->mode == MTD_OPS_AUTO_OOB) {
 			mtd_ooblayout_set_databytes(mtd, req->oobbuf.out,
 						    spinand->oobbuf,
 						    req->ooboffs,
 						    req->ooblen);
-		else
+			spinand->slave->flags |= SPI_XFER_AUTO_OOB;
+		} else {
 			memcpy(spinand->oobbuf + req->ooboffs, req->oobbuf.out,
 			       req->ooblen);
+		}
 
 		adjreq.ooblen = nanddev_per_page_oobsize(nand);
 		adjreq.ooboffs = 0;
 		nbytes += nanddev_per_page_oobsize(nand);
+		spinand->slave->flags |= SPI_XFER_OOB;
 		if (!buf) {
+			spinand->slave->flags |= SPI_XFER_OOB_ONLY;
 			buf = spinand->oobbuf;
 			column = nanddev_page_size(nand);
 		}
@@ -383,8 +401,10 @@ static int spinand_write_to_cache_op(struct spinand_device *spinand,
 			return ret;
 
 		ret = spi_mem_exec_op(spinand->slave, &op);
-		if (ret)
+		if (ret) {
+			spinand->slave->flags &= ~SPI_XFER_NFC_MASK_FLAG;
 			return ret;
+		}
 
 		buf += op.data.nbytes;
 		nbytes -= op.data.nbytes;
@@ -401,6 +421,8 @@ static int spinand_write_to_cache_op(struct spinand_device *spinand,
 			op.addr.val = column;
 		}
 	}
+
+	spinand->slave->flags &= ~SPI_XFER_NFC_MASK_FLAG;
 
 	return 0;
 }
@@ -624,154 +646,6 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 	return ret ? ret : max_bitflips;
 }
 
-u_char page_info[4096];
-
-/* add for meson info_page */
-#if SPINAND_MESON_INFO_PAGE
-bool spinand_is_info_page(struct nand_device *nand, int page)
-{
-	return unlikely((page % 128) == ((BL2_SIZE / 2048) - 1) &&
-			page < BOOT_TOTAL_PAGES);
-}
-#endif
-
-#if SPINAND_MESON_INFO_PAGE_V2
-bool spinand_is_info_page(struct nand_device *nand, int page)
-{
-	return unlikely(((page % 128) == 1) && (page < BOOT_TOTAL_PAGES));
-}
-#endif
-
-#if SPINAND_MESON_INFO_PAGE
-int spinand_set_info_page(struct mtd_info *mtd, void *buf)
-{
-	u32 page_per_blk;
-	struct mtd_oob_region region;
-	struct nand_device* dev = mtd_to_nanddev(mtd);
-	struct info_page *info_page = (struct info_page *)buf;
-
-	page_per_blk = mtd->erasesize / mtd->writesize;
-	memcpy(info_page->magic, SPINAND_MAGIC, strlen(SPINAND_MAGIC));
-	info_page->version = SPINAND_INFO_VER;
-	/* DISCRETE only */
-	info_page->mode = 1;
-	info_page->bl2_num = CONFIG_BL2_COPY_NUM;
-	info_page->fip_num = CONFIG_NAND_TPL_COPY_NUM;
-	info_page->dev.s.rd_max = 2;
-	info_page->dev.s.fip_start =
-		BOOT_TOTAL_PAGES + NAND_RSV_BLOCK_NUM * page_per_blk;
-	info_page->dev.s.fip_pages = CONFIG_TPL_SIZE_PER_COPY / mtd->writesize;
-	info_page->dev.s.page_size = mtd->writesize;
-	info_page->dev.s.page_per_blk = page_per_blk;
-	info_page->dev.s.oob_size = mtd->oobsize;
-	mtd->ooblayout->free(mtd, 0, &region);
-	info_page->dev.s.oob_offset = region.offset;
-	info_page->dev.s.bbt_start = 0;
-	info_page->dev.s.bbt_valid = 0;
-	info_page->dev.s.bbt_size = 0;
-	info_page->dev.s.planes_per_lun = dev->memorg.planes_per_lun;
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_DDR_PARAMETER_SUPPORT
-void spinand_page_info_set_ddr_param(int value)
-{
-	struct boot_info *info = (struct boot_info *)page_info;
-
-	memset(page_info, 0, 4096);
-	info->ddr_param_page = value;
-}
-#endif
-
-#if SPINAND_MESON_INFO_PAGE_V2
-int spinand_set_info_page(struct mtd_info *mtd, void *buf)
-{
-	struct nand_device* dev = mtd_to_nanddev(mtd);
-	struct spinand_device *spinand = mtd_to_spinand(mtd);
-	struct boot_info *boot_info = (struct boot_info *)buf;
-	u32 page_per_bbt, i;
-#ifdef CONFIG_DDR_PARAMETER_SUPPORT
-	unsigned int pages_shift, ddr_param_page;
-#endif
-	memcpy(boot_info->magic, SPINAND_MAGIC, strlen(SPINAND_MAGIC));
-	boot_info->version = SPINAND_INFO_VER;
-	page_per_bbt = (mtd->size >> (mtd->erasesize_shift + mtd->writesize_shift));
-	boot_info->common = (page_per_bbt ? page_per_bbt : 1) & 0x3;
-	boot_info->dev_cfg.page_size = mtd->writesize;
-
-	if (dev->memorg.planes_per_lun > 1) {
-		boot_info->dev_cfg.planes_per_lun = ((6 & 0xf) << 4) | ((dev->memorg.planes_per_lun & 0xf) << 0);
-		if (spinand->op_templates.read_cache->cmd.opcode == 0x6b)
-			boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (2 << 0);
-		else
-			boot_info->dev_cfg.bus_width = ((mtd->writesize_shift + 1) << 4) | (1 << 0);
-	} else {
-		boot_info->dev_cfg.planes_per_lun = 1;
-		if (spinand->op_templates.read_cache->cmd.opcode == 0x6b)
-			boot_info->dev_cfg.bus_width = 2;
-		else
-			boot_info->dev_cfg.bus_width = 1;
-	}
-
-#ifdef CONFIG_DDR_PARAMETER_SUPPORT
-	pages_shift = mtd->erasesize_shift - mtd->writesize_shift;
-	if (spinand->rsv->ddr_para->valid) {
-		ddr_param_page = spinand->rsv->ddr_para->nvalid->page_addr +
-			(spinand->rsv->ddr_para->nvalid->blk_addr << pages_shift);
-		boot_info->ddr_param_page = ddr_param_page;
-		printf("save ddr param page: 0x%x to info page!\n", ddr_param_page);
-	} else {
-		printf("ddr param is invalid!\n");
-	}
-#endif
-	boot_info->checksum = 0;
-	for (i = 0; i < BOOTINFO_FIX_BYTES - 4; i++)
-		boot_info->checksum += *((u8 *)buf + i);
-
-	/* temporary dump info page for bringup */
-	for (i = 0; i < BOOTINFO_FIX_BYTES; i++) {
-		if (!(i % 8))
-			printf("\n");
-		printf("%2x  ", *((u8 *)buf + i));
-	}
-	printf("\n");
-
-	return 0;
-}
-#endif
-
-#if (SPINAND_MESON_INFO_PAGE || SPINAND_MESON_INFO_PAGE_V2)
-static int spinand_append_info_page(struct mtd_info *mtd,
-				    struct nand_page_io_req *last_req)
-{
-	struct spinand_device *spinand = mtd_to_spinand(mtd);
-	struct nand_device *nand = mtd_to_nanddev(mtd);
-	struct nand_page_io_req req;
-	int page;
-	int ret = 0;
-
-	page = nanddev_pos_to_row(nand, &last_req->pos);
-	if (spinand_is_info_page(nand, page)) {
-		req = *last_req;
-		req.datalen = mtd->writesize;
-		req.dataoffs = 0;
-		req.ooblen = 0;
-		req.databuf.in = page_info;
-		spinand_set_info_page(mtd, page_info);
-		#if SPINAND_MESON_INFO_PAGE
-		nanddev_pos_next_page(nand, &req.pos);
-		#else
-		req.pos.page--;
-		#endif
-		ret = spinand_write_page(spinand, &req);
-		pr_info("write info page to 0x%x\n", nanddev_pos_to_row(nand, &req.pos));
-	}
-	return ret;
-}
-#endif
-
 static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 			     struct mtd_oob_ops *ops)
 {
@@ -801,12 +675,6 @@ static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 		if (ret)
 			break;
 
-		/* add for meson info page */
-		#if (SPINAND_MESON_INFO_PAGE || SPINAND_MESON_INFO_PAGE_V2)
-		ret = spinand_append_info_page(mtd, &iter.req);
-		if (ret)
-			break;
-		#endif
 		ops->retlen += iter.req.datalen;
 		ops->oobretlen += iter.req.ooblen;
 	}
@@ -863,7 +731,7 @@ static int spinand_block_checkbad(struct nand_device *nand, struct nand_pos *pos
 			pr_info("bad block at 0x%x\n", (u32)offs);
 		return status;
 	}
-	pr_info("bbt table is not initial\n");
+
 	return spinand_isbad(nand, pos) ? NAND_FACTORY_BAD : NAND_BLOCK_GOOD;
 }
 
@@ -1039,6 +907,7 @@ static const struct spinand_manufacturer *spinand_manufacturers[] = {
 	&winbond_spinand_manufacturer,
 	&zetta_spinand_manufacturer,
 	&xtx_spinand_manufacturer,
+	&foresee_spinand_manufacturer,
 };
 
 static int spinand_manufacturer_detect(struct spinand_device *spinand)
@@ -1456,6 +1325,7 @@ int spinand_add_partitions(struct mtd_info *mtd,
 		if (i == (nbparts - 1))
 			parts_nm[i].size = mtd->size - off;
 	}
+
 	ret = add_mtd_partitions(mtd, temp, part_num);
 _out:
 	kfree(temp);
@@ -1558,10 +1428,13 @@ static int spinand_probe(struct udevice *dev)
 		pr_info("reading bbt info from %s!\n", mtd->name);
 		meson_rsv_read(spinand->rsv->bbt, spinand->bbt);
 	}
-
+#ifndef CONFIG_ENV_IS_IN_NAND
 	meson_rsv_check(spinand->rsv->env);
+#endif
 	meson_rsv_check(spinand->rsv->key);
+#ifndef DTB_BIND_KERNEL
 	meson_rsv_check(spinand->rsv->dtb);
+#endif
 #ifdef CONFIG_DDR_PARAMETER_SUPPORT
 	meson_rsv_check(spinand->rsv->ddr_para);
 #endif

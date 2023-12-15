@@ -6910,6 +6910,9 @@
 
 #define RSA_BASE                                   ((0x0000  << 2) + 0xff640000)
 #define P_RSA_BASE            (volatile uint32_t *)((0x0000  << 2) + 0xff640000)
+
+#define STARTUP_KEY_PRESERVE	PREG_STICKY_REG1
+
 //#include "fixme.h"
 #include "extra_register.h"
 #endif // SECURE_APB_H

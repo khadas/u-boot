@@ -362,6 +362,9 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 {
 	int ret;
 
+	if (pre_reloc_only)
+		return 0;
+
 	ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
 	if (ret) {
 		debug("dm_scan_fdt() failed: %d\n", ret);

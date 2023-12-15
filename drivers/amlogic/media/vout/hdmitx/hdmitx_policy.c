@@ -378,9 +378,14 @@ static bool is_best_outputmode(void)
 
 static bool is_best_color_space(void)
 {
-	char *is_best_cs = env_get("bestcolorspace");
+	char *user_cs = env_get("user_colorattribute");
 
-	return !is_best_cs || (strcmp(is_best_cs, "true") == 0);
+	if (!user_cs)
+		return true;
+	else if (!strstr(user_cs, "bit"))
+		return true;
+
+	return false;
 }
 
 static bool is_framerate_priority(void)
@@ -388,6 +393,21 @@ static bool is_framerate_priority(void)
 	char *framerate_priority = env_get("framerate_priority");
 
 	return !framerate_priority || (strcmp(framerate_priority, "true") == 0);
+}
+
+/* Hdr Resolution Priority enable or not, false:disable true:enable
+ * note that the ubootenv name may be confused. the actual meaning is:
+ * when connected to HDR TV which only support 4K60hz 420_8bit maximum,
+ * if this ubootenv is true/null, then it will select 1080p deep_color
+ * (thus to output HDR) as netflix request;
+ * if this ubootenv is false, then it will select 4k with 8bit(SDR)
+ * for special project usage.
+ */
+static bool is_hdr_resolution_priority(void)
+{
+	char *hdr_resolution_priority = env_get("hdr_resolution_priority");
+
+	return !hdr_resolution_priority || (strcmp(hdr_resolution_priority, "true") == 0);
 }
 
 /* import from kernel */
@@ -447,18 +467,34 @@ static bool is_low_powermode(void)
 	return false;
 }
 
+/* for application, the actually hdr_priority may be 0x10000030
+ * and the string hdr_priority will be like 268435504
+ * so here needs coverting such string to hex value
+ */
+int get_hdr_strategy_priority(void)
+{
+	unsigned int hdr_strategy_priority = 0;
+
+	hdr_strategy_priority = env_get_ulong("hdr_priority", 10, ~0UL);
+	return (int)hdr_strategy_priority;
+}
+
 static int get_hdr_priority(void)
 {
-	char *hdr_priority = env_get("hdr_priority");
+	unsigned int hdr_priority = get_hdr_strategy_priority();
 	hdr_priority_e value = DOLBY_VISION_PRIORITY;
 
-	if (hdr_priority) {
-		if (strcmp(hdr_priority, "2") == 0)
-			value = SDR_PRIORITY;
-		else if (strcmp(hdr_priority, "1") == 0)
-			value = HDR10_PRIORITY;
-		else
-			value = DOLBY_VISION_PRIORITY;
+	if (hdr_priority != -1) {
+		if (((hdr_priority >> 28) & 0xf) == 0) {
+			unsigned int strategy1 = hdr_priority & 0xf;
+
+			if (strategy1 == 2)
+				value = SDR_PRIORITY;
+			else if (strategy1 == 1)
+				value = HDR10_PRIORITY;
+			else
+				value = DOLBY_VISION_PRIORITY;
+		}
 	} else {
 		value = DOLBY_VISION_PRIORITY;
 	}
@@ -476,6 +512,8 @@ int get_hdr_policy(void)
 			value = HDR_POLICY_SINK;
 		else if (strcmp(hdr_policy, "1") == 0)
 			value = HDR_POLICY_SOURCE;
+		else if (strcmp(hdr_policy, "4") == 0)
+			value = HDR_POLICY_FORCE;
 		else
 			printf("error ubootenv value of hdr_policy\n");
 	} else {
@@ -483,6 +521,19 @@ int get_hdr_policy(void)
 	}
 
 	return (int)value;
+}
+
+static hdr_force_mode_e get_hdr_force_mode(void)
+{
+	char *hdr_force_mode = env_get("hdr_force_mode");
+	int force_mode = 0;
+
+	if (hdr_force_mode)
+		force_mode = strtoul(hdr_force_mode, NULL, 10);
+	else
+		force_mode = FORCE_DV;
+
+	return (hdr_force_mode_e)force_mode;
 }
 
 bool is_tv_support_hdr(struct hdmitx_dev *hdev)
@@ -519,12 +570,25 @@ bool is_tv_support_dv(struct hdmitx_dev *hdev)
 bool is_dv_preference(struct hdmitx_dev *hdev)
 {
 	int hdr_priority = get_hdr_priority();
+	hdr_policy_e hdr_policy = get_hdr_policy();
+	hdr_force_mode_e hdr_force_mode = get_hdr_force_mode();
 
 	if (!hdev)
 		return false;
-	if (is_dolby_enabled() &&
-		hdr_priority == DOLBY_VISION_PRIORITY &&
-		is_tv_support_dv(hdev))
+	if (hdr_priority != DOLBY_VISION_PRIORITY) {
+		printf("not prefer dv, hdr_priority:%d\n", hdr_priority);
+		return false;
+	}
+
+	/* not force dv */
+	if (hdr_policy == HDR_POLICY_FORCE &&
+		hdr_force_mode != MESON_HDR_FORCE_MODE_DV) {
+		printf("not force dv, hdr_policy:%d hdr_force_mode:%d\n",
+			hdr_policy, hdr_force_mode);
+	return false;
+	}
+
+	if (is_dolby_enabled() && is_tv_support_dv(hdev))
 		return true;
 	else
 		return false;
@@ -533,12 +597,32 @@ bool is_dv_preference(struct hdmitx_dev *hdev)
 bool is_hdr_preference(struct hdmitx_dev *hdev)
 {
 	int hdr_priority = get_hdr_priority();
+	hdr_policy_e hdr_policy = get_hdr_policy();
+	hdr_force_mode_e hdr_force_mode = get_hdr_force_mode();
+	bool hdr_resolution_priority = is_hdr_resolution_priority();
 
 	if (!hdev)
 		return false;
+
+	/* not prefer hdr */
+	if (!hdr_resolution_priority) {
+		printf("not prefer hdr, hdr_resolution_priority:%d\n", hdr_resolution_priority);
+		return false;
+	}
+	/* not force hdr */
+	if (hdr_policy == HDR_POLICY_FORCE &&
+		!(hdr_force_mode == MESON_HDR_FORCE_MODE_HDR10 ||
+		hdr_force_mode == MESON_HDR_FORCE_MODE_HLG ||
+		hdr_force_mode == MESON_HDR_FORCE_MODE_HDR10PLUS)) {
+		printf("not force hdr, hdr_policy:%d hdr_force_mode:%d\n",
+			hdr_policy, hdr_force_mode);
+		return false;
+	}
+
 	if ((hdr_priority == DOLBY_VISION_PRIORITY ||
 		hdr_priority == HDR10_PRIORITY) &&
-		is_tv_support_hdr(hdev))
+		is_tv_support_hdr(hdev) &&
+		is_hdr_resolution_priority())
 		return true;
 	else
 		return false;
@@ -1369,6 +1453,7 @@ void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 	data->ubootenv_dv_type = get_ubootenv_dv_type();
 	data->hdr_priority = get_hdr_priority();
 	data->hdr_policy = get_hdr_policy();
+	data->hdr_force_mode = get_hdr_force_mode();
 	#if 0
 	data->isbestpolicy = is_best_outputmode();
 	data->isSupport4K30Hz = is_support_4k30hz();
@@ -1384,8 +1469,9 @@ void get_hdmi_data(struct hdmitx_dev *hdev, struct input_hdmi_data *data)
 	       get_ubootenv_dv_status(),
 	       data->hdr_priority,
 	       data->hdr_policy);
-	printf("ubootenv best_output: %d, best_colorspace: %d,  framerate_priority: %d\n",
+	printf("ubootenv best_mode: %d, best_color: %d, framerate_priority:%d, hdr_force_mode:%d\n",
 	       is_best_outputmode(),
 	       is_best_color_space(),
-	       is_framerate_priority());
+	       is_framerate_priority(),
+	       data->hdr_force_mode);
 }

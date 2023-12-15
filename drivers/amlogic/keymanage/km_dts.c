@@ -4,8 +4,8 @@
  */
 
 #include "key_manage_i.h"
-#include <fdt.h>
 #include <linux/libfdt.h>
+#include <fdt.h>
 
 #define UNIFYKEY_DATAFORMAT_HEXDATA	    "hexdata"
 #define UNIFYKEY_DATAFORMAT_HEXASCII	"hexascii"
@@ -294,6 +294,10 @@ int keymanage_dts_parse(const void* dt_addr)
 	int unifykeyNum = 0, provisionNum = 0;
 	char *punifykey_num, *encrypt_type;
 
+	if (!dt_addr) {
+		KM_ERR("not a valid fdt at 0x%p\n", dt_addr);
+		return __LINE__;
+	}
 	if (fdt_check_header(dt_addr)!= 0) {
         KM_ERR("not a fdt at 0x%p\n", dt_addr);
         return __LINE__;

@@ -562,8 +562,8 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		return 0;
 
 	do {
-		cur = (blocks_todo > mmc->cfg->b_max) ?
-			mmc->cfg->b_max : blocks_todo;
+		cur = (blocks_todo > (MMC_MAX_DESC_NUM * mmc->cfg->b_max)) ?
+			(MMC_MAX_DESC_NUM * mmc->cfg->b_max) : blocks_todo;
 		if (mmc_read_blocks(mmc, dst, start, cur) != cur) {
 			pr_debug("%s: Failed to read blocks\n", __func__);
 			return 0;
@@ -2865,6 +2865,29 @@ int mmc_start_init(struct mmc *mmc)
 	return err;
 }
 
+int enable_mmc_reset(struct mmc *mmc)
+{
+	int err = 0;
+	u8 ext_csd[512] = {0};
+
+	if (!IS_MMC(mmc) || !mmc->enable_mmc_hw_reset)
+		return err;
+
+	memset(ext_csd, 0, 512);
+	err = mmc_get_ext_csd(mmc, ext_csd);
+	if (err)
+		return err;
+
+	if (ext_csd[EXT_CSD_RST_N_FUNCTION] == 1)
+		return 0;
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			EXT_CSD_RST_N_FUNCTION, 1);
+	if (err)
+		printf("set mmc reset enable failed\n");
+	return err;
+}
+
 static int mmc_complete_init(struct mmc *mmc)
 {
 	int err = 0;
@@ -2879,6 +2902,8 @@ static int mmc_complete_init(struct mmc *mmc)
 		mmc->has_init = 0;
 	else
 		mmc->has_init = 1;
+
+	enable_mmc_reset(mmc);
 	return err;
 }
 
@@ -2945,6 +2970,10 @@ int mmc_init(struct mmc *mmc)
 {
 	int err = 0, i;
 	__maybe_unused ulong start;
+
+	if (!mmc)
+		return -ENODEV;
+
 #if CONFIG_IS_ENABLED(DM_MMC)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc->dev);
 

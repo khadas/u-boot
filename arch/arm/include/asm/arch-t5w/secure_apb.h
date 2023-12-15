@@ -15568,6 +15568,8 @@
 // Closing file:  ./ao_rti_reg.h
 //
 
+#define STARTUP_KEY_PRESERVE	PREG_STICKY_REG1
+
 #include "extra_register.h"
 
 #endif // SECURE_APB_H

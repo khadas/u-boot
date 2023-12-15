@@ -520,6 +520,281 @@ static void vpp_set_matrix_default_init(void)
 }
 #endif
 
+/*ve module slice1~slice3 offset*/
+unsigned int ve_reg_ofst[3] = {
+	0x0, 0x100, 0x200
+};
+
+unsigned int pst_reg_ofst[4] = {
+	0x0, 0x100, 0x700, 0x1900
+};
+
+//S5 4 slice matrix setting, for hdmitx dsc enable
+void vpp_mtx_config_v2(struct matrix_coef_s *coef,
+	enum vpp_slice_e slice,
+	enum vpp_matrix_e mtx_sel)
+{
+	int reg_pre_offset0_1 = 0;
+	int reg_pre_offset2 = 0;
+	int reg_coef00_01 = 0;
+	int reg_coef02_10 = 0;
+	int reg_coef11_12 = 0;
+	int reg_coef20_21 = 0;
+	int reg_coef22 = 0;
+	int reg_offset0_1 = 0;
+	int reg_offset2 = 0;
+	int reg_en_ctl = 0;
+
+	switch (slice) {
+	case SLICE0:
+		if (mtx_sel == VD1_MTX) {
+			reg_pre_offset0_1 = S5_VPP_VD1_MATRIX_PRE_OFFSET0_1;
+			reg_pre_offset2 = S5_VPP_VD1_MATRIX_PRE_OFFSET2;
+			reg_coef00_01 = S5_VPP_VD1_MATRIX_COEF00_01;
+			reg_coef02_10 = S5_VPP_VD1_MATRIX_COEF02_10;
+			reg_coef11_12 = S5_VPP_VD1_MATRIX_COEF11_12;
+			reg_coef20_21 = S5_VPP_VD1_MATRIX_COEF20_21;
+			reg_coef22 = S5_VPP_VD1_MATRIX_COEF22;
+			reg_offset0_1 = S5_VPP_VD1_MATRIX_OFFSET0_1;
+			reg_offset2 = S5_VPP_VD1_MATRIX_OFFSET2;
+			reg_en_ctl = S5_VPP_VD1_MATRIX_EN_CTRL;
+		} else if (mtx_sel == POST2_MTX) {
+			reg_pre_offset0_1 = S5_VPP_POST2_MATRIX_PRE_OFFSET0_1;
+			reg_pre_offset2 = S5_VPP_POST2_MATRIX_PRE_OFFSET2;
+			reg_coef00_01 = S5_VPP_POST2_MATRIX_COEF00_01;
+			reg_coef02_10 = S5_VPP_POST2_MATRIX_COEF02_10;
+			reg_coef11_12 = S5_VPP_POST2_MATRIX_COEF11_12;
+			reg_coef20_21 = S5_VPP_POST2_MATRIX_COEF20_21;
+			reg_coef22 = S5_VPP_POST2_MATRIX_COEF22;
+			reg_offset0_1 = S5_VPP_POST2_MATRIX_OFFSET0_1;
+			reg_offset2 = S5_VPP_POST2_MATRIX_OFFSET2;
+			reg_en_ctl = S5_VPP_POST2_MATRIX_EN_CTRL;
+		} else if (mtx_sel == POST_MTX) {
+			reg_pre_offset0_1 = S5_VPP_POST_MATRIX_PRE_OFFSET0_1;
+			reg_pre_offset2 = S5_VPP_POST_MATRIX_PRE_OFFSET2;
+			reg_coef00_01 = S5_VPP_POST_MATRIX_COEF00_01;
+			reg_coef02_10 = S5_VPP_POST_MATRIX_COEF02_10;
+			reg_coef11_12 = S5_VPP_POST_MATRIX_COEF11_12;
+			reg_coef20_21 = S5_VPP_POST_MATRIX_COEF20_21;
+			reg_coef22 = S5_VPP_POST_MATRIX_COEF22;
+			reg_offset0_1 = S5_VPP_POST_MATRIX_OFFSET0_1;
+			reg_offset2 = S5_VPP_POST_MATRIX_OFFSET2;
+			reg_en_ctl = S5_VPP_POST_MATRIX_EN_CTRL;
+		} else {
+			reg_pre_offset0_1 = S5_VPP_POST2_MATRIX_PRE_OFFSET0_1;
+			reg_pre_offset2 = S5_VPP_POST2_MATRIX_PRE_OFFSET2;
+			reg_coef00_01 = S5_VPP_POST2_MATRIX_COEF00_01;
+			reg_coef02_10 = S5_VPP_POST2_MATRIX_COEF02_10;
+			reg_coef11_12 = S5_VPP_POST2_MATRIX_COEF11_12;
+			reg_coef20_21 = S5_VPP_POST2_MATRIX_COEF20_21;
+			reg_coef22 = S5_VPP_POST2_MATRIX_COEF22;
+			reg_offset0_1 = S5_VPP_POST2_MATRIX_OFFSET0_1;
+			reg_offset2 = S5_VPP_POST2_MATRIX_OFFSET2;
+			reg_en_ctl = S5_VPP_POST2_MATRIX_EN_CTRL;
+		}
+		break;
+	case SLICE1:
+	case SLICE2:
+	case SLICE3:
+		if (mtx_sel == VD1_MTX) {
+			reg_pre_offset0_1 = S5_VPP_SLICE1_VD1_MATRIX_PRE_OFFSET0_1 +
+				ve_reg_ofst[slice - 1];
+			reg_pre_offset2 = S5_VPP_SLICE1_VD1_MATRIX_PRE_OFFSET2 +
+				ve_reg_ofst[slice - 1];
+			reg_coef00_01 = S5_VPP_SLICE1_VD1_MATRIX_COEF00_01 +
+				ve_reg_ofst[slice - 1];
+			reg_coef02_10 = S5_VPP_SLICE1_VD1_MATRIX_COEF02_10 +
+				ve_reg_ofst[slice - 1];
+			reg_coef11_12 = S5_VPP_SLICE1_VD1_MATRIX_COEF11_12 +
+				ve_reg_ofst[slice - 1];
+			reg_coef20_21 = S5_VPP_SLICE1_VD1_MATRIX_COEF20_21 +
+				ve_reg_ofst[slice - 1];
+			reg_coef22 = S5_VPP_SLICE1_VD1_MATRIX_COEF22 +
+				ve_reg_ofst[slice - 1];
+			reg_offset0_1 = S5_VPP_SLICE1_VD1_MATRIX_OFFSET0_1 +
+				ve_reg_ofst[slice - 1];
+			reg_offset2 = S5_VPP_SLICE1_VD1_MATRIX_OFFSET2 +
+				ve_reg_ofst[slice - 1];
+			reg_en_ctl = S5_VPP_SLICE1_VD1_MATRIX_EN_CTRL +
+				ve_reg_ofst[slice - 1];
+		} else if (mtx_sel == POST2_MTX) {
+			reg_pre_offset0_1 = S5_VPP_POST2_MATRIX_PRE_OFFSET0_1 +
+				pst_reg_ofst[slice];
+			reg_pre_offset2 = S5_VPP_POST2_MATRIX_PRE_OFFSET2 +
+				pst_reg_ofst[slice];
+			reg_coef00_01 = S5_VPP_POST2_MATRIX_COEF00_01 +
+				pst_reg_ofst[slice];
+			reg_coef02_10 = S5_VPP_POST2_MATRIX_COEF02_10 +
+				pst_reg_ofst[slice];
+			reg_coef11_12 = S5_VPP_POST2_MATRIX_COEF11_12 +
+				pst_reg_ofst[slice];
+			reg_coef20_21 = S5_VPP_POST2_MATRIX_COEF20_21 +
+				pst_reg_ofst[slice];
+			reg_coef22 = S5_VPP_POST2_MATRIX_COEF22 +
+				pst_reg_ofst[slice];
+			reg_offset0_1 = S5_VPP_POST2_MATRIX_OFFSET0_1 +
+				pst_reg_ofst[slice];
+			reg_offset2 = S5_VPP_POST2_MATRIX_OFFSET2 +
+				pst_reg_ofst[slice];
+			reg_en_ctl = S5_VPP_POST2_MATRIX_EN_CTRL +
+				pst_reg_ofst[slice];
+		} else if (mtx_sel == POST_MTX) {
+			reg_pre_offset0_1 = S5_VPP_POST_MATRIX_PRE_OFFSET0_1 +
+				pst_reg_ofst[slice];
+			reg_pre_offset2 = S5_VPP_POST_MATRIX_PRE_OFFSET2 +
+				pst_reg_ofst[slice];
+			reg_coef00_01 = S5_VPP_POST_MATRIX_COEF00_01 +
+				pst_reg_ofst[slice];
+			reg_coef02_10 = S5_VPP_POST_MATRIX_COEF02_10 +
+				pst_reg_ofst[slice];
+			reg_coef11_12 = S5_VPP_POST_MATRIX_COEF11_12 +
+				pst_reg_ofst[slice];
+			reg_coef20_21 = S5_VPP_POST_MATRIX_COEF20_21 +
+				pst_reg_ofst[slice];
+			reg_coef22 = S5_VPP_POST_MATRIX_COEF22 +
+				pst_reg_ofst[slice];
+			reg_offset0_1 = S5_VPP_POST_MATRIX_OFFSET0_1 +
+				pst_reg_ofst[slice];
+			reg_offset2 = S5_VPP_POST_MATRIX_OFFSET2 +
+				pst_reg_ofst[slice];
+			reg_en_ctl = S5_VPP_POST_MATRIX_EN_CTRL +
+				pst_reg_ofst[slice];
+		} else {
+			reg_pre_offset0_1 = S5_VPP_POST2_MATRIX_PRE_OFFSET0_1 +
+				pst_reg_ofst[slice];
+			reg_pre_offset2 = S5_VPP_POST2_MATRIX_PRE_OFFSET2 +
+				pst_reg_ofst[slice];
+			reg_coef00_01 = S5_VPP_POST2_MATRIX_COEF00_01 +
+				pst_reg_ofst[slice];
+			reg_coef02_10 = S5_VPP_POST2_MATRIX_COEF02_10 +
+				pst_reg_ofst[slice];
+			reg_coef11_12 = S5_VPP_POST2_MATRIX_COEF11_12 +
+				pst_reg_ofst[slice];
+			reg_coef20_21 = S5_VPP_POST2_MATRIX_COEF20_21 +
+				pst_reg_ofst[slice];
+			reg_coef22 = S5_VPP_POST2_MATRIX_COEF22 +
+				pst_reg_ofst[slice];
+			reg_offset0_1 = S5_VPP_POST2_MATRIX_OFFSET0_1 +
+				pst_reg_ofst[slice];
+			reg_offset2 = S5_VPP_POST2_MATRIX_OFFSET2 +
+				pst_reg_ofst[slice];
+			reg_en_ctl = S5_VPP_POST2_MATRIX_EN_CTRL +
+				pst_reg_ofst[slice];
+		}
+		break;
+	default:
+		return;
+	}
+
+	vpp_reg_write(reg_pre_offset0_1,
+		(coef->pre_offset[0] << 16) | coef->pre_offset[1]);
+	vpp_reg_write(reg_pre_offset2, coef->pre_offset[2]);
+	vpp_reg_write(reg_coef00_01,
+		(coef->matrix_coef[0][0] << 16) | coef->matrix_coef[0][1]);
+	vpp_reg_write(reg_coef02_10,
+		(coef->matrix_coef[0][2] << 16) | coef->matrix_coef[1][0]);
+	vpp_reg_write(reg_coef11_12,
+		(coef->matrix_coef[1][1] << 16) | coef->matrix_coef[1][2]);
+	vpp_reg_write(reg_coef20_21,
+		(coef->matrix_coef[2][0] << 16) | coef->matrix_coef[2][1]);
+	vpp_reg_write(reg_coef22, coef->matrix_coef[2][2]);
+	vpp_reg_write(reg_offset0_1,
+		(coef->post_offset[0] << 16) | coef->post_offset[1]);
+	vpp_reg_write(reg_offset2, coef->post_offset[2]);
+	vpp_reg_setb(reg_en_ctl, coef->en, 0, 1);
+}
+
+void mtx_setting_v2(enum vpp_matrix_e mtx_sel,
+	enum mtx_csc_e mtx_csc,
+	int mtx_on,
+	enum vpp_slice_e slice)
+{
+	struct matrix_coef_s coef;
+
+	switch (mtx_csc) {
+	case MATRIX_RGB_YUV709:
+		coef.matrix_coef[0][0] = 0xbb;
+		coef.matrix_coef[0][1] = 0x275;
+		coef.matrix_coef[0][2] = 0x3f;
+		coef.matrix_coef[1][0] = 0x1f99;
+		coef.matrix_coef[1][1] = 0x1ea6;
+		coef.matrix_coef[1][2] = 0x1c2;
+		coef.matrix_coef[2][0] = 0x1c2;
+		coef.matrix_coef[2][1] = 0x1e67;
+		coef.matrix_coef[2][2] = 0x1fd7;
+
+		coef.pre_offset[0] = 0;
+		coef.pre_offset[1] = 0;
+		coef.pre_offset[2] = 0;
+		coef.post_offset[0] = 0x40;
+		coef.post_offset[1] = 0x200;
+		coef.post_offset[2] = 0x200;
+		coef.en = mtx_on;
+		break;
+	case MATRIX_YUV709_RGB:
+		coef.matrix_coef[0][0] = 0x4ac;
+		coef.matrix_coef[0][1] = 0x0;
+		coef.matrix_coef[0][2] = 0x731;
+		coef.matrix_coef[1][0] = 0x4ac;
+		coef.matrix_coef[1][1] = 0x1f25;
+		coef.matrix_coef[1][2] = 0x1ddd;
+		coef.matrix_coef[2][0] = 0x4ac;
+		coef.matrix_coef[2][1] = 0x879;
+		coef.matrix_coef[2][2] = 0x0;
+
+		coef.pre_offset[0] = 0x7c0;
+		coef.pre_offset[1] = 0x600;
+		coef.pre_offset[2] = 0x600;
+		coef.post_offset[0] = 0x0;
+		coef.post_offset[1] = 0x0;
+		coef.post_offset[2] = 0x0;
+		coef.en = mtx_on;
+		break;
+	case MATRIX_YUV709F_RGB:/*full to full*/
+		coef.matrix_coef[0][0] = 0x400;
+		coef.matrix_coef[0][1] = 0x0;
+		coef.matrix_coef[0][2] = 0x64D;
+		coef.matrix_coef[1][0] = 0x400;
+		coef.matrix_coef[1][1] = 0x1F41;
+		coef.matrix_coef[1][2] = 0x1E21;
+		coef.matrix_coef[2][0] = 0x400;
+		coef.matrix_coef[2][1] = 0x76D;
+		coef.matrix_coef[2][2] = 0x0;
+
+		coef.pre_offset[0] = 0x0;
+		coef.pre_offset[1] = 0x600;
+		coef.pre_offset[2] = 0x600;
+		coef.post_offset[0] = 0x0;
+		coef.post_offset[1] = 0x0;
+		coef.post_offset[2] = 0x0;
+		coef.en = mtx_on;
+		break;
+	case MATRIX_NULL:
+		coef.matrix_coef[0][0] = 0;
+		coef.matrix_coef[0][1] = 0;
+		coef.matrix_coef[0][2] = 0;
+		coef.matrix_coef[1][0] = 0;
+		coef.matrix_coef[1][1] = 0;
+		coef.matrix_coef[1][2] = 0;
+		coef.matrix_coef[2][0] = 0;
+		coef.matrix_coef[2][1] = 0;
+		coef.matrix_coef[2][2] = 0;
+
+		coef.pre_offset[0] = 0;
+		coef.pre_offset[1] = 0;
+		coef.pre_offset[2] = 0;
+		coef.post_offset[0] = 0;
+		coef.post_offset[1] = 0;
+		coef.post_offset[2] = 0;
+		coef.en = mtx_on;
+		break;
+	default:
+		return;
+	}
+
+	vpp_mtx_config_v2(&coef, slice, mtx_sel);
+}
+
 static void vpp_top_post2_matrix_yuv2rgb(int vpp_top)
 {
 	int *m = NULL;
@@ -538,7 +813,17 @@ static void vpp_top_post2_matrix_yuv2rgb(int vpp_top)
 	/* POST2 matrix: YUV limit -> RGB  default is 12bit*/
 	m = YUV709l_to_RGB709_coeff12;
 
-	if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T3X) {
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S5) {
+		mtx_setting_v2(POST_MTX,
+			MATRIX_YUV709_RGB, MTX_ON, SLICE0);
+		mtx_setting_v2(POST_MTX,
+			MATRIX_YUV709_RGB, MTX_ON, SLICE1);
+		mtx_setting_v2(POST_MTX,
+			MATRIX_YUV709_RGB, MTX_ON, SLICE2);
+		mtx_setting_v2(POST_MTX,
+			MATRIX_YUV709_RGB, MTX_ON, SLICE3);
+		return;
+	} else if (get_cpu_id().family_id != MESON_CPU_MAJOR_ID_T3X) {
 		reg_mtrx_coeff00_01 = VPP_POST2_MATRIX_COEF00_01;
 		reg_mtrx_coeff02_10 = VPP_POST2_MATRIX_COEF02_10;
 		reg_mtrx_coeff11_12 = VPP_POST2_MATRIX_COEF11_12;
@@ -1751,19 +2036,37 @@ static void vpp_ofifo_init(void)
 }
 
 #ifdef CONFIG_AML_HDMITX
-static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
+static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data,
+		enum force_output_format output_format)
 {
 	int i, j;
 
-	hdr_data->features =
-		(0 << 30) /*sdr output 709*/
-		| (1 << 29)	/*video available*/
-		| (5 << 26)	/* unspecified */
-		| (0 << 25)	/* limit */
-		| (1 << 24)	/* color available */
-		| (9 << 16)	/* bt2020 */
-		| (16 << 8)	/* bt2020-10 */
-		| (10 << 0);	/* bt2020c */
+	switch (output_format) {
+	case BT2020_PQ:
+		hdr_data->features =
+			(0 << 30) /*sdr output 709*/
+			| (1 << 29)	/*video available*/
+			| (5 << 26)	/* unspecified */
+			| (0 << 25)	/* limit */
+			| (1 << 24)	/*color available*/
+			| (9 << 16)
+			| (16 << 8)
+			| (10 << 0);	/* bt2020c */
+		break;
+	case BT2020_HLG:
+		hdr_data->features =
+			(0 << 30) /*sdr output 709*/
+			| (1 << 29)	/*video available*/
+			| (5 << 26)	/* unspecified */
+			| (0 << 25)	/* limit */
+			| (1 << 24)	/*color available*/
+			| (9 << 16)
+			| (18 << 8)
+			| (10 << 0);
+		break;
+	case UNKNOWN_FMT:
+		return;
+	}
 
 	for (i = 0; i < 3; i++)
 		for (j = 0; j < 2; j++)
@@ -1786,14 +2089,19 @@ static void amvecm_cp_hdr_info(struct master_display_info_s *hdr_data)
 void hdr_tx_pkt_cb(void)
 {
 	int hdr_policy = 0;
+	int hdr_force_mode = 0; /*0: no force, 3: force hdr, 5: force hlg*/
 #ifdef CONFIG_AML_HDMITX
 	struct master_display_info_s hdr_data;
 	struct hdr_info *hdrinfo = NULL;
 #endif
 	const char *hdr_policy_env = env_get("hdr_policy");
+	const char *hdr_force_mode_env = env_get("hdr_force_mode");
 
 	if (!hdr_policy_env)
 		return;
+
+	if (hdr_force_mode_env)
+		hdr_force_mode = simple_strtoul(hdr_force_mode_env, NULL, 10);
 
 	hdr_policy = simple_strtoul(hdr_policy_env, NULL, 10);
 #ifdef CONFIG_AML_HDMITX
@@ -1810,16 +2118,50 @@ void hdr_tx_pkt_cb(void)
 			hdr_func(OSD3_HDR, SDR_HDR);
 		if (is_hdmi_mode(env_get("outputmode3")))
 			hdr_func(OSD4_HDR, SDR_HDR);
-		amvecm_cp_hdr_info(&hdr_data);
+		amvecm_cp_hdr_info(&hdr_data, BT2020_PQ);
+		hdmitx_set_drm_pkt(&hdr_data);
+	}
+
+	if ((hdrinfo && hdrinfo->hdr_sup_eotf_smpte_st_2084) &&
+		hdr_policy == 4 && hdr_force_mode == 3) {
+		if (is_hdmi_mode(env_get("outputmode"))) {
+			hdr_func(OSD1_HDR, SDR_HDR);
+			hdr_func(OSD2_HDR, SDR_HDR);
+			hdr_func(VD1_HDR, SDR_HDR);
+		}
+		if (is_hdmi_mode(env_get("outputmode2")))
+			hdr_func(OSD3_HDR, SDR_HDR);
+		if (is_hdmi_mode(env_get("outputmode3")))
+			hdr_func(OSD4_HDR, SDR_HDR);
+		amvecm_cp_hdr_info(&hdr_data, BT2020_PQ);
+		hdmitx_set_drm_pkt(&hdr_data);
+	}
+
+	if ((hdrinfo && hdrinfo->hdr_sup_eotf_hlg) &&
+		hdr_policy == 4 && hdr_force_mode == 5) {
+		if (is_hdmi_mode(env_get("outputmode"))) {
+			hdr_func(OSD1_HDR, SDR_HLG);
+			hdr_func(OSD2_HDR, SDR_HLG);
+			hdr_func(VD1_HDR, SDR_HLG);
+		}
+		if (is_hdmi_mode(env_get("outputmode2")))
+			hdr_func(OSD3_HDR, SDR_HLG);
+		if (is_hdmi_mode(env_get("outputmode3")))
+			hdr_func(OSD4_HDR, SDR_HLG);
+		amvecm_cp_hdr_info(&hdr_data, BT2020_HLG);
 		hdmitx_set_drm_pkt(&hdr_data);
 	}
 #endif
 
-	VPP_PR("hdr_policy = %d\n", hdr_policy);
+	VPP_PR("hdr_policy = %d, hdr_force_mode = %d\n",
+		hdr_policy, hdr_force_mode);
 #ifdef CONFIG_AML_HDMITX
-	if (hdrinfo)
+	if (hdrinfo) {
 		VPP_PR("Rx hdr_info.hdr_sup_eotf_smpte_st_2084 = %d\n",
 		       hdrinfo->hdr_sup_eotf_smpte_st_2084);
+		VPP_PR("Rx hdr_info.hdr_sup_eotf_hlg = %d\n",
+		       hdrinfo->hdr_sup_eotf_hlg);
+	}
 #endif
 }
 
@@ -1868,6 +2210,16 @@ void vpp_init(void)
 			set_vpp_osd2_rgb2yuv(1);
 		else
 			set_osd4_rgb2yuv(0);
+
+		/*txhd2 enable keystone in uboot need disable osd2 matrix*/
+		if (chip_id == MESON_CPU_MAJOR_ID_TXHD2) {
+			char *enable_flag;
+
+			enable_flag = env_get("vout_projector_mux");
+			if (enable_flag && !strcmp(enable_flag, "enable"))
+				set_vpp_osd2_rgb2yuv(0);
+		}
+
 #endif
 		/* set vpp data path to u12 */
 		set_vpp_bitdepth();

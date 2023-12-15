@@ -27,6 +27,8 @@
 #include <amlogic/media/vout/lcd/aml_lcd.h>
 #endif
 
+#include <amlogic/cpu_id.h>
+
 #ifdef CONFIG_AML_HDMITX
 static int vout_hdmi_hpd(int hpd_st)
 {
@@ -117,7 +119,8 @@ int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *st;
 	int hpd_st = 0;
 	unsigned long i = 0;
-	unsigned long hdmitx_hpd_wait_cnt = 10;
+	/* some TV sets pull hpd high 1.3S after detect pwr5v high */
+	unsigned long hdmitx_hpd_wait_cnt = 15;
 #ifdef CONFIG_AML_HDMITX20
 	struct hdmitx_dev *hdev = hdmitx_get_hdev();
 #else
@@ -153,6 +156,7 @@ int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (!ret)
 		vout2_hdmi_hpd(hpd_st);
 
+	hdev->hpd_state = hpd_st;
 	return hpd_st;
 }
 #endif
@@ -211,6 +215,11 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 {
 	char *mode;
 	unsigned int frac;
+#ifdef CONFIG_AML_HDMITX
+#ifdef CONFIG_AML_VPP
+	unsigned int fmt_mode = 0;
+#endif
+#endif
 
 #if defined(CONFIG_AML_CVBS) || defined(CONFIG_AML_HDMITX) || defined(CONFIG_AML_LCD)
 	unsigned int mux_sel = VIU_MUX_MAX, venc_sel = VIU_MUX_MAX;
@@ -251,13 +260,25 @@ static int do_vout_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 #endif
 
 #ifdef CONFIG_AML_HDMITX
+#ifdef CONFIG_AML_VOUT
+#ifdef CONFIG_AML_VPP
+	struct vinfo_s *vinfo;
+
+	vinfo = vout_get_current_vinfo();
+	fmt_mode = vinfo->vpp_post_out_color_fmt;
+#endif
+#endif
+
 	if (frac == 0) { /* remove frac support in outputmode */
 		mux_sel = hdmi_outputmode_check(mode, frac);
 		venc_sel = mux_sel & 0xf;
 		if (venc_sel < VIU_MUX_MAX) {
 			vout_viu_mux(VOUT_VIU1_SEL, mux_sel);
 #ifdef CONFIG_AML_VPP
-			vpp_matrix_update(VPP_CM_YUV);
+			if (fmt_mode == 1)
+				vpp_matrix_update(VPP_CM_RGB);
+			else
+				vpp_matrix_update(VPP_CM_YUV);
 #endif
 			/* //remove frac support in outputmode
 			 *if (frac)
@@ -342,6 +363,11 @@ static int do_vout2_output(cmd_tbl_t *cmdtp, int flag, int argc, char *const arg
 #endif
 #ifdef CONFIG_AML_LCD
 	unsigned int venc_index;
+#endif
+
+#ifdef CONFIG_AML_VPP
+	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_TXHD2)
+		vpp_matrix_update(VPP_CM_RGB);
 #endif
 
 	if (argc != 2)

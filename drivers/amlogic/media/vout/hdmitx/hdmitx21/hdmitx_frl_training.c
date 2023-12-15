@@ -111,6 +111,89 @@ enum frl_rate_enum hdmitx21_select_frl_rate(bool dsc_en, enum hdmi_vic vic,
 	return FRL_NONE;
 }
 
+#define CALC_COEFF 10000
+
+bool frl_check_full_bw(enum hdmi_colorspace cs, enum hdmi_color_depth cd, u32 pixel_clock,
+	u32 h_active, enum frl_rate_enum frl_rate, u32 *tri_bytes)
+{
+	u32 tmds_clock = 0;
+	u32 overhead_max_num = 0;
+	u32 overhead_max_den = 10000;
+	u32 tri_bytes_per_line = 0;
+	u32 time_for_1_active_video_line = 0;
+	u32 effective_link_rate = 0;
+	u32 effective_chars_per_sec = 0;
+	u32 effective_active_bytes_per_line = 0;
+	u32 bytes_per_active_line = 0;
+	u32 frl_mega_bits_rate = 0;
+	u32 temp = 0;
+
+	if (!frl_rate || !tri_bytes)
+		return 0;
+
+	if (cs == HDMI_COLORSPACE_YUV420)
+		pixel_clock = pixel_clock / 2;
+	tmds_clock = pixel_clock;
+	tri_bytes_per_line = h_active;
+	bytes_per_active_line = h_active;
+	/* frl_mega_bits_rate = pixel_clock; */
+
+	/* TCLK update */
+	if (cs != HDMI_COLORSPACE_YUV422) {
+		if (cd == COLORDEPTH_30B)
+			tmds_clock = (pixel_clock * 5) / 4;
+		else if (cd == COLORDEPTH_36B)
+			tmds_clock = (pixel_clock * 3) / 2;
+		else
+			tmds_clock = pixel_clock;
+	}
+	if (cs == HDMI_COLORSPACE_YUV420)
+		tri_bytes_per_line >>= 1;
+
+	if (cs != HDMI_COLORSPACE_YUV422) {
+		if (cd == COLORDEPTH_30B)
+			tri_bytes_per_line = (tri_bytes_per_line * 5) / 4;
+		else if (cd == COLORDEPTH_36B)
+			tri_bytes_per_line = ((tri_bytes_per_line * 3) / 2);
+	}
+	tmds_clock = tmds_clock / CALC_COEFF;
+	time_for_1_active_video_line = tri_bytes_per_line * 200;
+	time_for_1_active_video_line = time_for_1_active_video_line / tmds_clock;
+	time_for_1_active_video_line = time_for_1_active_video_line / 201;
+
+	frl_mega_bits_rate = get_frl_bandwidth(frl_rate);
+	if (frl_rate == FRL_3G3L || frl_rate == FRL_6G3L) {
+		/* for 3 lanes, overhead max is 2.136% */
+		overhead_max_num = 267;
+		overhead_max_den = 12500;
+	} else {
+		/* for 4 lanes, overhead max is 2.184% */
+		overhead_max_num = 273;
+		overhead_max_den = 12500;
+	}
+
+	effective_link_rate = frl_mega_bits_rate * 1000 / CALC_COEFF;
+	temp = effective_link_rate * 3 / 10000;
+	effective_link_rate = effective_link_rate - temp;
+	effective_chars_per_sec = effective_link_rate / 18;
+	temp = effective_chars_per_sec * overhead_max_num / overhead_max_den;
+	effective_chars_per_sec = effective_chars_per_sec - temp;
+	effective_active_bytes_per_line =
+		(effective_chars_per_sec * time_for_1_active_video_line) * 2;
+	bytes_per_active_line = tri_bytes_per_line * 3;
+	temp = bytes_per_active_line / 200;
+	bytes_per_active_line = bytes_per_active_line + temp + 6;
+	tri_bytes_per_line = ((tri_bytes_per_line * 3) >> 1) + 3;
+	*tri_bytes = tri_bytes_per_line;
+
+	pr_info("bytes_per_active_line %d  effective_active_bytes_per_line %d\n",
+		bytes_per_active_line, effective_active_bytes_per_line);
+	if (bytes_per_active_line >= effective_active_bytes_per_line)
+		return 1;
+	else
+		return 0;
+}
+
 /*
  * Config hdmitx Data Flow metering
  * bw_type: 1: Full BW
@@ -156,6 +239,7 @@ static void TX_LTS_1_HDMI21_CONFIG(enum frl_rate_enum frl_rate)
 {
 	u8 data8;
 	u8 frl_rate_sel;
+	bool block_hsync;
 
 	//Step1:Tx reads EDID
 	//Assume that Rx supports FRL
@@ -174,9 +258,10 @@ static void TX_LTS_1_HDMI21_CONFIG(enum frl_rate_enum frl_rate)
 
 	//Step4:stop Tx transmission
 	//--Disable AV and h21tx_sb
+	block_hsync = !!(hdmitx21_rd_reg(H21TXSB_CTRL_1_IVCTX) & 0x4);
 	data8  = 0;
 	data8 |= (1 << 1); //reg_block_av,1'b0:Enable to hdmi2sb block write tmds data into DPRAM
-	data8 |= (0 << 2); //reg_block_hsync,DSC mode
+	data8 |= (block_hsync << 2); //reg_block_hsync,DSC mode
 	data8 |= (0 << 5); //reg_block_over,DSC mode
 	data8 |= (0 << 6); //reg_block_over_val,DSC mode
 	hdmitx21_wr_reg(H21TXSB_CTRL_1_IVCTX, data8);
@@ -319,6 +404,7 @@ static void TX_LTS_P_SEND_ONLY_GAP(enum frl_rate_enum frl_rate)
 {
 	u8 data8;
 	u8 frl_rate_sel;
+	bool block_hsync;
 	//Step1:start FRL transition with Gap only
 
 	//Enable HDMI2P1
@@ -341,9 +427,10 @@ static void TX_LTS_P_SEND_ONLY_GAP(enum frl_rate_enum frl_rate)
 	hdmitx21_wr_reg(SW_RST_IVCTX, data8);
 
 	//--Disable AV and h21tx_sb
+	block_hsync = !!(hdmitx21_rd_reg(H21TXSB_CTRL_1_IVCTX) & 0x4);
 	data8  = 0;
 	data8 |= (1 << 1); //reg_block_av,1'b0:Enable to hdmi2sb block write tmds data into DPRAM
-	data8 |= (0 << 2); //reg_block_hsync,DSC mode
+	data8 |= (block_hsync << 2); //reg_block_hsync,DSC mode
 	data8 |= (0 << 5); //reg_block_over,DSC mode
 	data8 |= (0 << 6); //reg_block_over_val,DSC mode
 	hdmitx21_wr_reg(H21TXSB_CTRL_1_IVCTX, data8);
@@ -380,6 +467,7 @@ static void TX_LTS_P_POLL_FRL_START(void)
 	u8 hdmi21_update_reg = 0;
 	u8 data8;
 	u32 count = 100;
+	bool block_hsync;
 
 	while (!FRL_start && count--) {
 		scdc21_rd_sink(0x10, &hdmi21_update_reg);//Update_flag registers,0x10
@@ -388,11 +476,14 @@ static void TX_LTS_P_POLL_FRL_START(void)
 	//Step2:write FLT_start to 0
 	scdc21_wr_sink(0x10, hdmi21_update_reg & (~0x10));//Update_flag registers,0x10
 
+	/* Note reset p2t fifo here will cause LG OLED55CXPCA "invalid signal" */
+
 	//Step3:start FRL transmission with AV data
 	//--Enable AV and h21tx_sb
+	block_hsync = !!(hdmitx21_rd_reg(H21TXSB_CTRL_1_IVCTX) & 0x4);
 	data8  = 0;
 	data8 |= (0 << 1);
-	data8 |= (0 << 2); //reg_block_hsync,DSC mode
+	data8 |= (block_hsync << 2); //reg_block_hsync,DSC mode
 	data8 |= (0 << 5); //reg_block_over,DSC mode
 	data8 |= (0 << 6); //reg_block_over_val,DSC mode
 	hdmitx21_wr_reg(H21TXSB_CTRL_1_IVCTX, data8);
@@ -408,6 +499,7 @@ static void hdmitx_frl_config(u8 color_depth, enum frl_rate_enum frl_rate)
 {
 	u8 data8;
 	u8 frl_rate_sel;
+	bool block_hsync;
 	//=============================================================
 	//                   HDMI2p1 configuration begin
 	//=============================================================
@@ -472,9 +564,10 @@ static void hdmitx_frl_config(u8 color_depth, enum frl_rate_enum frl_rate)
 	hdmitx21_wr_reg(H21TXSB_PKT_PRD_IVCTX, data8);
 
 	//--Enable AV and h21tx_sb
+	block_hsync = !!(hdmitx21_rd_reg(H21TXSB_CTRL_1_IVCTX) & 0x4);
 	data8  = 0;
 	data8 |= (0 << 1); //reg_block_av,1'b1:Enable to hdmi2sb block write tmds data into DPRAM
-	data8 |= (0 << 2); //reg_block_hsync,DSC mode
+	data8 |= (block_hsync << 2); //reg_block_hsync,DSC mode
 	data8 |= (0 << 5); //reg_block_over,DSC mode
 	data8 |= (0 << 6); //reg_block_over_val,DSC mode
 	hdmitx21_wr_reg(H21TXSB_CTRL_1_IVCTX, data8);
@@ -533,6 +626,7 @@ bool hdmitx_frl_training_main(enum frl_rate_enum frl_rate)
 	if (frl_rate == FRL_NONE)
 		return 1;
 
+	hdmitx_soft_reset(BIT(0));
 	while (ltp0123 != 0) {
 		pr_info("[FRL TRAINING] ************** TX_LTS_3_POLL_FLT_UPDATE************\n");
 		ret = TX_LTS_3_POLL_FLT_UPDATE();
@@ -553,3 +647,56 @@ bool hdmitx_frl_training_main(enum frl_rate_enum frl_rate)
 	TX_LTS_P_POLL_FRL_START();
 	return 1;
 }
+
+static void frl_tx_av_enable(bool enable)
+{
+	hdmitx21_set_reg_bits(H21TXSB_CTRL_1_IVCTX, !enable, 1, 1);
+}
+
+static void frl_tx_sb_enable(bool enable, enum frl_rate_enum frl_rate)
+{
+	hdmitx21_set_reg_bits(H21TXSB_CTRL_IVCTX, !!enable, 0, 1);
+	hdmitx21_set_reg_bits(H21TXSB_CTRL_IVCTX, frl_rate > FRL_6G3L ? 9 : 1, 4, 4);
+}
+
+static void stop_frl_transmission(enum frl_rate_enum frl_rate)
+{
+	frl_tx_av_enable(false);
+	frl_tx_sb_enable(false, frl_rate);
+}
+
+void frl_tx_stop(struct hdmitx_dev *hdev)
+{
+	stop_frl_transmission(hdev->frl_rate);
+}
+
+bool scdc_tx_frl_cfg1_set(u8 cfg1)
+{
+	scdc21_wr_sink(SCDC_CONFIG_1, cfg1);
+
+	return true;
+}
+
+u8 scdc_tx_update_flags_get(void)
+{
+	u8 data;
+
+	scdc21_rd_sink(SCDC_UPDATE_0, &data);
+	if (data && (data & HDMI20_UPDATE_FLAGS)) {
+		/* clear the flags after reading */
+		scdc21_wr_sink(SCDC_UPDATE_0, HDMI20_UPDATE_FLAGS & data);
+	}
+
+	return data;
+}
+
+bool scdc_tx_update_flags_set(u8 update_flags)
+{
+	u8 data;
+
+	data = update_flags & HDMI21_UPDATE_FLAGS;
+	scdc21_wr_sink(SCDC_UPDATE_0, data);
+
+	return true;
+}
+

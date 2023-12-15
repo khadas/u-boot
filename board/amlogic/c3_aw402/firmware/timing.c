@@ -125,6 +125,8 @@ uint32_t __ddr_parameter_reg_index[] __attribute__ ((section(".ddr_2acs_index"))
 
 #define C3_DDR4_1RANK 1
 
+#define FAST_BOOT_ENBALE 1
+
 ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 #ifdef C3_DDR4_1RANK
 	{
@@ -135,7 +137,13 @@ ddr_set_ps0_only_t __ddr_setting[] __attribute__ ((section(".ddr_param"))) = {
 	.cfg_board_common_setting.timming_struct_version = 0,
 	.cfg_board_common_setting.timming_struct_org_size = sizeof(ddr_set_ps0_only_t),
 	.cfg_board_common_setting.timming_struct_real_size = 0,
-	.cfg_board_common_setting.fast_boot = { 0x1, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
+
+#if FAST_BOOT_ENBALE
+	.cfg_board_common_setting.fast_boot = { 0xfd, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
+#else
+	.cfg_board_common_setting.fast_boot = { 0x01, 0, 0, 0},//{ 0, 0, (1 << 3) | (4)},
+#endif
+
 	.cfg_board_common_setting.ddr_func = DDR_FUNC | DDR_FUNC_ENABLE_DDR_ID |
 		DDR_FUNC_CONFIG_DFE_FUNCTION,
 	.cfg_board_common_setting.board_id = CONFIG_BOARD_ID_MASK,
@@ -519,11 +527,6 @@ __attribute__ ((section(".misc_param"))) = {
 };
 
 #define DEV_FIP_SIZE	0x300000
-#ifdef ADVANCE_DDRFIP_SIZE
-#define DDR_FIP_SIZE	ADVANCE_DDRFIP_SIZE
-#else
-#define DDR_FIP_SIZE	0x40000
-#endif
 /* for all the storage parameter */
 #ifdef CONFIG_MTD_SPI_NAND
 /* for spinand storage parameter */
@@ -532,7 +535,7 @@ storage_parameter_t __store_para __attribute__ ((section(".store_param"))) = {
 		.version = 0x01,
 		.device_fip_container_size = DEV_FIP_SIZE,
 		.device_fip_container_copies = 4,
-		.ddr_fip_container_size = DDR_FIP_SIZE,
+		.ddr_fip_container_size = BOARD_DDRFIP_SIZE,
 	},
 	.nand				= {
 		.version = 0x02,

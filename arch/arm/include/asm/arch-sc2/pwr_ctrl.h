@@ -6,7 +6,7 @@
 #define PWR_ON    1
 #define PWR_OFF   0
 
-#define PM_DSP              0
+#define PM_DSPA             0
 #define PM_DOS_HCODEC       1
 #define PM_DOS_HEVC         2
 #define PM_DOS_VDEC         3

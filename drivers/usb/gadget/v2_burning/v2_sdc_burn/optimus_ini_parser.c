@@ -80,6 +80,10 @@ int _optimus_parse_buf_2_lines(char* pTextBuf, const unsigned textSz,
         unsigned i = 0;
         unsigned lineNum = 0;
 
+	if (textSz > (1 << 20)) {
+		DWN_ERR("ini file > 1M cannot supported now\n");
+		return -__LINE__;
+	}
         pTextBuf[textSz] = '\0';
         //loop to seprate buffer to lines
         for (i = 0; i < textSz ; i++, ++pTemp)

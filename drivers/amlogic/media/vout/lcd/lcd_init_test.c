@@ -494,7 +494,7 @@ static void edp_tx_init(int index)
 
 	// Fast Link train
 	dptx_link_fast_training(index);
-	//dptx_dpcd_dump();
+	//dptx_DPCD_dump();
 
 	dptx_set_msa(index);
 	writel(1, ENCL_VIDEO_EN + offset);

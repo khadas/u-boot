@@ -85,7 +85,7 @@ static inline  unsigned int cvbs_read_vcbus(unsigned int addr_offset)
 	if (addr_offset > 0x10000)
 		val = *(volatile unsigned int *)(CVBS_REG_ADDR(addr_offset));
 	else
-		val = *(volatile unsigned int *)(CVBS_REG_ADDR_VCBUS(addr_offset));
+		printf("cvbsout addr_offset not correct\n");
 	return val;
 }
 
@@ -94,7 +94,7 @@ static inline  int cvbs_write_vcbus(unsigned int addr_offset, unsigned int value
 	if (addr_offset > 0x10000)
 		*(volatile unsigned int *)CVBS_REG_ADDR(addr_offset) = (value);
 	else
-		*(volatile unsigned int *)CVBS_REG_ADDR_VCBUS(addr_offset) = (value);
+		printf("cvbsout addr_offset not correct\n");
 	return 0;
 }
 

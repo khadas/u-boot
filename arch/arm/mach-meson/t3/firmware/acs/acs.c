@@ -18,9 +18,10 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
+
 #include <version.h>
-#include <asm/arch/acs.h>
 #include <asm/arch/timing.h>
+#include <asm/arch/acs.h>
 #include "timing.c"
 
 dev_param_hdr_t __param_hdr __attribute__ ((section(".dev_header"))) = {
@@ -28,18 +29,24 @@ dev_param_hdr_t __param_hdr __attribute__ ((section(".dev_header"))) = {
 	.version = DEV_PARAM_VERSION,
 
 	.bl2_regs_magic = "bl2r_",
-	.bl2_regs_length = sizeof(__bl2_reg),
+	//.bl2_regs_length = sizeof(__bl2_reg),
+	.bl2_regs_length = sizeof(__bl2_ddr_reg_data),
+	.bl2_regs_sta = &__bl2_ddr_reg_data[0],
 
 	.board_clk_magic = "bclk_",
 	.board_clk_length = sizeof(__board_clk_setting),
+	.board_clk_sta = &__board_clk_setting,
 
 	.opt_reg_magic = "ops__",
 	.opt_reg_length = sizeof(__bl2_ops_reg),
+	.opt_reg_sta = &__bl2_ops_reg[0],
 
 	.sto_set_magic = "store",
 	.sto_set_length = sizeof(__store_para),
+	.sto_set_sta = &__store_para,
 
 	.ddr_set_magic = "ddrs_",
 	.ddr_set_length = sizeof(__ddr_setting),
+	.ddr_set_sta = &__ddr_setting[0],
 };
 

@@ -26,6 +26,7 @@ static unsigned int lcd_debug_test_flag;
 struct aml_lcd_data_s *lcd_data;
 static struct aml_lcd_drv_s *lcd_driver[LCD_MAX_DRV];
 static struct lcd_debug_ctrl_s debug_ctrl;
+static char *g_dt_addr;
 //static int lcd_poweron_suspend = 1;
 char *lcd_pm_name[LCD_MAX_DRV] = {"lcd_drv0_pm", "lcd_drv1_pm", "lcd_drv2_pm"};
 
@@ -466,8 +467,7 @@ static void lcd_module_enable(struct aml_lcd_drv_s *pdrv, char *mode, unsigned i
 	}
 
 	sync_duration = pconf->timing.sync_duration_num;
-	sync_duration = (sync_duration * 100 /
-			 pconf->timing.sync_duration_den);
+	sync_duration = (sync_duration * 100) / pconf->timing.sync_duration_den;
 	LCDPR("[%d]: enable: %s, %s, %ux%u@%u.%02uHz\n",
 	      pdrv->index, pconf->basic.model_name,
 	      lcd_type_type_to_str(pconf->basic.lcd_type),
@@ -793,6 +793,11 @@ static void lcd_update_debug_bootargs(void)
 	env_set("lcd_debug", ctrl_str);
 }
 
+char *lcd_get_dt_addr(void)
+{
+	return g_dt_addr;
+}
+
 static int lcd_config_probe(void)
 {
 	int load_id = 0, load_id_lcd, load_id_temp;
@@ -811,6 +816,7 @@ static int lcd_config_probe(void)
 	dt_addr = (char *)0x06000000;
 #endif
 
+	g_dt_addr = dt_addr;
 #ifdef CONFIG_OF_LIBFDT
 	if (fdt_check_header(dt_addr) < 0) {
 		LCDERR("check dts: %s, load default lcd parameters\n",
@@ -1107,7 +1113,6 @@ void aml_lcd_driver_set_ss(int index, unsigned int level, unsigned int freq,
 			   unsigned int mode)
 {
 	struct aml_lcd_drv_s *pdrv;
-	unsigned int temp;
 	int ret;
 
 	pdrv = lcd_driver_check_valid(index);
@@ -1119,24 +1124,14 @@ void aml_lcd_driver_set_ss(int index, unsigned int level, unsigned int freq,
 		return;
 	}
 
-	temp = pdrv->config.timing.ss_level;
 	ret = lcd_set_ss(pdrv, level, freq, mode);
 	if (ret == 0) {
-		if (level < 0xff) {
-			temp &= ~(0xff);
-			temp |= level;
-			pdrv->config.timing.ss_level = temp;
-		}
-		if (freq < 0xff) {
-			temp &= ~((0xf << LCD_CLK_SS_BIT_FREQ) << 8);
-			temp |= ((freq << LCD_CLK_SS_BIT_FREQ) << 8);
-			pdrv->config.timing.ss_level = temp;
-		}
-		if (mode < 0xff) {
-			temp &= ~((0xf << LCD_CLK_SS_BIT_MODE) << 8);
-			temp |= ((mode << LCD_CLK_SS_BIT_MODE) << 8);
-			pdrv->config.timing.ss_level = temp;
-		}
+		if (level < 0xff)
+			pdrv->config.timing.ss_level = level;
+		if (freq < 0xff)
+			pdrv->config.timing.ss_freq = freq;
+		if (mode < 0xff)
+			pdrv->config.timing.ss_mode = mode;
 	}
 }
 
@@ -1234,28 +1229,40 @@ void aml_lcd_vbyone_rst(int index)
 	lcd_vbyone_rst(pdrv);
 }
 
-void aml_lcd_vbyone_cdr(int index)
+int aml_lcd_vbyone_cdr(int index)
 {
 	struct aml_lcd_drv_s *pdrv;
 
 	pdrv = lcd_driver_check_valid(index);
 	if (!pdrv)
-		return;
+		return -1;
 
-	lcd_vbyone_cdr(pdrv);
+	return lcd_vbyone_cdr(pdrv);
 }
 
-void aml_lcd_edp_edid(int index)
+int aml_lcd_vbyone_lock(int index)
+{
+	struct aml_lcd_drv_s *pdrv;
+
+	pdrv = lcd_driver_check_valid(index);
+	if (!pdrv)
+		return -1;
+
+	return lcd_vbyone_lock(pdrv);
+}
+
+int aml_lcd_edp_debug(int index, char *str, int num)
 {
 #ifdef CONFIG_AML_LCD_TABLET
 	struct aml_lcd_drv_s *pdrv;
 
 	pdrv = lcd_driver_check_valid(index);
 	if (!pdrv)
-		return;
+		return -1;
 
-	dptx_edid_dump(pdrv);
+	return eDP_debug_test(pdrv, str, num);
 #endif
+	return -1;
 }
 
 void aml_lcd_driver_ext_info(int index)

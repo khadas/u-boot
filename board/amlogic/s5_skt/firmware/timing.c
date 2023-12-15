@@ -4280,45 +4280,46 @@ __attribute__ ((section(".clk_param"))) = {
 #define VCCK_A_VAL                              AML_VDD_CPUA_INIT_VOLTAGE
 #define VCCK_B_VAL                              AML_VDD_CPUB_INIT_VOLTAGE
 #define VDD_GPU_VAL                             AML_VDDGPU_INIT_VOLTAGE
+#define VDD_NPU_VAL                             AML_VDDNPU_INIT_VOLTAGE
 
 /* VDDEE_VAL_REG skt board by  measured  value */
-#if   (VDDEE_VAL == 680)
+#if   (VDDEE_VAL == 720)
 #define VDDEE_VAL_REG   0x120000
-#elif (VDDEE_VAL == 690)
-#define VDDEE_VAL_REG   0x110001
-#elif (VDDEE_VAL == 700)
-#define VDDEE_VAL_REG   0x100002
-#elif (VDDEE_VAL == 710)
-#define VDDEE_VAL_REG   0xf0003
-#elif (VDDEE_VAL == 720)
-#define VDDEE_VAL_REG   0xe0004
 #elif (VDDEE_VAL == 730)
-#define VDDEE_VAL_REG   0xd0005
+#define VDDEE_VAL_REG   0x110001
 #elif (VDDEE_VAL == 740)
-#define VDDEE_VAL_REG   0xc0006
+#define VDDEE_VAL_REG   0x100002
 #elif (VDDEE_VAL == 750)
-#define VDDEE_VAL_REG   0xb0007
+#define VDDEE_VAL_REG   0xf0003
 #elif (VDDEE_VAL == 760)
-#define VDDEE_VAL_REG   0xa0008
+#define VDDEE_VAL_REG   0xe0004
 #elif (VDDEE_VAL == 770)
-#define VDDEE_VAL_REG   0x90009
+#define VDDEE_VAL_REG   0xd0005
 #elif (VDDEE_VAL == 780)
-#define VDDEE_VAL_REG   0x8000a
+#define VDDEE_VAL_REG   0xc0006
 #elif (VDDEE_VAL == 790)
-#define VDDEE_VAL_REG   0x7000b
+#define VDDEE_VAL_REG   0xb0007
 #elif (VDDEE_VAL == 800)
-#define VDDEE_VAL_REG   0x6000c
+#define VDDEE_VAL_REG   0xa0008
 #elif (VDDEE_VAL == 810)
-#define VDDEE_VAL_REG   0x5000d
+#define VDDEE_VAL_REG   0x90009
 #elif (VDDEE_VAL == 820)
-#define VDDEE_VAL_REG   0x4000e
+#define VDDEE_VAL_REG   0x8000a
 #elif (VDDEE_VAL == 830)
-#define VDDEE_VAL_REG   0x3000f
+#define VDDEE_VAL_REG   0x7000b
 #elif (VDDEE_VAL == 840)
-#define VDDEE_VAL_REG   0x20010
+#define VDDEE_VAL_REG   0x6000c
 #elif (VDDEE_VAL == 850)
-#define VDDEE_VAL_REG   0x10011
+#define VDDEE_VAL_REG   0x5000d
 #elif (VDDEE_VAL == 860)
+#define VDDEE_VAL_REG   0x4000e
+#elif (VDDEE_VAL == 870)
+#define VDDEE_VAL_REG   0x3000f
+#elif (VDDEE_VAL == 880)
+#define VDDEE_VAL_REG   0x20010
+#elif (VDDEE_VAL == 890)
+#define VDDEE_VAL_REG   0x10011
+#elif (VDDEE_VAL == 900)
 #define VDDEE_VAL_REG   0x12
 #else
 #error "VDDEE val out of range\n"
@@ -4517,6 +4518,49 @@ __attribute__ ((section(".clk_param"))) = {
 #error "VDD_GPU val out of range\n"
 #endif
 
+/* VDD_NPU PWM table */
+#if   (VDD_NPU_VAL == 690)
+#define VDD_NPU_VAL_REG 0x120000
+#elif (VDD_NPU_VAL == 700)
+#define VDD_NPU_VAL_REG 0x110001
+#elif (VDD_NPU_VAL == 710)
+#define VDD_NPU_VAL_REG 0x100002
+#elif (VDD_NPU_VAL == 720)
+#define VDD_NPU_VAL_REG 0xf0003
+#elif (VDD_NPU_VAL == 730)
+#define VDD_NPU_VAL_REG 0xe0004
+#elif (VDD_NPU_VAL == 740)
+#define VDD_NPU_VAL_REG 0xd0005
+#elif (VDD_NPU_VAL == 750)
+#define VDD_NPU_VAL_REG 0xc0006
+#elif (VDD_NPU_VAL == 760)
+#define VDD_NPU_VAL_REG 0xb0007
+#elif (VDD_NPU_VAL == 770)
+#define VDD_NPU_VAL_REG 0xa0008
+#elif (VDD_NPU_VAL == 780)
+#define VDD_NPU_VAL_REG 0x90009
+#elif (VDD_NPU_VAL == 790)
+#define VDD_NPU_VAL_REG 0x8000a
+#elif (VDD_NPU_VAL == 800)
+#define VDD_NPU_VAL_REG 0x7000b
+#elif (VDD_NPU_VAL == 810)
+#define VDD_NPU_VAL_REG 0x6000c
+#elif (VDD_NPU_VAL == 820)
+#define VDD_NPU_VAL_REG 0x5000d
+#elif (VDD_NPU_VAL == 830)
+#define VDD_NPU_VAL_REG 0x4000e
+#elif (VDD_NPU_VAL == 840)
+#define VDD_NPU_VAL_REG 0x3000f
+#elif (VDD_NPU_VAL == 850)
+#define VDD_NPU_VAL_REG 0x20010
+#elif (VDD_NPU_VAL == 860)
+#define VDD_NPU_VAL_REG 0x10011
+#elif (VDD_NPU_VAL == 870)
+#define VDD_NPU_VAL_REG 0x12
+#else
+#error "VDD_NPU val out of range\n"
+#endif
+
 bl2_reg_t __bl2_reg[] __attribute__ ((section(".generic_param"))) = {
 	//hxbao, need fine tune
 	{ 0, 0, 0xffffffff, 0, 0, 0 },
@@ -4536,6 +4580,7 @@ __attribute__ ((section(".misc_param"))) = {
 	{ PWMAB_PWM_A,		   VCCK_B_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_A,		   VDD_GPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMCD_PWM_B,		   VCCK_A_VAL_REG,  0xffffffff, 0, 0, 0 },
+	{ PWMEF_PWM_A,		   VDD_NPU_VAL_REG,  0xffffffff, 0, 0, 0 },
 	{ PWMAB_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),
 				(0x3 << 0) | (0x1 << 15) | (0x1 << 23), 0, 0, 0 },
 	{ PWMCD_MISC_REG_AB, (0x3 << 0) | (0x1 << 15) | (0x1 << 23),

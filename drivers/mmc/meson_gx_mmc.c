@@ -480,12 +480,19 @@ static void mmc_setup_desc(struct udevice *dev, struct mmc_cmd *cmd,
 			desc_cur += desc_cnt;
 	} else {
 		*meson_mmc_cmd &= ~CMD_CFG_DATA_IO;
+		/* commands these excludes erase and data use 4ms timeout  */
+		*meson_mmc_cmd |= (2 << 12);
 	}
 
 	meson_mmc_cmd = &(desc_cur->cmd_info);
-	/* It takes longer to erase large amounts of data */
-	if (cmd->cmdidx != MMC_CMD_ERASE)
-		*meson_mmc_cmd |= CMD_CFG_TIMEOUT_4S;
+	/*
+	 * It takes longer to erase large amounts of data
+	 * and stop transmission and switch
+	 */
+	if (cmd->cmdidx == MMC_CMD_ERASE ||
+	    cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION ||
+	    cmd->cmdidx == MMC_CMD_SWITCH)
+		*meson_mmc_cmd |= (15 << 12);
 	*meson_mmc_cmd |= CMD_CFG_END_OF_CHAIN;
 }
 
@@ -524,13 +531,15 @@ static int meson_mmc_desc_transfer(struct udevice *dev, struct mmc_cmd *cmd,
 	return 0;
 }
 
+#define EMMC_MAX_DATA_ERASE_TIMEOUT		(30000)
+#define EMMC_NORAML_CMD_NO_ERASE_DATA_TIMEOUT	(4)
 static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 				 struct mmc_data *data)
 {
 	struct meson_mmc_platdata *pdata = dev_get_platdata(dev);
 	struct mmc *mmc = &pdata->mmc;
+	ulong start, timeout = EMMC_MAX_DATA_ERASE_TIMEOUT;
 	uint32_t status;
-	ulong start;
 	int ret = 0;
 
 	/* max block size supported by chip is 512 byte */
@@ -549,29 +558,37 @@ static int meson_dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	ret = meson_mmc_desc_transfer(dev, cmd, data);
 #endif
 
-	/* use 30s timeout */
+	if (!data && cmd->cmdidx != MMC_CMD_ERASE &&
+	    cmd->cmdidx != MMC_CMD_STOP_TRANSMISSION &&
+	    cmd->cmdidx != MMC_CMD_SWITCH)
+		timeout = EMMC_NORAML_CMD_NO_ERASE_DATA_TIMEOUT;
+
 	start = get_timer(0);
 	do {
 		status = meson_read(mmc, MESON_SD_EMMC_STATUS);
-	} while(!(status & STATUS_END_OF_CHAIN) && get_timer(start) < 30000);
+	} while (!(status & STATUS_END_OF_CHAIN) &&
+		 !(status & STATUS_DESC_TIMEOUT) &&
+		 get_timer(start) < timeout);
 
-	meson_mmc_read_response(mmc, cmd);
-
-	ret = mmc_controller_debug(dev, cmd,status);
 	if (data && data->flags == MMC_DATA_WRITE)
 		free(pdata->w_buf);
 
+	if (!(status & STATUS_END_OF_CHAIN))
+		return -ETIMEDOUT;
+
+	meson_mmc_read_response(mmc, cmd);
+
+	ret = mmc_controller_debug(dev, cmd, status);
 	if (ret) {
-			if (status & STATUS_RESP_TIMEOUT)
-				return -ETIMEDOUT;
-			else
-				return ret;
+		if (status & STATUS_RESP_TIMEOUT)
+			return -ETIMEDOUT;
+		else
+			return ret;
 	}
 
 	if (data && data->dest && data->flags == MMC_DATA_READ)
 		invalidate_dcache_range((ulong)data->dest,
 			(ulong)data->dest + data->blocksize * data->blocks);
-
 
 	return ret;
 }
@@ -1514,6 +1531,9 @@ static int meson_mmc_ofdata_to_platdata(struct udevice *dev)
 		if (ret)
 			return ret;
 	}
+
+	if (aml_card_type_mmc(host) && dev_read_bool(dev, "cap-mmc-hw-reset"))
+		pdata->mmc.enable_mmc_hw_reset = true;
 
 	clk_get_by_name(dev, "clkin", &host->div2);
 	clk_get_by_name(dev, "xtal", &host->xtal);

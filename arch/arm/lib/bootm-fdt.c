@@ -34,7 +34,8 @@ __weak int fdt_update_ethernet_dt(void *blob)
 int arch_fixup_fdt(void *blob)
 {
 	__maybe_unused int ret = 0;
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_OF_LIBFDT)
+#if ((defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_OF_LIBFDT)) && \
+		!defined(CONFIG_ARCH_MESON))
 	bd_t *bd = gd->bd;
 	int bank;
 	u64 start[CONFIG_NR_DRAM_BANKS];

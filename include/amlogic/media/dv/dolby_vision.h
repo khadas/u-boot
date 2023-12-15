@@ -22,6 +22,8 @@
 #define DOLBY_VISION_SET_LL_YUV     "2"
 #define DOLBY_VISION_SET_LL_RGB     "3"
 
+#define DOLBY_VISION_FORCE_HDR        "3"
+
 enum vpp_matrix_sel_e {
 	VPP_MATRIX_0 = 0,	/* OSD convert matrix - new from GXL */
 	VPP_MATRIX_1,		/* vd1 matrix before post-blend */

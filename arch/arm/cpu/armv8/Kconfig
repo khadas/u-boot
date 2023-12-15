@@ -189,6 +189,10 @@ config ARMV8_CE_SHA256
 	bool "SHA-256 digest algorithm (ARMv8 Crypto Extensions)"
 	default y if SHA256
 
+config ARMV8_CE_AES
+	bool "AES cipher algorithm (ARMv8 Crypto Extensions)"
+	default y if AES
+
 endif
 
 endif

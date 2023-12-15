@@ -276,7 +276,7 @@ static void edid_set_fallback_mode(struct rx_cap *prxcap)
 
 	/* EDID extended blk chk error, set the 720p60, rgb,8bit */
 	prxcap->IEEEOUI = HDMI_IEEEOUI;
-	prxcap->Max_TMDS_Clock1 = 0x1e; /* 150MHZ / 5 */
+	prxcap->Max_TMDS_Clock1 = DEFAULT_MAX_TMDS_CLK; /* 165MHZ / 5 */
 	prxcap->native_Mode = 0; /* only RGB */
 	prxcap->dc_y444 = 0; /* only 8bit */
 	prxcap->VIC_count = 0x3;
@@ -937,7 +937,8 @@ static void hdmitx_edid_parse_hdmi14(struct rx_cap *prxcap,
 		prxcap->ColorDeepSupport);
 	if (count > 5)
 		set_vsdb_dc_cap(prxcap);
-	prxcap->Max_TMDS_Clock1 = (count > 6) ? (unsigned long)blockbuf[offset + 6] : 0;
+	prxcap->Max_TMDS_Clock1 =
+		(count > 6) ? (unsigned long)blockbuf[offset + 6] : DEFAULT_MAX_TMDS_CLK;
 	if (count > 7) {
 		tmp = blockbuf[offset + 7];
 		idx = offset + 8;
@@ -1083,7 +1084,7 @@ static int hdmitx_edid_cta_block_parse(struct rx_cap *prxcap,
 /* Just record VFPDB offset address, call edid_parsingvfpdb() after DTD
  * parsing, in case that
  * SVR >=129 and SVR <=144, Interpret as the Kth DTD in the EDID,
- * where K = SVR – 128 (for K=1 to 16)
+ * where K = SVR - 128 (for K=1 to 16)
  */
 					vfpdb_offset = &blockbuf[offset];
 					break;
@@ -1177,7 +1178,7 @@ static void check_dv_truly_support(struct rx_cap *prxcap, struct dv_info *dv)
 		} else {
 			/* Default min is 74.25 / 5 */
 			if (prxcap->Max_TMDS_Clock1 < 0xf)
-				prxcap->Max_TMDS_Clock1 = 0x1e;
+				prxcap->Max_TMDS_Clock1 = DEFAULT_MAX_TMDS_CLK;
 			max_tmds_clk = prxcap->Max_TMDS_Clock1 * 5;
 		}
 		if (dv->ver == 0)
@@ -1508,13 +1509,12 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	int svd_flag = 0;
 	/* Default max color depth is 24 bit */
 	enum hdmi_color_depth rx_y444_max_dc = HDMI_COLOR_DEPTH_24B;
-	enum hdmi_color_depth rx_y420_max_dc = HDMI_COLOR_DEPTH_24B;
 	enum hdmi_color_depth rx_rgb_max_dc = HDMI_COLOR_DEPTH_24B;
 
 	if (!hdev || !para)
 		return 0;
 
-	if (strcmp(para->sname, "invalid") == 0)
+	if (para->sname && strcmp(para->sname, "invalid") == 0)
 		return 0;
 	/* if current limits to 1080p, here will check the freshrate and
 	 * 4k resolution
@@ -1525,7 +1525,7 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 			return 0;
 		}
 	}
-	if (!is_support_4k() && is_4k_fmt(para->sname))
+	if (!is_support_4k() && para->sname && is_4k_fmt(para->sname))
 		return false;
 	/* exclude such as: 2160p60hz YCbCr444 10bit */
 	switch (para->vic) {
@@ -1571,7 +1571,7 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	} else {
 		/* Default min is 74.25 / 5 */
 		if (prxcap->Max_TMDS_Clock1 < 0xf)
-			prxcap->Max_TMDS_Clock1 = 0x1e;
+			prxcap->Max_TMDS_Clock1 = DEFAULT_MAX_TMDS_CLK;
 		rx_max_tmds_clk = prxcap->Max_TMDS_Clock1 * 5;
 	}
 	/* if current status already limited to 1080p, so here also needs to
@@ -1649,15 +1649,13 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	if (para->cs == HDMI_COLOR_FORMAT_420) {
 		if (!is_rx_support_y420(hdev))
 			return 0;
-		if (prxcap->dc_30bit_420)
-			rx_y420_max_dc = HDMI_COLOR_DEPTH_30B;
-		if (prxcap->dc_36bit_420)
-			rx_y420_max_dc = HDMI_COLOR_DEPTH_36B;
-		if (para->cd <= rx_y420_max_dc)
-			valid = 1;
-		else
-			valid = 0;
-		return valid;
+		if (!prxcap->dc_30bit_420)
+			if (para->cd == HDMI_COLOR_DEPTH_30B)
+				return 0;
+		if (!prxcap->dc_36bit_420)
+			if (para->cd == HDMI_COLOR_DEPTH_36B)
+				return 0;
+		valid = 1;
 	}
 
 	return valid;

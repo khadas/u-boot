@@ -20,32 +20,33 @@ SECTIONS
 	{
 		*(.dev_header*)
 	}
-
-	. = 0x00000100;
+#if 1
+	//. = 0x00000100;
 	.generic_param :
 	{
 		*(.generic_param*)
 	}
 
-	. = 0x0000200;
+	//. = 0x0000200;
 	.clk_param :
 	{
 		*(.clk_param*)
 	}
 
-	. = 0x0000300;
+	//. = 0x0000300;
 	.misc_param :
 	{
 		*(.misc_param*)
 	}
 
-	. = 0x0000500;
+	//. = 0x0000500;
 	.store_param :
 	{
 		*(.store_param*)
 	}
 
-	. = 0x0000600-0x40;//max 0x600-96
+	//. = 0x0000600-0x40;//max 0x600-96
+	//. = 0x0000480;
 	.ddr_param :
 	{
 		*(.ddr_param*)
@@ -56,10 +57,11 @@ SECTIONS
 	{
 		*(.ddr_2acs_index*)
 	}
+	//. = 0x0000d40;
 	.ddr_2acs_data :
 	{
 		*(.ddr_2acs_data*)
 	}
-
+#endif
     ASSERT(. <= 0x00001000, "params image has exceeded its limit.")
 }

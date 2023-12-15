@@ -13,11 +13,7 @@
 #include <video.h>
 #include <amlogic/fb.h>
 #ifdef CONFIG_AML_HDMITX
-#ifdef CONFIG_AML_HDMITX20
-#include <amlogic/media/vout/hdmitx/hdmitx.h>
-#else
-#include <amlogic/media/vout/hdmitx21/hdmitx.h>
-#endif
+#include <amlogic/media/vout/hdmitx21/hdmitx_ext.h>
 #endif
 
 int osd_enabled = 0;
@@ -70,7 +66,7 @@ static int do_osd_close(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 1;
 
 	gdev = NULL;
-	if (index >= VIU2_OSD1) {
+	if (is_vppx(index)) {
 		osd_enable_hw(index, 0);
 		if (get_osd_viux_scale_cap())
 			osd_set_free_scale_enable_hw(index, 0);
@@ -146,6 +142,10 @@ static int do_osd_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		break;
 	case 2:
 		osd_rma_test(simple_strtoul(argv[1], NULL, 10));
+		break;
+	case 3:
+		osd_rma_test_with_addr(simple_strtoul(argv[1], NULL, 16),
+			simple_strtoul(argv[2], NULL, 16));
 		break;
 	default:
 		return CMD_RET_USAGE;
@@ -239,22 +239,17 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 #ifdef CONFIG_AML_HDMITX
 	int st = 0;
-#ifdef CONFIG_AML_HDMITX20
-	struct hdmitx_dev *hdev = hdmitx_get_hdev();
-#else
-	struct hdmitx_dev *hdev = get_hdmitx21_device();
-#endif
 
 	/* detect hdmi plugin or not */
-	run_command("hdmitx hpd", 0);
-	st = hdev->hwop.get_hpd_state();
+	st = hdmitx_get_hpd_state_ext();
 	printf("osd: hpd_state=%c\n", st ? '1' : '0');
 
 	if (st) {
 		/* hdmi plugin, dual logo display
 		 * CONFIG_RECOVERY_DUAL_LOGO is given priority in recovery
 		 */
-		if (!strncmp(env_get("reboot_mode"), "factory_reset", 13)) {
+		if (env_get("reboot_mode") && !strncmp(env_get("reboot_mode"),
+					"factory_reset", 13)) {
 		#if defined(CONFIG_RECOVERY_DUAL_LOGO)
 			run_command(CONFIG_RECOVERY_DUAL_LOGO, 0);
 		#else

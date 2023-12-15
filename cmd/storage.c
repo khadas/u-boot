@@ -197,6 +197,7 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
 	uint64_t align_size, reserved_size = 0, cal_copy = ssp->boot_backups;
+	cpu_id_t cpu_id = get_cpu_id();
 	uint8_t i;
 
 	align_size = ALIGN_SIZE;
@@ -208,11 +209,16 @@ static int storage_boot_layout_rebuild(struct boot_layout *boot_layout,
 	} else if (ssp->boot_device == BOOT_SNAND) {
 		reserved_size = ssp->sip.snasp.layout_reserve_size;
 		align_size = ((NAND_RSV_OFFSET / cal_copy) * ssp->sip.snasp.pagesize);
-	} else 	if (ssp->boot_device == BOOT_EMMC) {
+	} else if (ssp->boot_device == BOOT_EMMC) {
 		ssp->boot_entry[0].offset = boot_entry[0].offset +=
 			BL2_CORE_BASE_OFFSET_EMMC;
 		cal_copy = 1;
+	} else if (ssp->boot_device == BOOT_SNOR &&
+		cpu_id.family_id == MESON_CPU_MAJOR_ID_A4) {
+		ssp->boot_entry[0].offset = boot_entry[0].offset += 0x200;
+		cal_copy = 1;
 	}
+
 	STORAGE_ROUND_UP_IF_UNALIGN(boot_entry[0].size, align_size);
 	ssp->boot_entry[0].size = boot_entry[0].size;
 	printf("ssp->boot_entry[0] offset:0x%x, size:0x%x\n",
@@ -253,15 +259,21 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 	struct storage_startup_parameter *ssp = &g_ssp;
 	boot_area_entry_t *boot_entry = boot_layout->boot_entry;
 	struct storage_boot_entry *sbentry = ssp->boot_entry;
-	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);;
-	p_payload_info_hdr_t hdr = &pInfo->hdr;
-	p_payload_info_item_t pItem = pInfo->arrItems;
+	p_payload_info_t pInfo = parse_uboot_sheader(ubootdata);
+	p_payload_info_hdr_t hdr;
+	p_payload_info_item_t pItem;
 	int offPayload = 0, szPayload = 0;
 	unsigned int bl2e_size = 0, bl2x_size = 0;
 	char name[8] = {0};
 	int nIndex = 0;
 
 	if (need_build == BOOT_ID_USB) {
+		if (!pInfo)
+			return -1;
+
+		hdr = &pInfo->hdr;
+		pItem = pInfo->arrItems;
+
 		for (nIndex = 1, pItem += 1;
 		     nIndex < hdr->byItemNum; ++nIndex, ++pItem) {
 			memcpy(name, &pItem->nMagic, sizeof(unsigned int));
@@ -274,10 +286,8 @@ static int storage_boot_layout_general_setting(struct boot_layout *boot_layout,
 			pr_info("Item[%d]%4s offset 0x%08x sz 0x%x\n",
 			       nIndex, name, offPayload, szPayload);
 		}
+
 		boot_entry[BOOT_AREA_BB1ST].size = ssp->boot_entry[BOOT_AREA_BB1ST].size;
-	#ifdef ADVANCE_DDRFIP_SIZE
-		ssp->boot_entry[BOOT_AREA_DDRFIP].size = ADVANCE_DDRFIP_SIZE;
-	#endif
 		boot_entry[BOOT_AREA_DDRFIP].size = ssp->boot_entry[BOOT_AREA_DDRFIP].size;
 		boot_entry[BOOT_AREA_DEVFIP].size = ssp->boot_entry[BOOT_AREA_DEVFIP].size;
 		storage_boot_layout_rebuild(boot_layout, bl2e_size, bl2x_size);
@@ -375,15 +385,19 @@ static int storage_get_and_parse_ssp(int *need_build) // boot_device:
 			else if (IS_FEAT_DIS_NBL2_SNOR())
 				ssp->boot_backups = 1;
 			else
-				ssp->boot_backups = 2; /* Default 2 backup, consistent with rom */
+				ssp->boot_backups = 1; /* Default 2 backup, consistent with rom */
 			break;
 		case BOOT_SNAND:
+			#ifdef BOARD_BL2EX_BACKUPS
+			ssp->boot_backups = BOARD_BL2EX_BACKUPS;
+			#else
 			if (IS_FEAT_EN_8BL2_SNAND())
 				ssp->boot_backups = 8;
 			else if (IS_FEAT_DIS_NBL2_SNAND())
 				ssp->boot_backups = 1;
 			else
 				ssp->boot_backups = 4; /* Default 4 backup, consistent with rom */
+			#endif
 			sip->snasp.pagesize = current->info.write_unit;
 			sip->snasp.pages_per_eraseblock =
 			current->info.erase_unit / current->info.write_unit;
@@ -439,7 +453,11 @@ int storage_post_init(void)
 	ret = storage_get_and_parse_ssp(&need_build);
 	if (ret < 0)
 		return -1;
-	storage_boot_layout_general_setting(&general_boot_layout, need_build);
+
+	ret = storage_boot_layout_general_setting(&general_boot_layout, need_build);
+	if (ret < 0)
+		return ret;
+
 	storage_boot_layout_debug_info(&general_boot_layout);
 
 	return ret;
@@ -456,6 +474,8 @@ int store_init(u32 init_flag)
 			record |= BIT(i);
 		}
 	}
+
+	pr_info("record = 0x%x\n", record);
 
 	if (!record) {
 		pr_info("No Valid storage device\n");
@@ -1239,7 +1259,7 @@ static int bl2x_mode_check_header(p_payload_info_t pInfo)
 	printf("\tversion : %d\n",hdr->byVersion);
 	printf("\tItemNum : %d\n",nItemNum);
 	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);
-	if (nItemNum > 8 || nItemNum < 3) {
+	if (nItemNum > MAX_BOOT_AREA_ENTRIES || nItemNum < 3) {
 		pr_info("illegal nitem num %d\n", nItemNum);
 		return __LINE__;
 	}
@@ -1274,7 +1294,6 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 	enum boot_type_e medium_type = store_get_type();
 	struct storage_startup_parameter *ssp = &g_ssp;
 
-
 	int ret = 0;
 	struct storage_t *store = store_get_current();
 	int bl2_size = BL2_SIZE;
@@ -1293,7 +1312,7 @@ static int _store_boot_write(const char *part_name, u8 cpy, size_t size, void *a
 
 	if (store_get_device_bootloader_mode() == ADVANCE_BOOTLOADER) {
 		bl2_cpynum = ssp->boot_backups;
-	} else	{
+	} else {
 		bootloader_maxsize = bl2_size + tpl_per_size;
 		bl2_cpynum = CONFIG_BL2_COPY_NUM;
 		if (size > bootloader_maxsize) {
@@ -1581,6 +1600,7 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 			    int flag, int argc, char * const argv[])
 {
 	boot_area_entry_t *boot_entry = general_boot_layout.boot_entry;
+	struct storage_t *store = store_get_current();
 	char bufvir[128];
 	int lenvir, i, re;
 	char *p = bufvir;
@@ -1602,6 +1622,8 @@ static int do_store_param_ops(cmd_tbl_t *cmdtp,
 	p = bufvir;
 	bufvir[strlen(p) - 1] = 0;	/* delete the last comma */
 	env_set("mtdbootparts", p);
+	if (store->type == BOOT_SNAND && store->param_ops)
+		return store->param_ops();
 
 	return 0;
 }

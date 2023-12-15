@@ -67,6 +67,18 @@ struct tee_optee_ta_uuid {
 };
 
 /**
+ * struct tee_optee_uta - struct of user TA
+ * @uuid:	    The user TA uuid
+ * @sz:	        The size of user TA
+ * @ta_payload: The payload of user TA
+ */
+struct tee_optee_uta {
+	struct tee_optee_ta_uuid uuid;
+	size_t sz;
+	void *ta_payload;
+};
+
+/**
  * struct tee_shm - memory shared with the TEE
  * @dev:	The TEE device
  * @link:	List node in the list in struct struct tee_uclass_priv
@@ -371,5 +383,12 @@ void tee_optee_ta_uuid_from_octets(struct tee_optee_ta_uuid *d,
  */
 void tee_optee_ta_uuid_to_octets(u8 d[TEE_UUID_LEN],
 				 const struct tee_optee_ta_uuid *s);
+
+/**
+ * tee_optee_get_uta() - get user ta
+ * @uta:	 user ta table
+ * @uta_num: user ta table size
+ */
+int tee_optee_get_uta(struct tee_optee_uta **uta, size_t *uta_num);
 
 #endif /* __TEE_H */

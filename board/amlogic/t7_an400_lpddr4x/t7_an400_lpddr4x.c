@@ -40,6 +40,7 @@
 #include <amlogic/aml_hdmirx.h>
 #endif
 #include <amlogic/storage.h>
+#include <amlogic/board.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -181,43 +182,79 @@ int board_boot_freertos(void)
 	return 0;
 }
 
+#ifdef CONFIG_MULTI_DTB
+phys_size_t get_ddr_memsize(void)
+{
+	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
+
+	printf("init board ddr size  %llx\n", ddr_size);
+	env_set_hex("board_ddr_size", ddr_size);
+	return ddr_size;
+}
+#endif
+
+void SetCurrentDtbFile(void)
+{
+/* for debian system*/
+#ifdef CONFIG_MULTI_DTB
+	cpu_id_t cpu_id;
+	char fdtfile_name[64] = {0};
+	phys_size_t ddr_size = get_ddr_memsize();
+
+	fdtfile_name[0] = '\0';
+	cpu_id = get_cpu_id();
+
+	switch (ddr_size) {
+	case CONFIG_T7_4G_SIZE:
+		if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
+			#ifdef CONFIG_HDMITX_ONLY
+			strncpy(fdtfile_name,
+				"t7_a311d2_an400_drm_hdmitx_only_debian.dtb\0",
+				sizeof(fdtfile_name));
+			#else
+			strncpy(fdtfile_name,
+					"t7_a311d2_an400_debian.dtb\0",
+					sizeof(fdtfile_name));
+			#endif
+		} else if (cpu_id.chip_rev == 0xC) {
+			#ifdef CONFIG_HDMITX_ONLY
+			strncpy(fdtfile_name,
+				"t7c_a311d2_an400_linux_drm_hdmitx_only_debian.dtb\0",
+				sizeof(fdtfile_name));
+			#else
+			strncpy(fdtfile_name,
+					"t7c_a311d2_an400_debian.dtb\0",
+					sizeof(fdtfile_name));
+			#endif
+		}
+		break;
+	default:
+		printf("DDR size: 0x%llx, multi-dt doesn't support, ", ddr_size);
+		break;
+	}
+
+	if (fdtfile_name[0] != '\0')
+		env_set("fdtfile", fdtfile_name);
+
+	printf("Default fdtfile: %s\n", fdtfile_name);
+#endif
+}
+
 int board_late_init(void)
 {
 	printf("board late init\n");
 
-	//default uboot env need before anyone use it
-	if (env_get("default_env")) {
-		printf("factory reset, need default all uboot env.\n");
-		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
-	}
+	aml_board_late_init_front(NULL);
 
-	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
-			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
-	board_init_mem();
-	run_command("run bcb_cmd", 0);
+#ifdef CONFIG_T7_AN400_LPDDR4X_DEBIAN
+	/* Select fdtfile */
+	SetCurrentDtbFile();
+
+	/* Set boot source*/
+	board_set_boot_source();
+#endif
+
 	board_boot_freertos();
-#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
-	if ( run_command("run common_dtb_load", 0) ) {
-		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
-		run_command("if test ${reboot_mode} = fastboot; then "\
-			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
-	}
-
-	//load dtb here then users can directly use 'fdt' command
-	run_command("if fdt addr ${dtb_mem_addr}; then "\
-		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
-
-#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
-
-#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
-	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
-	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
-#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
-	{ aml_v3_factory_usb_burning(0, gd->bd); }
-#endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -238,34 +275,6 @@ int board_late_init(void)
 	lcd_probe();
 #endif
 
-	unsigned char chipid[16];
-
-	memset(chipid, 0, 16);
-
-	if (get_chip_id(chipid, 16) != -1) {
-		char chipid_str[32];
-		int i, j;
-		char buf_tmp[4];
-
-		memset(chipid_str, 0, 32);
-
-		char *buff = &chipid_str[0];
-
-		for (i = 0, j = 0; i < 12; ++i) {
-			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
-			if (strcmp(buf_tmp, "00") != 0) {
-				sprintf(buff + j, "%02x", chipid[15 - i]);
-				j = j + 2;
-			}
-		}
-		env_set("cpu_id", chipid_str);
-		printf("buff: %s\n", buff);
-	} else {
-		env_set("cpu_id", "1234567890");
-	}
-	run_command("amlsecurecheck", 0);
-	run_command("update_tries", 0);
-
 	/* The board id is used to determine if the NN needs to adjust voltage */
 	switch (readl(SYSCTRL_SEC_STATUS_REG4) >> 8 & 0xff) {
 	case 2:
@@ -277,6 +286,7 @@ int board_late_init(void)
 		env_set_ulong("nn_adj_vol", 0);
 	}
 
+	aml_board_late_init_tail(NULL);
 	return 0;
 }
 
@@ -498,27 +508,13 @@ const struct mtd_partition *get_partition_table(int *partitions)
 }
 #endif /* CONFIG_SPI_NAND */
 
-#ifdef CONFIG_MULTI_DTB
-phys_size_t get_ddr_memsize(void)
-{
-	phys_size_t ddr_size = (((readl(SYSCTRL_SEC_STATUS_REG4)) & ~0xffffUL) << 4);
-
-	printf("init board ddr size  %llx\n", ddr_size);
-	env_set_hex("board_ddr_size", ddr_size);
-	return ddr_size;
-}
-#endif
-
 int checkhw(char * name)
 {
 #ifdef CONFIG_MULTI_DTB
 	cpu_id_t cpu_id;
-
 	char loc_name[64] = {0};
-	char fdtfile_name[64] = {0};
 	phys_size_t ddr_size = get_ddr_memsize();
 
-	fdtfile_name[0] = '\0';
 	cpu_id = get_cpu_id();
 
 	switch (ddr_size) {
@@ -526,29 +522,14 @@ int checkhw(char * name)
 		if (cpu_id.chip_rev == 0xA || cpu_id.chip_rev == 0xb) {
 			#ifdef CONFIG_HDMITX_ONLY
 			strcpy(loc_name, "t7_a311d2_an400-hdmitx-only\0");
-
-			/* for debian */
-			strncpy(fdtfile_name,
-				"t7_a311d2_an400_drm_hdmitx_only_debian.dtb\0",
-				sizeof(fdtfile_name));
 			#else
 			strcpy(loc_name, "t7_a311d2_an400\0");
-			/* for debian */
-			strncpy(fdtfile_name,
-					"t7_a311d2_an400_debian.dtb\0",
-					sizeof(fdtfile_name));
 			#endif
 		} else if (cpu_id.chip_rev == 0xC) {
 			#ifdef CONFIG_HDMITX_ONLY
 			strcpy(loc_name, "t7c_a311d2_an400-hdmitx-only-4g\0");
-			strncpy(fdtfile_name,
-				"t7c_a311d2_an400_linux_drm_hdmitx_only_debian.dtb\0",
-				sizeof(fdtfile_name));
 			#else
 			strcpy(loc_name, "t7c_a311d2_an400-4g\0");
-			strncpy(fdtfile_name,
-					"t7c_a311d2_an400_debian.dtb\0",
-					sizeof(fdtfile_name));
 			#endif
 		}
 		break;
@@ -575,10 +556,6 @@ int checkhw(char * name)
 	printf("init aml_dt to %s\n", loc_name);
 	strcpy(name, loc_name);
 	env_set("aml_dt", loc_name);
-	if (fdtfile_name[0] != '\0')
-		env_set("fdtfile", fdtfile_name);
-	else
-		strcpy(name, env_get("aml_dt"));
 #else
 	env_set("aml_dt", "t7_a311d2_an400\0");
 #endif
@@ -591,6 +568,10 @@ const char * const _env_args_reserve_[] =
 	"lock",
 	"upgrade_step",
 	"bootloader_version",
+	"dts_to_gpt",
+	"fastboot_step",
+	"reboot_status",
+	"expect_index",
 
 	NULL//Keep NULL be last to tell END
 };

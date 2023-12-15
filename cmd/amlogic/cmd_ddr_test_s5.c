@@ -28,6 +28,7 @@ struct ddr_base_address_table {
 	unsigned int	chip_id;
 	unsigned int	preg_sticky_reg0;
 	unsigned int	ddr_phy_base_address;
+	unsigned int	ddr_dmc_base_address;
 	unsigned int	ddr_pctl_timing_base_address;
 	unsigned int	ddr_pctl_timing_end_address;
 	unsigned int	ddr_dmc_sticky0;
@@ -44,6 +45,7 @@ struct ddr_base_address_table {
 
 	unsigned int	ddr_dmc_sticky0_1;
 	unsigned int	ddr_phy_base_address_1;
+	unsigned int	ddr_dmc_base_address_1;
 	unsigned int	ddr_pctl_timing_base_address_1;
 	unsigned int	ddr_pctl_timing_end_address_1;
 	unsigned int	ddr_dmc_apd_address_1;
@@ -88,6 +90,38 @@ typedef struct  ddr_base_address_table ddr_base_address_table_t;
 #ifdef MESON_CPU_MAJOR_ID_S5
 #undef MESON_CPU_MAJOR_ID_S5
 #define MESON_CPU_MAJOR_ID_S5                   0x3e
+#else
+#define MESON_CPU_MAJOR_ID_S5                   0x3e
+#endif
+#ifdef MESON_CPU_MAJOR_ID_GXLX3
+#undef MESON_CPU_MAJOR_ID_GXLX3
+#define MESON_CPU_MAJOR_ID_GXLX3                  0x3f
+#else
+#define MESON_CPU_MAJOR_ID_GXLX3                  0x3f
+#endif
+#ifdef MESON_CPU_MAJOR_ID_A4
+#undef MESON_CPU_MAJOR_ID_A4
+#define MESON_CPU_MAJOR_ID_A4                 0x40
+#else
+#define MESON_CPU_MAJOR_ID_A4                  0x40
+#endif
+#ifdef MESON_CPU_MAJOR_ID_T5M
+#undef MESON_CPU_MAJOR_ID_T5M
+#define MESON_CPU_MAJOR_ID_T5M                   0x41
+#else
+#define MESON_CPU_MAJOR_ID_T5M                   0x41
+#endif
+#ifdef MESON_CPU_MAJOR_ID_T3X
+#undef MESON_CPU_MAJOR_ID_T3X
+#define MESON_CPU_MAJOR_ID_T3X                   0x42
+#else
+#define MESON_CPU_MAJOR_ID_T3X                   0x42
+#endif
+#ifdef MESON_CPU_MAJOR_ID_TXHD2
+#undef MESON_CPU_MAJOR_ID_TXHD2
+#define MESON_CPU_MAJOR_ID_TXHD2			0x44
+#else
+#define MESON_CPU_MAJOR_ID_TXHD2			0x44
 #endif
 #define MESON_CPU_VERSION_LVL_MAJOR     0
 #define MESON_CPU_VERSION_LVL_MINOR     1
@@ -120,7 +154,7 @@ int ddr_get_chip_id(void)
 	return soc_family_id;
 }
 
-char CMD_VER[] = "Ver_14";
+char CMD_VER[] = "Ver_15";
 ddr_base_address_table_t __ddr_base_address_table[] = {
 	//g12a
 	{
@@ -128,6 +162,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_G12A,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -146,6 +181,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_G12B,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -164,6 +200,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_TL1,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -182,6 +219,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_SM1,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -200,6 +238,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_TM2,
 		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)), //PREG_STICKY_G12A_REG0
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = 0xff638800,
@@ -220,6 +259,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//use sram  A1,((0x00b0  << 2) + 0xfe005800),
 		//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfd020000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfd020400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfd020400),
 		.ddr_dmc_sticky0 = 0xfd020800,
@@ -230,6 +270,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),
 		//SYSCTRL_SEC_STICKY_REG1
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097  << 2) + 0xfd020400),
 		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c1
@@ -239,6 +280,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.preg_sticky_reg0 = 0xfffff400,
 		//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfd000000,
+		.ddr_dmc_base_address = 0xfe024000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe024400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe024400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe024800),
@@ -250,6 +292,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.sys_watchdog_enable_value = 0x03c401ff,
 		.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe005800),
 		//SYSCTRL_SEC_STICKY_REG1
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 		.ee_timer_base_address = ((0x0041 << 2) + 0xfe005800),
 	},
 	//c2
@@ -259,6 +302,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe024800),
 		//use sram  A1,((0x00b0  << 2) + 0xfe005800),//SYSCTRL_STICKY_REG0
 		.ddr_phy_base_address = 0xfd000000,
+		.ddr_dmc_base_address = 0xfe024000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe024400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe024400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe024800),
@@ -281,6 +325,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_SC2,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800), //
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = 0xfe036800,
@@ -291,7 +336,8 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
-		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 	},
 	//T5
 	{
@@ -299,13 +345,14 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T5,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
 		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
 		//#define SEC_AO_RTI_STATUS_REG3
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -323,13 +370,13 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T5D,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
 		.ddr_boot_reason_address = (0xff800000 + (0x003 << 2)),
-		//#define SEC_AO_RTI_STATUS_REG3
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -348,6 +395,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T7,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800), //
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = ((0x200 << 2) + 0xfe036000),
@@ -366,6 +414,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -379,14 +428,15 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_S4,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe036c00),
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
-		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384,zhiguang confirm
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -404,6 +454,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_T3,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -411,7 +462,6 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -420,12 +470,14 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
 		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
 		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
 		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -439,6 +491,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_P1,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
@@ -446,7 +499,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -459,8 +512,9 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
 		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
 		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
 		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
 		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
@@ -474,6 +528,7 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		.chip_id = MESON_CPU_MAJOR_ID_S5,
 		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
 		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
 		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
 		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
 		.ddr_dmc_sticky0 = ((0x200 << 2) + 0xfe036000),
@@ -481,7 +536,218 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		//AM_DDR_PLL_CNTL0//
 		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
 		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
-		//.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe024400),
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197 << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe032000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe032400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe032400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe032000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe032000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
+	},
+//gxlx3
+	{
+		.soc_family_name = "GXLX3",
+		.chip_id = MESON_CPU_MAJOR_ID_GXLX3,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xc8838800),
+		.ddr_phy_base_address = 0xc8860000,
+		.ddr_dmc_base_address = 0xfe036000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xc8839000),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xc8839000),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xc8838800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xc886a000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xc8839000),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xc8839000),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097  << 2) + 0xc8839000),
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xc8839000),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xc8838000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+	},
+//A4
+	{
+		.soc_family_name = "A4",
+		.chip_id = MESON_CPU_MAJOR_ID_A4,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197  << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+	},
+//t5m
+	{
+		.soc_family_name = "T5M",
+		.chip_id = MESON_CPU_MAJOR_ID_T5M,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197  << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe034000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
+	},
+	//t3X
+	{
+		.soc_family_name = "T3X",
+		.chip_id = MESON_CPU_MAJOR_ID_T3X,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xfe036400),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xfe036400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0197  << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xfe036400),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+
+		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
+		.ddr_phy_base_address_1 = 0xfb000000,
+		.ddr_dmc_base_address_1 = 0xfe032000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe032400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe032400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe032000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe032000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
+	},
+//txhd2
+	{
+		.soc_family_name = "TXHD2",
+		.chip_id = MESON_CPU_MAJOR_ID_TXHD2,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xff638800),
+		.ddr_phy_base_address = 0xfe000000,
+		.ddr_dmc_base_address = 0xff638000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xff638800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfe00a000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+
+		.sys_watchdog_add = 0,
+		.sys_watchdog_enable_value = 0x03c401ff,
+		.ee_timer_base_address = ((0x003b << 2) + 0xfe010000),
+		//SYSCTRL_TIMERE                             ((0x003b  << 2) + 0xfe010000)
+		.ee_pwm_base_address = ((0x001 << 2) + 0xff807000),     //AO_PWM_PWM_B
+		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),    //DMC_DRAM_APD_CTRL
+		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),    //DMC_DRAM_ASR_CTRL
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097  << 2) + 0xff638400),
+		.ddr_dmc_refresh_ctrl_address = ((0x0092 << 2) + 0xff638400),
+		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
+	},
+	// force id use id mask
+	{
+		.soc_family_name = "UNKNOWN",
+		.chip_id = MESON_CPU_MAJOR_ID_T3X,
+		.preg_sticky_reg0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_phy_base_address = 0xfc000000,
+		.ddr_dmc_base_address = 0xfe036000,
+		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xfe036400),   //DMC_DRAM_TRFC
+		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xfe036400),    //DMC_DRAM_DFI
+		.ddr_dmc_sticky0 = ((0x0000 << 2) + 0xfe036800),
+		.ddr_pll_base_address = ((0x0000 << 2) + 0xfc0e0000),
+		//AM_DDR_PLL_CNTL0//
+		//.ddr_boot_reason_address = ((0x00e1 << 2) + 0xfe010000),
+		//SYSCTRL_SEC_STICKY_REG1,20210204,0xfe010384, confirm
+		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xfe036400),
 
 		.sys_watchdog_add = 0,
 		.sys_watchdog_enable_value = 0x03c401ff,
@@ -494,32 +760,15 @@ ddr_base_address_table_t __ddr_base_address_table[] = {
 		// DMC_DRAM_REFR_CTRL ((0x0092 << 2) + 0xff638400)
 
 		.ddr_dmc_sticky0_1 = ((0x200 << 2) + 0xfe032000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe036000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
 		.ddr_phy_base_address_1 = 0xfb000000,
-		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe034400),
-		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe034400),
-		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe034000),
-		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe034000),
-		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe034000),
-		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe034000),
-	},
-	// force id use id mask
-	{
-		.soc_family_name = "UNKNOWN",
-		.chip_id = CHIP_ID_MASK,                                //MESON_CPU_MAJOR_ID_G12A,
-		.preg_sticky_reg0 = (0xff634400 + (0x070 << 2)),        //PREG_STICKY_G12A_REG0
-		.ddr_phy_base_address = 0xfe000000,
-		.ddr_pctl_timing_base_address = ((0x0000 << 2) + 0xff638400),
-		.ddr_pctl_timing_end_address = ((0x00bb << 2) + 0xff638400),
-		.ddr_dmc_sticky0 = 0xff638800,
-		.sys_watchdog_add = ((0x3c34 << 2) + 0xffd00000),
-		.ddr_pll_base_address = ((0x0000 << 2) + 0xff638c00),
-		.ee_timer_base_address = ((0x3c62 << 2) + 0xffd00000),
-		.ee_pwm_base_address = (0xff807000 + (0x001 << 2)),
-		.ddr_dmc_apd_address = ((0x008c << 2) + 0xff638400),
-		.ddr_dmc_asr_address = ((0x008d << 2) + 0xff638400),
-		.ddr_boot_reason_address = (0xff800000 + (0x08f << 2)), //AO_SEC_SD_CFG15
-		.ddr_dmc_lpdd4_retraining_address = ((0x0097 << 2) + 0xff638400),
+		.ddr_dmc_base_address_1 = 0xfe032000,
+		.ddr_pctl_timing_base_address_1 = ((0x0000 << 2) + 0xfe032400),
+		.ddr_pctl_timing_end_address_1 = ((0x00bb << 2) + 0xfe032400),
+		.ddr_dmc_apd_address_1 = ((0x018c << 2) + 0xfe032000),
+		.ddr_dmc_asr_address_1 = ((0x018d << 2) + 0xfe032000),
+		.ddr_dmc_lpdd4_retraining_address_1 = ((0x0197 << 2) + 0xfe032000),
+		.ddr_dmc_refresh_ctrl_address_1 = ((0x0192 << 2) + 0xfe032000),
 	},
 };
 
@@ -1668,11 +1917,22 @@ int check_base_address(void)
 	for (count = 0; count < 12; count++)
 		ddr_sha_s5.sha_chip_id[count] = global_chip_id[count];
 
-	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5) {
+	phy_base_array_add[0] = p_ddr_base->ddr_phy_base_address;
+	dmc_base_array_add[0] = p_ddr_base->ddr_dmc_base_address;
+	ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
+	ddr_dmc_apd_address[0] = p_ddr_base->ddr_dmc_apd_address;
+	ddr_dmc_asr_address[0] = p_ddr_base->ddr_dmc_asr_address;
+	dmc_retraining_ctrl_address[0] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
+
+	if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S5) {
 		phy_base_array_add[0] = p_ddr_base->ddr_phy_base_address;
 		phy_base_array_add[1] = p_ddr_base->ddr_phy_base_address;
 		phy_base_array_add[2] = p_ddr_base->ddr_phy_base_address_1;
 		phy_base_array_add[3] = p_ddr_base->ddr_phy_base_address_1;
+		dmc_base_array_add[0] = p_ddr_base->ddr_dmc_base_address;
+		dmc_base_array_add[1] = p_ddr_base->ddr_dmc_base_address;
+		dmc_base_array_add[2] = p_ddr_base->ddr_dmc_base_address_1;
+		dmc_base_array_add[3] = p_ddr_base->ddr_dmc_base_address_1;
 		ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
 		ddr_dmc_sticky[1] = p_ddr_base->ddr_dmc_sticky0;
 		ddr_dmc_sticky[2] = p_ddr_base->ddr_dmc_sticky0_1;
@@ -1684,6 +1944,28 @@ int check_base_address(void)
 		dmc_retraining_ctrl_address[0] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
 		dmc_retraining_ctrl_address[1] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
 		dmc_retraining_ctrl_address[2] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
+		dmc_retraining_ctrl_address[3] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
+	}
+	if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_T5M) {
+		phy_base_array_add[0] = p_ddr_base->ddr_phy_base_address;
+		//phy_base_array_add[1] = p_ddr_base->ddr_phy_base_address;
+		phy_base_array_add[1] = p_ddr_base->ddr_phy_base_address_1;
+		//phy_base_array_add[3] = p_ddr_base->ddr_phy_base_address_1;
+		dmc_base_array_add[0] = p_ddr_base->ddr_dmc_base_address;
+		dmc_base_array_add[1] = p_ddr_base->ddr_dmc_base_address_1;
+		//dmc_base_array_add[2] = p_ddr_base->ddr_dmc_base_address_1;
+		//dmc_base_array_add[3] = p_ddr_base->ddr_dmc_base_address_1;
+		ddr_dmc_sticky[0] = p_ddr_base->ddr_dmc_sticky0;
+		//ddr_dmc_sticky[1] = p_ddr_base->ddr_dmc_sticky0;
+		ddr_dmc_sticky[1] = p_ddr_base->ddr_dmc_sticky0_1;
+		//ddr_dmc_sticky[3] = p_ddr_base->ddr_dmc_sticky0_1;
+		ddr_dmc_apd_address[0] = p_ddr_base->ddr_dmc_apd_address;
+		//ddr_dmc_apd_address[1] = p_ddr_base->ddr_dmc_apd_address;
+		ddr_dmc_asr_address[1] = p_ddr_base->ddr_dmc_asr_address_1;
+		ddr_dmc_asr_address[1] = p_ddr_base->ddr_dmc_asr_address_1;
+		dmc_retraining_ctrl_address[0] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
+		//dmc_retraining_ctrl_address[1] = p_ddr_base->ddr_dmc_lpdd4_retraining_address;
+		dmc_retraining_ctrl_address[1] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
 		dmc_retraining_ctrl_address[3] = p_ddr_base->ddr_dmc_lpdd4_retraining_address_1;
 	}
 	dmc_change_channel(0);
@@ -2192,28 +2474,34 @@ void ddr_test_watchdog_init(uint32_t msec)
 	// src: 24MHz
 	// div: 24000 for 1ms
 	// reset ao-22 and ee-21
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add) =
 		(1 << 24) | (1 << 25) | (1 << 22) | (1 << 21) | (24000 - 1);
 
 	// set timeout
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add + 8) =
-	msec;
+		msec;
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add + 12) =
-	 0;
+		0;
 
 	// enable
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add) |=
-	 (1 << 18);
+		(1 << 18);
 }
 
 void ddr_test_watchdog_clear(void)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add + 12) =
-	 0;
+		0;
 }
 
 void ddr_test_watchdog_disable(void)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	// turn off internal counter and disable
 	*(volatile uint32_t *)(unsigned long)(p_ddr_base->sys_watchdog_add) &=
 		~((1 << 18) | (1 << 25));
@@ -2221,6 +2509,8 @@ void ddr_test_watchdog_disable(void)
 
 void ddr_test_watchdog_enable(uint32_t sec)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	// src: 24MHz
 	// div: 24000 for 1ms
 	// reset ao-22 and ee-21
@@ -2245,6 +2535,8 @@ void ddr_test_watchdog_enable(uint32_t sec)
 
 void ddr_test_watchdog_reset_system(void)
 {
+	if (p_ddr_base->sys_watchdog_add == 0)
+		return;
 	int i;
 
 	if (p_ddr_base->sys_watchdog_enable_value == 0) {
@@ -2820,7 +3112,7 @@ int do_ddr_test_copy(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		m_len = test_size / 4;
 		while (m_len--) {
 #ifdef DDR_PREFETCH_CACHE
-			__asm__("prfm PLDL1KEEP, [%0, #376]" : : "r" (p_src));
+			__asm__ ("prfm PLDL1KEEP, [%0, #376]" : : "r" (p_src));
 #endif
 			p_src++;
 			temp0 = (*p_src);
@@ -6040,9 +6332,10 @@ int get_ddr_clk(void)
 	stick_ddr_clk_add1 = (uint64_t)(&ddr_set_array[0].cfg_board_SI_setting_ps.DRAMFreq);
 	stick_ddr_clk_add2 = (uint64_t)(&ddr_set_array[0]);
 	stick_ddr_clk_add2 = sticky_reg_base_add + stick_ddr_clk_add1 - stick_ddr_clk_add2;
-	if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5) {
+	if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S5) {
 		ddr_clk = rd_reg(stick_ddr_clk_add2);
-		printf("\nget ddr clk from add 0x%x", (uint32_t)stick_ddr_clk_add2);
+		printf("\nget ddr clk from add 0x%x %dMHz", (uint32_t)stick_ddr_clk_add2,
+		       ddr_clk & 0xffff);
 		ddr_clk = ddr_clk & 0xffff;
 	}
 	return ddr_clk;
@@ -6505,9 +6798,10 @@ uint32_t get_bdlr_100step(uint32_t ddr_frequency)
 	uint32_t dll_counter = 0;
 
 	dll_counter = ((rd_reg_ddr_phy(phy_base_add, 0x434)) & 0x1ff);
+	//printf("\nphy_base_add=%x,%x\n", phy_base_add, dll_counter);
 	dll_counter = dll_counter ? dll_counter : 1;
 	bdlr_100step =
-		(100000000 / (2 * (p_ddrs->cfg_board_SI_setting_ps.DRAMFreq))) /
+		(100000000 / (2 * (ddr_frequency))) /
 		(dll_counter);
 	return bdlr_100step;
 }
@@ -6527,7 +6821,7 @@ int do_ddr_test_pwm_bdlr(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[
 	unsigned int para_meter[30] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0,  0,
+		0, 0,
 	};
 
 	while (argc_count < argc) {
@@ -6670,11 +6964,18 @@ uint32_t ddr_training_reg_rw(ddr_set_ps0_only_t *p_ddrs, char index,
 		return return_value;
 
 	//ac group0 then ac group1
+	uint32_t ac_reg_add_offset = 0;//gxlx3 changed
+
 	if (index == DMC_TEST_WINDOW_INDEX_ATXDLY || index == DMC_TEST_WINDOW_INDEX_ATXDLY_RO) {
+		if (p_ddr_base->chip_id > MESON_CPU_MAJOR_ID_S5)
+			if (sub_index >= 15)
+				ac_reg_add_offset = 1; //gxlx3 changed
 		reg_add_coarse = (add_base + ((ps << 16) | (0x9 << 12) |
-					      (0x0 + ((sub_index / 16) << 2))));
+					      (0x0 + (((sub_index +
+							ac_reg_add_offset) / 16) << 2))));
 		reg_add_fine = (add_base + ((ps << 16) | (0x9 << 12) |
-					    (0x8 + ((sub_index / 4) << 2))));
+					    (0x8 + (((sub_index +
+						      ac_reg_add_offset) / 4) << 2))));
 		if (index == DMC_TEST_WINDOW_INDEX_ATXDLY_RO) {
 			reg_add_coarse = (add_base + ((ps << 16) | (0x1 << 12) |
 						      (((sub_index / 16) << 13) & 0xffff) |
@@ -6683,8 +6984,10 @@ uint32_t ddr_training_reg_rw(ddr_set_ps0_only_t *p_ddrs, char index,
 						    (((sub_index / 16) << 13) & 0xffff) |
 						    (0x474 + ((sub_index / 4) << 2))));
 		}
-		reg_add_coarse_bit_mask = (~(3 << ((sub_index % 16) * 2)));
-		reg_add_fine_bit_mask = (~(0x7f << ((sub_index % 4) * 8)));
+		reg_add_coarse_bit_mask = (~(3 << (((sub_index +
+						     ac_reg_add_offset) % 16) * 2)));
+		reg_add_fine_bit_mask = (~(0x7f << (((sub_index +
+						      ac_reg_add_offset) % 4) * 8)));
 	} else if (index == DMC_TEST_WINDOW_INDEX_TXDQSDLY ||
 		   index == DMC_TEST_WINDOW_INDEX_TXDQSDLY_RO) {
 		reg_add_coarse = (add_base +
@@ -6841,14 +7144,23 @@ uint32_t ddr_training_reg_rw(ddr_set_ps0_only_t *p_ddrs, char index,
 	}
 #endif
 	else if (index == DMC_TEST_WINDOW_INDEX_TXDQDLY ||
-		 index == DMC_TEST_WINDOW_INDEX_TXDQDLY_RO) {
-		reg_add_coarse = (add_base + ((ps << 16) | ((0xa + (sub_index % 36) / 9) << 12) |
+		 index == DMC_TEST_WINDOW_INDEX_TXDQDLY_RO) {//gxlx3 changed
+		uint32_t tx_dq_add_offset = 4;
+
+		if (p_ddr_base->chip_id > MESON_CPU_MAJOR_ID_S5)
+			tx_dq_add_offset = 8;
+		reg_add_coarse = (add_base + ((ps << 16) |
+					      ((0xa + (sub_index % 36) / 9) << 12) |
 					      (0x20 + (sub_index / 36) * (0x70 - 0x20))) +
 				  (((sub_index % 9) / 4) * 4));
-		reg_add_fine = (add_base + ((ps << 16) | ((0xa + (sub_index % 36) / 9) << 12) |
-					    (0x30 + (sub_index / 36) * (0x80 - 0x30))) +
+		reg_add_fine = (add_base + ((ps << 16) |
+					    ((0xa + (sub_index % 36) / 9) << 12) |
+					    (0x30 +
+					     (sub_index / 36) * (0x80 - 0x30))) +
 				(((sub_index % 9) / 4) * 4));
-		reg_add_coarse_bit_mask = (~(0x7 << (((sub_index % 9) % 4) * 4)));
+		reg_add_coarse_bit_mask =
+			(~(0x7 << (((sub_index % 9) % 4) * tx_dq_add_offset)));
+		//gxlx3 changed
 		reg_add_fine_bit_mask = (~(0x7f << (((sub_index % 9) % 4) * 8)));
 		if (index == DMC_TEST_WINDOW_INDEX_TXDQDLY_RO) {
 			reg_add_coarse = (add_base +
@@ -7380,7 +7692,7 @@ int do_read_s5_ddr_training_data(char log_level, ddr_set_ps0_only_t *ddr_set_t_p
 
 	for (loop = 0; loop < loop_max; loop += 4)
 		wr_reg(((uint64_t)(ddr_set_t_p) + loop),
-		       rd_reg((ddr_dmc_sticky[dmc_ddr_config_channel_id]) + loop));
+		       rd_reg((p_ddr_base->ddr_dmc_sticky0) + loop));
 	loop_max = sizeof(board_SI_setting_ps_t);
 	printf_log(log_level, "\nsizeof(board_SI_setting_ps_t)=0x%8x\n", loop_max);
 	//for (loop = 0; loop < loop_max; loop += 4)
@@ -7435,9 +7747,8 @@ int do_ddr_display_s5_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 			loop_max = 64 << 2; //sizeof(ddr_set_t);
 			for (count = 0; count < loop_max; count += 4)
 				printf("\n reg_add_offset: %8x %8x %8x", count,
-				rd_reg((uint64_t)(ddr_dmc_sticky[dmc_ddr_config_channel_id]) +
-				 count),
-				ddr_dmc_sticky[dmc_ddr_config_channel_id] + count);
+				       rd_reg((uint64_t)((p_ddr_base->ddr_dmc_sticky0)) + count),
+				       (((p_ddr_base->ddr_dmc_sticky0)) + count));
 		}
 
 		{
@@ -7466,462 +7777,462 @@ int do_ddr_display_s5_ddr_information(cmd_tbl_t *cmdtp, int flag, int argc, char
 	       ddr_set_t_p->cfg_board_common_setting.fast_boot[0]);
 	ddr_set_t_p->cfg_board_common_setting.fast_boot[0] = 0xfd;
 	//add for auto copy to  code test
-	printf("\n.cfg_board_common_setting.timming_magic=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.timming_magic=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.timming_magic,
 	       ddr_set_t_p->cfg_board_common_setting.timming_magic,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.timming_magic));
-	printf("\n.cfg_board_common_setting.timming_max_valid_configs=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.timming_max_valid_configs=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.timming_max_valid_configs,
 	       ddr_set_t_p->cfg_board_common_setting.timming_max_valid_configs,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.timming_max_valid_configs));
-	printf("\n.cfg_board_common_setting.timming_struct_version=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.timming_struct_version=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.timming_struct_version,
 	       ddr_set_t_p->cfg_board_common_setting.timming_struct_version,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.timming_struct_version));
-	printf("\n.cfg_board_common_setting.timming_struct_org_size=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.timming_struct_org_size=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.timming_struct_org_size,
 	       ddr_set_t_p->cfg_board_common_setting.timming_struct_org_size,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.timming_struct_org_size));
-	printf("\n.cfg_board_common_setting.timming_struct_real_size=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.timming_struct_real_size=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.timming_struct_real_size,
 	       ddr_set_t_p->cfg_board_common_setting.timming_struct_real_size,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.timming_struct_real_size));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_board_common_setting.fast_boot[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.fast_boot[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.fast_boot[count],
 		       ddr_set_t_p->cfg_board_common_setting.fast_boot[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.fast_boot[count]));
-	printf("\n.cfg_board_common_setting.ddr_func=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.ddr_func=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.ddr_func,
 	       ddr_set_t_p->cfg_board_common_setting.ddr_func,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.ddr_func));
-	printf("\n.cfg_board_common_setting.board_id=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.board_id=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.board_id,
 	       ddr_set_t_p->cfg_board_common_setting.board_id,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.board_id));
-	printf("\n.cfg_board_common_setting.DramType=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.DramType=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.DramType,
 	       ddr_set_t_p->cfg_board_common_setting.DramType,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.DramType));
-	printf("\n.cfg_board_common_setting.dram_rank_config=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.dram_rank_config=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.dram_rank_config,
 	       ddr_set_t_p->cfg_board_common_setting.dram_rank_config,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.dram_rank_config));
-	printf("\n.cfg_board_common_setting.rsv_char0=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.rsv_char0=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char0,
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char0,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.rsv_char0));
 	for (count = 0; count < 2; count++)
-		printf("\n.cfg_board_common_setting.DisabledDbyte[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.DisabledDbyte[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.DisabledDbyte[count],
 		       ddr_set_t_p->cfg_board_common_setting.DisabledDbyte[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.DisabledDbyte[count]));
-	printf("\n.cfg_board_common_setting.dram_ch0_size_MB=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.dram_ch0_size_MB=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.dram_ch0_size_MB,
 	       ddr_set_t_p->cfg_board_common_setting.dram_ch0_size_MB,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.dram_ch0_size_MB));
-	printf("\n.cfg_board_common_setting.dram_ch1_size_MB=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.dram_ch1_size_MB=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.dram_ch1_size_MB,
 	       ddr_set_t_p->cfg_board_common_setting.dram_ch1_size_MB,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.dram_ch1_size_MB));
-	printf("\n.cfg_board_common_setting.dram_x4x8x16_mode=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.dram_x4x8x16_mode=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.dram_x4x8x16_mode,
 	       ddr_set_t_p->cfg_board_common_setting.dram_x4x8x16_mode,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.dram_x4x8x16_mode));
-	printf("\n.cfg_board_common_setting.Is2Ttiming=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.Is2Ttiming=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.Is2Ttiming,
 	       ddr_set_t_p->cfg_board_common_setting.Is2Ttiming,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.Is2Ttiming));
-	printf("\n.cfg_board_common_setting.log_level=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.log_level=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.log_level,
 	       ddr_set_t_p->cfg_board_common_setting.log_level,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.log_level));
-	printf("\n.cfg_board_common_setting.dbi_enable=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.dbi_enable=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.dbi_enable,
 	       ddr_set_t_p->cfg_board_common_setting.dbi_enable,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.dbi_enable));
-	printf("\n.cfg_board_common_setting.ddr_rfc_type=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.ddr_rfc_type=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.ddr_rfc_type,
 	       ddr_set_t_p->cfg_board_common_setting.ddr_rfc_type,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.ddr_rfc_type));
-	printf("\n.cfg_board_common_setting.enable_lpddr4x_mode=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.enable_lpddr4x_mode=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.enable_lpddr4x_mode,
 	       ddr_set_t_p->cfg_board_common_setting.enable_lpddr4x_mode,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.enable_lpddr4x_mode));
-	printf("\n.cfg_board_common_setting.pll_ssc_mode=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.pll_ssc_mode=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.pll_ssc_mode,
 	       ddr_set_t_p->cfg_board_common_setting.pll_ssc_mode,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.pll_ssc_mode));
-	printf("\n.cfg_board_common_setting.org_tdqs2dq=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.org_tdqs2dq=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.org_tdqs2dq,
 	       ddr_set_t_p->cfg_board_common_setting.org_tdqs2dq,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.org_tdqs2dq));
 	for (count = 0; count < 2; count++)
-		printf("\n.cfg_board_common_setting.reserve1_test[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.reserve1_test[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.reserve1_test[count],
 		       ddr_set_t_p->cfg_board_common_setting.reserve1_test[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.reserve1_test[count]));
 	for (count = 0; count < 5; count++)
-		printf("\n.cfg_board_common_setting.ddr_dmc_remap[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.ddr_dmc_remap[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.ddr_dmc_remap[count],
 		       ddr_set_t_p->cfg_board_common_setting.ddr_dmc_remap[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.ddr_dmc_remap[count]));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_board_common_setting.lpddr34_ca_remap[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.lpddr34_ca_remap[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.lpddr34_ca_remap[count],
 		       ddr_set_t_p->cfg_board_common_setting.lpddr34_ca_remap[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.lpddr34_ca_remap[count]));
 	for (count = 0; count < 36; count++)
-		printf("\n.cfg_board_common_setting.ddr_dq_remap[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.ddr_dq_remap[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.ddr_dq_remap[count],
 		       ddr_set_t_p->cfg_board_common_setting.ddr_dq_remap[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.ddr_dq_remap[count]));
 	for (count = 0; count < 30; count++)
-		printf("\n.cfg_board_common_setting.ac_pinmux[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.ac_pinmux[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.ac_pinmux[count],
 		       ddr_set_t_p->cfg_board_common_setting.ac_pinmux[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.ac_pinmux[count]));
 	for (count = 0; count < 10; count++)
-		printf("\n.cfg_board_common_setting.dfi_pinmux[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.dfi_pinmux[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.dfi_pinmux[count],
 		       ddr_set_t_p->cfg_board_common_setting.dfi_pinmux[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.dfi_pinmux[count]));
-	printf("\n.cfg_board_common_setting.ddr_dqs_swap=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.ddr_dqs_swap=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.ddr_dqs_swap,
 	       ddr_set_t_p->cfg_board_common_setting.ddr_dqs_swap,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.ddr_dqs_swap));
-	printf("\n.cfg_board_common_setting.rsv_char1=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.rsv_char1=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char1,
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char1,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.rsv_char1));
-	printf("\n.cfg_board_common_setting.rsv_char2=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.rsv_char2=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char2,
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char2,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.rsv_char2));
-	printf("\n.cfg_board_common_setting.rsv_char3=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_common_setting.rsv_char3=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char3,
 	       ddr_set_t_p->cfg_board_common_setting.rsv_char3,
 	       DDR_TIMMING_OFFSET(cfg_board_common_setting.rsv_char3));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_board_common_setting.ddr_vddee_setting[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_common_setting.ddr_vddee_setting[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_common_setting.ddr_vddee_setting[count],
 		       ddr_set_t_p->cfg_board_common_setting.ddr_vddee_setting[count],
 		       DDR_TIMMING_OFFSET(cfg_board_common_setting.ddr_vddee_setting[count]));
-	printf("\n.cfg_board_SI_setting_ps.DRAMFreq=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.DRAMFreq=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.DRAMFreq,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.DRAMFreq,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.DRAMFreq));
-	printf("\n.cfg_board_SI_setting_ps.PllBypassEn=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.PllBypassEn=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.PllBypassEn,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.PllBypassEn,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.PllBypassEn));
-	printf("\n.cfg_board_SI_setting_ps.training_SequenceCtrl=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.training_SequenceCtrl=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.training_SequenceCtrl,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.training_SequenceCtrl,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.training_SequenceCtrl));
-	printf("\n.cfg_board_SI_setting_ps.dfi_odt_config=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.dfi_odt_config=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dfi_odt_config,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dfi_odt_config,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.dfi_odt_config));
 	for (count = 0; count < 2; count++)
-		printf("\n.cfg_board_SI_setting_ps.phy_odt_config_rank[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_board_SI_setting_ps.phy_odt_config_rank[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_board_SI_setting_ps.phy_odt_config_rank[count],
 		       ddr_set_t_p->cfg_board_SI_setting_ps.phy_odt_config_rank[count],
 		       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.phy_odt_config_rank[count]));
-	printf("\n.cfg_board_SI_setting_ps.clk_drv_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.clk_drv_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.clk_drv_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.clk_drv_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.clk_drv_ohm));
-	printf("\n.cfg_board_SI_setting_ps.cs_drv_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.cs_drv_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.cs_drv_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.cs_drv_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.cs_drv_ohm));
-	printf("\n.cfg_board_SI_setting_ps.ac_drv_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.ac_drv_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.ac_drv_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.ac_drv_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.ac_drv_ohm));
-	printf("\n.cfg_board_SI_setting_ps.soc_data_drv_ohm_p=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_data_drv_ohm_p=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_drv_ohm_p,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_drv_ohm_p,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_data_drv_ohm_p));
-	printf("\n.cfg_board_SI_setting_ps.soc_data_drv_ohm_n=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_data_drv_ohm_n=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_drv_ohm_n,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_drv_ohm_n,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_data_drv_ohm_n));
-	printf("\n.cfg_board_SI_setting_ps.soc_data_odt_ohm_p=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_data_odt_ohm_p=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_odt_ohm_p,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_odt_ohm_p,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_data_odt_ohm_p));
-	printf("\n.cfg_board_SI_setting_ps.soc_data_odt_ohm_n=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_data_odt_ohm_n=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_odt_ohm_n,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_odt_ohm_n,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_data_odt_ohm_n));
-	printf("\n.cfg_board_SI_setting_ps.dram_data_drv_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.dram_data_drv_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_data_drv_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_data_drv_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.dram_data_drv_ohm));
-	printf("\n.cfg_board_SI_setting_ps.dram_data_odt_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.dram_data_odt_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_data_odt_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_data_odt_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.dram_data_odt_ohm));
-	printf("\n.cfg_board_SI_setting_ps.dram_data_wr_odt_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.dram_data_wr_odt_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_data_wr_odt_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_data_wr_odt_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.dram_data_wr_odt_ohm));
-	printf("\n.cfg_board_SI_setting_ps.dram_ac_odt_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.dram_ac_odt_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_ac_odt_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_ac_odt_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.dram_ac_odt_ohm));
-	printf("\n.cfg_board_SI_setting_ps.soc_clk_slew_rate=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_clk_slew_rate=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_clk_slew_rate,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_clk_slew_rate,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_clk_slew_rate));
-	printf("\n.cfg_board_SI_setting_ps.soc_cs_slew_rate=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_cs_slew_rate=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_cs_slew_rate,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_cs_slew_rate,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_cs_slew_rate));
-	printf("\n.cfg_board_SI_setting_ps.soc_ac_slew_rate=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_ac_slew_rate=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_ac_slew_rate,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_ac_slew_rate,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_ac_slew_rate));
-	printf("\n.cfg_board_SI_setting_ps.soc_data_slew_rate=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.soc_data_slew_rate=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_slew_rate,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.soc_data_slew_rate,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.soc_data_slew_rate));
-	printf("\n.cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.dram_drv_pull_up_cal_ohm));
-	printf("\n.cfg_board_SI_setting_ps.lpddr4_dram_vout_range=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.lpddr4_dram_vout_range=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.lpddr4_dram_vout_range,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.lpddr4_dram_vout_range,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.lpddr4_dram_vout_range));
-	printf("\n.cfg_board_SI_setting_ps.char_rev0=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.char_rev0=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.char_rev0,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.char_rev0,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.char_rev0));
-	printf("\n.cfg_board_SI_setting_ps.char_rev1=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.char_rev1=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.char_rev1,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.char_rev1,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.char_rev1));
-	printf("\n.cfg_board_SI_setting_ps.vref_ac_permil=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.vref_ac_permil=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.vref_ac_permil,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.vref_ac_permil,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.vref_ac_permil));
-	printf("\n.cfg_board_SI_setting_ps.vref_soc_data_permil=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.vref_soc_data_permil=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.vref_soc_data_permil,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.vref_soc_data_permil,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.vref_soc_data_permil));
-	printf("\n.cfg_board_SI_setting_ps.vref_dram_data_permil=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.vref_dram_data_permil=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.vref_dram_data_permil,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.vref_dram_data_permil,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.vref_dram_data_permil));
-	printf("\n.cfg_board_SI_setting_ps.max_core_timmming_frequency=0x%x,//%d，0x%x",
+	printf("\n.cfg_board_SI_setting_ps.max_core_timmming_frequency=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_board_SI_setting_ps.max_core_timmming_frequency,
 	       ddr_set_t_p->cfg_board_SI_setting_ps.max_core_timmming_frequency,
 	       DDR_TIMMING_OFFSET(cfg_board_SI_setting_ps.max_core_timmming_frequency));
 	for (count = 0; count < 30; count++)
-		printf("\n.cfg_ddr_training_delay_ps.ac_trace_delay[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.ac_trace_delay[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.ac_trace_delay[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.ac_trace_delay[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.ac_trace_delay[count]));
 	for (count = 0; count < 72; count++)
-		printf("\n.cfg_ddr_training_delay_ps.read_dq_delay_t[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.read_dq_delay_t[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dq_delay_t[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dq_delay_t[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.read_dq_delay_t[count]));
 	for (count = 0; count < 72; count++)
-		printf("\n.cfg_ddr_training_delay_ps.read_dq_delay_c[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.read_dq_delay_c[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dq_delay_c[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dq_delay_c[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.read_dq_delay_c[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.read_dqs_delay[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.read_dqs_delay[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dqs_delay[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dqs_delay[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.read_dqs_delay[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.write_dqs_delay[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.write_dqs_delay[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.write_dqs_delay[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.write_dqs_delay[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.write_dqs_delay[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.write_wck_delay[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.write_wck_delay[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.write_wck_delay[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.write_wck_delay[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.write_wck_delay[count]));
 	for (count = 0; count < 72; count++)
-		printf("\n.cfg_ddr_training_delay_ps.wdq_delay[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.wdq_delay[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.wdq_delay[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.wdq_delay[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.wdq_delay[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.read_dqs_gate_delay[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.read_dqs_gate_delay[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dqs_gate_delay[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.read_dqs_gate_delay[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.read_dqs_gate_delay[count]));
 	for (count = 0; count < 36; count++)
-		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref0[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref0[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref0[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref0[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.soc_bit_vref0[count]));
 	for (count = 0; count < 36; count++)
-		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref1[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref1[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref1[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref1[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.soc_bit_vref1[count]));
 	for (count = 0; count < 36; count++)
-		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref2[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref2[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref2[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref2[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.soc_bit_vref2[count]));
 	for (count = 0; count < 36; count++)
-		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref3[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.soc_bit_vref3[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref3[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.soc_bit_vref3[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.soc_bit_vref3[count]));
 	for (count = 0; count < 32; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dram_vref[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dram_vref[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dram_vref[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dram_vref[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dram_vref[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dca_wck_tx_t[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dca_wck_tx_t[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_tx_t[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_tx_t[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dca_wck_tx_t[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dca_wck_rx_t[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dca_wck_rx_t[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_rx_t[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_rx_t[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dca_wck_rx_t[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dca_dqs_tx_t[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dca_dqs_tx_t[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_dqs_tx_t[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_dqs_tx_t[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dca_dqs_tx_t[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dca_wck_tx_c[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dca_wck_tx_c[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_tx_c[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_tx_c[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dca_wck_tx_c[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dca_wck_rx_c[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dca_wck_rx_c[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_rx_c[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_wck_rx_c[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dca_wck_rx_c[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dca_dqs_tx_c[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dca_dqs_tx_c[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_dqs_tx_c[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_dqs_tx_c[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dca_dqs_tx_c[count]));
 	for (count = 0; count < 8; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dca_dq_tx[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dca_dq_tx[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_dq_tx[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dca_dq_tx[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dca_dq_tx[count]));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dfi_mrl[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dfi_mrl[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dfi_mrl[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dfi_mrl[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dfi_mrl[count]));
-	printf("\n.cfg_ddr_training_delay_ps.dfi_hwtmrl=0x%x,//%d，0x%x",
+	printf("\n.cfg_ddr_training_delay_ps.dfi_hwtmrl=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.dfi_hwtmrl,
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.dfi_hwtmrl,
 	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dfi_hwtmrl));
-	printf("\n.cfg_ddr_training_delay_ps.csr_hwtctrl=0x%x,//%d，0x%x",
+	printf("\n.cfg_ddr_training_delay_ps.csr_hwtctrl=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.csr_hwtctrl,
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.csr_hwtctrl,
 	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.csr_hwtctrl));
-	printf("\n.cfg_ddr_training_delay_ps.rever1=0x%x,//%d，0x%x",
+	printf("\n.cfg_ddr_training_delay_ps.rever1=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever1,
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever1,
 	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.rever1));
-	printf("\n.cfg_ddr_training_delay_ps.rever2=0x%x,//%d，0x%x",
+	printf("\n.cfg_ddr_training_delay_ps.rever2=0x%x,//%d,0x%x",
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever2,
 	       ddr_set_t_p->cfg_ddr_training_delay_ps.rever2,
 	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.rever2));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_ddr_training_delay_ps.pptdqscnttg0[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.pptdqscnttg0[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.pptdqscnttg0[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.pptdqscnttg0[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.pptdqscnttg0[count]));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_ddr_training_delay_ps.pptdqscnttg1[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.pptdqscnttg1[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.pptdqscnttg1[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.pptdqscnttg1[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.pptdqscnttg1[count]));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_ddr_training_delay_ps.PptWck2DqoCntTg0[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.PptWck2DqoCntTg0[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.PptWck2DqoCntTg0[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.PptWck2DqoCntTg0[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.PptWck2DqoCntTg0[count]));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_ddr_training_delay_ps.PptWck2DqoCntTg1[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.PptWck2DqoCntTg1[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.PptWck2DqoCntTg1[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.PptWck2DqoCntTg1[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.PptWck2DqoCntTg1[count]));
 	//for (count = 0; count < 20; count++)
-	//	printf("\n.cfg_ddr_training_delay_ps.RxReplicaPhase[%d] = 0x%x,//%d，0x%x",
+	//	printf("\n.cfg_ddr_training_delay_ps.RxReplicaPhase[%d] = 0x%x,//%d,0x%x",
 	//	       count,
 	//	       ddr_set_t_p->cfg_ddr_training_delay_ps.RxReplicaPhase[count],
 	//	       ddr_set_t_p->cfg_ddr_training_delay_ps.RxReplicaPhase[count],
 	//	       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.RxReplicaPhase[count]));
 	for (count = 0; count < 4; count++)
-		printf("\n.cfg_ddr_training_delay_ps.dac_offset[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.dac_offset[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dac_offset[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.dac_offset[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.dac_offset[count]));
 	for (count = 0; count < 2; count++)
-		printf("\n.cfg_ddr_training_delay_ps.rx_offset[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.rx_offset[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.rx_offset[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.rx_offset[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.rx_offset[count]));
 	for (count = 0; count < 2; count++)
-		printf("\n.cfg_ddr_training_delay_ps.tx_offset[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.tx_offset[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.tx_offset[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.tx_offset[count],
 		       DDR_TIMMING_OFFSET(cfg_ddr_training_delay_ps.tx_offset[count]));
 	for (count = 0; count < 16; count++)
-		printf("\n.cfg_ddr_training_delay_ps.reserve_para[%d] = 0x%x,//%d，0x%x",
+		printf("\n.cfg_ddr_training_delay_ps.reserve_para[%d] = 0x%x,//%d,0x%x",
 		       count,
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.reserve_para[count],
 		       ddr_set_t_p->cfg_ddr_training_delay_ps.reserve_para[count],
@@ -7947,9 +8258,9 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 	}
 
 	{
-		printf("\nstore rsv write ddr-parameter 0x%8x 0x%8x\n",
+		printf("\nstore rsv write ddr-parameter 0x%8x 0x%x\n",
 		       (uint32_t)(uint64_t)buffer, length);
-		sprintf(str, "store rsv write ddr-parameter 0x%8x 0x%8x\n",
+		sprintf(str, "store rsv write ddr-parameter 0x%8x 0x%x\n",
 			(uint32_t)(uint64_t)buffer, length);
 		run_command(str, 0);
 	}
@@ -7961,7 +8272,7 @@ static int ddr_do_store_ddr_parameter_ops(uint8_t *buffer, uint32_t length)
 {
 	//extern int store_ddr_parameter_write(uint8_t *buffer, uint32_t length);
 
-	printf("\nstore ddr_parameter write 0x%8x 0x%8x\n", (uint32_t)(uint64_t)buffer, length);
+	printf("\nstore ddr_parameter write 0x%8x 0x%x\n", (uint32_t)(uint64_t)buffer, length);
 	store_ddr_parameter_write((uint8_t *)buffer, length);
 
 	return 1;
@@ -8083,12 +8394,12 @@ int do_ddr_set_watchdog_value(cmd_tbl_t *cmdtp, int flag, int argc, char *const 
 }
 
 typedef struct training_delay_information {
-	uint16_t ac_delay[10];
-	uint16_t txdqs_delay[16];
-	uint16_t rxdqs_delay[16];
-	uint16_t txdq_delay[72];
-	uint16_t rxdq_delay[72];
-	uint16_t gate_rxdq_delay[72];
+	uint16_t	ac_delay[10];
+	uint16_t	txdqs_delay[16];
+	uint16_t	rxdqs_delay[16];
+	uint16_t	txdq_delay[72];
+	uint16_t	rxdq_delay[72];
+	uint16_t	gate_rxdq_delay[72];
 } training_delay_t;
 training_delay_t training_delay_t_p;
 
@@ -8172,6 +8483,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	//    p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5D ||
 	//    p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5 ||
 	//    p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)
+	global_ddr_clk = get_ddr_clk();
 	do_read_s5_ddr_bdlr_steps();
 	if (argc < 2)
 		//goto usage;
@@ -8187,7 +8499,7 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0,  0, 0, 0,
+		0, 0, 0, 0, 0,
 	};
 
 	while (argc_count < argc) {
@@ -8245,8 +8557,8 @@ int do_ddr2pll_g12_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		       rd_reg((p_ddr_base->preg_sticky_reg0) + (argc_count << 2)));
 		argc_count++;
 	}
-	//dcache_disable();
-	//dcache_enable();
+	dcache_disable();
+	dcache_enable();
 	//if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_A1) ||
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C1) ||
 	//    (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_C2)
@@ -8422,10 +8734,13 @@ int do_ddr_s5_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 	test_index = simple_strtoull_ddr(argv[count + 1], &endp, 0);
 	if (*argv[count + 1] == 0 || *endp != 0)
 		test_index = 0;
-	if (test_index / 100)
-		dmc_ddr_config_channel_id = 2;
-	else
+	if (test_index / 100) {
+		dmc_ddr_config_channel_id = (test_index / 100);
+		if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_T5M)
+			dmc_ddr_config_channel_id = 1;
+	} else {
 		dmc_ddr_config_channel_id = 0;
+	}
 	test_index = (test_index % 100);         //for DDR_PHY 1
 	dmc_change_channel(dmc_ddr_config_channel_id);
 	dmc_retraining_ctrl = rd_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address);
@@ -8455,7 +8770,7 @@ int do_ddr_s5_offset_data(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv
 		count_max = 36 * 2;
 	//	lcdlr_max = 8 * 128 - 1;//0x1ff;
 
-	if (test_index == DMC_TEST_WINDOW_INDEX_RXPBDLY)//DMC_TEST_WINDOW_INDEX_RX_CLK_T_DLY
+	if (test_index == DMC_TEST_WINDOW_INDEX_RXPBDLY) //DMC_TEST_WINDOW_INDEX_RX_CLK_T_DLY
 		count_max = 36 * 2;
 	//	lcdlr_max = 255;
 	if (test_index == DMC_TEST_WINDOW_INDEX_RXENDLY)
@@ -8639,11 +8954,11 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		       dmc_retraining_ctrl & (~(1 << 31)));
 		writel((0), p_ddr_base->ddr_dmc_apd_address);
 		writel((0), p_ddr_base->ddr_dmc_asr_address);
-		// run_command("dcache off", 0);
-		// run_command("dcache on", 0);
-		//dcache_disable();
-		//dcache_enable();
-		//printf("\n cache off on");
+		//run_command("dcache off", 0);
+		//run_command("dcache on", 0);
+		dcache_disable();
+		dcache_enable();
+		printf("\n cache off on");
 		switch (ddr_test_cmd) {
 		case (DDR_TEST_CMD__NONE):
 		{
@@ -8788,17 +9103,25 @@ int do_ddr_test_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		case (DDR_TEST_CMD__DISPLAY_G12_DDR_INFORMATION):
 		{
 			printf("\nshow g12 ddr information\n");
-			if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5) {
+			if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S5) {
 				//if ((p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3)) {
 				dmc_ddr_config_channel_id = 0;
 				dmc_change_channel(dmc_ddr_config_channel_id);
 				do_ddr_display_s5_ddr_information((cmd_tbl_t *)cmdtp,
 								  (int)flag, (int)argc2, (argv2));
-				dmc_ddr_config_channel_id = 2;
-				dmc_change_channel(dmc_ddr_config_channel_id);
-				do_ddr_display_s5_ddr_information((cmd_tbl_t *)cmdtp,
+				//dmc_ddr_config_channel_id = 2;
+				if (p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_S5 ||
+					p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T5M ||
+					p_ddr_base->chip_id == MESON_CPU_MAJOR_ID_T3X) {
+					if (p_ddr_base->chip_id >= MESON_CPU_MAJOR_ID_S5)
+						dmc_ddr_config_channel_id = 2;
+					else
+						dmc_ddr_config_channel_id = 1;
+					dmc_change_channel(dmc_ddr_config_channel_id);
+					do_ddr_display_s5_ddr_information((cmd_tbl_t *)cmdtp,
 								  (int)flag, (int)argc2, (argv2));
-				dmc_ddr_config_channel_id = 0;
+					dmc_ddr_config_channel_id = 0;
+				}
 				dmc_change_channel(dmc_ddr_config_channel_id);
 				//}
 			}
@@ -9326,6 +9649,8 @@ int do_ddr_auto_fastboot_check_s5(char auto_window_test_enable_item,
 		return 1;
 	}
 
+	if (p_ddr_base->ddr_boot_reason_address == 0)
+		enable_ddr_check_boot_reason = 0;
 	if (enable_ddr_check_boot_reason) {
 		boot_reason = 0; //ddr_set_t_p->boot_reason
 		{
@@ -9577,7 +9902,8 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 		wr_reg(p_ddr_base->ddr_dmc_lpdd4_retraining_address, dmc_retraining_ctrl);
 		return 1;
 	}
-
+	if (p_ddr_base->ddr_boot_reason_address == 0)
+		enable_ddr_check_boot_reason = 0;
 	if (enable_ddr_check_boot_reason) {
 		boot_reason = 0; //ddr_set_t_p->boot_reason
 		{
@@ -9617,7 +9943,7 @@ int do_ddr_auto_fastboot_check(cmd_tbl_t *cmdtp, int flag, int argc, char *const
 			       dmc_retraining_ctrl);
 			return 1;
 		}
-		if (boot_reason != 0)  {
+		if (boot_reason != 0) {
 			sprintf(str, "setenv initargs ${initargs} need_ddr_window_test=%d",
 				need_ddr_window_test);
 			printf("\nstr=%s\n", str);

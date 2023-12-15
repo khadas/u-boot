@@ -149,13 +149,14 @@ typedef struct _efuseCaliItem{
 	int  item;
 }tEfuseCaliItem;
 const tEfuseCaliItem EfuseCaliItem_cfg[]={
-	{.name="sensor", .item = EFUSE_CALI_SUBITEM_SENSOR0},
-	{.name="saradc", .item = EFUSE_CALI_SUBITEM_SARADC},
-	{.name="usbphy", .item = EFUSE_CALI_SUBITEM_USBPHY},
-	{.name="earctx", .item = EFUSE_CALI_SUBITEM_EARCTX},
-	{.name="hdmirx", .item = EFUSE_CALI_SUBITEM_HDMIRX},
-	{.name="eth",    .item = EFUSE_CALI_SUBITEM_ETHERNET},
-	{.name="cvbs",   .item = EFUSE_CALI_SUBITEM_CVBS},
+	{.name = "sensor",	.item = EFUSE_CALI_SUBITEM_SENSOR0},
+	{.name = "saradc",	.item = EFUSE_CALI_SUBITEM_SARADC},
+	{.name = "usbphy",	.item = EFUSE_CALI_SUBITEM_USBPHY},
+	{.name = "earctx",	.item = EFUSE_CALI_SUBITEM_EARCTX},
+	{.name = "hdmirx",	.item = EFUSE_CALI_SUBITEM_HDMIRX},
+	{.name = "eth",		.item = EFUSE_CALI_SUBITEM_ETHERNET},
+	{.name = "cvbs",	.item = EFUSE_CALI_SUBITEM_CVBS},
+	{.name = "ethtxamp",	.item = EFUSE_CALI_SUBITEM_ETHTXAMP},
 };
 #define EFUSE_CALIITE_CNT sizeof(EfuseCaliItem_cfg)/sizeof(EfuseCaliItem_cfg[0])
 

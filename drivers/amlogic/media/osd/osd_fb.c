@@ -155,7 +155,8 @@ static const struct color_bit_define_s default_color_format_array[] = {
 
 GraphicDevice fb_gdev;
 struct hw_para_s osd_hw;
-
+int rma_test;
+int rma_test_addr;
 typedef struct pic_info_t {
 	unsigned int mode;
 	unsigned int type;
@@ -169,7 +170,6 @@ static int img_video_init = 0;
 #if defined(CONFIG_AML_MINUI)
 extern int in_fastboot_mode;
 #endif
-
 
 static void osd_layer_init(GraphicDevice *gdev, int layer)
 {
@@ -189,7 +189,7 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 			&default_color_format_array[gdev->gdfIndex];
 
 	/* if viu2 has no scaler */
-	if (index >= VIU2_OSD1 && !osd_hw.viux_scale_cap) {
+	if (is_vppx(index) && !osd_hw.viux_scale_cap) {
 		xres = gdev->winSizeX;
 		yres = gdev->winSizeY;
 		xres_virtual = gdev->winSizeX;
@@ -205,11 +205,13 @@ static void osd_layer_init(GraphicDevice *gdev, int layer)
 		disp_end_y = gdev->fb_height - 1;
 	}
 #ifdef AML_OSD_HIGH_VERSION
-	if (index >= VIU2_OSD1)
+	if (is_vppx(index))
 		osd_init_hw_viux(index);
 	else
+		osd_init_hw(index);
+#else
+	osd_init_hw(index);
 #endif
-	osd_init_hw();
 	osd_setup_hw(index,
 		     xoffset,
 		     yoffset,
@@ -399,7 +401,8 @@ static void get_osd_version(void)
 	u32 family_id = osd_get_chip_type();
 
 	if (family_id == MESON_CPU_MAJOR_ID_AXG ||
-		family_id == MESON_CPU_MAJOR_ID_A4)
+		family_id == MESON_CPU_MAJOR_ID_A4 ||
+		family_id == MESON_CPU_MAJOR_ID_C3)
 		osd_hw.osd_ver = OSD_SIMPLE;
 	else if (family_id < MESON_CPU_MAJOR_ID_G12A)
 		osd_hw.osd_ver = OSD_NORMAL;
@@ -426,24 +429,62 @@ u32 osd_canvas_align(u32 x)
 		return (((x) + 31) & ~31);
 }
 
+bool is_keystone_enable_for_txhd2(void)
+{
+	bool ret = false;
+	char *enable_flag;
+
+	if (osd_get_chip_type() == MESON_CPU_MAJOR_ID_TXHD2) {
+		enable_flag = env_get("vout_projector_mux");
+		if (!enable_flag)
+			return false;
+		if (!strcmp(enable_flag, "enable"))
+			ret = true;
+		else
+			ret = false;
+	}
+	return ret;
+}
+
 int get_osd_layer(void)
 {
 	char *layer_str;
-	int osd_index = 0;
+	int osd_index = 0, vpp_index = 0;
+	static int last_osd, last_vpp;
 
 	layer_str = env_get("display_layer");
-	if (strcmp(layer_str, "osd0") == 0)
+	/*if uboot enable keystone logo will display on OSD2*/
+	if (is_keystone_enable_for_txhd2())
+		layer_str = "osd1";
+	if (strcmp(layer_str, "osd0") == 0) {
 		osd_index = OSD1;
-	else if (strcmp(layer_str, "osd1") == 0)
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "osd1") == 0) {
 		osd_index = OSD2;
-	else if (strcmp(layer_str, "osd2") == 0)
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "osd2") == 0) {
 		osd_index = OSD3;
-	else if (strcmp(layer_str, "viu2_osd0") == 0)
-		osd_index = VIU2_OSD1;
-	else if (strcmp(layer_str, "viu3_osd0") == 0)
-		osd_index = VIU3_OSD1;
-	else
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "osd3") == 0) {
+		osd_index = OSD4;
+		vpp_index = VPU_VPP0;
+	} else if (strcmp(layer_str, "viu2_osd0") == 0) {
+		osd_index = OSD3;
+		vpp_index = VPU_VPP1;
+	} else if (strcmp(layer_str, "viu3_osd0") == 0) {
+		osd_index = OSD4;
+		vpp_index = VPU_VPP2;
+	} else {
 		osd_loge("%s, error found\n", __func__);
+	}
+
+	osd_hw.vpp_index[osd_index] = vpp_index;
+	if (osd_index != last_osd || vpp_index != last_vpp)
+		osd_logd3("%s, osd%d --> vpp%d\n", __func__,
+			  osd_index, osd_hw.vpp_index[osd_index]);
+
+	last_osd = osd_index;
+	last_vpp = vpp_index;
 
 	return osd_index;
 }
@@ -479,26 +520,24 @@ static void *osd_hw_init(void)
 		osd_loge("osd_hw_init: invalid osd_index\n");
 		return NULL;
 	}
-	if (osd_index == OSD1) {
-		osd_layer_init(&fb_gdev, OSD1);
-	} else if (osd_index == OSD2) {
-		if (osd_hw.osd_ver == OSD_SIMPLE) {
-			osd_loge("AXG/A4/C3 not support osd2\n");
+	if (is_vpp0(osd_index)) {
+		if (osd_hw.osd_ver == OSD_SIMPLE && osd_index >= OSD2) {
+			osd_loge("AXG/A4/C3 not support osd%d\n", osd_index);
 			return NULL;
 		}
-		osd_layer_init(&fb_gdev, OSD2);
-	} else if (osd_index == VIU2_OSD1 /* OSD3 */) {
+		osd_layer_init(&fb_gdev, osd_index);
+	} else if (is_vpp1(osd_index)) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG/A4/C3 not support viu2 osd0\n");
 			return NULL;
 		}
-		osd_layer_init(&fb_gdev, VIU2_OSD1 /* OSD3 */);
-	}  else if (osd_index == VIU3_OSD1 /* OSD4 */) {
+		osd_layer_init(&fb_gdev, osd_index);
+	}  else if (is_vpp2(osd_index)) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG/A4/C3 not support viu3 osd0\n");
 			return NULL;
 		}
-		osd_layer_init(&fb_gdev, VIU3_OSD1 /* OSD4 */);
+		osd_layer_init(&fb_gdev, osd_index);
 	} else {
 		osd_loge("display_layer(%d) invalid\n", osd_index);
 		return NULL;
@@ -689,8 +728,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		return (-1);
 	}
 
-	/* if viu2 has no scaler */
-	if (osd_index >= VIU2_OSD1 && !osd_hw.viux_scale_cap) {
+	/* if viu2/viu3 has no scaler */
+	if (is_vppx(osd_index) && !osd_hw.viux_scale_cap) {
 		pwidth = info->width;
 		pheight = info->height;
 	} else {
@@ -1432,7 +1471,6 @@ struct vpp_post_info_t *get_vpp_post_amdv_info(void)
 #ifdef OSD_SCALE_ENABLE
 int video_scale_bitmap(void)
 {
-	char *layer_str = NULL;
 	int osd_index = -1;
 	int axis[4] = {};
 #ifdef AML_OSD_HIGH_VERSION
@@ -1447,25 +1485,15 @@ int video_scale_bitmap(void)
 		fb_gdev.fb_width, fb_gdev.fb_height, fb_gdev.winSizeX, fb_gdev.winSizeY);
 
 	vout_get_current_axis(axis);
-	layer_str = env_get("display_layer");
-	if (strcmp(layer_str, "osd0") == 0)
-		osd_index = OSD1;
-	else if (strcmp(layer_str, "osd1") == 0)
-		osd_index = OSD2;
-	else if (strcmp(layer_str, "osd2") == 0)
-		osd_index = OSD3;
-	else if (strcmp(layer_str, "viu2_osd0") == 0) {
-		osd_index = VIU2_OSD1;
-		if (!osd_hw.viux_scale_cap)
-			goto no_scale;
-	} else if (strcmp(layer_str, "viu3_osd0") == 0) {
-		osd_index = VIU3_OSD1;
-		if (!osd_hw.viux_scale_cap)
-			goto no_scale;
-	} else {
-		osd_logd2("video_scale_bitmap: invalid display_layer\n");
-		return (-1);
+	osd_index = get_osd_layer();
+	if (osd_index < 0) {
+		osd_loge("%s: invalid display_layer\n", __func__);
+		return -1;
 	}
+
+	/* if viu2/viu3 has no scaler */
+	if (is_vppx(osd_index) && !osd_hw.viux_scale_cap)
+		goto no_scale;
 
 #ifdef OSD_SUPERSCALE_ENABLE
 	if ((fb_gdev.fb_width * 2 != fb_gdev.winSizeX) ||
@@ -1489,11 +1517,15 @@ no_scale:
 	disp_data.y_start = axis[1];
 	disp_data.x_end = axis[0] + axis[2] - 1;
 	disp_data.y_end = axis[1] + axis[3] - 1;
-	if (osd_hw.osd_ver == OSD_HIGH_ONE && osd_index < VIU2_OSD1)
+	if (osd_hw.osd_ver == OSD_HIGH_ONE && is_vpp0(osd_index))
 		osd_update_blend(&disp_data);
 #endif
+#ifdef AML_C3_DISPLAY
+	osd_update_blend_c3();
+#endif
+
 #ifdef AML_S5_DISPLAY
-	if (osd_index < VIU2_OSD1) {
+	if (is_vpp0(osd_index)) {
 		update_vpp_input_info(vinfo);
 		vpp_post_blend_update_s5();
 	}
@@ -1658,7 +1690,7 @@ void img_osd_uninit(void)
 	img_video_init = 0;
 }
 
-static int _osd_hw_init(void)
+static int _osd_hw_init(bool env_used)
 {
 	u32 fb_addr = 0;
 	u32 display_width = 0;
@@ -1674,27 +1706,31 @@ static int _osd_hw_init(void)
 #ifdef CONFIG_AML_VOUT
 	vout_init();
 #endif
-	fb_addr = get_fb_addr();
+	if (env_used) {
+		fb_addr = get_fb_addr();
 #ifdef OSD_SCALE_ENABLE
-	fb_width = env_strtoul("fb_width", 10);
-	fb_height = env_strtoul("fb_height", 10);
+		fb_width = env_strtoul("fb_width", 10);
+		fb_height = env_strtoul("fb_height", 10);
 #endif
-	display_width = env_strtoul("display_width", 10);
-	display_height = env_strtoul("display_height", 10);
-	display_bpp = env_strtoul("display_bpp", 10);
-	color_index = env_strtoul("display_color_index", 10);
-	fg = env_strtoul("display_color_fg", 16);
-	bg = env_strtoul("display_color_bg", 16);
+		display_width = env_strtoul("display_width", 10);
+		display_height = env_strtoul("display_height", 10);
+		display_bpp = env_strtoul("display_bpp", 10);
+		color_index = env_strtoul("display_color_index", 10);
+		fg = env_strtoul("display_color_fg", 16);
+		bg = env_strtoul("display_color_bg", 16);
 
-	/* fill in Graphic Device */
-	fb_gdev.frameAdrs = fb_addr;
-	fb_gdev.fb_width = fb_width;
-	fb_gdev.fb_height = fb_height;
-	fb_gdev.winSizeX = display_width;
-	fb_gdev.winSizeY = display_height;
-	fb_gdev.gdfBytesPP = display_bpp / 8;
-	fb_gdev.fg = fg;
-	fb_gdev.bg = bg;
+		/* fill in Graphic Device */
+		fb_gdev.frameAdrs = fb_addr;
+		fb_gdev.fb_width = fb_width;
+		fb_gdev.fb_height = fb_height;
+		fb_gdev.winSizeX = display_width;
+		fb_gdev.winSizeY = display_height;
+		fb_gdev.gdfBytesPP = display_bpp / 8;
+		fb_gdev.fg = fg;
+		fb_gdev.bg = bg;
+	} else {
+		color_index = fb_gdev.gdfIndex;
+	}
 	if ((color_index < ARRAY_SIZE(default_color_format_array))
 	    && (default_color_format_array[color_index].color_index !=
 		COLOR_INDEX_NULL))
@@ -1706,20 +1742,31 @@ static int _osd_hw_init(void)
 	return 0;
 }
 
-static int osd_hw_init_by_index(u32 osd_index)
+static int osd_hw_init_by_index(u32 osd_index, bool env_used)
 {
-	if (_osd_hw_init() < 0)
+	if (_osd_hw_init(env_used) < 0)
 		return -1;
-	if (osd_index == OSD1)
+	if (osd_index == OSD1) {
 		osd_layer_init(&fb_gdev, OSD1);
-	else if ( osd_index == OSD2) {
+	} else if (osd_index == OSD2) {
 		if (osd_hw.osd_ver == OSD_SIMPLE) {
 			osd_loge("AXG/A4/C3 not support osd2\n");
 			return -1;
 		}
 		osd_layer_init(&fb_gdev, OSD2);
-	}
-	else {
+	} else if (osd_index == OSD3) {
+		if (osd_hw.osd_ver == OSD_SIMPLE) {
+			osd_loge("AXG/A4/C3 not support osd3\n");
+			return -1;
+		}
+		osd_layer_init(&fb_gdev, OSD3);
+	} else if (osd_index == OSD4) {
+		if (osd_hw.osd_ver == OSD_SIMPLE) {
+			osd_loge("AXG/A4/C3 not support osd4\n");
+			return -1;
+		}
+		osd_layer_init(&fb_gdev, OSD4);
+	} else {
 		osd_loge("display_layer(%d) invalid\n", osd_index);
 		return -1;
 	}
@@ -1729,59 +1776,90 @@ static int osd_hw_init_by_index(u32 osd_index)
 
 static int video_display_osd(u32 osd_index)
 {
-	struct vinfo_s *info = NULL;
-#if defined CONFIG_AML_VOUT
-	info = vout_get_current_vinfo();
-#endif
 	ushort i, j;
 	uchar *fb;
+	void *vd_base;
 	unsigned long width, height;
 #ifdef OSD_SCALE_ENABLE
 	unsigned long pheight = fb_gdev.fb_height;
 	unsigned long pwidth = fb_gdev.fb_width;
 #else
+	struct vinfo_s *info = NULL;
+#if defined CONFIG_AML_VOUT
+	info = vout_get_current_vinfo();
+#endif
 	unsigned long pheight = info->width;
 	unsigned long pwidth = info->height;
 #endif
-	int bpp;
+	int bpp, ret = 0;
 
-	if (fb_gdev.gdfBytesPP != 2) {
-		osd_loge("%d bit/pixel mode1, not support now\n",
-			fb_gdev.gdfBytesPP);
-		return -1;
-	}
 	bpp = fb_gdev.gdfBytesPP;
 	width = fb_gdev.fb_width;
 	height = fb_gdev.fb_height;
 	osd_set_free_scale_enable_hw(osd_index, 0x0);  // disable free_scale
+	osd_set_dimm(osd_index, 0, 0);                 // disable dim
 	osd_enable_hw(osd_index, 1);
 
-	fb   = (uchar *)(info->vd_base);
+	vd_base = (void *)(unsigned long)fb_gdev.frameAdrs;
+	fb = (uchar *)vd_base;
+
 	osd_logd("fb=0x%p; width=%ld, height= %ld, bpp=%d\n",
 		 fb, width, height, bpp);
 
-	for (j = 0; j < height; j++) {
-		for (i = 0; i < width; i++ ) {
-			*(fb++) = 0x0;
-			*(fb++) = 0xf8;
+	switch (bpp) {
+	case 2:
+		for (j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				*(fb++) = 0x0;
+				*(fb++) = 0xf8;
+			}
 		}
+		break;
+	case 3:
+		for (j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				*(fb++) = 0x0;
+				*(fb++) = 0x0;
+				*(fb++) = 0xff;
+			}
+		}
+		break;
+	case 4:
+		for (j = 0; j < height; j++) {
+			for (i = 0; i < width; i++) {
+				*(fb++) = 0x0;
+				*(fb++) = 0x0;
+				*(fb++) = 0xff;
+				*(fb++) = 0xff;
+			}
+		}
+		break;
+	default:
+		osd_loge("%d bit/pixel is not support\n", bpp);
+		ret = -1;
+		break;
 	}
 
-	flush_cache((unsigned long)info->vd_base, pheight * pwidth * bpp);
-	return (0);
+	flush_cache((unsigned long)fb_gdev.frameAdrs, pheight * pwidth * bpp);
+	return ret;
 }
 
-u32 hist_max_min[3][100], hist_spl_val[3][100],
-	hist_spl_pix_cnt[3][100], hist_cheoma_sum[3][100];
+u32 hist_max_min[4][100], hist_spl_val[4][100];
+u32 hist_spl_pix_cnt[4][100], hist_cheoma_sum[4][100];
 
 void hist_set_golden_data(void)
 {
 	u32 i = 0;
 	u32 family_id = osd_get_chip_type();
 	char *str = NULL;
-	char *hist_env_key[12] = {"hist_max_min_osd0","hist_spl_val_osd0","hist_spl_pix_cnt_osd0","hist_cheoma_sum_osd0",
-	                         "hist_max_min_osd1","hist_spl_val_osd1","hist_spl_pix_cnt_osd1","hist_cheoma_sum_osd1",
-							 "hist_max_min_osd2","hist_spl_val_osd2","hist_spl_pix_cnt_osd2","hist_cheoma_sum_osd2"};
+	char *hist_env_key[16] = {"hist_max_min_osd0", "hist_spl_val_osd0",
+				"hist_spl_pix_cnt_osd0", "hist_cheoma_sum_osd0",
+				"hist_max_min_osd1", "hist_spl_val_osd1",
+				"hist_spl_pix_cnt_osd1", "hist_cheoma_sum_osd1",
+				"hist_max_min_osd2", "hist_spl_val_osd2",
+				"hist_spl_pix_cnt_osd2", "hist_cheoma_sum_osd2",
+				"hist_max_min_osd3", "hist_spl_val_osd3",
+				"hist_spl_pix_cnt_osd3", "hist_cheoma_sum_osd3"};
 	// GXL
 	hist_max_min[OSD1][MESON_CPU_MAJOR_ID_GXL] = 0x3d3d;
 	hist_spl_val[OSD1][MESON_CPU_MAJOR_ID_GXL] = 0xc4dad1;
@@ -1830,7 +1908,23 @@ void hist_set_golden_data(void)
 	hist_cheoma_sum[OSD1][MESON_CPU_MAJOR_ID_SC2]
 						= hist_cheoma_sum[OSD2][MESON_CPU_MAJOR_ID_SC2]
 						= 0xfd20480;
-	for (i = 0; i < 12; i++) {
+	//T7
+	#ifdef project
+	//for some special project can set env hardcode
+	hist_max_min[OSD1][MESON_CPU_MAJOR_ID_T7] = 0x3e3e;
+	hist_max_min[OSD2][MESON_CPU_MAJOR_ID_T7] = 0x3e3e;
+	hist_max_min[OSD3][MESON_CPU_MAJOR_ID_T7] = 0x3e3e;
+	hist_spl_val[OSD1][MESON_CPU_MAJOR_ID_T7] = 0x1ea6e000;
+	hist_spl_val[OSD2][MESON_CPU_MAJOR_ID_T7] = 0x1ea6e000;
+	hist_spl_val[OSD3][MESON_CPU_MAJOR_ID_T7] = 0x1ea6e000;
+	hist_spl_pix_cnt[OSD1][MESON_CPU_MAJOR_ID_T7] = 0x7e9000;
+	hist_spl_pix_cnt[OSD2][MESON_CPU_MAJOR_ID_T7] = 0x7e9000;
+	hist_spl_pix_cnt[OSD3][MESON_CPU_MAJOR_ID_T7] = 0x7e9000;
+	hist_cheoma_sum[OSD1][MESON_CPU_MAJOR_ID_T7] = 0x219e4000;
+	hist_cheoma_sum[OSD2][MESON_CPU_MAJOR_ID_T7] = 0x219e4000;
+	hist_cheoma_sum[OSD3][MESON_CPU_MAJOR_ID_T7] = 0x219e4000;
+	#endif
+	for (i = 0; i < 16; i++) {
 		str = env_get(hist_env_key[i]);
 		if (str) {
 			switch (i%4) {
@@ -1851,36 +1945,254 @@ void hist_set_golden_data(void)
 	}
 }
 
+static int osd_rma_test_new(u32 osd_index)
+{
+	u32 i = osd_index;
+	u32 hist_result[4], osd_state;
+#ifndef AML_C3_DISPLAY
+	int ret = 0;
+#endif
+
+	get_osd_version();
+
+	hist_set_golden_data();
+	osd_logd("=== osd_rma_test for osd%d ===\n", i);
+	osd_hw_init_by_index(i, false);
+	if (-1 == video_display_osd(i))
+		return (-1);
+	osd_hist_enable(osd_index);
+	_udelay(50000);
+	osd_state = osd_get_state(osd_index);
+	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
+	osd_get_hist_stat(hist_result);
+	_udelay(50000);
+	osd_state = osd_get_state(osd_index);
+	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
+	osd_get_hist_stat(hist_result);
+#ifndef OSD_SLT_DISABLE
+#ifndef AML_C3_DISPLAY
+	u32 family_id = osd_get_chip_type();
+
+	if (hist_result[0] == hist_max_min[osd_index][family_id] &&
+		hist_result[1] == hist_spl_val[osd_index][family_id] &&
+		hist_result[2] == hist_spl_pix_cnt[osd_index][family_id] &&
+		hist_result[3] == hist_cheoma_sum[osd_index][family_id]) {
+		osd_logi("=== osd%d, osd_rma_test pass. ===\n", osd_index);
+		ret = 0;
+	} else {
+		osd_loge("osd hist stat result:0x%x, 0x%x, 0x%x, 0x%x\n",
+			hist_result[0], hist_result[1],
+			hist_result[2], hist_result[3]);
+		osd_loge("osd hist golden data:0x%x, 0x%x, 0x%x, 0x%x\n",
+			hist_max_min[osd_index][family_id],
+			hist_spl_val[osd_index][family_id],
+			hist_spl_pix_cnt[osd_index][family_id],
+			hist_cheoma_sum[osd_index][family_id]);
+		osd_loge("=== osd%d, osd_rma_test failed. ===\n", osd_index);
+		ret = -1;
+	}
+	return ret;
+#else
+	/*second parameter according to  data in video_display_osd function which write to fb*/
+	return test_for_c3(osd_index, 0xf800);
+#endif
+#else
+	osd_logi("=== osd slt test is not supported. ===\n");
+	return 0;
+#endif
+
+}
+
+int osd_rma_test_with_addr(u32 start_addr, u32 end_addr)
+{
+	unsigned long long ddr_size = 0;
+	u32 chip_type = 0;
+	u32 start_ddr_addr = 0x10000000, end_ddr_addr = 0;
+	int osd_count = 0, i, j;
+	static unsigned long pheight_save;
+	static unsigned long pwidth_save;
+	static u32 bpp_save, logo_addr_save, color_index_save;
+	unsigned int k, count = 0, fb_len = 0;
+	u32 skip_addr_start[4] = {0}, skip_addr_end[4] = {0};
+	int skip_cnt = 0, skip_test = 0;
+	char *str_env;
+	int ret;
+	bool result = true;
+
+	rma_test_addr = 1;
+	pheight_save = fb_gdev.fb_height;
+	pwidth_save = fb_gdev.fb_width;
+	bpp_save = fb_gdev.gdfBytesPP;
+	color_index_save = fb_gdev.gdfIndex;
+	logo_addr_save = fb_gdev.frameAdrs;
+
+	ddr_size = get_effective_memsize();
+	/* if 4G, 3.5G-4G cant used */
+	if (ddr_size == 0x100000000)
+		end_ddr_addr = 0xe0000000;
+	else
+		end_ddr_addr = ddr_size;
+	if (start_addr > start_ddr_addr)
+		start_ddr_addr = start_addr;
+	if (end_addr == 0)
+		end_addr = end_ddr_addr;
+	if (end_addr < end_ddr_addr)
+		end_ddr_addr = end_addr;
+	printf("%s:addr range(0x%x~0x%x)\n",
+		__func__, start_ddr_addr, end_ddr_addr);
+	if (start_ddr_addr > end_ddr_addr) {
+		printf("start(0x%x) > end(0x%x)r, not support\n",
+			start_ddr_addr, end_ddr_addr);
+		return -1;
+	}
+
+	stop_osd_log();
+	/* templiy set max size */
+	fb_gdev.fb_height = 1080;
+	fb_gdev.fb_width = 1920;
+	fb_gdev.gdfBytesPP = 4;
+	fb_gdev.frameAdrs = start_ddr_addr;
+	fb_gdev.gdfIndex = 32;
+	printf("%s:pwidth_save=%d, pheight_save=%d, bpp_save=%d, logo_addr_save=0x%x\n",
+		__func__,
+		fb_gdev.fb_width,
+		fb_gdev.fb_height,
+		fb_gdev.gdfBytesPP,
+		fb_gdev.frameAdrs);
+
+	chip_type = osd_get_chip_type();
+	switch (chip_type) {
+	case MESON_CPU_MAJOR_ID_T7:
+		osd_count = 4;
+		break;
+	case MESON_CPU_MAJOR_ID_TXLX:
+	case MESON_CPU_MAJOR_ID_S4:
+	case MESON_CPU_MAJOR_ID_S5:
+	case MESON_CPU_MAJOR_ID_TXHD2:
+		osd_count = 2;
+		break;
+	case MESON_CPU_MAJOR_ID_AXG:
+	case MESON_CPU_MAJOR_ID_C3:
+	case MESON_CPU_MAJOR_ID_A4:
+		osd_count = 1;
+		break;
+	default:
+		osd_count = 3;
+		//remove viu2
+		osd_count--;
+		break;
+	}
+
+	str_env = env_get("osd_count");
+	if (str_env)
+		osd_count = simple_strtoul(str_env, NULL, 10);
+
+	fb_len = fb_gdev.fb_height * fb_gdev.fb_width * fb_gdev.gdfBytesPP;
+
+	/* set skip addr, different chip different ramdisk addr skip */
+	#ifdef project
+	skip_addr_start[0] = 0x7883b000;
+	skip_addr_end[0] = 0x796dffff;
+	#endif
+	str_env = env_get("fb_skip_addr_start");
+	if (str_env)
+		skip_addr_start[0] = simple_strtoul(str_env, NULL, 16);
+	str_env = env_get("fb_skip_addr_end");
+	if (str_env)
+		skip_addr_end[0] = simple_strtoul(str_env, NULL, 16);
+	skip_cnt = 1;
+	for (k = start_ddr_addr; (k + fb_len) < end_ddr_addr;) {
+		skip_test = 0;
+		for (j = 0; j < skip_cnt; j++)
+			if ((k >= skip_addr_start[j] &&
+				k < skip_addr_end[j]) ||
+				(k + fb_len >= skip_addr_start[j] &&
+				k + fb_len < skip_addr_end[j])) {
+				osd_logd("ramdisk(%x~ %x) addr skip: %x~ %x\n",
+					 skip_addr_start[j], skip_addr_end[j],
+					 k, (k + fb_len));
+				skip_test = 1;
+				break;
+			}
+		if (!skip_test) {
+			for (i = 0; i < osd_count; i++) {
+				ret = osd_rma_test_new(i);
+				if (ret < 0) {
+					result = false;
+					goto show_result;
+				}
+			}
+		}
+		k += fb_len;
+		fb_gdev.frameAdrs = k;
+		count++;
+		osd_logd("fb_gdev.frameAdrs=%x, count =%d\n",
+			 fb_gdev.frameAdrs, count);
+	}
+	/* end_ddr_addr is to small */
+	if (k == start_ddr_addr)
+		result = false;
+
+show_result:
+	start_osd_log();
+	if (result)
+		osd_logi("=== osd_rma_test pass. ===\n");
+	else
+		osd_logi("=== osd_rma_test failed. ===\n");
+
+	/* after test, restore env */
+	fb_gdev.fb_height = pheight_save;
+	fb_gdev.fb_width = pwidth_save;
+	fb_gdev.gdfBytesPP = bpp_save;
+	fb_gdev.gdfIndex = color_index_save;
+	fb_gdev.frameAdrs = logo_addr_save;
+	rma_test_addr = 0;
+	return 0;
+}
+
 int osd_rma_test(u32 osd_index)
 {
 	u32 i = osd_index, osd_max = 1;
-	u32 hist_result[4];
+#ifndef AML_C3_DISPLAY
+	u32 hist_result[4], osd_state;
+#endif
 
+	rma_test = 1;
 	get_osd_version();
 	if (osd_hw.osd_ver == OSD_SIMPLE) {
 		osd_max = 0;
 	} else if (osd_hw.osd_ver == OSD_HIGH_ONE) {
-		osd_max = 1; // osd3 not supported now
+		osd_max = 3; /* 0/1/2/3 */
 	}
 	if (osd_index > osd_max) {
 		osd_loge("=== osd%d is not supported, osd_max is %d ===\n", osd_index, osd_max);
 		return (-1);
 	}
 
+	stop_osd_log();
+#ifndef AML_C3_DISPLAY
 	hist_set_golden_data();
+#endif
 	osd_logi("=== osd_rma_test for osd%d ===\n", i);
-	osd_hw_init_by_index(i);
+	osd_hw_init_by_index(i, true);
 	if (-1 == video_display_osd(i)) {
 		return (-1);
 	}
+#ifndef OSD_SLT_DISABLE
+#ifndef AML_C3_DISPLAY
 	osd_hist_enable(osd_index);
 	_udelay(50000);
+	osd_state = osd_get_state(osd_index);
+	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
 	osd_get_hist_stat(hist_result);
 	_udelay(50000);
+	osd_state = osd_get_state(osd_index);
+	osd_logd2("osd%d state:0x%x\n", osd_index, osd_state);
 	osd_get_hist_stat(hist_result);
-#ifndef AML_C3_DISPLAY
+	rma_test = 0;
 	u32 family_id = osd_get_chip_type();
 
+	start_osd_log();
 	if ((hist_result[0] == hist_max_min[osd_index][family_id]) && (hist_result[1] == hist_spl_val[osd_index][family_id]) &&
 	    (hist_result[2] == hist_spl_pix_cnt[osd_index][family_id]) && (hist_result[3] == hist_cheoma_sum[osd_index][family_id])) {
 			osd_logi("=== osd%d, osd_rma_test pass. ===\n", osd_index);
@@ -1897,5 +2209,9 @@ int osd_rma_test(u32 osd_index)
 #else
 	/*second parameter according to  data in video_display_osd function which write to fb*/
 	return test_for_c3(osd_index, 0xf800);
+#endif
+#else
+	osd_logi("=== osd slt test is not supported. ===\n");
+	return 0;
 #endif
 }

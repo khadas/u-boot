@@ -73,8 +73,8 @@
 	"jtag=disable\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
-	"loadaddr_rtos=0x00001000\0"\
-	"loadaddr_kernel=0x05600000\0"\
+	"loadaddr_rtos=0x00080000\0"\
+	"loadaddr_kernel=0x01080000\0"\
 	"dv_fw_addr=0xa00000\0"\
 	"otg_device=1\0" \
 	"dtb_mem_addr=0x01000000\0" \
@@ -164,6 +164,7 @@
 		"if mmcinfo; then run recovery_from_fat_dev; fi;"\
 		"\0"\
 	"recovery_from_flash="\
+		"run storage_param;"\
 		"setenv loadaddr ${loadaddr_kernel};"\
 		"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt} "\
 		"recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
@@ -262,7 +263,7 @@
 #error CONFIG_SPI_NAND/CONFIG_MTD_SPI_NAND/CONFIG_MESON_NFC can not support at the sametime;
 #endif
 
-#define ADVANCE_DDRFIP_SIZE		0x1c0000
+#define BOARD_DDRFIP_SIZE		0x1c0000
 
 /* #define		CONFIG_AML_SD_EMMC 1 */
 #ifdef CONFIG_AML_SD_EMMC

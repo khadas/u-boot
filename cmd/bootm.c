@@ -154,8 +154,6 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *pbootargs = env_get("bootargs");
 	char *preboot_mode = env_get("reboot_mode");
 
-	bootloader_wp_check();
-
 	if (pbootargs && preboot_mode) {
 		int nlen = strlen(pbootargs) + strlen(preboot_mode) + 16;
 		char *pnewbootargs = malloc(nlen);
@@ -258,6 +256,32 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+	char *fastboot_step = env_get("fastboot_step");
+
+	if (fastboot_step && (strcmp(fastboot_step, "2") == 0)) {
+		//come to here, means new burn bootloader.img is OK, reset env
+		printf("new burn bootloader.img is OK, write other bootloader\n");
+		char *gpt_mode = env_get("gpt_mode");
+		char *nocs_mode = env_get("nocs_mode");
+
+		if ((gpt_mode && !strcmp(gpt_mode, "true")) ||
+			(nocs_mode && !strcmp(nocs_mode, "true"))) {
+			printf("gpt or disable user bootloader mode\n");
+			run_command("copy_slot_bootable 2 1", 0);
+		} else {
+			printf("normal mode\n");
+			run_command("copy_slot_bootable 1 0", 0);
+			run_command("copy_slot_bootable 1 2", 0);
+		}
+
+		env_set("fastboot_step", "0");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p fastboot_step;", 0);
+#else
+		run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
+#endif
+	}
+
 #ifdef CONFIG_CMD_BOOTCTOL_AVB
 	int rc = 0;
 	char *avb_s = env_get("avb2");
@@ -290,16 +314,18 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				uint32_t i = 0;
 				uint32_t version = 0;
 
-				for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++) {
-					uint64_t rb_idx = out_data->rollback_indexes[i];
+                if(!set_successful_boot()) {
+    				for (i = 0; i < AVB_MAX_NUMBER_OF_ROLLBACK_INDEX_LOCATIONS; i++) {
+    					uint64_t rb_idx = out_data->rollback_indexes[i];
 
-					if (get_avb_antirollback(i, &version) &&
-						version != (uint32_t)rb_idx &&
-						!set_avb_antirollback(i, (uint32_t)rb_idx)) {
-						printf("rollback(%d) = %u failed\n",
-								i, (uint32_t)rb_idx);
-					}
-				}
+    					if (get_avb_antirollback(i, &version) &&
+    						version != (uint32_t)rb_idx &&
+    						!set_avb_antirollback(i, (uint32_t)rb_idx)) {
+    						printf("rollback(%d) = %u failed\n",
+    								i, (uint32_t)rb_idx);
+    					}
+    				}
+                }
 			}
 
 			if (is_avb_arb_available() &&
@@ -335,6 +361,8 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			boot_params.boot_patchlevel =
 				avb_get_boot_patchlevel_from_vbmeta(out_data);
+
+			create_csrs();
 
 			boot_params.device_locked = is_dev_unlocked? 0: 1;
 			if (is_dev_unlocked || (toplevel_vbmeta.flags &
@@ -384,6 +412,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif//CONFIG_CMD_BOOTCTOL_AVB
 
 	recovery_mode_process();
+	bootloader_wp_check();
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |

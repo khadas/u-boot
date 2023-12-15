@@ -15,6 +15,7 @@
 #ifdef CONFIG_AML_VOUT
 #include <amlogic/media/vout/aml_vout.h>
 #endif
+#include <amlogic/media/vout/dsc.h>
 
 static struct hdmitx_dev hdmitx_device;
 
@@ -96,7 +97,7 @@ static void hdmi_hwp_init(void)
 	data32 |= (1 << 2);  // [  2] hpd_fall_intr
 	data32 |= (1 << 1);  // [  1] hpd_rise_intr
 	data32 |= (1 << 0);  // [ 0] core_pwd_intr_rise
-	hdmitx21_wr_reg(HDMITX_TOP_INTR_MASKN, 0x6);
+	hdmitx21_set_bit(HDMITX_TOP_INTR_MASKN, BIT(2) | BIT(1), 1);
 
 	//--------------------------------------------------------------------------
 	// Configure E-DDC interface
@@ -195,7 +196,8 @@ static void hdmitx21_test_bist(unsigned int mode)
 		/* when FRL works, here will be half rate */
 		if (hdev->frl_rate) {
 			width /= 2;
-			if (hdev->para->cs == HDMI_COLORSPACE_YUV420)
+			if (hdev->para->cs == HDMI_COLORSPACE_YUV420 ||
+				hdev->dsc_en)
 				width /= 2;
 		}
 		hd21_write_reg(VENC_VIDEO_TST_CLRBAR_WIDTH, width / 8);
@@ -315,12 +317,29 @@ static void amhdmitx_infoframe_init(struct hdmitx_dev *hdev)
 void hdmitx21_init(void)
 {
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
-	char *dongle_mode = NULL;
+	char *dongle_mode = env_get("dongle_mode");
+	char *dsc_policy = env_get("dsc_policy");
 	static struct hdmi_format_para para;
 
-	dongle_mode = env_get("dongle_mode");
 	if (dongle_mode && (dongle_mode[0] == '1'))
 		hdev->dongle_mode = 1;
+	if (!dsc_policy) {
+		hdev->dsc_policy = 0;
+	} else {
+		if (strcmp(dsc_policy, "0") == 0)
+			hdev->dsc_policy = 0;
+		else if (strcmp(dsc_policy, "1") == 0)
+			hdev->dsc_policy = 1;
+		else if (strcmp(dsc_policy, "2") == 0)
+			hdev->dsc_policy = 2;
+		else if (strcmp(dsc_policy, "3") == 0)
+			hdev->dsc_policy = 3;
+		else if (strcmp(dsc_policy, "4") == 0)
+			hdev->dsc_policy = 4;
+		else
+			hdev->dsc_policy = 0;
+	}
+
 	hdev->hwop.get_hpd_state = hdmitx_get_hpd_state;
 	hdev->hwop.read_edid = hdmitx21_read_edid;
 	hdev->hwop.turn_off = hdmitx_turnoff;
@@ -334,8 +353,14 @@ void hdmitx21_init(void)
 	hdmi_hwp_init();
 	amhdmitx_infoframe_init(hdev);
 	hdev->para = &para;
+	hdev->dfm_type = -1;
 }
 
+/* vid_pll_clk for master clk
+ * RA bit[18:16] source 0: vid_pll0_clk
+ * RG[7:0] XD0
+ * RA[2:0] DIV4/2/1_EN
+ */
 static void set_vid_clk_div(u32 div)
 {
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 0, 16, 3);
@@ -343,17 +368,26 @@ static void set_vid_clk_div(u32 div)
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 7, 0, 3);
 }
 
+/* RD bit[5]:pixel clk gate enable */
 static void set_hdmi_tx_pixel_div(u32 div)
 {
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 5, 1);
 }
 
+/* RG [27:24] ENCP_CLK_SEL no need for S5? S5 use RE[15:12] as div
+ * RA bit[19]: CLK_EN0
+ * todo
+ */
 static void set_encp_div(u32 div)
 {
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_DIV, div, 24, 4);
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 1, 19, 1);
 }
 
+/* RD bit[2] ENCP CLK GATE, but for clk tree of S5,
+ * RD bit[3] is for gate of ENC, not bit[2].
+ * todo
+ */
 static void hdmitx_enable_encp_clk(void)
 {
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 2, 1);
@@ -371,12 +405,17 @@ static void set_hdmitx_fe_clk(void)
 	u32 vid_clk_div;
 	u32 hdmi_clk_cntl;
 
+	/* RD bit[9]: Gclk_hdmi_tx_fe_clk */
 	vid_clk_cntl2 = CLKCTRL_VID_CLK0_CTRL2;
+	/* RG [27:24] ENCP_CLK_SEL no need for S5? */
 	vid_clk_div = CLKCTRL_VID_CLK0_DIV;
+	/* register wrong for S5, CLKCTRL_ENC0_HDMI_CLK_CTRL?
+	 * CLKCTRL_HDMI_CLK_CTRL bit[23:20] reserved in S5
+	 */
 	hdmi_clk_cntl = CLKCTRL_HDMI_CLK_CTRL;
 
 	hd21_set_reg_bits(vid_clk_cntl2, 1, 9, 1);
-
+	/* divider same as encp */
 	tmp = (hd21_read_reg(vid_clk_div) >> 24) & 0xf;
 	hd21_set_reg_bits(hdmi_clk_cntl, tmp, 20, 4);
 }
@@ -480,22 +519,24 @@ static bool is_deep_phase_unstable(enum hdmi_colorspace cs, enum hdmi_color_dept
 //Enable CLK_ENCL
 void enable_crt_video_encl(u32 enable, u32 in_sel)
 {
+	/* RE bit[15:12] encl_clk_sel, 0: vid_pll0_clk */
 	//encl_clk_sel:hi_viid_clk_div[15:12]
 	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_DIV, in_sel,  12, 4);
 	if (in_sel <= 4) { //V1
 		//#if (SDF_CORNER == 0 || SDF_CORNER == 2)    //ss_corner
 		//      hd21_set_reg_bits(CLKCTRL_VID_CLK_CTRL, 1, 16, 3);  //sel div4 : 500M
 		//#endif
+		/* RA bit[1:0] div2/1 */
 		hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, 1, in_sel, 1);
 	} else {
 		hd21_set_reg_bits(CLKCTRL_VIID_CLK0_CTRL, 1, in_sel - 8, 1);
 	}
-
+	/* RD bit[3]: ENCL gated clock */
 	//gclk_encl_clk:hi_vid_clk_cntl2[3]
 	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, enable, 3, 1);
 }
 
-//Enable CLK_ENCP
+//Enable CLK_ENCP, no use for S5, already configure previously
 void enable_crt_video_encp(u32 enable, u32 in_sel)
 {
 	enable_crt_video_encl(enable, in_sel);
@@ -523,6 +564,50 @@ void enable_crt_video_encp2(u32 enable, u32 in_sel)
 	enable_crt_video_encl2(enable, in_sel);
 }
 
+/* master_clk selects source from vid_pll0_clk or vid_pll1_clk(fpll_pixel_clk)
+ * under FRL mode, no matter DSC or non-DSC, select fpll_pixel_clk
+ * it's used for pixel/pnx/enc/fe clk under frl & non-DSC mode;
+ * and used for pixel/pnx clk under frl & DSC mode (enc_clk mux to v2_master_clk
+ * and fe_clk mux to GP2_pll, refer to hdmitx_mux_gp2_pll);
+ */
+static void hdmitx_mux_vid_pll_clk(struct hdmitx_dev *hdev)
+{
+	/* RA bit[18:16] vid_pll_clk source: 0 vid_pll0_clk, 4 vid_pll1_clk */
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL, hdev->frl_rate ? 4 : 0, 16, 3);
+}
+
+/* In the DSC mode, the v2_master_clk will choose gp2_pll_clk */
+/* this mux is for enc_clk & fe_clk
+ * note enc_clk need go through CRT_VIDEO, while fe_clk can
+ * directly mux to gp2_pll
+ */
+static void hdmitx_mux_gp2_pll(struct hdmitx_dev *hdev)
+{
+	/* RB bit[18:16] V2_cntl_clk_in_sel
+	 * bit[19] V2_cntl_clk_en0, bit[0]:V2_cntl_div1_en
+	 * select gp2_pll_clk->v2_master_clk->enc_clk div1
+	 */
+	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_CTRL, 1, 16, 3);
+	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_CTRL, 1, 19, 1);
+	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_CTRL, 1, 0, 1);
+
+	/* RE bit[15:12] enc_clk mux to v2_master_clk
+	 * bit[7:0] V2_cntl_xd0
+	 * bit[16] V2_cntl_clk_div_en
+	 */
+	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_DIV, 8, 12, 4);
+	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_DIV, 0, 0, 8);
+	hd21_set_reg_bits(CLKCTRL_VIID_CLK0_DIV, 1, 16, 1);
+
+	/* RD bit[3] ENC gate enable */
+	hd21_set_reg_bits(CLKCTRL_VID_CLK0_CTRL2, 1, 3, 1);
+
+	/* RF fe_clk mux to gp2_pll_clk */
+	hd21_set_reg_bits(CLKCTRL_ENC_HDMI_CLK_CTRL, 1, 13, 2); /* mux */
+	hd21_set_reg_bits(CLKCTRL_ENC_HDMI_CLK_CTRL, 1, 12, 1); /* en */
+	hd21_set_reg_bits(CLKCTRL_ENC_HDMI_CLK_CTRL, 0, 8, 4); /* div */
+}
+
 //Enable HDMI_TX_PIXEL_CLK
 //Note: when in_sel == 15, select tcon_clko
 void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
@@ -548,6 +633,7 @@ void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 		hd21_set_reg_bits(addr_viid_clk02, 1, in_sel - 8, 1);
 	}
 
+	/* RD bit[10,9,5] for pnx/fe/pixel clk gate */
 	// Enable hdmi_tx_pnx_clk
 	hd21_set_reg_bits(addr_vid_clk022, enable, 10, 1);
 	// Enable hdmi_tx_fe_clk
@@ -555,6 +641,7 @@ void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 	// Enable hdmi_tx_pixel_clk
 	hd21_set_reg_bits(addr_vid_clk022, enable, 5, 1);
 
+	/* RF */
 	// [22:21] clk_sl: 0=enc0_hdmi_tx_pnx_clk, 1=enc2_hdmi_tx_pnx_clk.
 	// [   20] clk_en for hdmi_tx_pnx_clk
 	// [19:16] clk_div for hdmi_tx_pnx_clk
@@ -564,6 +651,9 @@ void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 	// [ 6: 5] clk_sl: 0=enc0_hdmi_tx_pixel_clk, 1=enc2_hdmi_tx_pixel_clk.
 	// [    4] clk_en for hdmi_tx_pixel_clk
 	// [ 3: 0] clk_div for hdmi_tx_pixel_clk
+	/* this bit13 of CLKCTRL_ENC_HDMI_CLK_CTRL will select source from
+	 * enc0_hdmi_tx_fe_clk, while it need to select source from gp2
+	 */
 	data32 = 0;
 	data32 = (enc_sel << 21) |
 		 (0 << 20) |
@@ -694,6 +784,215 @@ static void set_hdmitx_enc_idx(unsigned int val)
 	arm_smccc_smc(HDCPTX_IOOPR, CONF_ENC_IDX, 1, !!val, 0, 0, 0, 0, &res);
 }
 
+void hdmitx21_select_frl(struct hdmitx_dev *hdev)
+{
+	struct hdmi_format_para *para = hdev->para;
+	enum hdmi_vic vic = para->timing.vic;
+#ifdef CONFIG_AML_VOUT
+	struct vinfo_s *info = vout_get_current_vinfo();
+
+	if (!info) {
+		pr_info("warning: %s vinfo null\n", __func__);
+		return;
+	}
+#endif
+
+	hdev->frl_rate = FRL_NONE;
+	if (hdev->RXCap.max_frl_rate  && hdev->chip_type == MESON_CPU_ID_S5) {
+		hdev->frl_rate = hdmitx21_select_frl_rate(hdev->dsc_en, vic,
+			hdev->para->cs, hdev->para->cd);
+
+		/* note ignore DSC_FRL_MAX or FRL_MAX test, only check in kernel */
+		/* DSC specific, automatically enable dsc if necessary */
+		if (vic == HDMI_199_7680x4320p60_16x9) {
+			if (para->cs == HDMI_COLORSPACE_RGB ||
+				para->cs == HDMI_COLORSPACE_YUV444) {
+				hdev->dsc_en = 1;
+				/* note: previously spec FRL_6G4L can't work */
+				hdev->frl_rate = FRL_6G4L;
+				/* pr_info("%s automatically dsc enable\n", __func__); */
+			} else if ((para->cs == HDMI_COLORSPACE_YUV420 &&
+				para->cd == COLORDEPTH_36B) ||
+				para->cs == HDMI_COLORSPACE_YUV422) {
+				hdev->dsc_en = 1;
+				/* note: previously spec FRL_6G3L can't work */
+				hdev->frl_rate = FRL_6G3L;
+				/* pr_info("%s automatically dsc enable\n", __func__); */
+			} else if (hdev->dsc_policy == 1) {
+				/* for 420,8/10bit */
+				/* force mode for dsc test, may need to also set manual_frl_rate */
+				hdev->dsc_en = 1;
+				/* note: previously spec FRL_6G3L can't work */
+				hdev->frl_rate = FRL_6G3L;
+			} else {
+				hdev->dsc_en = 0;
+			}
+			/* if (hdev->dsc_en) */
+				/* pr_info("forced DSC rate %d\n", hdev->frl_rate); */
+		} else if (vic == HDMI_198_7680x4320p50_16x9) {
+			if (para->cs == HDMI_COLORSPACE_RGB ||
+				para->cs == HDMI_COLORSPACE_YUV444) {
+				hdev->dsc_en = 1;
+				hdev->frl_rate = FRL_6G4L;
+				/* pr_info("%s automatically dsc enable\n", __func__); */
+			} else if ((para->cs == HDMI_COLORSPACE_YUV420 &&
+				para->cd == COLORDEPTH_36B) ||
+				para->cs == HDMI_COLORSPACE_YUV422) {
+				hdev->dsc_en = 1;
+				hdev->frl_rate = FRL_6G3L;
+				/* pr_info("%s automatically dsc enable\n", __func__); */
+			} else if (hdev->dsc_policy == 1) {
+				/* for 420,8/10bit */
+				/* force mode for dsc test, may need to also set manual_frl_rate */
+				hdev->dsc_en = 1;
+				hdev->frl_rate = FRL_6G3L;
+			} else {
+				hdev->dsc_en = 0;
+			}
+			/* if (hdev->dsc_en) */
+				/* pr_info("spec recommended DSC frl rate: %d\n", */
+					/* hdev->frl_rate); */
+		} else if (vic == HDMI_195_7680x4320p25_16x9 ||
+			vic == HDMI_194_7680x4320p24_16x9) {
+			if ((para->cs == HDMI_COLORSPACE_YUV444 ||
+				para->cs == HDMI_COLORSPACE_RGB) &&
+				para->cd == COLORDEPTH_36B) {
+				hdev->dsc_en = 1;
+				hdev->frl_rate = FRL_6G3L;
+				/* pr_info("%s automatically dsc enable\n", __func__); */
+			} else if (hdev->dsc_policy == 1) {
+				/* force mode for test, may need to also set manual_frl_rate */
+				hdev->dsc_en = 1;
+				/* for y444/rgb,8/10bit */
+				if (para->cs == HDMI_COLORSPACE_YUV444 ||
+					para->cs == HDMI_COLORSPACE_RGB)
+					hdev->frl_rate = FRL_6G3L;
+				else
+					hdev->frl_rate = FRL_3G3L; //for 422/420
+			} else {
+				hdev->dsc_en = 0;
+			}
+			/* if (hdev->dsc_en) */
+				/* pr_info("spec recommended DSC frl rate: %d\n", */
+					/* hdev->frl_rate); */
+		} else if (vic == HDMI_196_7680x4320p30_16x9) {
+			if ((para->cs == HDMI_COLORSPACE_YUV444 ||
+				para->cs == HDMI_COLORSPACE_RGB) &&
+				para->cd == COLORDEPTH_36B) {
+				hdev->dsc_en = 1;
+				hdev->frl_rate = FRL_6G3L;
+				/* pr_info("%s automatically dsc enable\n", __func__); */
+			} else if (hdev->dsc_policy == 1) {
+				/* force mode for test, may need to also set manual_frl_rate */
+				hdev->dsc_en = 1;
+				/* for 444/rgb,8/10bit */
+				if (para->cs == HDMI_COLORSPACE_YUV444 ||
+					para->cs == HDMI_COLORSPACE_RGB)
+					hdev->frl_rate = FRL_6G3L;
+				else /* for 422/420, note: previously spec FRL_3G3L can't work */
+					hdev->frl_rate = FRL_3G3L;
+			} else {
+				hdev->dsc_en = 0;
+			}
+			/* if (hdev->dsc_en) */
+				/* pr_info("forced DSC frl rate: %d\n", hdev->frl_rate); */
+		} else if (vic == HDMI_96_3840x2160p50_16x9 ||
+			vic == HDMI_97_3840x2160p60_16x9) {
+			if (hdev->dsc_policy == 1) {
+				/* force mode for test, may need to also set manual_frl_rate */
+				hdev->dsc_en = 1;
+				hdev->frl_rate = FRL_3G3L;
+			} else {
+				hdev->dsc_en = 0;
+			}
+			/* if (hdev->dsc_en) */
+				/* pr_info("spec recommended DSC frl rate: %d\n", */
+					/* hdev->frl_rate); */
+		} else if (vic == HDMI_117_3840x2160p100_16x9 ||
+			vic == HDMI_118_3840x2160p120_16x9) {
+			/* need 12G4L under uncompressed format */
+			if ((para->cs == HDMI_COLORSPACE_YUV444 ||
+				para->cs == HDMI_COLORSPACE_RGB) &&
+				para->cd == COLORDEPTH_36B) {
+				hdev->dsc_en = 1;
+				hdev->frl_rate = FRL_6G3L;
+				/* pr_info("%s automatically dsc enable\n", __func__); */
+			} else if (hdev->dsc_policy == 1) {
+				/* force mode for test, may need to also set manual_frl_rate */
+				hdev->dsc_en = 1;
+				/* for 444/rgb,8/10bit */
+				if (para->cs == HDMI_COLORSPACE_YUV444 ||
+					para->cs == HDMI_COLORSPACE_RGB)
+					hdev->frl_rate = FRL_6G3L;
+				else /* for 422/420, note: previously spec FRL_3G3L can't work */
+					hdev->frl_rate = FRL_3G3L;
+			} else {
+				hdev->dsc_en = 0;
+			}
+			/* if (hdev->dsc_en) */
+				/* pr_info("spec recommended DSC frl rate: %d\n", */
+					/* hdev->frl_rate); */
+		} else {
+			/* when switch mode to lower resolution, need to back to non-dsc mode */
+			if (hdev->dsc_policy != 2)
+				hdev->dsc_en = 0;
+		}
+	}
+
+	/* if (strstr(mode, "i")) { */
+		/* hdev->dsc_en = 0; */
+		/* pr_info("error: Sources shall not enable DSC for interlaced Timings\n"); */
+	/* } */
+	/* OSD bmp scale will use cur_enc_ppc of vinfo, so should update it early */
+	#ifdef CONFIG_AML_VOUT
+	info->cur_enc_ppc = 1;
+	info->vpp_post_out_color_fmt = 0;
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
+		if (hdev->frl_rate > FRL_NONE)
+			info->cur_enc_ppc = 4;
+		if (hdev->dsc_en) {
+			if (hdev->para->cs == HDMI_COLORSPACE_RGB)
+				info->vpp_post_out_color_fmt = 1;
+			else
+				info->vpp_post_out_color_fmt = 0;
+		} else {
+			info->vpp_post_out_color_fmt = 0;
+		}
+	}
+	pr_info("dsc_policy: %d, dsc_en: %d, frl_rate: %d\n",
+		hdev->dsc_policy, hdev->dsc_en, hdev->frl_rate);
+	#endif
+}
+
+void hdmitx_soft_reset(u32 bits_nr)
+{
+	pr_info("%s[%d]\n", __func__, __LINE__);
+	if (bits_nr & BIT(0)) {
+		/* 18or10to20 fifos Software reset */
+		hdmitx21_reset_reg_bit(PWD_SRST_IVCTX, 2);
+	}
+	if (bits_nr & BIT(1)) {
+		/* Software Reset. Reset all internal logic */
+		hdmitx21_reset_reg_bit(PWD_SRST_IVCTX, 0);
+	}
+	if (bits_nr & BIT(2)) {
+		/* reset for the cipher engine */
+		hdmitx21_reset_reg_bit(HDCP_CTRL_IVCTX, 2);
+	}
+	if (bits_nr & BIT(3)) {
+		/* HW TPI State Machine Reset */
+		hdmitx21_reset_reg_bit(AON_CYP_CTL_IVCTX, 3);
+	}
+	if (bits_nr & BIT(4)) {
+		/* Software Reset for hdcp2x logic only */
+		hdmitx21_reset_reg_bit(HDCP2X_TX_SRST_IVCTX, 5);
+	}
+	if (bits_nr & BIT(5)) {
+		/* PCLK to TCLK Video FIFO Software reset */
+		hdmitx21_reset_reg_bit(PWD_SRST_IVCTX, 1);
+	}
+}
+
 void hdmitx21_set(struct hdmitx_dev *hdev)
 {
 	struct hdmi_format_para *para = hdev->para;
@@ -705,15 +1004,51 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 #ifdef CONFIG_AML_VOUT
 	struct vinfo_s *info = vout_get_current_vinfo();
 #endif
+	struct dsc_notifier_data_s dsc_notifier_data;
+	int ret;
 
-	hdev->frl_rate = FRL_NONE;
-	if (hdev->RXCap.max_frl_rate)
-		hdev->frl_rate = hdmitx21_select_frl_rate(hdev->dsc_en, vic,
-			hdev->para->cs, hdev->para->cd);
+	hdmitx21_select_frl(hdev);
+	if (hdev->dsc_en && hdev->chip_type == MESON_CPU_ID_S5) {
+		/* notify hdmitx format to dsc, and dsc module will
+		 * calculate pps data and venc/pixel clock
+		 */
+		dsc_notifier_data.pic_width = hdev->para->timing.h_active;
+		dsc_notifier_data.pic_height = hdev->para->timing.v_active;
+		dsc_notifier_data.color_format = hdev->para->cs;
+		/* note: for y422 need set bpc to 8 in pps,
+		 * otherwise y422 iter in cts HFR1-85 will fail
+		 */
+		if (hdev->para->cs == HDMI_COLORSPACE_YUV422)
+			dsc_notifier_data.bits_per_component = 8;
+		else if (hdev->para->cd == COLORDEPTH_24B)
+			dsc_notifier_data.bits_per_component = 8;
+		else if (hdev->para->cd == COLORDEPTH_30B)
+			dsc_notifier_data.bits_per_component = 10;
+		else if (hdev->para->cd == COLORDEPTH_36B)
+			dsc_notifier_data.bits_per_component = 12;
+		else
+			dsc_notifier_data.bits_per_component = 8;
+		dsc_notifier_data.fps = hdev->para->timing.v_freq;
+		ret = aml_set_dsc_input_param(&dsc_notifier_data);
+		if (ret < 0)
+			pr_info("[%s] set dsc input param error\n", __func__);
+		else
+			hdmitx_get_dsc_data(&hdev->dsc_data);
+	}
+	/* if manual_frl_rate is true, set to force frl_rate */
+	if (hdev->manual_frl_rate) {
+		hdev->frl_rate = hdev->manual_frl_rate;
+		pr_info("manually frl rate %d\n", hdev->frl_rate);
+	}
+
+	/* gp2 setting has been set for fe/enc for dsc*/
 	hdmitx21_set_clk(hdev);
 	hdmitx_phy_pre_init(hdev);
+	//if (hdev->chip_type < MESON_CPU_ID_S5)
 	_hdmitx21_set_clk();
+	/* [92]cts_htx_tmds clk config */
 	hdmitx_set_clkdiv(hdev);
+	hdmitx_mux_vid_pll_clk(hdev);
 	hdmi_hwp_init();
 	if (!hdev->pxp_mode) {
 		aml_audio_init();  /* Init audio hw firstly */
@@ -724,20 +1059,30 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 		hd21_set_reg_bits(VPU_DISP_VIU2_CTRL, 1, 29, 1);
 		hd21_set_reg_bits(VPU_VIU_VENC_MUX_CTRL, 2, 2, 2);
 	}
+	/* dsc program step8.1: Make sure VENC timing gen is disabled. */
 	hdmitx21_venc_en(0, 0);
 	hd21_set_reg_bits(VPU_HDMI_SETTING, 0, (hdev->enc_idx == 0) ? 0 : 1, 1);
-	if (hdev->enc_idx == 0)
-		enable_crt_video_encp(1, 0);
-	else
-		enable_crt_video_encp2(1, 0);
+	/* dsc program step8.3: Program VPU/HDMI setting. */
+	/* below crt_video_encp* is ENC for T7 */
+	if (hdev->chip_type == MESON_CPU_ID_T7) {
+		if (hdev->enc_idx == 0)
+			enable_crt_video_encp(1, 0);
+		else
+			enable_crt_video_encp2(1, 0);
+	}
+	/* set divider for pixel/pnx/fe clk and gate */
+	/* it will override above set for enc/fe for DSC */
 	enable_crt_video_hdmi(1,
 			      (TX_INPUT_COLOR_FORMAT == HDMI_COLORSPACE_YUV420) ? 1 : 0,
 			      hdev->enc_idx);
+	if (hdev->dsc_en)
+		hdmitx_mux_gp2_pll(hdev);
+
 	// configure GCP
 	/* for 8bit depth or y422: non-merge gcp mode + clr_avmute,
 	 * for dc mode: merge gcp mode + clr_avmute
 	 */
-	if (para->cs == HDMI_COLORSPACE_YUV422 || para->cd == COLORDEPTH_24B) {
+	if (para->cs == HDMI_COLORSPACE_YUV422 || para->cd == COLORDEPTH_24B || hdev->dsc_en) {
 		hdmitx21_set_reg_bits(GCP_CNTL_IVCTX, 0, 0, 1);
 		/* hdmi_gcppkt_manual_set(1); */
 	} else {
@@ -836,12 +1181,33 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	data32 |= (1920 << 0);  // [13: 0] cntl_hdcp22_min_size_h
 	hdmitx21_wr_reg(HDMITX_TOP_HDCP22_MIN_SIZE, data32);
 
-	hdmitx_set_hw(hdev);
-	if (para->timing.pi_mode == 0 &&
-	    (para->timing.v_active == 480 || para->timing.v_active == 576))
-		hdmitx21_venc_en(1, 0);
+	hdmitx_soft_reset(BIT(1) | BIT(2) | BIT(3) | BIT(4));
+
+	if (hdev->dsc_en)
+		hdmitx21_set_reg_bits(PCLK2TMDS_MISC1_IVCTX, 1, 4, 1);
 	else
-		hdmitx21_venc_en(1, 1);
+		hdmitx21_set_reg_bits(PCLK2TMDS_MISC1_IVCTX, 0, 4, 1);
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
+		/* block hsync, this is need to enable when in DSC mode */
+		if (hdev->dsc_en)
+			hdmitx21_set_reg_bits(H21TXSB_CTRL_1_IVCTX, 1, 2, 1);
+		else
+			hdmitx21_set_reg_bits(H21TXSB_CTRL_1_IVCTX, 0, 2, 1);
+	}
+	hdmitx_set_hw(hdev);
+	/* dsc program step8.4: Configure VENC timing gen to be slave mode
+	 * (receive hs/vs sync signal from DSC encoder timing gen)
+	 */
+	if (hdev->chip_type == MESON_CPU_ID_S5 && hdev->dsc_en)
+		hd21_set_reg_bits(ENCP_VIDEO_SYNC_MODE, 1, 4, 1);
+	else
+		hd21_set_reg_bits(ENCP_VIDEO_SYNC_MODE, 0, 4, 1);
+	/* move enable venc to the end */
+	/* if (para->timing.pi_mode == 0 && */
+	   /*  (para->timing.v_active == 480 || para->timing.v_active == 576)) */
+		/* hdmitx21_venc_en(1, 0); */
+	/* else */
+		/* hdmitx21_venc_en(1, 1); */
 	construct_avi_packet(hdev);
 
 	videocode = para->timing.vic;
@@ -890,12 +1256,13 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	data32 = 0;
 	switch (hdev->chip_type) {
 	case MESON_CPU_ID_S5:
-		data32 |= (1 << 0);
+		/* move enable de-couple fifo to the end */
+		data32 |= (0 << 0);
 		data32 |= (((para->cs != HDMI_COLORSPACE_YUV420 &&
 					hdev->frl_rate) ? 1 : 0) << 1);
 		data32 |= (para->timing.h_pol << 2);
 		data32 |= (para->timing.v_pol << 3);
-		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 1 : 0) << 7);
+		data32 |= (((para->cs == HDMI_COLORSPACE_YUV420) ? 4 : 0) << 5);
 		if (hdev->frl_rate)
 			data32 |= ((para->cs == HDMI_COLORSPACE_YUV420 ? 2 : 1) << 28);
 		else
@@ -914,14 +1281,55 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	}
 
 	hd21_write_reg(VPU_HDMI_SETTING, data32);
+	if (hdev->dsc_en) {
+		/* for dsc y420/y444, no need comp_map_post */
+		hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 5, 3);
+		if (hdev->para->cs == HDMI_COLORSPACE_YUV422)
+			hd21_set_reg_bits(VPU_HDMI_SETTING, 5, 5, 3);
+		/* no up_sample and data split */
+		hd21_set_reg_bits(ENCP_VIDEO_MODE_ADV, 0, 0, 3);
+		hd21_set_reg_bits(VPU_HDMI_SETTING, 0, 1, 1);
+		/* 4ppc to dsc module */
+		hd21_set_reg_bits(VPU_HDMI_SETTING, 2, 28, 2);
+	}
 
 #ifdef CONFIG_AML_VOUT
-	info->cur_enc_ppc = 1;
-	if (info && hdev->chip_type >= MESON_CPU_ID_S5) {
+	if (info) {
+		info->cur_enc_ppc = 1;
+		info->vpp_post_out_color_fmt = 0;
+	}
+	if (info && hdev->chip_type == MESON_CPU_ID_S5) {
 		if (get_current_frl_rate())
 			info->cur_enc_ppc = 4;
+		if (hdev->dsc_en) {
+			if (hdev->para->cs == HDMI_COLORSPACE_RGB)
+				info->vpp_post_out_color_fmt = 1;
+			else
+				info->vpp_post_out_color_fmt = 0;
+		} else {
+			info->vpp_post_out_color_fmt = 0;
+		}
+		pr_info("vpp_post_out_color_fmt: %d\n", info->vpp_post_out_color_fmt);
 	}
 #endif
+	/* recommend flow: dsc mux->dsc configure/dsc_enc_en/dsc_tmg_en->venc_enable */
+	hd21_set_reg_bits(VPU_HDMI_SETTING, !!hdev->dsc_en, 31, 1);
+
+	if (hdev->chip_type == MESON_CPU_ID_S5 && hdev->dsc_en) {
+		hdmitx_dsc_cvtem_pkt_send(&hdev->dsc_data.pps_data, &hdev->para->timing);
+		/* dsc program step8.5: Program DSC settings. */
+		/* dsc program step8.6: Enable DSC encoder timing gen 'reg_tmg_en' */
+		aml_dsc_enable(true);
+	}
+	/* enable venc */
+	hd21_set_reg_bits(VPU_HDMI_SETTING, 1, 0, 1);
+	mdelay(1);
+	if (para->timing.pi_mode == 0 &&
+	    (para->timing.v_active == 480 || para->timing.v_active == 576))
+		hdmitx21_venc_en(1, 0);
+	else
+		hdmitx21_venc_en(1, 1);
+
 	/* check the deep color phase */
 	{
 		enum hdmi_colorspace cs = hdev->para->cs;
@@ -952,8 +1360,50 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	hdmitx_set_phy(hdev);
 	hdmitx_dfm_cfg(0, 0);
 	hdev->flt_train_st = 0;
-	if (hdev->chip_type >= MESON_CPU_ID_S5) {
-		if (hdev->RXCap.max_frl_rate)
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
+		if (hdev->frl_rate) {
+			u32 tri_bytes_per_line = 0;
+			bool ret = 0;
+			int hc_active = 0;
+
+			if (hdev->dsc_en) {
+				hc_active = dsc_get_hc_active_by_mode(hdev->dsc_data.dsc_mode);
+				/* the pixel_clk is for dual pixel, need double when calculate */
+				ret = frl_check_full_bw(HDMI_COLORSPACE_YUV444, COLORDEPTH_24B,
+					hdev->dsc_data.cts_hdmi_tx_pixel_clk / 1000 * 2,
+					hc_active, hdev->frl_rate, &tri_bytes_per_line);
+			} else {
+				ret = frl_check_full_bw(hdev->para->cs, hdev->para->cd,
+					hdev->para->timing.pixel_freq, hdev->para->timing.h_active,
+					hdev->frl_rate, &tri_bytes_per_line);
+			}
+			/* manual mode */
+			if (hdev->dfm_type == 1) {
+				hdmitx_dfm_cfg(1, tri_bytes_per_line);
+			} else if (hdev->dfm_type == 2) {
+				hdmitx_dfm_cfg(2, 0);
+			} else if (hdev->dfm_type == 0) {
+				hdmitx_dfm_cfg(0, 0);
+			} else {
+				if (ret)
+					hdmitx_dfm_cfg(1, tri_bytes_per_line);
+				else
+					hdmitx_dfm_cfg(2, 0);
+			}
+
+			pr_info("%s hc_active: %d, need full_bw: %d, tri_bytes_per_line: %d, dfm_type: %d\n",
+				__func__, hc_active, ret, tri_bytes_per_line, hdev->dfm_type);
+		}
+
+		/* fix dsc snow screen issue and dsc cts HFR1-85,Iter-04 snow screen:
+		 * reset pfifo before training
+		 */
+		if (hdev->dsc_en) {
+			hdmitx_soft_reset(BIT(5));
+			/* clear pfifo intr */
+			hdmitx21_set_reg_bits(INTR2_SW_TPI_IVCTX, 0, 1, 1);
+		}
+		if (hdev->RXCap.max_frl_rate && hdev->frl_rate)
 			hdev->flt_train_st = hdmitx_frl_training_main(hdev->frl_rate);
 	}
 	if (hdev->pxp_mode)
@@ -965,9 +1415,68 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	memcpy(checksum, hdev->RXCap.checksum, 10);
 	checksum[10] = '\0';
 	env_set("hdmichecksum", (const char *)checksum);
-	printf("hdmi_tx_set: save mode: %s, attr: %s, hdmichecksum: %s\n",
+	printf("hdmi_tx_set: mode: %s, attr: %s, save hdmichecksum: %s\n",
 		env_get("outputmode"), env_get("colorattribute"), env_get("hdmichecksum"));
 	//run_command("saveenv", 0);
+}
+
+static void hdmitx_set_frlrate_none(struct hdmitx_dev *hdev)
+{
+	u8 data;
+
+	/* such as T7 unsupport FRL, skip frl flow */
+	if (hdev->chip_type != MESON_CPU_ID_S5)
+		return;
+
+	if (hdev->RXCap.max_frl_rate > FRL_NONE &&
+		hdev->RXCap.scdc_present == 1 &&
+		hdev->frl_rate > FRL_NONE) {
+		scdc_tx_frl_cfg1_set(0);
+		data = scdc_tx_update_flags_get();
+		if (data & FLT_UPDATE)
+			scdc_tx_update_flags_set(FLT_UPDATE);
+	}
+}
+
+static void hdmi_phy_suspend(void)
+{
+	u32 phy_cntl0 = ANACTRL_HDMIPHY_CTRL0;
+	u32 phy_cntl3 = ANACTRL_HDMIPHY_CTRL3;
+	u32 phy_cntl5 = ANACTRL_HDMIPHY_CTRL5;
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (hdev->chip_type == MESON_CPU_ID_T7)
+		phy_cntl5 = ANACTRL_HDMIPHY_CTRL5;
+	else
+		phy_cntl5 = ANACTRL_HDMIPHY_CTRL6;
+
+	hd21_write_reg(phy_cntl0, 0x0);
+	/* keep PHY_CNTL3 bit[1:0] as 0b11,
+	 * otherwise may cause HDCP22 boot failed
+	 */
+	hd21_write_reg(phy_cntl3, 0x3);
+	hd21_write_reg(phy_cntl5, 0x800);
+}
+
+static int dsc_dis_dbg;
+void hdmitx_module_disable(void)
+{
+	struct hdmitx_dev *hdev = get_hdmitx21_device();
+
+	if (hdev->frl_rate) {
+		frl_tx_stop(hdev);
+		hdmitx_set_frlrate_none(hdev);
+	}
+	hdmi_phy_suspend();
+
+	/* turn off enc timing gen->disable dsc encoder */
+	if (hdev->chip_type == MESON_CPU_ID_S5) {
+		hdmitx21_venc_en(0, 0);
+		if (dsc_dis_dbg >= 0) {
+			aml_dsc_enable(false);
+			hdmitx_dsc_cvtem_pkt_disable();
+		}
+	}
 }
 
 /***********************************************
@@ -1219,6 +1728,8 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	scrambler_en = para->scrambler_en;
 	dp_color_depth = (output_color_format == HDMI_COLORSPACE_YUV422) ?
 				COLORDEPTH_24B : color_depth;
+	if (hdev->dsc_en)
+		dp_color_depth = COLORDEPTH_24B;
 
 	pr_info("configure hdmitx21\n");
 	hdmitx21_wr_reg(HDMITX_TOP_SW_RESET, 0);
@@ -1456,7 +1967,7 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 	unsigned int hdr_transfer_feature = 0;
 	unsigned int hdr_color_feature = 0;
 	unsigned int hdr_mode = 0;
-
+	char *hdr_status;
 	/*
 	 *hdr_color_feature: bit 23-16: color_primaries
 	 *	1:bt709  0x9:bt2020
@@ -1514,28 +2025,33 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 		drm_db[0] = 0x02; /* SMPTE ST 2084 */
 		hdmi_drm_infoframe_rawset(drm_hb, db);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);
+		hdr_status = "HDR10-GAMMA_ST2084";
 		break;
 	case 2:
 		/*non standard*/
 		drm_db[0] = 0x02; /* no standard SMPTE ST 2084 */
 		hdmi_drm_infoframe_rawset(drm_hb, db);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);
+		hdr_status = "HDR10-others";
 		break;
 	case 3:
 		/*HLG*/
 		drm_db[0] = 0x03;/* HLG is 0x03 */
 		hdmi_drm_infoframe_rawset(drm_hb, db);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, SET_AVI_BT2020);
+		hdr_status = "HDR10-GAMMA_HLG";
 		break;
 	case 0:
 	default:
 		/*other case*/
 		hdmi_drm_infoframe_rawset(NULL, NULL);
 		hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);
+		hdr_status = "SDR";
 		break;
 	}
 
-	pr_info("%s[%d]\n", __func__, __LINE__);
+	pr_info("%s, tf=%d, cf=%d, hdmi_hdr_status: %s\n",
+		__func__, hdr_transfer_feature, hdr_color_feature, hdr_status);
 }
 
 void hdmitx_set_vsif_pkt(enum eotf_type type,
@@ -1551,6 +2067,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 	unsigned char len = 0;
 	unsigned int vic = hdev->vic;
 	unsigned int hdmi_vic_4k_flag = 0;
+	char *hdr_status = NULL;
 
 	if (hdev->RXCap.dv_info.ieeeoui != DV_IEEE_OUI)
 		return;
@@ -1611,6 +2128,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_FUL);
 			}
 			hdev->dv_en = 1;
+			hdr_status = "DolbyVision-Std";
 		} else {
 			if (hdmi_vic_4k_flag)
 				hdmi_vend_infoframe_rawset(VEN_HB, db1);
@@ -1621,6 +2139,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
 			hdev->dv_en = 0;
+			hdr_status = "SDR";
 		}
 	}
 	/*ver1_12  with low_latency = 1 and ver2 use Dolby VSIF*/
@@ -1680,6 +2199,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			if (hdmi_vic_4k_flag)
 				hdmi_avi_infoframe_config(CONF_AVI_VIC, vic);
 			hdev->dv_en = 1;
+			hdr_status = "DolbyVision-Std";
 		}
 		/*Dolby Vision low-latency case*/
 		else if  (type == EOTF_T_LL_MODE) {
@@ -1705,6 +2225,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			if (hdmi_vic_4k_flag)
 				hdmi_avi_infoframe_config(CONF_AVI_VIC, vic);
 			hdev->dv_en = 1;
+			hdr_status = "DolbyVision-Lowlatency";
 		} else { /*SDR case*/
 			if (hdmi_vic_4k_flag) {
 				VEN_HB[2] = 0x5;
@@ -1731,10 +2252,12 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 			hdmi_avi_infoframe_config(CONF_AVI_YQ01, YCC_RANGE_LIM);
 			hdmi_avi_infoframe_config(CONF_AVI_BT2020, CLR_AVI_BT2020);/*BT709*/
 			hdev->dv_en = 0;
+			hdr_status = "SDR";
 		}
 	}
 	hdmitx21_dither_config(hdev);
-	pr_info("%s[%d]\n", __func__, __LINE__);
+	pr_info("%s, eotf=%d, tunel_mode=%d, hdmi_hdr_status:%s\n",
+		__func__, type, tunnel_mode, hdr_status ? hdr_status : "SDR");
 }
 
 void hdmitx_set_hdr10plus_pkt(unsigned int flag,

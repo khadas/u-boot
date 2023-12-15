@@ -176,7 +176,7 @@ int fastboot_handle_command(char *cmd_string, char *response)
 	for (i = 0; i < FASTBOOT_COMMAND_COUNT; i++) {
 		if (!strcmp_l1(commands[i].command, cmd_string)) {
 			if (commands[i].dispatch) {
-				if (strcmp(cmd_parameter, NULL)) {
+				if (cmd_parameter) {
 					commands[i].dispatch(cmd_parameter,
 							response);
 				} else {
@@ -460,6 +460,21 @@ static void write_dts_reserve(void)
 	}
 }
 
+static void set_fastboot_flag(void)
+{
+	env_set("default_env", "1");
+	env_set("fastboot_step", "1");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+	run_command("update_env_part -p default_env;", 0);
+	run_command("update_env_part -p fastboot_step;", 0);
+#else
+	run_command("defenv_reserve;", 0);
+	run_command("setenv default_env 1;", 0);
+	run_command("setenv fastboot_step 1;", 0);
+	run_command("saveenv;", 0);
+#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+}
+
 /**
  * flash() - write the downloaded image to the indicated partition.
  *
@@ -473,6 +488,8 @@ static void flash(char *cmd_parameter, char *response)
 {
 	char name[32] = {0};
 	u64 rc = 0;
+	int gpt_flag = -1;
+	int ret = -1;
 
 	if (check_lock() == 1) {
 		printf("device is locked, can not run this cmd.Please flashing unlock & flashing unlock_critical\n");
@@ -555,21 +572,40 @@ static void flash(char *cmd_parameter, char *response)
 			}
 		}
 
-		if (aml_gpt_valid(mmc) == 0) {
-			printf("gpt mode\n");
+		gpt_flag = aml_gpt_valid(mmc);
+		if (gpt_flag == 0)
+			ret = 0;
+
+#if defined(CONFIG_EFUSE_OBJ_API) && defined(CONFIG_CMD_EFUSE)
+		run_command("efuse_obj get FEAT_DISABLE_EMMC_USER", 0);
+
+		if (*efuse_field.data == 1) {
+			wrnP("efuse_field.data == 1\n");
+			ret = 0;
+			env_set("nocs_mode", "true");
+		} else {
+			wrnP("efuse_field.data != 1\n");
+			env_set("nocs_mode", "false");
+		}
+#endif//#ifdef CONFIG_EFUSE_OBJ_API
+
+		if (ret == 0) {
+			printf("gpt/nocs mode\n");
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
-			fastboot_mmc_flash_write("bootloader-boot0", fastboot_buf_addr, image_size,
-				 response);
 			fastboot_mmc_flash_write("bootloader-boot1", fastboot_buf_addr, image_size,
 				 response);
 			run_command("mmc dev 1 0;", 0);
 #endif
-			env_set("default_env", "1");
-#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
-			run_command("update_env_part -p default_env;", 0);
-#else
-			run_command("defenv_reserve;saveenv;", 0);
-#endif//#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+			set_fastboot_flag();
+			return;
+		} else {
+			printf("normal mode\n");
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
+			fastboot_mmc_flash_write("bootloader-boot0", fastboot_buf_addr, image_size,
+				response);
+			run_command("mmc dev 1 0;", 0);
+#endif
+			set_fastboot_flag();
 			return;
 		}
 	}
@@ -729,6 +765,17 @@ static void erase(char *cmd_parameter, char *response)
 		fastboot_okay(NULL, response);
 		free(buffer);
 		return;
+	}
+
+	if (strcmp(cmd_parameter, "env") == 0) {
+		char *fastboot_step = env_get("fastboot_step");
+
+		if (fastboot_step && strcmp(fastboot_step, "0")) {
+			printf("fastboot_step: %s, run defenv_reserv\n", fastboot_step);
+			run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
+			fastboot_okay(NULL, response);
+			return;
+		}
 	}
 
 	if (strcmp(cmd_parameter, "misc") == 0) {

@@ -239,13 +239,14 @@ struct t_efuse_item {
 };
 
 const struct t_efuse_item efusecaliitem_cfg[] = {
-	{.name = "sensor", .item = EFUSE_CALI_SUBITEM_SENSOR0},
-	{.name = "saradc", .item = EFUSE_CALI_SUBITEM_SARADC},
-	{.name = "usbphy", .item = EFUSE_CALI_SUBITEM_USBPHY},
-	{.name = "hdmirx", .item = EFUSE_CALI_SUBITEM_HDMIRX},
-	{.name = "eth",    .item = EFUSE_CALI_SUBITEM_ETHERNET},
-	{.name = "cvbs",   .item = EFUSE_CALI_SUBITEM_CVBS},
-	{.name = "earctx", .item = EFUSE_CALI_SUBITEM_EARCTX},
+	{.name = "sensor",		.item = EFUSE_CALI_SUBITEM_SENSOR0},
+	{.name = "saradc",		.item = EFUSE_CALI_SUBITEM_SARADC},
+	{.name = "usbphy",		.item = EFUSE_CALI_SUBITEM_USBPHY},
+	{.name = "hdmirx",		.item = EFUSE_CALI_SUBITEM_HDMIRX},
+	{.name = "hdmirx21",		.item = EFUSE_CALI_SUBITEM_HDMIRX21},
+	{.name = "cvbs",		.item = EFUSE_CALI_SUBITEM_CVBS},
+	{.name = "earctx",		.item = EFUSE_CALI_SUBITEM_EARCTX},
+	{.name = "demodadc",		.item = EFUSE_CALI_SUBITEM_DEMODADC},
 };
 
 #define EFUSE_CALIITE_CNT sizeof(efusecaliitem_cfg) / sizeof(efusecaliitem_cfg[0])

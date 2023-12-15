@@ -52,7 +52,7 @@ extern unsigned int lcd_debug_print_flag;
 /* ******** clk_ctrl ******** */
 #define CLK_CTRL_LEVEL              28 /* [30:28] */
 #define CLK_CTRL_FRAC_SHIFT         24 /* [24] */
-#define CLK_CTRL_FRAC               0  /* [18:0] */
+#define CLK_CTRL_FRAC               0  /* [23:0] */
 
 /* **********************************
  * VENC to TCON sync delay
@@ -141,15 +141,19 @@ struct lcd_timing_s {
 	unsigned int pll_ctrl;  /* pll settings */
 	unsigned int div_ctrl;  /* divider settings */
 	unsigned int clk_ctrl;  /* clock settings */
-	unsigned int bit_rate; /* Hz */
+	unsigned int pll_ctrl2;  /* pll settings */
+	unsigned int div_ctrl2;  /* divider settings */
+	unsigned int clk_ctrl2;  /* clock settings */
+	unsigned long long bit_rate; /* Hz */
+	unsigned int enc_clk;
 	unsigned int clk_mode;  /* 0=dependence mode, 1=independence mode */
 	unsigned int ppc;
 
-	unsigned int ss_level; /* [15:12]: ss_freq, [11:8]: ss_mode,
-				* [7:0]: ss_level
-				*/
+	unsigned int ss_level;
+	unsigned int ss_freq;
+	unsigned int ss_mode;
 
-	unsigned short sync_duration_num;
+	unsigned int sync_duration_num;
 	unsigned short sync_duration_den;
 
 	unsigned int hstart;
@@ -257,8 +261,8 @@ struct vbyone_config_s {
 #define SYNC_EVENT               0x1
 #define BURST_MODE               0x2
 
-/* unit: kHz */
-#define MIPI_BIT_RATE_MAX        1500000
+/* unit: Hz */
+#define MIPI_BIT_RATE_MAX        1500000000ULL
 
 /* command config */
 #define DSI_CMD_SIZE_INDEX       1  /* byte[1] */
@@ -279,8 +283,9 @@ struct dsi_config_s {
 	unsigned char clk_always_hs; /* 0=disable, 1=enable */
 	unsigned char phy_switch; /* 0=auto, 1=standard, 2=slow */
 
-	unsigned int local_bit_rate_max; /* kHz */
-	unsigned int local_bit_rate_min; /* kHz*/
+	unsigned long long local_bit_rate_max; /* Hz */
+	unsigned long long local_bit_rate_min; /* Hz*/
+	unsigned int lane_byte_clk;
 	unsigned int venc_data_width;
 	unsigned int dpi_data_format;
 	unsigned int data_bits;
@@ -299,37 +304,60 @@ struct dsi_config_s {
 #define EDP_EDID_STATE_APPLY    BIT(1)
 #define EDP_EDID_RETRY_MAX      3
 struct edp_config_s {
+	unsigned char HPD_level;
+	unsigned char irq_sta;
+	/* DP: both sink & source can support max */
+	/* eDP: preset in dts */
 	unsigned char max_lane_count;
 	unsigned char max_link_rate;
-	unsigned char training_mode; /* 0=fast training, 1=auto training */
-	unsigned char edid_en;
+	unsigned char enhanced_framing_en;
+	/* current actually use */
+	unsigned char lane_count;
+	unsigned char link_rate;
+	// unsigned int bit_rate; // kHz
+
+	unsigned char down_ss;
+
 	unsigned char dpcd_caps_en;
 	unsigned char sync_clk_mode;
 	unsigned char scramb_mode;
-	unsigned char enhanced_framing_en;
 	unsigned char pn_swap;
-
-	unsigned int phy_vswing;
-	unsigned int phy_preem;
+	unsigned char link_rate_update;
 
 	/* internal used */
-	unsigned char lane_count;
-	unsigned char link_rate;
-	unsigned int bit_rate;
-	unsigned char edid_state;
-	unsigned char edid_retry_cnt;
-	unsigned char link_update;
 	unsigned char training_settings;
 	unsigned char main_stream_enable;
 
-	unsigned char edid_data[128];
+	unsigned char training_mode;
+	unsigned char TPS_support;
+	unsigned char phy_update;
+
+	/* last known-good (DP), in range: 0~3 */
+	unsigned char last_good_vswing[4];
+	unsigned char last_good_preem[4];
+	/* phy preset (edp) in dts, in range: 0~0xf*/
+	unsigned char phy_vswing_preset;
+	unsigned char phy_preem_preset;
+
+	/* current setting, in range: 0~3 */
+	unsigned char curr_preem[4];
+	unsigned char curr_vswing[4];
+	/* adjust request from DPCD, in range: 0~3 */
+	unsigned char adj_req_preem[4];
+	unsigned char adj_req_vswing[4];
+
+	/* edid */
+	unsigned char edid_en;
 };
 
 struct mlvds_config_s {
 	unsigned int channel_num;
 	unsigned int channel_sel0;
 	unsigned int channel_sel1;
-	unsigned int clk_phase; /* [13:12]=clk01_sel, [11:8]=pi2, [7:4]=pi1, [3:0]=pi0 */
+	unsigned int clk_phase; /* [14:13]=clk01_sel,
+				 * [12]=data bypass buffer
+				 * [11:8]=pi2, [7:4]=pi1, [3:0]=pi0
+				 */
 	unsigned int pn_swap;
 	unsigned int bit_swap; /* MSB/LSB reverse */
 	unsigned int phy_vswing;
@@ -457,7 +485,7 @@ struct lcd_pinmux_ctrl_s {
 
 struct cus_ctrl_config_s {
 	unsigned int flag;
-	unsigned char dlg_flag;
+	unsigned char ufr_flag;
 };
 
 #define LCD_ENABLE_RETRY_MAX    3
@@ -568,6 +596,19 @@ struct aml_lcd_data_s {
 #define LCD_STATUS_IF_ON      (1 << 0)
 #define LCD_STATUS_ENCL_ON    (1 << 1)
 
+struct aml_lcd_cma_mem {
+	signed char exist;
+	signed char ready;
+	unsigned char *vbase;
+	phys_addr_t pbase;
+	phys_addr_t size;
+	phys_addr_t offset;
+	unsigned int page_size;
+	unsigned int page_num;
+	unsigned int page_pos;
+	unsigned char *bitmap;
+};
+
 struct aml_lcd_drv_s {
 	unsigned int index;
 	unsigned int status;
@@ -578,12 +619,14 @@ struct aml_lcd_drv_s {
 	int init_frac;
 	unsigned int output_vmode;
 	unsigned int power_on_suspend;
+	unsigned char clk_conf_num;
 
 	struct lcd_config_s config;
 	struct aml_lcd_data_s *data;
 	struct lcd_boot_ctrl_s boot_ctrl;
 	struct lcd_duration_s *std_duration;
 	void *clk_conf;
+	struct aml_lcd_cma_mem cma_pool;
 
 	int  (*outputmode_check)(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int frac);
 	int  (*config_check)(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int frac);
@@ -605,7 +648,8 @@ struct aml_lcd_drv_s {
 			       unsigned int flag);
 	unsigned int (*tcon_table_read)(unsigned int addr);
 	unsigned int (*tcon_table_write)(unsigned int addr, unsigned int val);
-	int (*tcon_mem_tee_protect)(int mem_flag, int protect_en);
+	int (*tcon_mem_tee_protect)(int protect_en);
+	int (*tcon_forbidden_check)(void);
 #endif
 	void *debug_info_reg;
 	void *debug_info_if;
@@ -620,6 +664,7 @@ extern void lcd_config_bsp_init(void);
 struct aml_lcd_data_s *aml_lcd_get_data(void);
 struct aml_lcd_drv_s *aml_lcd_get_driver(int index);
 
+char *lcd_get_dt_addr(void);
 int lcd_probe(void);
 
 /* global api for cmd */
@@ -637,8 +682,9 @@ void aml_lcd_driver_debug_print(int index, unsigned int val);
 void aml_lcd_driver_info(int index);
 void aml_lcd_driver_reg_info(int index);
 void aml_lcd_vbyone_rst(int index);
-void aml_lcd_vbyone_cdr(int index);
-void aml_lcd_edp_edid(int index);
+int aml_lcd_vbyone_cdr(int index);
+int aml_lcd_vbyone_lock(int index);
+int aml_lcd_edp_debug(int index, char *str, int num);
 void aml_lcd_driver_test(int index, int num);
 int aml_lcd_driver_prbs(int index, unsigned int s, unsigned int mode_flag);
 void aml_lcd_driver_unifykey_dump(int index, unsigned int flag);

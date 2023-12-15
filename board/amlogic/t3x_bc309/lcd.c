@@ -435,7 +435,7 @@ static struct lcd_dft_config_s lcd_dft_conf[] = {
 		.lcd_gpio = lcd1_cpu_gpio,
 		.key_valid = 0,
 		.clk_path = 0,
-		.mode = LCD_MODE_TV,
+		.mode = LCD_MODE_TABLET,
 		.ext_lcd = ext_lcd1_config,
 		.lcd_pinmux = lcd1_pinmux_ctrl,
 

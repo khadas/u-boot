@@ -11,6 +11,74 @@
 #include "lcd_common.h"
 #include "lcd_tcon.h"
 
+#define DMA_TRANS_QUEUE_MAX (32)
+unsigned int dma_trans[DMA_TRANS_QUEUE_MAX][2];
+unsigned int dma_array_refs;
+/*
+ * must check addr and size before called
+ * paddr: 16bytes aligned
+ * size: 16bytes aligned
+ */
+void lcd_tcon_lut_dma_mif_set_t5m(phys_addr_t paddr, unsigned int size)
+{
+	unsigned int cmd_cnt = 0;
+
+	/* 128 bits per cmd */
+	cmd_cnt = size >> 4;
+	lcd_vcbus_write(VPU_DMA_RDMIF7_BADR0, paddr >> 4);
+	lcd_vcbus_write(VPU_DMA_RDMIF7_BADR1, paddr >> 4);
+	lcd_vcbus_write(VPU_DMA_RDMIF7_BADR2, paddr >> 4);
+	lcd_vcbus_write(VPU_DMA_RDMIF7_BADR3, paddr >> 4);
+	//reset index to 0
+	lcd_vcbus_write(VPU_DMA_RDMIF7_CTRL,
+					0 << 27 | //lut_frm_cnt_clr
+					0 << 26 | //lut_clr_fcnt
+					1 << 24 | //lut_frm_cnt
+					2 << 16 | //sel intr from 2=encl/tcon 1=viu1
+					0 << 14 | //lut_reg_swap_64bit
+					0 << 13 | //lut_reg_little_endian
+					cmd_cnt);//lut_reg_stride
+	lcd_vcbus_write(VPU_LUT_DMA_INTR_SEL, 0);//0:sel tcon 1:sel venc2
+}
+
+void lcd_tcon_lut_dma_enable_t5m(struct aml_lcd_drv_s *pdrv)
+{
+	if (!pdrv)
+		return;
+
+	lcd_tcon_setb(0x367, 1, 16, 1); // enale tcon intr
+	lcd_tcon_setb(0x207, 1, 31, 1); //enable dma clk
+}
+
+void lcd_tcon_lut_dma_disable_t5m(struct aml_lcd_drv_s *pdrv)
+{
+	if (!pdrv)
+		return;
+
+	lcd_tcon_setb(0x367, 0, 16, 1); // disable tcon intr
+	lcd_tcon_setb(0x207, 0, 31, 1); //disable dma
+}
+
+void lcd_tcon_dma_data_init_trans(struct aml_lcd_drv_s *pdrv)
+{
+	struct lcd_tcon_config_s *tcon = get_lcd_tcon_config();
+	int i = 0;
+
+	if (!tcon || !tcon->lut_dma_mif_set || !tcon->lut_dma_enable || !tcon->lut_dma_disable)
+		return;
+
+	if (!dma_array_refs)
+		return;
+
+	lcd_wait_vsync(pdrv);
+	for (i = 0; i < dma_array_refs; i++) {
+		tcon->lut_dma_mif_set(dma_trans[i][0], dma_trans[i][1]);
+		tcon->lut_dma_enable(pdrv);
+		lcd_wait_vsync(pdrv);
+	}
+	tcon->lut_dma_disable(pdrv);
+}
+
 void lcd_tcon_od_pre_disable(unsigned char *table)
 {
 	struct lcd_tcon_config_s *tcon_conf = get_lcd_tcon_config();
@@ -463,13 +531,15 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 	struct lcd_tcon_data_block_header_s *block_header;
 	struct lcd_tcon_data_block_ext_header_s *ext_header;
 	union lcd_tcon_data_part_u data_part;
-	unsigned char *p;
+	unsigned char *p, *part_start;
 	unsigned short part_cnt;
 	unsigned char part_type;
 	unsigned int size, reg, data, mask, temp, reg_base = 0;
-	unsigned int data_offset, offset, i, j, k, d, m, n, step = 0;
+	unsigned int data_offset = 0, offset, i, j, k, d, m, n, step = 0;
 	unsigned int reg_cnt, reg_byte, data_cnt, data_byte;
 	unsigned short block_ctrl_flag;
+	unsigned int *part_pos, ext_header_size, part_start_offset = 0;
+	phys_addr_t paddr;
 	int ret;
 
 	if (tcon_conf)
@@ -482,11 +552,15 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
 		LCDPR("%s: %s, part_cnt: %d\n", __func__, block_header->name, part_cnt);
 
+	part_pos = (unsigned int *)(p + LCD_TCON_DATA_BLOCK_EXT_HEADER_SIZE_PRE);
+	ext_header_size = block_header->ext_header_size;
 	block_ctrl_flag = block_header->block_ctrl;
-	data_offset = LCD_TCON_DATA_BLOCK_HEADER_SIZE + block_header->ext_header_size;
+	part_start = data_buf + LCD_TCON_DATA_BLOCK_HEADER_SIZE + ext_header_size;
+	part_start_offset = LCD_TCON_DATA_BLOCK_HEADER_SIZE + ext_header_size;
 	size = 0;
 	for (i = 0; i < part_cnt; i++) {
-		p = data_buf + data_offset;
+		p = part_start + part_pos[i];
+		data_offset = part_start_offset + part_pos[i];
 		part_type = p[LCD_TCON_DATA_PART_NAME_SIZE + 3];
 		if (lcd_debug_print_flag & LCD_DBG_PR_ADV) {
 			LCDPR("%s: start step %d, %s, type=0x%02x\n",
@@ -748,6 +822,32 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 			if ((size + data_offset) > block_header->block_size)
 				goto lcd_tcon_data_common_parse_set_err_size;
 			break;
+		case LCD_TCON_DATA_PART_TYPE_DMA:
+			if (block_ctrl_flag)
+				goto lcd_tcon_data_common_parse_set_ctrl_err;
+			data_part.dma = (struct lcd_tcon_data_part_dma_s *)p;
+
+			size = LCD_TCON_DATA_PART_DMA_SIZE_PRE + data_part.dma->dma_data_size;
+			if ((size + data_offset) > block_header->block_size)
+				goto lcd_tcon_data_common_parse_set_err_size;
+
+			offset = p - data_buf + LCD_TCON_DATA_PART_DMA_SIZE_PRE;
+			paddr = (phys_addr_t)data_buf + offset;
+			if (!paddr || paddr & 0xf || data_part.dma->dma_data_size & 0xf) {
+				LCDPR("%s error DMA param paddr: 0x%llx, offset: 0x%x, size: 0x%x",
+					__func__, paddr, offset, data_part.dma->dma_data_size);
+				break;
+			}
+			if (dma_array_refs >= DMA_TRANS_QUEUE_MAX) {
+				LCDERR("dma trans queue %d overflow\n", dma_array_refs);
+				break;
+			}
+			dma_trans[dma_array_refs][0] = paddr;
+			dma_trans[dma_array_refs][1] = data_part.dma->dma_data_size;
+			LCDPR("%s dma_trans[%d], pa:0x%llx, size:0x%x\n", __func__,
+				dma_array_refs, paddr, data_part.dma->dma_data_size);
+			dma_array_refs++;
+			break;
 		default:
 			if (block_ctrl_flag)
 				goto lcd_tcon_data_common_parse_set_ctrl_err;
@@ -759,7 +859,6 @@ static int lcd_tcon_data_common_parse_set(unsigned char *data_buf)
 			LCDPR("%s: end step %d, %s, type=0x%02x, size=%d\n",
 			      __func__, step, p, part_type, size);
 		}
-		data_offset += size;
 		step++;
 	}
 
@@ -837,12 +936,16 @@ static int lcd_tcon_data_set(struct aml_lcd_drv_s *pdrv,
 		}
 
 		/* apply data */
-		if (block_header->block_type == LCD_TCON_DATA_BLOCK_TYPE_BASIC_INIT) {
+		if (is_block_type_basic_init(block_header->block_type)) {
 			lcd_tcon_data_init_set(pdrv, data_buf);
 			continue;
 		}
 
-		if (block_header->block_ctrl == LCD_TCON_DATA_CTRL_FLAG_MULTI) {
+		/* skip pdf case */
+		if (block_header->block_type == LCD_TCON_DATA_BLOCK_TYPE_PDF)
+			continue;
+
+		if (is_block_ctrl_multi(block_header->block_ctrl)) {
 			ret = lcd_tcon_data_multi_match_find(pdrv, data_buf);
 			if (ret == 0)
 				lcd_tcon_data_common_parse_set(data_buf);
@@ -1089,12 +1192,12 @@ int lcd_tcon_enable_t5(struct aml_lcd_drv_s *pdrv)
 	if (mm_table->version)
 		lcd_tcon_data_set(pdrv, mm_table);
 
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
-
-	if (rmem)
-		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 
@@ -1134,18 +1237,20 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv)
 	if (mm_table->version)
 		lcd_tcon_data_set(pdrv, mm_table);
 
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
 #ifdef CONFIG_AMLOGIC_TEE
-	lcd_tcon_mem_tee_protect(0, 1);
+	lcd_tcon_mem_tee_protect(1);
 #endif
 
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
 
-	if (rmem)
-		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
-
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
+	if (tcon_conf->lut_dma_data_init_trans)
+		lcd_tcon_dma_data_init_trans(pdrv);
 
 	return 0;
 }
@@ -1183,16 +1288,16 @@ int lcd_tcon_enable_txhd2(struct aml_lcd_drv_s *pdrv)
 	if (mm_table->version)
 		lcd_tcon_data_set(pdrv, mm_table);
 
+	if (rmem)
+		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
+
 #ifdef CONFIG_AMLOGIC_TEE
-	lcd_tcon_mem_tee_protect(0, 1);
+	lcd_tcon_mem_tee_protect(1);
 #endif
 
 	/* step 4: tcon_top_output_set */
 	lcd_tcon_write(TCON_OUT_CH_SEL0, 0x76543210);
 	lcd_tcon_write(TCON_OUT_CH_SEL1, 0xba98);
-
-	if (rmem)
-		flush_cache(rmem->rsv_mem_paddr, rmem->rsv_mem_size);
 
 	lcd_vcbus_write(ENCL_VIDEO_EN, 1);
 
@@ -1241,6 +1346,30 @@ int lcd_tcon_disable_t3(struct aml_lcd_drv_s *pdrv)
 	lcd_reset_setb(RESETCTRL_RESET2_LEVEL, 1, 5, 1);
 	udelay(2);
 	LCDPR("reset tcon\n");
+
+	return 0;
+}
+
+int lcd_tcon_forbidden_check_t5(void)
+{
+	unsigned int val_tcon, val_tcon_UHD;
+
+	val_tcon = lcd_tcon_getb(TCON_STATUS0, 0, 1);
+
+	lcd_tcon_setb(0x451, 1, 6, 1);
+	val_tcon_UHD = lcd_tcon_getb(0x451, 6, 1);
+
+	LCDPR("lcd tcon forbidden status: FHD: %s; UHD: %s\n",
+		val_tcon ? "OK" : "forbidden",
+		(val_tcon && val_tcon_UHD) ? "OK" : "forbidden");
+
+	return 0;
+}
+
+int lcd_tcon_forbidden_check_t5d(void)
+{
+	lcd_tcon_write(0x30e, 0);
+	LCDPR("lcd_tcon_forbidden_check: done\n");
 
 	return 0;
 }

@@ -107,7 +107,7 @@
 #else
 #define CONFIG_EXTRA_HDMI_ENV_SETTINGS \
 	"panel_type=vbyone_0\0" \
-	"panel1_type=vbyone_1\0" \
+	"panel1_type=vbyone_2\0" \
 	"panel2_type=lvds_1\0" \
 	"lcd1_ctrl=0x00000000\0" \
 	"lcd2_ctrl=0x00000000\0" \
@@ -210,7 +210,7 @@
 		"get_bootloaderversion;" \
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} kvm-arm.mode=none init_on_alloc=0 "\
-			"nn_adj_vol=${nn_adj_vol};"\
+			"nn_adj_vol=${nn_adj_vol} boot_source=${boot_source};"\
 		"run storeargs_hdmitx;"\
 		"run cmdline_keys;"\
 		"\0"\
@@ -262,8 +262,10 @@
 				"run update;"\
 		"else if test ${reboot_mode} = quiescent; then "\
 			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"setenv vout_init enable;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+			"setenv vout_init enable;"\
 				"run recovery_from_flash;"\
 		"else if test ${reboot_mode} = cold_boot; then "\
 			"echo cold boot: ffv_wake=${ffv_wake} "\

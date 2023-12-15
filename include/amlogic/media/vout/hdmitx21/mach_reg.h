@@ -45,6 +45,11 @@ void hdmitx21_set_reg_bits(unsigned int addr, unsigned int value,
 	unsigned int offset, unsigned int len);
 void hdmitx21_poll_reg(unsigned int addr, unsigned int exp_data,
 	unsigned int mask, unsigned int max_try);
+/* set the bits value */
+void hdmitx21_set_bit(u32 addr, u32 bit_val, bool st);
+void hdmitx21_reset_reg_bit(u32 addr, u32 bit_nr);
+void hdmitx21_nreset_reg_bit(u32 addr, u32 bit_nr);
+
 
 void hdmitx21_set_default_clk(void);
 void hdmitx21_set_audioclk(bool en);

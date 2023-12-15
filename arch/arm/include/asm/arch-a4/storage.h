@@ -18,7 +18,7 @@
 //#define BOOT_BL2E_SIZE              (66672) //74864-8K
 //#define BOOT_EBL2E_SIZE             (BOOT_FILLER_SIZE + BOOT_RESERVED_SIZE + BOOT_BL2E_SIZE)
 //#define BOOT_BL2X_SIZE              (66672)
-#define MAX_BOOT_AREA_ENTRIES		(8)
+#define MAX_BOOT_AREA_ENTRIES		(6)
 /* bl2 core address base */
 #define BL2_CORE_BASE_OFFSET_EMMC	(0x200)
 /* boot area entry index */

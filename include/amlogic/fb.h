@@ -304,20 +304,23 @@ void osd_test(void);
 void osd_enable_hw(u32 index, u32 enable);
 void osd_set_free_scale_enable_hw(u32 index, u32 enable);
 int osd_rma_test(u32 osd_index);
+int osd_rma_test_with_addr(u32 start_addr, u32 end_addr);
 unsigned int get_fb_offset(u32 index);
 unsigned int get_fb_len(u32 index);
+
+int is_vpp0(int index);
+int is_vpp1(int index);
+int is_vpp2(int index);
+/* vpp2 or vpp3 */
+int is_vppx(int index);
 
 #define CANVAS_ALIGNED(x) osd_canvas_align(x)
 
 enum osd_index_e {
 	OSD1 = 0,
 	OSD2,
-	VIU2_OSD1,
-	VIU3_OSD1,
-	/* for OSD3->VPP1 case */
-	OSD3 = VIU2_OSD1,
-	/* for OSD4->VPP2 case */
-	OSD4 = VIU3_OSD1,
+	OSD3,
+	OSD4,
 	OSD_MAX
 };
 
@@ -420,8 +423,6 @@ struct fb_layout_s {
 	unsigned int fb_len;     /* fb length */
 	unsigned int used;       /* flag to mark this fb is used */
 };
-
-extern struct fb_layout_s fb_layout[OSD_MAX];
 
 #ifdef CONFIG_FB_BACKLIGHT
 /* Settings for the generic backlight code */

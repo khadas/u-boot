@@ -26,10 +26,11 @@
 /*
  * platform power init config
  */
-#define AML_VDDEE_INIT_VOLTAGE			840		// VDDEE power up voltage
+#define AML_VDDEE_INIT_VOLTAGE			870		// VDDEE power up voltage
 #define AML_VDD_CPUA_INIT_VOLTAGE		1009	// VCCK A power up voltage
 #define AML_VDD_CPUB_INIT_VOLTAGE		1009	// VCCK B power up voltage
-#define AML_VDDGPU_INIT_VOLTAGE			840		// VDDGPU power up voltage
+#define AML_VDDGPU_INIT_VOLTAGE			900		// VDDGPU power up voltage
+#define AML_VDDNPU_INIT_VOLTAGE			840		// VDDNPU power up voltage
 
 /* SMP Definitions */
 #define CPU_RELEASE_ADDR		secondary_boot_func
@@ -135,8 +136,10 @@
 				"run update;"\
 			"else if test ${reboot_mode} = quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
 			"else if test ${reboot_mode} = recovery_quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
 				"run recovery_from_flash;"\
 			"else if test ${reboot_mode} = cold_boot; then "\
 			"else if test ${reboot_mode} = fastboot; then "\

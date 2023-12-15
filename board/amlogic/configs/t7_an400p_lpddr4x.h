@@ -14,8 +14,8 @@
  * voltage range define in board/amlogic/t7_an400p_lpddr4x/firmware/timing.c
  */
 
-#define AML_VCCK_A_INIT_VOLTAGE	  889	    // VCCK A power up voltage
-#define AML_VCCK_B_INIT_VOLTAGE	  940	    // VCCK B power up voltage
+#define AML_VCCK_A_INIT_VOLTAGE	  1009	    // VCCK A power up voltage
+#define AML_VCCK_B_INIT_VOLTAGE	  1010	    // VCCK B power up voltage
 #define AML_VDDEE_INIT_VOLTAGE    840       // VDDEE power up voltage
 /*Distinguish whether to use efuse to adjust vddee*/
 #define CONFIG_PDVFS_ENABLE
@@ -145,8 +145,10 @@
                     "run update;"\
             "else if test ${reboot_mode} = quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
             "else if test ${reboot_mode} = recovery_quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else if test ${reboot_mode} = fastboot; then "\

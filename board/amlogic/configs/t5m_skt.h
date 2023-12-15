@@ -80,7 +80,7 @@
 		"jtag=disable\0"\
 		"loadaddr=0x00020000\0"\
 		"os_ident_addr=0x00500000\0"\
-		"loadaddr_rtos=0x00001000\0"\
+		"loadaddr_rtos=0x00080000\0"\
 		"loadaddr_kernel=0x03080000\0"\
 		"otg_device=1\0" \
 		"panel_type=lvds_1\0" \
@@ -324,9 +324,6 @@
 
 //use sha2 command
 #define CONFIG_CMD_SHA2
-
-//use startdsp command
-#define CONFIG_CMD_STARTDSP
 
 //use cache command
 #define CONFIG_CMD_CACHE

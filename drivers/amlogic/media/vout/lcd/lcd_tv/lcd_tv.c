@@ -27,6 +27,8 @@ static struct lcd_duration_s lcd_std_fr[] = {
 };
 
 static struct lcd_duration_s lcd_std_fr_high[] = {
+	{288, 288,    1,    0},
+	{240, 240,    1,    0},
 	{144, 144,    1,    0},
 	{120, 120,    1,    0},
 	{119, 120000, 1001, 1},
@@ -145,6 +147,31 @@ static int lcd_output_vmode_init(struct aml_lcd_drv_s *pdrv)
 	if (!pdrv)
 		return -1;
 
+	switch (pdrv->config.timing.base_frame_rate) {
+	case 144:
+	case 288:
+		lcd_vmode_info[4].type = 2;
+		lcd_vmode_info[5].type = 2;
+		break;
+	case 240:
+		lcd_vmode_info[4].type = 1;
+		lcd_vmode_info[5].type = 1;
+		break;
+	case 120:
+		if (pdrv->config.basic.h_active == 3840 &&
+		    pdrv->config.basic.v_active == 2160) {
+			lcd_vmode_info[4].type = 1;
+			lcd_vmode_info[5].type = 1;
+		} else {
+			lcd_vmode_info[4].type = 0;
+			lcd_vmode_info[5].type = 0;
+		}
+		break;
+	case 60:
+	default:
+		break;
+	}
+
 	for (i = 0; i < count; i++) {
 		if (pdrv->config.basic.h_active == lcd_vmode_info[i].width &&
 		    pdrv->config.basic.v_active == lcd_vmode_info[i].height) {
@@ -207,8 +234,10 @@ static int lcd_outputmode_to_frame_rate(struct aml_lcd_drv_s *pdrv, const char *
 		return 0;
 	*p = '\0';
 	frame_rate = (int)simple_strtoul(temp, NULL, 10);
-	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL)
-		LCDPR("[%d]: outputmode=%s, frame_rate=%d\n", pdrv->index, mode, frame_rate);
+	if (lcd_debug_print_flag & LCD_DBG_PR_NORMAL) {
+		LCDPR("[%d]: outputmode=%s, frame_rate=%d, base_frame_rate=%d\n",
+			pdrv->index, mode, frame_rate, pdrv->config.timing.base_frame_rate);
+	}
 
 	for (i = 0; i < LCD_STD_FRAME_RATE_MAX; i++) {
 		if (pdrv->std_duration[i].frame_rate == 0)
@@ -264,7 +293,8 @@ static int check_lcd_output_mode(struct aml_lcd_drv_s *pdrv, char *mode, unsigne
 	}
 	if (frac) {
 		if (frame_rate != 60 && frame_rate != 48 &&
-		    frame_rate != 120 && frame_rate != 96) {
+		    frame_rate != 120 && frame_rate != 96 &&
+		    frame_rate != 240 && frame_rate != 192) {
 			LCDERR("[%d]: %s: don't support frac under mode %s\n",
 			       pdrv->index, __func__, mode);
 			return -1;
@@ -345,7 +375,6 @@ static int lcd_config_check(struct aml_lcd_drv_s *pdrv, char *mode, unsigned int
 
 	/* update clk & timing config */
 	lcd_vmode_change(pdrv);
-	lcd_tv_config_update(pdrv);
 	lcd_clk_generate_parameter(pdrv);
 
 	return 0;

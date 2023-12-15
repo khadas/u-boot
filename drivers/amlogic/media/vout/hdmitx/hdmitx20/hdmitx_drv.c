@@ -1328,6 +1328,12 @@ static void config_hdmi20_tx(struct hdmitx_dev *hdev, enum hdmi_vic vic,
 
 	hdmitx_wr_reg(HDMITX_DWC_FC_AVICONF1, 0x8);
 	hdmitx_wr_reg(HDMITX_DWC_FC_AVICONF2, 0);
+	/* refer to 861-H, Page 83, A Source shall always explicitly signal
+	 * the RGB Quantization Range as either Limited Range (Q=1)or Full
+	 * Range (Q=2).
+	 */
+	if (output_color_format == HDMI_COLOR_FORMAT_RGB)
+		hdmitx_set_reg_bits(HDMITX_DWC_FC_AVICONF2, 1, 2, 2);
 
 	/* set Aspect Ratio in AVIInfo */
 	switch (para->vic) {
@@ -3062,6 +3068,7 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 	unsigned int hdr_transfer_feature = 0;
 	unsigned int hdr_color_feature = 0;
 	unsigned int hdr_mode = 0;
+	char *hdr_status;
 	/*
 	 *hdr_color_feature: bit 23-16: color_primaries
 	 *	1:bt709  0x9:bt2020
@@ -3073,7 +3080,6 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 	}
 	hdr_transfer_feature = (data->features >> 8) & 0xff;
 	hdr_color_feature = (data->features >> 16) & 0xff;
-	printf("%s, tf=%d, cf=%d\n", __func__, hdr_transfer_feature, hdr_color_feature);
 	DRM_DB[1] = 0x0;
 	DRM_DB[2] = GET_LOW8BIT(data->primaries[0][0]);
 	DRM_DB[3] = GET_HIGH8BIT(data->primaries[0][0]);
@@ -3121,26 +3127,32 @@ void hdmitx_set_drm_pkt(struct master_display_info_s *data)
 		DRM_DB[0] = 0x02; /* SMPTE ST 2084 */
 		hdmitx_set_packet(HDMI_PACKET_DRM, DRM_DB, DRM_HB);
 		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, SET_AVI_BT2020);
+		hdr_status = "HDR10-GAMMA_ST2084";
 		break;
 	case 2:
 		/*non standard*/
 		DRM_DB[0] = 0x02; /* no standard SMPTE ST 2084 */
 		hdmitx_set_packet(HDMI_PACKET_DRM, DRM_DB, DRM_HB);
 		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, CLR_AVI_BT2020);
+		hdr_status = "HDR10-others";
 		break;
 	case 3:
 		/*HLG*/
 		DRM_DB[0] = 0x03;/* HLG is 0x03 */
 		hdmitx_set_packet(HDMI_PACKET_DRM, DRM_DB, DRM_HB);
 		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, SET_AVI_BT2020);
+		hdr_status = "HDR10-GAMMA_HLG";
 		break;
 	case 0:
 	default:
 		/*other case*/
 		hdmitx_set_packet(HDMI_PACKET_DRM, NULL, NULL);
 		hdmitx_cntl_config(hdev, CONF_AVI_BT2020, CLR_AVI_BT2020);
+		hdr_status = "SDR";
 		break;
 	}
+	printf("%s, tf=%d, cf=%d, hdmi_hdr_status: %s\n",
+		__func__, hdr_transfer_feature, hdr_color_feature, hdr_status);
 
 	if (hdr_mode == 1 ||
 		hdr_mode == 2 ||
@@ -3172,13 +3184,13 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 	unsigned char len = 0;
 	unsigned int vic = hdev->vic;
 	unsigned int hdmi_vic_4k_flag = 0;
+	char *hdr_status = NULL;
 
 	if ((hdev->RXCap.dv_info.ieeeoui != DV_IEEE_OUI))
 		return;
 
 	hdev->hdmi_current_eotf_type = type;
 	hdev->hdmi_current_tunnel_mode = tunnel_mode;
-	printf("%s, eotf=%d, tunel_mode=%d\n", __func__, type, tunnel_mode);
 	/*ver0 and ver1_15 and ver1_12bit with ll= 0 use hdmi 1.4b VSIF*/
 	if ((hdev->RXCap.dv_info.ver == 0) || ((hdev->RXCap.dv_info.ver == 1)
 		&& (hdev->RXCap.dv_info.length == 0xE))
@@ -3238,6 +3250,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmitx_cntl_config(hdev, CONF_AVI_YQ01,
 					YCC_RANGE_FUL);
 			}
+			hdr_status = "DolbyVision-Std";
 		} else {
 			if (hdmi_vic_4k_flag)
 				hdmitx_set_packet(HDMI_PACKET_VEND, VEN_DB1, VEN_HB);
@@ -3250,8 +3263,8 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				YCC_RANGE_LIM);
 			hdmitx_cntl_config(hdev, CONF_AVI_BT2020,
 				CLR_AVI_BT2020);/*BT709*/
+			hdr_status = "SDR";
 		}
-
 	}
 	/*ver1_12  with low_latency = 1 and ver2 use Dolby VSIF*/
 	if ((hdev->RXCap.dv_info.ver == 2) || ((hdev->RXCap.dv_info.ver == 1)
@@ -3313,6 +3326,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmitx_cntl_config(hdev, CONF_AVI_YQ01,
 					YCC_RANGE_FUL);
 			}
+			hdr_status = "DolbyVision-Std";
 		}
 		/*Dolby Vision low-latency case*/
 		else if  (type == EOTF_T_LL_MODE) {
@@ -3342,6 +3356,7 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				hdmitx_cntl_config(hdev, CONF_AVI_YQ01,
 					YCC_RANGE_LIM);
 			}
+			hdr_status = "DolbyVision-Lowlatency";
 		}
 		/*SDR case*/
 		else {
@@ -3362,8 +3377,11 @@ void hdmitx_set_vsif_pkt(enum eotf_type type,
 				CONF_AVI_YQ01, YCC_RANGE_LIM);
 			hdmitx_cntl_config(hdev, CONF_AVI_BT2020,
 				CLR_AVI_BT2020);/*BT709*/
+			hdr_status = "SDR";
 		}
 	}
+	printf("%s, eotf=%d, tunel_mode=%d, hdmi_hdr_status: %s\n",
+		__func__, type, tunnel_mode, hdr_status ? hdr_status : "SDR");
 }
 
 void hdmitx_set_hdr10plus_pkt(unsigned int flag,

@@ -66,7 +66,7 @@
         "jtag=disable\0"\
         "loadaddr=0x00020000\0"\
         "os_ident_addr=0x00500000\0"\
-        "loadaddr_rtos=0x00001000\0"\
+        "loadaddr_rtos=0x00080000\0"\
         "loadaddr_kernel=0x03080000\0"\
         "otg_device=1\0" \
         "panel_type=vbyone_0\0" \
@@ -165,8 +165,10 @@
                     "run update;"\
             "else if test ${reboot_mode} = quiescent; then "\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+		    "setenv vout_init enable;"\
             "else if test ${reboot_mode} = recovery_quiescent; then "\
                     "setenv bootargs ${bootargs} androidboot.quiescent=1;"\
+		    "setenv vout_init enable;"\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
             "else if test ${reboot_mode} = fastboot; then "\

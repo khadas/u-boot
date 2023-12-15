@@ -19,7 +19,8 @@
 			"echo enter update; setenv upgrade_key_flag 2; saveenv; run update;"\
 		"else "\
 			"echo enter fastboot; setenv upgrade_key_flag 0; saveenv; fastboot 0;"\
-		"fi;fi;"
+		"fi;fi;" \
+	"fi;"
 #else
 #define _AML_GPIO_UPGRADE_ "echo base env no upgrade key;"
 #endif //#ifdef CONFIG_ENABLE_AML_GPIO_UPGRADE
@@ -30,6 +31,23 @@
 #define CONFIG_DTB_LOAD  "imgread dtb _aml_dtb ${dtb_mem_addr}"
 #endif//#ifdef CONFIG_DTB_BIND_KERNEL	//load dtb from kernel, such as boot partition
 
+#ifdef CONFIG_AB_SYSTEM
+#define CINFIG_KNL_READ "if imgread kernel ${recovery_part} ${loadaddr}; then bootm ${loadaddr}; fi;"
+#else
+#define CINFIG_KNL_READ "if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"
+#endif
+
+#ifndef CONFIG_AML_PRODUCT_MODE
+#define _AML_RUN_UPDATE_ENV  \
+	/*first usb burning, second sdc_burn, third ext-sd autoscr/recovery*/\
+	/*last udisk autoscr/recovery*/\
+	"run usb_burning;"\
+	"run recovery_from_sdcard;"\
+	"run recovery_from_udisk;"
+#else
+#define _AML_RUN_UPDATE_ENV  "echo aml_update;"
+#endif// #ifndef CONFIG_AML_PRODUCT_MODE
+
 /* args/envs */
 #define CONFIG_SYS_MAXARGS  64
 #define CONFIG_EXTRA_ENV_SETTINGS_BASE \
@@ -37,11 +55,10 @@
 	"upgrade_step=0\0"\
 	"loadaddr=0x00020000\0"\
 	"os_ident_addr=0x00500000\0"\
-	"loadaddr_rtos=0x00001000\0"\
+	"loadaddr_rtos=0x00080000\0"\
 	"loadaddr_kernel=0x03000000\0"\
+	"decaddr_kernel=0x01800000\0"\
 	"fb_addr=0x00300000\0" \
-	"dolby_status=0\0" \
-	"dolby_vision_on=0\0" \
 	"dv_fw_dir_odm_ext=/odm_ext/firmware/dovi_fw.bin\0" \
 	"dv_fw_dir_vendor=/vendor/firmware/dovi_fw.bin\0" \
 	"dv_fw_dir=/oem/firmware/dovi_fw.bin\0" \
@@ -54,6 +71,7 @@
 	"rollback_flag=0\0"\
 	"write_boot=0\0"\
 	"ddr_size=0B\0"\
+	"fastboot_step=0\0"\
 	"recovery_mode=false\0"\
 	"retry_recovery_times=7\0"\
 	"androidboot.dtbo_idx=0\0"\
@@ -79,6 +97,7 @@
 		"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
 		"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} "\
 		"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
+		"hdr_force_mode=${hdr_force_mode} "\
 		"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
 		"cvbsmode=${cvbsmode} "\
 		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
@@ -119,13 +138,8 @@
 		"else echo wrong OS format ${os_type}; fi;fi;"\
 		"echo try upgrade as booting failure; run update;"\
 		"\0" \
-	"update_base="\
-		/*first usb burning, second sdc_burn, third ext-sd autoscr/recovery*/\
-		/*last udisk autoscr/recovery*/\
-		"run usb_burning; "\
-		"run recovery_from_sdcard;"\
-		"run recovery_from_udisk;"\
-		"run recovery_from_flash;"\
+	"update_base=" _AML_RUN_UPDATE_ENV \
+		"run recovery_from_flash;" \
 		"\0"\
 	"recovery_from_fat_dev_base="\
 		"setenv loadaddr ${loadaddr_kernel};"\
@@ -177,7 +191,7 @@
 			"recovery_part=${recovery_part} recovery_offset=${recovery_offset};"\
 			"setenv bootconfig ${bootconfig} "\
 			"androidboot.slot_suffix=${active_slot};"\
-			"if imgread kernel ${boot_part} ${loadaddr}; then bootm ${loadaddr}; fi;"\
+			CINFIG_KNL_READ \
 			"else "\
 				"if test ${vendor_boot_mode} = true; then "\
 				"setenv bootargs ${bootargs} ${fs_type} aml_dt=${aml_dt};"\
@@ -227,6 +241,7 @@
 			"setenv initconfig androidboot.quiescent=1 "\
 			"androidboot.bootreason=${reboot_mode};"\
 			"osd open;osd clear;"\
+			"setenv vout_init enable;"\
 		"else if test ${reboot_mode} = recovery_quiescent; then "\
 			"setenv reboot_mode_android ""quiescent"";"\
 			"setenv dolby_status 0;"\
@@ -234,6 +249,7 @@
 			"setenv initconfig androidboot.quiescent=1 "\
 			"androidboot.bootreason=recovery,quiescent;"\
 			"osd open;osd clear;"\
+			"setenv vout_init enable;"\
 		"else "\
 			"setenv reboot_mode_android ""normal"";"\
 			"run storeargs;"\

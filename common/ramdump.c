@@ -293,6 +293,37 @@ static void ramdump_env_setup(unsigned long addr, unsigned long size)
 	free(o);
 }
 
+static int overwrite_bl33z_rsvmem_info(unsigned long addr, unsigned long size)
+{
+	int address_cells = 0;
+	unsigned long align_size = PAGE_ALIGN(size);
+	char cmd[0x80];
+
+	address_cells = fdt_address_cells(gd->fdt_blob, 0);
+	if (address_cells < 1) {
+		printf("%s, bad #address-cells !\n", __func__);
+		return -1;
+	}
+	printf("%s, get fdt #address-cells = %d\n", __func__, address_cells);
+
+	memset(cmd, 0, sizeof(cmd));
+	if (address_cells == 2)
+		sprintf(cmd,
+			"fdt set /reserved-memory/ramdump_bl33z reg '<0x0 0x%08lx 0x0 0x%08lx>'",
+			addr, align_size);
+	else
+		sprintf(cmd, "fdt set /reserved-memory/ramdump_bl33z reg '<0x%08lx 0x%08lx>'",
+						addr, align_size);
+
+	printf("%s\n", cmd);
+	run_command(cmd, 0);
+
+	printf("fdt set /reserved-memory/ramdump_bl33z status okay\n");
+	run_command("fdt set /reserved-memory/ramdump_bl33z status okay", 0);
+
+	return 0;
+}
+
 static int reduce_dts_reserved_memory(void)
 {
 	int address_cells = 0;
@@ -311,7 +342,11 @@ static int reduce_dts_reserved_memory(void)
 		run_command("fdt set /reserved-memory/linux,vdin1_cma reg '<0x0 0x0 0x0 0x0>'", 0);
 		printf("   * disabled ion_cma_reserved\n");
 		run_command("fdt set /reserved-memory/linux,ion-dev   size '<0 0>'", 0);
-		printf("   * reduce ion_cma_reserved\n");
+		printf("   * disabled dsp_fw_reserved\n");
+		run_command("fdt set /reserved-memory/linux,dsp_fw    size '<0 0>'", 0);
+		printf("   * disabled lcd_tcon_reserved\n");
+		run_command("fdt set /reserved-memory/linux,lcd_tcon  reg '<0x0 0x0 0x0 0x0>'", 0);
+		printf("   * reduce codec_mm_cma_reserved\n");
 		run_command("fdt set /reserved-memory/linux,codec_mm_cma size '<0x0 0x5000000>'", 0);
 		printf("   * reduce ion_fb_reserved, display\n");
 		run_command("fdt set /reserved-memory/linux,ion-fb    size '<0x0 0x1000000>'", 0);
@@ -323,7 +358,11 @@ static int reduce_dts_reserved_memory(void)
 		run_command("fdt set /reserved-memory/linux,vdin1_cma reg '<0x0 0x0>'", 0);
 		printf("   * disabled ion_cma_reserved\n");
 		run_command("fdt set /reserved-memory/linux,ion-dev   size '<0>'", 0);
-		printf("   * reduce ion_cma_reserved\n");
+		printf("   * disabled dsp_fw_reserved\n");
+		run_command("fdt set /reserved-memory/linux,dsp_fw    size '<0>'", 0);
+		printf("   * disabled lcd_tcon_reserved\n");
+		run_command("fdt set /reserved-memory/linux,lcd_tcon  reg '<0x0 0x0>'", 0);
+		printf("   * reduce codec_mm_cma_reserved\n");
 		run_command("fdt set /reserved-memory/linux,codec_mm_cma size '<0x5000000>'", 0);
 		printf("   * reduce ion_fb_reserved, display\n");
 		run_command("fdt set /reserved-memory/linux,ion-fb    size '<0x1000000>'", 0);
@@ -367,6 +406,9 @@ void check_ramdump(void)
 					} else if (!strncmp(env, "data", 4)) {
 						printf("Crash file will save to Android /data.\n");
 						reduce_dts_reserved_memory();
+						overwrite_bl33z_rsvmem_info(addr, size);
+						env_set("initrd_high", "0x0BB00000");
+						env_set("fdt_high",    "0x0BE00000");
 					}
 				} else {
 					ramdump_env_setup(0, 0);

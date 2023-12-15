@@ -2035,4 +2035,9 @@
 #endif
 #ifndef VPU_VOUT_BLEND_DUMDATA
 #define VPU_VOUT_BLEND_DUMDATA                     ((0x0041  << 2) + 0xfe340000)
+
+#ifndef VPU_LUT_DMA_INTR_SEL
+#define VPU_LUT_DMA_INTR_SEL                       ((0x2717  << 2) + 0xff800000)
+#endif
+
 #endif

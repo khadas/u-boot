@@ -123,6 +123,7 @@
 		"lock=10101000\0"\
 		"cvbs_drv=0\0"\
 		"osd_reverse=0\0"\
+		"reverse_ctrl=0\0"\
 		"video_reverse=0\0"\
 	"board=t950s\0"\
 		"suspend=off\0"\
@@ -373,7 +374,8 @@
 #define CONFIG_SYS_BOOTM_LEN (64<<20) /* Increase max gunzip size*/
 
 /* cpu */
-#define CONFIG_CPU_CLK					1512 //MHz. Range: 360-2000, should be multiple of 24
+//MHz. Range: 1000-1600, should be multiple of 24
+#define CONFIG_CPU_CLK					1416
 
 /*low console baudrate*/
 #define CONFIG_LOW_CONSOLE_BAUD			0
@@ -468,6 +470,7 @@
 /* osd */
 #define OSD_SCALE_ENABLE
 #define AML_OSD_HIGH_VERSION
+#define AML_OSD_TXHD2_DISPLAY
 
 /* DISPLAY */
 //#define CONFIG_AML_VOUT 1

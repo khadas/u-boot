@@ -44,9 +44,20 @@ struct lcd_tcon_config_s {
 	void (*tcon_axi_mem_update)(unsigned int *table);
 	int (*tcon_enable)(struct aml_lcd_drv_s *pdrv);
 	int (*tcon_disable)(struct aml_lcd_drv_s *pdrv);
+	int (*tcon_forbidden_check)(void);
+	void (*lut_dma_data_init_trans)(struct aml_lcd_drv_s *pdrv);
+	void (*lut_dma_mif_set)(phys_addr_t paddr, unsigned int size);
+	void (*lut_dma_enable)(struct aml_lcd_drv_s *pdrv);
+	void (*lut_dma_disable)(struct aml_lcd_drv_s *pdrv);
 };
 
 struct tcon_rmem_config_s {
+	unsigned int mem_paddr;
+	unsigned char *mem_vaddr;
+	unsigned int mem_size;
+};
+
+struct tcon_sec_mem_config_s {
 	unsigned int mem_paddr;
 	unsigned char *mem_vaddr;
 	unsigned int mem_size;
@@ -65,6 +76,7 @@ struct tcon_rmem_s {
 	struct tcon_rmem_config_s *axi_rmem;
 	struct tcon_rmem_config_s bin_path_rmem;
 	struct tcon_rmem_config_s secure_cfg_rmem;
+	struct tcon_sec_mem_config_s secure_axi_rmem;
 
 	struct tcon_rmem_config_s vac_rmem;
 	struct tcon_rmem_config_s demura_set_rmem;
@@ -178,6 +190,11 @@ int handle_tcon_data_load(unsigned char **buf, unsigned int index);
 #define TCON_VAC_SET_PARAM_NUM    3
 #define TCON_VAC_LUT_PARAM_NUM    256
 
+void lcd_tcon_dma_data_init_trans(struct aml_lcd_drv_s *pdrv);
+void lcd_tcon_lut_dma_mif_set_t5m(phys_addr_t paddr, unsigned int size);
+void lcd_tcon_lut_dma_enable_t5m(struct aml_lcd_drv_s *pdrv);
+void lcd_tcon_lut_dma_disable_t5m(struct aml_lcd_drv_s *pdrv);
+
 void lcd_tcon_od_pre_disable(unsigned char *table);
 void lcd_tcon_init_data_version_update(char *data_buf);
 int lcd_tcon_data_multi_match_find(struct aml_lcd_drv_s *pdrv, unsigned char *data_buf);
@@ -188,7 +205,7 @@ struct lcd_tcon_config_s *get_lcd_tcon_config(void);
 struct tcon_rmem_s *get_lcd_tcon_rmem(void);
 struct tcon_mem_map_table_s *get_lcd_tcon_mm_table(void);
 struct lcd_tcon_local_cfg_s *get_lcd_tcon_local_cfg(void);
-int lcd_tcon_mem_tee_protect(int mem_flag, int protect_en);
+int lcd_tcon_mem_tee_protect(int protect_en);
 
 int lcd_tcon_enable_tl1(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_disable_tl1(struct aml_lcd_drv_s *pdrv);
@@ -197,6 +214,8 @@ int lcd_tcon_enable_t3(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_enable_txhd2(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_disable_t5(struct aml_lcd_drv_s *pdrv);
 int lcd_tcon_disable_t3(struct aml_lcd_drv_s *pdrv);
+int lcd_tcon_forbidden_check_t5(void);
+int lcd_tcon_forbidden_check_t5d(void);
 
 #endif
 

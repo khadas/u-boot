@@ -14,6 +14,13 @@ config PXP_DDR
 		as real SOC. This config must be closed if running on real
 		chips.
 
+config CMD_PLLTEST
+	bool "support plltest command"
+	default n
+	help
+	  support plltest command
+	  input operations
+
 config PXP_STO
 	bool "Amlogic Pxp storage flag"
 	help
@@ -352,6 +359,34 @@ config A1_AD403_NAND_LINUX
 	 Select A1 AD403 board config,
 	 Use NandFlash and Linux.
 
+config A1_AD40AE_NOR_RTOS
+	bool "A1_AD40AE_NOR_RTOS"
+	select TARGET_A1_AD40AE
+	select MTD_SPI_FLASH
+	select SYSTEM_RTOS
+	help
+	 Select A1 AD40AE board config,
+	 Use NorFlash and RTOS.
+
+config A1_AD40AE_NAND_RTOS
+	bool "A1_AD40AE_NAND_RTOS"
+	select TARGET_A1_AD40AE
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	select SYSTEM_RTOS
+	help
+	 Select A1 AD40AE board config,
+	 Use NandFlash and RTOS.
+
+config A1_AD40AE_NAND_LINUX
+	bool "A1_AD40AE_NAND_LINUX"
+	select TARGET_A1_AD40AE
+	#select SPI_NAND
+	select MTD_SPI_NAND
+	help
+	 Select A1 AD40AE board config,
+	 Use NandFlash and Linux.
+
 config A1_AD409_NOR_RTOS
 	bool "A1_AD409_NOR_RTOS"
 	select TARGET_A1_AD409
@@ -395,6 +430,10 @@ config TARGET_A1_AD403
     bool "A1 AD403 board"
 	depends on A1_AD403_NOR_RTOS || A1_AD403_NAND_RTOS || A1_AD403_NAND_LINUX
 
+config TARGET_A1_AD40AE
+    bool "A1 AD40AE board"
+	depends on A1_AD40AE_NOR_RTOS || A1_AD40AE_NAND_RTOS || A1_AD40AE_NAND_LINUX
+
 config TARGET_A1_AD409
 	bool "A1 AD409 board"
 	depends on A1_AD409_NOR_RTOS || A1_AD409_NAND_RTOS || A1_AD409_NAND_LINUX
@@ -402,7 +441,7 @@ config TARGET_A1_AD409
 config SYSTEM_RTOS
 	bool "SYSTEM_RTOS_PARTITION"
 	default n
-	depends on A1_AD401_NOR_RTOS || A1_AD402_NOR_RTOS || A1_AD409_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD402_NAND_RTOS || A1_AD409_NAND_RTOS || A1_T404_NOR_RTOS || A1_T404_NAND_RTOS || A1_T404_NAND_LINUX || A1_AD403_NOR_RTOS || A1_AD403_NAND_RTOS || A1_AD403_NAND_LINUX
+	depends on A1_AD401_NOR_RTOS || A1_AD402_NOR_RTOS || A1_AD409_NOR_RTOS || A1_AD401_NAND_RTOS || A1_AD402_NAND_RTOS || A1_AD409_NAND_RTOS || A1_T404_NOR_RTOS || A1_T404_NAND_RTOS || A1_AD403_NOR_RTOS || A1_AD403_NAND_RTOS || A1_AD40AE_NOR_RTOS || A1_AD40AE_NAND_RTOS
 	help
 	  Select SYSTEM RTOS partition table
 
@@ -501,6 +540,14 @@ config S4_AP222
 	help
 		Select S4 AP222(XXXX) config
 
+config S4_AP222_DEBIAN
+	bool "S4_AP222_DEBIAN"
+	select TARGET_S4_AP222
+	help
+	  Select S4 AP222 DEBIAN config
+	  it's based in S4 AP222
+	  and add debian configs
+
 config S4_AP22CB
 	bool "S4_AP22CB"
 	select TARGET_S4_AP22CB
@@ -581,7 +628,7 @@ config TARGET_S4_SKT
 
 config TARGET_S4_AP222
 	bool "S4 AP222 board"
-	depends on S4_AP222
+	depends on S4_AP222 || S4_AP222_DEBIAN
 
 config TARGET_S4_AP22CB
 	bool "S4 AP22CB board"
@@ -797,6 +844,10 @@ config CHIPSET_VARIANT_MIN
 	string "C3 bl32 CHIPSET VARIANT MIN"
 	default ""
 
+config CHIPSET_VARIANT_IPC
+	string "C3 CHIPSET VARIANT IPC"
+	default ""
+
 config AMLOGIC_KEY_TYPE
         string "C3 AMLOGIC KEY TYPE"
         default "dev-keys"
@@ -815,6 +866,12 @@ config C3_AW409
 	select TARGET_C3_AW409
 	help
 		Select C3 AW409 config
+
+config C3_AW409_EMMC
+	bool "C3_AW409_EMMC"
+	select TARGET_C3_AW409_EMMC
+	help
+		Select C3 AW409 EMMC config
 
 config C3_AW402
 	bool "C3_AW402"
@@ -842,6 +899,10 @@ config TARGET_C3_SKT
 config TARGET_C3_AW409
 	bool "C3 AW409 board"
 	depends on C3_AW409
+
+config TARGET_C3_AW409_EMMC
+	bool "C3 AW409 EMMC board"
+	depends on C3_AW409_EMMC
 
 config TARGET_C3_AW402
 	bool "C3 AW402 board"
@@ -902,6 +963,14 @@ config SC2_AH212
 	help
 	  Select SC2 AH212 config
 
+config SC2_AH212_DEBIAN
+	bool "SC2_AH212_DEBIAN"
+	select TARGET_SC2_AH212
+	help
+	  Select SC2 AH212 DEBIAN config
+	  it's based in SC2 AH212
+	  and add debian configs
+
 config SC2_AH232
 	bool "SC2_AH232"
 	select TARGET_SC2_AH232
@@ -944,7 +1013,7 @@ config TARGET_SC2_AH219
 
 config TARGET_SC2_AH212
 	bool "SC2 AH212 board"
-	depends on SC2_AH212
+	depends on SC2_AH212 || SC2_AH212_DEBIAN
 
 config TARGET_SC2_AH232
 	bool "SC2 AH232 board"
@@ -1182,6 +1251,14 @@ config T7_AN400_LPDDR4X_DEBIAN
 	  it's based in T7 AN400 LPDDR4X
 	  and add debian configs
 
+config T7_AN400_LPDDR4X_BLUEBELL
+	bool "T7_AN400_LPDDR4X_BLUEBELL"
+	select TARGET_T7_AN400_LPDDR4X_BLUEBELL
+	help
+	  Select T7 AN400 LPDDR4X BLUEBELL config
+	  it's based in T7 AN400 LPDDR4X
+	  and add bluebell configs
+
 config T7_AN400_MERCURY
 	bool "T7_AN400_MERCURY"
 	select TARGET_T7_AN400_MERCURY
@@ -1232,6 +1309,10 @@ config TARGET_T7_AN409_DDR4
 config TARGET_T7_AN400_LPDDR4X
 	bool "T7 AN400 lpddr4x board"
 	depends on T7_AN400_LPDDR4X || T7_AN400_LPDDR4X_DEBIAN
+
+config TARGET_T7_AN400_LPDDR4X_BLUEBELL
+	bool "T7 AN400 lpddr4x bluebell board"
+	depends on T7_AN400_LPDDR4X_BLUEBELL
 
 config TARGET_T7_AN400_MERCURY
         bool "T7 AN400 mercury board"
@@ -1576,6 +1657,12 @@ config TXHD2_BE311
 	help
 	  Select TXHD2 BE311 config
 
+config TXHD2_BE312
+	bool "TXHD2_BE312"
+	select TARGET_TXHD2_BE312
+	help
+		Select TXHD2 BE312 config
+
 config TXHD2_BE319
 	bool "TXHD2_BE319"
 	select TARGET_TXHD2_BE319
@@ -1599,6 +1686,10 @@ config TARGET_TXHD2_BE309
 config TARGET_TXHD2_BE311
 	bool "TXHD2 BE311 board"
 	depends on TXHD2_BE311
+
+config TARGET_TXHD2_BE312
+	bool "TXHD2 BE312 board"
+	depends on TXHD2_BE312
 
 config TARGET_TXHD2_BE319
 	bool "TXHD2 BE319 board"
@@ -1644,6 +1735,8 @@ source "board/amlogic/a1_t404/Kconfig"
 
 source "board/amlogic/a1_ad403/Kconfig"
 
+source "board/amlogic/a1_ad40ae/Kconfig"
+
 source "board/amlogic/c1_ae400/Kconfig"
 
 source "board/amlogic/c1_ae401/Kconfig"
@@ -1654,7 +1747,13 @@ source "board/amlogic/c1_ae409/Kconfig"
 
 source "board/amlogic/s4_skt/Kconfig"
 
+if S4_AP222
 source "board/amlogic/s4_ap222/Kconfig"
+endif
+
+if S4_AP222_DEBIAN
+source "board/amlogic/s4_ap222_debian/Kconfig"
+endif
 
 source "board/amlogic/s4_ap22cb/Kconfig"
 
@@ -1691,6 +1790,10 @@ source "board/amlogic/a5_av409/Kconfig"
 source "board/amlogic/sc2_skt/Kconfig"
 
 source "board/amlogic/sc2_ah219/Kconfig"
+
+if SC2_AH212_DEBIAN
+source "board/amlogic/sc2_ah212_debian/Kconfig"
+endif
 
 source "board/amlogic/sc2_ah212/Kconfig"
 
@@ -1756,6 +1859,10 @@ if T7_AN400_LPDDR4X_DEBIAN
 source "board/amlogic/t7_an400_lpddr4x_debian/Kconfig"
 endif
 
+if T7_AN400_LPDDR4X_BLUEBELL
+source "board/amlogic/t7_an400_lpddr4x_bluebell/Kconfig"
+endif
+
 source "board/amlogic/t7_an400_mercury/Kconfig"
 
 source "board/amlogic/t7_t319/Kconfig"
@@ -1773,6 +1880,8 @@ source "board/amlogic/t3_t965d4/Kconfig"
 source "board/amlogic/c3_skt/Kconfig"
 
 source "board/amlogic/c3_aw409/Kconfig"
+
+source "board/amlogic/c3_aw409_emmc/Kconfig"
 
 source "board/amlogic/c3_aw402/Kconfig"
 
@@ -1809,5 +1918,7 @@ source "board/amlogic/txhd2_be301/Kconfig"
 source "board/amlogic/txhd2_be309/Kconfig"
 
 source "board/amlogic/txhd2_be311/Kconfig"
+
+source "board/amlogic/txhd2_be312/Kconfig"
 
 source "board/amlogic/txhd2_be319/Kconfig"

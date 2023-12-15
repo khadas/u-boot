@@ -33,7 +33,7 @@
 #ifdef CONFIG_AML_CVBS
 #include <amlogic/media/vout/aml_cvbs.h>
 #endif
-
+#include <amlogic/board.h>
 #include "avb2_kpub.c"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -162,40 +162,12 @@ int board_init(void)
 int board_late_init(void)
 {
 	printf("board late init\n");
+	aml_board_late_init_front(NULL);
 
-	//default uboot env need before anyone use it
-	if (env_get("default_env")) {
-		printf("factory reset, need default all uboot env.\n");
-		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
-	}
-
-	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
-			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
-	board_init_mem();
-	run_command("run bcb_cmd", 0);
-
-#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
-	if ( run_command("run common_dtb_load", 0) ) {
-		printf("Fail in load dtb with cmd[%s], try _aml_dtb\n", env_get("common_dtb_load"));
-		run_command("if test ${reboot_mode} = fastboot; then "\
-			"imgread dtb _aml_dtb ${dtb_mem_addr}; fi;", 0);
-	}
-
-	//load dtb here then users can directly use 'fdt' command
-	run_command("if fdt addr ${dtb_mem_addr}; then "\
-		"else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
-
-#endif//#ifndef CONFIG_SYSTEM_RTOS //pure rtos not need dtb
-
-#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
-	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
-	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
-#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
-	{ aml_v3_factory_usb_burning(0, gd->bd); }
-#endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-
+#ifdef CONFIG_SC2_AH212_DEBIAN
+	// Set boot source
+	board_set_boot_source();
+#endif
 	/* reset vout init state */
 	run_command("setenv vout_init disable", 0);
 #ifdef CONFIG_AML_VPU
@@ -208,35 +180,8 @@ int board_late_init(void)
 #ifdef CONFIG_AML_CVBS
 	cvbs_init();
 #endif
-	run_command("amlsecurecheck", 0);
-	run_command("update_tries", 0);
 
-	unsigned char chipid[16];
-
-	memset(chipid, 0, 16);
-
-	if (get_chip_id(chipid, 16) != -1) {
-		char chipid_str[32];
-		int i, j;
-		char buf_tmp[4];
-
-		memset(chipid_str, 0, 32);
-
-		char *buff = &chipid_str[0];
-
-		for (i = 0, j = 0; i < 12; ++i) {
-			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
-			if (strcmp(buf_tmp, "00") != 0) {
-				sprintf(buff + j, "%02x", chipid[15 - i]);
-				j = j + 2;
-			}
-		}
-		env_set("cpu_id", chipid_str);
-		printf("buff: %s\n", buff);
-	} else {
-		env_set("cpu_id", "1234567890");
-	}
-
+	aml_board_late_init_tail(NULL);
 	return 0;
 }
 
@@ -500,6 +445,10 @@ const char * const _env_args_reserve_[] =
 	"lock",
 	"upgrade_step",
 	"bootloader_version",
+	"dts_to_gpt",
+	"fastboot_step",
+	"reboot_status",
+	"expect_index",
 
 	NULL//Keep NULL be last to tell END
 };

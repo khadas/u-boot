@@ -107,7 +107,7 @@ struct ext_lcd_config_s ext_lcd0_config[LCD_NUM_MAX] = {
 	/* backlight */
 	60, 255, 10, 128, 128,
 	BL_CTRL_MAX, 0, 1, 0, 200, 200,
-	BL_PWM_POSITIVE, BL_PWM_C, 180, 100, 25, 1, 0,
+	BL_PWM_POSITIVE, BL_PWM_B, 180, 100, 25, 1, 0,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	Rsv_val, Rsv_val, Rsv_val, Rsv_val,
 	10, 10, Rsv_val},

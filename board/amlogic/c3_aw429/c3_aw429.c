@@ -37,6 +37,10 @@
 #include <amlogic/media/vout/aml_cvbs.h>
 #endif
 
+#ifdef CONFIG_AML_LCD
+#include <amlogic/media/vout/lcd/aml_lcd.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void sys_led_init(void)
@@ -198,6 +202,9 @@ int board_late_init(void)
 #endif
 #ifdef CONFIG_AML_CVBS
 	cvbs_init();
+#endif
+#ifdef CONFIG_AML_LCD
+	lcd_probe();
 #endif
 	run_command("amlsecurecheck", 0);
 	run_command("update_tries", 0);
@@ -390,19 +397,24 @@ static const struct mtd_partition spinand_partitions[] = {
 	 .size = 2 * SZ_1M,
 	  },
 	{
+	 .name = "misc",
+	 .offset = 0,
+	 .size = 1 * SZ_1M,
+	  },
+	{
 	 .name = "recovery",
 	 .offset = 0,
-	 .size = 16 * SZ_1M,
+	 .size = 10 * SZ_1M,
 	  },
 	{
 	 .name = "boot",
 	 .offset = 0,
-	 .size = 16 * SZ_1M,
+	 .size = 10 * SZ_1M,
 	  },
 	{
 	 .name = "system",
 	 .offset = 0,
-	 .size = 128 * SZ_1M,
+	 .size = 70 * SZ_1M,
 	  },
 	/* last partition get the rest capacity */
 	{
@@ -468,6 +480,8 @@ const char *const _env_args_reserve_[] = {
 	"lock",
 	"upgrade_step",
 	"bootloader_version",
+	"dts_to_gpt",
+	"fastboot_step",
 
 	NULL			//Keep NULL be last to tell END
 };

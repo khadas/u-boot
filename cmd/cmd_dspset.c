@@ -17,7 +17,7 @@
  * clk_util_set_dsp_clk
  * freq_sel:
  *      for A1 (fclk = 1536M)
- *           0:384MHz  fclk_4
+ *           0:384MHz  fclk_2/2
  *           1:308MHz  fclk_5
  *           2:256MHz  fclk_3/2
  *           3:24MHz   oscin
@@ -77,9 +77,9 @@ int clk_util_set_dsp_clk(uint32_t id, uint32_t freq_sel)
 	switch (freq_sel) {
 #ifdef CONFIG_CLK_MESON_A1
 	case 0:
-		clk_sel = 5;
-		clk_div = 0;
-		dsp_clk_tag = "fclk4:384MHz";
+		clk_sel = 1;
+		clk_div = 1;
+		dsp_clk_tag = "fclk2/2:384MHz";
 		break;
 	case 1:
 		clk_sel = 3;

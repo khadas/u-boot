@@ -1144,6 +1144,69 @@ static int spansion_quad_enable(struct spi_flash *flash)
 
 	return ret;
 }
+
+#define CMD_OCTAL_READ_CONFIG	(0x85)
+#define CMD_OCTAL_WRITE_CONFIG	(0x81)
+#define CMD_OCTAL_SPI_NODQS_IO_MODE	(0xdf)
+static int read_octal_cr(struct spi_flash *flash, u8 *rc)
+{
+	int ret;
+	u8 cmd[5] = {0};
+
+	cmd[0] = CMD_OCTAL_READ_CONFIG;
+	ret = spi_flash_read_common(flash, cmd, 5, rc, 1);
+	if (ret < 0) {
+		debug("SF: fail to read config register\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+static int write_octal_cr(struct spi_flash *flash, u8 wc)
+{
+	u8 data[1];
+	u8 cmd[5] = {0};
+	int ret;
+
+	cmd[0] = CMD_OCTAL_WRITE_CONFIG;
+	data[0] = wc;
+	ret = spi_flash_write_common(flash, cmd, 4, data, 1);
+	if (ret) {
+		debug("SF: fail to write config register\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+static int giga_octal_enable(struct spi_flash *flash)
+{
+	u8 octal_io_mode;
+	int ret;
+
+	ret = read_octal_cr(flash, &octal_io_mode);
+	if (ret < 0)
+		return ret;
+
+	printf("default IO mode: 0x%x\n", octal_io_mode);
+
+	if (octal_io_mode == CMD_OCTAL_SPI_NODQS_IO_MODE)
+		return 0;
+
+	ret = write_octal_cr(flash, CMD_OCTAL_SPI_NODQS_IO_MODE);
+	if (ret < 0)
+		return ret;
+
+	/* read CR and check it */
+	ret = read_octal_cr(flash, &octal_io_mode);
+	if (octal_io_mode != CMD_OCTAL_SPI_NODQS_IO_MODE) {
+		printf("fail to set OCTAL IO mode\n");
+		return -EINVAL;
+	}
+
+	return ret;
+}
 #endif
 
 const struct spi_flash_info *spi_flash_read_id(struct spi_flash *flash)
@@ -1193,6 +1256,21 @@ static int set_quad_mode(struct spi_flash *flash,
 #endif
 	default:
 		printf("SF: Need set QEB func for %02x flash\n",
+		       JEDEC_MFR(info));
+		return -1;
+	}
+}
+
+static int set_octal_mode(struct spi_flash *flash,
+			  const struct spi_flash_info *info)
+{
+	switch (JEDEC_MFR(info)) {
+#if defined(CONFIG_SPI_FLASH_GIGADEVICE)
+	case SPI_FLASH_CFI_MFR_GIGA:
+		return giga_octal_enable(flash);
+#endif
+	default:
+		printf("SF: Need set OCTAL func for %02x flash\n",
 		       JEDEC_MFR(info));
 		return -1;
 	}
@@ -1338,10 +1416,14 @@ int spi_flash_scan(struct spi_flash *flash)
 		flash->read_cmd = CMD_READ_QUAD_OUTPUT_FAST;
 	else if (spi->mode & SPI_RX_DUAL && info->flags & RD_DUAL)
 		flash->read_cmd = CMD_READ_DUAL_OUTPUT_FAST;
+	else if (spi->mode & SPI_RX_OCTAL && info->flags & RD_OCTAL)
+		flash->read_cmd = CMD_READ_OCTAL_OUTPUT_FAST;
 
 	/* Look for write commands */
 	if (info->flags & WR_QPP && spi->mode & SPI_TX_QUAD)
 		flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
+	else if (info->flags & WR_OPP && spi->mode & SPI_TX_OCTAL)
+		flash->write_cmd = CMD_OCTAL_PAGE_PROGRAM;
 	else
 		/* Go for default supported write cmd */
 		flash->write_cmd = CMD_PAGE_PROGRAM;
@@ -1356,8 +1438,15 @@ int spi_flash_scan(struct spi_flash *flash)
 			      JEDEC_MFR(info));
 			return -EINVAL;
 		}
+	} else if (flash->read_cmd == CMD_READ_OCTAL_OUTPUT_FAST ||
+		   flash->write_cmd == CMD_OCTAL_PAGE_PROGRAM) {
+		ret = set_octal_mode(flash, info);
+		if (ret) {
+			debug("SF: Fail to set octal mode for %02x\n",
+			      JEDEC_MFR(info));
+			return -EINVAL;
+		}
 	}
-
 	/* Read dummy_byte: dummy byte is determined based on the
 	 * dummy cycles of a particular command.
 	 * Fast commands - dummy_byte = dummy_cycles/8

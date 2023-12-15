@@ -39,14 +39,15 @@
 #define DDR_AMLOGIC_9029_PHY_AC_LANE_NUM  16
 #define DDR_AMLOGIC_9029_PHY_AC_LANE_RESERVE_NUM  0
 
-/*bl2 efuse val flag*/
-#define BL2_INIT_STAGE_VDDCORE_CONFIG_1		0x84
-#define BL2_INIT_STAGE_VDDCORE_CONFIG_2		0x85
-#define BL2_INIT_STAGE_VDDCORE_CONFIG_3		0x86
-/* board vmin_flag */
-#define BL2_INIT_STAGE_VMIN_FLAG_1     0x87
-#define BL2_INIT_STAGE_VMIN_FLAG_2     0x88
-#define BL2_INIT_STAGE_VMIN_FLAG_3     0x89
+/* bl2 vmin_ft_flag */
+#define BL2_VMIN_FT__FLAG_1     0x84
+#define BL2_VMIN_FT__FLAG_2     0x85
+#define BL2_VMIN_FT__FLAG_3     0x86
+/* bl2 vmin_ee_flag */
+#define BL2_VMIN_EE__FLAG_1		0x87
+#define BL2_VMIN_EE__FLAG_2		0x88
+#define BL2_VMIN_EE__FLAG_3		0x89
+
 
 typedef struct bl2_reg {
 	unsigned int	reg;

@@ -218,9 +218,9 @@ static int env_nand_save(void)
 	env_idx = (gd->env_valid == ENV_VALID);
 #endif
 
-	ret = mtd_store_get_offset("ENV", &offset, 0);
+	ret = mtd_store_get_offset("ubootenv", &offset, 0);
 	if (ret) {
-		printf("No Found ENV partition offset!\n");
+		printf("No Found ubootenv partition offset!\n");
 		return ret;
 	}
 	location[0].erase_opts.offset = offset;
@@ -377,9 +377,9 @@ static int env_nand_load(void)
 		return;
 	}
 #endif
-	ret = mtd_store_get_offset("ENV", &offset, 0);
+	ret = mtd_store_get_offset("ubootenv", &offset, 0);
 	if (ret) {
-		printf("No Found ENV partition offset!\n");
+		printf("No Found ubootenv partition offset!\n");
 		return ret;
 	}
 

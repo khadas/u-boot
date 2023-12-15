@@ -144,8 +144,14 @@ enum osd_dev_e {
 enum reverse_info_e {
 	REVERSE_NONE = 0,  /* no rotaion */
 	REVERSE_XY,        /* x+y rotation */
+	OSD1_REVERSE_XY,   /* osd1 x+y rotation */
+	OSD2_REVERSE_XY,   /* osd2 x+y rotation */
 	REVERSE_X,         /* x rotation */
+	OSD1_REVERSE_X,    /* osd1 x rotation */
+	OSD2_REVERSE_X,    /* osd2 x rotation */
 	REVERSE_Y,         /* y rotaion */
+	OSD1_REVERSE_Y,    /* osd1 y rotation */
+	OSD2_REVERSE_Y,    /* osd2 y rotation */
 	REVERSE_MAX
 };
 
@@ -184,6 +190,7 @@ enum vpp_vsync_type {
 	VPU_VPP0,
 	VPU_VPP1,
 	VPU_VPP2,
+	VPU_VPP_MAX
 };
 
 enum matrix_type_e {
@@ -271,6 +278,7 @@ struct hw_para_s {
 	u32 antiflicker_mode;
 	u32 angle[HW_OSD_COUNT];
 	u32 clone[HW_OSD_COUNT];
+	u32 vpp_index[HW_OSD_COUNT];
 	u32 bot_type;
 	u32 osd_ver;
 	u32 shift_line;
@@ -494,6 +502,8 @@ struct vpp_post_s {
 };
 #endif
 
+extern int rma_test;
+extern int rma_test_addr;
 extern struct hw_osd_reg_s hw_osd_reg_array[HW_OSD_COUNT];
 #ifdef AML_S5_DISPLAY
 struct vpp_post_info_t *get_vpp_post_amdv_info(void);

@@ -221,8 +221,8 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		return 0;
 
 	do {
-		cur = (blocks_todo > mmc->cfg->b_max) ?
-			mmc->cfg->b_max : blocks_todo;
+		cur = (blocks_todo > (MMC_MAX_DESC_NUM * mmc->cfg->b_max)) ?
+			(MMC_MAX_DESC_NUM * mmc->cfg->b_max) : blocks_todo;
 
 		if (mmc_write_blocks(mmc, start, cur, src) != cur)
 			return 0;

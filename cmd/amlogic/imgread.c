@@ -140,6 +140,10 @@ static int _aml_get_secure_boot_kernel_size(const void *ploadaddr, u32 *ptotalen
 #else
 
 #ifdef AML_D_Q_IMG_SIG_HDR_SIZE
+	if (!secure_boot_enabled) {
+		*ptotalenckernelsz = 0;
+		return 0;
+	}
 	ulong ncheckoffset = aml_sec_boot_check(AML_D_Q_IMG_SIG_HDR_SIZE,
 			GXB_IMG_LOAD_ADDR, GXB_EFUSE_PATTERN_SIZE, GXB_IMG_DEC_ALL);
 	if (AML_D_Q_IMG_SIG_HDR_SIZE == (ncheckoffset & 0xFFFF) &&
@@ -199,6 +203,13 @@ static int _aml_get_secure_boot_kernel_size(const void *ploadaddr, u32 *ptotalen
 	return 0;
 }
 
+bool android_img;
+
+bool is_android_image(void)
+{
+	return android_img;
+}
+
 static int do_image_read_dtb_from_knl(const char *partname,
 	unsigned char *loadaddr, uint64_t lflashreadinitoff)
 {
@@ -220,7 +231,10 @@ static int do_image_read_dtb_from_knl(const char *partname,
 
 	if (genimg_get_format(hdr_addr) != IMAGE_FORMAT_ANDROID) {
 		errorP("Fmt unsupported! only support 0x%x\n", IMAGE_FORMAT_ANDROID);
+		android_img = false;
 		return __LINE__;
+	} else {
+		android_img = true;
 	}
 
 	if (is_android_r_image((void *)hdr_addr)) {
@@ -365,6 +379,8 @@ static int do_image_read_dtb_from_rsv(unsigned char* loadaddr)
 {
 	const int dtbmaxsz = store_rsv_size("dtb");
 
+	android_img = false;
+
 	if (dtbmaxsz < 0x400) {
 		errorP("dtbmaxsz(0x%x) invalid\n", dtbmaxsz);
 		return -__LINE__;
@@ -452,6 +468,26 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
     return iRet;
 }
 
+uint32_t get_rsv_mem_size(void)
+{
+	uint32_t rsv_start, reg_size, rsv_size;
+#if defined(P_AO_SEC_GP_CFG3)
+	rsv_start = *((volatile uint32_t *)((uintptr_t)(P_AO_SEC_GP_CFG5)));
+	reg_size = *((volatile uint32_t *)((uintptr_t)(P_AO_SEC_GP_CFG3)));
+#elif defined(SYSCTRL_SEC_STATUS_REG15)
+	rsv_start = *((volatile uint32_t *)((uintptr_t)(SYSCTRL_SEC_STATUS_REG17)));
+	reg_size = *((volatile uint32_t *)((uintptr_t)(SYSCTRL_SEC_STATUS_REG15)));
+#endif
+	if ((reg_size >> 16) & 0xff)
+		rsv_size = (((reg_size & 0xffff0000) >> 16) << 16) +
+			((reg_size & 0x0000ffff) << 16);
+	else
+		rsv_size = (((reg_size & 0xffff0000) >> 16) << 10) +
+			((reg_size & 0x0000ffff) << 10);
+
+	return (rsv_start + rsv_size);
+}
+
 static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     unsigned    kernel_size;
@@ -467,11 +503,18 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 	u32 securekernelimgsz = 0;
 	char *upgrade_step_s = NULL;
 	bool cache_flag = false;
+	ulong kernelEndAddr = 0;
+	ulong kernelLoadAddr = 0;
+	ulong dtbLoadAddr = 0;
+	ulong secMemSize = get_rsv_mem_size();
+	char strAddr[128] = {0};
 
-	if (argc > 2)
+	if (argc > 2) {
 		loadaddr = (unsigned char *)simple_strtoul(argv[2], NULL, 16);
-	else
+		env_set("loadaddr", (const char *)argv[2]);
+	} else {
 		loadaddr = (unsigned char *)simple_strtoul(env_get("loadaddr"), NULL, 16);
+	}
 
 	hdr_addr = (boot_img_hdr_t *)loadaddr;
 
@@ -561,6 +604,29 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 		if (actualbootimgsz > IMG_PRELOAD_SZ) {
 			const u32 leftsz = actualbootimgsz - IMG_PRELOAD_SZ;
 
+			/* auto adjust kernel image load address avoid
+			 * touch iotrace data and secureOS memory space
+			 */
+			kernelLoadAddr =
+				env_get_ulong("loadaddr", 16, KERNEL_DEFAULT_LOAD_ADDR);
+			kernelEndAddr = kernelLoadAddr + actualbootimgsz;
+			dtbLoadAddr = env_get_ulong("dtb_mem_addr", 16, DTB_LOAD_ADDR);
+
+			if (kernelEndAddr > IOTRACE_LOAD_ADDR && kernelLoadAddr < secMemSize) {
+				kernelLoadAddr = kernelLoadAddr -
+				ALIGN((kernelEndAddr - IOTRACE_LOAD_ADDR), LOAD_ADDR_ALIGN_LENGTH);
+				if (kernelLoadAddr <= dtbLoadAddr)
+					kernelLoadAddr = KERNEL_LOAD_HIGH_ADDR;
+				sprintf(strAddr, "%lx", kernelLoadAddr);
+				memmove((void *)kernelLoadAddr, (void *)loadaddr, IMG_PRELOAD_SZ);
+				env_set("loadaddr", strAddr);
+				env_set("loadaddr_kernel", strAddr);
+				loadaddr = (unsigned char *)
+					env_get_ulong("loadaddr", 16, kernelLoadAddr);
+				printf("kernel overlap iotrace, reset kernelLoadAddr = 0x%lx\n",
+						kernelLoadAddr);
+			}
+
 			debugP("Left sz 0x%x\n", leftsz);
 			rc = store_logic_read(partname, flashreadoff,
 				leftsz, loadaddr + IMG_PRELOAD_SZ);
@@ -633,6 +699,29 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 		if (actualbootimgsz > IMG_PRELOAD_SZ) {
 			const u32 leftsz = actualbootimgsz - IMG_PRELOAD_SZ;
+
+			/* auto adjust kernel image load address avoid
+			 * touch iotrace data and secureOS memory space
+			 */
+			kernelLoadAddr =
+				env_get_ulong("loadaddr", 16, KERNEL_DEFAULT_LOAD_ADDR);
+			kernelEndAddr = kernelLoadAddr + actualbootimgsz;
+			dtbLoadAddr = env_get_ulong("dtb_mem_addr", 16, DTB_LOAD_ADDR);
+
+			if (kernelEndAddr > IOTRACE_LOAD_ADDR && kernelLoadAddr < secMemSize) {
+				kernelLoadAddr = kernelLoadAddr -
+				ALIGN((kernelEndAddr - IOTRACE_LOAD_ADDR), LOAD_ADDR_ALIGN_LENGTH);
+				if (kernelLoadAddr <= dtbLoadAddr)
+					kernelLoadAddr = KERNEL_LOAD_HIGH_ADDR;
+				sprintf(strAddr, "%lx", kernelLoadAddr);
+				memmove((void *)kernelLoadAddr, (void *)loadaddr, IMG_PRELOAD_SZ);
+				env_set("loadaddr", strAddr);
+				env_set("loadaddr_kernel", strAddr);
+				loadaddr = (unsigned char *)
+					env_get_ulong("loadaddr", 16, kernelLoadAddr);
+				printf("kernel overlap iotrace, reset kernelLoadAddr = 0x%lx\n",
+						kernelLoadAddr);
+			}
 
 			debugP("Left sz 0x%x\n", leftsz);
 
@@ -761,6 +850,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 
 		pbuffpreload = malloc(preloadsz_r);
 
+		memset((void *)pbuffpreload, 0, preloadsz_r);
+
 		if (!pbuffpreload) {
 			printf("aml log : system error! Fail to allocate memory for %s!\n",
 				partname_r);
@@ -852,6 +943,8 @@ static int do_image_read_kernel(cmd_tbl_t *cmdtp, int flag, int argc, char * con
 			if (nflashloadlen_r > vendorboot_part_sz) {
 				errorP("nflashloadlen_r 0x%x > vendorboot_part_sz 0x%llx\n",
 						nflashloadlen_r, vendorboot_part_sz);
+				free(pbuffpreload);
+				pbuffpreload = 0;
 				return __LINE__;
 			}
 

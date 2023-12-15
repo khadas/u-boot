@@ -860,3 +860,50 @@ U_BOOT_CMD
 	"So you can execute command: update_dt"
 );
 #endif
+
+static int get_bootloader_message_block(char * miscbuf, int size, AvbABData *info) {
+    const char *misc_device = "misc";
+    printf("read misc for emmc device\n");
+
+    if (store_read(misc_device, 0, size, miscbuf) < 0) {
+        printf("Error opening %s\n", misc_device);
+        return -1;
+    }
+
+    memcpy(info, miscbuf + AB_METADATA_MISC_PARTITION_OFFSET, AVB_AB_DATA_SIZE);
+    if (!boot_info_validate(info)) {
+        printf("boot-info is invalid.\n");
+        return -1;
+        //boot_info_reset(&info);
+    }
+
+    dump_boot_info(info);
+
+    return 0;
+}
+
+int set_successful_boot(void) {
+    int ret = 0;
+    char miscbuf[MISCBUF_SIZE] = {0};
+    AvbABData info;
+    int slot = 0;
+
+    ret = get_bootloader_message_block(miscbuf, MISCBUF_SIZE, &info);
+    if (ret != 0) {
+        printf("get_bootloader_message failed!\n");
+        return -1;
+    }
+
+    if (info.slots[1].priority > info.slots[0].priority) {
+        printf("slot = 1\n");
+        slot = 1;
+    }
+
+    if (info.slots[slot].successful_boot) {
+        printf("info.slots[%d].successful_boot\n", slot);
+        return 0;
+    }
+
+    return -1;
+}
+

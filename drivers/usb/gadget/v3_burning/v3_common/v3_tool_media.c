@@ -225,15 +225,21 @@ static p_payload_info_t _bl2x_mode_detect(u8* dataBuf)
 }
 
 #ifdef CONFIG_SHA256
-static int _bl2x_mode_check_header(p_payload_info_t pInfo)
+static int _bl2x_mode_check_header(void *pInfo)
 {
-	p_payload_info_hdr_t hdr    = &pInfo->hdr;
+	p_payload_info_hdr_t hdr    = &((p_payload_info_t)pInfo)->hdr;
 	p_payload_info_hdr_v2 v2hdr    = (p_payload_info_hdr_v2)hdr;
 	uint8_t gensum[SHA256_SUM_LEN];
 	const int nItemNum = hdr->byItemNum;
+	char build_info[32];
 
+	memset(build_info, 0, ARRAY_SIZE(build_info));
+	if (hdr->byVersion == 1)
+		memcpy(build_info, hdr->szTimeStamp, sizeof(hdr->szTimeStamp));
+	else
+		memcpy(build_info, v2hdr->build_info, sizeof(v2hdr->build_info));
 	printf("\naml log : info parse...\n");
-	printf("\tsztimes : %s\n", (hdr->byVersion == 1) ? hdr->szTimeStamp : v2hdr->build_info);
+	printf("\tsztimes : %s\n", build_info);
 	printf("\tversion : %d\n",hdr->byVersion);
 	printf("\tItemNum : %d\n",nItemNum);
 	printf("\tSize    : %d(0x%x)\n",    hdr->nSize, hdr->nSize);
@@ -243,7 +249,7 @@ static int _bl2x_mode_check_header(p_payload_info_t pInfo)
 	FB_MSG("nsz 0x%x\n", nsz);
 	sha256_context ctx;
 	sha256_starts(&ctx);
-	sha256_update(&ctx, (u8*)&(hdr->nMagicL), nsz);
+	sha256_update(&ctx, pInfo + 32/*(u8*)&(hdr->nMagicL)*/, nsz);
 	sha256_finish(&ctx, gensum);
 	int ret = memcmp(gensum, hdr->szSHA2, SHA256_SUM_LEN);
 	if (ret) { FBS_EXIT(_ACK, "hdr info sha256sum not matched\n"); }
@@ -728,6 +734,10 @@ int v3tool_storage_init(const int eraseFlash, unsigned int dtbImgSz, unsigned in
 #ifdef CONFIG_MULTI_DTB
 		fdtAddr = get_multi_dt_entry(fdtAddr);
 #endif// #ifdef CONFIG_MULTI_DTB
+		if (!fdtAddr) {
+			//0 address is invalid
+			FBS_EXIT(_ACK, "invalid fdt address\n");
+		}
 		ret = fdt_check_header((char*)fdtAddr);
 		if (ret) FBS_EXIT(_ACK, "Fail in fdt check header\n");
 

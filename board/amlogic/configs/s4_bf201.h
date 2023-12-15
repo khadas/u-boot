@@ -108,8 +108,10 @@
 				"run update;"\
 			"else if test ${reboot_mode} = quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
 			"else if test ${reboot_mode} = recovery_quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
 				"run recovery_from_flash;"\
 			"else if test ${reboot_mode} = cold_boot; then "\
 			"else if test ${reboot_mode} = fastboot; then "\
@@ -202,7 +204,7 @@
 #define CONFIG_PREBOOT  "echo preboot"
 #endif
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
-#define CONFIG_ENV_SIZE   (64 * 1024)
+#define CONFIG_ENV_SIZE   (256 * 1024)
 #define CONFIG_FIT 1
 #define CONFIG_OF_LIBFDT 1
 #define CONFIG_ANDROID_BOOT_IMAGE 1

@@ -896,6 +896,25 @@ int get_aml_mtdpart_name(struct mtd_info *master, int idx, char *name)
 	return 0;
 }
 
+struct part_info *get_aml_mtdpart_by_index(struct mtd_info *master, int idx)
+{
+	struct part_info *temp;
+	struct mtd_device *dentry;
+	int count = 0;
+
+	if (idx >= get_aml_mtdpart_count())
+		return NULL;
+
+	list_for_each_entry(dentry, &aml_device, link) {
+		list_for_each_entry(temp, &dentry->parts, link) {
+			if (count++ == idx)
+				return temp;
+		}
+	}
+
+	return NULL;
+}
+
 void list_aml_mtd_partitions(struct mtd_info *master)
 {
 	struct mtd_info *slave;

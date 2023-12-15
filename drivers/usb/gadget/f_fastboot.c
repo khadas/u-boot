@@ -20,6 +20,7 @@
 #include <linux/compiler.h>
 #include <g_dnl.h>
 #include <partition_table.h>
+#include <amlogic/aml_rollback.h>
 
 #define FASTBOOT_INTERFACE_CLASS	0xff
 #define FASTBOOT_INTERFACE_SUB_CLASS	0x42
@@ -401,8 +402,38 @@ static int fastboot_tx_write_str(const char *buffer)
 	return fastboot_tx_write(buffer, strlen(buffer));
 }
 
+void check_fastboot_step(void)
+{
+	char *fastboot_step = env_get("fastboot_step");
+	char *gpt_mode = env_get("gpt_mode");
+	char *nocs_mode = env_get("nocs_mode");
+
+	if (fastboot_step && (strcmp(fastboot_step, "2") == 0)) {
+		//come to here, means new burn bootloader.img is OK, reset env
+		printf("new burn bootloader.img is OK, write other bootloader\n");
+
+		if ((gpt_mode && !strcmp(gpt_mode, "true")) ||
+			(nocs_mode && !strcmp(nocs_mode, "true"))) {
+			printf("gpt or disable user bootloader mode\n");
+			run_command("copy_slot_bootable 2 1", 0);
+		} else {
+			printf("normal mode\n");
+			run_command("copy_slot_bootable 1 0", 0);
+			run_command("copy_slot_bootable 1 2", 0);
+		}
+
+		env_set("fastboot_step", "0");
+#if CONFIG_IS_ENABLED(AML_UPDATE_ENV)
+		run_command("update_env_part -p fastboot_step;", 0);
+#else
+		run_command("defenv_reserve;setenv fastboot_step 0;saveenv;", 0);
+#endif
+	}
+}
+
 static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 {
+	check_fastboot_step();
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
 #else
@@ -414,6 +445,7 @@ static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 
 static void compl_do_reboot_bootloader(struct usb_ep *ep, struct usb_request *req)
 {
+	check_fastboot_step();
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
 #else
@@ -427,6 +459,7 @@ static void compl_do_reboot_bootloader(struct usb_ep *ep, struct usb_request *re
 
 static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
 {
+	check_fastboot_step();
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
 #else
@@ -438,6 +471,7 @@ static void compl_do_reboot_fastboot(struct usb_ep *ep, struct usb_request *req)
 
 static void compl_do_reboot_recovery(struct usb_ep *ep, struct usb_request *req)
 {
+	check_fastboot_step();
 #ifndef CONFIG_USB_GADGET_CRG
 	f_dwc_otg_pullup(0);
 #endif

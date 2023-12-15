@@ -89,10 +89,11 @@
 		"jtag=disable\0"\
 		"loadaddr=0x00020000\0"\
 		"os_ident_addr=0x00500000\0"\
-		"loadaddr_rtos=0x00001000\0"\
+		"loadaddr_rtos=0x00080000\0"\
 		"loadaddr_kernel=0x03080000\0"\
 		"otg_device=1\0" \
 		"panel_type=lvds_1\0" \
+		"panel1_type=vbyone_1\0" \
 		"panel_name=null\0" \
 		"lcd_ctrl=0x00000000\0" \
 		"lcd_debug=0x00000000\0" \
@@ -102,6 +103,7 @@
 		"cvbsmode=576cvbs\0" \
 		"vout_init=disable\0" \
 		"model_name=FHD2HDMI\0" \
+		"model1_name=UHD_1RG\0" \
 		"gamma=0\0" \
 		"display_width=1920\0" \
 		"display_height=1080\0" \
@@ -151,7 +153,7 @@
 		"no_console_suspend earlycon=aml-uart,0xfe07a000 "\
 	    "ramoops.pstore_en=1 ramoops.record_size=0x8000 "\
 		"ramoops.console_size=0x4000 loop.max_part=4 "\
-		"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0xfe02e030 isolcpus=2 "\
+	    "scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0xfe02e030 aml_isolcpus=2 "\
 	    "\0"\
 	"upgrade_check="\
 			"run upgrade_check_base;"\
@@ -160,8 +162,8 @@
 		"get_bootloaderversion;" \
 		"run storeargs_base;"\
 		"setenv bootargs ${bootargs} powermode=${powermode} "\
-		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
-		"outputmode=${outputmode};"\
+		"lcd_ctrl=${lcd_ctrl} lcd1_ctrl=${lcd1_ctrl}  lcd_debug=${lcd_debug} "\
+		"outputmode=${outputmode}; panel1_type=${panel1_type};"\
 		"run check_connector_type; "\
 		"run cmdline_keys;"\
 		"\0"\
@@ -531,9 +533,9 @@
 
 #define CONFIG_MULTI_DTB    1
 
-//#define CONFIG_RX_RTERM		1
+#define CONFIG_RX_RTERM		1
 
-//#define CONFIG_CMD_HDMIRX   1
+#define CONFIG_CMD_HDMIRX   1
 
 #define CONFIG_CMD_CEC		1
 /* support secure boot */

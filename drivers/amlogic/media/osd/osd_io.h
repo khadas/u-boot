@@ -330,6 +330,10 @@
 #define VPU_RDARB_MODE_L2C1                        0x279d
 #endif
 
+#ifndef VIU_OSD2_DIMM_CTRL
+#define VIU_OSD2_DIMM_CTRL                         0x1acf
+#endif
+
 #define UBOOT_INFO_FLAG                VIU_OSD1_TCOLOR_AG1
 
 #define REG_OFFSET_VCBUS(reg)           ((reg << 2))
