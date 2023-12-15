@@ -281,8 +281,10 @@
                     "run update;"\
             "else if test ${reboot_mode} = quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
             "else if test ${reboot_mode} = recovery_quiescent; then "\
 				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
+				"setenv vout_init enable;"\
                     "run recovery_from_flash;"\
             "else if test ${reboot_mode} = cold_boot; then "\
                     "echo cold boot: ffv_wake=${ffv_wake} "\
@@ -628,7 +630,7 @@
 #define CONFIG_MD5 1
 
 /* commands */
-/* #define CONFIG_CMD_PLLTEST 1 */
+ #define CONFIG_CMD_PLLTEST 1
 
 /*file system*/
 #define CONFIG_DOS_PARTITION 1

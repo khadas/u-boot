@@ -14,6 +14,13 @@ config PXP_DDR
 		as real SOC. This config must be closed if running on real
 		chips.
 
+config CMD_PLLTEST
+	bool "support plltest command"
+	default n
+	help
+	  support plltest command
+	  input operations
+
 config PXP_STO
 	bool "Amlogic Pxp storage flag"
 	help
@@ -30,6 +37,19 @@ config PXP_SCS
 		If this option is open, then SCS check may be disabled for
 		fast PXP bring up. This config should be closed if SCS feature
 		is ready.
+
+config BUILD_UNSIGN
+	bool "Amlogic pxp unsign flag"
+	help
+		Support PXP no signed environment
+		When PXP bring up this option is open. This config should be
+		closed when signature is ready.
+
+config BOARD_PACKAGE_NAME
+	string "rtos sdk name"
+	default ""
+	help
+		This config can help to select bl30 board name.
 
 config KALLSYMS
 	bool "Support call stack dump when crash"
@@ -96,6 +116,13 @@ config AML_OSCRING
 	help
 		"Support Amlogic chip oscring msr"
 
+config AMLOGIC_TIME_PROFILE
+	bool "profile for uboot time"
+	default y
+	help
+		catch and dump function/commands which cost long time
+		This option should be done with env "setenv time_profile 1"
+
 config SYS_VENDOR
 	string "Vendor name"
 	default "khadas"
@@ -133,7 +160,7 @@ config DDR_FULL_FW
 	default n
 	help
 		Support full ddr fw for soc using advanced boot loader as
-		bl2, such as sc2/t7/s4/t3/p1....
+		bl2, such as sc2/t7/s4/t3/p1/s5....
 
 choice
 	prompt "BL2E size"
@@ -176,47 +203,9 @@ config BL2E_PAYLOAD_SIZE
 	default  262144 if BL2E_256K
 	default 1048576 if BL2E_1024K
 
-if MESON_S4
-
-config SYS_SOC
-	default "s4"
-
-config DDRFW_TYPE
-	string "S4 DDR FW Type"
-	default "ddr4"
-
-config CHIPSET_NAME
-        string "S4 CHIPSET NAME"
-        default "s905y4"
-
-config CHIPSET_VARIANT
-        string "S4 CHIPSET VARIANT"
-        default ""
-
-config AMLOGIC_KEY_TYPE
-        string "S4 AMLOGIC KEY TYPE"
-        default "dev-keys"
-
-config BL30_SELECT
-	string "S4 BL30 board config"
-	default "s4_ap229"
-
-choice
-	prompt "S4 Board"
-
-config S4_AP222
-	bool "S4_AP222"
-	select TARGET_S4_AP222
-	help
-		Select S4 AP222(XXXX) config
-
-endchoice
-
-config TARGET_S4_AP222
-	bool "S4 AP222 board"
-	depends on S4_AP222
-
-endif
+config ZIRCON_BOOT_IMAGE
+	bool "Build Zircon compatible boot image"
+	default n
 
 if MESON_T7
 

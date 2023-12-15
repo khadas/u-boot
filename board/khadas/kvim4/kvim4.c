@@ -43,7 +43,7 @@
 #ifdef CONFIG_POWER_FUSB302
 #include <power/fusb302.h>
 #endif
-#include <asm/arch-meson/boot.h>
+#include <amlogic/board.h>
 
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -144,65 +144,6 @@ void board_lcd_detect(void)
 }
 #endif /* CONFIG_AML_LCD */
 
-unsigned int get_romcode_boot_id(void)
-{
-	const cpu_id_t cpuid = get_cpu_id();
-	const int familyId   = cpuid.family_id;
-
-	unsigned int boot_id = 0;
-#ifdef SYSCTRL_SEC_STATUS_REG2
-	if (MESON_CPU_MAJOR_ID_SC2 <= familyId && MESON_CPU_MAJOR_ID_C2 != familyId) {
-		boot_id = readl(SYSCTRL_SEC_STATUS_REG2);
-		debug("boot_id 0x%x\n", boot_id);
-		boot_id = (boot_id>>4) & 0xf;
-	}
-	debug("boot_id 0x%x\n", boot_id);
-#endif// #ifdef SYSCTRL_SEC_STATUS_REG2
-
-	return boot_id;
-}
-
-const char *get_boot_source_str(unsigned int boot_id)
-{
-	const char *source;
-
-	switch (boot_id) {
-	case BOOT_DEVICE_EMMC:
-		source = "emmc";
-		break;
-
-	case BOOT_DEVICE_NAND:
-		source = "nand";
-		break;
-
-	case BOOT_DEVICE_SPI:
-		source = "spi";
-		break;
-
-	case BOOT_DEVICE_SD:
-		source = "sd";
-		break;
-
-	case BOOT_DEVICE_USB:
-		source = "usb";
-		break;
-
-	default:
-		source = "unknown";
-	}
-
-	return source;
-}
-
-static void set_boot_source(void)
-{
-	const char *source;
-
-	source = get_boot_source_str(get_romcode_boot_id());
-
-	env_set("boot_source", source);
-}
-
 static void select_fdtfile(void)
 {
 	cpu_id_t cpu_id;
@@ -287,40 +228,13 @@ int board_late_init(void)
 {
 	printf("board late init\n");
 
-	//default uboot env need before anyone use it
-	if (env_get("default_env")) {
-		printf("factory reset, need default all uboot env.\n");
-		run_command("defenv_reserv; setenv upgrade_step 2; saveenv;", 0);
-	}
-
-	run_command("echo upgrade_step $upgrade_step; if itest ${upgrade_step} == 1; then "\
-			"defenv_reserv; setenv upgrade_step 2; saveenv; fi;", 0);
-	board_init_mem();
+	aml_board_late_init_front(NULL);
 
 	// Set boot source
-	set_boot_source();
+	board_set_boot_source();
 
 	// Select fdtfile
 	select_fdtfile();
-
-#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
-	if ( run_command("run common_dtb_load", 0) ) {
-		printf("Fail in load dtb with cmd[%s]\n", env_get("common_dtb_load"));
-	} else {
-		//load dtb here then users can directly use 'fdt' command
-		run_command("if fdt addr ${dtb_mem_addr}; then else echo no valid dtb at ${dtb_mem_addr};fi;", 0);
-	}
-#endif//#ifndef CONFIG_SYSTEM_RTOS //prue rtos not need dtb
-
-#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE //try auto upgrade from ext-sdcard
-	aml_try_factory_sdcard_burning(0, gd->bd);
-#endif//#ifdef CONFIG_AML_FACTORY_BURN_LOCAL_UPGRADE
-	//auto enter usb mode after board_late_init if 'adnl.exe setvar burnsteps 0x1b8ec003'
-#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-	if (0x1b8ec003 == readl(SYSCTRL_SEC_STICKY_REG2))
-	{ aml_v3_factory_usb_burning(0, gd->bd); }
-#endif//#if defined(CONFIG_AML_V3_FACTORY_BURN) && defined(CONFIG_AML_V3_USB_TOOl)
-
 #ifdef CONFIG_AML_VPU
 	vpu_probe();
 #endif
@@ -341,32 +255,6 @@ int board_late_init(void)
 	board_lcd_detect();
 	lcd_probe();
 #endif
-
-	unsigned char chipid[16];
-
-	memset(chipid, 0, 16);
-
-	if (get_chip_id(chipid, 16) != -1) {
-		char chipid_str[32];
-		int i, j;
-		char buf_tmp[4];
-
-		memset(chipid_str, 0, 32);
-
-		char *buff = &chipid_str[0];
-
-		for (i = 0, j = 0; i < 12; ++i) {
-			sprintf(&buf_tmp[0], "%02x", chipid[15 - i]);
-			if (strcmp(buf_tmp, "00") != 0) {
-				sprintf(buff + j, "%02x", chipid[15 - i]);
-				j = j + 2;
-			}
-		}
-		env_set("cpu_id", chipid_str);
-		printf("buff: %s\n", buff);
-	} else {
-		env_set("cpu_id", "1234567890");
-	}
 	/* The board id is used to determine if the NN needs to adjust voltage */
 	switch (readl(SYSCTRL_SEC_STATUS_REG4) >> 8 & 0xff) {
 	case 2:
@@ -378,6 +266,7 @@ int board_late_init(void)
 		env_set_ulong("nn_adj_vol", 0);
 	}
 
+	aml_board_late_init_tail(NULL);
 	return 0;
 }
 
@@ -669,6 +558,10 @@ const char * const _env_args_reserve_[] =
 	"lock",
 	"upgrade_step",
 	"bootloader_version",
+	"dts_to_gpt",
+	"fastboot_step",
+	"reboot_status",
+	"expect_index",
 
 	NULL//Keep NULL be last to tell END
 };
