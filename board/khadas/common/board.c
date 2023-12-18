@@ -258,8 +258,8 @@ int aml_board_late_init_tail(void *arg)
 
 	UNUSED(arg);
 	printf("init tail\n");
-	run_command("amlsecurecheck", 0);
-	run_command("update_tries", 0);
+//	run_command("amlsecurecheck", 0);
+//	run_command("update_tries", 0);
 
 	//Need save outputmode/connector_type to flash if changed after display drv init
 	if (env_get("outputmode") || env_get("connector_type")) {
