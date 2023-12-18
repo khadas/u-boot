@@ -50,6 +50,7 @@ static int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	unsigned char st = 0;
 	unsigned char count = 0;
+	char *mipi_lcd_exist = NULL;
 
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 
@@ -70,7 +71,13 @@ READ_EDID:
 
 		/* select best resolution */
 		env_set("hdmimode", select_best_resolution());
-		env_set("outputmode", env_get("hdmimode"));
+		mipi_lcd_exist = env_get("mipi_lcd_exist");
+		if (0 == strcmp(mipi_lcd_exist, "1")) {
+			// LCD exist,HDMI is outputmode2
+			env_set("outputmode2", env_get("hdmimode"));
+		} else {
+			env_set("outputmode", env_get("hdmimode"));
+		}
 	}
 
 	return st;
