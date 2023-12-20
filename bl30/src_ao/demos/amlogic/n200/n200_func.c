@@ -31,32 +31,12 @@ void pmp_open_all_space(void){
 }
 
 #ifndef N200_REVA
-static uint32_t pmpcfg_order_get(uint32_t pmp_size)
-{
-	int pmpcfg_order = 10;
-
-	for (uint32_t i = 0x400; i*2 <= pmp_size; i *= 2)
-		pmpcfg_order++;
-
-	return pmpcfg_order;
-}
-
-static uint32_t pmpaddr_encode(uint32_t pmp_base_addr, uint32_t pmp_cfg_order)
-{
-	uint32_t addrmask, pmpaddr;
-
-	addrmask = (1UL << (pmp_cfg_order - PMP_SHIFT)) - 1;
-	pmpaddr = ((pmp_base_addr >> PMP_SHIFT) & ~addrmask);
-	pmpaddr |= (addrmask >> 1);
-
-	return pmpaddr;
-}
-
-
 /*
  * -- Configure PMP --
  * For both Machine and User mode.
  * To make aocpu text/ro data space readable and executable.
+ * To make aocpu data space readable and writable.
+ * To make 4G space readable and writable.
  * Note:
  * 	If config_pmp is called, pmp_open_all_space is invalid.
  */
@@ -65,58 +45,71 @@ uint32_t config_pmp(void)
 	uint32_t start_text_addr = (uint32_t)&_text;
 	uint32_t end_text_addr = (uint32_t)&_etext;
 	uint32_t text_len_left = end_text_addr - start_text_addr;
-	uint32_t next_seg_len = 0;
-	uint32_t pmp_cfg[8] = {0}, pmp_addr[8] = {0};
+	uint32_t next_seg_len;
+	uint32_t pmp_cfg[8] = {0};
 	int pmp_entry_used = 0;
 	uint32_t pmp_region_base = start_text_addr;
+	uint32_t ao_ram_end = configMEM_START + configMEM_LEN;
+	uint32_t all_region_size = 0x1fffffff;
 
 	PMP_PRINT("AOCPU: configure PMP for memory 0x%lx ~ 0x%lx\n",
 			start_text_addr, end_text_addr);
 
 	while (text_len_left > 0) {
-		if (text_len_left >= SIZE_32K && (pmp_region_base & (SIZE_32K - 1)) == 0)
-			next_seg_len = SIZE_32K;
-		else if (text_len_left >= SIZE_16K && (pmp_region_base & (SIZE_16K - 1)) == 0)
-			next_seg_len = SIZE_16K;
-		else if (text_len_left >= SIZE_8K && (pmp_region_base & (SIZE_8K - 1)) == 0)
-			next_seg_len = SIZE_8K;
-		else if (text_len_left >= SIZE_4K && (pmp_region_base & (SIZE_4K - 1)) == 0)
-			next_seg_len = SIZE_4K;
-		else if (text_len_left >= SIZE_2K && (pmp_region_base & (SIZE_2K - 1)) == 0)
-			next_seg_len = SIZE_2K;
-		else if (text_len_left >= SIZE_1K && (pmp_region_base & (SIZE_1K - 1)) == 0)
-			next_seg_len = SIZE_1K;
-
-		if (next_seg_len == 0) {
-			PMP_PRINT("Note: pmp config error, exit\n");
-			return -1;
-		}
+		for (next_seg_len = 1024; next_seg_len*2 <= text_len_left; next_seg_len *= 2)
+			;
 
 		text_len_left -= next_seg_len;
-		PMP_PRINT_DEBUG("pm pregion base: %lx\n", pmp_region_base);
-		PMP_PRINT_DEBUG("segment length : %lx\n", next_seg_len);
-		PMP_PRINT_DEBUG("length left    : %lx\n", text_len_left);
+		PMP_PRINT_DEBUG("segment length: %lx\n", next_seg_len);
+		PMP_PRINT_DEBUG("length left   : %lx\n", text_len_left);
 
-		pmp_addr[pmp_entry_used] = pmpaddr_encode(pmp_region_base, pmpcfg_order_get(next_seg_len));
-		pmp_cfg[pmp_entry_used] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+		/* Configure text/ro data space access privilege */
+		switch (pmp_entry_used) {
+		case 0:
+			write_csr(pmpaddr0, (pmp_region_base >> 2) | NAPOT_SIZE(next_seg_len));
+			pmp_cfg[0] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+			break;
+		case 1:
+			write_csr(pmpaddr1, (pmp_region_base >> 2) | NAPOT_SIZE(next_seg_len));
+			pmp_cfg[1] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+			break;
+		case 2:
+			write_csr(pmpaddr2, (pmp_region_base >> 2) | NAPOT_SIZE(next_seg_len));
+			pmp_cfg[2] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+			break;
+		case 3:
+			write_csr(pmpaddr3, (pmp_region_base >> 2) | NAPOT_SIZE(next_seg_len));
+			pmp_cfg[3] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+			break;
+		case 4:
+			write_csr(pmpaddr4, (pmp_region_base >> 2) | NAPOT_SIZE(next_seg_len));
+			pmp_cfg[4] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+			break;
+		case 5:
+			write_csr(pmpaddr5, (pmp_region_base >> 2) | NAPOT_SIZE(next_seg_len));
+			pmp_cfg[5] = (PMP_CFG_R_EN | PMP_CFG_X_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+			break;
+		default:
+			break;
+		}
 		pmp_entry_used++;
 		pmp_region_base += next_seg_len;
 		PMP_PRINT_DEBUG("pmp_entry_used : %d\n", pmp_entry_used);
-
-		if (pmp_entry_used >= 8) {
-			PMP_PRINT_DEBUG("Note: pmp entry has been full used\n");
-			break;
-		}
+		PMP_PRINT_DEBUG("pmp_region_base: %lx\n", pmp_region_base);
 	}
 
-	write_csr(pmpaddr0, pmp_addr[0]);
-	write_csr(pmpaddr1, pmp_addr[1]);
-	write_csr(pmpaddr2, pmp_addr[2]);
-	write_csr(pmpaddr3, pmp_addr[3]);
-	write_csr(pmpaddr4, pmp_addr[4]);
-	write_csr(pmpaddr5, pmp_addr[5]);
-	write_csr(pmpaddr6, pmp_addr[6]);
-	write_csr(pmpaddr7, pmp_addr[7]);
+	/* Configure data space access privilege */
+	write_csr(pmpaddr6, (pmp_region_base >> 2) | NAPOT_SIZE(ao_ram_end - pmp_region_base));
+	pmp_cfg[6] = (PMP_CFG_R_EN | PMP_CFG_W_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+	/* Configure all 32-bit (4G) address space access privilege */
+	write_csr(pmpaddr7, (0x0) | all_region_size);
+	pmp_cfg[7] = (PMP_CFG_R_EN | PMP_CFG_W_EN | PMP_CFG_A_NAPOT | PMP_CFG_L_EN);
+	/* Set Configuration for text/ro data/data/4G space */
+	write_csr(pmpcfg0, (pmp_cfg[3] << 24) | (pmp_cfg[2] << 16) |
+				(pmp_cfg[1] << 8) | (pmp_cfg[0] << 0));
+	write_csr(pmpcfg1, (pmp_cfg[7] << 24) | (pmp_cfg[6] << 16) |
+				(pmp_cfg[5] << 8) | (pmp_cfg[4] << 0));
+
 	PMP_PRINT_DEBUG("pmpaddr0 : %lx\n", read_csr(pmpaddr0));
 	PMP_PRINT_DEBUG("pmpaddr1 : %lx\n", read_csr(pmpaddr1));
 	PMP_PRINT_DEBUG("pmpaddr2 : %lx\n", read_csr(pmpaddr2));
@@ -125,15 +118,8 @@ uint32_t config_pmp(void)
 	PMP_PRINT_DEBUG("pmpaddr5 : %lx\n", read_csr(pmpaddr5));
 	PMP_PRINT_DEBUG("pmpaddr6 : %lx\n", read_csr(pmpaddr6));
 	PMP_PRINT_DEBUG("pmpaddr7 : %lx\n", read_csr(pmpaddr7));
-
-	write_csr(pmpcfg0, (pmp_cfg[3] << 24) | (pmp_cfg[2] << 16) |
-				(pmp_cfg[1] << 8) | (pmp_cfg[0] << 0));
 	PMP_PRINT_DEBUG("pmpcfg0  : %lx\n", read_csr(pmpcfg0));
-
-	write_csr(pmpcfg1, (pmp_cfg[7] << 24) | (pmp_cfg[6] << 16) |
-				(pmp_cfg[5] << 8) | (pmp_cfg[4] << 0));
 	PMP_PRINT_DEBUG("pmpcfg1  : %lx\n", read_csr(pmpcfg1));
-
 	PMP_PRINT("AOCPU: configure PMP end\n");
 
 	return 0;

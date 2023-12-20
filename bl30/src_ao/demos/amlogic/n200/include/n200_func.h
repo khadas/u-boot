@@ -28,13 +28,8 @@ __BEGIN_DECLS
 #define PMP_CFG_L_NO    (0<<7)
 #define PMP_CFG_L_EN    (1<<7)
 
-#define SIZE_1K		0x400
-#define SIZE_2K		0x800
-#define SIZE_4K		0x1000
-#define SIZE_8K		0x2000
-#define SIZE_16K	0x4000
-#define SIZE_32K	0x8000
-#define PMP_SHIFT	2
+/* The size should be the number of 2^n */
+#define NAPOT_SIZE(size)	(((size) - 1) >> 3)
 
 extern uint32_t _text;
 extern uint32_t _etext;
