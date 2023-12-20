@@ -3,7 +3,7 @@
 
 # these soc use old bl31 code, others use new one
 declare -a BL31_OLD_VER_SOC_LIST=("gxb" "gxtvbb" "gxl" "txl")
-declare -a BL31_VER2_7_SOC_LIST=("t3x" "a4" "s1a")
+declare -a BL31_VER2_7_SOC_LIST=("t3x" "a4")
 declare BL31_V2_7_SRC_FOLDER="bl31/bl31_2.7/src"
 declare BL31_V1_3_SRC_FOLDER="bl31/bl31_1.3/src"
 declare BL31_V1_0_SRC_FOLDER="bl31/bl31_1.0/src"

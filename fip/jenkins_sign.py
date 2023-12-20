@@ -237,39 +237,6 @@ def queryBuildUser(rootJobUrl, buildNumber):
     else:
         return "Error"
 
-def checkBuildParameter(rootJobUrl, buildNumber, argsChip, argsCasProvider, argsKeyType):
-    url = rootJobUrl + str(buildNumber) + "/api/json"
-    job = rootJobUrl + str(buildNumber)
-
-    response = requests.get(url, auth=auth)
-    data = response.json()
-
-    # parse JSON data to get chipPartNumber, casProvider, keyType
-    actions = data.get("actions", [])
-    for action in actions:
-        parameters = action.get("parameters", [])
-        for parameter in parameters:
-            if parameter.get("_class") == "hudson.model.StringParameterValue":
-                if parameter.get("name") == "chipPartNumber":
-                    chipPartNumber = parameter.get("value")
-                    if chipPartNumber != argsChip:
-                        print("The jenkins Build job %s chip value doesn't match with yours." % (job))
-                        return False
-
-                if parameter.get("name") == "casProvider":
-                    casProvider = parameter.get("value")
-                    if casProvider != argsCasProvider:
-                        print("The jenkins Build job %s casProvider value doesn't match with yours." % (job))
-                        return False
-
-                if parameter.get("name") == "keyType":
-                    keyType = parameter.get("value")
-                    if keyType != argsKeyType:
-                        print("The jenkins Build job %s keyType value doesn't match with yours."  % (job))
-                        return False
-
-        return True
-
 def downloadSignedFile(rootJobUrl, buildNumber, inFileDir="", specifiedOutFilePath=""):
 
     url = rootJobUrl + str(buildNumber) + "/api/json?tree=artifacts[relativePath]"
@@ -354,12 +321,6 @@ def main():
             userId = queryBuildUser(rootJobUrl, buildNumber)
             if userId.lower() != user.lower():
                  print("The jenkins Build number user name doesn't match yours.It may be caused by too many signing requests submit to the same job.")
-                 print("Please wait a moment, and try again.")
-                 exit(1)
-
-            status = checkBuildParameter(rootJobUrl, buildNumber, args.chip, args.casProvider, args.keyType)
-            if status == False:
-                 print("It may be caused by too many signing requests submit to the same job.")
                  print("Please wait a moment, and try again.")
                  exit(1)
 

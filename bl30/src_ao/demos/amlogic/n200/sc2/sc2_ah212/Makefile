@@ -44,7 +44,7 @@ include $(FREERTOS_VENDOR)/makedefs
 RTOS_SOURCE_DIR = ${FREERTOS_LIB_DIR}/FreeRTOS
 OUTPUT := ./out_${SOC}
 
-CFLAGS += $(WARNINGS) -DMPU_INIT=1 -I . -I./$(FREERTOS_VENDOR)/include -I ${FREERTOS_VENDOR}/n200/include -I ${FREERTOS_VENDOR}/n200/include/${SOC} -I ${FREERTOS_CORE_DIR} -I $(FREERTOS_ROOT_DIR)/lib/include -I $(FREERTOS_ROOT_DIR)/lib/third_party/amlogic/include/drivers -I $(FREERTOS_ROOT_DIR)/lib/third_party/amlogic/include -I ${FREERTOS_LIB_DIR}/include/private -I $(FREERTOS_VENDOR_DRIVER)/wifi_bt
+CFLAGS += $(WARNINGS) -DMPU_INIT=1 -I . -I./$(FREERTOS_VENDOR)/include -I ${FREERTOS_VENDOR}/n200/include -I ${FREERTOS_VENDOR}/n200/include/${SOC} -I ${FREERTOS_CORE_DIR} -I $(FREERTOS_ROOT_DIR)/lib/include -I $(FREERTOS_ROOT_DIR)/lib/third_party/amlogic/include/drivers -I $(FREERTOS_ROOT_DIR)/lib/third_party/amlogic/include -I ${FREERTOS_LIB_DIR}/include/private
 
 AFLAGS = $(CFLAGS) -D__ASM
 
@@ -70,7 +70,6 @@ $(info LDFLAGS = $(LDFLAGS))
 -include $(FREERTOS_VENDOR_DRIVER)/saradc/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/key/build.mk
 -include $(FREERTOS_VENDOR_DRIVER)/eth/build.mk
--include $(FREERTOS_VENDOR_DRIVER)/wifi_bt/build.mk
 
 objs_from_dir=$(sort $(foreach obj, $($(2)-y), \
                 $(COMPILER)/$(1)/$(firstword $($(2)-mock-$(PROJECT)-$(obj)) $(obj))))
@@ -102,7 +101,8 @@ OBJS += ${COMPILER}/main.o	\
 		$(COMPILER)/myprintf.o \
 		$(COMPILER)/start.o \
 		$(COMPILER)/vtable.o\
-		${COMPILER}/keypad.o
+		${COMPILER}/keypad.o \
+		$(COMPILER)/btwake.o
 
 #
 # The default rule, which causes init to be built.

@@ -400,37 +400,27 @@ function package_binary()
 
 function mk_ddr_fip()
 {
-	if [ "fastboot" == "${CONFIG_CHIPSET_VARIANT}" ] && [ "ipc" != "${CONFIG_CHIPSET_VARIANT_IPC}" ]; then
-		FAST_BOOT_RESOURCE="fastboot"
-		test -f ${FAST_BOOT_RESOURCE}/bl22.bin && cp ${FAST_BOOT_RESOURCE}/bl22.bin ${BUILD_PATH}/bl22.bin
-		test -f ${FAST_BOOT_RESOURCE}/rtos_1.bin && cp ${FAST_BOOT_RESOURCE}/rtos_1.bin ${BUILD_PATH}/rtos_1.bin
-		test -f ${FAST_BOOT_RESOURCE}/rtos_2.bin && cp ${FAST_BOOT_RESOURCE}/rtos_2.bin ${BUILD_PATH}/rtos_2.bin
+	FAST_BOOT_RESOURCE="fastboot"
+	test -f ${FAST_BOOT_RESOURCE}/bl22.bin && cp ${FAST_BOOT_RESOURCE}/bl22.bin ${BUILD_PATH}/bl22.bin
+	test -f ${FAST_BOOT_RESOURCE}/rtos_1.bin && cp ${FAST_BOOT_RESOURCE}/rtos_1.bin ${BUILD_PATH}/rtos_1.bin
+	test -f ${FAST_BOOT_RESOURCE}/rtos_2.bin && cp ${FAST_BOOT_RESOURCE}/rtos_2.bin ${BUILD_PATH}/rtos_2.bin
 
-		if [ ! -e ${BUILD_PATH}/rtos_1.bin ]; then
-			echo ==== rtos_1.bin not exist, use a empty one ====
-			dd if=/dev/zero of=${BUILD_PATH}/rtos_1.bin bs=1 count=8192
-		fi
-
-		if [ ! -e ${BUILD_PATH}/rtos_2.bin ]; then
-			echo ==== rtos_2.bin not exist, use a empty one ====
-			dd if=/dev/zero of=${BUILD_PATH}/rtos_2.bin bs=1 count=16384
-		fi
-
-		build_header ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_1.bin ${BUILD_PATH}/rtos_2.bin
-		package_binary ${BUILD_PATH}/_tmp_hdr.bin ${BUILD_PATH}/bl22.bin bl22.bin
-		package_binary ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_1.bin bl22.bin
-		package_binary ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_2.bin ddr-fip.bin
-
-		if [ -n "${CONFIG_BUILD_UNSIGN}" ]; then
-			echo "==== build unsigned ===="
-			dd if=/dev/zero of=${BUILD_PATH}/_tmp.bin bs=1024 count=256 &> /dev/null
-		else
-			echo "==== build fastboot ===="
-			dd if=/dev/zero of=${BUILD_PATH}/_tmp.bin bs=1024 count=1792 &> /dev/null
-		fi
-	else
-		dd if=/dev/zero of=${BUILD_PATH}/_tmp.bin bs=1024 count=256 &> /dev/null
+	if [ ! -e ${BUILD_PATH}/rtos_1.bin ]; then
+		echo ==== rtos_1.bin not exist, use a empty one ====
+		dd if=/dev/zero of=${BUILD_PATH}/rtos_1.bin bs=1 count=8192
 	fi
+
+	if [ ! -e ${BUILD_PATH}/rtos_2.bin ]; then
+		echo ==== rtos_2.bin not exist, use a empty one ====
+		dd if=/dev/zero of=${BUILD_PATH}/rtos_2.bin bs=1 count=16384
+	fi
+
+	build_header ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_1.bin ${BUILD_PATH}/rtos_2.bin
+	package_binary ${BUILD_PATH}/_tmp_hdr.bin ${BUILD_PATH}/bl22.bin bl22.bin
+	package_binary ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_1.bin bl22.bin
+	package_binary ${BUILD_PATH}/bl22.bin ${BUILD_PATH}/rtos_2.bin ddr-fip.bin
+
+	dd if=/dev/zero of=${BUILD_PATH}/_tmp.bin bs=1024 count=256 &> /dev/null
 	dd if=${BUILD_PATH}/ddr-fip.bin of=${BUILD_PATH}/_tmp.bin conv=notrunc &> /dev/null
 	mv ${BUILD_PATH}/_tmp.bin ${BUILD_PATH}/ddr-fip.bin
 }
@@ -742,7 +732,7 @@ function build_signed() {
 	fi
 
 	if [ ".1m" == "${CHIPSET_VARIANT_MIN_SUFFIX}" ]; then
-		./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_VARIANT_MIN_SUFFIX} ${CHIPSET_VARIANT_SUFFIX}
+		./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_VARIANT_MIN_SUFFIX}
 	else
 		./${FIP_FOLDER}${CUR_SOC}/bin/gen-bl.sh ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${BUILD_PATH} ${CHIPSET_VARIANT_SUFFIX}
 	fi

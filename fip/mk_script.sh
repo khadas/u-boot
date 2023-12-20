@@ -17,19 +17,6 @@ source fip/build_bl33.sh
 source fip/build_bl40.sh
 source fip/check_coverity.sh
 
-declare -a  COMPILE_PARA_LIST=("--h" "--help" "--config" "--chip-varient" "--check-compile" \
-			"--cov" "--cov-high" "--enable-ramdump" "--uasan" "--enable-bl33z" \
-			"--disable-bl33z" "--compress-bl2e" "--chipid" "--build-version" \
-			"--ab-update" "--hdmitx-only" "--clean"\
-			"--distclean" "--bl2" "--bl2e" "--bl2x" "--bl30" "--bl31" \
-			"--bl32" "--bl40" "--ddr-fip" "--sign-bl40" "--update-bl2" \
-			"--update-bl2e" "--update-bl2x" "--update-ddr-fip" "--update-bl30" \
-			"--update-bl31" "--update-bl32" "--bl2-branch" "--ddrfw" \
-			"--jenkins-sign" "--former-sign" "--build-unsign" "--build-nogit" \
-			"--nasc_nagra_tier_1" "--cas" "--systemroot" "--avb2" "--vab" \
-			"--fastboot-write" "--signpipe" "--avb2-recovery" "--patch" "--gpt" \
-			)
-
 function parse_bl33_global_config() {
 	local oldifs="$IFS"
 	IFS=$'\n'
@@ -441,7 +428,7 @@ function parser() {
 		arg="${argv[$i]}"
 		i=$((i + 1)) # must place here
 		case "$arg" in
-			--h|--help)
+			-h|--help|help)
 				usage
 				exit ;;
 			--config)
@@ -520,28 +507,10 @@ function parser() {
 				echo "export CONFIG_AB_UPDATE"
 				export CONFIG_AB_UPDATE=y
 				continue ;;
-			--hdmitx-only)
-				echo "export BOARD_COMPILE_HDMITX_ONLY=true"
-				export BOARD_COMPILE_HDMITX_ONLY=true
-				continue ;;
-			--clean|--distclean)
+			clean|distclean|-distclean|--distclean)
 				clean
 				exit ;;
 			*)
-				local correct_para=0
-				local sub_arg=${arg:0:2}
-				if [ "$sub_arg" == "--" ]; then
-					for arg_loop in ${COMPILE_PARA_LIST[@]}; do
-						if [ "$arg" == "$arg_loop" ]; then
-							correct_para=1
-							break
-						fi
-					done
-					if [ "$correct_para" == "0" ]; then
-						echo "$arg is an invalid parameter!!!"
-						exit 1
-					fi
-				fi ;;
 		esac
 	done
 
@@ -581,17 +550,9 @@ function bin_path_parser() {
 		i=$((i + 1)) # must pleace here
 		case "$arg" in
 			--bl2)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 0 "${argv[@]:$((i))}"
 				continue ;;
 			--bl2e)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 5 "${argv[@]:$((i))}"
 				continue ;;
 			--bl2e-size)
@@ -599,53 +560,25 @@ function bin_path_parser() {
 				export BL2E_PAYLOAD_SIZE
 				continue ;;
 			--bl2x)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 6 "${argv[@]:$((i))}"
 				continue ;;
 			--bl30)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 1 "${argv[@]:$((i))}"
 				continue ;;
 			--bl31)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 2 "${argv[@]:$((i))}"
 				continue ;;
 			--bl32)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 3 "${argv[@]:$((i))}"
 				continue ;;
 			--bl40)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 4 "${argv[@]:$((i))}"
 				continue ;;
 			--ddr-fip)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				DDR_FIP_EXTERN_PATH="${argv[@]:$((i))}"
 				export DDR_FIP_EXTERN_PATH
 				continue ;;
 			--sign-bl40)
-				if [ "${argv[@]:$((i))}"x == ""x ] || [ ! -f "${argv[@]:$((i))}" ]; then
-					echo "PATH: ${argv[@]:$((i))} is not exit !!!"
-					exit 1
-				fi
 				update_bin_path 4 "${argv[@]:$((i))}"
 				CONFIG_SIGN_BL40=1
 				continue ;;
@@ -714,7 +647,7 @@ function bin_path_parser() {
 					( [ "${cas}" == "vmx" ] && [ "${CUR_SOC}" == "gxl" ] ); then
 					CONFIG_CAS=${cas}
 				fi
-				if [ "${cas}" == "nsk" ]; then
+				if [ "${CUR_SOC}" == "sc2" ] && [ "${cas}" == "nsk" ]; then
 					CONFIG_CAS=${cas}
 				fi
 				if [[ "${CONFIG_CAS}" == "irdeto" || \
@@ -757,10 +690,10 @@ function bin_path_parser() {
 				export CONFIG_FASTBOOT_WRITING_CMD=1
 				continue ;;
 			--signpipe)
-				CONFIG_SIGNPIPE=1
-				echo "export CONFIG_SIGNPIPE"
-				export CONFIG_SIGNPIPE=1
-				continue ;;
+                                CONFIG_SIGNPIPE=1
+                                echo "export CONFIG_SIGNPIPE"
+                                export CONFIG_SIGNPIPE=1
+                                continue ;;
 			--avb2-recovery)
 				CONFIG_AVB2_RECOVERY=1
 				echo "export CONFIG_AVB2_RECOVERY"
@@ -781,7 +714,8 @@ function bin_path_parser() {
 				CONFIG_AML_GPT=1
 				export CONFIG_AML_GPT=1
 				continue ;;
-			*)
+				*)
+
 		esac
 	done
 }

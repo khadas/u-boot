@@ -33,16 +33,12 @@
 #include "pwm.h"
 #include "pwm_plat.h"
 #include "keypad.h"
-#include "wifi_bt_wake.h"
+#include "btwake.h"
 
 #include "hdmi_cec.h"
 
 #include "interrupt_control_eclic.h"
 #include "eth.h"
-
-#ifdef UART_BT_QCOM
-#include "uart_bt.h"
-#endif
 
 static TaskHandle_t cecTask = NULL;
 static int vdd_ee;
@@ -90,14 +86,7 @@ void str_hw_init(void)
 	vBackupAndClearGpioIrqReg();
 	vKeyPadInit();
 	vGpioIRQInit();
-
-#ifdef UART_BT_QCOM
-	if (get_power_mode() != PM_SHUTDOWN_FLAG) {  // skip poweroff sdandby
-		bt_suspend_handle();
-	}
-#endif
-
-	wifi_bt_wakeup_init();
+	bt_task_start();
 }
 
 void str_hw_disable(void)
@@ -110,9 +99,8 @@ void str_hw_disable(void)
 		cec_req_irq(0);
 		/*printf("del cec task\n");*/
 	}
-
-	wifi_bt_wakeup_deinit();
-
+	bt_task_disable();
+	printf("bt task disable\n");
 	vKeyPadDeinit();
 	printf("vGpioKeyDisable\n");
 	vRestoreGpioIrqReg();
@@ -155,8 +143,8 @@ void str_power_on(int shutdown_flag)
 		printf("vdd_cpu set gpio val fail\n");
 		return;
 	}
-	/*Wait 20ms for VDDCPU stable*/
-	vTaskDelay(pdMS_TO_TICKS(20));
+	/*Wait 200ms for VDDCPU stable*/
+	vTaskDelay(pdMS_TO_TICKS(200));
 	printf("vdd_cpu on\n");
 }
 

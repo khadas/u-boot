@@ -60,7 +60,7 @@ static void prReportEvent(struct xAdcKeyInfo *xKey, uint32_t event)
 static void prAdcKeyProcess(TimerHandle_t xTimer)
 {
 	int ret;
-	uint16_t usAdcData, max, min;
+	uint16_t usAdcData;
 	struct xOneAdcKeyInfo *xPassBtn = xHeadKey;
 	struct xAdcKeyInfo *adcKeyInfo;
 
@@ -71,11 +71,11 @@ static void prAdcKeyProcess(TimerHandle_t xTimer)
 		ret = xAdcGetSample(&usAdcData, 1, &(adcKeyInfo->xAdcDecp));
 		if (ret < 0)
 			continue;
-		max = adcKeyInfo->ulValue + SAMPLE_DEVIATION;
-		min = adcKeyInfo->ulValue > SAMPLE_DEVIATION ?
-		      adcKeyInfo->ulValue - SAMPLE_DEVIATION : 0;
 		if (xPassBtn->keyState == UP) {
-			if (usAdcData >= min && usAdcData <= max) {
+			if ((usAdcData >= adcKeyInfo->ulValue -
+						SAMPLE_DEVIATION)
+			    && (usAdcData <=
+				adcKeyInfo->ulValue + SAMPLE_DEVIATION)) {
 				if (jitterCount < KEY_JITTER_COUNT) {
 					jitterCount++;
 					return;
@@ -84,8 +84,12 @@ static void prAdcKeyProcess(TimerHandle_t xTimer)
 				xPassBtn->keyState = DOWN;
 				prReportEvent(xPassBtn->adcKeyInfo, EVENT_SHORT);
 			}
+
 		} else if (xPassBtn->keyState == DOWN) {
-			if (usAdcData <= min || usAdcData >= max) {
+			if (((usAdcData <= adcKeyInfo->ulValue -
+							SAMPLE_DEVIATION)
+			     || (usAdcData >=
+				 adcKeyInfo->ulValue + SAMPLE_DEVIATION))) {
 				if (jitterCount < KEY_JITTER_COUNT) {
 					jitterCount++;
 					return;

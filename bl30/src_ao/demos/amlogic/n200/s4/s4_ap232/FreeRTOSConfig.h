@@ -89,6 +89,10 @@ your application. */
 #define configDEFAULT_HEAP_ADDR			0x10000000
 #define configDEFAULT_HEAP_SIZE			32 * 1024
 
+#define PMP_TEXT_REGION0_SIZE			(32 * 1024)
+#define PMP_TEXT_REGION1_SIZE			(16 * 1024)
+#define PMP_TEXT_MAX_SIZE			(PMP_TEXT_REGION0_SIZE + PMP_TEXT_REGION1_SIZE)
+
 #define portCRITICAL_NESTING_IN_TCB				1
 //#include "uart.h"
 #include "myprintf.h"
@@ -120,4 +124,6 @@ your application. */
 
 /* A header file that defines trace macro can be included here. */
 
+extern uint32_t _text;
+extern uint32_t _etext;
 #endif /* FREERTOS_CONFIG_H */

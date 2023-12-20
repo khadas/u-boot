@@ -24,7 +24,3 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 uart-y = uart.o
-
-ifeq ($(CONFIG_UART_BT_QCOM), true)
-uart-y += uart_bt.o
-endif
