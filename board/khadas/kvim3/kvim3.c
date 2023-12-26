@@ -835,15 +835,15 @@ void board_lcd_detect(void)
 
 		sw_i2c_read(0x70,0xA8,linebuf,1);
 		if (linebuf[0] == 0x51) {//old TS050
-			setenv("panel_type", "lcd_0");
+			setenv("panel_type", "mipi_0");
 			value = 1;
 		} else if (linebuf[0] == 0x79) {//new TS050
-			setenv("panel_type", "lcd_1");
+			setenv("panel_type", "mipi_1");
 			value = 1;
 		} else {
 			sw_i2c_read(0xba,0x9e,linebuf,1);
 			if (linebuf[0] == 0x00) {//TS101
-				setenv("panel_type", "lcd_2");
+				setenv("panel_type", "mipi_2");
 				value = 1;
 			}
 		}

@@ -82,9 +82,9 @@ int lcd_power_load_from_dts(struct lcd_config_s *pconf, char *dt_addr, int child
 	char *propdata;
 	unsigned int i, j, temp;
 
-	propdata = (char *)fdt_getprop(dt_addr, child_offset, "power_on_step", NULL);
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "power_on_step_uboot", NULL);
 	if (propdata == NULL) {
-		LCDERR("failed to get power_on_step\n");
+		LCDERR("failed to get power_on_step_uboot\n");
 		return 0;
 	} else {
 		i = 0;
@@ -109,9 +109,9 @@ int lcd_power_load_from_dts(struct lcd_config_s *pconf, char *dt_addr, int child
 		}
 	}
 
-	propdata = (char *)fdt_getprop(dt_addr, child_offset, "power_off_step", NULL);
+	propdata = (char *)fdt_getprop(dt_addr, child_offset, "power_off_step_uboot", NULL);
 	if (propdata == NULL) {
-		LCDERR("failed to get power_off_step\n");
+		LCDERR("failed to get power_off_step_uboot\n");
 		return 0;
 	} else {
 		i = 0;

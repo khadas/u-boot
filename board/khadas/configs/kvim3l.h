@@ -234,7 +234,7 @@
 			"fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} "\
 			"outputmode=${outputmode} ${vout2_args} "\
 			"vout=${outputmode},${vout_init} "\
-			"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+			"panel_type=${panel_type}  "\
 			"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
 			"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} "\
 			"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\

@@ -812,6 +812,7 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 {
 	unsigned char checksum[11];
 	char *p_tmp;
+	char *lcd_exist = NULL;
 
 	aml_audio_init(); /* Init audio hw firstly */
 	hdmitx_hw_init();
@@ -822,8 +823,11 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 	hdmitx_debug();
 	//kernel will determine output mode on its own
 	p_tmp = getenv("outputmode");
-	if (p_tmp)
-		setenv("hdmimode", p_tmp);
+	lcd_exist = getenv("lcd_exist");
+	if (0 == strcmp(lcd_exist, "0")) {
+		if (p_tmp)
+			setenv("hdmimode", p_tmp);
+	}
 
 	/* null char needed to terminate the string
 	 * otherwise garbage in checksum logopara

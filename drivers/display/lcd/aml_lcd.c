@@ -565,6 +565,7 @@ static int lcd_init_load_from_dts(char *dt_addr)
 		      pconf->lcd_clk_path);
 	}
 
+/*
 	i = 0;
 	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "lcd_cpu_gpio_names", NULL);
 	if (propdata == NULL) {
@@ -586,6 +587,7 @@ static int lcd_init_load_from_dts(char *dt_addr)
 	}
 	for (j = i; j < LCD_CPU_GPIO_NUM_MAX; j++)
 		strcpy(pconf->lcd_power->cpu_gpio[j], "invalid");
+*/
 
 	i = 0;
 	propdata = (char *)fdt_getprop(dt_addr, parent_offset, "lcd_expander_gpio_names", NULL);
