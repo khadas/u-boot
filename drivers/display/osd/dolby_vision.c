@@ -1130,7 +1130,7 @@ static int  enable_dolby_vision(void)
 
 		dolby_vision_on = true;
 		setenv("dolby_vision_on", "1");
-		run_command("saveenv", 0);
+//		run_command("saveenv", 0);
 		printk("Dolby Vision turn on\n");
 	}
 	return 0;
@@ -1276,7 +1276,7 @@ void dolby_vision_process(void)
 		} else {
 			printf("dolby_vision_process: no tv and dv disabled\n");
 			setenv("dolby_vision_on", "0");
-			run_command("saveenv", 0);
+//			run_command("saveenv", 0);
 			return;
 		}
 	} else {
@@ -1287,14 +1287,14 @@ void dolby_vision_process(void)
 		} else {
 			printf("dolby_vision_process: hpd: dv disabled\n");
 			setenv("dolby_vision_on", "0");
-			run_command("saveenv", 0);
+//			run_command("saveenv", 0);
 			return;
 		}
 	}
 	if (dovi_setting.dst_format == FORMAT_INVALID) {
 		printf("dolby_vision_process: dst_format = FORMAT_INVALID\n");
 		setenv("dolby_vision_on", "0");
-		run_command("saveenv", 0);
+//		run_command("saveenv", 0);
 		return;
 	}
 	if (dolby_vision_parse(&hdmitx_device) == 0) {
@@ -1305,7 +1305,7 @@ void dolby_vision_process(void)
 		dovi_setting.dst_format = FORMAT_INVALID;
 		dv_fw_valid = false;
 		setenv("dolby_vision_on", "0");
-		run_command("saveenv", 0);
+//		run_command("saveenv", 0);
 		return;
 	}
 	/*dv send hdmi vsif after hdmi set mode*/
