@@ -426,7 +426,17 @@
  */
 #define CONFIG_DUAL_LOGO \
 	"setenv outputmode panel;setenv display_layer osd0;"\
-	"setenv fb_height 1080; setenv fb_width 1920;"\
+	"if test ${lcd_exist} = 1; then "\
+		"if test ${panel_type} = mipi_2; then "\
+			"setenv fb_width 1920;"\
+			"setenv fb_height 1200;"\
+		"else "\
+			"setenv fb_width 1080;"\
+			"setenv fb_height 1920;"\
+		"fi;"\
+	"else "\
+		"setenv fb_width 1920; setenv fb_height 1080;" \
+	"fi; "\
 	"vout output ${outputmode};osd open;osd clear;run load_bmp_logo;"\
 	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
 	"vout2 prepare ${outputmode2};"\
@@ -437,7 +447,17 @@
 /* for portrait panel, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
 	"setenv outputmode panel;setenv display_layer osd0;"\
-	"setenv fb_height 1920; setenv fb_width 1080;"\
+	"if test ${lcd_exist} = 1; then "\
+		"if test ${panel_type} = mipi_2; then "\
+			"setenv fb_width 1920;"\
+			"setenv fb_height 1200;"\
+		"else "\
+			"setenv fb_width 1080;"\
+			"setenv fb_height 1920;"\
+		"fi;"\
+	"else "\
+		"setenv fb_width 1920; setenv fb_height 1080;" \
+	"fi; "\
 	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;"\
 	"bmp display $bootup_rotate_offset;bmp scale;"\
 	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
@@ -446,6 +466,17 @@
 	"\0"\
 /* single logo */
 #define CONFIG_SINGLE_LOGO \
+	"if test ${lcd_exist} = 1; then "\
+		"if test ${panel_type} = mipi_2; then "\
+			"setenv fb_width 1920;"\
+			"setenv fb_height 1200;"\
+		"else "\
+			"setenv fb_width 1080;"\
+			"setenv fb_height 1920;"\
+		"fi;"\
+	"else "\
+		"setenv fb_width 1920; setenv fb_height 1080;" \
+	"fi; "\
 	"setenv display_layer osd0;osd open;osd clear;"\
 	"run load_bmp_logo;bmp scale;vout output ${outputmode};"\
 	"\0"
