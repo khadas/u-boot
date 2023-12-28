@@ -49,6 +49,7 @@ blSrcGits = [
     {"blType" : "bl2_sc2",                  "gitBranch" : "projects/sc2",             "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
     {"blType" : "bl2_s4",                   "gitBranch" : "projects/s4",              "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
     {"blType" : "bl2_s5",                   "gitBranch" : "projects/s5",              "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
+    {"blType" : "bl2_t7",                   "gitBranch" : "projects/t7",              "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/core/+/"},
     {"blType" : "bl2_ree",                  "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/ree/+/"},
     {"blType" : "bl2_tee",                  "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",         "upStream" : "bootloader/amlogic-advanced-bootloader/tee/+/"},
     {"blType" : "bl30_aocpu",               "gitBranch" : "projects/amlogic-dev",     "gitRemote" : "firmware",         "upStream" : "firmware/aocpu/+/"},
@@ -257,9 +258,13 @@ def git_cmt_parse(gitPath, lastCommit, headCommit, isSrc):
             log_list[i] = str(re.sub(r'"",', r'>",', str(log_list[i])))
             log_list[i] = str(re.sub(r' "', r' <', str(log_list[i])))
             log_list[i] = str(re.sub(r'" ', r'> ', str(log_list[i])))
+            log_list[i] = str(re.sub(r' `', r' ', str(log_list[i])))
+            log_list[i] = str(re.sub(r'&', r' ', str(log_list[i])))
+            log_list[i] = str(re.sub(r'loc\'', r'loc', str(log_list[i])))
+            log_list[i] = str(re.sub(r'">"', r'>"', str(log_list[i])))
+            log_list[i] = str(re.sub(r'">', r' >', str(log_list[i])))
 
-            if debug_enable:
-                print(' >    [%d] %s'%(i,log_list[i]))
+            print(' >    [%d] %s'%(i,log_list[i]))
         except:
             pass
     # eval special special characters

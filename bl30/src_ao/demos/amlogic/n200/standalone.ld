@@ -36,7 +36,7 @@ ENTRY( _start )
 MEMORY
 {
 #if defined (SOC_sc2) || defined (SOC_s4)
-    local_ram (rw) : ORIGIN = 0x10000000, LENGTH = 0x1000000
+    local_ram (rw) : ORIGIN = 0x10000000, LENGTH = 0x10000
 #endif
     ram (rw) : ORIGIN = configMEM_START, LENGTH = configMEM_LEN
 #if defined (SOC_t3)
@@ -61,23 +61,21 @@ SECTIONS
     } > local_ram
 #endif
 
-    .text :
-    {
-        . = ALIGN(4);
-	PROVIDE( _text = . );
-	*(.init)
-        *(.text* .rodata*)
-        . = ALIGN(0x100);
-#if defined (SOC_sc2) || defined (SOC_s4)
-        . = ALIGN(0x4000);
-#endif
-        PROVIDE( _etext = . );
+	.text :
+	{
+		. = ALIGN(4);
+		PROVIDE( _text = . );
+		*(.init)
+		*(.text* .rodata*)
+		. = ALIGN(0x400);
+
+		PROVIDE( _etext = . );
 #if N200_REVA
-	KEEP (*(SORT_NONE(.init)))
+		KEEP (*(SORT_NONE(.init)))
 #else
-	*(.vtable)
+		*(.vtable)
 #endif
-    } > ram
+	} > ram
 
 #if defined (SOC_t3)
     . = ALIGN(4);
@@ -85,6 +83,7 @@ SECTIONS
 #endif
     .data :
     {
+	. = ALIGN(4);
         _data = .;
         *(vtable)
 #if defined (SOC_t3)
@@ -93,16 +92,19 @@ SECTIONS
 	KEEP (*(SORT(.sdata.__initcall*)))
 	_module_pm_end = .;
         *(.sdata* .data*)
+	. = ALIGN(4);
         _edata = .;
     } > bss_ram AT > ram
 #else
         *(.sdata* .data*)
+	. = ALIGN(4);
         _edata = .;
     } > ram
 #endif
 
     .bss :
     {
+	. = ALIGN(4);
         _bss = .;
         *(.sbss*)
         *(.gnu.linkonce.sb.*)

@@ -44,7 +44,7 @@ extern "C" {
 #define KEY_JITTER_COUNT		1
 
 /* adc key param */
-#define SAMPLE_DEVIATION		40
+#define SAMPLE_DEVIATION		160
 #define ADCKEY_ID_BASE			512
 
 /* key event */

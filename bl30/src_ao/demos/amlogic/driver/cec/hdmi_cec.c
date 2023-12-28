@@ -638,7 +638,12 @@ static void *cec_get_wakeup_info2(void *msg)
 	/* need to clear wakeup info after read,
 	 * avoid it's mis-used in next wakeup
 	 */
+#ifdef CEC_CHIP_SEL_T7
+	//T7 cec use bit16~31 of reg SYSCTRL_STICKY_REG6
+	write_ao(CEC_REG_STICK_DATA2, val&0xffff);
+#else
 	write_ao(CEC_REG_STICK_DATA2, 0);
+#endif
 	*(u32 *)msg = val;
 	printf("[%s]: info=0x%x\n", __func__, val);
 

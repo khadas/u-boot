@@ -47,6 +47,9 @@
 #define STR_QUEUE_ITEM_SIZE 4
 #define EXIT_REASON_EXTENSION_FLAG	(1 << 7)
 
+/* power mode flag */
+#define PM_SHUTDOWN_FLAG	0xF
+
 typedef struct {
 	char* name;
 } WakeUp_Reason;
@@ -62,4 +65,5 @@ extern void STR_Start_Sem_Give(void);
 extern void STR_Wakeup_src_Queue_Send_FromISR(uint32_t *src);
 extern void STR_Wakeup_src_Queue_Send(uint32_t *src);
 extern void *xMboxSuspend_Sem(void *msg);
+uint32_t get_power_mode(void);
 

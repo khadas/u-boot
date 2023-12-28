@@ -15,6 +15,11 @@ Usage: $(basename $0) --help
                       [--enable-jtag-password false]    \\
                       [--enable-usb-password false]     \\
                       [--enable-anti-rollback false]    \\
+                      [--disable-scan-chain false]      \\
+                      [--disable-print false]           \\
+                      [--disable-jtag false]            \\
+                      [--enable-scan-password false]    \\
+                      [--scan-password-hash scanpassword.hash] \\
                       -o pattern.efuse
          $(basename $0) --audio-id audio_id_value \\
                       --soc [axg | txhd | g12a | g12b | sm1 | tl1 | tm2 | a1 | c1 |c2 | t5 | t5d | t5w | txhd2] \\
@@ -31,7 +36,7 @@ kwrap=""
 wrlock_kwrap="false"
 roothash=""
 passwordhash=$randomstr
-scanpasswordhash=""
+scanpasswordhash=$randomstr
 userefusefile=""
 aeskey=$randomstr
 m4roothash=""
@@ -214,7 +219,22 @@ if [ "$passwordhash" != "$randomstr" ]; then
 	fi
 fi
 
+if [ "$scanpasswordhash" != "$randomstr" ]; then
+	if [ -f "$scanpasswordhash" ]; then
+	  local imagesize=$(wc -c < ${scanpasswordhash})
+	  #echo scanpasswordhashsize=$imagesize
+	  if [ $imagesize -ne 32 ]; then
+	    echo "scanpassword hash $scanpasswordhash size=$imagesize is illegal!"
+	    exit 1
+	  fi
+		other_option="${other_option} --scan-password-hash ${scanpasswordhash} "
+	else
+		check_file "scan-password-hash"  "$scanpasswordhash"
+	fi
+fi
+
 other_option="${other_option} --enable-usb-password $enableusbpassword --enable-jtag-password $enablejtagpassword \
+ --disable-print $disableprint --disable-jtag $disablejtag --disable-scan-chain $disablescanchain --enable-scan-password $enablescanpassword \
  --enable-anti-rollback $enableantirollback --raw-otp-pattern ${opt_raw_otp_pattern}"
 
 #aes key process

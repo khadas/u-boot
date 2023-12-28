@@ -142,7 +142,7 @@ def pem_get_mod(filename):
   b64 = "".join([l.strip() for l in content[1:-1]])
   der = DER(base64.b64decode(b64))
 
-  # Skip outter sequence in case openssl genpkey PEM private key
+  # Skip outer sequence in case openssl genpkey PEM private key
   if (content[0].strip() == PEM_HEADER_GENPKEY):
     for i in range(0, 26):
       der.get_byte()

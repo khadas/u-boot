@@ -190,8 +190,8 @@ void str_power_on(int shutdown_flag)
 	/***power on vcc5v***/
 	power_on_vcc5v();
 
-	/*Wait 200ms for VDDCPU stable*/
-	vTaskDelay(pdMS_TO_TICKS(200));
+	/*Wait 20ms for VDDCPU stable*/
+	vTaskDelay(pdMS_TO_TICKS(20));
 }
 
 void str_power_off(int shutdown_flag)

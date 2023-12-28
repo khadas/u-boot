@@ -40,6 +40,7 @@ function build_uboot() {
 		CONFIG_CHIP_NOCS=1
 		echo "### ${CONFIG_CHIP_NOCS} ###"
 	fi
+	set -e
 	if [ "${CONFIG_MDUMP_COMPRESS}" = "1" ]; then
 		CONFIG_MDUMP_COMPRESS=1
 		echo "### BL33 CONFIG_MDUMP_COMPRESS = 1 ###"
@@ -49,6 +50,7 @@ function build_uboot() {
 		echo "### BL33 CONFIG_MDUMP_COMPRESS = 0 ###"
 		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 GPTMODE=$7 CHIPMODE=${CONFIG_CHIP_NOCS} # &> /dev/null
 	fi
+	set +e
 
 	if [ "y" == "${CONFIG_AB_UPDATE}" ]; then
 		cp ./build/board/amlogic/${SOCNAME}/firmware/acs.bin ../../${BUILD_PATH}/acs.bin -f
@@ -69,10 +71,12 @@ function build_uboot() {
 		#cp ./build/fip-bl33.bin.encrypt ../../${BUILD_PATH}/fip-bl33.bin -f
 
 		# build pre bl33
+		set -e
 		make distclean
 		make ${SOCNAME}_defconfig
 		make -j SYSTEMMODE=$1 AVBMODE=$2 BOOTCTRLMODE=$3 FASTBOOTMODE=$4 AVB2RECOVERY=$5 TESTKEY=$6 CHIPMODE=${CONFIG_CHIP_NOCS} \
 			ABUPDATE=${CONFIG_AB_UPDATE} # &> /dev/null
+		set +e
 		if [ $? != 0 ]; then
 			echo "Pre bl33 failed! exit!"
 			cd ${MAIN_FOLDER}
@@ -92,8 +96,10 @@ function build_uboot() {
 		set -e
 		echo "ramdump enable, build bl33z.bin for soc [${SOCNAME}] ..."
 		if [ -f "./bl33z/Makefile" ]; then
+			set -e
 			make -C bl33z/ PLAT=${SOCNAME} AARCH=aarch64 distclean
 			make -C bl33z/ PLAT=${SOCNAME} AARCH=aarch64
+			set +e
 			if [ -f "./bl33z/build/bl33z.bin" -a -f "./build/u-boot.bin" ]; then
 				# place bl33z at end of u-boot.bin, _end align(4096)
 				END_LENS=`ls -l ./build/u-boot.bin | awk '{print $5}'`

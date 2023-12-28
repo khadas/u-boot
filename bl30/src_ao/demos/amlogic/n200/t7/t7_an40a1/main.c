@@ -154,6 +154,7 @@ void hardware_init(void);
 void hardware_init()
 {
 	config_eclic_irqs();
+	config_pmp();
 	pmic_regulators_register(&BD71837_PMIC,&pmic_bd71837_id);
 	pmic_i2c_init(pmic_bd71837_id,&bd71837_i2c);
 }
