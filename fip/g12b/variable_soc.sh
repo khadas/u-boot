@@ -4,8 +4,8 @@
 declare -a BLX_NAME=("bl2" "bl30" "bl31" "bl32")
 
 declare -a BLX_SRC_FOLDER=("bl2/src" "bl30/src" "bl31/bl31_1.3/src" "bl32/bl32_2.4/src" "bl33")
-declare -a BLX_BIN_FOLDER=("bl2/bin" "bl30/bin" "bl31/bl31_1.3/bin" "bl32/bl32_3.8/bin")
-declare -a BLX_BIN_NAME=("bl2.bin" "bl30.bin" "bl31.bin" "bl32.img")
+declare -a BLX_BIN_FOLDER=("bl2/bin" "bl30/bin" "bl31/bl31_1.3/bin" "bl32/bl32_2.4/bin")
+declare -a BLX_BIN_NAME=("bl2.bin" "bl30.bin" "bl31.bin" "bl32.bin")
 declare -a BLX_IMG_NAME=("NULL" "NULL" "bl31.img" "bl32.img")
 declare -a BLX_NEEDFUL=("true" "true" "true" "false")
 
