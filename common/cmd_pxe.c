@@ -1058,6 +1058,17 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 					// For other panels
 				}
 			}
+
+			// Setup PCIe/USB3.0 port, default is USB3.0 mode
+			if (!strcmp(getenv("port_mode"), "1")) {
+				// PCIe mode, enable PCIe node
+				printf("Setup PCIe/USB3.0 mode to PCIe.\n");
+				run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /pcie@fc000000 status okay;", 0);
+			} else {
+				// USB3.0 mode, disable PCIe node
+				printf("Setup PCIe/USB3.0 mode to USB3.0.\n");
+				run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /pcie@fc000000 status disabled;", 0);
+			}
 		} else {
 			bootm_argv[3] = NULL;
 		}
