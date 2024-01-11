@@ -68,6 +68,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int check_ddrsize(void);
+
 static bool get_sda_gpio_level(void)
 {
 	writel(readl(PREG_PAD_GPIO5_EN_N) | (1 << 14), PREG_PAD_GPIO5_EN_N);
@@ -991,6 +993,9 @@ int board_late_init(void)
 	// Set boot source
 	board_set_boot_source();
 
+	// Check DDR size
+	check_ddrsize();
+
 	/* reset vout init state */
 	run_command("setenv vout_init disable", 0);
 
@@ -1092,7 +1097,6 @@ phys_size_t get_effective_memsize(void)
 #endif
 }
 
-#ifdef CONFIG_DDR_AUTO_DTB
 int check_ddrsize(void)
 {
 	unsigned long ddr_size=0;
@@ -1116,7 +1120,6 @@ int check_ddrsize(void)
 	}
 	return 0;
 }
-#endif
 
 const char * const _env_args_reserve_[] =
 {

@@ -1069,6 +1069,13 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 				printf("Setup PCIe/USB3.0 mode to USB3.0.\n");
 				run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /pcie@fc000000 status disabled;", 0);
 			}
+
+			// Setup DDR size
+			if (getenv("ddr_size") && !strcmp(getenv("ddr_size"), "4")) {
+				printf("Setup DDR size to 4GB.\n");
+				run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /memory@00000000 linux,usable-memory <0x00000000 0x00000000 0x00000000 0xF0000000>;", 0);
+			}
+
 		} else {
 			bootm_argv[3] = NULL;
 		}
