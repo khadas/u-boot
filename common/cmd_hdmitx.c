@@ -89,7 +89,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 				frac = hdmitx_parse_vout_name(mode);
 				if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
 					lcd_exist = getenv("lcd_exist");
-					if (0 == strcmp(lcd_exist, "1")) {
+					if (lcd_exist && (0 == strcmp(lcd_exist, "1"))) {
 						if (!hdmitx_device.HWOp.get_hpd_state()) {
 							free(mode);
 							return 0;
