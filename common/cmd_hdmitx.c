@@ -61,7 +61,6 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	int st;
 	char* hdmimode;
-	char* cvbsmode;
 	char* colorattribute;
 	int hpd_st = 0;
 	/* some TV sets pull hpd high 1.3S after detect pwr5v high */
@@ -139,9 +138,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (hpd_st && hdmimode) {
 		setenv("outputmode", hdmimode);
 	} else {
-		cvbsmode = getenv("cvbsmode");
-		if (cvbsmode)
-			setenv("outputmode", cvbsmode);
+		setenv("outputmode", "none");
 		setenv("hdmichecksum", "0x00000000");
 //		run_command("saveenv", 0);
 	}
