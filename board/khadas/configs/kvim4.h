@@ -104,7 +104,7 @@
 	"panel_type=edp_0\0" \
 	"outputmode=1080p60hz\0" \
 	"storeargs_hdmitx="\
-		"setenv bootargs ${bootargs} powermode=${powermode} "\
+		"setenv bootargs ${bootargs} "\
 		"lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
 		"outputmode=${outputmode} hdmitx=${cecconfig},${colorattribute};"\
 		"\0"\
@@ -230,9 +230,6 @@
 				"nn_adj_vol=${nn_adj_vol};"\
 			"run storeargs_hdmitx;"\
             "run cmdline_keys;"\
-			"run check_connector_type; " \
-			"run check_connector1_type; " \
-			"run check_connector2_type; " \
             "\0"\
 	"cec_init="\
 		"echo cec_ac_wakeup=${cec_ac_wakeup}; "\
@@ -408,8 +405,7 @@
                 "setenv serial kvim4${cpu_id}; setenv serial# kvim4${cpu_id};"\
             "fi;"\
             "kbi ethmac noprint;"\
-            "setenv bootargs ${bootargs} mac=${eth_mac} androidboot.mac=${eth_mac};"\
-            "setenv bootargs ${bootargs} androidboot.wificountrycode=${region_code};"\
+            "setenv bootargs ${bootargs} mac=${eth_mac} ;"\
             "\0"\
         "upgrade_key="\
             "if gpio input GPIOD_4; then "\

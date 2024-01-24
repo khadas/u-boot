@@ -99,14 +99,7 @@
 		"hdr_policy=${hdr_policy} hdr_priority=${hdr_priority} "\
 		"hdr_force_mode=${hdr_force_mode} "\
 		"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
-		"cvbsmode=${cvbsmode} "\
-		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} "\
-		"disable_ir=${disable_ir};"\
-		"setenv bootconfig ${initconfig} androidboot.selinux=${EnableSelinux} "\
-		"androidboot.firstboot=${firstboot} "\
-		"androidboot.bootloader=${bootloader_version} "\
-		"androidboot.hardware=amlogic "\
-		"androidboot.ddr_size=${ddr_size} ;"\
+		"osd_reverse=${osd_reverse} video_reverse=${video_reverse} ;"\
 		"\0"\
 	"storeboot_base="\
 		"run get_os_type;"\
