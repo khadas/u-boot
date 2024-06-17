@@ -467,12 +467,14 @@ struct dv_vsif_para {
 
 #define Y420CMDB_MAX 32
 #define VIC_MAX_NUM  256
+#define VESA_MAX_TIMING 64
 struct rx_cap {
 	unsigned int native_Mode;
 	/*video*/
 	unsigned int VIC[VIC_MAX_NUM];
 	unsigned int VIC_count;
 	unsigned int native_VIC;
+	enum hdmi_vic vesa_timing[VESA_MAX_TIMING]; /* Max 64 */
 	/*vendor*/
 	unsigned int IEEEOUI;
 	unsigned int Max_TMDS_Clock1; /* HDMI1.4b TMDS_CLK */
@@ -638,7 +640,6 @@ struct hdmi_support_mode {
 
 #define HDMI_IEEEOUI 0x000C03
 #define MODE_LEN	32
-#define VESA_MAX_TIMING 64
 
 /* below default ENV is not used, just for backup */
 #define DEFAULT_OUTPUTMODE_ENV		"1080p60hz"
