@@ -1747,17 +1747,25 @@ static bool hdmitx21_edid_validate_mode(struct hdmitx_dev *hdev,
 {
 	int i;
 	bool ret = false;
-	struct rx_cap *prxcap = NULL;
+	struct rx_cap *prxcap = &hdev->RXCap;
+	enum hdmi_vic *vesa_t = prxcap->vesa_timing[0];
 
-	prxcap = &hdev->RXCap;
-	for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
-		if (vic == (prxcap->VIC[i])) {
-			ret = true;
-			break;
+	if (vic < HDMITX_VESA_OFFSET) {
+		for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
+			if ((vic & 0xff) == (prxcap->VIC[i] & 0xff)) {
+				ret = true;
+				break;
+			}
+		}
+	} else {
+		for (j = 0; vesa_t[j] && j < VESA_MAX_TIMING; j++) {
+			if (vic == vesa_t[j]) {
+				ret = true;
+				break;
+			}
 		}
 	}
-	if (vic == prxcap->vesa_timing[0])
-		ret = true;
+
 	return ret;
 }
 
