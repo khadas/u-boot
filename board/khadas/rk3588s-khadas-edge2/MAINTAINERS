@@ -1,0 +1,5 @@
+KHADAS-EDGE2-RK3588S
+M:	Jacobe Zang <jacobe.zang@wesion.com>
+S:	Maintained
+F:	configs/kedge2_defconfig
+F:	dts/upstream/src/arm64/rockchip/rk3588s-khadas-edge2.dts
