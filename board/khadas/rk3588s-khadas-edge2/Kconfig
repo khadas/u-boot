@@ -1,0 +1,12 @@
+if TARGET_KHADAS_EDGE2_RK3588
+
+config SYS_BOARD
+	default "khadas-edge2"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "khadas-edge2"
+
+endif
