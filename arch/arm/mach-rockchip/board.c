@@ -210,6 +210,7 @@ int board_init(void)
 		debug("%s: Cannot enable boot on regulator\n", __func__);
 #endif
 
+	run_command("gpio set 130", 0);
 	return 0;
 }
 
