@@ -148,6 +148,17 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&vdd_sd_en>;
 	};
+
+	vcc_5v0_pwren_h: vcc-5v0-pwren-h-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_5v_pwren";
+		gpios = <&gpio4 RK_PA2 GPIO_ACTIVE_HIGH>;
+		regulator-boot-on;
+		enable-active-high;
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		vin-supply = <&vcc5v0_sys>;
+	};
 };
 
 &cpu_b0 {
