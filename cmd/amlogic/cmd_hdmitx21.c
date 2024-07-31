@@ -1324,7 +1324,8 @@ static int do_get_parse_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 	 */
 	if (get_hdr_policy() == 1)
 		env_set("dolby_status", 0);
-	hdev->para = hdmitx21_get_fmtpara(sel_hdmimode, env_get("colorattribute"));
+	if (hdmitx21_get_fmtpara(sel_hdmimode, env_get("colorattribute")))
+		hdev->para = hdmitx21_get_fmtpara(sel_hdmimode, env_get("colorattribute"));
 	hdev->vic = hdev->para->timing.vic;
 	hdmitx_mask_rx_info(hdev);
 	hdmitx21_select_frl(hdev);
