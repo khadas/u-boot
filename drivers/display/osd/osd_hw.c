@@ -40,7 +40,7 @@
 static bool vsync_hit;
 static bool osd_vf_need_update;
 
-unsigned int osd_log_level = 0;
+unsigned int osd_log_level = 3;
 static unsigned int logo_loaded = 0;
 
 #ifdef CONFIG_AM_VIDEO

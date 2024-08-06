@@ -718,6 +718,9 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		printf("update outputmode: %s\n", getenv("outputmode"));
 		printf("update colorattribute: %s\n", getenv("colorattribute"));
 		printf("update hdmichecksum: %s\n", getenv("hdmichecksum"));
+	} else {
+		setenv("outputmode", hdmimode);
+		setenv("colorattribute", colorattribute);
 	}
 	hdev->vic = hdmi_get_fmt_vic(getenv("outputmode"));
 	hdev->para = hdmi_get_fmt_paras(hdev->vic);

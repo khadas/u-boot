@@ -72,6 +72,8 @@
 #define MODE_PAL_M                      "pal_m"
 #define MODE_PAL_N                      "pal_n"
 #define MODE_NTSC_M                     "ntsc_m"
+#define MODE_1024x600p                  "1024x600p60hz"
+#define MODE_800x480p                   "800x480p60hz"
 
 #define COLOR_YCBCR444_12BIT             "444,12bit"
 #define COLOR_YCBCR444_10BIT             "444,10bit"
@@ -110,7 +112,9 @@ static const char *DISPLAY_MODE_LIST[] = {
 	MODE_4K2KSMPTE,
 	MODE_4K2KSMPTE30HZ,
 	MODE_4K2KSMPTE50HZ,
-	MODE_4K2KSMPTE60HZ
+	MODE_4K2KSMPTE60HZ,
+	MODE_800x480p,
+	MODE_1024x600p
 	/* MODE_768P,  */
 	/* MODE_PANEL, */
 	/* MODE_PAL_M, */
@@ -158,7 +162,9 @@ static const char *MODE_RESOLUTION_FIRST[] = {
 	MODE_4K2K25HZ,
 	MODE_4K2K30HZ,
 	MODE_4K2K50HZ,
-	MODE_4K2K60HZ
+	MODE_4K2K60HZ,
+	MODE_800x480p,
+	MODE_1024x600p
 };
 
 /* ascending order */
@@ -177,7 +183,9 @@ static const char *MODE_FRAMERATE_FIRST[] = {
 	MODE_1080P50HZ,
 	MODE_1080P,
 	MODE_4K2K50HZ,
-	MODE_4K2K60HZ
+	MODE_4K2K60HZ,
+	MODE_800x480p,
+	MODE_1024x600p
 };
 
 /* this is prior selected list for sdr of
