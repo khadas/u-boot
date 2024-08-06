@@ -164,6 +164,7 @@
 		"silent=1\0"\
 		"lcd_ctrl=0x00000000\0" \
 		"outputmode=1080p60hz\0" \
+		"outputmode2=1080p60hz\0" \
 		"vout_init=enable\0" \
 		"hdmimode=1080p60hz\0" \
 		"colorattribute=444,8bit\0"\
@@ -512,6 +513,7 @@
 			"setenv fb_height 1920;"\
 		"fi;"\
 	"else "\
+		"setenv outputmode ${hdmimode};"\
 		"setenv fb_width 1920; setenv fb_height 1080;" \
 	"fi; "\
 	"setenv display_layer osd0;osd open;osd clear;"\

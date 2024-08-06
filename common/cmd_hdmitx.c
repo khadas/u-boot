@@ -61,6 +61,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	int st;
 	char* hdmimode;
+	char* cvbsmode;
 	char* colorattribute;
 	int hpd_st = 0;
 	/* some TV sets pull hpd high 1.3S after detect pwr5v high */
@@ -136,9 +137,11 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	hdmimode = getenv("hdmimode");
 	if (hpd_st && hdmimode) {
-		setenv("outputmode", hdmimode);
+		setenv("outputmode2", hdmimode);
 	} else {
-		setenv("outputmode", "none");
+		cvbsmode = getenv("cvbsmode");
+		if (cvbsmode)
+			setenv("outputmode2", cvbsmode);
 		setenv("hdmichecksum", "0x00000000");
 //		run_command("saveenv", 0);
 	}
@@ -299,7 +302,7 @@ static int do_rx_det(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 static void save_default_720p(void)
 {
 	setenv("hdmimode", "720p60hz");
-	setenv("outputmode", "720p60hz");
+	setenv("outputmode2", "720p60hz");
 	setenv("colorattribute", "rgb,8bit");
 }
 
@@ -690,7 +693,7 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 			 * mode from env, to avoid keep the default hdmi output
 			 */
 			setenv("hdmimode", scene_output_info.final_displaymode);
-			setenv("outputmode",
+			setenv("outputmode2",
 			       scene_output_info.final_displaymode);
 			setenv("colorattribute",
 			       scene_output_info.final_deepcolor);
@@ -718,8 +721,11 @@ static int do_get_parse_edid(cmd_tbl_t * cmdtp, int flag, int argc,
 		printf("update outputmode: %s\n", getenv("outputmode"));
 		printf("update colorattribute: %s\n", getenv("colorattribute"));
 		printf("update hdmichecksum: %s\n", getenv("hdmichecksum"));
+	} else {
+		setenv("outputmode2", hdmimode);
+		setenv("colorattribute", colorattribute);
 	}
-	hdev->vic = hdmi_get_fmt_vic(getenv("outputmode"));
+	hdev->vic = hdmi_get_fmt_vic(getenv("outputmode2"));
 	hdev->para = hdmi_get_fmt_paras(hdev->vic);
 	hdmitx_mask_rx_info(hdev);
 	return 0;
