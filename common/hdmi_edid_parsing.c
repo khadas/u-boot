@@ -357,7 +357,8 @@ static void _edid_parse_base_structure(struct rx_cap *prxcap,
 			prxcap->IEEEOUI = HDMI_IEEEOUI;
 		if (zero_numbers > 120)
 			prxcap->IEEEOUI = HDMI_IEEEOUI;
-		hdmitx_edid_set_default_vic(prxcap);
+		if (prxcap->IEEEOUI == HDMI_IEEEOUI)
+			hdmitx_edid_set_default_vic(prxcap);
 	}
 }
 
@@ -658,6 +659,21 @@ static void Edid_ParsingVendSpec(struct rx_cap *pRXCap,
 	/* future: other new VSVDB add here: */
 }
 
+static void store_vesa_idx(struct rx_cap *prxcap, enum hdmi_vic vesa_timing)
+{
+   int i;
+   int already = 0;
+
+   for (i = 0; i < VESA_MAX_TIMING && prxcap->vesa_timing[i]; i++) {
+       if (prxcap->vesa_timing[i] == vesa_timing) {
+           already = 1;
+           break;
+       }
+   }
+   if (!already && i != VESA_MAX_TIMING)
+       prxcap->vesa_timing[i] = vesa_timing;
+}
+
 static void Edid_DTD_parsing(struct rx_cap *pRXCap, unsigned char *data)
 {
 	struct hdmi_format_para *para = NULL;
@@ -719,6 +735,8 @@ next:
 		pRXCap->dtd_idx++;
 		if (t->vic < HDMITX_VESA_OFFSET)
 			store_cea_idx(pRXCap, t->vic);
+		else
+			store_vesa_idx(pRXCap, t->vic);
 	} else
 		dump_dtd_info(t);
 }
@@ -1327,7 +1345,7 @@ unsigned int hdmi_edid_parsing(unsigned char *EDID_buf, struct rx_cap *pRXCap)
 	}
 
 	/* if edid block0 are all zeroes, or no VIC, set default vic */
-	if (edid_zero_data(EDID_buf) || pRXCap->VIC_count == 0)
+	if (edid_zero_data(EDID_buf) || (pRXCap->VIC_count == 0 && pRXCap->IEEEOUI == HDMI_IEEEOUI))
 		hdmitx_edid_set_default_vic(pRXCap);
 	return 1;
 }
@@ -1481,36 +1499,57 @@ static bool is_vic_over_limited_1080p(enum hdmi_vic vic)
 	return 0;
 }
 
-static bool hdmitx_check_4x3_16x9_mode(struct hdmitx_dev *hdev,
+static bool hdmitx_edid_validate_mode(struct hdmitx_dev *hdev,
 		enum hdmi_vic vic)
 {
-	bool flag = 0;
-	int j;
-	struct rx_cap *prxcap = NULL;
+	int i,j;
+	bool ret = false;
+	struct rx_cap *prxcap = &hdev->RXCap;
+	enum hdmi_vic *vesa_t = &prxcap->vesa_timing[0];
 
-	prxcap = &hdev->RXCap;
-	if (vic == HDMI_720x480p60_4x3 ||
-		vic == HDMI_720x480i60_4x3 ||
-		vic == HDMI_720x576p50_4x3 ||
-		vic == HDMI_720x576i50_4x3) {
-		for (j = 0; (j < prxcap->VIC_count) && (j < VIC_MAX_NUM); j++) {
-			if ((vic + 1) == (prxcap->VIC[j] & 0xff)) {
-				flag = 1;
+	if (vic < HDMITX_VESA_OFFSET) {
+		for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
+			if ((vic & 0xff) == (prxcap->VIC[i] & 0xff)) {
+				ret = true;
 				break;
 			}
 		}
-	} else if (vic == HDMI_720x480p60_16x9 ||
-			vic == HDMI_720x480i60_16x9 ||
-			vic == HDMI_720x576p50_16x9 ||
-			vic == HDMI_720x576i50_16x9) {
-		for (j = 0; (j < prxcap->VIC_count) && (j < VIC_MAX_NUM); j++) {
-			if ((vic - 1) == (prxcap->VIC[j] & 0xff)) {
-				flag = 1;
-				break;
+	} else {
+		for (j = 0; vesa_t[j] && j < VESA_MAX_TIMING; j++) {
+			if (vic == vesa_t[j]) {
+				ret = true;
 			}
 		}
 	}
-	return flag;
+	return ret;
+}
+
+enum hdmi_vic hdmitx_get_prefer_vic(struct hdmitx_dev *hdev, enum hdmi_vic vic)
+{
+   int i = 0;
+   const struct {
+       u32 mode_prefer_vic;
+       u32 mode_alternate_vic;
+   } vic_pairs[] = {
+       {HDMI_720x480i60_16x9, HDMI_720x480i60_4x3},
+       {HDMI_720x480p60_16x9, HDMI_720x480p60_4x3},
+       {HDMI_720x576i50_16x9, HDMI_720x576i50_4x3},
+       {HDMI_720x576p50_16x9, HDMI_720x576p50_4x3},
+   };
+
+   for (i = 0; i < ARRAY_SIZE(vic_pairs); i++) {
+       if (vic_pairs[i].mode_alternate_vic == vic || vic_pairs[i].mode_prefer_vic == vic) {
+           if (hdmitx_edid_validate_mode(hdev,
+                       vic_pairs[i].mode_prefer_vic))
+               return vic_pairs[i].mode_prefer_vic;
+           if (hdmitx_edid_validate_mode(hdev,
+                       vic_pairs[i].mode_alternate_vic))
+               return vic_pairs[i].mode_alternate_vic;
+           return HDMI_unknown;
+       }
+   }
+
+   return vic;
 }
 
 /* For some TV's EDID, there maybe exist some information ambiguous.
@@ -1525,7 +1564,7 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	struct dv_info *dv = &hdev->RXCap.dv_info;
 	unsigned int rx_max_tmds_clk = 0;
 	unsigned int calc_tmds_clk = 0;
-	int i = 0;
+	enum hdmi_vic vic;
 	int svd_flag = 0;
 	/* Default max color depth is 24 bit */
 	enum hdmi_color_depth rx_y444_max_dc = HDMI_COLOR_DEPTH_24B;
@@ -1581,15 +1620,14 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 			return 0;
 	}
 
-	/* target mode is not contained at RX SVD */
-	for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
-		if ((para->vic & 0xff) == (prxcap->VIC[i] & 0xff)) {
-			svd_flag = 1;
-		} else if (hdmitx_check_4x3_16x9_mode(hdev, para->vic & 0xff)) {
-			svd_flag = 1;
-			break;
-		}
-	}
+   /* for compatibility: 480p/576p and other support 64x27 resolution,
+    * 480p/576p and other support 64x27 resolutionuse same short name
+    * in hdmitx_timing table, so when match name, will return
+    * 4x3 or 64x27 mode fist. But user prefer 16x9 first, so try 16x9 first;
+    */
+   vic = hdmitx_get_prefer_vic(hdev, para->vic);
+   if (hdmitx_edid_validate_mode(hdev, vic))
+       svd_flag = 1;
 	if (svd_flag == 0)
 		return 0;
 
