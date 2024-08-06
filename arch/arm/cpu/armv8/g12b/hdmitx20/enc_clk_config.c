@@ -14,6 +14,15 @@
 #include "mach_reg.h"
 #include <amlogic/hdmi.h>
 
+#define SET_CLK_MAX_TIMES 10
+#define CLK_TOLERANCE 2 /* Unit: MHz */
+#define MIN_HTXPLL_VCO 3000000 /* Min 3GHz */
+#define MAX_HTXPLL_VCO 6000000 /* Max 6GHz */
+#define MIN_FPLL_VCO 1600000 /* Min 1.6GHz */
+#define MAX_FPLL_VCO 3200000 /* Max 3.2GHz */
+#define MIN_GP2PLL_VCO 1600000 /* Min 1.6GHz */
+#define MAX_GP2PLL_VCO 3200000 /* Max 3.2GHz */
+
 #define msleep(i) udelay(i*1000)
 
 #define check_clk_config(para)\
@@ -175,6 +184,44 @@ static void set_hpll_hclk_dongle_5940m(void)
 	printk("HPLL: 0x%lx\n", hd_read_reg(P_HHI_HDMI_PLL_CNTL0));
 	WAIT_FOR_PLL_LOCKED(P_HHI_HDMI_PLL_CNTL0);
 	printk("HPLL: 0x%lx\n", hd_read_reg(P_HHI_HDMI_PLL_CNTL0));
+}
+
+static void g12b_auto_set_hpll(u32 clk)
+{
+   u32 quotient;
+   u32 remainder;
+   u32 rem_1;
+   u32 rem_2;
+
+   if (clk < 3000000 || clk >= 6000000) {
+       printk("%s[%d] clock should be 3~6G\n", __func__, __LINE__);
+       return;
+   }
+
+   quotient = clk / 24000;
+   remainder = clk - quotient * 24000;
+   /* remainder range: 0 ~ 99999, 0x1869f, 17bits */
+   /* convert remainder to 0 ~ 2^17 */
+   if (remainder) {
+       rem_1 = remainder / 16;
+       rem_2 = remainder - rem_1 * 16;
+       rem_1 *= 1 << 17;
+       rem_1 /= 1500;
+       rem_2 *= 1 << 13;
+       rem_2 /= 1500;
+       remainder = rem_1 + rem_2;
+   }
+
+   hd_write_reg(P_HHI_HDMI_PLL_CNTL0, 0x3b000400 | (quotient & 0xff));
+   hd_write_reg(P_HHI_HDMI_PLL_CNTL1, remainder);
+   hd_write_reg(P_HHI_HDMI_PLL_CNTL2, 0x00000000);
+   hd_write_reg(P_HHI_HDMI_PLL_CNTL3, 0x0a691c00);
+   hd_write_reg(P_HHI_HDMI_PLL_CNTL4, 0x33771290);
+   hd_write_reg(P_HHI_HDMI_PLL_CNTL5, 0x39270000);
+   hd_write_reg(P_HHI_HDMI_PLL_CNTL6, 0x50540000);
+   hd_set_reg_bits(P_HHI_HDMI_PLL_CNTL0, 0x0, 29, 1);
+   WAIT_FOR_PLL_LOCKED(P_HHI_HDMI_PLL_CNTL0);
+   printk("HPLL: 0x%lx\n", hd_read_reg(P_HHI_HDMI_PLL_CNTL0));
 }
 
 static void set_hpll_clk_out(unsigned clk, struct hdmitx_dev *hdev)
@@ -469,6 +516,7 @@ static void set_hpll_clk_out(unsigned clk, struct hdmitx_dev *hdev)
 		break;
 	default:
 		printk("error hpll clk: %d\n", clk);
+		g12b_auto_set_hpll(clk);
 		break;
 	}
 	printk("config HPLL done\n");
@@ -1046,6 +1094,45 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
 	},
 };
 
+static void g12b_calc_pixel_clk_hpll_vco_od(u32 pixel_freq, u32 *vco_out, u32 *od1, u32 *od2)
+{
+   u32 htx_vco = 5940000;
+   u32 div = 1;
+
+   if (!vco_out || !od1 || !od2)
+       return;
+
+   if (pixel_freq < 25175 || pixel_freq > 5940000) {
+       printk("%s[%d] not valid pixel clock %d\n", __func__, __LINE__, pixel_freq);
+       return;
+   }
+
+   pixel_freq = pixel_freq * 10; /* for tmds modes, here should multi 10 */
+   if (pixel_freq > MAX_HTXPLL_VCO) {
+       printk("%s[%d] base_pixel_clk %d over MAX_HTXPLL_VCO %d\n",
+           __func__, __LINE__, pixel_freq, MAX_HTXPLL_VCO);
+   }
+
+   /* the base pixel_clk range should be 250M ~ 5940M? */
+   htx_vco = pixel_freq;
+   do {
+       if (htx_vco >= MIN_HTXPLL_VCO && htx_vco < MAX_HTXPLL_VCO)
+           break;
+       div *= 2;
+       htx_vco *= 2;
+   } while (div <= 16);
+
+   *vco_out = htx_vco;
+   /* setting htxpll div */
+   if (div > 4) {
+       *od1 = 4;
+       *od2 = div / 4;
+   } else {
+       *od1 = div;
+       *od2 = 1;
+   }
+}
+
 void hdmitx_set_clk_(struct hdmitx_dev *hdev)
 {
 	int i = 0;
@@ -1055,6 +1142,7 @@ void hdmitx_set_clk_(struct hdmitx_dev *hdev)
 	enum hdmi_color_format cs = hdev->para->cs;
 	enum hdmi_color_depth cd = hdev->para->cd;
 	char *sspll_dis = NULL;
+	struct hw_enc_clk_val_group tmp_clk = {{0}};
 
 	/* YUV 422 always use 24B mode */
 	if (cs == HDMI_COLOR_FORMAT_422)
@@ -1111,21 +1199,43 @@ void hdmitx_set_clk_(struct hdmitx_dev *hdev)
 	}
 
 next:
+   memcpy(&tmp_clk, &p_enc[j], sizeof(struct hw_enc_clk_val_group));
+   if (vic >= HDMITX_VESA_OFFSET) {
+       const struct hdmi_format_para *para = NULL;
+       para = hdmi_get_fmt_paras(vic);
+       if (!para) {
+           pr_info("failed to find VIC %d para\n", vic);
+           return;
+       }
+       memset(&tmp_clk, 0, sizeof(tmp_clk));
+       g12b_calc_pixel_clk_hpll_vco_od(para->timing.pixel_freq,
+           &tmp_clk.hpll_clk_out, &tmp_clk.od1, &tmp_clk.od2);
+       tmp_clk.od3 = 1; /* fixed divider value */
+       tmp_clk.vid_pll_div = CLK_UTIL_VID_PLL_DIV_5;
+       tmp_clk.vid_clk_div = 2; /* fixed divider value */
+       tmp_clk.hdmi_tx_pixel_div = 1;
+       tmp_clk.encp_div = 1;
+       tmp_clk.enci_div = -1;
+   }
+   printf("hdmitx sub-clock: %d %d %d %d %d %d %d %d %d\n",
+       tmp_clk.hpll_clk_out, tmp_clk.od1, tmp_clk.od2, tmp_clk.od3,
+       tmp_clk.vid_pll_div, tmp_clk.vid_clk_div, tmp_clk.hdmi_tx_pixel_div,
+       tmp_clk.encp_div, tmp_clk.enci_div);
 	set_hdmitx_sys_clk();
-	set_hpll_clk_out(p_enc[j].hpll_clk_out, hdev);
+	set_hpll_clk_out(tmp_clk.hpll_clk_out, hdev);
 	sspll_dis = getenv("sspll_dis");
 	if ((!sspll_dis || !strcmp(sspll_dis, "0")) &&
 		(cd == HDMI_COLOR_DEPTH_24B))
 		set_hpll_sspll(hdev);
-	set_hpll_od1(p_enc[j].od1);
-	set_hpll_od2(p_enc[j].od2);
-	set_hpll_od3(p_enc[j].od3);
-	set_hpll_od3_clk_div(p_enc[j].vid_pll_div);
-	printk("j = %d  vid_clk_div = %d\n", j, p_enc[j].vid_clk_div);
-	set_vid_clk_div(p_enc[j].vid_clk_div);
-	set_hdmi_tx_pixel_div(p_enc[j].hdmi_tx_pixel_div);
-	set_encp_div(p_enc[j].encp_div);
-	set_enci_div(p_enc[j].enci_div);
+	set_hpll_od1(tmp_clk.od1);
+	set_hpll_od2(tmp_clk.od2);
+	set_hpll_od3(tmp_clk.od3);
+	set_hpll_od3_clk_div(tmp_clk.vid_pll_div);
+	printk("j = %d  vid_clk_div = %d\n", j, tmp_clk.vid_clk_div);
+	set_vid_clk_div(tmp_clk.vid_clk_div);
+	set_hdmi_tx_pixel_div(tmp_clk.hdmi_tx_pixel_div);
+	set_encp_div(tmp_clk.encp_div);
+	set_enci_div(tmp_clk.enci_div);
 }
 
 int hdmitx_likely_frac_rate_mode(char *m)
