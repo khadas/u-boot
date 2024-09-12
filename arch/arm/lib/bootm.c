@@ -348,6 +348,9 @@ static void fix_bootargs(void)
 		"lcd_debug=",
 		"recovery_offset=",
 		"hdmi_read_edid=",
+		"ramoops.pstore_en=",
+		"ramoops.record_size=",
+		"ramoops.console_size="
 	};
 	int i, len, rlen, find;
 	char *cmdline, *p, *q;
@@ -379,7 +382,10 @@ static void fix_bootargs(void)
 				} else {
 					value = -1UL;
 					str2long(buf + len, &value);
-					if (!value)
+					if (!value ||
+						!strncmp(p, "ramoops.pstore_en=", len) ||
+						!strncmp(p, "ramoops.record_size=", len) ||
+						!strncmp(p, "ramoops.console_size=", len))
 						find = 1;
 				}
 				if (find) {
