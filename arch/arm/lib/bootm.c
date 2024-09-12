@@ -350,7 +350,11 @@ static void fix_bootargs(void)
 		"hdmi_read_edid=",
 		"ramoops.pstore_en=",
 		"ramoops.record_size=",
-		"ramoops.console_size="
+		"ramoops.console_size=",
+		"connector2_type=",
+		"dptx0_ctrl=",
+		"dptx1_ctrl=",
+		"hdr_force_mode="
 	};
 	int i, len, rlen, find;
 	char *cmdline, *p, *q;
