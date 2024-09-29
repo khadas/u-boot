@@ -341,6 +341,7 @@ static void add_kernel_bootargs(bootm_headers_t *images)
 static void fix_bootargs(void)
 {
 	static char const *remove_list[] = {
+		"dolby_status=",
 		"dolby_vision_on=",
 		"hdr_policy=",
 		"hdr_priority=",
