@@ -498,6 +498,7 @@ struct pxe_label {
 struct pxe_menu {
 	char *title;
 	char *default_label;
+	char *bmp;
 	int timeout;
 	int prompt;
 	struct list_head labels;
@@ -830,6 +831,7 @@ enum token_type {
 	T_FDTDIR,
 	T_ONTIMEOUT,
 	T_IPAPPEND,
+	T_BACKGROUND,
 	T_INVALID
 };
 
@@ -863,6 +865,7 @@ static const struct token keywords[] = {
 	{"fdtdir", T_FDTDIR},
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
+	{"background", T_BACKGROUND,},
 	{NULL, T_INVALID}
 };
 
@@ -1138,6 +1141,10 @@ static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
 	case T_INCLUDE:
 		err = handle_include(cmdtp, c, base, cfg,
 						nest_level + 1);
+		break;
+
+	case T_BACKGROUND:
+		err = parse_sliteral(c, &cfg->bmp);
 		break;
 
 	default:
@@ -1526,6 +1533,24 @@ static void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 	void *choice;
 	struct menu *m;
 	int err;
+
+	/* display BMP if available */
+	if (cfg->bmp) {
+		unsigned long load_addr;
+		char *envaddr;
+		envaddr = from_env("logo_addr_r");
+
+		if (envaddr && strict_strtoul(envaddr, 16, &load_addr) > -1) {
+		    if (get_relfile(cmdtp, cfg->bmp, load_addr)) {
+				char bmp_cmd[MAX_TFTP_PATH_LEN+20];
+				sprintf(bmp_cmd, "rockchip_show_bmp %s\n", cfg->bmp);
+				run_command(bmp_cmd, 0);
+		    } else {
+				printf("Skipping background bmp %s for failure\n",
+				cfg->bmp);
+		    }
+		}
+	}
 
 	m = pxe_menu_to_menu(cfg);
 	if (!m)
