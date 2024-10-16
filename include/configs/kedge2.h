@@ -16,7 +16,8 @@
 		"logo_addr_c=0x06A00000\0" \
 		"logo_addr_r=0x07000000\0" \
 		"stdout=serial,vidconsole\0" \
-		"stderr=serial,vidconsole\0"
+		"stderr=serial,vidconsole\0" \
+		"update=gpio clear 138; gpio clear 139; gpio set 140; rockusb 0 mmc 0\0"
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
