@@ -9,6 +9,7 @@
 #include <usb.h>
 #include <i2c.h>
 #include <dm.h>
+#include <adc.h>
 
 #define TP_I2C_BUS_NUM 6
 
@@ -53,6 +54,7 @@ int rk_board_init(void)
 	int res = 0;
 	struct udevice *bus;
 	struct udevice *dev;
+	unsigned int val;
 	uchar linebuf[1];
 
 	run_command("gpio set 130", 0);//GPIO4_A2 vcc 5v
@@ -83,6 +85,16 @@ int rk_board_init(void)
 				env_set("lcd_panel","null");
 			}
 		}
+	}
+
+	ret = adc_channel_single_shot("saradc", 2, &val);
+	if (ret) {
+		printf("%s adc_channel_single_shot fail! ret=%d\n", __func__, ret);
+		return -1;
+	}
+
+	if (val < 50) {
+		run_command("gpio set 105", 1); //pogo_power_enable
 	}
 
 	return 0;
