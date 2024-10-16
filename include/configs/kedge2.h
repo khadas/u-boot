@@ -23,5 +23,9 @@
 #undef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND RKIMG_BOOTCOMMAND
 
+#undef BOOTENV_BOOT_TARGETS
+#define BOOTENV_BOOT_TARGETS \
+	"boot_targets=usb0 mmc1 mmc0 pxe dhcp\0"
+
 #endif
 #endif
