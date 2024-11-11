@@ -388,6 +388,7 @@ static void cmdline_handle(void)
 	struct blk_desc *dev_desc;
 	int if_type;
 	int devnum;
+	char lcd_panel_buf[32] = {'\0'};
 
 	param_parse_pubkey_fuse_programmed();
 
@@ -421,6 +422,18 @@ static void cmdline_handle(void)
 
 	if (rockchip_get_boot_mode() == BOOT_MODE_QUIESCENT)
 		env_update("bootargs", "androidboot.quiescent=1 pwm_bl.quiescent=1");
+
+	/*
+        add lcd pannel
+    */
+    char * lcd_panel = env_get("lcd_panel");
+
+    if (lcd_panel)
+    {
+        memset(lcd_panel_buf, 0, sizeof(lcd_panel_buf));
+        snprintf(lcd_panel_buf, sizeof(lcd_panel_buf), "lcd_panel=%s", lcd_panel);
+        env_update("bootargs", lcd_panel_buf);
+    }
 }
 
 static void scan_run_cmd(void)
