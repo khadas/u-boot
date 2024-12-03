@@ -531,6 +531,90 @@ static int do_image_read_dtb_from_rsv(unsigned char* loadaddr)
 	return 0;
 }
 
+#define LOAD_ENV_BUFF_SIZE 1024
+#define LOAD_DTBO_BUFF_SIZE 2048
+static void do_fdt_overlay(void *fdt)
+{
+	int ret = -1;
+	char env_buf[256] = {'\0'};
+	char load_env_buff[LOAD_ENV_BUFF_SIZE];
+	unsigned long load_env_addr = (unsigned long)(&load_env_buff[0]);
+
+	printf("enter do_fdt_overlay.\n");
+
+	/* load dtb.overlay.env */
+	memset(load_env_buff, 0, sizeof(load_env_buff));
+	memset(env_buf, 0, sizeof(env_buf));
+	snprintf(env_buf, sizeof(env_buf), "load mmc 1:10 0x%lx  /overlays/kvim4.dtb.overlay.env", load_env_addr);
+	printf("cmd:%s\n", env_buf);
+	ret = run_command(env_buf, 0);
+	if (!ret) {
+		printf("load_env_buff len %d:[%s]\n", (int)strlen(load_env_buff), load_env_buff);
+	} else {
+		printf("load /overlays/kvim4.dtb.overlay.env failed\n");
+		return;
+	}
+
+	char *overlays = strstr(load_env_buff, "fdt_overlays=");
+	char *setoverlays = NULL;
+	char *ptr = NULL;
+	char cmd_buf[256] = {'\0'};
+	char *load_dtbo_buff = (char *)malloc(LOAD_DTBO_BUFF_SIZE);
+	unsigned long load_dtbo_addr = (unsigned long)(&load_dtbo_buff[0]);
+	int overlays_len = strlen(load_env_buff);
+	int header_len = strlen("fdt_overlays=");
+	int setoverlays_len = 0;
+
+	if (NULL != overlays) {
+		setoverlays = (char *)malloc(overlays_len - header_len + 1);
+		memset(setoverlays, 0, overlays_len - header_len + 1);
+		memcpy(setoverlays, &load_env_buff[header_len], (overlays_len - header_len));
+		setoverlays_len = strlen(setoverlays);
+
+		printf("overlays_len %d\n", overlays_len);
+		printf("header_len %d\n", header_len);
+		printf("setoverlays_len %d\n", setoverlays_len);
+
+		if (NULL != setoverlays) {
+			printf("setoverlays len %d:[%s]\n", (int)strlen(setoverlays), setoverlays);
+			ptr = strtok(setoverlays, " ");
+			while (ptr != NULL) {
+				memset(cmd_buf, 0, sizeof(cmd_buf));
+				memset(load_dtbo_buff, 0, LOAD_DTBO_BUFF_SIZE);
+				snprintf(cmd_buf, sizeof(cmd_buf), "load mmc 1:10 0x%lx  /overlays/kvim4.dtb.overlays/%s.dtbo", load_dtbo_addr, ptr);
+				printf("cmd:%s\n", cmd_buf);
+				ret = run_command(cmd_buf, 0);
+				if (!ret) {
+					ret = fdt_increase_size(fdt, fdt_totalsize((void *)load_dtbo_addr));
+					if (!ret) {
+						ret = fdt_overlay_apply(fdt, (void *)load_dtbo_addr);
+							if (!ret) {
+								printf("Android: fdt overlay OK\n");
+							} else {
+								printf("Android: fdt overlay failed, ret=%d\n", ret);
+							}
+					} else {
+						printf("fdt increase_size failed ret = %d\n", ret);
+					}
+				} else {
+					printf("run command failed ret = %d\n", ret);
+				}
+				ptr = strtok(NULL, " ");
+			}
+		} else {
+			printf("setoverlays is  NULL\n");
+		}
+
+		free(setoverlays);
+		setoverlays = NULL;
+	} else {
+		  printf("overlays is NULL\n");
+	}
+
+	free(load_dtbo_buff);
+	load_dtbo_buff = NULL;
+}
+
 //imgread dtb boot ${dtb_mem_addr}
 //imgread dtb rsv ${dtb_mem_addr}
 static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -580,6 +664,8 @@ static int do_image_read_dtb(cmd_tbl_t *cmdtp, int flag, int argc, char * const 
         return CMD_RET_FAILURE;
     }
     memmove(loadaddr, (char*)fdtAddr, fdtsz);
+
+    do_fdt_overlay(loadaddr);
 
     return iRet;
 }
