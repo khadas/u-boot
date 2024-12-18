@@ -578,7 +578,7 @@ static void do_fdt_overlay(void *fdt)
 		if (NULL != setoverlays) {
 			printf("setoverlays len %d:[%s]\n", (int)strlen(setoverlays), setoverlays);
 			ptr = strtok(setoverlays, " ");
-			while (ptr != NULL) {
+			while ((ptr != NULL) && (strlen(ptr) > 1)) {
 				memset(cmd_buf, 0, sizeof(cmd_buf));
 				memset(load_dtbo_buff, 0, LOAD_DTBO_BUFF_SIZE);
 				snprintf(cmd_buf, sizeof(cmd_buf), "load mmc 1:10 0x%lx  /overlays/kvim4.dtb.overlays/%s.dtbo", load_dtbo_addr, ptr);
