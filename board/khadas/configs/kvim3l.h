@@ -434,6 +434,13 @@
             "store rom_write 1080000 0 ${filesize}; "\
         "fi;"\
         "\0"\
+	"updatedtb="\
+        "if tftp 1080000 sm1_kvim3l.dtb; then "\
+            "mmc dev 1;"\
+            "store dtb write 1080000 ${filesize}; "\
+        "fi;"\
+        "\0"\
+
 
 
 #define CONFIG_PREBOOT  \
