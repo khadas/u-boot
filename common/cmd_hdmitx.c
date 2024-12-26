@@ -83,14 +83,17 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 				if (lcd_drv->lcd_outputmode_check(mode, 0) == 0)
 					return 0;
 			} else {
+				setenv("outputmode", "panel");
 				memset(mode, 0, sizeof(mode));
 				sprintf(mode, "%s", getenv("outputmode"));
 				frac = hdmitx_parse_vout_name(mode);
 				if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
 					lcd_exist = getenv("lcd_exist");
 					if (0 == strcmp(lcd_exist, "1")) {
-						free(mode);
-						return 0;
+						if (!hdmitx_device.HWOp.get_hpd_state()) {
+							free(mode);
+							return 0;
+						}
 					}
 				}
 				free(mode);
