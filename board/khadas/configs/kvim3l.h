@@ -496,10 +496,10 @@
 
 /* buffer rotate for portrait screen */
 #define CONFIG_SINGLE_LOGO \
-	"setenv outputmode panel;setenv display_layer osd0;"\
-	"setenv fb_height 1920; setenv fb_width 1080;"\
-	"vout output panel;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;"\
-	"bmp display $bootup_rotate_offset;bmp scale;"\
+	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
+	"setenv fb_height 1080; setenv fb_width 1920;"\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"bmp display $bootup_offset;bmp scale;"\
 	"\0"\
 
 //#define CONFIG_ENV_IS_NOWHERE  1
