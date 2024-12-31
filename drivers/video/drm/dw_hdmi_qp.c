@@ -1451,6 +1451,34 @@ static void rockchip_dw_hdmi_qp_mode_valid(struct dw_hdmi_qp *hdmi)
 	}
 }
 
+static void drm_mode_max_frequence_filter(struct edid *edid, struct dw_hdmi_qp *hdmi)
+{
+	struct hdmi_edid_data *edid_data = &hdmi->edid_data;
+	struct detailed_timing *dt;
+	int max_feq = 0;
+	int i;
+
+	if (edid->mfg_id[0] == 0x52 && edid->mfg_id[1] == 0x62)	//just test for Manufacturer: TSB
+	{
+		for (i = 0; i < ARRAY_SIZE(edid->detailed_timings); i++) {
+			dt = &edid->detailed_timings[i];
+			if (dt->data.other_data.type == 0xfd) {		//0xfd is monitor ranges
+				max_feq = dt->data.other_data.data.range.pixel_clock_mhz * 10 * 1000;	//need multiply by 10, unit: Khz
+			}
+		}
+
+		for (i = 0; i < edid_data->modes; i++) {
+			if (edid_data->mode_buf[i].invalid)
+				continue;
+
+			if (edid_data->mode_buf[i].clock > max_feq)
+			{
+				edid_data->mode_buf[i].invalid = true;
+			}
+		}
+	}
+}
+
 static int _rockchip_dw_hdmi_qp_get_timing(struct rockchip_connector *conn,
 					   struct display_state *state, int edid_status)
 {
@@ -1479,6 +1507,7 @@ static int _rockchip_dw_hdmi_qp_get_timing(struct rockchip_connector *conn,
 	}
 	drm_rk_filter_whitelist(&hdmi->edid_data);
 	rockchip_dw_hdmi_qp_mode_valid(hdmi);
+	drm_mode_max_frequence_filter(edid, hdmi);
 	drm_mode_max_resolution_filter(&hdmi->edid_data,
 				       &state->crtc_state.max_output);
 	if (!drm_mode_prune_invalid(&hdmi->edid_data)) {
