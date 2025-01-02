@@ -15,8 +15,8 @@
 #endif
 
 static char lcd_cpu_gpio[LCD_CPU_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX] = {
-	"GPIOZ_9", /* panel rst */
-	"GPIOZ_8", /* panel power */
+	// "GPIOZ_9", /* panel rst */
+	// "GPIOZ_8", /* panel power */
 	"invalid", /* ending flag */
 };
 

@@ -56,7 +56,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 #ifdef CONFIG_AML_LCD
 	struct aml_lcd_drv_s *lcd_drv = NULL;
-	char *mode;
+	char *mode, *lcd_exist;
 	unsigned int frac;
 #endif
 	int st;
@@ -83,12 +83,18 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 				if (lcd_drv->lcd_outputmode_check(mode, 0) == 0)
 					return 0;
 			} else {
+				setenv("outputmode", "panel");
 				memset(mode, 0, sizeof(mode));
 				sprintf(mode, "%s", getenv("outputmode"));
 				frac = hdmitx_parse_vout_name(mode);
 				if (lcd_drv->lcd_outputmode_check(mode, frac) == 0) {
-					free(mode);
-					return 0;
+					lcd_exist = getenv("lcd_exist");
+					if (0 == strcmp(lcd_exist, "1")) {
+						if (!hdmitx_device.HWOp.get_hpd_state()) {
+							free(mode);
+							return 0;
+						}
+					}
 				}
 				free(mode);
 			}
@@ -123,11 +129,11 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (hdmimode) {
 		if (strstr(hdmimode, "null")) {
 			setenv("hdmimode", "1080p60hz");
-			run_command("saveenv", 0);
+//			run_command("saveenv", 0);
 		}
 	} else {
 		setenv("hdmimode", "1080p60hz");
-		run_command("saveenv", 0);
+//		run_command("saveenv", 0);
 	}
 	hdmimode = getenv("hdmimode");
 	if (hpd_st && hdmimode) {
@@ -137,7 +143,7 @@ static int do_hpd_detect(cmd_tbl_t *cmdtp, int flag, int argc,
 		if (cvbsmode)
 			setenv("outputmode", cvbsmode);
 		setenv("hdmichecksum", "0x00000000");
-		run_command("saveenv", 0);
+//		run_command("saveenv", 0);
 	}
 
 	hdmitx_device.hpd_state = hpd_st;
