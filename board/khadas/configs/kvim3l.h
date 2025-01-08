@@ -117,6 +117,8 @@
 	"loadaddr=2080000\0"\
         "dv_fw_addr=0xa00000\0"\
 	"panel_type=mipi_0\0" \
+    "fdtoverlay_addr_r=0x00a00000\0"\
+    "ramdisk_addr_r=0x10000000\0"\
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
 	"outputmode=1080p60hz\0" \
