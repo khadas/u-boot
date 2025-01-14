@@ -73,6 +73,7 @@
 #define MODE_8K4K48HZ                   "7680x4320p48hz"
 #define MODE_8K4K50HZ                   "7680x4320p50hz"
 #define MODE_8K4K60HZ                   "7680x4320p60hz"
+#define MODE_1024x600p                  "1024x600p60hz"
 
 #define MODE_PANEL                      "panel"
 #define MODE_PAL_M                      "pal_m"
@@ -93,6 +94,7 @@
 #define COLOR_RGB_8BIT                   "rgb,8bit"
 
 static const char *DISPLAY_MODE_LIST[] = {
+	MODE_1024x600p,
 	MODE_640x480p,
 	MODE_480I,
 	MODE_480P,
@@ -188,7 +190,8 @@ static const char *MODE_RESOLUTION_FIRST[] = {
 	MODE_8K4K30HZ,
 	MODE_8K4K48HZ,
 	MODE_8K4K50HZ,
-	MODE_8K4K60HZ
+	MODE_8K4K60HZ,
+	MODE_1024x600p
 };
 
 /* ascending order */
@@ -210,7 +213,8 @@ static const char *MODE_FRAMERATE_FIRST[] = {
 	MODE_4K2K50HZ,
 	MODE_4K2K60HZ,
 	MODE_8K4K50HZ,
-	MODE_8K4K60HZ
+	MODE_8K4K60HZ,
+	MODE_1024x600p
 };
 
 /* this is prior selected list for sdr of
@@ -993,11 +997,18 @@ static void get_highest_hdmimode(struct input_hdmi_data *hdmi_data, char *mode)
 	 */
 	strcpy(value, "480i60hz");
 
+	printf("zhou %s start \n", __func__);
+
 	for (i = 0; disp_mode_t[i]; i++) {
 		memset(mode_tmp, 0, sizeof(mode_tmp));
 		strncpy(mode_tmp, disp_mode_t[i], MODE_LEN - 1);
+		printf("zhou %s check this mode[%s]\n", __func__, disp_mode_t[i]);
 		if (!hdmi_sink_disp_mode_sup(hdmi_data, mode_tmp))
 			continue;
+		printf("zhou %s mode[%s]id valid \n", __func__, disp_mode_t[i]);
+		printf("zhou %s resolution: [%d][%d] \n", __func__,
+			resolve_resolution_value(mode_tmp, FRAMERATE_PRIORITY),
+			resolve_resolution_value(value, FRAMERATE_PRIORITY));
 		if (resolve_resolution_value(mode_tmp, FRAMERATE_PRIORITY) >
 		    resolve_resolution_value(value, FRAMERATE_PRIORITY)) {
 			memset(value, 0, MODE_LEN);
@@ -1128,6 +1139,7 @@ static void get_hdmi_colorattribute(struct input_hdmi_data *hdmi_data,
 		return;
 	/* if dc_cap is null, use default color format */
 	/* should never encounter this case */
+	printf("zhou %s[%d] mode:[%s]\n", __func__, __LINE__, outputmode);
 	if (false) {
 		if (!strcmp(outputmode, MODE_4K2K60HZ) ||
 		    !strcmp(outputmode, MODE_4K2K50HZ) ||
@@ -1156,6 +1168,7 @@ static void get_hdmi_colorattribute(struct input_hdmi_data *hdmi_data,
 	if (!is_best_color_space()) {
 		strcpy(temp_mode, hdmi_data->ubootenv_hdmimode);
 		strcat(temp_mode, hdmi_data->ubootenv_colorattribute);
+		printf("zhou %s[%d] temp_mode:[%s]\n", __func__, __LINE__, temp_mode);
 		if (is_supported_mode_attr(hdmi_data, temp_mode))
 			strcpy(colorattribute,
 			       hdmi_data->ubootenv_colorattribute);
@@ -1404,6 +1417,7 @@ void hdr_scene_process(struct input_hdmi_data *hdmi_data,
 		/* case4: neither best mode/color_space is enabled, use user selected mode/cs */
 		if (hdmitx_chk_mode_attr_sup(hdmi_data, hdmi_data->ubootenv_hdmimode,
 			hdmi_data->ubootenv_colorattribute)) {
+			printf("zhou %s[%d]\n", __func__, __LINE__);
 			printf("support current mode:[%s], deep color:[%s]\n",
 				hdmi_data->ubootenv_hdmimode, hdmi_data->ubootenv_colorattribute);
 			strcpy(output_info->final_displaymode, hdmi_data->ubootenv_hdmimode);
@@ -1439,6 +1453,7 @@ void sdr_scene_process(struct input_hdmi_data *hdmi_data, struct scene_output_in
 	if (!hdmi_data || !output_info)
 		return;
 	/* 1.choose resolution, frame rate */
+	printf("zhou %s start \n", __func__);
 	get_hdmi_outputmode(hdmi_data, outputmode);
 	if (strlen(outputmode) == 0)
 		strcpy(outputmode, DEFAULT_HDMI_MODE);

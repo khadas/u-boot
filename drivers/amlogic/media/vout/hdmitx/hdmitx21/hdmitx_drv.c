@@ -155,6 +155,7 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMI_3_720x480p60_16x9, "480p60hz", 0},
 	{HDMI_22_720x576i50_16x9, "576i50hz", 0},
 	{HDMI_7_720x480i60_16x9, "480i60hz", 0},
+	{HDMIV_1024x600p60hz, "1024x600p60hz", 0},
 };
 
 static void hdmitx_list_support_modes(void)
@@ -665,15 +666,33 @@ static void hdmitx_mux_gp2_pll(struct hdmitx_dev *hdev)
 void enable_crt_video_hdmi(u32 enable, u32 in_sel, u8 enc_sel)
 {
 	u32 data32;
+	u32 addr_enc02_hdmi_clk;
 	u32 addr_vid_clk02;
 	u32 addr_viid_clk02;
 	u32 addr_vid_clk022;
+	u32 val = 0;
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
 	struct hdmi_format_para *para = hdev->para;
+
+	if (para->cs == HDMI_COLORSPACE_YUV420)
+		val = 1;
+	addr_enc02_hdmi_clk = (enc_sel == 0) ?
+		CLKCTRL_ENC0_HDMI_CLK_CTRL : CLKCTRL_ENC2_HDMI_CLK_CTRL;
 
 	addr_vid_clk02 = (enc_sel == 0) ? CLKCTRL_VID_CLK0_CTRL : CLKCTRL_VID_CLK2_CTRL;
 	addr_viid_clk02 = (enc_sel == 0) ? CLKCTRL_VIID_CLK0_CTRL : CLKCTRL_VIID_CLK2_CTRL;
 	addr_vid_clk022 = (enc_sel == 0) ? CLKCTRL_VID_CLK0_CTRL2 : CLKCTRL_VID_CLK2_CTRL2;
+
+	// hdmi_tx_pnx_clk
+	//clk_sel:hi_hdmi_clk_cntl[27:24];
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 24, 4);
+	// hdmi_tx_fe_clk: for 420 mode, Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk)/2,
+	// otherwise Freq(hdmi_tx_pixel_clk) = Freq(hdmi_tx_fe_clk).
+	// clk_sel:hi_hdmi_clk_cntl[23:20];
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, (in_sel == 1) ? 0 : in_sel, 20, 4);
+	// hdmi_tx_pixel_clk
+	//clk_sel:hi_hdmi_clk_cntl[19:16];
+	hd21_set_reg_bits(addr_enc02_hdmi_clk, val, 16, 4);
 
 	if (in_sel <= 4) { //V1
 		if (in_sel == 1)
@@ -754,7 +773,8 @@ static void construct_avi_packet(struct hdmitx_dev *hdev)
 	if (para->timing.vic == HDMI_95_3840x2160p30_16x9 ||
 		para->timing.vic == HDMI_94_3840x2160p25_16x9 ||
 		para->timing.vic == HDMI_93_3840x2160p24_16x9 ||
-		para->timing.vic == HDMI_98_4096x2160p24_256x135)
+		para->timing.vic == HDMI_98_4096x2160p24_256x135 ||
++		para->timing.vic >= HDMITX_VESA_OFFSET)
 		/*HDMI Spec V1.4b P151*/
 		info->video_code = 0;
 	/* refer to CTA-861-H Page 69 */
@@ -1471,6 +1491,10 @@ void hdmitx21_set(struct hdmitx_dev *hdev)
 	if (hdev->pxp_mode)
 		return; /* skip in pxp */
 
+	printf("zhou IEE:[%d]\n", hdev->RXCap.IEEEOUI);
+	if (hdev->RXCap.IEEEOUI != HDMI_IEEEOUI)
+		hdmitx21_wr_reg(TEST_TXCTRL_IVCTX, 0x00); //[1] enable hdmi
+
 	/* null char needed to terminate the string
 	 * otherwise garbage in checksum logopara
 	 */
@@ -1556,23 +1580,13 @@ void hdmitx_module_disable(void)
  ************************************************/
 unsigned int hdmi_outputmode_check(char *mode, unsigned int frac)
 {
-	int i, ret = 0xff;
+	int ret = 0xff;
 	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	const struct hdmi_timing *timing = NULL;
 
-	if (hdev->chip_type >= MESON_CPU_ID_S5) {
-		const struct hdmi_timing *timing = NULL;
-
-		timing = hdmitx21_gettiming_from_name(mode);
-		if (timing)
-			ret = 0;
-	} else { /* for T7 use */
-		for (i = 0; i < ARRAY_SIZE(gxbb_modes); i++) {
-			if (!strcmp(mode, gxbb_modes[i].sname)) {
-				ret = 0;
-				break;
-			}
-		}
-	}
+	timing = hdmitx21_gettiming_from_name(mode);
+	if (timing)
+		ret = 0;
 
 	if (ret) {
 		//printf("hdmitx: outputmode[%s] is invalid\n", mode);
@@ -1597,32 +1611,19 @@ unsigned int hdmi_outputmode_check(char *mode, unsigned int frac)
 
 bool is_hdmi_mode(char *mode)
 {
-	int i;
-	bool ret = false;
-	struct hdmitx_dev *hdev = get_hdmitx21_device();
+	//int i;
+	//bool ret = false;
+	//struct hdmitx_dev *hdev = get_hdmitx21_device();
+	const struct hdmi_timing *timing = NULL;
 
 	if (!mode)
 		return false;
 
-	/* check hdmi mode for S5 */
-	if (hdev->chip_type >= MESON_CPU_ID_S5) {
-		const struct hdmi_timing *timing = NULL;
-
-		timing = hdmitx21_gettiming_from_name(mode);
-		if (timing)
-			return true;
-		else
-			return false;
-	}
-
-	/* check hdmi mode for t7 */
-	for (i = 0; i < ARRAY_SIZE(gxbb_modes); i++) {
-		if (!strcmp(mode, gxbb_modes[i].sname)) {
-			ret = true;
-			break;
-		}
-	}
-	return ret;
+	timing = hdmitx21_gettiming_from_name(mode);
+	if (timing)
+		return true;
+	else
+		return false;
 }
 
 static int hdmitx_set_audmode(struct hdmitx_dev *hdev)
@@ -1850,7 +1851,9 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	hdmitx21_wr_reg(SOC_FUNC_SEL_IVCTX, 0x01);
 	//hdmitx21_wr_reg(SYS_MISC_IVCTX, 0x00); config same with default
 	//hdmitx21_wr_reg(DIPT_CNTL_IVCTX, 0x06); config same with default
-	hdmitx21_wr_reg(TEST_TXCTRL_IVCTX, 0x02); //[1] enable hdmi
+	if (hdev->RXCap.IEEEOUI == HDMI_IEEEOUI)
+		hdmitx21_wr_reg(TEST_TXCTRL_IVCTX, 0x02); //[1] enable hdmi
+
 	//hdmitx21_wr_reg(TX_ZONE_CTL4_IVCTX, 0x04); config same with default
 	hdmitx21_wr_reg(CLKRATIO_IVCTX, 0x8a);
 
@@ -2024,7 +2027,10 @@ static void config_hdmi21_tx(struct hdmitx_dev *hdev)
 	hdmitx21_wr_reg(HDMITX_TOP_HV_ACTIVE, data32);
 	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 3, 1, 2);
 	hdmitx21_set_reg_bits(PWD_SRST_IVCTX, 0, 1, 2);
-	hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 0, 1);
+	if (hdev->RXCap.IEEEOUI == HDMI_IEEEOUI)
+		hdmitx21_set_reg_bits(TPI_SC_IVCTX, 1, 0, 1);
+	else
+		hdmitx21_set_reg_bits(TPI_SC_IVCTX, 0, 0, 1);
 } /* config_hdmi21_tx */
 
 #define GET_LOW8BIT(a)	((a) & 0xff)
