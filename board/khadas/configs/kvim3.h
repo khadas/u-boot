@@ -443,6 +443,12 @@
             "store rom_write 1080000 0 ${filesize}; " \
         "fi;"\
         "\0" \
+	"updatedtb="\
+        "if tftp 1080000 g12b_kvim3.dtb; then "\
+            "mmc dev 1;"\
+            "store dtb write 1080000 ${filesize}; "\
+        "fi;"\
+        "\0"\
 	"vim3_check="\
 		"kbi hwver; "\
 		"echo Hardware version: ${hwver};" \
