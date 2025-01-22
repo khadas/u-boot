@@ -251,13 +251,13 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 #ifdef CONFIG_AML_HDMITX20
 	int st = 0;
-	char *lcd_exist;
+	char *mipi_lcd_exist;
 
 	/* detect hdmi plugin or not */
 	st = hdmitx_get_hpd_state_ext();
 	printf("osd: hpd_state=%c\n", st ? '1' : '0');
 
-	lcd_exist = getenv("lcd_exist");
+	mipi_lcd_exist = getenv("mipi_lcd_exist");
 
 	if (st) {
 		/* hdmi plugin, dual logo display
@@ -268,7 +268,7 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 			run_command(CONFIG_RECOVERY_DUAL_LOGO, 0);
 		#else
 		#if defined(CONFIG_DUAL_LOGO)
-			if (0 == strcmp(lcd_exist, "1")) {
+			if (0 == strcmp(mipi_lcd_exist, "1")) {
 				printf("osd: use dual logo cmd macro in recovery mode\n");
 				run_command(CONFIG_DUAL_LOGO, 0);
 			} else {
@@ -280,7 +280,7 @@ static int do_osd_dual_logo(cmd_tbl_t *cmdtp, int flag, int argc,
 		#endif
 		} else {
 		#if defined(CONFIG_DUAL_LOGO)
-			if (0 == strcmp(lcd_exist, "1"))
+			if (0 == strcmp(mipi_lcd_exist, "1"))
 				run_command(CONFIG_DUAL_LOGO, 0);
 			else
 				run_command(CONFIG_SINGLE_LOGO, 0);

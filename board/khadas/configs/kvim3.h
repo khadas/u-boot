@@ -202,7 +202,7 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
-        "if test ${lcd_exist} != 1; then "\
+        "if test ${mipi_lcd_exist} != 1; then "\
 			"setenv vout2_args ;"\
 		"else "\
 			"setenv vout2_args vout2=${outputmode2},enable;"\
@@ -213,7 +213,7 @@
 		"fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} "\
 		"outputmode=${outputmode} ${vout2_args} "\
 		"vout=${outputmode},${vout_init} "\
-		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} mipi_lcd_exist=${mipi_lcd_exist} "\
 		"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
 		"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} "\
 		"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
@@ -484,7 +484,7 @@
  */
 #define CONFIG_DUAL_LOGO \
 	"setenv outputmode panel;setenv display_layer osd0;"\
-	"if test ${lcd_exist} = 1; then "\
+	"if test ${mipi_lcd_exist} = 1; then "\
 		"if test ${panel_type} = mipi_2; then "\
 			"setenv fb_width 1920;"\
 			"setenv fb_height 1200;"\
@@ -506,7 +506,7 @@
 /* for portrait panel, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
 	"setenv outputmode panel;setenv display_layer osd0;"\
-	"if test ${lcd_exist} = 1; then "\
+	"if test ${mipi_lcd_exist} = 1; then "\
 		"if test ${panel_type} = mipi_2; then "\
 			"setenv fb_width 1920;"\
 			"setenv fb_height 1200;"\
@@ -525,7 +525,7 @@
 /* buffer rotate for portrait screen */
 #define CONFIG_SINGLE_LOGO \
 	"setenv display_layer osd0;"\
-    "if test ${lcd_exist} = 1; then "\
+    "if test ${mipi_lcd_exist} = 1; then "\
         "setenv outputmode panel;"\
 	    "setenv fb_height 1920; setenv fb_width 1080;"\
     "else "\
