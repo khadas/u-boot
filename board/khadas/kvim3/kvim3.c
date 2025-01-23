@@ -893,6 +893,7 @@ int board_late_init(void)
 #ifndef DTB_BIND_KERNEL
 		int ret;
 		ret = run_command("store dtb read $dtb_mem_addr", 1);
+		ret = run_command("imgread dtb boot ${dtb_mem_addr}", 1);
         if (ret) {
 				printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
 #ifdef CONFIG_DTB_MEM_ADDR
