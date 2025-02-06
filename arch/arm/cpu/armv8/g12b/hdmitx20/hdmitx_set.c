@@ -603,6 +603,54 @@ static int hdmitx_read_edid(unsigned char *buf, unsigned char addr,
 	return read_edid_8bytes(buf, (addr + blk_no * 128) & 0xff, blk_no);
 }
 
+static int hdmitx_read_edid_raw(unsigned char *rx_edid)
+{
+	unsigned int timeout = 0;
+	unsigned int i;
+	unsigned int byte_num = 0;
+	unsigned int blk_no = 1;
+
+	/* Program SLAVE/SEGMENT/ADDR */
+	hdmitx_wr_reg(HDMITX_DWC_I2CM_SLAVE, 0x50);
+	hdmitx_wr_reg(HDMITX_DWC_I2CM_SEGADDR, 0x30);
+	/* Read complete EDID data sequentially */
+	while (byte_num < 128 * blk_no) {
+		if ((byte_num % 256) == 0)
+			hdmitx_wr_reg(HDMITX_DWC_I2CM_SEGPTR, byte_num>>8);
+		hdmitx_wr_reg(HDMITX_DWC_I2CM_ADDRESS,  byte_num&0xff);
+		/* Do extended sequential read */
+		hdmitx_wr_reg(HDMITX_DWC_I2CM_OPERATION, 1<<3);
+		/* Wait until I2C done */
+		timeout = 0;
+		while ((!(hdmitx_rd_reg(HDMITX_DWC_IH_I2CM_STAT0) & (1 << 1)))
+			&& (timeout < 3)) {
+			mdelay(2);
+			timeout++;
+		}
+		if (timeout == 3)
+			printk("..............................\n");
+		hdmitx_wr_reg(HDMITX_DWC_IH_I2CM_STAT0, 1 << 1);
+		/* Read back 8 bytes */
+		for (i = 0; i < 8; i++) {
+			rx_edid[byte_num] =
+				hdmitx_rd_reg(HDMITX_DWC_I2CM_READ_BUFF0 + i);
+			if (byte_num == 126) {
+				blk_no = rx_edid[byte_num] + 1;
+				if (blk_no > 4) {
+					printk("edid extension block number:");
+					printk(" %d, reset to MAX 3\n",
+						blk_no - 1);
+					blk_no = 4; /* Max extended block */
+				}
+			}
+			byte_num++;
+		}
+	}
+
+	printk("edid extension block number : %d\n", blk_no);
+	return blk_no;
+}
+
 static void scdc_rd_sink(unsigned char adr, unsigned char *val)
 {
 	hdmitx_wr_reg(HDMITX_DWC_I2CM_SLAVE, 0x54);
@@ -753,6 +801,7 @@ void hdmi_tx_init(void)
 
 	hdmitx_device.HWOp.get_hpd_state = hdmitx_get_hpd_state;
 	hdmitx_device.HWOp.read_edid = hdmitx_read_edid;
+	hdmitx_device.HWOp.read_edid_raw = hdmitx_read_edid_raw;
 	hdmitx_device.HWOp.turn_off = hdmitx_turnoff;
 	hdmitx_device.HWOp.list_support_modes = hdmitx_list_support_modes;
 	hdmitx_device.HWOp.dump_regs = dump_regs;
@@ -764,6 +813,7 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 {
 	unsigned char checksum[11];
 	char *p_tmp;
+	char *mipi_lcd_exist = NULL;
 
 	aml_audio_init(); /* Init audio hw firstly */
 	hdmitx_hw_init();
@@ -774,9 +824,12 @@ void hdmi_tx_set(struct hdmitx_dev *hdev)
 	hdmitx_debug();
 	//kernel will determine output mode on its own
 	p_tmp = getenv("outputmode");
-	if (p_tmp)
-		setenv("hdmimode", p_tmp);
-
+	mipi_lcd_exist = getenv("mipi_lcd_exist");
+	if (0 == strcmp(mipi_lcd_exist, "0")) {
+		if (p_tmp)
+			setenv("hdmimode", p_tmp);
+	}
+	
 	/* null char needed to terminate the string
 	 * otherwise garbage in checksum logopara
 	 */

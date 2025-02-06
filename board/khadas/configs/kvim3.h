@@ -143,6 +143,8 @@
         "loadaddr=1080000\0"\
         "dv_fw_addr=0xa00000\0"\
 	"panel_type=mipi_0\0" \
+    "fdtoverlay_addr_r=0x00a00000\0"\
+    "ramdisk_addr_r=0x10000000\0"\
 	"lcd_ctrl=0x00000000\0" \
 	"lcd_debug=0x00000000\0" \
 	"outputmode=1080p60hz\0" \
@@ -202,13 +204,18 @@
             "\0"\
         "storeargs="\
             "get_bootloaderversion;" \
+        "if test ${mipi_lcd_exist} != 1; then "\
+			"setenv vout2_args ;"\
+		"else "\
+			"setenv vout2_args vout2=${outputmode2},enable;"\
+		"fi;"\
 	"setenv bootargs ${initargs} hdr_policy=${hdr_policy}  hdr_priority=${hdr_priority} "\
 		"otg_device=${otg_device} reboot_mode_android=${reboot_mode_android} "\
 		"logo=${display_layer},loaded,${fb_addr} "\
 		"fb_width=${fb_width} fb_height=${fb_height} display_bpp=${display_bpp} "\
-		"outputmode=${outputmode} vout2=${outputmode2},enable "\
+		"outputmode=${outputmode} ${vout2_args} "\
 		"vout=${outputmode},${vout_init} "\
-		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} "\
+		"panel_type=${panel_type} lcd_ctrl=${lcd_ctrl} lcd_debug=${lcd_debug} mipi_lcd_exist=${mipi_lcd_exist} "\
 		"hdmitx=${cecconfig},${colorattribute} hdmimode=${hdmimode} "\
 		"hdmichecksum=${hdmichecksum} dolby_vision_on=${dolby_vision_on} "\
 		"frac_rate_policy=${frac_rate_policy} hdmi_read_edid=${hdmi_read_edid} "\
@@ -443,6 +450,12 @@
             "store rom_write 1080000 0 ${filesize}; " \
         "fi;"\
         "\0" \
+	"updatedtb="\
+        "if tftp 1080000 g12b_kvim3.dtb; then "\
+            "mmc dev 1;"\
+            "store dtb write 1080000 ${filesize}; "\
+        "fi;"\
+        "\0"\
 	"vim3_check="\
 		"kbi hwver; "\
 		"echo Hardware version: ${hwver};" \
@@ -472,19 +485,40 @@
  * logo2: bootup_rotate_secondary.bmp (for portrait screen)
  */
 #define CONFIG_DUAL_LOGO \
-	"setenv outputmode 1080p60hz;setenv display_layer osd0;"\
-	"setenv fb_height 1080; setenv fb_width 1920;"\
-	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"setenv outputmode panel;setenv display_layer osd0;"\
+	"if test ${mipi_lcd_exist} = 1; then "\
+		"if test ${panel_type} = mipi_2; then "\
+			"setenv fb_width 1920;"\
+			"setenv fb_height 1200;"\
+		"else "\
+			"setenv fb_width 1080;"\
+			"setenv fb_height 1920;"\
+		"fi;"\
+	"else "\
+		"setenv fb_width 1920; setenv fb_height 1080;" \
+	"fi; "\
+	"vout output ${outputmode};osd open;osd clear;imgread pic logo bootup $loadaddr;"\
 	"bmp display $bootup_offset;bmp scale;"\
-	"setenv outputmode2 panel;setenv display_layer viu2_osd0;"\
-	"vout2 prepare panel;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
-	"bmp display $bootup_offset;bmp scale;vout2 output panel;"\
+    "lcd disable; lcd enable;"\
+	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
+	"vout2 prepare ${outputmode2};vout2 output ${outputmode2};osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"bmp display $bootup_offset;bmp scale;"\
 	"\0"\
 
 /* for portrait panel, recovery always displays on panel */
 #define CONFIG_RECOVERY_DUAL_LOGO \
 	"setenv outputmode panel;setenv display_layer osd0;"\
-	"setenv fb_height 1920; setenv fb_width 1080;"\
+	"if test ${mipi_lcd_exist} = 1; then "\
+		"if test ${panel_type} = mipi_2; then "\
+			"setenv fb_width 1920;"\
+			"setenv fb_height 1200;"\
+		"else "\
+			"setenv fb_width 1080;"\
+			"setenv fb_height 1920;"\
+		"fi;"\
+	"else "\
+		"setenv fb_width 1920; setenv fb_height 1080;" \
+	"fi; "\
 	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
 	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
 	"vout2 prepare $outputmode2;vout2 output $outputmode2;osd open;osd clear;imgread pic logo bootup $loadaddr;bmp display $bootup_offset;bmp scale;"\
@@ -492,9 +526,17 @@
 
 /* buffer rotate for portrait screen */
 #define CONFIG_SINGLE_LOGO \
-	"setenv outputmode panel;setenv display_layer osd0;"\
-	"setenv fb_height 1920; setenv fb_width 1080;"\
-	"vout output panel;osd open;osd clear;imgread pic logo bootup_rotate $loadaddr;bmp display $bootup_rotate_offset;bmp scale;"\
+	"setenv display_layer osd0;"\
+    "if test ${mipi_lcd_exist} = 1; then "\
+        "setenv outputmode panel;"\
+	    "setenv fb_height 1920; setenv fb_width 1080;"\
+    "else "\
+        "setenv outputmode 1080p60hz;"\
+	    "setenv fb_height 1080; setenv fb_width 1920;"\
+    "fi; "\
+	"vout output $outputmode;osd open;osd clear;imgread pic logo bootup $loadaddr;"\
+	"bmp display $bootup_offset;bmp scale;"\
+    "lcd disable; lcd enable;"\
 	"\0"\
 
 //#define CONFIG_ENV_IS_NOWHERE  1
@@ -728,9 +770,9 @@
 	#define CONFIG_HOSTNAME        arm_gxbb
 //	#define CONFIG_RANDOM_ETHADDR  1				   /* use random eth addr, or default */
 	#define CONFIG_ETHADDR         00:15:18:01:81:31   /* Ethernet address */
-	#define CONFIG_IPADDR          10.18.9.97          /* Our ip address */
-	#define CONFIG_GATEWAYIP       10.18.9.1           /* Our getway ip address */
-	#define CONFIG_SERVERIP        10.18.9.113         /* Tftp server ip address */
+	#define CONFIG_IPADDR          192.168.31.175          /* Our ip address */
+	#define CONFIG_GATEWAYIP       192.168.31.1           /* Our getway ip address */
+	#define CONFIG_SERVERIP        192.168.31.205         /* Tftp server ip address */
 	#define CONFIG_NETMASK         255.255.255.0
 #endif /* (CONFIG_CMD_NET) */
 

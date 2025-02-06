@@ -780,7 +780,7 @@ void board_lcd_detect(void)
 	// if the LCD is connected, the RESET pin will be plll high
 	// if the LCD is not connected, the RESET pin will be low
 	printf("LCD_RESET PIN: %d\n", value);
-	setenv_ulong("lcd_exist", value);
+	setenv_ulong("mipi_lcd_exist", value);
 }
 #endif /* CONFIG_AML_LCD */
 

@@ -810,21 +810,27 @@ void board_lcd_detect(void)
 	if (linebuf[0] == 0x51) {//old TS050
 		setenv("panel_type", "mipi_0");
 		value = 1;
+		run_command("fdt addr 0x1000000; fdt resize 65536; fdt set /drm-subsystem fbdev_sizes <1080 1920 1080 3840 32>;", 0);
 	} else if (linebuf[0] == 0x79) {//new TS050
 		setenv("panel_type", "mipi_1");
 		value = 1;
+		run_command("fdt addr 0x1000000; fdt resize 65536; fdt set /drm-subsystem fbdev_sizes <1080 1920 1080 3840 32>;", 0);
 	} else {
 		sw_i2c_read(0xba,0x9e,linebuf,1);
 		if (linebuf[0] == 0x00) {//TS101
 			setenv("panel_type", "mipi_2");
 			value = 1;
+				run_command("fdt addr 0x1000000; fdt resize 65536; fdt set /drm-subsystem fbdev_sizes <1920 1200 1920 2400 32>;", 0);
+		} else {
+			printf("MIPI LCD not exist, disable lcd & touch panel nodes.\n");
+			run_command("fdt addr 0x1000000; fdt resize 65536; fdt set /lcd status disabled; fdt set /drm-subsystem crtc_masks <1 2 1>; fdt set /soc/cbus@ffd00000/i2c@1c000/gt9xx@5d status disabled; fdt set /soc/cbus@ffd00000/i2c@1c000/ft5336@38 status disabled", 0);
 		}
 	}
 	// detect RESET pin
 	// if the LCD is connected, the RESET pin will be plll high
 	// if the LCD is not connected, the RESET pin will be low
 	printf("LCD_RESET PIN: %d\n", value);
-	setenv_ulong("lcd_exist", value);
+	setenv_ulong("mipi_lcd_exist", value);
 }
 #endif /* CONFIG_AML_LCD */
 
@@ -887,6 +893,7 @@ int board_late_init(void)
 #ifndef DTB_BIND_KERNEL
 		int ret;
 		ret = run_command("store dtb read $dtb_mem_addr", 1);
+		ret = run_command("imgread dtb boot ${dtb_mem_addr}", 1);
         if (ret) {
 				printf("%s(): [store dtb read $dtb_mem_addr] fail\n", __func__);
 #ifdef CONFIG_DTB_MEM_ADDR

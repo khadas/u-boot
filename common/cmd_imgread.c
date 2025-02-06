@@ -96,6 +96,7 @@ void do_fdt_overlay(void * fdt)
     unsigned long load_env_addr = 0;
     unsigned long env_size = DEFAULT_ENV_FILE_SIZE;
     unsigned long uEuv_addr_offset = 0x100;
+    char *dtb_type = NULL;
 
     printf("enter do_fdt_overlay.\n");
 
@@ -121,23 +122,34 @@ void do_fdt_overlay(void * fdt)
             printf("load /boot/uEnv.txt failed\n");
     }
 
-    /* load dtb.overlay.env */
-    memset(env_buf, 0, sizeof(env_buf));
-    snprintf(env_buf, sizeof(env_buf), "load mmc 1:11 0x%lx  /boot/dtb/amlogic/kvim3l.dtb.overlay.env", load_env_addr);
-    printf("cmd:%s\n", env_buf);
-    ret = run_command(env_buf, 0);
-    if (!ret) {
-            memset(env_buf, 0, sizeof(env_buf));
-            snprintf(env_buf, sizeof(env_buf), "env import -t 0x%lx 0x%lx", load_env_addr, env_size);
-            printf("cmd:%s\n", env_buf);
-            ret = run_command(env_buf, 0);
-            if (ret) {
-                    printf("env import failed\n");
-            }
-    } else {
-            printf("load /boot/dtb/amlogic/kvim3l.dtb.overlay.env failed\n");
+    // Detect the correct dtb.overlay.env. Add new board here!!!
+    const char *dtb_types[] = {"kvim3", "kvim3l"};
+    size_t dtb_count = sizeof(dtb_types) / sizeof(dtb_types[0]);
+    for (size_t i = 0; i < dtb_count; ++i) {
+        memset(env_buf, 0, sizeof(env_buf));
+        snprintf(env_buf, sizeof(env_buf), "load mmc 1:11 0x%lx  /boot/dtb/amlogic/%s.dtb.overlay.env", load_env_addr, dtb_types[i]);
+        printf("env_buf:%s\n", env_buf);
+        ret = run_command(env_buf, 0);
+        if (ret == 0) {
+		    dtb_type = (char *)dtb_types[i];
+			break;
+        }
     }
 
+    if (dtb_type == NULL) {
+		printf("No valid dtb.overlay.env file found.\n");
+		return;
+	}
+	printf("dtb type:%s\n", dtb_type);
+
+	// Import the environment variables from the detected overlay
+    memset(env_buf, 0, sizeof(env_buf));
+    snprintf(env_buf, sizeof(env_buf), "env import -t 0x%lx 0x%lx", load_env_addr, env_size);
+    printf("cmd:%s\n", env_buf);
+    ret = run_command(env_buf, 0);
+    if (ret) {
+        printf("env import failed\n");
+    }
     char * overlays = getenv("fdt_overlays");
     char * setoverlays = NULL;
     char * ptr = NULL;
@@ -158,7 +170,7 @@ void do_fdt_overlay(void * fdt)
             ptr = strtok(setoverlays, " ");
             while(ptr != NULL){
                 memset(cmd_buf, 0, sizeof(cmd_buf));
-                snprintf(cmd_buf, sizeof(cmd_buf), "load mmc 1:11 0x%lx  /boot/dtb/amlogic/kvim3l.dtb.overlays/%s.dtbo", load_dtbo_addr, ptr);
+                snprintf(cmd_buf, sizeof(cmd_buf), "load mmc 1:11 0x%lx /boot/dtb/amlogic/%s.dtb.overlays/%s.dtbo", load_dtbo_addr, dtb_type, ptr);
                 printf("cmd:%s\n", cmd_buf);
                 ret = run_command(cmd_buf, 0);
                 if (!ret) {
