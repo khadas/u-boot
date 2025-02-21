@@ -57,7 +57,7 @@ BL2_S7_BRANCH="projects/openlinux/bl-s7-${STABLE_MAJOR_VERSION}"
 declare -a OPENLINUX_BOARD_TYPE=("ohm" "oppen" "tyson" "kvim4n" "qurra")
 declare -a OPENLINUX_BOARD_BRANCH=("${BL2_SC2_BRANCH}" "${BL2_S4_BRANCH}" "${BL2_S5_BRANCH}" "${BL2_T7_BRANCH}" "${BL2_S7_BRANCH}")
 declare -a OPENLINUX_BOARD_CONFIG=("sc2_ah212" "s4_ap222" "s5_ax201" "t7c_kvim4n" "s7_bh201")
-ANDROID_DEV_DIR="device/amlogic"
+ANDROID_DEV_DIR="device/khadas"
 ANDROID_DIR_OHM="${ANDROID_ROOT_DIR}/${ANDROID_DEV_DIR}/${OPENLINUX_BOARD_TYPE[0]}"
 ANDROID_DIR_OPPEN="${ANDROID_ROOT_DIR}/${ANDROID_DEV_DIR}/${OPENLINUX_BOARD_TYPE[1]}"
 ANDROID_DIR_TYSON="${ANDROID_ROOT_DIR}/${ANDROID_DEV_DIR}/${OPENLINUX_BOARD_TYPE[2]}"
@@ -721,7 +721,7 @@ Verify:
 local ${OPENLINUX_BOARD_TYPE[$i]}"
 
 		echo
-		echo "# 5. push booloader img to device/amlogic"
+		echo "# 5. push booloader img to device/khadas"
 		git push review HEAD:refs/for/${ANDROID_TARGET_BRANCH}%topic=BL${STABLE_MAJOR_VERSION} || err_exit " push bootloader img error."
 		cd -
 		echo "<$i.${OPENLINUX_BOARD_TYPE[$i]}># done."
