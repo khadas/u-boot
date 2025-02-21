@@ -494,7 +494,24 @@
 	"\0"\
 
 /* single logo */
-#define CONFIG_SINGLE_LOGO CONFIG_RECOVERY_DUAL_LOGO
+#define CONFIG_SINGLE_LOGO \
+	"if test ${khadas_mipi_id} = 1 || test ${khadas_mipi_id} = 3; then "\
+        "setenv fb_width 1080;setenv fb_height 1920;"\
+        "setenv display_width 1080;setenv display_height 1920;"\
+        "setenv display_layer osd0;osd open;osd clear;imgread pic logo bootup_rotate_secondary $loadaddr;bmp display $bootup_rotate_secondary_offset;bmp scale;vout output ${outputmode};"\
+	"else if test ${khadas_mipi_id} = 2; then "\
+        "setenv fb_width 1920;setenv fb_height 1200;"\
+        "setenv display_width 1920;setenv display_height 1200;"\
+		"setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"else "\
+        "setenv fb_width 1920;setenv fb_height 1080;"\
+        "setenv display_width 1920;setenv display_height 1080;"\
+        "setenv display_layer osd0;osd open;osd clear;run load_bmp_logo;bmp scale;vout output ${outputmode};"\
+	"fi;fi;"\
+	"if test ${outputmode} = ${save_outputmode}; then "\
+		"dovi set;dovi pkg;vpp hdrpkt;"\
+	"fi; "\
+	"\0"
 #endif
 
 /* #define CONFIG_ENV_IS_NOWHERE  1 */
