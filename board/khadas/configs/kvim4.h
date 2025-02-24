@@ -94,7 +94,7 @@
 	"dptx0_ctrl=0x00000000\0" \
 	"dptx1_ctrl=0x00000000\0" \
 	"ts050_output=1080x1920p60hz\0" \
-	"ts101_output=1920x1200p60hz\0" \
+	"ts101_output=panel\0" \
 	"vbo_output=2160p60hz\0" \
 	"vbo_type=VBYONE-B\0" \
 	"outputmode=1080x1920p60hz\0" \
