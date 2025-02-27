@@ -31,6 +31,8 @@
 #else
 #define ANDROID_ARG_FDT_FILENAME "kernel.dtb"
 #endif
+#define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
+
 #define OEM_UNLOCK_ARG_SIZE 30
 #define UUID_SIZE 37
 

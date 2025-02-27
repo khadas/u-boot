@@ -96,9 +96,9 @@ u8 ddr_cfg_2_rbc[] = {
 };
 
 /*
- * for ddr4 if ddrconfig=7, upctl should set 7 and noc should
+ * for ddr4 if ddrconfig=7, DDRCTL should set 7 and noc should
  * set to 1 for more efficient.
- * noc ddrconf, upctl addrmap
+ * noc ddrconf, DDRCTL addrmap
  * 1  7
  * 2  8
  * 3  9

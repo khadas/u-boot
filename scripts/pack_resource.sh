@@ -48,6 +48,8 @@ append_images_to_resource()
 	if [ -f "${RSCE_OLD}" ];then
 		echo "Unpacking old image(${RSCE_OLD}):"
 		${TOOL} --unpack --verbose --image=${RSCE_OLD} ${TMP_DIR} 2>&1 | grep entry | sed "s/^.*://" | xargs echo
+		# promise rk-kernel.dtb to be the first one after calling "find ${TMP_DIR} -type f|sort" when repack.
+		mv ${TMP_DIR}/rk-kernel.dtb ${TMP_DIR}/aaa-rk-kernel.dtb
 	fi
 
 	if [ -d "${IMAGES}" ];then

@@ -10,7 +10,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define TICKS_TO_US(ticks)	((ticks) / (COUNTER_FREQUENCY / 1000000))
+#define TICKS_TO_US(ticks)	((ticks) / (gd->arch.timer_rate_hz / 1000000))
 #define US_TO_MS(ticks)		((ticks) / 1000)
 #define US_TO_US(ticks)		((ticks) % 1000)
 

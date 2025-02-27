@@ -98,6 +98,9 @@ config ARM_ERRATA_798870
 config ARM_ERRATA_801819
 	bool
 
+config ARM_ERRATA_814220
+	bool
+
 config ARM_ERRATA_826974
 	bool
 

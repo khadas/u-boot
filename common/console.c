@@ -578,7 +578,7 @@ void puts(const char *s)
 
 		if (gd->new_line) {
 			gd->new_line = 0;
-			ticks = (get_ticks() / 24ULL);
+			ticks = (get_ticks() / (gd->arch.timer_rate_hz / 1000000));
 			ts_sec = ticks / 1000000;
 			ts_msec = ticks % 1000000;
 			vspfunc(pr_timestamp, sizeof(pr_timestamp),

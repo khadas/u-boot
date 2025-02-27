@@ -149,7 +149,7 @@ typedef struct global_data {
 	u32 rollback_index;
 #endif
 #ifdef CONFIG_PSTORE
-	u64 pstore_addr;
+	ulong pstore_addr;
 	u32 pstore_size;
 #endif
 } gd_t;

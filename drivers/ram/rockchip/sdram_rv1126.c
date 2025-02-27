@@ -389,7 +389,7 @@ static void rkclk_set_dpll(struct dram_info *dram, unsigned int hz)
 static void rkclk_configure_ddr(struct dram_info *dram,
 				struct rv1126_sdram_params *sdram_params)
 {
-	/* for inno ddr phy need freq / 2 */
+	/* for ddr phy need freq / 2 */
 	rkclk_set_dpll(dram, sdram_params->base.ddr_freq * MHZ / 2);
 }
 
@@ -1312,40 +1312,35 @@ static int update_refresh_reg(struct dram_info *dram)
  * rank = 1: cs0
  * rank = 2: cs1
  */
-u32 read_mr(struct dram_info *dram, u32 rank, u32 mr_num, u32 dramtype)
+u32 read_mr(struct dram_info *dram, u32 rank, u32 byte, u32 mr_num, u32 dramtype)
 {
 	u32 ret;
 	u32 i, temp;
 	void __iomem *pctl_base = dram->pctl;
-	struct sdram_head_info_index_v2 *index =
-		(struct sdram_head_info_index_v2 *)common_info;
+	struct sdram_head_info_index_v2 *index;
 	struct dq_map_info *map_info;
-
-	map_info = (struct dq_map_info *)((void *)common_info +
-		index->dq_map_index.offset * 4);
 
 	pctl_read_mr(pctl_base, rank, mr_num);
 
-	if (dramtype == LPDDR3) {
-		temp = (readl(&dram->ddrgrf->ddr_grf_status[0]) & 0xff);
-		ret = 0;
-		for (i = 0; i < 8; i++)
-			ret |= ((temp >> i) & 0x1) << ((map_info->lp3_dq0_7_map >> (i * 4)) & 0xf);
+	if (dramtype != LPDDR4 && dramtype != LPDDR4X) {
+		temp = (readl(&dram->ddrgrf->ddr_grf_status[0]) >> (byte * 8)) & 0xff;
+
+		if (byte == 0) {
+			index = (struct sdram_head_info_index_v2 *)common_info;
+			map_info = (struct dq_map_info *)((void *)common_info +
+							  index->dq_map_index.offset * 4);
+			ret = 0;
+			for (i = 0; i < 8; i++)
+				ret |= ((temp >> i) & 0x1) <<
+				       ((map_info->lp3_dq0_7_map >> (i * 4)) & 0xf);
+		} else {
+			ret = temp;
+		}
 	} else {
-		ret = readl(&dram->ddrgrf->ddr_grf_status[1]) & 0xff;
+		ret = (readl(&dram->ddrgrf->ddr_grf_status[1]) >> (byte * 8)) & 0xff;
 	}
 
 	return ret;
-}
-
-/* before call this function autorefresh should be disabled */
-void send_a_refresh(struct dram_info *dram)
-{
-	void __iomem *pctl_base = dram->pctl;
-
-	while (readl(pctl_base + DDR_PCTL2_DBGSTAT) & 0x3)
-		continue;
-	writel(0x3, pctl_base + DDR_PCTL2_DBGCMD);
 }
 
 static void enter_sr(struct dram_info *dram, u32 en)
@@ -1894,7 +1889,7 @@ static int data_training_wr(struct dram_info *dram, u32 cs, u32 dramtype,
 	/* PHY_0x7a [1] reg_dq_wr_train_en */
 	setbits_le32(PHY_REG(phy_base, 0x7a), BIT(1));
 
-	send_a_refresh(dram);
+	send_a_refresh(dram->pctl, 0x3);
 
 	while (1) {
 		if ((readl(PHY_REG(phy_base, 0x92)) >> 7) & 0x1)
@@ -2274,6 +2269,11 @@ static int split_setup(struct dram_info *dram,
 
 	cs_cap[0] = sdram_get_cs_cap(cap_info, 0, dramtype);
 	cs_cap[1] = sdram_get_cs_cap(cap_info, 1, dramtype);
+
+	/* The ddr split only support 1 rank and less than 4GB capacity. */
+	if ((cs_cap[1]) || (cs_cap[0] >= 0x100000000ULL))
+		goto out;
+
 	/* only support the larger cap is in low 16bit */
 	if (cap_info->cs0_high16bit_row < cap_info->cs0_row) {
 		cap = cs_cap[0] / (1 << (cap_info->cs0_row -
@@ -2467,7 +2467,55 @@ static void print_ddr_info(struct rv1126_sdram_params *sdram_params)
 			     &sdram_params->base, split);
 }
 
-static int modify_ddr34_bw_byte_map(u8 rg_result, struct rv1126_sdram_params *sdram_params)
+static int check_lp4_rzqi_value(struct dram_info *dram, u32 cs, u32 byte, u32 zq, u32 dramtype)
+{
+	u32 rzqi;
+
+	rzqi = (read_mr(dram, BIT(cs), byte, 0, dramtype) >> 3) & 0x3;
+	if (rzqi == 0x1 || rzqi == 0x2) {
+		printascii("WARNING: ZQ");
+		printdec(zq);
+		printascii(" may ");
+		if (rzqi == 0x1)
+			printascii("connect to VSSQ or float!\n");
+		else
+			printascii("short to VDDQ!\n");
+
+		return -1;
+	}
+
+	return 0;
+}
+
+static int check_lp4_rzqi(struct dram_info *dram, struct rv1126_sdram_params *sdram_params)
+{
+	u32 cs, byte;
+	u32 dramtype = sdram_params->base.dramtype;
+	struct sdram_cap_info *cap_info;
+	int ret = 0;
+
+	if (dramtype != LPDDR4 && dramtype != LPDDR4X)
+		return 0;
+
+	cap_info = &sdram_params->ch.cap_info;
+	if (cap_info->dbw == 0) {
+		cs = cap_info->rank - 1;
+		for (byte = 0; byte < 2; byte++) {
+			if (check_lp4_rzqi_value(dram, cs, byte, byte, dramtype))
+				ret = -1;
+		}
+	} else {
+		byte = 0;
+		for (cs = 0; cs < cap_info->rank; cs++) {
+			if (check_lp4_rzqi_value(dram, cs, byte, cs, dramtype))
+				ret = -1;
+		}
+	}
+
+	return ret;
+}
+
+int modify_ddr34_bw_byte_map(u8 rg_result, struct rv1126_sdram_params *sdram_params)
 {
 	struct sdram_head_info_index_v2 *index = (struct sdram_head_info_index_v2 *)common_info;
 	struct dq_map_info *map_info = (struct dq_map_info *)
@@ -2522,7 +2570,7 @@ int sdram_init_(struct dram_info *dram, struct rv1126_sdram_params *sdram_params
 	void __iomem *phy_base = dram->phy;
 	u32 ddr4_vref;
 	u32 mr_tmp, tmp;
-	int delay = 1000;
+	int delay = 3000;
 
 	rkclk_configure_ddr(dram, sdram_params);
 
@@ -2624,7 +2672,7 @@ int sdram_init_(struct dram_info *dram, struct rv1126_sdram_params *sdram_params
 	}
 
 	if (sdram_params->base.dramtype == LPDDR4) {
-		mr_tmp = read_mr(dram, 1, 14, LPDDR4);
+		mr_tmp = read_mr(dram, 1, 0, 14, LPDDR4);
 
 		if (mr_tmp != 0x4d)
 			return -1;
@@ -2691,7 +2739,7 @@ static u64 dram_detect_cap(struct dram_info *dram,
 			if (sdram_detect_col(cap_info, coltmp) != 0)
 				goto cap_err;
 
-			sdram_detect_bank(cap_info, coltmp, bktmp);
+			sdram_detect_bank(cap_info, pctl_base, coltmp, bktmp);
 			if (dram_type != LPDDR3)
 				sdram_detect_dbw(cap_info, dram_type);
 		} else {
@@ -2701,7 +2749,7 @@ static u64 dram_detect_cap(struct dram_info *dram,
 
 			cap_info->col = 10;
 			cap_info->bk = 2;
-			sdram_detect_bg(cap_info, coltmp);
+			sdram_detect_bg(cap_info, pctl_base, coltmp);
 		}
 
 		if (sdram_detect_row(cap_info, coltmp, bktmp, rowtmp) != 0)
@@ -2711,7 +2759,7 @@ static u64 dram_detect_cap(struct dram_info *dram,
 	} else {
 		cap_info->col = 10;
 		cap_info->bk = 3;
-		mr8 = read_mr(dram, 1, 8, dram_type);
+		mr8 = read_mr(dram, 1, 0, 8, dram_type);
 		cap_info->dbw = ((mr8 >> 6) & 0x3) == 0 ? 1 : 0;
 		mr8 = (mr8 >> 2) & 0xf;
 		if (mr8 >= 0 && mr8 <= 6) {
@@ -2971,7 +3019,7 @@ static void pre_set_rate(struct dram_info *dram,
 	u32 dramtype = sdram_params->base.dramtype;
 
 	sw_set_req(dram);
-	/* pctl timing update */
+	/* DDRCTL timing update */
 	for (i = 0, find = 0; i < ARRAY_SIZE(pctl_need_update_reg); i++) {
 		for (j = find; sdram_params->pctl_regs.pctl[j][0] != 0xFFFFFFFF;
 		     j++) {
@@ -3663,6 +3711,11 @@ int sdram_init(void)
 		goto error;
 	}
 	print_ddr_info(sdram_params);
+
+	if (check_lp4_rzqi(&dram_info, sdram_params))
+		printascii("Please check the soldering and hardware design of DRAM ZQ.\n"
+			   "ZQ error may lead to instability at high frequancies!\n");
+
 #if defined(CONFIG_CMD_DDR_TEST_TOOL)
 	init_rw_trn_result_struct(&rw_trn_result, dram_info.phy,
 				  (u8)sdram_params->ch.cap_info.rank);

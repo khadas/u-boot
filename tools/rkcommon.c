@@ -143,6 +143,9 @@ static struct spl_info spl_infos[] = {
 	{ "rk3568", "RK35", 0x10000 - 0x1000, false, RK_HEADER_V2 },
 	{ "rk3576", "RK35", 0x80000 - 0x1000, false, RK_HEADER_V2 },
 	{ "rk3588", "RK35", 0x100000 - 0x1000, false, RK_HEADER_V2 },
+	{ "rk3506", "RK35", 0x40000 - 0x1000, false, RK_HEADER_V2 },
+	{ "rv1103b", "110E", 0x40000 - 0x1000, false, RK_HEADER_V2 },
+	{ "rv1106", "110C", 0x28000 - 0x1000, false, RK_HEADER_V2 },
 };
 
 /**

@@ -11,7 +11,7 @@ struct ddr_pctl_regs {
 	u32 pctl[35][2];
 };
 
-/* ddr pctl registers define */
+/* DDRCTL registers define */
 #define DDR_PCTL2_MSTR			0x0
 #define DDR_PCTL2_STAT			0x4
 #define DDR_PCTL2_MSTR1			0x8
@@ -264,5 +264,7 @@ u32 pctl_remodify_sdram_params(struct ddr_pctl_regs *pctl_regs,
 			       u32 dram_type);
 int pctl_cfg(void __iomem *pctl_base, struct ddr_pctl_regs *pctl_regs,
 	     u32 sr_idle, u32 pd_idle);
+
+void send_a_refresh(void __iomem *pctl_base, u32 cs);
 
 #endif

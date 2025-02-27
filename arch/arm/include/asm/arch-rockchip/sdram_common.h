@@ -416,6 +416,10 @@ struct rw_trn_result {
 #define SYS_REG_ENC_CS1_COL_V3(col, ch)		SYS_REG_ENC_CS1_COL(col, ch)
 #define SYS_REG_DEC_CS1_COL_V3(reg3, ch)	SYS_REG_DEC_CS1_COL(reg3, ch)
 
+u32 pctl_dis_zqcs_aref(void __iomem *pctl_base);
+void pctl_rest_zqcs_aref(void __iomem *pctl_base, u32 dis_auto_zq);
+void send_a_refresh(void __iomem *pctl_base, u32 cs);
+
 void sdram_org_config(struct sdram_cap_info *cap_info,
 		      struct sdram_base_params *base,
 		      u32 *p_os_reg2, u32 *p_os_reg3, u32 channel);
@@ -426,9 +430,9 @@ int sdram_detect_bw(struct sdram_cap_info *cap_info);
 int sdram_detect_cs(struct sdram_cap_info *cap_info);
 int sdram_detect_col(struct sdram_cap_info *cap_info,
 		     u32 coltmp);
-int sdram_detect_bank(struct sdram_cap_info *cap_info,
+int sdram_detect_bank(struct sdram_cap_info *cap_info, void __iomem *pctl_base,
 		      u32 coltmp, u32 bktmp);
-int sdram_detect_bg(struct sdram_cap_info *cap_info,
+int sdram_detect_bg(struct sdram_cap_info *cap_info, void __iomem *pctl_base,
 		    u32 coltmp);
 int sdram_detect_dbw(struct sdram_cap_info *cap_info, u32 dram_type);
 int sdram_detect_row(struct sdram_cap_info *cap_info,

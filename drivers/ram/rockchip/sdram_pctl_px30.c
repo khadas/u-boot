@@ -135,6 +135,20 @@ void pctl_rest_zqcs_aref(void __iomem *pctl_base, u32 dis_auto_zq)
 	upctl2_update_ref_reg(pctl_base);
 }
 
+/*
+ * before call this function autorefresh should be disabled.
+ * rank : bit0:cs0, bit1:cs1, ...
+ */
+void send_a_refresh(void __iomem *pctl_base, u32 rank)
+{
+	while (readl(pctl_base + DDR_PCTL2_DBGSTAT) & rank)
+		continue;
+	writel(rank, pctl_base + DDR_PCTL2_DBGCMD);
+
+	while (readl(pctl_base + DDR_PCTL2_DBGSTAT) & rank)
+		continue;
+}
+
 u32 pctl_remodify_sdram_params(struct ddr_pctl_regs *pctl_regs,
 			       struct sdram_cap_info *cap_info,
 			       u32 dram_type)

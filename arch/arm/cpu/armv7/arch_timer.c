@@ -16,8 +16,9 @@ int timer_init(void)
 {
 	gd->arch.tbl = 0;
 	gd->arch.tbu = 0;
-
+#ifdef CONFIG_SYS_HZ_CLOCK
 	gd->arch.timer_rate_hz = CONFIG_SYS_HZ_CLOCK;
+#endif
 	return 0;
 }
 
@@ -36,10 +37,14 @@ unsigned long long get_ticks(void)
 
 ulong timer_get_boot_us(void)
 {
-	return lldiv(get_ticks(), CONFIG_SYS_HZ_CLOCK / 1000000);
+	return lldiv(get_ticks(), gd->arch.timer_rate_hz / 1000000);
 }
 
 ulong get_tbclk(void)
 {
+#ifdef CONFIG_SYS_HZ_CLOCK
 	return gd->arch.timer_rate_hz ? : CONFIG_SYS_HZ_CLOCK;
+#else
+	return gd->arch.timer_rate_hz;
+#endif
 }

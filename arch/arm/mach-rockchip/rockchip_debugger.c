@@ -22,7 +22,7 @@ static void rockchip_debugger_isr(int irq, void *data)
 int rockchip_debugger_init(void)
 {
 	uint32_t load_count0, load_count1;
-	uint64_t delay_c = ROCKCHIP_DEBUGGER_TIMEOUT * COUNTER_FREQUENCY;
+	uint64_t delay_c = ROCKCHIP_DEBUGGER_TIMEOUT * gd->arch.timer_rate_hz;
 
 	if (!delay_c)
 		return 0;

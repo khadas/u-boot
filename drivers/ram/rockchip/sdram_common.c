@@ -10,6 +10,19 @@
 #include <asm/arch/sdram.h>
 #include <asm/arch/sdram_common.h>
 
+u32 __weak pctl_dis_zqcs_aref(void __iomem *pctl_base)
+{
+	return 0;
+}
+void __weak pctl_rest_zqcs_aref(void __iomem *pctl_base, u32 dis_auto_zq)
+{
+
+}
+void __weak send_a_refresh(void __iomem *pctl_base, u32 cs)
+{
+
+}
+
 void sdram_print_dram_type(unsigned char dramtype)
 {
 	switch (dramtype) {
@@ -266,18 +279,24 @@ int sdram_detect_col(struct sdram_cap_info *cap_info,
 	return 0;
 }
 
-int sdram_detect_bank(struct sdram_cap_info *cap_info,
+int sdram_detect_bank(struct sdram_cap_info *cap_info, void __iomem *pctl_base,
 		      u32 coltmp, u32 bktmp)
 {
 	void __iomem *test_addr;
 	u32 bk;
 	u32 bw = cap_info->bw;
+	u32 read;
+	u32 dis_auto_ref = 0;
 
+	dis_auto_ref = pctl_dis_zqcs_aref(pctl_base);
 	test_addr = (void __iomem *)(CONFIG_SYS_SDRAM_BASE +
 			(1ul << (coltmp + bktmp + bw - 1ul)));
 	writel(0, CONFIG_SYS_SDRAM_BASE);
+	send_a_refresh(pctl_base, 0x1);
 	writel(PATTERN, test_addr);
-	if ((readl(test_addr) == PATTERN) &&
+	read = readl(test_addr);
+	send_a_refresh(pctl_base, 0x1);
+	if ((read == PATTERN) &&
 	    (readl(CONFIG_SYS_SDRAM_BASE) == 0))
 		bk = 3;
 	else
@@ -285,28 +304,39 @@ int sdram_detect_bank(struct sdram_cap_info *cap_info,
 
 	cap_info->bk = bk;
 
+	send_a_refresh(pctl_base, 0x1);
+	pctl_rest_zqcs_aref(pctl_base, dis_auto_ref);
+
 	return 0;
 }
 
 /* detect bg for ddr4 */
-int sdram_detect_bg(struct sdram_cap_info *cap_info,
+int sdram_detect_bg(struct sdram_cap_info *cap_info, void __iomem *pctl_base,
 		    u32 coltmp)
 {
 	void __iomem *test_addr;
 	u32 dbw;
 	u32 bw = cap_info->bw;
+	u32 read;
+	u32 dis_auto_ref = 0;
 
+	dis_auto_ref = pctl_dis_zqcs_aref(pctl_base);
 	test_addr = (void __iomem *)(CONFIG_SYS_SDRAM_BASE +
 			(1ul << (coltmp + bw + 1ul)));
 	writel(0, CONFIG_SYS_SDRAM_BASE);
+	send_a_refresh(pctl_base, 0x1);
 	writel(PATTERN, test_addr);
-	if ((readl(test_addr) == PATTERN) &&
+	read = readl(test_addr);
+	send_a_refresh(pctl_base, 0x1);
+	if ((read == PATTERN) &&
 	    (readl(CONFIG_SYS_SDRAM_BASE) == 0))
 		dbw = 0;
 	else
 		dbw = 1;
 
 	cap_info->dbw = dbw;
+	send_a_refresh(pctl_base, 0x1);
+	pctl_rest_zqcs_aref(pctl_base, dis_auto_ref);
 
 	return 0;
 }

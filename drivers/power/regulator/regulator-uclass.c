@@ -148,9 +148,16 @@ int regulator_get_enable(struct udevice *dev)
 int regulator_set_enable(struct udevice *dev, bool enable)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
+	struct dm_regulator_uclass_platdata *uc_pdata;
 
 	if (!ops || !ops->set_enable)
 		return -ENOSYS;
+
+	uc_pdata = dev_get_uclass_platdata(dev);
+	if (!enable && uc_pdata->always_on) {
+		printf("the always on regulator (%s) should never be disabled!\n", dev->name);
+		return -EACCES;
+	}
 
 	return ops->set_enable(dev, enable);
 }
@@ -273,6 +280,15 @@ int regulator_autoset(struct udevice *dev)
 
 	if (!uc_pdata->always_on && !uc_pdata->boot_on)
 		return -EMEDIUMTYPE;
+
+	/*
+	 * To compatible the old possible failure before adding this code,
+	 * ignore the result.
+	 */
+	if (uc_pdata->type == REGULATOR_TYPE_FIXED) {
+		regulator_set_enable(dev, true);
+		return 0;
+	}
 
 	if (uc_pdata->flags & REGULATOR_FLAG_AUTOSET_UV) {
 		ret = regulator_set_value(dev, uc_pdata->min_uV);

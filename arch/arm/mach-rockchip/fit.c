@@ -236,6 +236,20 @@ static int fit_image_fixup_alloc(const void *fit, const char *prop_name,
 	if (ret)
 		return ret;
 
+/*
+ * 1. When need load HWID dtb, gd->fdt_blob points to HWID dtb
+ *    and U-Boot will re-alloc MEM_FDT based on fdt node in
+ *    ITB instead of resource. So alloc the larger size to
+ *    avoid fail in sysmem. It will already skip load DTB in fdt node.
+ *
+ * 2. Additionally increase size with CONFIG_SYS_FDT_PAD to reserve
+ *    some space for adding more props to dtb afterwards.
+ */
+	if (!strcmp(prop_name, FIT_FDT_PROP) && !fdt_check_header(gd->fdt_blob))
+		size = ((size > fdt_totalsize(gd->fdt_blob)) ?
+			 size : fdt_totalsize(gd->fdt_blob)) +
+			 CONFIG_SYS_FDT_PAD;
+
 	if (!sysmem_alloc_base(mem, (phys_addr_t)addr,
 			       ALIGN(size, RK_BLK_SIZE)))
 		return -ENOMEM;

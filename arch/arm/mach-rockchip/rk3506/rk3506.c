@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -34,6 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO3_IOC_BASE	GPIO2_IOC_BASE
 #define GPIO3A_IOMUX_SEL_0	0x60
 #define GPIO3A_IOMUX_SEL_1	0x64
+#define GPIO3A_PULL		0x230
 
 #define CRU_BASE		0xff9a0000
 #define CRU_GLB_RST_CON		0xc10
@@ -43,6 +45,54 @@ DECLARE_GLOBAL_DATA_PTR;
 void board_debug_uart_init(void)
 {
 	/* No need to change uart*/
+}
+
+void board_set_iomux(enum if_type if_type, int devnum, int routing)
+{
+	switch (if_type) {
+	case IF_TYPE_MMC:
+		if (devnum == 0) {
+			/* MMC */
+			writel(0xffff1111, GPIO3_IOC_BASE + GPIO3A_IOMUX_SEL_0);
+			writel(0x00ff0011, GPIO3_IOC_BASE + GPIO3A_IOMUX_SEL_1);
+			/* Pull up */
+			writel(0x0ffc0554, GPIO3_IOC_BASE + GPIO3A_PULL);
+		}
+		break;
+	case IF_TYPE_MTD:
+		if (routing == 0) {
+			/* FSPI M0 */
+			writel(0xffff1111, GPIO2_IOC_BASE + GPIO2A_IOMUX_SEL_0);
+			writel(0x00ff0011, GPIO2_IOC_BASE + GPIO2A_IOMUX_SEL_1);
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void board_unset_iomux(enum if_type if_type, int devnum, int routing)
+{
+	switch (if_type) {
+	case IF_TYPE_MMC:
+		if (devnum == 0) {
+			/* MMC */
+			writel(0xffff0000, GPIO3_IOC_BASE + GPIO3A_IOMUX_SEL_0);
+			writel(0x00ff0022, GPIO3_IOC_BASE + GPIO3A_IOMUX_SEL_1);
+			/* Pull down */
+			writel(0x0ffc0aa8, GPIO3_IOC_BASE + GPIO3A_PULL);
+		}
+		break;
+	case IF_TYPE_MTD:
+		if (routing == 0) {
+			/* FSPI M0 */
+			writel(0xffff0000, GPIO2_IOC_BASE + GPIO2A_IOMUX_SEL_0);
+			writel(0x00ff0000, GPIO2_IOC_BASE + GPIO2A_IOMUX_SEL_1);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -60,28 +110,18 @@ void rockchip_stimer_init(void)
 	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 0x18);
 	writel(0x00010001, CONFIG_ROCKCHIP_STIMER_BASE + 0x4);
 }
-#endif
 
-void board_set_iomux(enum if_type if_type, int devnum, int routing)
+void spl_board_storages_fixup(struct spl_image_loader *loader)
 {
-	switch (if_type) {
-	case IF_TYPE_MMC:
-		if (devnum == 0) {
-			writel(0xffff1111, GPIO3_IOC_BASE + GPIO3A_IOMUX_SEL_0);
-			writel(0x00ff0011, GPIO3_IOC_BASE + GPIO3A_IOMUX_SEL_1);
-		}
-		break;
-	case IF_TYPE_MTD:
-		if (routing == 0) {
-			/* FSPI M0 */
-			writel(0xffff1111, GPIO2_IOC_BASE + GPIO2A_IOMUX_SEL_0);
-			writel(0x00ff0011, GPIO2_IOC_BASE + GPIO2A_IOMUX_SEL_1);
-		}
-		break;
-	default:
-		break;
-	}
+	if (!loader)
+		return;
+
+	/* Only have one mmc controller. */
+	if (loader->boot_device == BOOT_DEVICE_MMC1)
+		/* Unset the sdmmc0 iomux */
+		board_unset_iomux(IF_TYPE_MMC, 0, 0);
 }
+#endif
 
 int arch_cpu_init(void)
 {
@@ -92,9 +132,10 @@ int arch_cpu_init(void)
 	val = readl(FIREWALL_DDR_BASE + FW_DDR_MST1_REG);
 	writel(val & 0xffff00ff, FIREWALL_DDR_BASE + FW_DDR_MST1_REG);
 
+#if defined(CONFIG_MMC_DW_ROCKCHIP)
 	/* Set the sdmmc/emmc iomux */
 	board_set_iomux(IF_TYPE_MMC, 0, 0);
-
+#endif
 	/* Set the fspi to access ddr memory */
 	val = readl(FIREWALL_DDR_BASE + FW_DDR_MST1_REG);
 	writel(val & 0xff00ffff, FIREWALL_DDR_BASE + FW_DDR_MST1_REG);

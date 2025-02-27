@@ -159,8 +159,9 @@ void rockchip_stimer_init(void)
 	reg = readl(CONFIG_ROCKCHIP_STIMER_BASE + 0x4);
 	if (reg & 0x1)
 		return;
-
+#ifdef COUNTER_FREQUENCY
 	asm volatile("msr CNTFRQ_EL0, %0" : : "r" (COUNTER_FREQUENCY));
+#endif
 	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 0x14);
 	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 0x18);
 	writel(0x00010001, CONFIG_ROCKCHIP_STIMER_BASE + 0x04);

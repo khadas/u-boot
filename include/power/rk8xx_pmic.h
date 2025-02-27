@@ -199,6 +199,12 @@ enum {
 	RK817_POWER_EN2,
 	RK817_POWER_EN3,
 };
+
+#define RK8xx_RST_MODE0		0x00
+#define RK8xx_RST_MODE1		0x01
+#define RK8xx_RST_MODE2		0x02
+#define RK8xx_RESET_FUN_CLR	0x3f
+
 #define RK817_POWER_EN_SAVE0	0x99
 #define RK817_POWER_EN_SAVE1	0xa4
 
@@ -245,6 +251,33 @@ enum {
 #define RK805_IRQ_PWRON_FALL_MSK	BIT(7)
 #define RK805_IRQ_PWRON_RISE_MSK	BIT(0)
 
+enum rk806_reg_id {
+	RK806_ID_DCDC1 = 0,
+	RK806_ID_DCDC2,
+	RK806_ID_DCDC3,
+	RK806_ID_DCDC4,
+	RK806_ID_DCDC5,
+	RK806_ID_DCDC6,
+	RK806_ID_DCDC7,
+	RK806_ID_DCDC8,
+	RK806_ID_DCDC9,
+	RK806_ID_DCDC10,
+
+	RK806_ID_NLDO1,
+	RK806_ID_NLDO2,
+	RK806_ID_NLDO3,
+	RK806_ID_NLDO4,
+	RK806_ID_NLDO5,
+
+	RK806_ID_PLDO1,
+	RK806_ID_PLDO2,
+	RK806_ID_PLDO3,
+	RK806_ID_PLDO4,
+	RK806_ID_PLDO5,
+	RK806_ID_PLDO6,
+	RK806_ID_END,
+};
+
 #define RK806_CHIP_NAME			0x5A
 #define RK806_CHIP_VER			0x5B
 #define RK806_HW_VER			0x21
@@ -274,6 +307,24 @@ enum {
 #define RK806_ON_SOURCE			0x74
 #define RK806_OFF_SOURCE		0x75
 #define RK806_BUCK_RSERVE_REG3		0xfd
+
+#define RK806_SHUTDOWN_SEQ_REG0		0xB2
+#define RK806_SHUTDOWN_SEQ_REG1		0xB3
+#define RK806_SHUTDOWN_SEQ_REG2		0xB4
+#define RK806_SHUTDOWN_SEQ_REG3		0xB5
+#define RK806_SHUTDOWN_SEQ_REG4		0xB6
+#define RK806_SHUTDOWN_SEQ_REG5		0xB7
+#define RK806_SHUTDOWN_SEQ_REG6		0xB8
+#define RK806_SHUTDOWN_SEQ_REG7		0xB9
+#define RK806_SHUTDOWN_SEQ_REG8		0xBA
+#define RK806_SHUTDOWN_SEQ_REG9		0xBB
+#define RK806_SHUTDOWN_SEQ_REG10	0xBC
+#define RK806_SHUTDOWN_SEQ_REG11	0xBD
+#define RK806_SHUTDOWN_SEQ_REG12	0xBE
+#define RK806_SHUTDOWN_SEQ_REG13	0xBF
+#define RK806_SHUTDOWN_SEQ_REG14	0xC0
+#define RK806_SHUTDOWN_SEQ_REG15	0xC1
+#define RK806_SHUTDOWN_SEQ_REG16	0xC2
 
 #define RK806_PWRCTRL1			0x01
 #define RK806_PWRCTRL2			0x02
@@ -390,6 +441,10 @@ struct rk8xx_priv {
 	int sys_can_sd;
 	int buck5_feedback_dis;
 	int pwr_ctr[3];
+	u32 *shutdown_sequence;
+	u32 *vb_shutdown_sequence;
+	int support_shutdown_sequence;
+	int support_vb_sequence;
 };
 
 int rk8xx_spl_configure_buck(struct udevice *pmic, int buck, int uvolt);

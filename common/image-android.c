@@ -28,10 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
-#define ANDROID_PARTITION_VENDOR_BOOT		"vendor_boot"
-#define ANDROID_PARTITION_INIT_BOOT		"init_boot"
-
 #define BLK_CNT(_num_bytes, _block_size)	\
 		((_num_bytes + _block_size - 1) / _block_size)
 

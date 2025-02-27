@@ -346,6 +346,7 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops,
 						 char *guid_buf,
 						 size_t guid_buf_size)
 {
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	struct blk_desc *dev_desc;
 	disk_partition_t part_info;
 
@@ -359,10 +360,15 @@ static AvbIOResult get_unique_guid_for_partition(AvbOps *ops,
 		printf("Could not find \"%s\" partition\n", partition);
 		return AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION;
 	}
+
 	if (guid_buf && guid_buf_size > 0)
 		memcpy(guid_buf, part_info.uuid, guid_buf_size);
 
 	return AVB_IO_RESULT_OK;
+#else
+	printf("WARN: Get partition uuid requires CONFIG_PARTITION_UUIDS enabled\n");
+	return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+#endif
 }
 
 /* read permanent attributes from rpmb */

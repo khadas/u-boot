@@ -51,6 +51,7 @@ config ROCKCHIP_RK3036
 	select TPL_NEEDS_SEPARATE_TEXT_BASE if TPL
 	select TPL_NEEDS_SEPARATE_STACK if TPL
 	select ARM_SMCCC
+	select ARM_ERRATA_814220
 	help
 	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -62,6 +63,7 @@ config ROCKCHIP_RK3128
 	select CPU_V7
 	select GICV2
 	select ARM_SMCCC
+	select ARM_ERRATA_814220
 	help
 	  The Rockchip RK3128 is a ARM-based SoC with a quad-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -138,6 +140,7 @@ config ROCKCHIP_RK322X
 	select TPL_LIBGENERIC_SUPPORT
 	select GICV2
 	select ARM_SMCCC
+	select ARM_ERRATA_814220
 	help
 	  The Rockchip RK3229 is a ARM-based SoC with a dual-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -388,6 +391,7 @@ config ROCKCHIP_RK3506
 	select DEBUG_UART_BOARD_INIT
 	select ARM_SMCCC
 	select GICV2
+	select ARM_ERRATA_814220
 	imply SUPPORT_SPL
 	imply SUPPORT_TPL
 	imply SPL
@@ -590,6 +594,7 @@ config ROCKCHIP_RV1103B
 	select ARM_ZERO_CNTVOFF
 	select ROCKCHIP_BROM_HELPER
 	select DEBUG_UART_BOARD_INIT
+	select ARM_ERRATA_814220
 	imply SUPPORT_SPL
 	imply SUPPORT_TPL
 	imply SPL
@@ -619,6 +624,7 @@ config ROCKCHIP_RV1106
 	bool "Support Rockchip RV1106"
 	select CPU_V7
 	select DEBUG_UART_BOARD_INIT
+	select ARM_ERRATA_814220
 	imply SUPPORT_SPL
 	imply SUPPORT_TPL
 	imply SPL
@@ -651,6 +657,7 @@ config ROCKCHIP_RV1108
 	select SPL
 	select TPL
 	select BOARD_LATE_INIT
+	select ARM_ERRATA_814220
 	help
 	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
 	  and a DSP.
@@ -678,6 +685,7 @@ config ROCKCHIP_RV1126
 	imply SUPPORT_SPL
 	imply TPL_TINY_FRAMEWORK if TPL
 	select DEBUG_UART_BOARD_INIT
+	select ARM_ERRATA_814220
 	imply TPL
 	imply SPL
 	imply GICV2

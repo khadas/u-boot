@@ -359,7 +359,7 @@ static void move_to_lowpower_state(struct rk322x_ddr_pctl *pctl)
 	}
 }
 
-/* pctl should in low power mode when call this function */
+/* DDRCTL should in low power mode when call this function */
 static void phy_softreset(struct dram_info *dram)
 {
 	struct rk322x_ddr_phy *ddr_phy = dram->chan[0].phy;

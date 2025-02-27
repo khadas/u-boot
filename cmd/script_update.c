@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <dm/device.h>
 
 /*
@@ -115,6 +116,15 @@ static int do_sd_update(cmd_tbl_t *cmdtp, int flag,
 	int ret;
 
 	printf("## retrieving sd_update.txt ...\n");
+
+#if defined(CONFIG_MMC_DW_ROCKCHIP)
+	/* If not boot from mmc devices, init mmc devices first. */
+	ret = mmc_initialize(gd->bd);
+	if (ret) {
+		printf("Could not initialize mmc. error: %d\n", ret);
+		return ret;
+	}
+#endif
 
 	desc = blk_get_devnum_by_type(IF_TYPE_MMC, 1);
 	if (!desc)

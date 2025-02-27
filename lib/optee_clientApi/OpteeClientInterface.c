@@ -35,6 +35,9 @@
 #define STORAGE_CMD_SET_OEM_HDCP_KEY_MASK	23
 #define STORAGE_CMD_WRITE_OEM_ENCRYPT_DATA	24
 #define STORAGE_CMD_OEM_ENCRYPT_DATA_IS_WRITTEN	25
+#define STORAGE_CMD_WRITE_ESCK_KEY		27
+#define STORAGE_CMD_ESCK_KEY_IS_WRITTEN		28
+#define STORAGE_CMD_SET_ESCK_KEY_MASK		29
 
 #define CRYPTO_SERVICE_CMD_OEM_OTP_KEY_PHYS_CIPHER	0x00000002
 
@@ -782,7 +785,7 @@ uint32_t trusty_write_oem_huk(uint32_t *buf, uint32_t length)
 
 static void trusty_select_security_level(void)
 {
-#if (CONFIG_OPTEE_SECURITY_LEVEL > 0)
+#ifdef CONFIG_OPTEE_SECURITY_LEVEL
 	TEEC_Result TeecResult;
 
 	TeecResult = trusty_check_security_level_flag(CONFIG_OPTEE_SECURITY_LEVEL);
@@ -793,6 +796,8 @@ static void trusty_select_security_level(void)
 
 	if (TeecResult == TEEC_SUCCESS)
 		debug("optee select security level success!");
+	else if (TeecResult == TEEC_ERROR_NOT_SUPPORTED)
+		debug("optee not support security level!");
 	else
 		panic("optee select security level fail!");
 
@@ -1367,6 +1372,175 @@ uint32_t trusty_set_oem_hdcp_key_mask(enum RK_HDCP_KEYID key_id)
 
 	TeecResult = TEEC_InvokeCommand(&TeecSession,
 					STORAGE_CMD_SET_OEM_HDCP_KEY_MASK,
+					&TeecOperation,
+					&ErrorOrigin);
+	if (TeecResult != TEEC_SUCCESS)
+		goto exit;
+
+exit:
+	TEEC_CloseSession(&TeecSession);
+	TEEC_FinalizeContext(&TeecContext);
+
+	return TeecResult;
+}
+
+uint32_t trusty_write_esck_key(enum RK_ESCK_KEYID key_id,
+			       uint8_t *byte_buf, uint32_t byte_len)
+{
+	TEEC_Result TeecResult;
+	TEEC_Context TeecContext;
+	TEEC_Session TeecSession;
+	uint32_t ErrorOrigin;
+
+	TEEC_UUID tempuuid = { 0x2d26d8a8, 0x5134, 0x4dd8,
+			{ 0xb3, 0x2f, 0xb3, 0x4b, 0xce, 0xeb, 0xc4, 0x71 } };
+	TEEC_UUID *TeecUuid = &tempuuid;
+	TEEC_Operation TeecOperation = {0};
+
+	TeecResult = OpteeClientApiLibInitialize();
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecResult = TEEC_InitializeContext(NULL, &TeecContext);
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecResult = TEEC_OpenSession(&TeecContext,
+				&TeecSession,
+				TeecUuid,
+				TEEC_LOGIN_PUBLIC,
+				NULL,
+				NULL,
+				&ErrorOrigin);
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecOperation.params[0].value.a = key_id;
+
+	TEEC_SharedMemory SharedMem = {0};
+
+	SharedMem.size = byte_len;
+	SharedMem.flags = 0;
+
+	TeecResult = TEEC_AllocateSharedMemory(&TeecContext, &SharedMem);
+	if (TeecResult != TEEC_SUCCESS)
+		goto exit;
+
+	TeecOperation.params[1].tmpref.buffer = SharedMem.buffer;
+	TeecOperation.params[1].tmpref.size = SharedMem.size;
+
+	memcpy(SharedMem.buffer, byte_buf, SharedMem.size);
+	TeecOperation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT,
+						    TEEC_MEMREF_TEMP_INPUT,
+						    TEEC_NONE,
+						    TEEC_NONE);
+
+	TeecResult = TEEC_InvokeCommand(&TeecSession,
+					STORAGE_CMD_WRITE_ESCK_KEY,
+					&TeecOperation,
+					&ErrorOrigin);
+	if (TeecResult != TEEC_SUCCESS)
+		goto exit;
+
+exit:
+	TEEC_ReleaseSharedMemory(&SharedMem);
+	TEEC_CloseSession(&TeecSession);
+	TEEC_FinalizeContext(&TeecContext);
+
+	return TeecResult;
+}
+
+uint32_t trusty_esck_key_is_written(enum RK_ESCK_KEYID key_id, uint8_t *value)
+{
+	TEEC_Result TeecResult;
+	TEEC_Context TeecContext;
+	TEEC_Session TeecSession;
+	uint32_t ErrorOrigin;
+
+	*value = 0xFF;
+
+	TEEC_UUID tempuuid = { 0x2d26d8a8, 0x5134, 0x4dd8,
+			{ 0xb3, 0x2f, 0xb3, 0x4b, 0xce, 0xeb, 0xc4, 0x71 } };
+	TEEC_UUID *TeecUuid = &tempuuid;
+	TEEC_Operation TeecOperation = {0};
+
+	TeecResult = OpteeClientApiLibInitialize();
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecResult = TEEC_InitializeContext(NULL, &TeecContext);
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecResult = TEEC_OpenSession(&TeecContext,
+				&TeecSession,
+				TeecUuid,
+				TEEC_LOGIN_PUBLIC,
+				NULL,
+				NULL,
+				&ErrorOrigin);
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecOperation.params[0].value.a = key_id;
+
+	TeecOperation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INOUT,
+						    TEEC_NONE,
+						    TEEC_NONE,
+						    TEEC_NONE);
+
+	TeecResult = TEEC_InvokeCommand(&TeecSession,
+					STORAGE_CMD_ESCK_KEY_IS_WRITTEN,
+					&TeecOperation,
+					&ErrorOrigin);
+	if (TeecResult == TEEC_SUCCESS)
+		*value = TeecOperation.params[0].value.b;
+
+	TEEC_CloseSession(&TeecSession);
+	TEEC_FinalizeContext(&TeecContext);
+
+	return TeecResult;
+}
+
+uint32_t trusty_set_esck_key_mask(enum RK_ESCK_KEYID key_id)
+{
+	TEEC_Result TeecResult;
+	TEEC_Context TeecContext;
+	TEEC_Session TeecSession;
+	uint32_t ErrorOrigin;
+
+	TEEC_UUID tempuuid = { 0x2d26d8a8, 0x5134, 0x4dd8,
+			{ 0xb3, 0x2f, 0xb3, 0x4b, 0xce, 0xeb, 0xc4, 0x71 } };
+	TEEC_UUID *TeecUuid = &tempuuid;
+	TEEC_Operation TeecOperation = {0};
+
+	TeecResult = OpteeClientApiLibInitialize();
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecResult = TEEC_InitializeContext(NULL, &TeecContext);
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecResult = TEEC_OpenSession(&TeecContext,
+				&TeecSession,
+				TeecUuid,
+				TEEC_LOGIN_PUBLIC,
+				NULL,
+				NULL,
+				&ErrorOrigin);
+	if (TeecResult != TEEC_SUCCESS)
+		return TeecResult;
+
+	TeecOperation.params[0].value.a = key_id;
+
+	TeecOperation.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT,
+						    TEEC_NONE,
+						    TEEC_NONE,
+						    TEEC_NONE);
+
+	TeecResult = TEEC_InvokeCommand(&TeecSession,
+					STORAGE_CMD_SET_ESCK_KEY_MASK,
 					&TeecOperation,
 					&ErrorOrigin);
 	if (TeecResult != TEEC_SUCCESS)

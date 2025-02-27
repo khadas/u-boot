@@ -425,7 +425,7 @@ enum {
 	CHN_A_LOW_8BIT_TRAINING_DONE	= 1,
 };
 
-/*PCTL*/
+/* DDRCTL */
 enum {
 	/* PCTL_SCTL */
 	INIT_STATE				= 0,

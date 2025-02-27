@@ -465,6 +465,8 @@
 #define RK3568_VP0_POST_DSP_VACT_INFO		0xC38
 #define RK3568_VP0_POST_SCL_FACTOR_YRGB		0xC3C
 #define RK3568_VP0_POST_SCL_CTRL		0xC40
+#define RK3568_VP0_POST_SCALE_MASK		0x3
+#define RK3568_VP0_POST_SCALE_SHIFT		0
 #define RK3568_VP0_POST_DSP_VACT_INFO_F1	0xC44
 #define RK3568_VP0_DSP_HTOTAL_HS_END		0xC48
 #define RK3568_VP0_DSP_HACT_ST_END		0xC4C
@@ -1709,8 +1711,13 @@ static enum vop_csc_format vop2_convert_csc_mode(enum drm_color_encoding color_e
 	return csc_mode;
 }
 
-static bool is_uv_swap(u32 bus_format, u32 output_mode)
+static bool is_uv_swap(struct display_state *state)
 {
+	struct connector_state *conn_state = &state->conn_state;
+	u32 bus_format = conn_state->bus_format;
+	u32 output_mode = conn_state->output_mode;
+	u32 output_type = conn_state->type;
+
 	/*
 	 * FIXME:
 	 *
@@ -1718,7 +1725,7 @@ static bool is_uv_swap(u32 bus_format, u32 output_mode)
 	 * so when out_mode is AAAA or P888, assume output is YUV444 on
 	 * yuv format.
 	 *
-	 * From H/W testing, YUV444 mode need a rb swap.
+	 * From H/W testing, YUV444 mode need a rb swap except eDP.
 	 */
 	if (bus_format == MEDIA_BUS_FMT_YVYU8_1X16 ||
 	    bus_format == MEDIA_BUS_FMT_VYUY8_1X16 ||
@@ -1727,14 +1734,18 @@ static bool is_uv_swap(u32 bus_format, u32 output_mode)
 	    ((bus_format == MEDIA_BUS_FMT_YUV8_1X24 ||
 	     bus_format == MEDIA_BUS_FMT_YUV10_1X30) &&
 	    (output_mode == ROCKCHIP_OUT_MODE_AAAA ||
-	     output_mode == ROCKCHIP_OUT_MODE_P888)))
+	     output_mode == ROCKCHIP_OUT_MODE_P888) &&
+	     !(output_type == DRM_MODE_CONNECTOR_eDP)))
 		return true;
 	else
 		return false;
 }
 
-static bool is_rb_swap(u32 bus_format, u32 output_mode)
+static bool is_rb_swap(struct display_state *state)
 {
+	struct connector_state *conn_state = &state->conn_state;
+	u32 bus_format = conn_state->bus_format;
+
 	/*
 	 * The default component order of serial rgb3x8 formats
 	 * is BGR. So it is needed to enable RB swap.
@@ -2167,9 +2178,10 @@ static void vop2_post_config(struct display_state *state, struct vop2 *vop2)
 	vop2_writel(vop2, RK3568_VP0_POST_SCL_FACTOR_YRGB + vp_offset, val);
 #define POST_HORIZONTAL_SCALEDOWN_EN(x)		((x) << 0)
 #define POST_VERTICAL_SCALEDOWN_EN(x)		((x) << 1)
-	vop2_writel(vop2, RK3568_VP0_POST_SCL_CTRL + vp_offset,
-		    POST_HORIZONTAL_SCALEDOWN_EN(hdisplay != hsize) |
-		    POST_VERTICAL_SCALEDOWN_EN(vdisplay != vsize));
+	vop2_mask_write(vop2, RK3568_VP0_POST_SCL_CTRL + vp_offset,
+			RK3568_VP0_POST_SCALE_MASK, RK3568_VP0_POST_SCALE_SHIFT,
+			POST_HORIZONTAL_SCALEDOWN_EN(hdisplay != hsize) |
+			POST_VERTICAL_SCALEDOWN_EN(vdisplay != vsize), false);
 	if (mode->flags & DRM_MODE_FLAG_INTERLACE) {
 		u16 vact_st_f1 = vtotal + vact_st + 1;
 		u16 vact_end_f1 = vact_st_f1 + vsize;
@@ -2903,6 +2915,37 @@ static void rockchip_vop2_sharp_init(struct vop2 *vop2, struct display_state *st
 	writel(0x1, sharp_reg_base);
 }
 
+static void rockchip_vop2_acm_init(struct vop2 *vop2, struct display_state *state)
+{
+	struct crtc_state *cstate = &state->crtc_state;
+	const struct vop2_data *vop2_data = vop2->data;
+	const struct vop2_vp_data *vp_data = &vop2_data->vp_data[cstate->crtc_id];
+	struct resource acm_regs;
+	u32 *acm_reg_base;
+	u32 vp_offset = (cstate->crtc_id * 0x100);
+	int ret;
+
+	if (!(vp_data->feature & VOP_FEATURE_POST_ACM))
+		return;
+
+	ret = ofnode_read_resource_byname(cstate->node, "acm_regs", &acm_regs);
+	if (ret) {
+		printf("failed to get acm regs\n");
+		return;
+	}
+	acm_reg_base = (u32 *)acm_regs.start;
+
+	/*
+	 * Black screen is displayed when acm bypass switched
+	 * between enable and disable. Therefore, disable acm
+	 * bypass by default after system boot.
+	 */
+	vop2_mask_write(vop2, RK3528_VP0_ACM_CTRL + vp_offset,
+			POST_ACM_BYPASS_EN_MASK, POST_ACM_BYPASS_EN_SHIFT, 0, false);
+
+	writel(0, acm_reg_base + 0);
+}
+
 static int rockchip_vop2_of_get_gamma_lut(struct display_state *state,
 					  struct device_node *dsp_lut_node)
 {
@@ -3000,6 +3043,7 @@ static int vop2_initial(struct vop2 *vop2, struct display_state *state)
 	rockchip_vop2_gamma_lut_init(vop2, state);
 	rockchip_vop2_cubic_lut_init(vop2, state);
 	rockchip_vop2_sharp_init(vop2, state);
+	rockchip_vop2_acm_init(vop2, state);
 
 	return 0;
 }
@@ -4041,13 +4085,12 @@ static void vop2_post_color_swap(struct display_state *state)
 	u32 output_type = conn_state->type;
 	u32 data_swap = 0;
 
-	if (is_uv_swap(conn_state->bus_format, conn_state->output_mode) ||
-	    is_rb_swap(conn_state->bus_format, conn_state->output_mode))
+	if (is_uv_swap(state) || is_rb_swap(state))
 		data_swap = DSP_RB_SWAP;
 
 	if ((vop2->version == VOP_VERSION_RK3588 || vop2->version == VOP_VERSION_RK3576)) {
 		if ((output_type == DRM_MODE_CONNECTOR_HDMIA ||
-		     output_type == DRM_MODE_CONNECTOR_eDP) &&
+		     output_type == DRM_MODE_CONNECTOR_DisplayPort) &&
 		    (conn_state->bus_format == MEDIA_BUS_FMT_YUV8_1X24 ||
 		     conn_state->bus_format == MEDIA_BUS_FMT_YUV10_1X30))
 		data_swap |= DSP_RG_SWAP;

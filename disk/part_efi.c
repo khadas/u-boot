@@ -459,6 +459,16 @@ static int part_efi_repair(struct blk_desc *dev_desc, gpt_entry *gpt_pte,
 		gpt_head->header_crc32 = calc_crc32;
 		if (blk_dwrite(dev_desc, 1 * sector, sector, gpt_head) != sector) {
 			printf("*** ERROR: Can't write GPT header ***\n");
+			/*
+			 * Due to the possibility of ECC fail caused by abnormal power
+			 * failure in Nand, which affects the blk_dwrite function,
+			 * block 0 erasure is introduced to repair the data.
+			 */
+			if (dev_desc->if_type == IF_TYPE_MTD &&
+			    (dev_desc->devnum == BLK_MTD_NAND || dev_desc->devnum == BLK_MTD_SPI_NAND)) {
+				blk_derase(dev_desc, 0, sector);
+				printf("spinand gpt repair workaround!\n");
+			}
 			return -1;
 		}
 		count = le32_to_cpu(gpt_head->num_partition_entries) *

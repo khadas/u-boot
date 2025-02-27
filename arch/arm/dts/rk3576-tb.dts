@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2023 Rockchip Electronics Co., Ltd.
+ */
+
+/dts-v1/;
+#include "rk3576.dtsi"
+#include "rk3576-u-boot.dtsi"
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "Rockchip RK3576 Evaluation board";
+	compatible = "rockchip,rk3576-evb", "rockchip,rk3576";
+
+	chosen {
+		stdout-path = &uart0;
+		u-boot,spl-boot-order = "same-as-spl";
+	};
+
+	adc-keys {
+		compatible = "adc-keys";
+		io-channels = <&saradc 1>;
+		io-channel-names = "buttons";
+		keyup-threshold-microvolt = <1800000>;
+		u-boot,dm-spl;
+		status = "okay";
+
+		volumeup-key {
+			u-boot,dm-spl;
+			linux,code = <KEY_VOLUMEUP>;
+			label = "volume up";
+			press-threshold-microvolt = <1750>;
+		};
+	};
+
+	secure-otp@2a480000 {
+		/delete-property/ u-boot,dm-spl;
+		status = "disabled";
+	};
+};
+
+&saradc {
+	/delete-property/ u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+};
+
+&sdhci {
+	bus-width = <8>;
+};
+
+&gpio0 {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&uart0 {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sfc0 {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+	spi_nand: flash@0 {
+		/delete-property/ u-boot,dm-spl;
+		status = "disabled";
+	};
+
+	spi_nor: flash@1 {
+		/delete-property/ u-boot,dm-spl;
+		status = "disabled";
+	};
+};
+
+&pinctrl {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&pcfg_pull_up_drv_level_2 {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&pcfg_pull_up {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&pcfg_pull_none {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sdmmc {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sdmmc0 {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sdmmc0_bus4 {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sdmmc0_clk {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sdmmc0_cmd {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sdmmc0_det {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};
+
+&sdmmc0_pwren {
+	/delete-property/ u-boot,dm-spl;
+	status = "disabled";
+};

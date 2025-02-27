@@ -2314,7 +2314,7 @@ static u64 dram_detect_cap(struct dram_info *dram,
 
 	/* detect bank */
 	dram_set_max_bank(chan, bw, &bk_tmp, &col_tmp);
-	sdram_detect_bank(cap_info, col_tmp, bk_tmp);
+	sdram_detect_bank(cap_info, chan->pctl, col_tmp, bk_tmp);
 
 	/* detect row */
 	dram_set_max_row(chan, bw, &row_tmp, &bk_tmp, &col_tmp);

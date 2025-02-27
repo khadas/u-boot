@@ -23,7 +23,7 @@
 #define CONFIG_SYS_LOAD_ADDR		0x00008000
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 #define CONFIG_SYS_SDRAM_BASE		0
-#define SDRAM_MAX_SIZE			0x80000000
+#define SDRAM_MAX_SIZE			0x20000000
 #define CONFIG_SYS_NONCACHED_MEMORY    (1 << 20)       /* 1 MiB */
 
 /* SPL */
@@ -47,6 +47,9 @@
 #define CONFIG_BOUNCE_BUFFER
 
 #ifndef CONFIG_SPL_BUILD
+#ifdef CONFIG_OPTEE_CLIENT
+#define CONFIG_PRAM			2048
+#endif
 /* usb mass storage */
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #define CONFIG_ROCKUSB_G_DNL_PID	0x110e

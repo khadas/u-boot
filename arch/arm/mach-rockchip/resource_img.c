@@ -103,15 +103,15 @@ static int resource_check_header(struct resource_img_hdr *hdr)
 static void resource_dump(struct resource_file *f)
 {
 	printf("%s\n", f->name);
-	printf("  blk_start:  0x%08lx\n", (ulong)f->blk_start);
-	printf("  blk_offset: 0x%08lx\n", (ulong)f->blk_offset);
+	printf("  blk_start:  0x%08lx\n", f->blk_start);
+	printf("  blk_offset: 0x%08lx\n", f->blk_offset);
 	printf("  size:       0x%08x\n", f->size);
 	printf("  in_ram:     %d\n", f->in_ram);
 	printf("  hash_size:  %d\n\n", f->hash_size);
 }
 
 static int resource_add_file(const char *name, u32 size,
-			     u32 blk_start,  u32 blk_offset,
+			     ulong blk_start,  u32 blk_offset,
 			     char *hash, u32 hash_size,
 			     bool in_ram)
 {
@@ -147,6 +147,11 @@ static int resource_add_file(const char *name, u32 size,
 	resource_dump(f);
 #endif
 	return 0;
+}
+
+void resource_destroy(void)
+{
+	INIT_LIST_HEAD(&entry_head);
 }
 
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
@@ -338,6 +343,7 @@ static int resource_init(struct blk_desc *desc,
 		if (resc_buf && !resource_check_header((void *)resc_buf))
 			return resource_setup_ram_list(desc, (void *)resc_buf);
 	}
+
 #endif
 
 	return resource_setup_blk_list(desc, part->start + blk_offset);

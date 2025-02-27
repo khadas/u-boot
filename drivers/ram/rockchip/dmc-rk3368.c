@@ -221,9 +221,9 @@ static int memory_init(struct rk3368_ddr_pctl *pctl,
 	ulong tmp;
 
 	/*
-	 * Power up DRAM by DDR_PCTL_POWCTL[0] register of PCTL and
+	 * Power up DRAM by DDR_PCTL_POWCTL[0] register of DDRCTL and
 	 * wait power up DRAM finish with DDR_PCTL_POWSTAT[0] register
-	 * of PCTL.
+	 * of DDRCTL.
 	 */
 	writel(POWER_UP_START, &pctl->powctl);
 
@@ -264,7 +264,7 @@ static void move_to_config_state(struct rk3368_ddr_pctl *pctl)
 {
 	/*
 	 * Also see RK3368 Technical Reference Manual:
-	 *   "16.6.1 State transition of PCTL (Moving to Config State)"
+	 *   "16.6.1 State transition of DDRCTL (Moving to Config State)"
 	 */
 	u32 state = readl(&pctl->stat) & PCTL_STAT_MSK;
 
@@ -294,7 +294,7 @@ static void move_to_access_state(struct rk3368_ddr_pctl *pctl)
 {
 	/*
 	 * Also see RK3368 Technical Reference Manual:
-	 *   "16.6.1 State transition of PCTL (Moving to Access State)"
+	 *   "16.6.1 State transition of DDRCTL (Moving to Access State)"
 	 */
 	u32 state = readl(&pctl->stat) & PCTL_STAT_MSK;
 
@@ -335,10 +335,10 @@ static void ddrctl_reset(struct rk3368_cru *cru)
 	const u32 phy_reset = BIT(1) | BIT(0);
 
 	/*
-	 * The PHY reset should be released before the PCTL reset.
+	 * The PHY reset should be released before the DDRCTL reset.
 	 *
 	 * Note that the following sequence (including the number of
-	 * us to delay between releasing the PHY and PCTL reset) has
+	 * us to delay between releasing the PHY and DDRCTL reset) has
 	 * been adapted per feedback received from Rockchips, so do
 	 * not try to optimise.
 	 */
@@ -462,7 +462,7 @@ static int pctl_calc_timings(struct rk3368_sdram_params *params,
 		return -1;
 	}
 
-	/* PCTL is clocked at 1/2 the DRAM clock; err on the side of caution */
+	/* DDRCTL is clocked at 1/2 the DRAM clock; err on the side of caution */
 	pctl_timing->togcnt1u = DIV_ROUND_UP(freq, 2 * MHz);
 	pctl_timing->togcnt100n = DIV_ROUND_UP(freq / 10, 2 * MHz);
 
@@ -548,7 +548,7 @@ static void pctl_cfg(struct rk3368_ddr_pctl *pctl,
 		     struct rk3368_sdram_params *params,
 		     struct rk3368_grf *grf)
 {
-	/* Configure PCTL timing registers */
+	/* Configure DDRCTL timing registers */
 	params->pctl_timing.trefi |= BIT(31);   /* see PCTL_TREFI */
 	copy_to_reg(&pctl->togcnt1u, &params->pctl_timing.togcnt1u,
 		    sizeof(params->pctl_timing));
@@ -658,7 +658,7 @@ static int sdram_col_row_detect(struct udevice *dev)
 	return 0;
 }
 
-static int msch_niu_config(struct rk3368_msch *msch,
+static int msch_biu_config(struct rk3368_msch *msch,
 			   struct rk3368_sdram_params *params)
 {
 	int i;
@@ -764,7 +764,7 @@ static int msch_niu_config(struct rk3368_msch *msch,
 		}
 	}
 
-	pr_err("%s: ddrconf (NIU config) not found\n", __func__);
+	pr_err("%s: ddrconf (BIU config) not found\n", __func__);
 	return -EINVAL;
 }
 
@@ -816,7 +816,7 @@ static int setup_sdram(struct udevice *dev)
 	/* Update the read-latency for the RK3368 */
 	writel(0x32, &msch->readlatency);
 
-	/* Initialise the DDR PCTL and DDR PHY */
+	/* Initialise the DDRCTL and DDR PHY */
 	ddrctl_reset(cru);
 	ddrphy_reset(ddrphy);
 	ddrphy_config_delays(ddrphy, params->ddr_freq);
@@ -861,8 +861,8 @@ static int setup_sdram(struct udevice *dev)
 	if (ret)
 		goto error;
 
-	/* Configure NIU DDR configuration */
-	ret = msch_niu_config(msch, params);
+	/* Configure BIU DDR configuration */
+	ret = msch_biu_config(msch, params);
 	if (ret)
 		goto error;
 

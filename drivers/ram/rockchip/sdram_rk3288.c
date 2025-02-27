@@ -724,7 +724,7 @@ out:
 	return ret;
 }
 
-static int sdram_get_niu_config(struct rk3288_sdram_params *sdram_params)
+static int sdram_get_biu_config(struct rk3288_sdram_params *sdram_params)
 {
 	int i, tmp, size, ret = 0;
 
@@ -736,7 +736,7 @@ static int sdram_get_niu_config(struct rk3288_sdram_params *sdram_params)
 		if (tmp == ddrconf_table[i])
 			break;
 	if (i >= size) {
-		printf("niu config not found\n");
+		printf("biu config not found\n");
 		ret = -EINVAL;
 	} else {
 		sdram_params->base.ddrconfig = i;
@@ -907,8 +907,8 @@ static int sdram_init(struct dram_info *dram,
 		if (ret)
 			goto error;
 	}
-	/* Find NIU DDR configuration */
-	ret = sdram_get_niu_config(sdram_params);
+	/* Find BIU DDR configuration */
+	ret = sdram_get_biu_config(sdram_params);
 	if (ret)
 		goto error;
 	/* Find stride setting */

@@ -8,7 +8,7 @@
 #define __ASM_ARCH_DDR_RK3368_H__
 
 /*
- * The RK3368 DDR PCTL differs from the incarnation in the RK3288 only
+ * The RK3368 DDRCTL differs from the incarnation in the RK3288 only
  * in a few details. Most notably, it has an additional field to track
  * tREFI in controller cycles (i.e. trefi_mem_ddr3).
  */

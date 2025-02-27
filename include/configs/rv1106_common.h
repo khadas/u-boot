@@ -53,6 +53,9 @@
 #define CONFIG_BOUNCE_BUFFER
 
 #ifndef CONFIG_SPL_BUILD
+#ifdef CONFIG_OPTEE_CLIENT
+#define CONFIG_PRAM			3072
+#endif
 /* usb mass storage */
 #define CONFIG_USB_FUNCTION_MASS_STORAGE
 #define CONFIG_ROCKUSB_G_DNL_PID	0x110c

@@ -281,7 +281,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 		if (host->fifo_mode && size) {
 			len = 0;
 			if (data->flags == MMC_DATA_READ &&
-			    (mask & DWMCI_INTMSK_RXDR)) {
+			    (mask & (DWMCI_INTMSK_RXDR | DWMCI_INTMSK_DTO))) {
 				while (size) {
 					len = dwmci_readl(host, DWMCI_STATUS);
 					len = (len >> DWMCI_FIFO_SHIFT) &
@@ -307,8 +307,9 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 read_again:
 					size = size > len ? (size - len) : 0;
 				}
+
 				dwmci_writel(host, DWMCI_RINTSTS,
-					     DWMCI_INTMSK_RXDR);
+					     mask & (DWMCI_INTMSK_RXDR | DWMCI_INTMSK_DTO));
 				start = get_timer(0);
 			} else if (data->flags == MMC_DATA_WRITE &&
 				   (mask & DWMCI_INTMSK_TXDR)) {

@@ -751,7 +751,7 @@ void spl_cleanup_before_jump(struct spl_image_info *spl_image)
 	dsb();
 	isb();
 
-	us = (get_ticks() - gd->sys_start_tick) / 24UL;
-	tt_us = get_ticks() / (COUNTER_FREQUENCY / 1000000);
+	us = (get_ticks() - gd->sys_start_tick) / (gd->arch.timer_rate_hz / 1000000);
+	tt_us = get_ticks() / (gd->arch.timer_rate_hz / 1000000);
 	printf("Total: %ld.%ld/%ld.%ld ms\n\n", us / 1000, us % 1000, tt_us / 1000, tt_us % 1000);
 }

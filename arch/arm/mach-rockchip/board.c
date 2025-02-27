@@ -257,6 +257,8 @@ static int boot_from_udisk(void)
 {
 	struct blk_desc *desc;
 	struct udevice *dev;
+	void *fdt_addr;
+	u32 fdt_size;
 	int devnum = -1;
 	char buf[32];
 
@@ -296,6 +298,28 @@ static int boot_from_udisk(void)
 			env_set("devtype", "usb");
 			env_set("devnum", buf);
 			printf("=== Booting from usb %d ===\n", devnum);
+
+			/*
+			 * If current kernel dtb is not from embedded dtb:
+			 *
+			 * Use 'gd->fdt_blob_kern' to reload the kernel dtb
+			 * from current bootdev(udisk) in the late bootflow.
+			 */
+			if (!gd->fdt_blob_kern) {
+				fdt_size = fdt_totalsize(gd->fdt_blob);
+				fdt_addr = memalign(ARCH_DMA_MINALIGN, fdt_size);
+				if (!fdt_addr)
+					return -ENOMEM;
+
+				/* destroy kernel dtb and resource list */
+				memcpy(fdt_addr, gd->fdt_blob, fdt_size);
+				fdt_set_magic((void *)gd->fdt_blob, ~0);
+				sysmem_free((phys_addr_t)gd->fdt_blob);
+				resource_destroy();
+
+				gd->fdt_blob_kern = fdt_addr;
+				gd->fdt_blob = fdt_addr;
+			}
 		} else {
 			printf("No available udisk image on usb %d\n", devnum);
 			return -ENODEV;
@@ -608,6 +632,17 @@ static void sanity_cpu_swap(void *blob)
 }
 #endif
 
+static int rockchip_dm_late_init(void *blob)
+{
+	struct udevice *dev;
+
+	/* Prepare for board_rng_seed(), dryrun and ignore result */
+	if (IS_ENABLED(CONFIG_BOARD_RNG_SEED) && IS_ENABLED(CONFIG_DM_RNG))
+		uclass_get_device(UCLASS_RNG, 0, &dev);
+
+	return 0;
+}
+
 int board_fdt_fixup(void *blob)
 {
 #ifdef CONFIG_SANITY_CPU_SWAP
@@ -616,8 +651,11 @@ int board_fdt_fixup(void *blob)
 	/*
 	 * Device's platdata points to orignal fdt blob property,
 	 * access DM device before any fdt fixup.
+	 *
+	 * Do board specific init and common init.
 	 */
 	rk_board_dm_fdt_fixup(blob);
+	rockchip_dm_late_init(blob);
 
 	/* Common fixup for DRM */
 #ifdef CONFIG_DRM_ROCKCHIP
@@ -811,6 +849,12 @@ parse_fn_t board_bidram_parse_fn(void)
 int board_init_f_boot_flags(void)
 {
 	int boot_flags = 0;
+
+#ifdef CONFIG_ARM64
+	asm volatile("mrs %0, cntfrq_el0" : "=r" (gd->arch.timer_rate_hz));
+#else
+	asm volatile("mrc p15, 0, %0, c14, c0, 0" : "=r" (gd->arch.timer_rate_hz));
+#endif
 
 #if CONFIG_IS_ENABLED(FPGA_ROCKCHIP)
 	arch_fpga_init();

@@ -43,7 +43,7 @@ static int timer_interrupt_test(void)
 	writel(0, TIMER_BASE + TIMER_CTRL);
 
 	/* Configure 1s */
-	writel(COUNTER_FREQUENCY, TIMER_BASE + TIMER_LOAD_COUNT0);
+	writel(gd->arch.timer_rate_hz, TIMER_BASE + TIMER_LOAD_COUNT0);
 	writel(0, TIMER_BASE + TIMER_LOAD_COUNT1);
 	writel(TIMER_CLR_INT, TIMER_BASE + TIMER_INTSTATUS);
 	writel(TIMER_EN | TIMER_INT_EN, TIMER_BASE + TIMER_CTRL);
@@ -72,17 +72,17 @@ static void timer_delay_test(void)
 
 	start = get_ticks();
 	udelay(delay);
-	delta = (get_ticks() - start) / 24UL;
+	delta = (get_ticks() - start) / (gd->arch.timer_rate_hz / 1000000);
 	printf("    Set %4luus, real %4luus\n", delay, delta);
 
 	start = get_ticks();
 	mdelay(delay);
-	delta = (get_ticks() - start) / 24000UL;
+	delta = (get_ticks() - start) / (gd->arch.timer_rate_hz / 1000);
 	printf("    Set %4lums, real %4lums\n", delay, delta);
 
 	start = get_ticks();
 	mdelay(delay * 10UL);
-	delta = (get_ticks() - start) / 24000UL;
+	delta = (get_ticks() - start) / (gd->arch.timer_rate_hz / 1000);
 	printf("    Set %4lums, real %4lums\n\n", delay * 10UL, delta);
 }
 

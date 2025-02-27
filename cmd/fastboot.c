@@ -71,6 +71,7 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		printf("The fastboot memory space is unusable!\n");
 		return CMD_RET_FAILURE;
 	}
+	sysmem_free(CONFIG_FASTBOOT_BUF_ADDR);
 
 	printf("OK\n");
 
@@ -85,7 +86,6 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	ret = CMD_RET_SUCCESS;
 
 exit:
-	sysmem_free(CONFIG_FASTBOOT_BUF_ADDR);
 	g_dnl_unregister();
 	g_dnl_clear_detach();
 	usb_gadget_release(controller_index);

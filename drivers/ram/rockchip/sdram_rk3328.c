@@ -125,7 +125,7 @@ static void rkclk_configure_ddr(struct dram_info *dram,
 	/* choose DPLL for ddr clk source */
 	clrbits_le32(PHY_REG(phy_base, 0xef), 1 << 7);
 
-	/* for inno ddr phy need 2*freq */
+	/* for ddr phy need 2*freq */
 	rkclk_set_dpll(dram,  sdram_params->base.ddr_freq * MHZ * 2);
 }
 
@@ -428,7 +428,7 @@ static u64 dram_detect_cap(struct dram_info *dram,
 
 		if (sdram_detect_col(cap_info, coltmp) != 0)
 			goto cap_err;
-		sdram_detect_bank(cap_info, coltmp, bktmp);
+		sdram_detect_bank(cap_info, dram->pctl, coltmp, bktmp);
 		sdram_detect_dbw(cap_info, dram_type);
 	} else {
 		/* detect bg for ddr4 */
@@ -440,7 +440,7 @@ static u64 dram_detect_cap(struct dram_info *dram,
 		bk = 2;
 		cap_info->col = col;
 		cap_info->bk = bk;
-		sdram_detect_bg(cap_info, coltmp);
+		sdram_detect_bg(cap_info, dram->pctl, coltmp);
 	}
 
 	/* detect row */
@@ -542,7 +542,7 @@ static int rk3328_dmc_init(struct udevice *dev)
 	priv->msch = regmap_get_range(plat->map, 4);
 	priv->ddr_grf = regmap_get_range(plat->map, 5);
 
-	debug("%s phy %p pctrl %p grf %p cru %p msch %p ddr_grf %p\n",
+	debug("%s phy %p ddrctl %p grf %p cru %p msch %p ddr_grf %p\n",
 	      __func__, priv->phy, priv->pctl, priv->grf, priv->cru,
 	      priv->msch, priv->ddr_grf);
 	ret = sdram_init_detect(priv, params);

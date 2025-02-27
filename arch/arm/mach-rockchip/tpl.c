@@ -96,6 +96,7 @@ u32 spl_boot_device(void)
 
 __weak void rockchip_stimer_init(void)
 {
+#ifdef COUNTER_FREQUENCY
 #ifndef CONFIG_ARM64
 	asm volatile("mcr p15, 0, %0, c14, c0, 0"
 		     : : "r"(COUNTER_FREQUENCY));
@@ -107,6 +108,7 @@ __weak void rockchip_stimer_init(void)
 	 */
 	asm volatile("msr CNTFRQ_EL0, %0"
 		     : : "r" (COUNTER_FREQUENCY));
+#endif
 #endif
 	writel(0, CONFIG_ROCKCHIP_STIMER_BASE + 0x10);
 	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE);

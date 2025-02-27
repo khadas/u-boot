@@ -38,7 +38,7 @@
 #include <android_avb/avb_sha.h>
 #include <android_avb/avb_util.h>
 
-#ifdef CONFIG_DM_CRYPTO
+#if defined(CONFIG_DM_CRYPTO) || (CONFIG_ARMV8_CRYPTO)
 void avb_sha256_init(AvbSHA256Ctx* ctx) {
   ctx->sha256ctx.length = ctx->tot_len;
   sha256_starts(&ctx->sha256ctx);

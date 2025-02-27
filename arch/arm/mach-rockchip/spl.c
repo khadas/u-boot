@@ -86,9 +86,11 @@ __weak void rockchip_stimer_init(void)
 	u32 reg = readl(CONFIG_ROCKCHIP_STIMER_BASE + 0x10);
 	if ( reg & 0x1 )
 		return;
+#ifdef COUNTER_FREQUENCY
 #ifndef CONFIG_ARM64
 	asm volatile("mcr p15, 0, %0, c14, c0, 0"
 		     : : "r"(COUNTER_FREQUENCY));
+#endif
 #endif
 	writel(0, CONFIG_ROCKCHIP_STIMER_BASE + 0x10);
 	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE);
@@ -268,6 +270,12 @@ int board_fit_config_name_match(const char *name)
 int board_init_f_boot_flags(void)
 {
 	int boot_flags = 0;
+
+#ifdef CONFIG_ARM64
+	asm volatile("mrs %0, cntfrq_el0" : "=r" (gd->arch.timer_rate_hz));
+#else
+	asm volatile("mrc p15, 0, %0, c14, c0, 0" : "=r" (gd->arch.timer_rate_hz));
+#endif
 
 #if CONFIG_IS_ENABLED(FPGA_ROCKCHIP)
 	arch_fpga_init();
@@ -495,6 +503,9 @@ static void spl_fdt_fixup_memory(struct spl_image_info *spl_image)
 			debug("Adding bank: 0x%08llx - 0x%08llx (size: 0x%08llx)\n",
 			       start[i], start[i] + size[i], size[i]);
 		}
+
+		fdt_increase_size(blob, 512);
+
 		err = fdt_fixup_memory_banks(blob, start, size, count);
 		if (err < 0) {
 			printf("Fixup kernel dtb memory node failed: %s\n", fdt_strerror(err));

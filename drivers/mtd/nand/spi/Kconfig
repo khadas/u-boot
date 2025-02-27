@@ -140,4 +140,11 @@ config SPI_NAND_ZBIT
 	bool "ZBIT SPI flash support"
 	help
 	  Add support for various ZBIT SPI Nand flash chips
+
+config SPI_NAND_HIKSEMI
+	default y
+	bool "HIKSEMI SPI flash support"
+	help
+	  Add support for various HIKSEMI SPI Nand flash chips
+
 endif

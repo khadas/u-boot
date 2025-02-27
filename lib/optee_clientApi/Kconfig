@@ -33,7 +33,7 @@ config OPTEE_ALWAYS_USE_SECURITY_PARTITION
 
 config OPTEE_SECURITY_LEVEL
 	int "Support select security level for OPTEE"
-	depends on OPTEE_CLIENT
+	depends on OPTEE_CLIENT && OPTEE_V2
 	default 0
 	help
 	  U-boot can select security level for OPTEE.

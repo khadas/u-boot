@@ -842,7 +842,7 @@ void enable_low_power(struct dram_info *priv,
 			SR_IDLE_MASK | HW_EXIT_IDLE_EN_MASK,
 			params_priv->idle_sr | HW_EXIT_IDLE_EN);
 
-	/* uPCTL in low_power status because of auto self-refresh */
+	/* DDRCTL in low_power status because of auto self-refresh */
 	writel(GO_STATE, &priv->pctl->sctl);
 }
 

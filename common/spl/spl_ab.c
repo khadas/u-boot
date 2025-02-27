@@ -4,10 +4,11 @@
  */
 
 #include <common.h>
+#include <android_image.h>
+#include <fdt_support.h>
 #include <blk.h>
 #include <malloc.h>
 #include <spl_ab.h>
-#include <fdt_support.h>
 
 int safe_memcmp(const void *s1, const void *s2, size_t n)
 {

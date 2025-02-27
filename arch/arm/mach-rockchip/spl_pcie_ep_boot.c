@@ -415,6 +415,8 @@ static void pcie_board_init(void)
 #define CRU_GLB_RST_CON_OFFSET		(0xC10U)
 #define CRU_GLB_SRST_FST_VALUE_OFFSET	(0xC08U)
 
+#define RK3588_SRAM_INIT_DONE(reg)	((reg & 0xf) == 0xf)
+
 void pcie_first_reset(void)
 {
 	printep("Fst Reset\n");
@@ -443,8 +445,7 @@ static void pcie_cru_init(void)
 	writel((0x7 << 16) | PHY_MODE_PCIE, RK3588_PCIE3PHY_GRF_CMN_CON0);
 	printep("PHY Mode 0x%x\n", readl(RK3588_PCIE3PHY_GRF_CMN_CON0) & 7);
 	/* Enable clock and sfreset for Controller and PHY */
-	writel(0xffff0000, CRU_SOFTRST_CON32);
-	writel(0xffff0000, CRU_SOFTRST_CON33);
+	writel(0xFFFC0000, CRU_SOFTRST_CON33);
 	writel(0xffff0000, CRU_SOFTRST_CON34);
 	writel(0xffff0000, CRU_GATE_CON32);
 	writel(0xffff0000, CRU_GATE_CON33);
@@ -484,6 +485,11 @@ static void pcie_cru_init(void)
 
 	/* Deassert PHY Reset */
 	writel((0x1 << 26), PHPTOPCRU_SOFTRST_CON00);
+	udelay(10);
+
+	/* release resetn_pcie_4l_power_up */
+	writel(0x20000000, CRU_SOFTRST_CON32);
+	udelay(10);
 
 	/* S-Phy: waiting for phy locked */
 	for (i = 0; i < timeout; i++) {
@@ -495,9 +501,13 @@ static void pcie_cru_init(void)
 
 			t0 = phy0_mplla;
 			t1 = phy1_mplla;
-			if (((PHY_MODE_PCIE == PHY_MODE_PCIE_AGGREGATION) && (phy0_mplla == 0xF && phy1_mplla == 0xF)) ||
-			    ((PHY_MODE_PCIE != PHY_MODE_PCIE_AGGREGATION) && (phy0_mplla == 0xF)))
-				break;
+
+			if (RK3588_SRAM_INIT_DONE(phy0_mplla)) {
+				if (PHY_MODE_PCIE == PHY_MODE_PCIE_AGGREGATION && RK3588_SRAM_INIT_DONE(phy1_mplla))
+					break;
+				else
+					break;
+			}
 		}
 
 		udelay(10);
@@ -705,10 +715,6 @@ reinit:
 	/* EP mode */
 	writel(0xf00000, apb_base);
 	udelay(100);
-
-	/* Enable EP mem/io access */
-	val = readl(dbi_base + 0x4);
-	writel(val | 0x6, dbi_base + 0x4);
 
 	val = readl(apb_base + 0x10);
 	if (val & 0x4) {

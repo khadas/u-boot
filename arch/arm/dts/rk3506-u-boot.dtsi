@@ -11,7 +11,17 @@
 
 	chosen: chosen {
 		stdout-path = &uart0;
-		u-boot,spl-boot-order = &spi_nand, &spi_nor;
+		u-boot,spl-boot-order = &mmc, &spi_nand, &spi_nor;
+	};
+
+	secure-otp@ff520000 {
+		compatible = "rockchip,rk3506-secure-otp";
+		reg = <0xff520000 0x8000>;
+		secure_conf = <0xff210100>;
+		cru_rst_addr = <0xff9a8080>;
+		mask_addr = <0xff528000>;
+		u-boot,dm-spl;
+		status = "okay";
 	};
 };
 
