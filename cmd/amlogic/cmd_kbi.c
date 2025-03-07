@@ -79,7 +79,7 @@
 #define FORCERESET_GPIO     1
 
 #define VERSION_LENGHT        2
-#define USID_LENGHT           6
+#define USID_LENGHT           5
 #define MAC_LENGHT            6
 #define ADC_LENGHT            2
 #define PASSWD_CUSTOM_LENGHT  6
@@ -96,8 +96,6 @@
 #define setenv env_set
 #define getenv env_get
 #define MCU_I2C_BUS_NUM				6
-
-static int vim4_flag = 1;
 
 static char* LED_MODE_STR[] = { "off", "on", "breathe", "heartbeat"};
 
@@ -366,15 +364,6 @@ static void get_mac(int is_print)
 	int mac_addr[MAC_LENGHT] = {0};
 	int i, mode;
 
-	if(vim4_flag == 1){
-		run_command("efuse mac", 0);
-		char *temp = getenv("eth_mac");
-		if (temp != NULL) {
-			printf("mac=%s\n", temp);
-		}
-		return;
-	}
-
 	mode = kbi_i2c_read(REG_MAC_SWITCH);
 
 	if (mode == 1) {
@@ -464,46 +453,39 @@ static void get_usid(int is_print)
 	char serial[64];
 	int usid[USID_LENGHT] = {};
 	int i;
-
-	if(vim4_flag == 1){
-		run_command("efuse usid", 0);
-		char *temp = getenv("usid");
-		if (temp != NULL) {
-			printf("usid=%s\n", temp);
-		}
-		return;
-	}
-
-#ifdef CONFIG_USID_FROM_ETH_MAC
 	int mode;
-	mode = kbi_i2c_read(REG_MAC_SWITCH);
+	char usid_str[USID_LENGHT * 2 + 1];
 
+	mode = kbi_i2c_read(REG_MAC_SWITCH);
 	if (mode == 1) {
 		kbi_i2c_read_block(REG_MAC, MAC_LENGHT, usid);
-	} else {
-		run_command("efuse mac", 0);
-		char *s = getenv("eth_mac");
-		if ((s != NULL) && (strcmp(s, "00:00:00:00:00:00") != 0)) {
-			for (i = 0; i < 6 && s[0] != '\0' && s[1] != '\0'; i++) {
-			usid[i] = chartonum(s[0]) << 4 | chartonum(s[1]);
-			s +=3;
-			}
-		} else {
-			kbi_i2c_read_block(REG_MAC, MAC_LENGHT, usid);
+		for (i = 0; i < USID_LENGHT; i++) {
+			sprintf(&usid_str[i * 2], "%02x", usid[i]);
 		}
+		usid_str[USID_LENGHT * 2] = '\0';
+
+		if (strcmp(usid_str, "0000000000") != 0) {
+		} else {
+			run_command("efuse usid", 0);
+		}
+	} else {
+		run_command("efuse usid", 0);
 	}
-#else
-	kbi_i2c_read_block(REG_USID, USID_LENGHT, usid);
-#endif
+
 	if (is_print) {
 		printf("usid: ");
-		for (i=0; i< USID_LENGHT; i++) {
-			printf("%x",usid[i]);
+		for (i = 0; i < USID_LENGHT; i++) {
+			printf("%02x", usid[i]);
 		}
 		printf("\n");
 	}
-	sprintf(serial, "%02x%02x%02x%02x%02x%02x",usid[0],usid[1],usid[2],usid[3],usid[4],usid[5]);
-	setenv("usid", serial);
+
+	if (USID_LENGHT >= 5) {
+		sprintf(serial, "%02x%02x%02x%02x%02x", usid[0], usid[1], usid[2], usid[3], usid[4]);
+		setenv("usid", serial);
+	} else {
+		printf("Error: USID_LENGHT is less than 5.\n");
+	}
 }
 
 #if  defined(CONFIG_KVIM2) || defined(CONFIG_KHADAS_VIM2)
