@@ -74,6 +74,7 @@
 #define MODE_8K4K50HZ                   "7680x4320p50hz"
 #define MODE_8K4K60HZ                   "7680x4320p60hz"
 #define MODE_1024x600p                  "1024x600p60hz"
+#define MODE_800x480p                   "800x480p60hz"
 
 #define MODE_PANEL                      "panel"
 #define MODE_PAL_M                      "pal_m"
@@ -95,6 +96,7 @@
 
 static const char *DISPLAY_MODE_LIST[] = {
 	MODE_1024x600p,
+	MODE_800x480p,
 	MODE_640x480p,
 	MODE_480I,
 	MODE_480P,
@@ -191,7 +193,8 @@ static const char *MODE_RESOLUTION_FIRST[] = {
 	MODE_8K4K48HZ,
 	MODE_8K4K50HZ,
 	MODE_8K4K60HZ,
-	MODE_1024x600p
+	MODE_1024x600p,
+	MODE_800x480p
 };
 
 /* ascending order */
@@ -214,7 +217,8 @@ static const char *MODE_FRAMERATE_FIRST[] = {
 	MODE_4K2K60HZ,
 	MODE_8K4K50HZ,
 	MODE_8K4K60HZ,
-	MODE_1024x600p
+	MODE_1024x600p,
+	MODE_800x480p
 };
 
 /* this is prior selected list for sdr of
