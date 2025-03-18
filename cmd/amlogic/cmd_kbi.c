@@ -1359,18 +1359,8 @@ static int do_kbi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	if(ret) {
 		printf("get adc fail\n");
 	}
-	if (get_cpu_id().family_id == MESON_CPU_MAJOR_ID_S4) {
-		if ((val <= HW_VERSION_ADC_VAL_VIM1S_V10 + HW_VERSION_ADC_VALUE_TOLERANCE)) {
-			hw_ver = HW_VERSION_VIM1S_V10;
-		}  else {
-			hw_ver = HW_VERSION_UNKNOW;
-		}
-		if (hw_ver == HW_VERSION_UNKNOW) {
-			printf("The Board don't support KBI interface\n");
-			setenv("hwver", hw_version_str(hw_ver));
-			return CMD_RET_FAILURE;
-		}
-	}
+	hw_ver = HW_VERSION_VIM1S_V10;
+	setenv("hwver", hw_version_str(hw_ver));
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
