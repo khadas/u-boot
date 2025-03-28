@@ -801,6 +801,7 @@ void vout_viu_mux(int viu_sel, int venc_sel)
 	unsigned int clk_bit = 0xff, clk_sel = 0;
 	unsigned int viu2_valid = 0;
 	unsigned int vout_viu_sel = 0xf;
+	char *outputmode = NULL;
 
 	switch (get_cpu_id().family_id) {
 	case MESON_CPU_MAJOR_ID_G12A:
@@ -819,10 +820,20 @@ void vout_viu_mux(int viu_sel, int venc_sel)
 	switch (viu_sel) {
 	case VOUT_VIU2_SEL:
 		if (viu2_valid) {
-			/* set cts_vpu_clkc to 200MHz*/
-			vout_hiu_setb(HHI_VPU_CLKC_CNTL, 2, 9, 3);
-			vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 0, 1);
-			vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 8, 3);
+			outputmode = getenv("outputmode2");
+			if (!outputmode)
+				vout_log("%s, cannot get env outputmode2\n", __func__);
+			if (outputmode && !strncmp(outputmode, "2160p", 5)) {
+				/* set cts_vpu_clkc to 667MHz for 4k display */
+				vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 9, 3);
+				vout_hiu_setb(HHI_VPU_CLKC_CNTL, 0, 0, 1);
+				vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 8, 1);
+			} else {
+				/* set cts_vpu_clkc to 200MHz*/
+				vout_hiu_setb(HHI_VPU_CLKC_CNTL, 2, 9, 3);
+				vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 0, 1);
+				vout_hiu_setb(HHI_VPU_CLKC_CNTL, 1, 8, 3);
+			}
 			clk_sel = 1;
 		}
 		if (venc_sel == vout_viu1_mux)

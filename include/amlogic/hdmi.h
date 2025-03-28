@@ -11,6 +11,7 @@
 
 /* the default max_tmds_clk is 165MHz/5 in H14b Table 8-16 */
 #define DEFAULT_MAX_TMDS_CLK    33
+#define VESA_MAX_TIMING 64
 
 /* Little-Endian format */
 enum scdc_addr {
@@ -484,6 +485,7 @@ struct rx_cap {
 	unsigned int VIC_count;
 	unsigned int SVD_VIC_count;
 	unsigned int native_VIC;
+	enum hdmi_vic vesa_timing[VESA_MAX_TIMING]; /* Max 64 */
 	/*vendor*/
 	unsigned int IEEEOUI;
 	unsigned int Max_TMDS_Clock1; /* HDMI1.4b TMDS_CLK */

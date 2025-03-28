@@ -603,7 +603,6 @@ static int hdmitx_read_edid(unsigned char *buf, unsigned char addr,
 	return read_edid_8bytes(buf, (addr + blk_no * 128) & 0xff, blk_no);
 }
 
-
 static int hdmitx_read_edid_raw(unsigned char *rx_edid)
 {
 	unsigned int timeout = 0;
@@ -738,6 +737,7 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMIV_1280x1024p60hz, "1280x1024p60hz", 0},
 	{HDMIV_1680x1050p60hz, "1680x1050p60hz", 0},
 	{HDMIV_1024x600p60hz, "1024x600p60hz", 0},
+	{HDMIV_800x480p60hz, "800x480p60hz", 0},
 };
 
 static void hdmitx_list_support_modes(void)

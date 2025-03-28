@@ -500,7 +500,7 @@
 	"vout output ${outputmode};osd open;osd clear;imgread pic logo bootup $loadaddr;"\
 	"bmp display $bootup_offset;bmp scale;"\
     "lcd disable; lcd enable;"\
-	"setenv outputmode2 1080p60hz;setenv display_layer viu2_osd0;"\
+	"setenv outputmode2 ${hdmimode};setenv display_layer viu2_osd0;"\
 	"vout2 prepare ${outputmode2};vout2 output ${outputmode2};osd open;osd clear;imgread pic logo bootup $loadaddr;"\
 	"bmp display $bootup_offset;bmp scale;"\
 	"\0"\
