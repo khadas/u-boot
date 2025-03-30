@@ -721,33 +721,112 @@ static int set_blue_led_mode(int type, int mode)
 static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	//burn ethernet mac address
-	char cmd[64];
-	char mac_str[12];
-	int i;
-	int count = 0;
-	run_command("efuse mac", 0);
-	char *s = getenv("eth_mac");
-	if (strcmp(s, "00:00:00:00:00:00") == 0) {
+	const char *env_value = getenv("factory_mcu_mac");
+	if (env_value != NULL && strcmp(env_value, "1") == 0) {
+		char cmd[64];
+		char mac_str[12];
+		int i;
+		int count = 0;
+		int mcu_mac_count = 0;
+		int factory_mac_count = 0;
+		char num[3] = {0};
+		int reg = 0x06;
+		int regIndex = 0x06;
 		char *mac = getenv("factory_mac");
-		if ((mac == NULL) || (strcmp(mac, "0") == 0))
-			return 0;
-		int len = strlen(mac);
-		if (len != 17)
-			return 0;
-		for (i = 0 ; i< len; i++) {
-			if (mac[i] != ':') {
-				mac_str[count] = mac[i];
-				count++;
+		char s[18];
+		memset(s, 0, sizeof(s));
+		printf("=====write mcu mac\n");
+		for (reg = 0x06; reg <= 0x0B; reg++) {
+			uchar reg_value;
+			int ret = i2c_read(0x18, reg, 1, &reg_value, 1);
+			int segment = reg - 0x06;
+			if (ret == 0) {
+				sprintf(s + mcu_mac_count, "%02x", reg_value);
+			} else {
+				strcpy(s + mcu_mac_count, "00");
+			}
+			mcu_mac_count += 2;
+			if (segment < 5) {
+				s[mcu_mac_count] = ':';
+				mcu_mac_count += 1;
 			}
 		}
-		sprintf(cmd, "efuse write 0 0xc %s", mac_str);
-		printf("=====write mac=%s\n", mac_str);
-		run_command(cmd, 0);
+		printf("mcu mac = %s\n", s);
+		printf("factory mac = %s\n", mac);
+
+		if (strcmp(s, mac) == 0) {
+			return 0;
+		}
+
+		if (strcmp(s, "00:00:00:00:00:00") == 0 || strcmp(s, mac) != 0) {
+			if ((mac == NULL) || (strcmp(mac, "0") == 0))
+				return 0;
+			int len = strlen(mac);
+			if (len != 17)
+				return 0;
+			for (i = 0 ; i< len; i++) {
+				if (mac[i] != ':') {
+					mac_str[factory_mac_count] = mac[i];
+					factory_mac_count++;
+				}
+			}
+
+			printf("write mac = %s\n", mac_str);
+
+			run_command("i2c mw 18 81 01 1", 0);
+			run_command("i2c mw 18 82 73 1", 0);
+			run_command("i2c mw 18 82 61 1", 0);
+			run_command("i2c mw 18 82 64 1", 0);
+			run_command("i2c mw 18 82 61 1", 0);
+			run_command("i2c mw 18 82 68 1", 0);
+			run_command("i2c mw 18 82 4B 1", 0);
+			run_command("i2c mw 18 81 00 1", 0);
+
+			while(count < strlen(mac_str)) {
+				memset(cmd, 0, sizeof(cmd));
+				num[0] =  mac_str[count];
+				num[1] =  mac_str[count+1];
+				num[2] = '\0';
+				sprintf(cmd, "i2c mw 18 %02x %s 1", regIndex, num);
+				printf("write cmd = %s \n", cmd);
+				run_command(cmd, 0);
+				regIndex++;
+				count += 2;
+			}
+			set_switch_mac(1);
+			setenv("eth_mac", mac_str);
+		}
+	} if (env_value != NULL && strcmp(env_value, "0") == 0) {
+		char cmd[64];
+		char mac_str[12];
+		int i;
+		int count = 0;
 		run_command("efuse mac", 0);
-	} else {
-		char *mac = getenv("factory_mac");
-		if ((mac == NULL) || (strcmp(mac, "0") == 0))
-			setenv("factory_mac", s);
+		char *s = getenv("eth_mac");
+		printf("=====write efus mac\n");
+		set_switch_mac(0);
+		if (strcmp(s, "00:00:00:00:00:00") == 0) {
+			char *mac = getenv("factory_mac");
+			if ((mac == NULL) || (strcmp(mac, "0") == 0))
+				return 0;
+			int len = strlen(mac);
+			if (len != 17)
+				return 0;
+			for (i = 0 ; i< len; i++) {
+				if (mac[i] != ':') {
+					mac_str[count] = mac[i];
+					count++;
+				}
+			}
+			sprintf(cmd, "efuse write 0 0xc %s", mac_str);
+			printf("=====write mac=%s\n", mac_str);
+			run_command(cmd, 0);
+			run_command("efuse mac", 0);
+		} else {
+			char *mac = getenv("factory_mac");
+			if ((mac == NULL) || (strcmp(mac, "0") == 0))
+				setenv("factory_mac", s);
+		}
 	}
 	return 0;
 }
