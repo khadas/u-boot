@@ -10,6 +10,8 @@
 
 #define SET_CLK_MAX_TIMES 10
 #define CLK_TOLERANCE 2 /* Unit: MHz */
+#define MIN_HTXPLL_VCO 3000000 /* Min 3GHz */
+#define MAX_HTXPLL_VCO 6000000 /* Max 6GHz */
 
 #define usleep_range(a, b) udelay(a)
 
@@ -127,6 +129,44 @@ static bool set_hpll_hclk_v3(u32 m, u32 frac_val)
 
 	ret = (((hd21_read_reg(ANACTRL_HDMIPLL_CTRL0) >> 30) & 0x3) == 0x3);
 	return ret; /* return hpll locked status */
+}
+
+static void t7_auto_set_hpll(u32 clk)
+{
+	u32 quotient;
+	u32 remainder;
+	u32 rem_1;
+	u32 rem_2;
+
+	if (clk < 3000000 || clk >= 6000000) {
+		pr_err("%s[%d] clock should be 3~6G\n", __func__, __LINE__);
+		return;
+	}
+
+	quotient = clk / 24000;
+	remainder = clk - quotient * 24000;
+	/* remainder range: 0 ~ 99999, 0x1869f, 17bits */
+	/* convert remainder to 0 ~ 2^17 */
+	if (remainder) {
+		rem_1 = remainder / 16;
+		rem_2 = remainder - rem_1 * 16;
+		rem_1 *= 1 << 17;
+		rem_1 /= 1500;
+		rem_2 *= 1 << 13;
+		rem_2 /= 1500;
+		remainder = rem_1 + rem_2;
+	}
+
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL0, 0x3b000400 | (quotient & 0x1ff));
+	hd21_set_reg_bits(ANACTRL_HDMIPLL_CTRL0, 0x3, 28, 2);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL1, remainder);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL2, 0x00000000);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL3, 0x6a685c00);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL4, 0x33771290);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL5, 0x3927200a);
+	hd21_write_reg(ANACTRL_HDMIPLL_CTRL6, 0x55540000);
+	hd21_set_reg_bits(ANACTRL_HDMIPLL_CTRL0, 0x0, 29, 1);
+	WAIT_FOR_PLL_LOCKED(ANACTRL_HDMIPLL_CTRL0);
 }
 
 static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
@@ -327,7 +367,7 @@ static void set21_t7_hpll_clk_out(u32 frac_rate, u32 clk)
 		pr_info("HPLL: 0x%x\n", hd21_read_reg(ANACTRL_HDMIPLL_CTRL0));
 		break;
 	default:
-		pr_info("error hpll clk: %d\n", clk);
+		t7_auto_set_hpll(clk);
 		break;
 	}
 }
@@ -878,6 +918,45 @@ static struct hw_enc_clk_val_group setting_enc_clk_val_36[] = {
 		3021000, 4, 2, 2, VID_PLL_DIV_7p5, 1, 1, 1, 1, 1},
 };
 
+static void t7_calc_pixel_clk_hpll_vco_od(u32 pixel_freq, u32 *vco_out, u32 *od1, u32 *od2)
+{
+	u32 htx_vco = 5940000;
+	u32 div = 1;
+
+	if (!vco_out || !od1 || !od2)
+		return;
+
+	if (pixel_freq < 25175 || pixel_freq > 5940000) {
+		pr_info("%s[%d] not valid pixel clock %d\n", __func__, __LINE__, pixel_freq);
+		return;
+	}
+
+	pixel_freq = pixel_freq * 10; /* for tmds modes, here should multi 10 */
+	if (pixel_freq > MAX_HTXPLL_VCO) {
+		pr_info("%s[%d] base_pixel_clk %d over MAX_HTXPLL_VCO %d\n",
+			__func__, __LINE__, pixel_freq, MAX_HTXPLL_VCO);
+	}
+
+	/* the base pixel_clk range should be 250M ~ 5940M? */
+	htx_vco = pixel_freq;
+	do {
+		if (htx_vco >= MIN_HTXPLL_VCO && htx_vco < MAX_HTXPLL_VCO)
+			break;
+		div *= 2;
+		htx_vco *= 2;
+	} while (div <= 16);
+
+	*vco_out = htx_vco;
+	/* setting htxpll div */
+	if (div > 4) {
+		*od1 = 4;
+		*od2 = div / 4;
+	} else {
+		*od1 = div;
+		*od2 = 1;
+	}
+}
+
 static void hdmitx21_set_clk_(struct hdmitx_dev *hdev,
 		struct hw_enc_clk_val_group *test_clk)
 {
@@ -908,8 +987,10 @@ static void hdmitx21_set_clk_(struct hdmitx_dev *hdev,
 		}
 		if (j == sizeof(setting_enc_clk_val_24)
 			/ sizeof(struct hw_enc_clk_val_group)) {
-			pr_info("Not find VIC = %d for hpll setting\n", vic);
-			return;
+			if (vic < HDMITX_VESA_OFFSET) {
+				pr_info("Not find VIC = %d for hpll setting\n", vic);
+				return;
+			}
 		}
 	} else if (cd == COLORDEPTH_30B) {
 		p_enc = &setting_enc_clk_val_30[0];
@@ -956,6 +1037,30 @@ next:
 		tmp_clk.pnx_div = 2;
 		tmp_clk.pixel_div = 2;
 	}
+
+	if (vic >= HDMITX_VESA_OFFSET) {
+		const struct hdmi_timing *timing = NULL;
+
+		timing = hdmitx21_gettiming_from_vic(vic);
+		if (!timing) {
+			pr_info("failed to find VIC %d timing\n", vic);
+			return;
+		}
+		memset(&tmp_clk, 0, sizeof(tmp_clk));
+		t7_calc_pixel_clk_hpll_vco_od(timing->pixel_freq,
+			&tmp_clk.hpll_clk_out, &tmp_clk.od1, &tmp_clk.od2);
+		tmp_clk.od3 = 2; /* fixed divider value */
+		tmp_clk.vid_pll_div = VID_PLL_DIV_5;
+		tmp_clk.vid_clk_div = 2; /* fixed divider value */
+		tmp_clk.enc_div = 1;
+		tmp_clk.fe_div = 1;
+		tmp_clk.pnx_div = 1;
+		tmp_clk.pixel_div = 1;
+	}
+	pr_info("hdmitx sub-clock: %d %d %d %d %d %d %d %d %d %d\n",
+		tmp_clk.hpll_clk_out, tmp_clk.od1, tmp_clk.od2, tmp_clk.od3,
+		tmp_clk.vid_pll_div, tmp_clk.vid_clk_div, tmp_clk.enc_div,
+		tmp_clk.fe_div, tmp_clk.pnx_div, tmp_clk.pixel_div);
 	set_hpll_clk_out(tmp_clk.hpll_clk_out);
 	sspll_dis = env_get("sspll_dis");
 	if ((!sspll_dis || !strcmp(sspll_dis, "0")) &&
@@ -965,6 +1070,7 @@ next:
 	set_hpll_od2(tmp_clk.od2);
 	set_hpll_od3(tmp_clk.od3);
 	clocks_set_vid_clk_div_for_hdmi(tmp_clk.vid_pll_div);
+	pr_info("j = %d  vid_clk_div = %d\n", j, tmp_clk.vid_clk_div);
 	set_vid_clk_div(hdev, tmp_clk.vid_clk_div);
 	set_hdmitx_enc_div(hdev, tmp_clk.enc_div);
 	set_hdmitx_fe_div(hdev, tmp_clk.fe_div);

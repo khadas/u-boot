@@ -296,7 +296,8 @@ static void _edid_parse_base_structure(struct rx_cap *prxcap,
 			prxcap->IEEEOUI = HDMI_IEEEOUI;
 		if (zero_numbers > 120)
 			prxcap->IEEEOUI = HDMI_IEEEOUI;
-		hdmitx_edid_set_default_vic(prxcap);
+		if (prxcap->IEEEOUI == HDMI_IEEEOUI)
+			hdmitx_edid_set_default_vic(prxcap);
 	}
 }
 
@@ -576,6 +577,22 @@ static void store_cea_idx(struct rx_cap *prxcap, enum hdmi_vic vic)
 	}
 }
 
+static void store_vesa_idx(struct rx_cap *prxcap, enum hdmi_vic vesa_timing)
+{
+	int i;
+	int already = 0;
+
+	for (i = 0; i < VESA_MAX_TIMING && prxcap->vesa_timing[i]; i++) {
+		if (prxcap->vesa_timing[i] == vesa_timing) {
+			already = 1;
+			break;
+		}
+	}
+	if (!already && i != VESA_MAX_TIMING)
+		prxcap->vesa_timing[i] = vesa_timing;
+}
+
+
 static void edid_dtd_parsing(struct rx_cap *prxcap, unsigned char *data)
 {
 	const struct hdmi_timing *dtd_timing = NULL;
@@ -643,6 +660,8 @@ next:
 		prxcap->dtd_idx++;
 		if (t->vic < HDMITX_VESA_OFFSET)
 			store_cea_idx(prxcap, t->vic);
+		else
+			store_vesa_idx(prxcap, t->vic);
 	} else {
 		dump_dtd_info(t);
 	}
@@ -1371,7 +1390,7 @@ unsigned int hdmi_edid_parsing(unsigned char *edid_buf, struct rx_cap *prxcap)
 	}
 
 	/* if edid block0 are all zeroes, or no VIC, set default vic */
-	if (edid_zero_data(edid_buf) || prxcap->VIC_count == 0)
+	if (edid_zero_data(edid_buf) || (prxcap->VIC_count == 0 && prxcap->IEEEOUI == HDMI_IEEEOUI))
 		hdmitx_edid_set_default_vic(prxcap);
 	return 1;
 }
@@ -1747,17 +1766,27 @@ static bool edid_check_dsc_support(struct hdmitx_dev *hdev, struct hdmi_format_p
 static bool hdmitx21_edid_validate_mode(struct hdmitx_dev *hdev,
 				enum hdmi_vic vic)
 {
-	int i;
+	int i, j;
 	bool ret = false;
-	struct rx_cap *prxcap = NULL;
+	struct rx_cap *prxcap = &hdev->RXCap;
+	enum hdmi_vic *vesa_t = &prxcap->vesa_timing[0];
 
-	prxcap = &hdev->RXCap;
-	for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
-		if ((vic & 0xff) == (prxcap->VIC[i] & 0xff)) {
-			ret = true;
-			break;
+	if (vic < HDMITX_VESA_OFFSET) {
+		for (i = 0; (i < prxcap->VIC_count) && (i < VIC_MAX_NUM); i++) {
+			if ((vic & 0xff) == (prxcap->VIC[i] & 0xff)) {
+				ret = true;
+				break;
+			}
+		}
+	} else {
+		for (j = 0; vesa_t[j] && j < VESA_MAX_TIMING; j++) {
+			if (vic == vesa_t[j]) {
+				ret = true;
+				break;
+			}
 		}
 	}
+
 	return ret;
 }
 
@@ -1876,7 +1905,10 @@ bool hdmitx_edid_check_valid_mode(struct hdmitx_dev *hdev,
 	 * in hdmitx_timing table, so when match name, will return
 	 * 4x3 or 64x27 mode fist. But user prefer 16x9 first, so try 16x9 first;
 	 */
-	vic = hdmitx21_get_prefer_vic(hdev, para->timing.vic & 0xff);
+	if (para->timing.vic < HDMITX_VESA_OFFSET)
+		vic = hdmitx21_get_prefer_vic(hdev, para->timing.vic & 0xff);
+	else
+		vic = hdmitx21_get_prefer_vic(hdev, para->timing.vic);
 	/* check if vic supported by RX */
 	if (hdmitx21_edid_validate_mode(hdev, vic))
 		svd_flag = 1;

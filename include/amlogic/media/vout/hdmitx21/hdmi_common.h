@@ -220,6 +220,30 @@ enum hdmi_vic {
 	HDMI_217_10240x4320p120_64x27	= 217,
 	HDMI_218_4096x2160p100_256x135	= 218,
 	HDMI_219_4096x2160p120_256x135	= 219,
+	HDMIV_640x480p60hz = HDMITX_VESA_OFFSET,
+	HDMIV_800x480p60hz,
+	HDMIV_800x600p60hz,
+	HDMIV_1024x600p60hz,
+	HDMIV_1024x768p60hz,
+	HDMIV_1152x864p75hz,
+	HDMIV_1280x768p60hz,
+	HDMIV_1280x800p60hz,
+	HDMIV_1280x960p60hz,
+	HDMIV_1280x1024p60hz,
+	HDMIV_1360x768p60hz,
+	HDMIV_1366x768p60hz,
+	HDMIV_1400x1050p60hz,
+	HDMIV_1440x900p60hz,
+	HDMIV_1600x900p60hz,
+	HDMIV_1600x1200p60hz,
+	HDMIV_1680x1050p60hz,
+	HDMIV_1792x1344p60hz,
+	HDMIV_1856x1392p60hz,
+	HDMIV_1920x1200p60hz,
+	HDMIV_1920x1440p60hz,
+	HDMIV_2560x1440p60hz,
+	HDMIV_2560x1600p60hz,
+	HDMI_VIC_FAKE,
 	HDMI_VIC_END,
 };
 
@@ -600,6 +624,7 @@ struct dv_vsif_para {
 
 #define Y420CMDB_MAX 32
 #define VIC_MAX_NUM  256
+#define VESA_MAX_TIMING 64
 #define SVD_VIC_MAX_NUM  128
 struct rx_cap {
 	unsigned int native_Mode;
@@ -610,6 +635,7 @@ struct rx_cap {
 	unsigned int VIC_count;
 	unsigned int SVD_VIC_count;
 	unsigned int native_VIC;
+	enum hdmi_vic vesa_timing[VESA_MAX_TIMING]; /* Max 64 */
 	/*vendor*/
 	unsigned int IEEEOUI;
 	unsigned int Max_TMDS_Clock1; /* HDMI1.4b TMDS_CLK */

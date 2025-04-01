@@ -674,12 +674,14 @@ static struct hdmi_support_mode gxbb_modes[] = {
 	{HDMI_720x480p60_4x3, "480p60hz_4x3", 0},
 	{HDMI_720x576i50_4x3, "576i50hz_4x3", 0},
 	{HDMI_720x480i60_4x3, "480i60hz_4x3", 0},
+	{HDMIV_800x480p60hz,  "800x480p60hz", 0},
 	{HDMIV_1440x2560p60hz, "1440x2560p60hz", 0},
 	{HDMIV_3440x1440p60hz, "3440x1440p60hz", 0},
 	{HDMIV_2400x1200p90hz, "2400x1200p90hz", 0},
 	{HDMIV_3840x1080p60hz, "3840x1080p60hz", 0},
 	{HDMIV_1280x1024p60hz, "1280x1024p60hz", 0},
 	{HDMIV_1680x1050p60hz, "1680x1050p60hz", 0},
+	{HDMIV_800x480p60hz, "800x480p60hz", 0},
 	{HDMIV_1024x600p60hz, "1024x600p60hz", 0},
 	{HDMIV_2560x1440p60hz, "2560x1440p60hz", 0},
 };
@@ -816,7 +818,7 @@ int hdmi_tx_set(struct hdmitx_dev *hdev)
 	env_set("hdmichecksum", (const char*)checksum);
 	printf("hdmi_tx_set: save mode: %s, attr: %s, hdmichecksum: %s\n",
 		env_get("outputmode"), env_get("colorattribute"), env_get("hdmichecksum"));
-	run_command("saveenv", 0);
+//	run_command("saveenv", 0);
 	return ret;
 
 #if 0
@@ -2638,7 +2640,7 @@ static void hdmi_tvenc_vesa_set(enum hdmi_vic vic)
 
 static void hdmi_tvenc_set(enum hdmi_vic vic)
 {
-	if ((vic & HDMITX_VESA_OFFSET) == HDMITX_VESA_OFFSET) {
+	if (vic >= HDMITX_VESA_OFFSET) {
 		/* VESA modes setting */
 		hdmi_tvenc_vesa_set(vic);
 		return;
