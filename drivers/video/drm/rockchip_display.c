@@ -1489,6 +1489,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	void *dst_rotate = NULL;
 	int len, dst_size;
 	int ret = 0;
+	char cmd[256] = {"0"};
 
 	if (!logo || !bmp_name)
 		return -EINVAL;
@@ -1510,10 +1511,18 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 
 	bmp_create(&bmp, &bitmap_callbacks);
 
-	len = rockchip_read_resource_file(bmp_data, bmp_name, 0, MAX_IMAGE_BYTES);
-	if (len < 0) {
-		ret = -EINVAL;
-		goto free_bmp_data;
+	sprintf(cmd, "ext4load mmc 0:9 0x%p %s %x", bmp_data, bmp_name, MAX_IMAGE_BYTES);
+	printf("load_bmp_logo cmd %s...\n", cmd);
+	if (run_command(cmd, 0)) {
+		len = rockchip_read_resource_file(bmp_data, bmp_name, 0, MAX_IMAGE_BYTES);
+		printf("rockchip_read_resource_file len %d...\n", len);
+		if (len < 0) {
+			ret = -EINVAL;
+			goto free_bmp_data;
+		}
+	} else {
+		len = MAX_IMAGE_BYTES;
+		printf("load custom logo success...\n");
 	}
 
 	/* analyse the BMP */
