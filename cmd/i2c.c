@@ -588,13 +588,14 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		if (ret)
 			return i2c_report_err(ret, I2C_ERR_READ);
 		else {
-			printf("%04x:", addr);
+			//printf("%04x:", addr);
 			cp = linebuf;
 			for (j=0; j<linebytes; j++) {
-				printf(" %02x", *cp++);
+				//printf("%02x ", *cp++);
+				printf("%s%02x", (j==0 ? "" : " "), *cp++);
 				addr++;
 			}
-			puts ("    ");
+			/*puts ("    ");
 			cp = linebuf;
 			for (j=0; j<linebytes; j++) {
 				if ((*cp < 0x20) || (*cp > 0x7e))
@@ -602,7 +603,7 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 				else
 					printf("%c", *cp);
 				cp++;
-			}
+			}*/
 			putc ('\n');
 		}
 		nbytes -= linebytes;

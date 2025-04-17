@@ -319,6 +319,7 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 	if (plat->delay.init)
 		mdelay(plat->delay.init);
 
+	if (4!=khadas_mipi_id && 2!=khadas_mipi_id) {
 	mipi_dsi_dcs_get_power_mode(dsi, &mode);
 	if(0x8 == mode){
 		is_mipi_lcd_exit = is_mipi_lcd_exit | (0x1 << vpx_id);
@@ -341,6 +342,7 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 			printf("disable dsi1\n");
 		}
 		printf("(vpx_id=%x)==(is_mipi_lcd_exit=%x)=vp2 and vp3 status disable\n", vpx_id,is_mipi_lcd_exit);
+	}
 	}
 	printf("0x8===>mode: 0x%d is_mipi_lcd_exit=%d\n", mode,is_mipi_lcd_exit);
        /*ret = mipi_dsi_dcs_read(dsi, 0xDA, &khadas_mipi_id, sizeof(khadas_mipi_id));
@@ -560,8 +562,19 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 			khadas_mipi_id = kbi_i2c_read(0x9e,TP10_CHIP_ADDR);
 			printf("TP10 id=0x%x\n",khadas_mipi_id);
 			if(khadas_mipi_id == 0x00){//TS101
-				khadas_mipi_id = 2;
-			}else {
+				run_command("i2c dev 6", 0);
+				run_command("gpio clear gpio022", 0);
+				mdelay(50);
+				run_command("gpio set gpio022", 0);
+				run_command("i2c md 0x14 0x814A.2 1", 0);
+				uint8_t ts101_exist = kbi_i2c_read(0x814A, TP10_CHIP_ADDR);
+				printf("TP101 Vendor_id =0x%x\n",ts101_exist);
+				if (ts101_exist == 2) {
+					khadas_mipi_id = 4;//wuming TS101
+				} else if (ts101_exist == 0) {
+					khadas_mipi_id = 2;//old TS101
+				}
+			} else {
 				khadas_mipi_id = 0;
 			}
 		}
@@ -571,8 +584,10 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 	if(3 == khadas_mipi_id || 0 == khadas_mipi_id){//new TS050
 		printf("new TS050 to parse panel init sequence2\n");
 		data = dev_read_prop(dev, "panel-init-sequence2", &len);
-	}
-	else{//old TS050
+	} else if (4 == khadas_mipi_id || 2 == khadas_mipi_id) {//TS101
+		printf("TS101 to parse panel init sequence3\n");
+		data = dev_read_prop(dev, "panel-init-sequence3", &len);
+	} else {//old TS050
 		printf("old TS050 to parse panel init sequence\n");
 		data = dev_read_prop(dev, "panel-init-sequence", &len);
 	}

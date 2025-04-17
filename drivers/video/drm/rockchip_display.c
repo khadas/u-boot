@@ -501,11 +501,13 @@ static int display_get_timing_from_dts(struct rockchip_panel *panel,
 
 	mcu_panel = dev_read_subnode(panel->dev, "mcu-panel");
 
-    if(khadas_mipi_id == 2){//TS101
+    if (khadas_mipi_id == 2) {//old TS101
 	       dt = dev_read_subnode(panel->dev, "display-timings1");
-	}else if(khadas_mipi_id == 3){//new TS050
+	} else if (khadas_mipi_id == 3) {//new TS050
 	       dt = dev_read_subnode(panel->dev, "display-timings2");
-	}else{//old TS050
+	} else if (khadas_mipi_id == 4) {//wuming TS101
+	       dt = dev_read_subnode(panel->dev, "display-timings3");
+	} else {//old TS050
 	       dt = dev_read_subnode(panel->dev, "display-timings");
 	}
 	if (ofnode_valid(dt)) {
@@ -2183,7 +2185,7 @@ static int rockchip_display_probe(struct udevice *dev)
 				memcpy(s->klogo_name, name, strlen(name));
 		}
 		else{
-			if(khadas_mipi_id == 2){
+			if (khadas_mipi_id == 2 || khadas_mipi_id == 4) {
 				ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);//0 degrees
 				if (!ret)
 					memcpy(s->ulogo_name, name, strlen(name));
