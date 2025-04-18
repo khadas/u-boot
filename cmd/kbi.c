@@ -518,7 +518,9 @@ static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 	printf("khadas camera id=0x%x\n",khadas_camera_id);
 	if(khadas_camera_id == 0){//IMX415
 		run_command("fdt set /i2c@feab0000/os08a10f@36 status disable", 0);
-	} else {//OS08A10
+		run_command("fdt set /i2c@feab0000/imx585@1a status disable", 0);
+		run_command("fdt set /i2c@feab0000/imx678@1a status disable", 0);
+	} else {//OS08A10 IMX585 IMX678
 		run_command("fdt set /i2c@feab0000/imx415f@1a status disable", 0);
 		run_command("fdt set /i2c@feab0000/dw9714f@c status disable", 0);
 	}
@@ -528,7 +530,9 @@ static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 	printf("khadas camera id=0x%x\n",khadas_camera_id);
 	if(khadas_camera_id == 0){//IMX415
 		run_command("fdt set /i2c@feac0000/os08a10b@36 status disable", 0);
-	} else {//OS08A10
+		run_command("fdt set /i2c@feac0000/imx585@1a status disable", 0);
+		run_command("fdt set /i2c@feac0000/imx678@1a status disable", 0);
+	} else {//OS08A10 IMX585 IMX678
 		run_command("fdt set /i2c@feac0000/imx415b@1a status disable", 0);
 		run_command("fdt set /i2c@feac0000/dw9714b@c status disable", 0);
 	}
@@ -538,7 +542,9 @@ static int do_kbi_init(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[
 	printf("khadas camera id=0x%x\n",khadas_camera_id);
 	if(khadas_camera_id == 0){//IMX415
 		run_command("fdt set /i2c@feca0000/os08a10@36 status disable", 0);
-	} else {//OS08A10
+		run_command("fdt set /i2c@feca0000/imx585@1a status disable", 0);
+		run_command("fdt set /i2c@feca0000/imx678@1a status disable", 0);
+	} else {//OS08A10 IMX585 IMX678
 		run_command("fdt set /i2c@feca0000/imx415@1a status disable", 0);
 		run_command("fdt set /i2c@feca0000/dw9714c@c status disable", 0);
 	}
