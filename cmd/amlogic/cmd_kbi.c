@@ -1069,7 +1069,8 @@ static int do_kbi_led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 #ifdef CONFIG_DM_I2C
 #define TP_I2C_BUS_NUM 3
 #define TP05_CHIP_ADDR "0x38"
-#define TP10_CHIP_ADDR "0x14"
+#define TP10_CHIP_ADDR "0x5d"
+#define TP10_CHIP_ADDR2 "0x14"
 static struct udevice *i2c_cur_bus;
 int khadas_mipi_id = 0;//NULL
 
@@ -1166,9 +1167,15 @@ static int do_check_panel(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		setenv("panel_type", "mipi_2");
 		setenv("connector0_type", "MIPI-A");
 	}else{
-		khadas_mipi_id = tp_i2c_read(0x9e,TP10_CHIP_ADDR);
-		printf("TP10 id=0x%x\n",khadas_mipi_id);
-		if(khadas_mipi_id == 0x00){//TS101
+		run_command("i2c dev 3", 0);
+		run_command("i2c md 0x5d 0x814A.2 1", 0);
+		khadas_mipi_id = tp_i2c_read(0x814A,TP10_CHIP_ADDR);
+		printf("wuming TS101 id=0x%x\n",khadas_mipi_id);
+		if(2 != khadas_mipi_id){
+			khadas_mipi_id = tp_i2c_read(0x9e,TP10_CHIP_ADDR2);
+			printf("old TP10 id=0x%x\n",khadas_mipi_id);
+		}
+		if(khadas_mipi_id == 0x00 || khadas_mipi_id == 2){//TS101
 			khadas_mipi_id = 2;
 			setenv("khadas_mipi_id", "2");
 			setenv("panel_type", "mipi_1");
