@@ -316,6 +316,7 @@ struct serdes {
 	int err_irq_trig;
 
 	bool sel_mipi;
+	bool mcu_enable;
 	struct mipi_dsi_device *dsi;
 
 	bool split_mode_enable;
@@ -346,8 +347,8 @@ int serdes_i2c_set_sequence(struct serdes *serdes);
 int serdes_parse_init_seq(struct udevice *dev, const u16 *data,
 			  int length, struct serdes_init_seq *seq);
 int serdes_get_init_seq(struct serdes *serdes);
-int serdes_gpio_register(struct udevice *dev, struct serdes *serdes);
-int serdes_pinctrl_register(struct udevice *dev, struct serdes *serdes);
+int serdes_gpio_register(struct udevice *dev);
+int serdes_pinctrl_register(struct udevice *dev);
 int serdes_bridge_register(struct udevice *dev, struct serdes *serdes);
 int serdes_bridge_split_register(struct udevice *dev, struct serdes *serdes);
 int serdes_power_init(void);

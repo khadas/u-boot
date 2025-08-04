@@ -193,10 +193,12 @@ function process_args()
 				shift 1
 				;;
 			--spl-fwver)
+				ARG_FIT_FWVER="${ARG_FIT_FWVER} --spl-fwver $2"
 				ARG_SPL_FWVER="SPL_FWVER=$2"
 				shift 2
 				;;
 			--fwver)
+				ARG_FIT_FWVER="${ARG_FIT_FWVER} --fwver $2"
 				ARG_FWVER="FWVER=$2"
 				shift 2
 				;;
@@ -554,8 +556,8 @@ function pack_uboot_itb_image()
 		cp ${RKBIN}/${BL31_ELF} bl31.elf
 		if grep BL32_OPTION -A 1 ${INI} | grep SEC=1 ; then
 			cp ${RKBIN}/${BL32_BIN} tee.bin
-			TEE_OFFSET=`grep BL32_OPTION -A 3 ${INI} | grep ADDR= | awk -F "=" '{ printf $2 }' | tr -d '\r'`
-			TEE_ARG="-t ${TEE_OFFSET}"
+			TEE_ADDR=`grep BL32_OPTION -A 3 ${INI} | grep ADDR= | awk -F "=" '{ printf $2 }' | tr -d '\r'`
+			TEE_ARG="-t ${TEE_ADDR}"
 		fi
 	else
 		# TOS
@@ -569,13 +571,32 @@ function pack_uboot_itb_image()
 			echo "WARN: No tee bin"
 		fi
 		if [ ! -z "${TOSTA}" -o ! -z "${TOS}" ]; then
-			TEE_OFFSET=`filt_val "ADDR" ${INI}`
-			if [ "${TEE_OFFSET}" == "" ]; then
-				TEE_OFFSET=0x8400000
+			TEE_ADDR=`filt_val "ADDR" ${INI}`
+			if [ "${TEE_ADDR}" == "" ]; then
+				DRAM_BASE=`sed -n "/CONFIG_SYS_SDRAM_BASE=/s/CONFIG_SYS_SDRAM_BASE=//p" ${srctree}/include/autoconf.mk|tr -d '\r'`
+				TEE_ADDR="0x"$(echo "obase=16;$((DRAM_BASE+0x8400000))"|bc)
 			fi
-			TEE_ARG="-t ${TEE_OFFSET}"
+			TEE_ARG="-t ${TEE_ADDR}"
 		fi
 	fi
+
+	# Inits
+	for ((i=0; i<5; i++))
+	do
+		INIT_BIN="init${i}.bin"
+		INIT_IDX="INIT${i}"
+		ENABLED=`awk -F "," '/'${INIT_IDX}'=/  { printf $3 }' ${INI} | tr -d ' '`
+		if [ "${ENABLED}" == "enabled" -o "${ENABLED}" == "okay" ]; then
+			NAME=`awk -F "," '/'${INIT_IDX}'=/ { printf $1 }' ${INI} | tr -d ' ' | awk -F "=" '{ print $2 }'`
+			OFFS=`awk -F "," '/'${INIT_IDX}'=/ { printf $2 }' ${INI} | tr -d ' '`
+			cp ${RKBIN}/${NAME} ${INIT_BIN}
+			if [ -z ${OFFS} ]; then
+				echo "ERROR: No ${INIT_BIN} address in ${INI}"
+				exit 1
+			fi
+			INIT_ARG=${INIT_ARG}" -i${i} ${OFFS}"
+		fi
+	done
 
 	# MCUs
 	for ((i=0; i<5; i++))
@@ -646,7 +667,7 @@ function pack_uboot_itb_image()
 		if [[ ${SPL_FIT_GENERATOR} == *.py ]]; then
 			${SPL_FIT_GENERATOR} u-boot.dtb > u-boot.its
 		else
-			${SPL_FIT_GENERATOR} ${TEE_ARG} ${COMPRESSION_ARG} ${MCU_ARG} ${LOAD_ARG} > u-boot.its
+			${SPL_FIT_GENERATOR} ${TEE_ARG} ${COMPRESSION_ARG} ${INIT_ARG} ${MCU_ARG} ${LOAD_ARG} > u-boot.its
 		fi
 	fi
 
@@ -755,7 +776,7 @@ function pack_fit_image()
 
 function handle_args_late()
 {
-	ARG_LIST_FIT="${ARG_LIST_FIT} --ini-trust ${INI_TRUST} --ini-loader ${INI_LOADER}"
+	ARG_LIST_FIT="${ARG_LIST_FIT} --ini-trust ${INI_TRUST} --ini-loader ${INI_LOADER} ${ARG_FIT_FWVER}"
 }
 
 function clean_files()

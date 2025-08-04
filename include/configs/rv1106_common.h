@@ -40,6 +40,8 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x20000
 #define CONFIG_SPL_STACK		0x001fe000
 
+#define CONFIG_SPL_CHECK_SIZE
+
 /* secure otp */
 #define OTP_UBOOT_ROLLBACK_OFFSET	0xe0
 #define OTP_UBOOT_ROLLBACK_WORDS	2	/* 64 bits, 2 words */

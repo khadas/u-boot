@@ -55,6 +55,7 @@ obj-$(CONFIG_ROCKCHIP_HWID_DTB) += rk_hwid.o
 obj-$(CONFIG_ROCKCHIP_DEBUGGER) += rockchip_debugger.o
 endif
 
+obj-y += cpu.o
 obj-$(CONFIG_$(SPL_)FPGA_ROCKCHIP) += fpga.o
 obj-$(CONFIG_RAM) += param.o
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram.o
@@ -85,6 +86,7 @@ obj-$(CONFIG_ROCKCHIP_RV1103B) += rv1103b/
 obj-$(CONFIG_ROCKCHIP_RV1106) += rv1106/
 obj-$(CONFIG_ROCKCHIP_RV1108) += rv1108/
 obj-$(CONFIG_ROCKCHIP_RV1126) += rv1126/
+obj-$(CONFIG_ROCKCHIP_RV1126B) += rv1126b/
 
 # Clear out SPL objects, in case this is a TPL build
 obj-spl-$(CONFIG_TPL_BUILD) =

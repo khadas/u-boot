@@ -198,7 +198,7 @@ slave_cpu:
 	br	x0			/* branch to the given address */
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_ARM_SMP)
+#if CONFIG_IS_ENABLED(SMP)
 	mrs	x0, mpidr_el1
 	and x0, x0, #0xfff
 	cmp x0, #0

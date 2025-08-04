@@ -1933,7 +1933,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     /*
      * m might not be the same as before. Validate that the previous value of
      * extra still works for the current value of m.
-     * If (!m), extra2=alignment so 
+     * If (!m), extra2=alignment so
      */
     if (m) {
       extra2 = alignment - (((unsigned long)(m)) % alignment);
@@ -2387,6 +2387,140 @@ int initf_malloc(void)
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(SMP)
+
+static uspinlock_t malloc_lock;
+
+#if __STD_C
+Void_t* smp_cALLOc(size_t n, size_t elem_size)
+#else
+Void_t* smp_cALLOc(n, elem_size) size_t n; size_t elem_size;
+#endif
+{
+	void *mem;
+
+	u_spin_lock(&malloc_lock);
+	mem = cALLOc(n, elem_size);
+	u_spin_unlock(&malloc_lock);
+
+	return mem;
+}
+
+#if __STD_C
+void smp_fREe(Void_t* mem)
+#else
+void smp_fREe(mem) Void_t* mem;
+#endif
+{
+	u_spin_lock(&malloc_lock);
+	fREe(mem);
+	u_spin_unlock(&malloc_lock);
+}
+
+#if __STD_C
+Void_t* smp_mALLOc(size_t bytes)
+#else
+Void_t* smp_mALLOc(bytes) size_t bytes;
+#endif
+{
+	void *mem;
+
+	u_spin_lock(&malloc_lock);
+	mem = mALLOc(bytes);
+	u_spin_unlock(&malloc_lock);
+
+	return mem;
+}
+
+#if __STD_C
+Void_t* smp_mEMALIGn(size_t alignment, size_t bytes)
+#else
+Void_t* smp_mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
+#endif
+{
+	void *mem;
+
+	u_spin_lock(&malloc_lock);
+	mem = mEMALIGn(alignment, bytes);
+	u_spin_unlock(&malloc_lock);
+
+	return mem;
+}
+
+#if __STD_C
+Void_t* smp_rEALLOc(Void_t* oldmem, size_t bytes)
+#else
+Void_t* smp_rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
+#endif
+{
+	void *mem;
+
+	u_spin_lock(&malloc_lock);
+	mem = rEALLOc(oldmem, bytes);
+	u_spin_unlock(&malloc_lock);
+
+	return mem;
+}
+
+#if __STD_C
+Void_t* smp_vALLOc(size_t bytes)
+#else
+Void_t* smp_vALLOc(bytes) size_t bytes;
+#endif
+{
+	void *mem;
+
+	u_spin_lock(&malloc_lock);
+	mem = vALLOc(bytes);
+	u_spin_unlock(&malloc_lock);
+
+	return mem;
+}
+
+#if __STD_C
+Void_t* smp_pvALLOc(size_t bytes)
+#else
+Void_t* smp_pvALLOc(bytes) size_t bytes;
+#endif
+{
+	void *mem;
+
+	u_spin_lock(&malloc_lock);
+	mem = pvALLOc(bytes);
+	u_spin_unlock(&malloc_lock);
+
+	return mem;
+}
+
+#ifdef DEBUG
+struct mallinfo smp_mALLINFo()
+{
+	struct mallinfo info;
+
+	u_spin_lock(&malloc_lock);
+	info = mALLINFo();
+	u_spin_unlock(&malloc_lock);
+
+	return info;
+}
+#endif	/* DEBUG */
+
+#if __STD_C
+int smp_mALLOPt(int param_number, int value)
+#else
+int smp_mALLOPt(param_number, value) int param_number; int value;
+#endif
+{
+	int ret;
+
+	u_spin_lock(&malloc_lock);
+	ret = mALLOPt(param_number, value);
+	u_spin_unlock(&malloc_lock);
+
+	return ret;
+}
+#endif
 
 /*
 

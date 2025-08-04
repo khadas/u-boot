@@ -439,7 +439,13 @@ int fit_config_check_sig(const void *fit, int noffset, int required_keynode,
 #if !defined(USE_HOSTCC)
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_FIT_HW_CRYPTO) && \
     defined(CONFIG_SPL_ROCKCHIP_SECURE_OTP)
-	return rsa_burn_key_hash(&info);
+	if (rsa_burn_key_hash(&info))
+		return -1;
+#if defined(CONFIG_SPL_OTP_DISABLE_SD) || defined(CONFIG_SPL_OTP_DISABLE_USB) || \
+    defined(CONFIG_SPL_OTP_DISABLE_UART) || defined(CONFIG_SPL_OTP_DISABLE_SPI2APB)
+	if (rsa_burn_disable_upgrade())
+		return -1;
+#endif
 #endif
 #endif
 

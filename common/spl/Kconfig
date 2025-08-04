@@ -310,6 +310,14 @@ config SPL_CRYPTO_SUPPORT
 	  this option to build the drivers in drivers/crypto as part of an
 	  SPL build.
 
+config SPL_KEYLAD_SUPPORT
+	bool "Support keylad drivers"
+	help
+	  Enable keylad drivers in SPL. These drivers can be used to pass
+	  otp keys to other IP addresses. (e.g. CRYPTO module). Enable
+	  this option to build the drivers in drivers/keylad as part of an
+	  SPL build.
+
 config SPL_HASH_SUPPORT
 	bool "Support hashing drivers"
 	select SHA1
@@ -883,12 +891,6 @@ config SPL_ATF_NO_PLATFORM_PARAM
 	  always pass NULL for the platform parameter.
 
 	  If your ATF is affected, say Y.
-
-config SPL_ATF_AARCH32_BL33
-	bool "Support BL33 runs as AArch32 mode"
-	depends on SPL_ATF
-	help
-	  This option setup the AArch32 Mode for BL33.
 
 config SPL_OPTEE
 	bool "Support OP-TEE Trusted OS"

@@ -79,6 +79,11 @@ __weak int rk_board_dm_fdt_fixup(void *blob)
 	return 0;
 }
 
+__weak int soc_id_init(void)
+{
+	return 0;
+}
+
 __weak int soc_clk_dump(void)
 {
 	return 0;
@@ -497,9 +502,11 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_DRM_ROCKCHIP
-	if (rockchip_get_boot_mode() != BOOT_MODE_QUIESCENT)
+	if ((rockchip_get_boot_mode() != BOOT_MODE_QUIESCENT) &&
+	     !smp_event1(SEVT_3, STID_16))
 		rockchip_show_logo();
 #endif
+
 #ifdef CONFIG_ROCKCHIP_EINK_DISPLAY
 	rockchip_eink_show_uboot_logo();
 #endif
@@ -552,6 +559,8 @@ static void board_debug_init(void)
 
 int board_init(void)
 {
+	smp_event1(SEVT_0, 0);
+
 	board_debug_init();
 #ifdef DEBUG
 	soc_clk_dump();
@@ -565,8 +574,12 @@ int board_init(void)
 	early_download();
 
 	clks_probe();
+
 #ifdef CONFIG_DM_REGULATOR
-	regulators_enable_boot_on(is_hotkey(HK_REGULATOR));
+	if (smp_event1(SEVT_3, STID_18))
+		smp_event1(SEVT_1, STID_18);
+	else
+		regulators_enable_boot_on(is_hotkey(HK_REGULATOR));
 #endif
 #ifdef CONFIG_ROCKCHIP_IO_DOMAIN
 	io_domain_init();
@@ -579,6 +592,8 @@ int board_init(void)
 	if (ab_decrease_tries())
 		printf("Decrease ab tries count fail!\n");
 #endif
+	soc_id_init();
+
 	return rk_board_init();
 }
 
@@ -656,6 +671,8 @@ int board_fdt_fixup(void *blob)
 	 */
 	rk_board_dm_fdt_fixup(blob);
 	rockchip_dm_late_init(blob);
+
+	smp_event1(SEVT_2, STID_16);
 
 	/* Common fixup for DRM */
 #ifdef CONFIG_DRM_ROCKCHIP
@@ -1205,6 +1222,7 @@ void board_quiesce_devices(void *images)
 		       orig_images_ep, bootm_images->ep);
 	}
 #endif
+	smp_event1(SEVT_0, -1);
 
 	hotkey_run(HK_CMDLINE);
 	hotkey_run(HK_CLI_OS_GO);

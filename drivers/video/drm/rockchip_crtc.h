@@ -12,12 +12,13 @@
 struct rockchip_vp {
 	bool enable;
 	bool xmirror_en;
+	bool sharp_en;
 	u8 bg_ovl_dly;
 	u8 primary_plane_id;
+	u8 cursor_plane_id;
 	u8 dclk_div;
 	int output_type;
 	u32 plane_mask;
-	int cursor_plane;
 };
 
 struct rockchip_crtc {
@@ -33,12 +34,14 @@ struct rockchip_crtc {
 };
 
 struct rockchip_crtc_funcs {
+	int (*reset) (struct udevice *dev, u32 axi, u32 vp_mask, u32 plane_mask);
 	int (*preinit)(struct display_state *state);
 	int (*init)(struct display_state *state);
 	void (*deinit)(struct display_state *state);
 	int (*set_plane)(struct display_state *state);
 	int (*prepare)(struct display_state *state);
 	int (*enable)(struct display_state *state);
+	int (*post_enable)(struct display_state *state);
 	int (*disable)(struct display_state *state);
 	void (*unprepare)(struct display_state *state);
 	int (*fixup_dts)(struct display_state *state, void *blob);
@@ -73,6 +76,7 @@ extern const struct vop_data rk3506_vop;
 extern const struct vop_data rv1106_vop;
 extern const struct vop_data rv1108_vop;
 extern const struct vop_data rv1126_vop;
+extern const struct vop_data rv1126b_vop;
 extern const struct vop2_data rk3528_vop;
 extern const struct vop2_data rk3562_vop;
 extern const struct vop2_data rk3568_vop;

@@ -3663,7 +3663,7 @@ int sdram_init(void)
 #ifdef CONFIG_ROCKCHIP_DRAM_EXTENDED_TEMP_SUPPORT
 	printascii("extended temp support\n");
 #endif
-	if (index->version_info != 2 ||
+	if (index->version_info != 3 ||
 	    (index->global_index.size != sizeof(struct global_info) / 4) ||
 	    (index->ddr3_index.size !=
 		sizeof(struct ddr2_3_4_lp2_3_info) / 4) ||

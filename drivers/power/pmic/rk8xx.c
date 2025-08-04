@@ -25,6 +25,10 @@ static const struct virq_reg rk805_irqs[] = {
 		.mask = RK805_IRQ_PWRON_RISE_MSK,
 		.reg_offset = 0,
 	},
+	[RK8XX_IRQ_RTC_ALARM] = {
+		.mask = RK805_IRQ_RTC_ALARM_MSK,
+		.reg_offset = 0,
+	},
 };
 
 static struct virq_chip rk805_irq_chip = {
@@ -66,6 +70,10 @@ static const struct virq_reg rk808_irqs[] = {
 		.mask = RK808_IRQ_PLUG_OUT_MSK,
 		.reg_offset = 1,
 	},
+	[RK8XX_IRQ_RTC_ALARM] = {
+		.mask = RK808_IRQ_RTC_ALARM_MSK,
+		.reg_offset = 0,
+	},
 };
 
 static struct virq_chip rk808_irq_chip = {
@@ -97,6 +105,10 @@ static const struct virq_reg rk816_irqs[] = {
 		.mask = RK816_IRQ_CHR_OK_MSK,
 		.reg_offset = 2,
 	},
+	[RK8XX_IRQ_RTC_ALARM] = {
+		.mask = RK816_IRQ_RTC_ALARM_MSK,
+		.reg_offset = 1,
+	},
 };
 
 static struct virq_chip rk816_irq_chip = {
@@ -121,6 +133,10 @@ static const struct virq_reg rk818_irqs[] = {
 	[RK8XX_IRQ_CHG_OK] = {
 		.mask = RK818_IRQ_CHR_OK_MSK,
 		.reg_offset = 1,
+	},
+	[RK8XX_IRQ_RTC_ALARM] = {
+		.mask = RK818_IRQ_RTC_ALARM_MSK,
+		.reg_offset = 0,
 	},
 };
 
@@ -153,6 +169,10 @@ static const struct virq_reg rk817_irqs[] = {
 		.mask = RK817_IRQ_PLUG_IN_MSK,
 		.reg_offset = 1,
 	},
+	[RK8XX_IRQ_RTC_ALARM] = {
+		.mask = RK817_IRQ_RTC_ALARM_MSK,
+		.reg_offset = 0,
+	},
 };
 
 static struct virq_chip rk817_irq_chip = {
@@ -171,13 +191,13 @@ static struct reg_data rk817_init_reg[] = {
 /* enable the under-voltage protection,
  * the under-voltage protection will shutdown the LDO3 and reset the PMIC
  */
-	{ RK817_BUCK4_CMIN, 0x6b, 0x6e},
+	{ RK817_BUCK4_CMIN, 0x6e, 0x6e},
 	{ RK817_PMIC_SYS_CFG1, 0x20, 0x70},
 	/* Set pmic_sleep as none function */
 	{ RK817_PMIC_SYS_CFG3, 0x00, 0x18 },
 	/* GATE pin function: gate function */
 	{ RK817_GPIO_INT_CFG, 0x00, 0x20 },
-#ifdef CONFIG_DM_CHARGE_DISPLAY
+#if CONFIG_IS_ENABLED(IRQ)
 	/* Set pmic_int active low */
 	{ RK817_GPIO_INT_CFG,  0x00, 0x02 },
 #endif
@@ -204,6 +224,8 @@ static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "PLDO", .driver = "rk8xx_pldo"},
 	{ .prefix = "LDO", .driver = "rk8xx_ldo"},
 	{ .prefix = "SWITCH", .driver = "rk8xx_switch"},
+	{ .prefix = "BOOST", .driver = "rk8xx_boost"},
+
 	{ },
 };
 

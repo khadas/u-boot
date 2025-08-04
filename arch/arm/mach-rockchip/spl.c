@@ -9,11 +9,14 @@
 #include <boot_rkimg.h>
 #include <debug_uart.h>
 #include <dm.h>
+#include <envf.h>
 #include <key.h>
 #include <led.h>
 #include <misc.h>
+#include <mtd_blk.h>
 #include <ram.h>
 #include <spl.h>
+#include <spl_ab.h>
 #include <optee_include/OpteeClientInterface.h>
 #include <power/fuel_gauge.h>
 #include <asm/arch/bootrom.h>
@@ -27,6 +30,7 @@
 #include <asm/io.h>
 #include <asm/arch/param.h>
 #include <asm/arch/rk_hwid.h>
+#include <asm/arch/rk_meta.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,6 +41,10 @@ void board_return_to_bootrom(void)
 
 __weak const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 };
+
+__weak void spl_rk_board_prepare_for_jump(struct spl_image_info *spl_image)
+{
+}
 
 const char *board_spl_was_booted_from(void)
 {
@@ -477,7 +485,7 @@ const char *spl_kernel_partition(struct spl_image_info *spl,
 	return (boot_mode == BOOT_RECOVERY) ? PART_RECOVERY : PART_BOOT;
 }
 
-static void spl_fdt_fixup_memory(struct spl_image_info *spl_image)
+__weak void spl_fdt_fixup_memory(struct spl_image_info *spl_image)
 {
 	void *blob = spl_image->fdt_addr;
 	struct tag *t;
@@ -498,6 +506,11 @@ static void spl_fdt_fixup_memory(struct spl_image_info *spl_image)
 		for (i = 0; i < count; i++) {
 			start[i] = t->u.ddr_mem.bank[i];
 			size[i] = t->u.ddr_mem.bank[i + count];
+#ifdef SPL_RESV_MEM_SIZE
+			if ((start[i] == CONFIG_SYS_SDRAM_BASE) &&
+			    (start[i] + size[i] > CONFIG_SYS_SDRAM_BASE + SPL_RESV_MEM_SIZE))
+				start[i] += SPL_RESV_MEM_SIZE;
+#endif
 			if (size[i] == 0)
 				continue;
 			debug("Adding bank: 0x%08llx - 0x%08llx (size: 0x%08llx)\n",
@@ -524,6 +537,75 @@ int spl_find_hwid_dtb(const char *fdt_name)
 	return hwid_dtb_is_available(fdt_name);
 }
 #endif
+
+int spl_fdt_chosen_bootargs(struct spl_load_info *info, void *fdt)
+{
+	__maybe_unused struct blk_desc *desc = info->dev;
+
+#ifdef CONFIG_SPL_AB
+	char slot_suffix[3] = {0};
+
+	if (!spl_get_current_slot(desc, "misc", slot_suffix))
+		spl_ab_bootargs_append_slot(fdt, slot_suffix);
+#endif
+
+#ifdef CONFIG_SPL_ENVF
+	char *part_type[] = { "mtdparts", "blkdevparts" };
+	char *env = NULL;
+	char *part_list;
+	int id = 0, ret = 0;
+
+	env = envf_get(desc, part_type[id]);
+	if (!env)
+		env = envf_get(desc, part_type[++id]);
+	if (env) {
+		if (!strstr(env, part_type[id])) {
+			part_list = calloc(1, strlen(env) + strlen(part_type[id]) + 2);
+			if (part_list) {
+				strcat(part_list, part_type[id]);
+				strcat(part_list, "=");
+				strcat(part_list, env);
+			}
+		} else {
+			part_list = env;
+		}
+		ret = fdt_bootargs_append(fdt, part_list);
+		if (ret) {
+			printf("Append parts info to bootargs fail");
+			return ret;
+		}
+		debug("## parts: %s\n\n", part_list);
+
+		env = envf_get(desc, "sys_bootargs");
+		env = env + strlen("sys_bootargs=");
+		if (env) {
+			ret = fdt_bootargs_append(fdt, env);
+			if (ret) {
+				printf("Append sys_bootargs to bootargs fail");
+				return ret;
+			}
+			debug("## sys_bootargs: %s\n\n", env);
+		}
+	}
+#endif
+#ifdef CONFIG_MTD_BLK
+	if (!env && desc->if_type == IF_TYPE_MTD) {
+		char *mtd_par_info = mtd_part_parse(desc);
+
+		ret = fdt_bootargs_append(fdt, mtd_par_info);
+		if (ret) {
+			printf("Append mtdparts info to bootargs fail");
+			return ret;
+		}
+		debug("## mtdparts: %s\n\n", mtd_par_info);
+	}
+#endif
+#ifdef CONFIG_ROCKCHIP_META
+	rk_meta_bootargs_append(fdt);
+#endif
+
+	return 0;
+}
 #endif
 
 void spl_perform_fixups(struct spl_image_info *spl_image)
@@ -651,5 +733,7 @@ int spl_board_prepare_for_jump(struct spl_image_info *spl_image)
 #ifdef CONFIG_SPL_ROCKCHIP_HW_DECOMPRESS
 	misc_decompress_cleanup();
 #endif
+	spl_rk_board_prepare_for_jump(spl_image);
+
 	return 0;
 }

@@ -23,6 +23,8 @@
 #ifndef __DRM_COLOR_MGMT_H__
 #define __DRM_COLOR_MGMT_H__
 
+#include <linux/bitops.h>
+
 enum drm_color_encoding {
 	DRM_COLOR_YCBCR_BT601,
 	DRM_COLOR_YCBCR_BT709,

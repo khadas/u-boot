@@ -102,6 +102,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MMU600PHP_TCU_PRIORITY_REG	0xfdf3a808
 #define QOS_PRIORITY_LEVEL(h, l)	((((h) & 7) << 8) | ((l) & 7))
 
+#define SATA0_BASE_ADDR			0xfe210000
+#define SATA1_BASE_ADDR			0xfe220000
+#define SATA2_BASE_ADDR			0xfe230000
+#define SATA_PI				0xC
+#define SATA_PORT_CMD			0x118
+#define SATA_FBS_ENABLE			BIT(22)
+
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
 
@@ -1067,6 +1074,16 @@ int arch_cpu_init(void)
 	 */
 	writel(QOS_PRIORITY_LEVEL(4, 4), MMU600PHP_TBU_PRIORITY_REG);
 	writel(QOS_PRIORITY_LEVEL(4, 4), MMU600PHP_TCU_PRIORITY_REG);
+
+	/*
+	 * Set SATA FBSCP and PORTS_IMPL for kernel drivers
+	 */
+	writel(SATA_FBS_ENABLE, SATA0_BASE_ADDR + SATA_PORT_CMD);
+	writel(1, SATA0_BASE_ADDR + SATA_PI);
+	writel(SATA_FBS_ENABLE, SATA1_BASE_ADDR + SATA_PORT_CMD);
+	writel(1, SATA1_BASE_ADDR + SATA_PI);
+	writel(SATA_FBS_ENABLE, SATA2_BASE_ADDR + SATA_PORT_CMD);
+	writel(1, SATA2_BASE_ADDR + SATA_PI);
 #endif
 
 	/* Select usb otg0 phy status to 0 that make rockusb can work at high-speed */
@@ -1228,7 +1245,7 @@ static void fdt_rm_cpu(const void *blob, u8 cpu_mask)
 	}
 }
 
-static void rk3582_fdt_rm_cpus(const void *blob, u8 cpu_mask)
+static void rk3582_3_fdt_rm_cpus(const void *blob, u8 cpu_mask)
 {
 	/*
 	 * policy:
@@ -1251,33 +1268,7 @@ static void rk3582_fdt_rm_cpus(const void *blob, u8 cpu_mask)
 	fdt_rm_cpu(blob, cpu_mask);
 }
 
-static void rk3582_fdt_rm_gpu(void *blob)
-{
-	/*
-	 * policy:
-	 *
-	 * Remove GPU by default.
-	 */
-	fdt_rm_path(blob, "/gpu@fb000000");
-	fdt_rm_path(blob, "/thermal-zones/soc-thermal/cooling-maps/map3");
-	debug("rm: gpu\n");
-}
-
-static void rk3582_fdt_rm_rkvdec01(void *blob)
-{
-	/*
-	 * policy:
-	 *
-	 * Remove rkvdec0 and rkvdec1 by default.
-	 */
-	fdt_rm_path(blob, "/rkvdec-core@fdc38000");
-	fdt_rm_path(blob, "/iommu@fdc38700");
-	fdt_rm_path(blob, "/rkvdec-core@fdc48000");
-	fdt_rm_path(blob, "/iommu@fdc48700");
-	debug("rm: rkvdec0, rkvdec1\n");
-}
-
-static void rk3582_fdt_rm_rkvenc01(void *blob, u8 mask)
+static void rk3582_3_fdt_rm_rkvenc01(void *blob, u8 mask)
 {
 	/*
 	 * policy:
@@ -1314,7 +1305,7 @@ static void rk3582_fdt_rm_rkvenc01(void *blob, u8 mask)
 	fdt_rename_path(blob, "/rkvenc-core@fdbe0000", "rkvenc@fdbe0000");
 }
 
-static void rk3583_fdt_rm_rkvdec01(void *blob, u8 mask)
+static void rk3582_3_fdt_rm_rkvdec01(void *blob, u8 mask)
 {
 	/*
 	 * policy:
@@ -1410,25 +1401,10 @@ static int fdt_fixup_modules(void *blob)
 	 * got before maybe not right by now. Make sure always reading the node
 	 * offset exactly before you are going to use.
 	 */
-	if (chip_id[0] == 0x35 && chip_id[1] == 0x82) {
-		/*
-		 * RK3582 Policy: gpu/rkvdec are removed by default, the same for other
-		 * IP under some condition.
-		 *
-		 * So don't use pattern like "if (rkvenc_mask) then rk3582_fdt_rm_rkvenc01()",
-		 * just go through all of them as this chip is rk3582.
-		 */
-		rk3582_fdt_rm_gpu(blob);
-		rk3582_fdt_rm_rkvdec01(blob);
-		rk3582_fdt_rm_rkvenc01(blob, rkvenc_mask);
-		rk3582_fdt_rm_cpus(blob, cpu_mask);
-	} else if (chip_id[0] == 0x35 && chip_id[1] == 0x83) {
-		/*
-		 * RK3583 Policy: some rules are the same as rk3582.
-		 */
-		rk3583_fdt_rm_rkvdec01(blob, rkvdec_mask);
-		rk3582_fdt_rm_rkvenc01(blob, rkvenc_mask);
-		rk3582_fdt_rm_cpus(blob, cpu_mask);
+	if (chip_id[0] == 0x35 && (chip_id[1] == 0x82 || chip_id[1] == 0x83)) {
+		rk3582_3_fdt_rm_rkvdec01(blob, rkvdec_mask);
+		rk3582_3_fdt_rm_rkvenc01(blob, rkvenc_mask);
+		rk3582_3_fdt_rm_cpus(blob, cpu_mask);
 	}
 
 	return 0;

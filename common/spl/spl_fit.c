@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <boot_rkimg.h>
+#include <keylad.h>
+#include <crypto.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <image.h>
@@ -147,6 +149,86 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
 	return (data_size + info->bl_len - 1) / info->bl_len;
 }
 
+#ifdef CONFIG_SPL_FIT_CIPHER
+static int spl_fit_image_uncipher(const void *fit, int noffset,
+				  ulong cipher_addr, size_t cipher_sz,
+				  ulong uncipher_addr)
+{
+	struct udevice *dev;
+	cipher_fw_context ctx;
+	int cipher_noffset;
+	const char *node_name;
+	const void *iv;
+	char *algo_name;
+	int key_len = 16;
+	int iv_len;
+	int ret;
+
+	node_name = fdt_get_name(fit, noffset, NULL);
+	if (!node_name) {
+		printf("Can't get node name.\n");
+		return -1;
+	}
+
+	cipher_noffset = fdt_subnode_offset(fit, noffset, FIT_CIPHER_NODENAME);
+	if (cipher_noffset < 0) {
+		printf("Can't get cipher node offset for image '%s'\n",
+		       node_name);
+		return -1;
+	}
+
+	if (fit_image_cipher_get_algo(fit, cipher_noffset, &algo_name)) {
+		printf("Can't get cipher algo for image '%s'\n",
+		       node_name);
+		return -1;
+	}
+
+	if (strcmp(algo_name, "aes128")) {
+		printf("Invalid cipher algo '%s'\n", algo_name);
+		return -1;
+	}
+
+	iv = fdt_getprop(fit, cipher_noffset, "iv", &iv_len);
+	if (!iv) {
+		printf("Can't get IV for image '%s'\n", node_name);
+		return -1;
+	}
+
+	if (iv_len != key_len) {
+		printf("Len iv(%d) != key(%d) for image '%s'\n",
+		       iv_len, key_len, node_name);
+		return -1;
+	}
+
+	memset(&ctx, 0x00, sizeof(ctx));
+
+	ctx.algo    = CRYPTO_AES;
+	ctx.mode    = RK_MODE_CTR;
+	ctx.key_len = key_len;
+	ctx.iv      = iv;
+	ctx.iv_len  = iv_len;
+	ctx.fw_keyid = RK_FW_KEY0;
+
+	dev = crypto_get_device(CRYPTO_AES);
+	if (!dev) {
+		printf("No crypto device for expected AES\n");
+		return -ENODEV;
+	}
+
+	/* uncipher */
+	ret = crypto_fw_cipher(dev, &ctx, (void *)cipher_addr,
+		(void *)uncipher_addr, cipher_sz, true);
+
+	if (ret) {
+		printf("Uncipher data failed for image '%s', ret=%d\n",
+		       node_name, ret);
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
 /**
  * spl_load_fit_image(): load the image described in a certain FIT node
  * @info:	points to information about the device to load data from
@@ -205,6 +287,13 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	} else {
 		comp_addr = load_addr;
 	}
+
+#ifdef CONFIG_SPL_FIT_CIPHER
+	ulong cipher_addr;
+
+	if (fit_image_get_cipher_addr(fit, node, &cipher_addr))
+		cipher_addr = comp_addr + FIT_MAX_SPL_IMAGE_SZ;
+#endif
 
 	if (!fit_image_get_data_position(fit, node, &offset)) {
 		external_data = true;
@@ -266,9 +355,20 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 					 src, length))
 		return -EPERM;
 
+#ifdef CONFIG_SPL_FIT_CIPHER
+	if (fdt_subnode_offset(fit, node, FIT_CIPHER_NODENAME) > 0) {
+		printf(" Decrypting Data ...");
+		memcpy((void *)cipher_addr, src, length);
+		if (spl_fit_image_uncipher(fit, node, cipher_addr, length, (ulong)src))
+			return -EACCES;
+		printf(" OK ");
+	}
+#endif
+
 #ifdef CONFIG_SPL_FIT_IMAGE_POST_PROCESS
-	board_fit_image_post_process(fit, node, (ulong *)&load_addr,
-				     (ulong **)&src, &length, info);
+	if (board_fit_image_post_process(fit, node, (ulong *)&load_addr,
+					 (ulong **)&src, &length, info))
+		return -EINVAL;
 #endif
 	puts("OK\n");
 
@@ -426,7 +526,7 @@ static void *spl_fit_load_blob(struct spl_load_info *info,
 			align_len) & ~align_len);
 	sectors = get_aligned_image_size(info, size, 0);
 	count = info->read(info, sector, sectors, fit);
-#ifdef CONFIG_SPL_MTD_SUPPORT
+#if defined(CONFIG_SPL_MTD_SUPPORT) && !defined(CONFIG_FPGA_RAM)
 	mtd_blk_map_fit(info->dev, sector, fit);
 #endif
 	debug("fit read sector %lx, sectors=%d, dst=%p, count=%lu\n",
@@ -568,19 +668,10 @@ static int spl_load_kernel_fit(struct spl_image_info *spl_image,
 		/* initial addr or entry point */
 		if (!strcmp(images[i], FIT_FDT_PROP)) {
 			spl_image->fdt_addr = (void *)image_info.load_addr;
-#ifdef CONFIG_SPL_AB
-			char slot_suffix[3] = {0};
-
-			if (!spl_get_current_slot(info->dev, "misc", slot_suffix))
-				spl_ab_bootargs_append_slot((void *)image_info.load_addr, slot_suffix);
-#endif
-
-#ifdef CONFIG_SPL_MTD_SUPPORT
-			struct blk_desc *desc = info->dev;
-
-			if (desc->devnum == BLK_MTD_SPI_NAND)
-				fdt_bootargs_append((void *)image_info.load_addr, mtd_part_parse(desc));
-#endif
+			if (spl_fdt_chosen_bootargs(info, (void *)image_info.load_addr)) {
+				printf("ERROR: Append bootargs failed\n");
+				return -EINVAL;
+			}
 		} else if (!strcmp(images[i], FIT_KERNEL_PROP)) {
 #if CONFIG_IS_ENABLED(OPTEE)
 			spl_image->entry_point_os = image_info.load_addr;
@@ -614,6 +705,9 @@ static int spl_internal_load_simple_fit(struct spl_image_info *spl_image,
 {
 	struct spl_image_info image_info;
 	char *desc;
+#if CONFIG_IS_ENABLED(ATF)
+	uint8_t ih_arch;
+#endif
 	int base_offset;
 	int images, ret;
 	int index = 0;
@@ -787,6 +881,10 @@ static int spl_internal_load_simple_fit(struct spl_image_info *spl_image,
 
 		if (os_type == IH_OS_U_BOOT) {
 #if CONFIG_IS_ENABLED(ATF)
+			fit_image_get_arch(fit, node, &ih_arch);
+			debug("Image ARCH is %s\n", genimg_get_arch_name(ih_arch));
+			if (ih_arch == IH_ARCH_ARM)
+				spl_image->flags |= SPL_ATF_AARCH32_BL33;
 			spl_image->entry_point_bl33 = image_info.load_addr;
 #elif CONFIG_IS_ENABLED(OPTEE)
 			spl_image->entry_point_os = image_info.load_addr;

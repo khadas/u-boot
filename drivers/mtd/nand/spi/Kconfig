@@ -147,4 +147,10 @@ config SPI_NAND_HIKSEMI
 	help
 	  Add support for various HIKSEMI SPI Nand flash chips
 
+config SPI_NAND_KINGSTON
+	default y
+	bool "KINGSTON SPI flash support"
+	help
+	  Add support for various KINGSTON SPI Nand flash chips
+
 endif

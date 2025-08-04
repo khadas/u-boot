@@ -74,37 +74,20 @@ static void rtc_irq_handler(int irq, void *data)
 			return;
 		}
 	}
-
-	ret = pmic_reg_write(dev->parent,
-			     priv->int_sts_reg, 0xff);
-	if (ret < 0) {
-		printf("%s: i2c write reg 0x%x failed, ret=%d\n",
-		       __func__, priv->int_sts_reg, ret);
-		return;
-	}
-	debug("%s: reg[0x%x] = 0x%x\n", __func__, priv->int_sts_reg,
-	      pmic_reg_read(dev->parent, priv->int_sts_reg));
 }
 
 static int rtc_interrupt_init(struct udevice *dev)
 {
+	struct rk8xx_priv *rk8xx = dev_get_priv(dev->parent);
 	struct rk8xx_rtc_priv *priv = dev_get_priv(dev);
-	u32 interrupt[2], phandle;
-	int irq, ret;
+	int irq;
 
-	phandle = dev_read_u32_default(dev->parent, "interrupt-parent", -1);
-	if (phandle < 0) {
-		printf("failed get 'interrupt-parent', ret=%d\n", phandle);
-		return phandle;
+	if (!rk8xx->irq_chip) {
+		printf("Failed to get parent irq chip\n");
+		return -ENOENT;
 	}
 
-	ret = dev_read_u32_array(dev->parent, "interrupts", interrupt, 2);
-	if (ret) {
-		printf("failed get 'interrupt', ret=%d\n", ret);
-		return ret;
-	}
-
-	irq = phandle_gpio_to_irq(phandle, interrupt[0]);
+	irq = virq_to_irq(rk8xx->irq_chip, RK8XX_IRQ_RTC_ALARM);
 	if (irq < 0) {
 		if (irq == -EBUSY) {
 			priv->irq_is_busy = 1;
@@ -156,7 +139,7 @@ static int rk8xx_rtc_probe(struct udevice *dev)
 {
 	struct rk8xx_priv *rk8xx = dev_get_priv(dev->parent);
 	struct rk8xx_rtc_priv *priv = dev_get_priv(dev);
-	int ret, val;
+	int ret, val, mask_val;
 
 	priv->rtc_int_sts_reg = RK808_RTC_STATUS_REG;
 	priv->rtc_int_msk_reg = RK808_RTC_INT_REG;
@@ -165,14 +148,17 @@ static int rk8xx_rtc_probe(struct udevice *dev)
 	case RK818_ID:
 		priv->int_msk_reg = RK808_INT_MSK_REG1;
 		priv->int_sts_reg = RK808_INT_STS_REG1;
+		mask_val = RK808_IRQ_RTC_PERIOD_MSK | RK808_IRQ_VOUT_LOW_MSK;
 		break;
 	case RK805_ID:
 		priv->int_msk_reg = RK805_INT_MSK_REG;
 		priv->int_sts_reg = RK805_INT_STS_REG;
+		mask_val = RK805_IRQ_RTC_PERIOD_MSK;
 		break;
 	case RK816_ID:
 		priv->int_msk_reg = RK816_INT_MSK_REG2;
 		priv->int_sts_reg = RK816_INT_STS_REG2;
+		mask_val = RK816_IRQ_RTC_PERIOD_MSK;
 		break;
 	case RK809_ID:
 	case RK817_ID:
@@ -180,6 +166,7 @@ static int rk8xx_rtc_probe(struct udevice *dev)
 		priv->rtc_int_msk_reg = RK817_RTC_INT_REG;
 		priv->int_msk_reg = RK817_INT_MSK_REG0;
 		priv->int_sts_reg = RK817_INT_STS_REG0;
+		mask_val = RK817_IRQ_RTC_PERIOD_MSK;
 		break;
 	default:
 		return -EINVAL;
@@ -195,7 +182,7 @@ static int rk8xx_rtc_probe(struct udevice *dev)
 		return val;
 	}
 	ret = pmic_reg_write(dev->parent,
-			     priv->int_msk_reg, val | 0xc1);
+			     priv->int_msk_reg, val | mask_val);
 	if (ret < 0) {
 		printf("%s: i2c write reg 0x%x failed, ret=%d\n",
 		       __func__, priv->int_msk_reg, ret);

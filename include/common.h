@@ -30,6 +30,8 @@ typedef volatile unsigned char	vu_char;
 #include <linux/string.h>
 #include <linux/stringify.h>
 #include <asm/ptrace.h>
+#include <asm/uspinlock.h>
+#include <smp.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <linux/kernel.h>

@@ -222,6 +222,19 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 	return mmc_send_cmd(mmc, &cmd, NULL);
 }
 
+int mmc_set_blockcount(struct mmc *mmc, unsigned int blkcnt, bool is_rel_write)
+{
+	struct mmc_cmd cmd = {0};
+
+	cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
+	cmd.cmdarg = blkcnt & 0x0000FFFF;
+	if (is_rel_write)
+		cmd.cmdarg |= 1 << 31;
+	cmd.resp_type = MMC_RSP_R1;
+
+	return mmc_send_cmd(mmc, &cmd, NULL);
+}
+
 static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 			   lbaint_t blkcnt)
 {
@@ -270,10 +283,12 @@ static int mmc_read_blocks_prepare(struct mmc *mmc, void *dst, lbaint_t start,
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 
-	if (blkcnt > 1)
+	if (blkcnt > 1) {
+		mmc_set_blockcount(mmc, blkcnt, false);
 		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
-	else
+	} else {
 		cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+	}
 
 	if (mmc->high_capacity)
 		cmd.cmdarg = start;
@@ -2214,11 +2229,17 @@ static int mmc_select_card(struct mmc *mmc, int n)
 
 int mmc_start_init(struct mmc *mmc)
 {
+	int bus_width = 1;
 	/*
 	 * We use the MMC config set by the bootrom.
 	 * So it is no need to reset the eMMC device.
 	 */
-	mmc_set_bus_width(mmc, 8);
+	if (mmc->cfg->host_caps & MMC_MODE_8BIT)
+		bus_width = 8;
+	else if (mmc->cfg->host_caps & MMC_MODE_4BIT)
+		bus_width = 4;
+	mmc_set_bus_width(mmc, bus_width);
+
 	mmc_set_clock(mmc, 1);
 	mmc_set_timing(mmc, MMC_TIMING_LEGACY);
 	/* Send cmd7 to return stand-by state*/

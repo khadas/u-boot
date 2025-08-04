@@ -916,6 +916,10 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_IGNORE_PROP		"uboot-ignore"
 #define FIT_SIG_NODENAME	"signature"
 
+/* cipher node */
+#define FIT_CIPHER_NODENAME	"cipher"
+#define FIT_ALGO_PROP		"algo"
+
 /* image node */
 #define FIT_DATA_PROP		"data"
 #define FIT_DATA_POSITION_PROP	"data-position"
@@ -930,6 +934,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_OS_PROP		"os"
 #define FIT_COMP_PROP		"compression"
 #define FIT_COMP_ADDR_PROP	"comp"
+#define FIT_CIPHER_ADDR_PROP	"cipher"
 #define FIT_ENTRY_PROP		"entry"
 #define FIT_LOAD_PROP		"load"
 #define FIT_PRE_LOAD_PROP	"preload"
@@ -1019,6 +1024,7 @@ bool fit_image_is_preload(const void *fit, int noffset);
 int fit_image_get_load(const void *fit, int noffset, ulong *load);
 int fit_image_get_entry(const void *fit, int noffset, ulong *entry);
 int fit_image_get_comp_addr(const void *fit, int noffset, ulong *comp);
+int fit_image_get_cipher_addr(const void *fit, int noffset, ulong *cipher);
 int fit_image_set_load(const void *fit, int noffset, ulong load);
 int fit_image_set_entry(const void *fit, int noffset, ulong entry);
 int fit_image_get_data(const void *fit, int noffset,
@@ -1108,6 +1114,8 @@ int fit_check_ramdisk(const void *fit, int os_noffset,
 
 int calculate_hash(const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len);
+
+int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo);
 
 /*
  * At present we only support signing on the host, and verification on the
@@ -1439,11 +1447,13 @@ int board_fit_config_name_match(const char *name);
  * @size: pointer to the image size
  * @spec: special data. SPL: struct spl_load_info info, U-Boot: NULL.
  *
- * @return no return value (failure should be handled internally)
+ * @return 0 if ok, <0 on failure
  */
-void board_fit_image_post_process(void *fit, int node, ulong *load_addr,
+int board_fit_image_post_process(void *fit, int node, ulong *load_addr,
 				  ulong **src_addr, size_t *size, void *spec);
 
+int rk_board_fit_image_post_process(void *fit, int node, ulong *load_addr,
+				     ulong **src_addr, size_t *src_len);
 #endif /* CONFIG_SPL_FIT_IMAGE_POST_PROCESS */
 
 #define FDT_ERROR	((ulong)(-1))

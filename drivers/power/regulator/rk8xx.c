@@ -57,6 +57,11 @@
 #define RK817_POWER_EN(n)		(0xb1 + (n))
 #define RK817_POWER_SLP_EN(n)		(0xb5 + (n))
 
+/* RK817 BOOST */
+#define RK817_BOOST_OTG_CONFIG0		(0xde)
+#define RK817_BOOST_CONFIG1		(0xdf)
+#define RK817_BOOST_VSEL_MASK		0x07
+
 /*
  * Ramp delay
  */
@@ -292,6 +297,11 @@ static const struct rk8xx_reg_info rk818_ldo[] = {
 	{  800000, 100000, REG_LDO6_ON_VSEL, REG_LDO6_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
 	{  800000, 100000, REG_LDO7_ON_VSEL, REG_LDO7_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
 	{ 1800000, 100000, REG_LDO8_ON_VSEL, REG_LDO8_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+};
+
+static const struct rk8xx_reg_info rk817_boost[] = {
+	/* boost */
+	{  4700000, 100, RK817_BOOST_OTG_CONFIG0, RK817_BOOST_CONFIG1, NA, RK817_BOOST_VSEL_MASK, 0x00, },
 };
 #endif
 
@@ -1240,7 +1250,9 @@ static int ldo_get_enable(struct udevice *dev)
 static int switch_set_enable(struct udevice *dev, bool enable)
 {
 	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	const char *supply_name = { "vcc9-supply"};
 	int ret = 0, sw = dev->driver_data - 1;
+	struct udevice *supply;
 	uint mask = 0;
 
 	switch (priv->variant) {
@@ -1248,6 +1260,18 @@ static int switch_set_enable(struct udevice *dev, bool enable)
 		mask = 1 << (sw + 5);
 		ret = pmic_clrsetbits(dev->parent, REG_DCDC_EN, mask,
 				      enable ? mask : 0);
+		break;
+	case RK817_ID:
+		sw = 0;
+		mask = (1 << (sw + 2)) | (1 << (sw + 6));
+		ret = pmic_clrsetbits(dev->parent, RK817_POWER_EN(3), mask,
+				      enable ? mask : (1 << (sw + 6)));
+		if (enable)
+			if (!uclass_get_device_by_phandle(UCLASS_REGULATOR,
+							  dev_get_parent(dev),
+							  supply_name,
+							  &supply))
+				ret = regulator_set_enable(supply, enable);
 		break;
 	case RK809_ID:
 		mask = (1 << (sw + 2)) | (1 << (sw + 6));
@@ -1270,13 +1294,29 @@ static int switch_set_enable(struct udevice *dev, bool enable)
 static int switch_get_enable(struct udevice *dev)
 {
 	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	const char *supply_name = { "vcc9-supply"};
 	int ret = 0, sw = dev->driver_data - 1;
+	struct udevice *supply;
 	uint mask = 0;
 
 	switch (priv->variant) {
 	case RK808_ID:
 		mask = 1 << (sw + 5);
 		ret = pmic_reg_read(dev->parent, REG_DCDC_EN);
+		break;
+	case RK817_ID:
+		if (!uclass_get_device_by_phandle(UCLASS_REGULATOR,
+						  dev_get_parent(dev),
+						  supply_name,
+						  &supply)) {
+			ret = regulator_get_enable(supply);
+			if (ret) {
+				sw = 0;
+				mask = 1 << (sw + 2);
+				ret = pmic_reg_read(dev->parent, RK817_POWER_EN(3));
+			} else
+				ret = 0;
+		}
 		break;
 	case RK809_ID:
 		mask = 1 << (sw + 2);
@@ -1307,7 +1347,9 @@ static int switch_get_suspend_value(struct udevice *dev)
 static int switch_set_suspend_enable(struct udevice *dev, bool enable)
 {
 	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	const char *supply_name = { "vcc9-supply"};
 	int ret = 0, sw = dev->driver_data - 1;
+	struct udevice *supply;
 	uint mask = 0;
 
 	switch (priv->variant) {
@@ -1315,6 +1357,17 @@ static int switch_set_suspend_enable(struct udevice *dev, bool enable)
 		mask = 1 << (sw + 5);
 		ret = pmic_clrsetbits(dev->parent, REG_SLEEP_SET_OFF1, mask,
 				      enable ? 0 : mask);
+		break;
+	case RK817_ID:
+		sw = 0;
+		mask = 1 << (sw + 6);
+		ret = pmic_clrsetbits(dev->parent, RK817_POWER_SLP_EN(0), mask,
+				      enable ? mask : 0);
+		if (!uclass_get_device_by_phandle(UCLASS_REGULATOR,
+						  dev_get_parent(dev),
+						  supply_name,
+						  &supply))
+			ret = regulator_set_suspend_enable(supply, enable);
 		break;
 	case RK809_ID:
 		mask = 1 << (sw + 6);
@@ -1337,7 +1390,9 @@ static int switch_set_suspend_enable(struct udevice *dev, bool enable)
 static int switch_get_suspend_enable(struct udevice *dev)
 {
 	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	const char *supply_name = { "vcc9-supply"};
 	int val, ret = 0, sw = dev->driver_data - 1;
+	struct udevice *supply;
 	uint mask = 0;
 
 	switch (priv->variant) {
@@ -1354,6 +1409,22 @@ static int switch_get_suspend_enable(struct udevice *dev)
 		if (val < 0)
 			return val;
 		ret = val & mask ? 1 : 0;
+		break;
+	case RK817_ID:
+		if (!uclass_get_device_by_phandle(UCLASS_REGULATOR,
+						  dev_get_parent(dev),
+						  supply_name,
+						  &supply)) {
+			ret = regulator_get_suspend_enable(supply);
+			if (ret) {
+				sw = 0;
+				mask = 1 << (sw + 6);
+				val = pmic_reg_read(dev->parent, RK817_POWER_SLP_EN(0));
+				if (val < 0)
+					return val;
+				ret = val & mask ? 1 : 0;
+			}
+		}
 		break;
 	case RK818_ID:
 		mask = 1 << 6;
@@ -1632,6 +1703,201 @@ static int pldo_get_suspend_enable(struct udevice *dev)
 	return _pldo_get_suspend_enable(dev->parent, ldo);
 }
 
+static const struct rk8xx_reg_info *get_boost_reg(struct udevice *pmic,
+						  int num,
+						  int uvolt)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+
+	switch (priv->variant) {
+	case RK817_ID:
+		return &rk817_boost[0];
+	}
+
+	return NULL;
+}
+
+static int boost_set_enable(struct udevice *dev, bool enable)
+{
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	uint mask = 0;
+	int ret = 0;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		mask = 0x22;
+		ret = pmic_clrsetbits(dev->parent, RK817_POWER_EN(3), mask,
+				      enable ? 0x22 : 0x20);
+		break;
+	}
+
+	debug("%s: boost enable=%d, mask=0x%x\n",
+	      __func__, enable, mask);
+
+	return ret;
+}
+
+static int boost_get_enable(struct udevice *dev)
+{
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	uint mask = 0;
+	int ret = 0;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		mask = 0x02;
+		ret = pmic_reg_read(dev->parent, RK817_POWER_EN(3));
+		break;
+	}
+
+	if (ret < 0)
+		return ret;
+
+	return ret & mask ? true : false;
+}
+
+static int boost_set_suspend_value(struct udevice *dev, int uvolt)
+{
+	int boost = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_boost_reg(dev->parent, boost, 0);
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	int mask = info->vsel_mask;
+	int val;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		if (!info)
+			return -ENOSYS;
+		if (info->vsel_sleep_reg == NA)
+			return -ENOSYS;
+
+		if (info->step_uv == 0)
+			val = info->min_sel;
+		else
+			val = ((uvolt - info->min_uv) / info->step_uv) + info->min_sel;
+
+		debug("%s: volt=%d, reg=0x%x, mask=0x%x, val=0x%x\n",
+		      __func__, uvolt, info->vsel_sleep_reg, mask, val);
+
+		return pmic_clrsetbits(dev->parent, info->vsel_sleep_reg, mask, val);
+	}
+	return 0;
+}
+
+static int boost_get_suspend_value(struct udevice *dev)
+{
+	int boost = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_boost_reg(dev->parent, boost, 0);
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	int mask = info->vsel_mask;
+	int ret, val;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		if (info->vsel_reg == NA)
+			return -ENOSYS;
+		ret = pmic_reg_read(dev->parent, info->vsel_sleep_reg);
+		if (ret < 0)
+			return ret;
+		val = ret & mask;
+
+		return info->min_uv + val * info->step_uv;
+	}
+	return 0;
+}
+
+static int boost_set_suspend_enable(struct udevice *dev, bool enable)
+{
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	uint mask = 0;
+	int ret = 0;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		mask = 1 << 5;
+		ret = pmic_clrsetbits(dev->parent, RK817_POWER_SLP_EN(0), mask,
+				      enable ? mask : 0);
+		break;
+	}
+
+	debug("%s: boost enable=%d, mask=0x%x\n",
+	      __func__, enable, mask);
+
+	return ret;
+}
+
+static int boost_get_suspend_enable(struct udevice *dev)
+{
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	int val, ret = 0;
+	uint mask = 0;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		mask = 1 << 5;
+		val = pmic_reg_read(dev->parent, RK817_POWER_SLP_EN(0));
+		if (val < 0)
+			return val;
+		ret = val & mask ? 1 : 0;
+		break;
+	}
+
+	return ret;
+}
+
+static int boost_get_value(struct udevice *dev)
+{
+	int boost = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_boost_reg(dev->parent, boost, 0);
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	int mask = info->vsel_mask;
+	int ret, val;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		if (info->vsel_reg == NA)
+			return -ENOSYS;
+		ret = pmic_reg_read(dev->parent, info->vsel_reg);
+		if (ret < 0)
+			return ret;
+		val = ret & mask;
+
+		return info->min_uv + val * info->step_uv;
+	}
+
+	return 0;
+}
+
+static int boost_set_value(struct udevice *dev, int uvolt)
+{
+	int boost = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_boost_reg(dev->parent, boost, 0);
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+	int mask = info->vsel_mask;
+	int val;
+
+	switch (priv->variant) {
+	case RK817_ID:
+		if (!info)
+			return -ENOSYS;
+
+		if (info->vsel_reg == NA)
+			return -ENOSYS;
+
+		if (info->step_uv == 0)
+			val = info->min_sel;
+		else
+			val = ((uvolt - info->min_uv) / info->step_uv) + info->min_sel;
+
+		debug("%s: volt=%d, reg=0x%x, mask=0x%x, val=0x%x\n",
+		      __func__, uvolt, info->vsel_reg, mask, val);
+
+		return pmic_clrsetbits(dev->parent, info->vsel_reg, mask, val);
+	}
+
+	return 0;
+}
+
 static int rk8xx_buck_probe(struct udevice *dev)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
@@ -1674,6 +1940,18 @@ static int rk8xx_pldo_probe(struct udevice *dev)
 
 	uc_pdata = dev_get_uclass_platdata(dev);
 	uc_pdata->type = REGULATOR_TYPE_LDO;
+	uc_pdata->mode_count = 0;
+
+	return 0;
+}
+
+static int rk8xx_boost_probe(struct udevice *dev)
+{
+	struct dm_regulator_uclass_platdata *uc_pdata;
+
+	uc_pdata = dev_get_uclass_platdata(dev);
+
+	uc_pdata->type = REGULATOR_TYPE_FIXED;
 	uc_pdata->mode_count = 0;
 
 	return 0;
@@ -1724,6 +2002,17 @@ static const struct dm_regulator_ops rk8xx_pldo_ops = {
 	.get_suspend_enable = pldo_get_suspend_enable,
 };
 
+static const struct dm_regulator_ops rk8xx_boost_ops = {
+	.get_value  = boost_get_value,
+	.set_value  = boost_set_value,
+	.get_enable = boost_get_enable,
+	.set_enable = boost_set_enable,
+	.set_suspend_enable = boost_set_suspend_enable,
+	.get_suspend_enable = boost_get_suspend_enable,
+	.set_suspend_value = boost_set_suspend_value,
+	.get_suspend_value = boost_get_suspend_value,
+};
+
 U_BOOT_DRIVER(rk8xx_buck) = {
 	.name = "rk8xx_buck",
 	.id = UCLASS_REGULATOR,
@@ -1750,6 +2039,13 @@ U_BOOT_DRIVER(rk8xx_spi_pldo) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &rk8xx_pldo_ops,
 	.probe = rk8xx_pldo_probe,
+};
+
+U_BOOT_DRIVER(rk8xx_boost) = {
+	.name = "rk8xx_boost",
+	.id = UCLASS_REGULATOR,
+	.ops = &rk8xx_boost_ops,
+	.probe = rk8xx_boost_probe,
 };
 #endif
 

@@ -27,3 +27,4 @@ obj-$(CONFIG_ROCKCHIP_RV1103B) += clk_rv1103b.o
 obj-$(CONFIG_ROCKCHIP_RV1106) += clk_rv1106.o
 obj-$(CONFIG_ROCKCHIP_RV1108) += clk_rv1108.o
 obj-$(CONFIG_ROCKCHIP_RV1126) += clk_rv1126.o
+obj-$(CONFIG_ROCKCHIP_RV1126B) += clk_rv1126b.o

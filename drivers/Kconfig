@@ -40,6 +40,8 @@ source "drivers/i2c/Kconfig"
 
 source "drivers/input/Kconfig"
 
+source "drivers/keylad/Kconfig"
+
 source "drivers/led/Kconfig"
 
 source "drivers/mailbox/Kconfig"

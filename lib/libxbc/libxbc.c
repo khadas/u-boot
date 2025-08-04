@@ -45,7 +45,7 @@ static uint32_t checksum(const unsigned char* const buffer, uint32_t size) {
  *        the trailer is present, it will be directly preceding this address.
  * @return true if the trailer is present, false if not.
  */
-static bool isTrailerPresent(uint64_t bootconfig_end_addr) {
+static bool isTrailerPresent(ulong bootconfig_end_addr) {
     return !strncmp((char*)(bootconfig_end_addr - BOOTCONFIG_MAGIC_SIZE),
                     BOOTCONFIG_MAGIC, BOOTCONFIG_MAGIC_SIZE);
 }
@@ -54,7 +54,7 @@ static bool isTrailerPresent(uint64_t bootconfig_end_addr) {
  * Add a string of boot config parameters to memory appended by the trailer.
  */
 int32_t addBootConfigParameters(char* params, uint32_t params_size,
-    uint64_t bootconfig_start_addr, uint32_t bootconfig_size) {
+    ulong bootconfig_start_addr, uint32_t bootconfig_size) {
     if (!params || !bootconfig_start_addr) {
         return -1;
     }
@@ -63,7 +63,7 @@ int32_t addBootConfigParameters(char* params, uint32_t params_size,
     }
     int32_t applied_bytes = 0;
     int32_t new_size = 0;
-    uint64_t end = bootconfig_start_addr + bootconfig_size;
+    ulong end = bootconfig_start_addr + bootconfig_size;
 
     if (isTrailerPresent(end)) {
       end -= BOOTCONFIG_TRAILER_SIZE;
@@ -86,7 +86,7 @@ int32_t addBootConfigParameters(char* params, uint32_t params_size,
 /*
  * Add boot config trailer.
  */
-int32_t addBootConfigTrailer(uint64_t bootconfig_start_addr,
+int32_t addBootConfigTrailer(ulong bootconfig_start_addr,
                             uint32_t bootconfig_size) {
     if (!bootconfig_start_addr) {
         return -1;
@@ -94,7 +94,7 @@ int32_t addBootConfigTrailer(uint64_t bootconfig_start_addr,
     if (bootconfig_size == 0) {
         return 0;
     }
-    uint64_t end = bootconfig_start_addr + bootconfig_size;
+    ulong end = bootconfig_start_addr + bootconfig_size;
 
     if (isTrailerPresent(end)) {
         // no need to overwrite the current trailers

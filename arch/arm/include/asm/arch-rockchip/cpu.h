@@ -31,6 +31,7 @@
 #define ROCKCHIP_SOC_RK3308B	(ROCKCHIP_CPU_RK3308 | 0x01)
 #define ROCKCHIP_SOC_RK3308BS	(ROCKCHIP_CPU_RK3308 | 0x02)
 #define ROCKCHIP_SOC_RK3566	(ROCKCHIP_CPU_RK3566 | 0x00)
+#define ROCKCHIP_SOC_RK3566PRO	(ROCKCHIP_CPU_RK3566 | 0x01)
 #define ROCKCHIP_SOC_RK3568	(ROCKCHIP_CPU_RK3568 | 0x00)
 
 static inline unsigned long rockchip_get_cpu_version(void)
@@ -90,10 +91,16 @@ static inline int rockchip_soc_id(void)
 #endif
 }
 
+int board_soc_id(void);
+void board_soc_id_init(int id);
+
 #define ROCKCHIP_SOC(id, ID) \
 static inline bool soc_is_##id(void) \
 { \
 	int soc_id = rockchip_soc_id(); \
+	int bsoc_id = board_soc_id(); \
+	if (bsoc_id) \
+		return ((bsoc_id & ROCKCHIP_SOC_MASK) == ROCKCHIP_SOC_ ##ID); \
 	if (soc_id) \
 		return ((soc_id & ROCKCHIP_SOC_MASK) == ROCKCHIP_SOC_ ##ID); \
 	return false; \
@@ -111,6 +118,7 @@ ROCKCHIP_SOC(rk3308, RK3308)
 ROCKCHIP_SOC(rk3308b, RK3308B)
 ROCKCHIP_SOC(rk3308bs, RK3308BS)
 ROCKCHIP_SOC(rk3566, RK3566)
+ROCKCHIP_SOC(rk3566pro, RK3566PRO)
 ROCKCHIP_SOC(rk3568, RK3568)
 
 #endif

@@ -94,9 +94,9 @@ static int rk_pwm_set_invert_v4(struct udevice *dev, uint channel, bool polarity
 
 	debug("%s: polarity=%u\n", __func__, polarity);
 	if (polarity)
-		priv->conf_polarity = PWM_DUTY_NEGATIVE | PWM_INACTIVE_POSTIVE;
+		priv->conf_polarity = DUTY_NEGATIVE | INACTIVE_POSITIVE;
 	else
-		priv->conf_polarity = PWM_DUTY_POSTIVE | PWM_INACTIVE_NEGATIVE;
+		priv->conf_polarity = DUTY_POSITIVE | INACTIVE_NEGATIVE;
 
 	return 0;
 }
@@ -271,6 +271,31 @@ static int rk_pwm_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+#if defined(CONFIG_MOS_SUPPORT) && !defined(CONFIG_SPL_BUILD)
+static int rk_pwm_clk_init(struct udevice *dev)
+{
+	struct clk_bulk clks = { 0 };
+	int ret = 0;
+
+	ret = clk_get_bulk(dev, &clks);
+	if (ret == -ENOSYS || ret == -ENOENT)
+		return 0;
+	if (ret) {
+		dev_err(dev, "failed to get clk: %d\n", ret);
+		return ret;
+	}
+
+	ret = clk_enable_bulk(&clks);
+	if (ret) {
+		dev_err(dev, "failed to enable clk: %d\n", ret);
+		clk_release_bulk(&clks);
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
 static int rk_pwm_probe(struct udevice *dev)
 {
 	struct rk_pwm_priv *priv = dev_get_priv(dev);
@@ -291,8 +316,19 @@ static int rk_pwm_probe(struct udevice *dev)
 	priv->freq = ret;
 	priv->data = (struct rockchip_pwm_data *)dev_get_driver_data(dev);
 
-	if (priv->data->supports_polarity)
-		priv->conf_polarity = PWM_DUTY_POSTIVE | PWM_INACTIVE_POSTIVE;
+	if (priv->data->supports_polarity) {
+		if (priv->data->main_version >= 4) {
+			priv->conf_polarity = DUTY_POSITIVE | INACTIVE_NEGATIVE;
+		} else {
+			priv->conf_polarity = PWM_DUTY_POSTIVE | PWM_INACTIVE_POSTIVE;
+		}
+	}
+
+#if defined(CONFIG_MOS_SUPPORT) && !defined(CONFIG_SPL_BUILD)
+	ret = rk_pwm_clk_init(dev);
+	if (ret)
+		return ret;
+#endif
 
 	return 0;
 }

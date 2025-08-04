@@ -384,6 +384,7 @@ int phy_micrel_ksz90x1_init(void);
 int phy_natsemi_init(void);
 int phy_realtek_init(void);
 int phy_rk630_init(void);
+int phy_rockchip_fephy_init(void);
 int phy_smsc_init(void);
 int phy_teranetics_init(void);
 int phy_ti_init(void);

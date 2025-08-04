@@ -72,6 +72,7 @@ struct rk_pcie {
 	struct pci_region	mem;
 	struct pci_region	mem64;
 	bool		is_bifurcation;
+	u32 rasdes_off;
 	u32 gen;
 	u32 lanes;
 };
@@ -87,6 +88,7 @@ enum {
 
 /* Parameters for the waiting for iATU enabled routine */
 #define PCIE_CLIENT_GENERAL_DEBUG	0x104
+#define PCIE_CLIENT_CDM_RASDES_TBA_INFO_CMN 0x154
 #define PCIE_CLIENT_HOT_RESET_CTRL	0x180
 #define PCIE_LTSSM_ENABLE_ENHANCE	BIT(4)
 #define PCIE_CLIENT_LTSSM_STATUS	0x300
@@ -244,6 +246,41 @@ static inline void rk_pcie_writel_apb(struct rk_pcie *rk_pcie, u32 reg,
 				      u32 val)
 {
 	__rk_pcie_write_apb(rk_pcie, rk_pcie->apb_base, reg, 0x4, val);
+}
+
+static int rk_pci_find_ext_capability(struct rk_pcie *rk_pcie, int cap)
+{
+	u32 header;
+	int ttl;
+	int start = 0;
+	int pos = PCI_CFG_SPACE_SIZE;
+
+	/* minimum 8 bytes per capability */
+	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
+
+	header = readl(rk_pcie->dbi_base + pos);
+
+	/*
+	 * If we have no capabilities, this is indicated by cap ID,
+	 * cap version and next pointer all being 0.
+	 */
+	if (header == 0)
+		return 0;
+
+	while (ttl-- > 0) {
+		if (PCI_EXT_CAP_ID(header) == cap && pos != start)
+			return pos;
+
+		pos = PCI_EXT_CAP_NEXT(header);
+		if (pos < PCI_CFG_SPACE_SIZE)
+			break;
+
+		header = readl(rk_pcie->dbi_base + pos);
+		if (!header)
+			break;
+	}
+
+	return 0;
 }
 
 static int rk_pcie_get_link_speed(struct rk_pcie *rk_pcie)
@@ -931,15 +968,88 @@ static int rockchip_pcie_probe(struct udevice *dev)
 					 priv->mem.phys_start,
 					 priv->mem.bus_start, priv->mem.size);
 
+	priv->rasdes_off = rk_pci_find_ext_capability(priv, PCI_EXT_CAP_ID_VNDR);
+	if (priv->rasdes_off) {
+		/* Enable RC's err dump */
+		writel(0x1c, priv->dbi_base + priv->rasdes_off + 8);
+		writel(0x3, priv->dbi_base + priv->rasdes_off + 8);
+	}
+
 	return 0;
 free_rst:
 	dm_gpio_free(dev, &priv->rst_gpio);
 	return ret;
 }
 
+#define RAS_DES_EVENT(ss, v) \
+do { \
+	writel(v, priv->dbi_base + cap_base + 8); \
+	printf(ss "0x%x\n", readl(priv->dbi_base + cap_base + 0xc)); \
+} while (0)
+
+static int rockchip_pcie_err_dump(struct udevice *bus)
+{
+	struct rk_pcie *priv = dev_get_priv(bus);
+	u32 val = rk_pcie_readl_apb(priv, PCIE_CLIENT_CDM_RASDES_TBA_INFO_CMN);
+	int cap_base;
+	char *pm;
+
+	if (val & BIT(6))
+		pm = "In training";
+	else if (val & BIT(5))
+		pm = "L1.2";
+	else if (val & BIT(4))
+		pm = "L1.1";
+	else if (val & BIT(3))
+		pm = "L1";
+	else if (val & BIT(2))
+		pm = "L0";
+	else if (val & 0x3)
+		pm = (val == 0x3) ? "L0s" : (val & BIT(1) ? "RX L0s" : "TX L0s");
+	else
+		pm = "Invalid";
+
+	printf("Common event signal status: %s\n", pm);
+
+	cap_base = priv->rasdes_off;
+	if (!priv->rasdes_off)
+		return 0;
+
+	RAS_DES_EVENT("EBUF Overflow: ", 0);
+	RAS_DES_EVENT("EBUF Under-run: ", 0x0010000);
+	RAS_DES_EVENT("Decode Error: ", 0x0020000);
+	RAS_DES_EVENT("Running Disparity Error: ", 0x0030000);
+	RAS_DES_EVENT("SKP OS Parity Error: ", 0x0040000);
+	RAS_DES_EVENT("SYNC Header Error: ", 0x0050000);
+	RAS_DES_EVENT("CTL SKP OS Parity Error: ", 0x0060000);
+	RAS_DES_EVENT("Detect EI Infer: ", 0x1050000);
+	RAS_DES_EVENT("Receiver Error: ", 0x1060000);
+	RAS_DES_EVENT("Rx Recovery Request: ", 0x1070000);
+	RAS_DES_EVENT("N_FTS Timeout: ", 0x1080000);
+	RAS_DES_EVENT("Framing Error: ", 0x1090000);
+	RAS_DES_EVENT("Deskew Error: ", 0x10a0000);
+	RAS_DES_EVENT("BAD TLP: ", 0x2000000);
+	RAS_DES_EVENT("LCRC Error: ", 0x2010000);
+	RAS_DES_EVENT("BAD DLLP: ", 0x2020000);
+	RAS_DES_EVENT("Replay Number Rollover: ", 0x2030000);
+	RAS_DES_EVENT("Replay Timeout: ", 0x2040000);
+	RAS_DES_EVENT("Rx Nak DLLP: ", 0x2050000);
+	RAS_DES_EVENT("Tx Nak DLLP: ", 0x2060000);
+	RAS_DES_EVENT("Retry TLP: ", 0x2070000);
+	RAS_DES_EVENT("FC Timeout: ", 0x3000000);
+	RAS_DES_EVENT("Poisoned TLP: ", 0x3010000);
+	RAS_DES_EVENT("ECRC Error: ", 0x3020000);
+	RAS_DES_EVENT("Unsupported Request: ", 0x3030000);
+	RAS_DES_EVENT("Completer Abort: ", 0x3040000);
+	RAS_DES_EVENT("Completion Timeout: ", 0x3050000);
+
+	return 0;
+}
+
 static const struct dm_pci_ops rockchip_pcie_ops = {
 	.read_config	= rockchip_pcie_rd_conf,
 	.write_config	= rockchip_pcie_wr_conf,
+	.vendor_aer_dump = rockchip_pcie_err_dump,
 };
 
 static const struct udevice_id rockchip_pcie_ids[] = {

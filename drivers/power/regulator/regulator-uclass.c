@@ -54,7 +54,7 @@ int regulator_set_value(struct udevice *dev, int uV)
 	if (!ops || !ops->set_value)
 		return -ENOSYS;
 
-	if (uc_pdata->ramp_delay != -ENODATA) {
+	if ((uc_pdata->ramp_delay != -ENODATA) || ops->get_ramp_delay) {
 		if (!ops->get_value)
 			return -ENOSYS;
 		old_uV = ops->get_value(dev);
@@ -65,7 +65,10 @@ int regulator_set_value(struct udevice *dev, int uV)
 	ret = ops->set_value(dev, uV);
 
 	if (!ret && (old_uV != -ENODATA) && (old_uV != uV)) {
-		us = DIV_ROUND_UP(abs(uV - old_uV), uc_pdata->ramp_delay);
+		if (ops->get_ramp_delay)
+			us = ops->get_ramp_delay(dev, old_uV, uV);
+		else
+			us = DIV_ROUND_UP(abs(uV - old_uV), uc_pdata->ramp_delay);
 		udelay(us);
 		debug("%s: ramp=%d, old_uV=%d, uV=%d, us=%d\n",
 		      uc_pdata->name, uc_pdata->ramp_delay, old_uV, uV, us);

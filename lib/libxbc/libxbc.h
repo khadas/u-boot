@@ -36,7 +36,7 @@
  * @return number of bytes added to the boot config section. -1 for error.
  */
 int addBootConfigParameters(char *params, uint32_t params_size,
-                            uint64_t bootconfig_start_addr,
+                            ulong bootconfig_start_addr,
                             uint32_t bootconfig_size);
 
 /*
@@ -53,7 +53,7 @@ int addBootConfigParameters(char *params, uint32_t params_size,
  * @param bootconfig_size size of the current bootconfig section in bytes.
  * @return number of bytes added to the boot config section. -1 for error.
  */
-int addBootConfigTrailer(uint64_t bootconfig_start_addr,
+int addBootConfigTrailer(ulong bootconfig_start_addr,
                          uint32_t bootconfig_size);
 
 #endif /* LIBXBC_H_ */

@@ -12,6 +12,7 @@
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #define ROCKCHIP_DEVICE_SETTINGS \
+		"stdin=serial,usbkbd\0" \
 		"stdout=serial,vidconsole\0" \
 		"stderr=serial,vidconsole\0"
 

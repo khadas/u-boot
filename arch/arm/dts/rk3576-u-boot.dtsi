@@ -39,7 +39,7 @@
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 
@@ -138,8 +138,6 @@
 
 &sdmmc {
 	bus-width = <4>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc0_clk &sdmmc0_cmd &sdmmc0_det &sdmmc0_bus4 &sdmmc0_pwren>;
 	u-boot,dm-spl;
 	status = "okay";
 };
@@ -190,16 +188,6 @@
 };
 
 &pcfg_pull_none
-{
-	u-boot,dm-spl;
-};
-
-&pcfg_pull_down
-{
-	u-boot,dm-spl;
-};
-
-&pcfg_pull_up_drv_level_3
 {
 	u-boot,dm-spl;
 };

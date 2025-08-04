@@ -16,6 +16,7 @@ obj-$(CONFIG_PMIC_AS3722) += as3722.o as3722_gpio.o
 obj-$(CONFIG_PMIC_FP9931) += pmic_fp9931.o
 obj-$(CONFIG_PMIC_MAX8997) += max8997.o
 obj-$(CONFIG_PMIC_PM8916) += pm8916.o
+obj-$(CONFIG_PMIC_RK801) += pmic_rk801.o
 obj-$(CONFIG_PMIC_RK8XX) += rk8xx.o
 obj-$(CONFIG_PMIC_SPI_RK8XX) += rk8xx_spi.o
 obj-$(CONFIG_PMIC_SY7636A) += pmic_sy7636a.o

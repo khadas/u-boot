@@ -31,6 +31,8 @@
 #define MTD_BLK_TABLE_BLOCK_UNKNOWN	(-2)
 #define MTD_BLK_TABLE_BLOCK_SHIFT	(-1)
 
+#define FACTORY_UNKNOWN_LBA (0xffffffff - 34)
+
 static int *mtd_map_blk_table;
 
 #if CONFIG_IS_ENABLED(SUPPORT_USBPLUG)
@@ -432,7 +434,8 @@ char *mtd_part_parse(struct blk_desc *dev_desc)
 		strcat(mtd_part_info, ",");
 		if (part_get_info(dev_desc, p + 1, &info)) {
 			/* Partition with grow tag in parameter will be resized */
-			if ((info.size + info.start + 64) >= dev_desc->lba) {
+			if ((info.size + info.start + 64) >= dev_desc->lba ||
+			    (info.size + info.start - 1) == FACTORY_UNKNOWN_LBA) {
 				if (dev_desc->devnum == BLK_MTD_SPI_NOR) {
 					/* Nor is 64KB erase block(kernel) and gpt table just
 					 * resserve 33 sectors for the last partition. This
@@ -474,6 +477,10 @@ char *mtd_part_parse(struct blk_desc *dev_desc)
 		mtd_part_info_p = mtd_part_info_p + length + 1;
 		memset(mtd_part_info_temp, 0, MTD_SINGLE_PART_INFO_MAX_SIZE);
 	}
+
+	length = strlen(mtd_part_info);
+	if (length > 0 && mtd_part_info[length - 1] == ',')
+		mtd_part_info[length - 1] = '\0';
 
 	return mtd_part_info;
 }
@@ -723,7 +730,9 @@ static int mtd_blk_probe(struct udevice *udev)
 #ifdef CONFIG_NAND
 		if (desc->devnum == BLK_MTD_NAND)
 			i = NAND_BBT_SCAN_MAXBLOCKS;
-		else if (desc->devnum == BLK_MTD_SPI_NAND)
+#endif
+#ifdef CONFIG_MTD_SPI_NAND
+		if (desc->devnum == BLK_MTD_SPI_NAND)
 			i = NANDDEV_BBT_SCAN_MAXBLOCKS;
 #endif
 
@@ -737,6 +746,7 @@ static int mtd_blk_probe(struct udevice *udev)
 			if (!ret) {
 				desc->lba = (mtd->size >> 9) -
 					(mtd->erasesize >> 9) * i;
+				desc->rawlba = desc->lba;
 				break;
 			}
 		}

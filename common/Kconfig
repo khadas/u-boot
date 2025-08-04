@@ -696,6 +696,14 @@ config BOARD_RNG_SEED
 
 endmenu
 
+config SMP
+	bool "Enable Symmetric Multiprocessing"
+	default n
+	help
+	  Enable use of more than one CPU in U-Boot and the Operating System
+	  when loaded. If this option is disabled, then only one CPU will be
+	  enabled regardless of the number of CPUs available.
+
 menu "MT support"
 
 config MP_BOOT

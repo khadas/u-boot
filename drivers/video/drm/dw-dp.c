@@ -23,6 +23,7 @@
 #include <linux/list.h>
 #include <asm/gpio.h>
 #include <generic-phy.h>
+#include <power-domain.h>
 #include <regmap.h>
 #include <reset.h>
 #include <drm/drm_dp_helper.h>
@@ -226,6 +227,10 @@ struct dw_dp {
 	struct udevice *dev;
 	struct regmap *regmap;
 	struct phy phy;
+#if defined(CONFIG_MOS_SUPPORT) && !defined(CONFIG_SPL_BUILD)
+	struct power_domain pwrdom;
+	struct clk_bulk clks;
+#endif
 	struct reset_ctl reset;
 	int id;
 
@@ -1459,7 +1464,9 @@ static int dw_dp_connector_get_edid(struct rockchip_connector *conn, struct disp
 	struct connector_state *conn_state = &state->conn_state;
 	struct dw_dp *dp = connector_to_dw_dp(conn);
 
-	ret = drm_do_get_edid(&dp->aux.ddc, conn_state->edid);
+	conn_state->edid = drm_do_get_edid(&dp->aux.ddc);
+	if (!conn_state->edid)
+		ret = -EINVAL;
 
 	return ret;
 }
@@ -1607,7 +1614,7 @@ static u32 dw_dp_get_output_bus_fmts(struct dw_dp *dp, struct hdmi_edid_data *ed
 		    !link->vsc_sdp_extension_for_colorimetry_supported)
 			continue;
 
-		if (drm_mode_is_420(&edid_data->display_info, edid_data->preferred_mode) &&
+		if (drm_mode_is_420_only(&edid_data->display_info, edid_data->preferred_mode) &&
 		    fmt->color_format != DRM_COLOR_FORMAT_YCRCB420)
 			continue;
 
@@ -1626,7 +1633,7 @@ static u32 dw_dp_get_output_bus_fmts(struct dw_dp *dp, struct hdmi_edid_data *ed
 
 static int dw_dp_connector_get_timing(struct rockchip_connector *conn, struct display_state *state)
 {
-	int ret, i;
+	int ret = 0, i;
 	struct connector_state *conn_state = &state->conn_state;
 	struct dw_dp *dp = connector_to_dw_dp(conn);
 	struct drm_display_mode *mode = &conn_state->mode;
@@ -1644,11 +1651,11 @@ static int dw_dp_connector_get_timing(struct rockchip_connector *conn, struct di
 	edid_data.mode_buf = mode_buf;
 
 	if (!dp->force_output) {
-		ret = drm_do_get_edid(&dp->aux.ddc, conn_state->edid);
-		if (!ret)
+		conn_state->edid = drm_do_get_edid(&dp->aux.ddc);
+		if (conn_state->edid)
 			ret = drm_add_edid_modes(&edid_data, conn_state->edid);
 
-		if (ret < 0) {
+		if (ret <= 0) {
 			printf("failed to get edid\n");
 			goto err;
 		}
@@ -1786,6 +1793,29 @@ static int dw_dp_probe(struct udevice *dev)
 
 	dp->video.pixel_mode = pdata->pixel_mode;
 
+#if defined(CONFIG_MOS_SUPPORT) && !defined(CONFIG_SPL_BUILD)
+	ret = power_domain_get(dev, &dp->pwrdom);
+	if (ret) {
+		dev_err(dev, "failed to get pwrdom: %d\n", ret);
+		return ret;
+	}
+	ret = power_domain_on(&dp->pwrdom);
+	if (ret) {
+		dev_err(dev, "failed to power on pd: %d\n", ret);
+		return ret;
+	}
+	ret = clk_get_bulk(dev, &dp->clks);
+	if (ret) {
+		dev_err(dev, "failed to get clk: %d\n", ret);
+		return ret;
+	}
+	ret = clk_enable_bulk(&dp->clks);
+	if (ret) {
+		dev_err(dev, "failed to enable clk: %d\n", ret);
+		return ret;
+	}
+#endif
+
 	ret = reset_get_by_index(dev, 0, &dp->reset);
 	if (ret) {
 		dev_err(dev, "failed to get reset control: %d\n", ret);
@@ -1834,7 +1864,6 @@ static int dw_dp_bind(struct udevice *parent)
 		debug("%s: subnode %s\n", __func__, node_name);
 
 		if (!strcasecmp(node_name, "dp0")) {
-			printf("%s zyb enter\n", __func__);
 			ret = device_bind_driver_to_node(parent,
 							 "dw_dp_port0",
 							 node_name, subnode, &child);

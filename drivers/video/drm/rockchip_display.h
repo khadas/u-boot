@@ -17,6 +17,7 @@
 #include <drm_modes.h>
 #include <dm/ofnode.h>
 #include <drm/drm_dsc.h>
+#include <reset.h>
 #include <spl_display.h>
 #include <clk.h>
 #include <drm/drm_color_mgmt.h>
@@ -35,6 +36,26 @@
 #define VOP2_MINOR(version)			(((version) >> 16) & 0xff)
 #define VOP2_BUILD(version)			((version) & 0xffff)
 
+#define VOP_VERSION_RK3066			VOP_VERSION(2, 1)
+#define VOP_VERSION_RK3036			VOP_VERSION(2, 2)
+#define VOP_VERSION_RK3126			VOP_VERSION(2, 4)
+#define VOP_VERSION_PX30_LITE			VOP_VERSION(2, 5)
+#define VOP_VERSION_PX30_BIG			VOP_VERSION(2, 6)
+#define VOP_VERSION_RK3308			VOP_VERSION(2, 7)
+#define VOP_VERSION_RV1126			VOP_VERSION(2, 0xb)
+#define VOP_VERSION_RV1106			VOP_VERSION(2, 0xc)
+#define VOP_VERSION_RK3576_LITE			VOP_VERSION(2, 0xd)
+#define VOP_VERSION_RK3506			VOP_VERSION(2, 0xe)
+#define VOP_VERSION_RV1126B			VOP_VERSION(2, 0xf)
+#define VOP_VERSION_RK3288			VOP_VERSION(3, 0)
+#define VOP_VERSION_RK3288W			VOP_VERSION(3, 1)
+#define VOP_VERSION_RK3368			VOP_VERSION(3, 2)
+#define VOP_VERSION_RK3366			VOP_VERSION(3, 4)
+#define VOP_VERSION_RK3399_BIG			VOP_VERSION(3, 5)
+#define VOP_VERSION_RK3399_LITE			VOP_VERSION(3, 6)
+#define VOP_VERSION_RK3228			VOP_VERSION(3, 7)
+#define VOP_VERSION_RK3328			VOP_VERSION(3, 8)
+
 #define VOP_VERSION_RK3528			VOP2_VERSION(0x50, 0x17, 0x1263)
 #define VOP_VERSION_RK3562			VOP2_VERSION(0x50, 0x17, 0x4350)
 #define VOP_VERSION_RK3568			VOP2_VERSION(0x40, 0x15, 0x8023)
@@ -47,6 +68,9 @@
 #define ROCKCHIP_OUTPUT_MIPI_DS_MODE			BIT(3)
 
 #define ROCKCHIP_DSC_PPS_SIZE_BYTE			88
+
+#define ROCKCHIP_VOP2_SHARE_MODE_PRIMARY		1
+#define ROCKCHIP_VOP2_SHARE_MODE_SECONDARY		2
 
 enum data_format {
 	ROCKCHIP_FMT_ARGB8888 = 0,
@@ -81,12 +105,17 @@ enum rockchip_mcu_cmd {
 #define ROCKCHIP_OUT_MODE_BT1120	0
 #define ROCKCHIP_OUT_MODE_P666		1
 #define ROCKCHIP_OUT_MODE_P565		2
+#define RK3588_EDP_OUTPUT_MODE_YUV422	3
 #define ROCKCHIP_OUT_MODE_BT656		5
 #define ROCKCHIP_OUT_MODE_S666		9
 #define ROCKCHIP_OUT_MODE_S888		8
 #define ROCKCHIP_OUT_MODE_YUV422	9
 #define ROCKCHIP_OUT_MODE_S565		10
 #define ROCKCHIP_OUT_MODE_S888_DUMMY	12
+#define RK3588_DP_OUT_MODE_YUV422	12
+#define RK3576_EDP_OUT_MODE_YUV422	12
+#define RK3588_DP_OUT_MODE_YUV420	13
+#define RK3576_HDMI_OUT_MODE_YUV422	13
 #define ROCKCHIP_OUT_MODE_YUV420	14
 /* for use special outface */
 #define ROCKCHIP_OUT_MODE_AAAA		15
@@ -168,6 +197,7 @@ struct crtc_state {
 	ofnode node;
 	struct device_node *ports_node; /* if (ports_node) it's vop2; */
 	struct device_node *port_node;
+	struct reset_ctl dclk_rst;
 	struct clk dclk;
 	int crtc_id;
 
@@ -189,6 +219,7 @@ struct crtc_state {
 	bool bcsh_en;
 	bool splice_mode;
 	bool soft_te;
+	bool overscan_by_win_scale;
 	u8 splice_crtc_id;
 	u8 dsc_id;
 	u8 dsc_enable;
@@ -227,7 +258,7 @@ struct connector_state {
 
 	struct drm_display_mode mode;
 	struct overscan overscan;
-	u8 edid[EDID_SIZE * 4];
+	u8 *edid;
 	int bus_format;
 	u32 bus_flags;
 	int output_mode;
@@ -311,11 +342,19 @@ struct display_state {
 	bool enabled_at_spl;
 	struct drm_display_mode force_mode;
 	u32 force_bus_format;
+
+	ulong vidcon_fb_addr;
 };
 
 int drm_mode_vrefresh(const struct drm_display_mode *mode);
 int display_send_mcu_cmd(struct display_state *state, u32 type, u32 val);
+bool drm_mode_is_420_only(const struct drm_display_info *display,
+			  struct drm_display_mode *mode);
+bool drm_mode_is_420_also(const struct drm_display_info *display,
+			  struct drm_display_mode *mode);
 bool drm_mode_is_420(const struct drm_display_info *display,
+		     struct drm_display_mode *mode);
+bool drm_mode_is_420_only(const struct drm_display_info *display,
 		     struct drm_display_mode *mode);
 struct base2_disp_info *rockchip_get_disp_info(int type, int id);
 

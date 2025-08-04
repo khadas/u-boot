@@ -5,6 +5,7 @@
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk/
 obj-$(CONFIG_$(SPL_TPL_)DM) += core/
 obj-$(CONFIG_$(SPL_TPL_)DM_CRYPTO) += crypto/
+obj-$(CONFIG_$(SPL_TPL_)DM_KEYLAD) += keylad/
 obj-$(CONFIG_$(SPL_TPL_)DM_RNG) += rng/
 obj-$(CONFIG_$(SPL_TPL_)DRIVERS_MISC_SUPPORT) += misc/ sysreset/ firmware/
 obj-$(CONFIG_$(SPL_TPL_)I2C_SUPPORT) += i2c/
@@ -27,6 +28,7 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_ADC_SUPPORT) += adc/
 obj-$(CONFIG_SPL_CPU_SUPPORT) += cpu/
 obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
+obj-$(CONFIG_SPL_KEYLAD_SUPPORT) += keylad/
 obj-$(CONFIG_SPL_GPIO_SUPPORT) += gpio/
 obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
 obj-$(CONFIG_ARMADA_38X) += ddr/marvell/a38x/
@@ -63,9 +65,10 @@ obj-$(CONFIG_SPL_UFS_SUPPORT) += ata/ scsi/ ufs/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += block/
 obj-$(CONFIG_SPL_MMC_SUPPORT) += block/
 obj-$(CONFIG_SPL_MTD_SUPPORT) += block/
-obj-$(CONFIG_SPL_FPGA_SUPPORT) += fpga/
-obj-$(CONFIG_SPL_RKNAND_SUPPORT) += rknand/
+obj-$(CONFIG_SPL_UFS_SUPPORT) += block/
 obj-$(CONFIG_SPL_RKNAND_SUPPORT) += block/
+obj-$(CONFIG_SPL_RKNAND_SUPPORT) += rknand/
+obj-$(CONFIG_SPL_FPGA_SUPPORT) += fpga/
 endif
 endif
 
@@ -85,6 +88,7 @@ obj-y += block/
 obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
+obj-y += keylad/
 obj-y += firmware/
 obj-$(CONFIG_FPGA) += fpga/
 obj-y += misc/

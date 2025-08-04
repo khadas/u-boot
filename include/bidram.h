@@ -76,11 +76,23 @@ void bidram_dump(void);
 int bidram_fixup(void);
 
 /**
+ * board_bidram_fixup() - Fixup bi_dram[] based on Soc boards.
+ */
+void board_bidram_fixup(void);
+
+/**
  * bidram_append_size() - Append 4GB+ memory
  *
  * @return 4GB+ size
  */
 u64 bidram_append_size(void);
+
+/**
+ * board_bidram_append_size() - Append board specific memory
+ *
+ * @return board specific size
+ */
+u64 board_bidram_append_size(void);
 
 /**
  * bidram_reserved_is_overlap() - Check outside memory is overlap with reserved

@@ -24,7 +24,7 @@
 
 #define CONFIG_SYS_NS16550_MEM32
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_KERNEL_BOOT)
 #define CONFIG_NR_DRAM_BANKS		2
 #else
 #define CONFIG_NR_DRAM_BANKS		12

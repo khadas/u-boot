@@ -16,7 +16,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_BASE		0xff288000
-#define GRF_SOC_CON28		0X0070
+#define GRF_SOC_CON6		0x0018
+#define GRF_SOC_CON28		0x0070
 
 #define USBPHY_APB_BASE		0xff2b0000
 #define USBPHY_DIFF_RECEIVER_0	0x0030
@@ -24,6 +25,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define FIREWALL_DDR_BASE	0xff5f0000
 #define FW_DDR_MST1_REG 	0x24
+
+#define DSI_HOST_BASE		0xff640000
+#define MIPS_DSI_PHY_RSTZ	0xa0
+
+#define DPHY_BASE			0xff670000
+#define MIPI_TX_PHY_TTL_MODE_CTRL2	0x38c
+#define MIPI_TX_PHY_TTL_MODE_CTRL4	0x3ac
 
 #define GPIO0_IOC_BASE		0xff950000
 #define GPIO1_IOC_BASE		0xff660000
@@ -39,6 +47,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define CRU_BASE		0xff9a0000
 #define CRU_GLB_RST_CON		0xc10
+#define CRU_GATE_CON1           0x0804
 #define CRU_GATE_CON5           0x0814
 #define CRU_SOFTRST_CON5        0x0a14
 
@@ -157,6 +166,21 @@ int arch_cpu_init(void)
 	writel(0x01ff01d1, GRF_BASE + GRF_SOC_CON28);
 	writel(0x00000079, USBPHY_APB_BASE + USBPHY_DIFF_RECEIVER_0);
 	writel(0x00000079, USBPHY_APB_BASE + USBPHY_DIFF_RECEIVER_1);
+
+	/*
+	 * Set mcu jtag clock un-gate.
+	 * Configure when in use.
+	 */
+	//writel(0x00220000, 0xff960000);
+
+	/*
+	 * gpio4Ax is used as MIPI by default.
+	 * The following command switches MIPI to gpio.
+	 */
+	//writel(0x03000300, GRF_BASE + GRF_SOC_CON6);
+	//writel(0x4, DSI_HOST_BASE + MIPS_DSI_PHY_RSTZ);
+	//writel(0x4, DPHY_BASE + MIPI_TX_PHY_TTL_MODE_CTRL2);
+	//writel(0xfd, DPHY_BASE + MIPI_TX_PHY_TTL_MODE_CTRL4);
 #endif
 	return 0;
 }
@@ -183,7 +207,6 @@ int fit_standalone_release(char *id, uintptr_t entry_point)
 	writel(0x00060004, 0xff90000c);
 
 	/* select jtag m1 GPIO0C6 GPIO0C7 */
-	//writel(0x00220000, 0xff960000);
 	//writel(0x00300020, 0xff288000);
 	//writel(0x00ff0022, 0xff4d8064);
 	//writel(0xff002200, 0xff950014);

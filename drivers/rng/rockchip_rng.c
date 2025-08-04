@@ -357,12 +357,22 @@ exit:
 static int rockchip_rng_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rk_rng_platdata *pdata = dev_get_priv(dev);
+	fdt_size_t size = 0;
+	fdt_addr_t addr = 0;
 
 	memset(pdata, 0x00, sizeof(*pdata));
 
-	pdata->base = (fdt_addr_t)dev_read_addr_ptr(dev);
-	if (!pdata->base)
-		return -ENOMEM;
+	addr = dev_read_addr_size(dev, "reg", &size);
+	if (addr == FDT_ADDR_T_NONE) {
+		debug("%s: Get rng address failed\n", __func__);
+		return  -ENXIO;
+	}
+
+	pdata->base = addr;
+
+	/* Match an independent rng address for crypto v2 */
+	if ((addr & 0x400) && size == 0x80)
+		pdata->base -= 0x400;
 
 	clk_get_by_index(dev, 0, &pdata->hclk);
 

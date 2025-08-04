@@ -18,6 +18,7 @@
  * Under PCI, each device has 256 bytes of configuration address space,
  * of which the first 64 bytes are standardized as follows:
  */
+#define PCI_STD_HEADER_SIZEOF	64
 #define PCI_VENDOR_ID		0x00	/* 16 bits */
 #define PCI_DEVICE_ID		0x02	/* 16 bits */
 #define PCI_COMMAND		0x04	/* 16 bits */
@@ -418,10 +419,29 @@
 #define PCI_FIND_CAP_TTL 0x48
 #define CAP_START_POS 0x40
 
+/* AER register offsets (relative to the AER Capability base address) */
+#define PCI_AER_STATUS		0x08	/* AER Status Register */
+#define PCI_AER_MASK		0x0C	/* AER Mask Register */
+#define PCI_AER_SEVERITY	0x10	/* AER Severity Register */
+
 /* Extended Capabilities (PCI-X 2.0 and Express) */
 #define PCI_EXT_CAP_ID(header)		(header & 0x0000ffff)
 #define PCI_EXT_CAP_VER(header)		((header >> 16) & 0xf)
 #define PCI_EXT_CAP_NEXT(header)	((header >> 20) & 0xffc)
+
+/* PCIe Capability Registers */
+#define PCI_EXP_DEVCAP		0x04	/* Device capabilities */
+#define PCI_EXP_LNKCTL          0x10	/* Link Control Register */
+#define PCI_EXP_LNKSTA          0x12	/* Link Status Register */
+#define  PCI_EXP_DEVCAP_FLR	0x10000000 /* Function Level Reset */
+
+/* Link Status Register bits */
+#define PCI_EXP_LNKSTA_LT	0x0800	/* Link Training */
+#define PCI_EXP_LNKSTA_CLS      0x000f	/* Current Link Speed */
+#define PCI_EXP_LNKSTA_NLW      0x03f0	/* Negotiated Link Width */
+
+#define PCI_EXP_DEVCTL		8	/* Device Control Register offset */
+#define PCI_EXP_DEVCTL_FLR	0x8000	/* FLR bit in Device Control Register */
 
 #define PCI_EXT_CAP_ID_ERR	0x01	/* Advanced Error Reporting */
 #define PCI_EXT_CAP_ID_VC	0x02	/* Virtual Channel Capability */
@@ -510,6 +530,14 @@ struct pci_device_id {
 	unsigned int subvendor, subdevice; /* Subsystem ID's or PCI_ANY_ID */
 	unsigned int class, class_mask;	/* (class,subclass,prog-if) triplet */
 	unsigned long driver_data;	/* Data private to the driver */
+};
+
+struct pci_device_state {
+	u32 bar[6];		/* Saved BARs */
+	u16 command;		/* Saved Command Register */
+	u8 primary_bus;		/* Saved Primary Bus Number (for bridge) */
+	u8 secondary_bus;	/* Saved Secondary Bus Number (for bridge) */
+	u8 subordinate_bus;	/* Saved Subordinate Bus Number (for bridge) */
 };
 
 struct pci_controller;
@@ -863,6 +891,13 @@ struct dm_pci_ops {
 	 */
 	int (*write_config)(struct udevice *bus, pci_dev_t bdf, uint offset,
 			    ulong value, enum pci_size_t size);
+	/**
+	 * vendor_aer_dump() - Dump vendor-specific aer information
+	 *
+	 * @bus:	Bus of pci_controller
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*vendor_aer_dump)(struct udevice *bus);
 };
 
 /* Get access to a PCI bus' operations */
@@ -1193,6 +1228,38 @@ int pci_get_regions(struct udevice *dev, struct pci_region **iop,
 		    struct pci_region **memp, struct pci_region **prefp);
 
 /**
+ * pci_aer_dump() - dump AER (Advanced Error Reporting) information for a PCIe device
+ *
+ * @udev:	PCI device to dump AER information
+ * @dev:	PCI device and function address
+ * @return:	0 if successful, negative error code on failure
+ */
+int pci_aer_dump(struct udevice *udev, pci_dev_t dev);
+
+/**
+ * pci_retrain_link - Trigger PCIe link retrain for a device
+ * @udev: PCI device to retrain link
+ * @dev: PCI device and function address
+ *
+ * Return: 0 on success, negative error code on failure.
+ */
+int pci_retrain_link(struct udevice *udev, pci_dev_t dev);
+
+/**
+ * pci_reset_function - Reset a PCI/PCIe function using Function Level Reset (FLR).
+ *
+ * This function performs the following steps:
+ * 1. Saves the device's config space (BARs, Command Register, Bus Numbers for bridges).
+ * 2. Triggers a FLR to reset the device.
+ * 3. Restores the saved configuration space state after the FLR completes.
+ *
+ * @udev:	PCI function device to be reset
+ * @dev:	The PCI device identifier (BDF: Bus, Device, Function).
+ * @return 0 on success, -1 on failure.
+ */
+int pci_reset_function(struct udevice *udev, pci_dev_t dev);
+
+/**
  * dm_pci_write_bar32() - Write the address of a BAR
  *
  * This writes a raw address to a bar
@@ -1246,6 +1313,99 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * @return: pointer to the virtual address to use
  */
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
+
+/**
+ * dm_pci_find_next_capability() - find a capability starting from an offset
+ *
+ * Tell if a device supports a given PCI capability. Returns the
+ * address of the requested capability structure within the device's
+ * PCI configuration space or 0 in case the device does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_CAP_ID_MSI	Message Signalled Interrupts
+ *  %PCI_CAP_ID_PCIX	PCI-X
+ *  %PCI_CAP_ID_EXP	PCI Express
+ *  %PCI_CAP_ID_MSIX	MSI-X
+ *
+ * See PCI_CAP_ID_xxx for the complete capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @start:	offset to start from
+ * @cap:	capability code
+ * @return:	capability address or 0 if not supported
+ */
+int dm_pci_find_next_capability(struct udevice *dev, u8 start, int cap);
+
+/**
+ * dm_pci_find_capability() - find a capability
+ *
+ * Tell if a device supports a given PCI capability. Returns the
+ * address of the requested capability structure within the device's
+ * PCI configuration space or 0 in case the device does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_CAP_ID_MSI	Message Signalled Interrupts
+ *  %PCI_CAP_ID_PCIX	PCI-X
+ *  %PCI_CAP_ID_EXP	PCI Express
+ *  %PCI_CAP_ID_MSIX	MSI-X
+ *
+ * See PCI_CAP_ID_xxx for the complete capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @cap:	capability code
+ * @return:	capability address or 0 if not supported
+ */
+int dm_pci_find_capability(struct udevice *dev, int cap);
+
+/**
+ * dm_pci_find_next_ext_capability() - find an extended capability
+ *				       starting from an offset
+ *
+ * Tell if a device supports a given PCI express extended capability.
+ * Returns the address of the requested extended capability structure
+ * within the device's PCI configuration space or 0 in case the device
+ * does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_EXT_CAP_ID_ERR	Advanced Error Reporting
+ *  %PCI_EXT_CAP_ID_VC	Virtual Channel
+ *  %PCI_EXT_CAP_ID_DSN	Device Serial Number
+ *  %PCI_EXT_CAP_ID_PWR	Power Budgeting
+ *
+ * See PCI_EXT_CAP_ID_xxx for the complete extended capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @start:	offset to start from
+ * @cap:	extended capability code
+ * @return:	extended capability address or 0 if not supported
+ */
+int dm_pci_find_next_ext_capability(struct udevice *dev, int start, int cap);
+
+/**
+ * dm_pci_find_ext_capability() - find an extended capability
+ *
+ * Tell if a device supports a given PCI express extended capability.
+ * Returns the address of the requested extended capability structure
+ * within the device's PCI configuration space or 0 in case the device
+ * does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_EXT_CAP_ID_ERR	Advanced Error Reporting
+ *  %PCI_EXT_CAP_ID_VC	Virtual Channel
+ *  %PCI_EXT_CAP_ID_DSN	Device Serial Number
+ *  %PCI_EXT_CAP_ID_PWR	Power Budgeting
+ *
+ * See PCI_EXT_CAP_ID_xxx for the complete extended capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @cap:	extended capability code
+ * @return:	extended capability address or 0 if not supported
+ */
+int dm_pci_find_ext_capability(struct udevice *dev, int cap);
 
 #define dm_pci_virt_to_bus(dev, addr, flags) \
 	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), (flags))

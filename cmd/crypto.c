@@ -68,6 +68,19 @@ struct rsa_test_data {
 	u32		sign_out_len;
 };
 
+struct ec_test_data {
+	const char	*algo_name;
+	u32		algo;
+	const u8	*pub_x;
+	u32		pub_x_len;
+	const u8	*pub_y;
+	u32		pub_y_len;
+	const u8	*hash_in;
+	u32		hash_in_len;
+	const u8	*sign_in;
+	u32		sign_in_len;
+};
+
 #define IS_MAC_MODE(mode)	((mode) == RK_MODE_CBC_MAC || \
 				 (mode) == RK_MODE_CMAC)
 
@@ -152,6 +165,19 @@ struct rsa_test_data {
 	.sign_out_len = sizeof(out) \
 }
 
+#define EC_TEST(name, x, y, hash, sign) { \
+	.algo_name   = #name, \
+	.algo        = CRYPTO_##name, \
+	.pub_x       = (x), \
+	.pub_x_len   = sizeof(x), \
+	.pub_y       = (y), \
+	.pub_y_len   = sizeof(y), \
+	.hash_in     = (hash), \
+	.hash_in_len = sizeof(hash), \
+	.sign_in     = (sign), \
+	.sign_in_len = sizeof(sign), \
+}
+
 #define EMPTY_TEST() {}
 
 const struct hash_test_data hash_data_set[] = {
@@ -231,6 +257,15 @@ const struct rsa_test_data rsa_data_set[] = {
 		 rsa4096_sign_in, rsa4096_sign_out),
 #endif
 
+#else
+	EMPTY_TEST(),
+#endif
+};
+
+const struct ec_test_data ec_data_set[] = {
+#if CONFIG_IS_ENABLED(ROCKCHIP_EC)
+	EC_TEST(ECC_192R1, ecc192r1_pub_x, ecc192r1_pub_y, ecc192r1_hash, ecc192r1_sign),
+	EC_TEST(SM2, sm2_pub_x, sm2_pub_y, sm2_hash, sm2_sign),
 #else
 	EMPTY_TEST(),
 #endif
@@ -654,6 +689,58 @@ error:
 	return ret;
 }
 
+int test_ec_result(void)
+{
+	const struct ec_test_data *test_data = NULL;
+	ulong start, time_cost;
+	struct udevice *dev;
+	ec_key ec_key;
+	int ret, i;
+
+	printf("\n====================== ec test ========================\n");
+	for (i = 0; i < ARRAY_SIZE(ec_data_set); i++) {
+		test_data = &ec_data_set[i];
+		if (test_data->algo == 0) {
+			printf("\n");
+			continue;
+		}
+
+		dev = crypto_get_device(test_data->algo);
+		if (!dev) {
+			printf("[%s] %-16s unsupported!!!\n",
+			       test_data->algo_name, "");
+			continue;
+		}
+
+		/* verify test */
+		memset(&ec_key, 0x00, sizeof(ec_key));
+		ec_key.algo = test_data->algo;
+		ec_key.x = (u32 *)test_data->pub_x;
+		ec_key.y = (u32 *)test_data->pub_y;
+
+		start = get_timer(0);
+		ret = crypto_ec_verify(dev, &ec_key,
+				       (u8 *)test_data->hash_in,
+				       test_data->hash_in_len,
+				       (u8 *)test_data->sign_in);
+		if (ret) {
+			printf("verify test error, ret = %d\n", ret);
+			goto error;
+		}
+		time_cost = get_timer(start);
+
+		printf("[%-9s]   %-8s PASS    (%lums)\n",
+		       test_data->algo_name, "verify", time_cost);
+
+		printf("+++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+	}
+
+	return 0;
+error:
+	printf("%s test error!\n", test_data->algo_name);
+	return ret;
+}
+
 static int test_all_result(void)
 {
 	int ret = 0;
@@ -667,6 +754,10 @@ static int test_all_result(void)
 		goto exit;
 
 	ret = test_rsa_result();
+	if (ret)
+		goto exit;
+
+	ret = test_ec_result();
 	if (ret)
 		goto exit;
 

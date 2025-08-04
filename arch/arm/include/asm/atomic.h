@@ -16,8 +16,10 @@
 #ifndef __ASM_ARM_ATOMIC_H
 #define __ASM_ARM_ATOMIC_H
 
+#ifndef CONFIG_ARCH_ROCKCHIP
 #ifdef CONFIG_SMP
 #error SMP not supported
+#endif
 #endif
 
 typedef struct { volatile int counter; } atomic_t;

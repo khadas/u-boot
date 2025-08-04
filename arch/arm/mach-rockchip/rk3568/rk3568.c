@@ -6,6 +6,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <misc.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -60,6 +61,17 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PMU_BUS_IDLE_ACK	(0x60)
 
 #define EBC_PRIORITY_REG	(0xfe158008)
+
+#define SATA0_BASE_ADDR			0xfc000000
+#define SATA1_BASE_ADDR			0xfc400000
+#define SATA2_BASE_ADDR			0xfc800000
+#define SATA_PI				0xC
+#define SATA_PORT_CMD			0x118
+#define SATA_FBS_ENABLE			BIT(22)
+
+#define OTP_SPEC_NUM_OFFSET		0x07
+#define OTP_SPEC_NUM_MASK		0x1f
+#define REMARK_OTP_SPEC_NUM_OFFSET	0x56
 
 enum {
 	/* PMU_GRF_GPIO0C_IOMUX_L */
@@ -945,6 +957,15 @@ int arch_cpu_init(void)
 	writel((0x77771111), GRF_BASE + GRF_GPIO1C_IOMUX_L);
 	writel((0x07770111), GRF_BASE + GRF_GPIO1C_IOMUX_H);
 #endif
+	/*
+	 * Set SATA FBSCP and PORTS_IMPL for kernel drivers
+	 */
+	writel(SATA_FBS_ENABLE, SATA0_BASE_ADDR + SATA_PORT_CMD);
+	writel(1, SATA0_BASE_ADDR + SATA_PI);
+	writel(SATA_FBS_ENABLE, SATA1_BASE_ADDR + SATA_PORT_CMD);
+	writel(1, SATA1_BASE_ADDR + SATA_PI);
+	writel(SATA_FBS_ENABLE, SATA2_BASE_ADDR + SATA_PORT_CMD);
+	writel(1, SATA2_BASE_ADDR + SATA_PI);
 #endif
 
 	return 0;
@@ -1207,6 +1228,45 @@ int rk_board_fdt_fixup(const void *blob)
 
 	return 0;
 }
+
+#ifdef CONFIG_ROCKCHIP_OTP
+int soc_id_init(void)
+{
+	struct udevice *dev;
+	u8 val, spec;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(rockchip_otp),
+					  &dev);
+	if (ret) {
+		printf("No OTP device, ret=%d\n", ret);
+		return ret;
+	}
+
+	ret = misc_read(dev, REMARK_OTP_SPEC_NUM_OFFSET, &val, 1);
+	if (ret) {
+		printf("Fail to read otp remark-spec, ret=%d\n", ret);
+		return ret;
+	}
+	if (!val) {
+		ret = misc_read(dev, OTP_SPEC_NUM_OFFSET, &val, 1);
+		if (ret) {
+			printf("Fail to read otp spec, ret=%d\n", ret);
+			return ret;
+		}
+	}
+
+	spec = val & OTP_SPEC_NUM_MASK;
+	printf("otp spec: %x\n", spec);
+	if (spec == 0x1b) {
+		printf("SoC: rk3566pro\n");
+		board_soc_id_init(ROCKCHIP_SOC_RK3566PRO);
+	}
+
+	return 0;
+}
+#endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_ROCKCHIP_DMC_FSP)
 int rk_board_init(void)

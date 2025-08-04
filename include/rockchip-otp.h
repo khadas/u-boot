@@ -11,6 +11,7 @@
 #define OTPC_SBPI_CMD_VALID_PRE		0x0024
 #define OTPC_SBPI_CS_VALID_PRE		0x0028
 #define OTPC_SBPI_STATUS		0x002C
+#define OTPC_LOCK_CTRL			0x050
 #define OTPC_USER_CTRL			0x0100
 #define OTPC_USER_ADDR			0x0104
 #define OTPC_USER_ENABLE		0x0108
@@ -57,6 +58,9 @@
 #define OTPC_DP2STB_IRQ_ST		BIT(8)
 #define OTPC_ACT2STB_IRQ_ST		BIT(9)
 #define OTPC_STB2DP_IRQ_ST		BIT(10)
+
+#define KEY_READER_CFG   		0x0
+
 #define RK3308BS_NBYTES			4
 #define RK3308BS_MAX_BYTES		0x80
 #define RK3308BS_NO_SECURE_OFFSET	224
@@ -97,6 +101,7 @@ struct rockchip_otp_platdata {
 	unsigned long secure_conf_base;
 	unsigned long otp_mask_base;
 	unsigned long otp_cru_rst_base;
+	unsigned long key_reader_base;
 };
 
 #endif

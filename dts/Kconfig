@@ -29,6 +29,14 @@ config OF_CONTROL
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.
 
+config OF_ADDR_SIZE_AUTO_NOPARENT
+	bool "FDT get address/size cell auto from parent node"
+	depends on OF_CONTROL && ARM64
+	help
+	  Enable this to use 'fdtdec_get_addr_size_auto_noparent' instead of
+	  'fdtdec_get_addr_size_fixed' in case of 64-bit U-Boot use 32-bit
+	  platform dtb.
+
 config OF_BOARD_FIXUP
 	bool "Board-specific manipulation of Device Tree"
 	help

@@ -63,6 +63,7 @@ struct rockchip_combphy_grfcfg {
 	struct combphy_reg pipe_con1_for_sata;
 	struct combphy_reg pipe_sgmii_mac_sel;
 	struct combphy_reg pipe_xpcs_phy_ready;
+	struct combphy_reg u3otg0_clamp_dis;
 	struct combphy_reg u3otg0_port_en;
 	struct combphy_reg u3otg1_port_en;
 	struct combphy_reg u3otg0_pipe_clk_sel;
@@ -149,6 +150,9 @@ static int rockchip_combphy_usb3_init(struct rockchip_combphy_priv *priv)
 		param_write(priv->phy_grf,  &cfg->usb_mode_set, true);
 #endif
 		return ret;
+	} else {
+		if (cfg->u3otg0_clamp_dis.enable)
+			param_write(priv->pipe_grf, &cfg->u3otg0_clamp_dis, true);
 	}
 
 	if (priv->cfg->combphy_cfg) {
@@ -579,6 +583,19 @@ static int rk3562_combphy_cfg(struct rockchip_combphy_priv *priv)
 
 		writel(0x32, priv->mmio + (0x11 << 2));
 		writel(0xf0, priv->mmio + (0xa << 2));
+	}
+
+	if (dev_read_bool(priv->dev, "rockchip,ext-refclk")) {
+		param_write(priv->phy_grf, &cfg->pipe_clk_ext, true);
+		if (priv->mode == PHY_TYPE_PCIE) {
+			val = readl(priv->mmio + (0xc << 2));
+			val |= 0x3 << 4 | 0x1 << 7;
+			writel(val, priv->mmio + (0xc << 2));
+
+			val = readl(priv->mmio + (0xd << 2));
+			val |= 0x1;
+			writel(val, priv->mmio + (0xd << 2));
+		}
 	}
 
 	if (dev_read_bool(priv->dev, "rockchip,enable-ssc")) {
@@ -1045,6 +1062,95 @@ static const struct rockchip_combphy_cfg rk3576_combphy_cfgs = {
 };
 #endif
 
+#ifdef CONFIG_ROCKCHIP_RV1126B
+static int rv1126b_combphy_cfg(struct rockchip_combphy_priv *priv)
+{
+	const struct rockchip_combphy_grfcfg *cfg = priv->cfg->grfcfg;
+	u32 val;
+
+	switch (priv->mode) {
+	case PHY_TYPE_USB3:
+		/* Set SSC downward spread spectrum */
+		val = readl(priv->mmio + (0x1f << 2));
+		val &= ~GENMASK(5, 4);
+		val |= 0x01 << 4;
+		writel(val, priv->mmio + 0x7c);
+
+		/* Enable adaptive CTLE for USB3.0 Rx */
+		val = readl(priv->mmio + (0x0e << 2));
+		val &= ~GENMASK(0, 0);
+		val |= 0x01;
+		writel(val, priv->mmio + (0x0e << 2));
+
+		/* Set PLL KVCO fine tuning signals */
+		val = readl(priv->mmio + (0x20 << 2));
+		val &= ~(0x7 << 2);
+		val |= 0x2 << 2;
+		writel(val, priv->mmio + (0x20 << 2));
+
+		/* Set PLL LPF R1 to su_trim[10:7]=1001 */
+		writel(0x4, priv->mmio + (0x0b << 2));
+
+		/* Set PLL input clock divider 1/2 */
+		val = readl(priv->mmio + (0x5 << 2));
+		val &= ~(0x3 << 6);
+		val |= 0x1 << 6;
+		writel(val, priv->mmio + (0x5 << 2));
+
+		/* Set PLL loop divider */
+		writel(0x32, priv->mmio + (0x11 << 2));
+
+		/* Set PLL KVCO to min and set PLL charge pump current to max */
+		writel(0xf0, priv->mmio + (0x0a << 2));
+
+		/* Set Rx squelch input filler bandwidth */
+		writel(0x0e, priv->mmio + (0x14 << 2));
+
+		param_write(priv->phy_grf, &cfg->pipe_sel_usb, true);
+		param_write(priv->phy_grf, &cfg->pipe_txcomp_sel, false);
+		param_write(priv->phy_grf, &cfg->pipe_txelec_sel, false);
+		param_write(priv->phy_grf, &cfg->usb_mode_set, true);
+		break;
+	default:
+		dev_err(priv->dev, "incompatible PHY type\n");
+		return -EINVAL;
+	}
+
+	clk_set_rate(&priv->ref_clk, 100000000);
+	param_write(priv->phy_grf, &cfg->pipe_clk_100m, true);
+
+	return 0;
+}
+
+static const struct rockchip_combphy_grfcfg rv1126b_combphy_grfcfgs = {
+	/* pipe-phy-grf */
+	.usb_mode_set		= { 0x18000, 5, 0, 0x00, 0x04 },
+	.pipe_rxterm_set	= { 0x18000, 12, 12, 0x00, 0x01 },
+	.pipe_txelec_set	= { 0x18004, 1, 1, 0x00, 0x01 },
+	.pipe_txcomp_set	= { 0x18004, 4, 4, 0x00, 0x01 },
+	.pipe_clk_25m		= { 0x18004, 14, 13, 0x00, 0x01 },
+	.pipe_clk_100m		= { 0x18004, 14, 13, 0x00, 0x02 },
+	.pipe_phymode_sel	= { 0x18008, 1, 1, 0x00, 0x01 },
+	.pipe_rate_sel		= { 0x18008, 2, 2, 0x00, 0x01 },
+	.pipe_rxterm_sel	= { 0x18008, 8, 8, 0x00, 0x01 },
+	.pipe_txelec_sel	= { 0x18008, 12, 12, 0x00, 0x01 },
+	.pipe_txcomp_sel	= { 0x18008, 15, 15, 0x00, 0x01 },
+	.pipe_clk_ext		= { 0x1800c, 9, 8, 0x02, 0x01 },
+	.pipe_sel_usb		= { 0x1800c, 14, 13, 0x00, 0x01 },
+	.pipe_phy_status	= { 0x18034, 6, 6, 0x01, 0x00 },
+	/* peri-grf */
+	.u3otg0_port_en		= { 0x1003c, 15, 0, 0x0189, 0x1100 },
+	/* pmu-grf */
+	.u3otg0_clamp_dis	= { 0x30000, 14, 14, 0x00, 0x01 },
+};
+
+static const struct rockchip_combphy_cfg rv1126b_combphy_cfgs = {
+	.grfcfg		= &rv1126b_combphy_grfcfgs,
+	.combphy_cfg	= rv1126b_combphy_cfg,
+	.force_det_out	= true,
+};
+#endif
+
 static const struct udevice_id rockchip_combphy_ids[] = {
 #ifdef CONFIG_ROCKCHIP_RK3528
 	{
@@ -1074,6 +1180,12 @@ static const struct udevice_id rockchip_combphy_ids[] = {
 	{
 		.compatible = "rockchip,rk3576-naneng-combphy",
 		.data = (ulong)&rk3576_combphy_cfgs
+	},
+#endif
+#ifdef CONFIG_ROCKCHIP_RV1126B
+	{
+		.compatible = "rockchip,rv1126b-usb3-phy",
+		.data = (ulong)&rv1126b_combphy_cfgs
 	},
 #endif
 	{ }

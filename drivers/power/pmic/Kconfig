@@ -123,6 +123,15 @@ config PMIC_PM8916
 
 	Driver binding info: doc/device-tree-bindings/pmic/pm8916.txt
 
+config PMIC_RK801
+	bool "Enable support for Rockchip PMIC RK801"
+	depends on DM_PMIC
+	---help---
+	The Rockchip RK801 PMIC provides four buck DC-DC convertors, 2 LDOs,
+	1 SWITCH and 1 Power key. It is accessed via an I2C interface.
+	The device is used with Rockchip SoCs.
+	This driver implements register read/write operations.
+
 config PMIC_RK8XX
 	bool "Enable support for Rockchip PMIC RK8XX"
 	depends on DM_PMIC

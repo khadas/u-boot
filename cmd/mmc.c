@@ -647,6 +647,7 @@ static int do_mmc_list(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char * const argv[])
 {
 	print_mmc_devices('\n');
+	do_mmc_rescan(cmdtp, flag, argc, argv);
 	return CMD_RET_SUCCESS;
 }
 

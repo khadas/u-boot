@@ -10,6 +10,7 @@ obj-$(CONFIG_ROCKCHIP_RV1108) += sdram_rv1108_pctl_phy.o sdram_rv1108.o
 obj-$(CONFIG_ROCKCHIP_RV1103B) += sdram_rv1103b.o
 obj-$(CONFIG_ROCKCHIP_RV1106) += sdram_rv1106.o
 obj-$(CONFIG_ROCKCHIP_RV1126) += sdram_rv1126.o sdram_pctl_px30.o
+obj-$(CONFIG_ROCKCHIP_RV1126B) += sdram_rv1126b.o
 obj-$(CONFIG_ROCKCHIP_RK3128) += sdram_rk3128.o
 obj-$(CONFIG_ROCKCHIP_RK3188) += sdram_rk3188.o
 obj-$(CONFIG_ROCKCHIP_RK322X) += sdram_rk322x.o

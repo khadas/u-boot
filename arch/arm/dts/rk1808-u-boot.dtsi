@@ -148,23 +148,3 @@
 	u-boot,dm-pre-reloc;
 	status = "okay";
 };
-
-&usb_host0_ehci {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
-&usb_host0_ohci {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
-&usbdrd3 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
-&usbdrd_dwc3 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};

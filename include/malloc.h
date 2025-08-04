@@ -892,7 +892,17 @@ void *realloc_simple(void *ptr, size_t size);
 # define pvALLOc		dlpvalloc
 # define mALLINFo	dlmallinfo
 # define mALLOPt		dlmallopt
-# else /* USE_DL_PREFIX */
+# elif CONFIG_IS_ENABLED(SMP)
+# define smp_cALLOc		calloc
+# define smp_fREe		free
+# define smp_mALLOc		malloc
+# define smp_mEMALIGn	memalign
+# define smp_rEALLOc		realloc
+# define smp_vALLOc		valloc
+# define smp_pvALLOc		pvalloc
+# define smp_mALLINFo	mallinfo
+# define smp_mALLOPt		mallopt
+# else /* !USE_DL_PREFIX && !CONFIG_IS_ENABLED(SMP) */
 # define cALLOc		calloc
 # define fREe		free
 # define mALLOc		malloc
@@ -930,6 +940,22 @@ size_t  malloc_usable_size(Void_t*);
 void    malloc_stats(void);
 int     mALLOPt(int, int);
 struct mallinfo mALLINFo(void);
+# if CONFIG_IS_ENABLED(SMP)
+/* smp */
+Void_t* smp_mALLOc(size_t);
+void    smp_fREe(Void_t*);
+Void_t* smp_rEALLOc(Void_t*, size_t);
+Void_t* smp_mEMALIGn(size_t, size_t);
+Void_t* smp_vALLOc(size_t);
+Void_t* smp_pvALLOc(size_t);
+Void_t* smp_cALLOc(size_t, size_t);
+void    smp_cfree(Void_t*);
+int     smp_malloc_trim(size_t);
+size_t  smp_malloc_usable_size(Void_t*);
+void    smp_malloc_stats(void);
+int     smp_mALLOPt(int, int);
+struct mallinfo smp_mALLINFo(void);
+# endif
 # else
 Void_t* mALLOc();
 void    fREe();

@@ -93,6 +93,7 @@ struct rockchip_saradc_data {
 	int				num_bits;
 	int				num_channels;
 	unsigned long			clk_rate;
+	int				das_soc_data;
 };
 
 struct rockchip_saradc_priv {
@@ -146,7 +147,10 @@ static int rockchip_saradc_start_channel(struct udevice *dev, int channel)
 	reset_deassert(&priv->rst);
 #endif
 	writel(0x20, &priv->regs->t_pd_soc);
-	writel(0xc, &priv->regs->t_das_soc);
+	if (priv->data->das_soc_data)
+		writel(priv->data->das_soc_data, &priv->regs->t_das_soc);
+	else
+		writel(0xc, &priv->regs->t_das_soc);
 	val = SARADC2_EN_END_INT << 16 | SARADC2_EN_END_INT;
 	writel(val, &priv->regs->end_int_en);
 	val = SARADC2_START | SARADC2_SINGLE_MODE | channel;
@@ -250,6 +254,13 @@ static const struct rockchip_saradc_data rv1103b_saradc_data = {
 	.clk_rate = 1000000,
 };
 
+static const struct rockchip_saradc_data rv1126b_saradc_data = {
+	.num_bits = 13,
+	.num_channels = 8,
+	.clk_rate = 24000000,
+	.das_soc_data = 0x14,
+};
+
 static const struct udevice_id rockchip_saradc_ids[] = {
 	{
 		.compatible = "rockchip,rk3588-saradc",
@@ -270,6 +281,10 @@ static const struct udevice_id rockchip_saradc_ids[] = {
 	{
 		.compatible = "rockchip,rv1103b-saradc",
 		.data = (ulong)&rv1103b_saradc_data
+	},
+	{
+		.compatible = "rockchip,rv1126b-saradc",
+		.data = (ulong)&rv1126b_saradc_data
 	},
 	{ }
 };

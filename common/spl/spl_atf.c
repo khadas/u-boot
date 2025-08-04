@@ -76,24 +76,35 @@ static struct bl31_params *bl2_plat_get_bl31_params(struct spl_image_info *spl_i
 	bl33_ep_info->args.arg0 = 0xffff & read_mpidr();
 	bl33_ep_info->pc = bl33_entry;
 
-#ifdef CONFIG_SPL_ATF_AARCH32_BL33
-	bl33_ep_info->spsr = SPSR_32(MODE32_svc, SPSR_T_ARM, EP_EE_LITTLE,
-				     DISABLE_ALL_EXECPTIONS_32);
-#else
-	bl33_ep_info->spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
-				     DISABLE_ALL_EXECPTIONS);
-#endif
-	/*
-	 * Reference: arch/arm/lib/bootm.c
-	 * boot_jump_linux(bootm_headers_t *images, int flag)
-	 * {
-	 * 	......
-	 * 	armv8_switch_to_el2((u64)images->ft_addr, 0, 0, 0,
-	 * 			   images->ep, ES_TO_AARCH64);
-	 * }
-	 */
-	if (spl_image->next_stage == SPL_NEXT_STAGE_KERNEL)
-		bl33_ep_info->args.arg0 = (unsigned long)spl_image->fdt_addr;
+	if (spl_image->flags & SPL_ATF_AARCH32_BL33) {
+		bl33_ep_info->spsr = SPSR_32(MODE32_svc, SPSR_T_ARM, EP_EE_LITTLE,
+					     DISABLE_ALL_EXECPTIONS_32);
+
+		/*
+		 *  r1 - machine type
+		 *  r2 - boot data (atags/dt) pointer
+		 */
+		if (spl_image->next_stage == SPL_NEXT_STAGE_KERNEL) {
+			bl33_ep_info->args.arg0 = 0;
+			bl33_ep_info->args.arg1 = 0xffffffff;
+			bl33_ep_info->args.arg2 = (unsigned long)spl_image->fdt_addr;
+		}
+	} else {
+		bl33_ep_info->spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
+					     DISABLE_ALL_EXECPTIONS);
+
+		/*
+		 * Reference: arch/arm/lib/bootm.c
+		 * boot_jump_linux(bootm_headers_t *images, int flag)
+		 * {
+		 * 	......
+		 * 	armv8_switch_to_el2((u64)images->ft_addr, 0, 0, 0,
+		 * 			   images->ep, ES_TO_AARCH64);
+		 * }
+		 */
+		if (spl_image->next_stage == SPL_NEXT_STAGE_KERNEL)
+			bl33_ep_info->args.arg0 = (unsigned long)spl_image->fdt_addr;
+	}
 
 	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem.bl33_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info,

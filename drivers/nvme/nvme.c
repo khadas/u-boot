@@ -312,6 +312,9 @@ static int nvme_disable_ctrl(struct nvme_dev *dev)
 	dev->ctrl_config &= ~NVME_CC_ENABLE;
 	writel(dev->ctrl_config, &dev->bar->cc);
 
+	if (dev->quirks & NVME_QUIRK_DELAY_BEFORE_CHK_RDY)
+		mdelay(NVME_QUIRK_DELAY_AMOUNT);
+
 	return nvme_wait_ready(dev, false);
 }
 
@@ -850,9 +853,32 @@ static ulong nvme_blk_erase(struct udevice *udev, lbaint_t blknr,
 	return blkcnt;
 }
 
+static ulong nvme_blk_write_zeroes(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt)
+{
+	struct nvme_ns *ns = dev_get_priv(udev);
+	struct nvme_dev *dev = ns->dev;
+	struct nvme_command cmnd;
+
+	if (dev->quirks & NVME_QUIRK_DEALLOCATE_ZEROES)
+		nvme_blk_erase(udev, blknr, blkcnt);
+
+	memset(&cmnd, 0, sizeof(cmnd));
+
+	cmnd.write_zeroes.opcode = nvme_cmd_write_zeroes;
+	cmnd.write_zeroes.nsid = cpu_to_le32(ns->ns_id);
+	cmnd.write_zeroes.slba = cpu_to_le64(blknr);
+	cmnd.write_zeroes.length = cpu_to_le16(blkcnt - 1);
+	cmnd.write_zeroes.control = 0;
+	cmnd.write_zeroes.command_id = nvme_get_cmd_id();
+
+	nvme_submit_cmd(dev->queues[NVME_IO_Q], &cmnd);
+	return blkcnt;
+}
+
 static const struct blk_ops nvme_blk_ops = {
 	.read	= nvme_blk_read,
 	.write	= nvme_blk_write,
+	.write_zeroes = nvme_blk_write_zeroes,
 	.erase  = nvme_blk_erase,
 };
 
@@ -872,6 +898,50 @@ static int nvme_bind(struct udevice *udev)
 	sprintf(name, "nvme#%d", ndev_num++);
 
 	return device_set_name(udev, name);
+}
+
+static const struct pci_device_id nvme_id_table[] = {
+	{ PCI_VDEVICE(INTEL, 0x0953),   /* Intel 750/P3500/P3600/P3700 */
+	  .driver_data = NVME_QUIRK_DEALLOCATE_ZEROES, },
+	{ PCI_VDEVICE(INTEL, 0x0a53),   /* Intel P3520 */
+	  .driver_data = NVME_QUIRK_DEALLOCATE_ZEROES, },
+	{ PCI_VDEVICE(INTEL, 0x0a54),   /* Intel P4500/P4600 */
+	  .driver_data = NVME_QUIRK_DEALLOCATE_ZEROES  },
+	{ PCI_VDEVICE(INTEL, 0x0a55),   /* Dell Express Flash P4600 */
+	  .driver_data = NVME_QUIRK_DEALLOCATE_ZEROES, },
+        { PCI_DEVICE(0x1bb1, 0x0100),   /* Seagate Nytro Flash Storage */
+	  .driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+	{ PCI_DEVICE(0x1c58, 0x0003),   /* HGST adapter */
+	  .driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+	{ PCI_DEVICE(0x1c58, 0x0023),   /* WDC SN200 adapter */
+	  .driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+	{ PCI_DEVICE(0x1c5f, 0x0540),   /* Memblaze Pblaze4 adapter */
+	  .driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+	{ PCI_DEVICE(0x144d, 0xa821),   /* Samsung PM1725 */
+	  .driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+	{ PCI_DEVICE(0x144d, 0xa822),   /* Samsung PM1725a */
+	  .driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+	{ PCI_DEVICE(0x1987, 0x5013),   /* Phison E13 */
+	  .driver_data = NVME_QUIRK_LIMIT_IOQD32},
+};
+
+static void nvme_apply_quirks(struct udevice *udev)
+{
+	struct nvme_dev *ndev = dev_get_priv(udev);
+	u16 vendor_id, device_id;
+	unsigned int i;
+
+	dm_pci_read_config16(udev, PCI_VENDOR_ID, &vendor_id);
+	dm_pci_read_config16(udev, PCI_DEVICE_ID, &device_id);
+
+	for (i = 0; i < ARRAY_SIZE(nvme_id_table); i++) {
+		if (vendor_id == nvme_id_table[i].vendor &&
+		    device_id == nvme_id_table[i].device) {
+			ndev->quirks |= nvme_id_table[i].driver_data;
+			debug("vid 0x%x, pid 0x%x apply quirks 0x%lx\n",
+			      vendor_id, device_id, nvme_id_table[i].driver_data);
+		}
+	}
 }
 
 static int nvme_probe(struct udevice *udev)
@@ -899,8 +969,12 @@ static int nvme_probe(struct udevice *udev)
 	}
 	memset(ndev->queues, 0, NVME_Q_NUM * sizeof(struct nvme_queue *));
 
+	nvme_apply_quirks(udev);
+
 	ndev->cap = nvme_readq(&ndev->bar->cap);
 	ndev->q_depth = min_t(int, NVME_CAP_MQES(ndev->cap) + 1, NVME_Q_DEPTH);
+	if (ndev->quirks & NVME_QUIRK_LIMIT_IOQD32)
+		ndev->q_depth = min_t(int, ndev->q_depth, 32);
 	ndev->db_stride = 1 << NVME_CAP_STRIDE(ndev->cap);
 	ndev->dbs = ((void __iomem *)ndev->bar) + 4096;
 

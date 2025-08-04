@@ -29,6 +29,11 @@ enum RK_ESCK_KEYID {
 	RK_ESCK_KEYMAX
 };
 
+enum RK_FW_KEYID {
+	RK_FW_KEY0 = 0,
+	RK_FW_KEYMAX
+};
+
 /* Crypto mode */
 enum RK_CIPIHER_MODE {
 	RK_CIPHER_MODE_ECB = 0,
@@ -126,5 +131,13 @@ uint32_t trusty_attest_get_ca
 	(uint8_t *operation_start, uint32_t *operation_size,
 	 uint8_t *out, uint32_t *out_len);
 uint32_t trusty_attest_set_ca(uint8_t *ca_response, uint32_t *ca_response_size);
+uint32_t trusty_set_fw_encrypt_key_mask(enum RK_FW_KEYID key_id);
+uint32_t trusty_fw_encrypt_key_is_written(enum RK_FW_KEYID key_id, uint8_t *value);
+uint32_t trusty_write_fw_encrypt_key(enum RK_FW_KEYID key_id,
+				     uint8_t *byte_buf, uint32_t byte_len);
+uint32_t trusty_fw_key_cipher(enum RK_FW_KEYID key_id, rk_cipher_config *config,
+			      uint32_t src_phys_addr, uint32_t dst_phys_addr,
+			      uint32_t len);
+uint32_t trusty_verify_config_ip(char *licence_str);
 
 #endif

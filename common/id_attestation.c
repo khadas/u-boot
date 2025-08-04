@@ -80,12 +80,10 @@ atap_result write_id_attestation_to_secure_storage(u8* received_data, uint32_t l
 					      sizeof(AttestationIds));
 	MSG("read id attestation   ret=%0x\n", ret);
 	if (ret == TEEC_SUCCESS) {
-		printf("id attestation already exsit,you cannot update it!");
+		printf("id attestation already exsit,let's update it!");
 #if DEBUG
 		printAttestationIds(&ids_read);
 #endif
-		ret = ATAP_RESULT_ERROR_ALREADY_EXSIT;
-		return ret;
 	}
 	ret = write_id_attestation(ids_file, &ids, ids_len);
 	printf("write id attestation : ret=%d\n", ret);

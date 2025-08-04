@@ -79,7 +79,7 @@ static int serdes_i2c_probe(struct udevice *dev)
 	struct serdes *serdes = dev_get_priv(dev);
 	struct serdes_bridge *serdes_bridge = NULL;
 	struct serdes_bridge_split *serdes_bridge_split = NULL;
-	struct serdes_pinctrl *serdes_pinctrl = NULL;
+
 	int ret;
 
 	ret = i2c_set_chip_offset_len(dev, 2);
@@ -118,6 +118,8 @@ static int serdes_i2c_probe(struct udevice *dev)
 		SERDES_DBG_MFD("%s: failed to err gpio: %d\n",
 			       __func__, ret);
 
+	serdes->mcu_enable = dev_read_bool(dev, "mcu-enable");
+
 	if (serdes->chip_data->serdes_type == TYPE_OTHER) {
 		SERDES_DBG_MFD("TYPE_OTHER just need only init i2c\n");
 		serdes_i2c_init(serdes);
@@ -143,12 +145,7 @@ static int serdes_i2c_probe(struct udevice *dev)
 		serdes->serdes_bridge_split = serdes_bridge_split;
 	}
 
-	serdes_pinctrl = calloc(1, sizeof(*serdes_pinctrl));
-	if (!serdes_pinctrl)
-		return -ENOMEM;
-
-	serdes->serdes_pinctrl = serdes_pinctrl;
-	ret = serdes_pinctrl_register(dev, serdes);
+	ret = serdes_pinctrl_register(dev);
 	if (ret)
 		return ret;
 

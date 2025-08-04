@@ -54,19 +54,6 @@ static const char * const rpmb_err_msg[] = {
 	"Authentication key not yet programmed",
 };
 
-static int mmc_set_blockcount(struct mmc *mmc, unsigned int blockcount,
-			      bool is_rel_write)
-{
-	struct mmc_cmd cmd = {0};
-
-	cmd.cmdidx = MMC_CMD_SET_BLOCK_COUNT;
-	cmd.cmdarg = blockcount & 0x0000FFFF;
-	if (is_rel_write)
-		cmd.cmdarg |= 1 << 31;
-	cmd.resp_type = MMC_RSP_R1;
-
-	return mmc_send_cmd(mmc, &cmd, NULL);
-}
 static int mmc_rpmb_request(struct mmc *mmc, const void *s,
 			    unsigned int count, bool is_rel_write)
 {

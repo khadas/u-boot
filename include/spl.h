@@ -78,6 +78,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			struct spl_load_info *info, ulong sector, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
+#define SPL_ATF_AARCH32_BL33	BIT(31)
 
 /* SPL common functions */
 void preloader_console_init(void);
@@ -345,9 +346,17 @@ int spl_board_prepare_for_jump(struct spl_image_info *spl_image);
 const char *spl_kernel_partition(struct spl_image_info *spl,
 				 struct spl_load_info *info);
 /**
+ * spl_fdt_fixup_memory() - arch/board-specific fixup kernel dtb memory node.
+ */
+void spl_fdt_fixup_memory(struct spl_image_info *spl_image);
+/**
  * spl_find_hwid_dtb() - Support select kernel dtb based on HW-ID
  */
 int spl_find_hwid_dtb(const char *fdt_name);
+/**
+ * spl_fdt_chosen_bootargs() - Support append bootargs into kernel fdt chosen node
+ */
+int spl_fdt_chosen_bootargs(struct spl_load_info *info, void *fdt);
 #endif
 
 #endif

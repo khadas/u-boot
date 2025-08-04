@@ -92,6 +92,60 @@ static int mt29f2g01abagd_ecc_get_status(struct spinand_device *spinand,
 	return -EINVAL;
 }
 
+static int mt29f4g01abafd_ooblayout_ecc(struct mtd_info *mtd, int section,
+					struct mtd_oob_region *region)
+{
+	if (section)
+		return -ERANGE;
+
+	region->offset = mtd->oobsize / 2;
+	region->length = mtd->oobsize / 2;
+
+	return 0;
+}
+
+static int mt29f4g01abafd_ooblayout_free(struct mtd_info *mtd, int section,
+					 struct mtd_oob_region *region)
+{
+	if (section)
+		return -ERANGE;
+
+	region->offset = 2;
+	region->length = mtd->oobsize / 2 - 2;
+
+	return 0;
+}
+
+static const struct mtd_ooblayout_ops mt29f4g01abafd_ooblayout = {
+	.ecc = mt29f4g01abafd_ooblayout_ecc,
+	.rfree = mt29f4g01abafd_ooblayout_free,
+};
+
+/*
+ * ecc bits: 0xC0[4,6]
+ * [0b000], No bit errors were detected;
+ * [0b001] and [0b011], 1~6 Bit errors were detected and corrected. Not
+ *	reach Flipping Bits;
+ * [0b101], Bit error count equals the bit flip
+ *	detection threshold
+ * [0b010], Multiple bit errors were detected and
+ *	not corrected.
+ * others, Reserved.
+ */
+static int mt29f4g01abafd_ecc_ecc_get_status(struct spinand_device *spinand,
+					     u8 status)
+{
+	struct nand_device *nand = spinand_to_nand(spinand);
+	u8 eccsr = (status & GENMASK(6, 4)) >> 4;
+
+	if (eccsr <= 1 || eccsr == 3)
+		return eccsr;
+	else if (eccsr == 5)
+		return nand->eccreq.strength;
+	else
+		return -EBADMSG;
+}
+
 static const struct spinand_info micron_spinand_table[] = {
 	SPINAND_INFO("MT29F2G01ABAGD",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0x24),
@@ -113,6 +167,15 @@ static const struct spinand_info micron_spinand_table[] = {
 		     0,
 		     SPINAND_ECCINFO(&mt29f2g01abagd_ooblayout,
 				     mt29f2g01abagd_ecc_get_status)),
+	SPINAND_INFO("MT29F4G01ABAFD",
+		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0x34),
+		     NAND_MEMORG(1, 4096, 256, 64, 2048, 1, 1, 1),
+		     NAND_ECCREQ(8, 512),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     0,
+		     SPINAND_ECCINFO(&mt29f4g01abafd_ooblayout, mt29f4g01abafd_ecc_ecc_get_status)),
 };
 
 static const struct spinand_manufacturer_ops micron_spinand_manuf_ops = {
