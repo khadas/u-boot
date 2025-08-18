@@ -122,7 +122,6 @@
 	"lcd2_ctrl=0x00000000\0" \
 	"outputmode=panel\0" \
 	"outputmode2=1080p60hz\0" \
-	"cvbsmode=576cvbs\0" \
 	"storeargs_hdmitx="\
 		"if test ${mipi_lcd_exist} != 1; then "\
 			"setenv vout2_args ;"\
@@ -164,7 +163,6 @@
         "lcd_ctrl=0x00000000\0" \
         "lcd_debug=0x00000000\0" \
         "hdmimode=none\0" \
-        "cvbsmode=dummy_l\0" \
 		"colorattribute=444,8bit\0"\
 		"vout_init=enable\0" \
         "display_width=1920\0" \
@@ -185,16 +183,10 @@
         "fdt_high=0x20000000\0"\
         "sdcburncfg=aml_sdc_burn.ini\0"\
         "EnableSelinux=permissive\0" \
-        "recovery_part=recovery\0"\
         "lock=10101000\0"\
         "board=kvim4\0"\
-        "cvbs_drv=0\0"\
         "osd_reverse=0\0"\
         "video_reverse=0\0"\
-        "suspend=off\0"\
-        "powermode=on\0"\
-        "ffv_wake=off\0"\
-        "ffv_freeze=off\0"\
         "edid_14_dir=/odm/etc/tvconfig/hdmi/port1_14.bin\0" \
         "edid_20_dir=/odm/etc/tvconfig/hdmi/port1_20.bin\0" \
         "edid_select=0\0" \
@@ -202,38 +194,12 @@
         "cec_fun=0x2F\0" \
         "logic_addr=0x0\0" \
         "cec_ac_wakeup=1\0" \
-        "check_connector_type="\
-                "setenv bootconfig ${bootconfig} androidboot.connector_type=" \
-                "${connector_type};\0"\
-        "check_connector1_type="\
-                "setenv bootconfig ${bootconfig} androidboot.connector1_type=" \
-                "${connector1_type};\0"\
-        "check_connector2_type="\
-                "setenv bootconfig ${bootconfig} androidboot.connector2_type=" \
-                "${connector2_type};\0"\
-        "tftp_kernel_path=boot/Image \0" \
-        "tftp_dtb_path=boot/dtb/ \0" \
-        "tftp_initrd_path=boot/initrd.img \0" \
-        "nfsroot_path= \0" \
 	CONFIG_EXTRA_HDMI_ENV_SETTINGS \
         "initargs="\
             "rootflags=data=writeback rw rootfstype=ext4" CONFIG_KNL_LOG_LEVEL "no_console_suspend earlycon=aml-uart,0xfe078000 fsck.repair=yes net.ifnames=0 "\
             "ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 loop.max_part=4 "\
 			"scsi_mod.scan=async xhci_hcd.quirks=0x800000 scramble_reg=0xfe02e030 gamma=0 "\
             "khadas_board=VIM4 boot_source=${boot_source} "\
-            "\0"\
-        "nfs_boot="\
-            "dhcp;"\
-            "setenv nfs_para root=/dev/nfs rw "\
-                    "nfsroot=${serverip}:${nfsroot_path} ip=:::::eth0:on;"\
-            "printenv nfs_para;"\
-            "setenv bootargs ${bootargs} ${nfs_para};"\
-            "tftp ${dtb_mem_addr} ${tftp_dtb_path}${fdtfile};"\
-            "tftp ${loadaddr_kernel} ${tftp_kernel_path};"\
-            "tftp ${ramdisk_addr_r} ${tftp_initrd_path};"\
-            "setenv ramdisk_size ${filesize};"\
-            "echo ramdisk_size=${ramdisk_size};"\
-            "booti ${loadaddr_kernel} ${ramdisk_addr_r}:${ramdisk_size} ${dtb_mem_addr};"\
             "\0"\
         "upgrade_check="\
 			"run upgrade_check_base;"\
@@ -257,82 +223,19 @@
 			"fi;"\
 		"fi;"\
 	"\0"\
-        "ffv_freeze_action="\
-            "run cec_init;"\
-            "setenv ffv_freeze on;"\
-            "setenv bootargs ${bootargs} ffv_freeze=on"\
-            "\0"\
-        "cold_boot_normal_check="\
-            /*"run try_auto_burn;uboot wake up "*/\
-            "if test ${powermode} = on; then "\
-                /*"run try_auto_burn; "*/\
-            "else if test ${powermode} = standby; then "\
-                "run cec_init;"\
-                "systemoff; "\
-            "else if test ${powermode} = last; then "\
-                "echo suspend=${suspend}; "\
-                "if test ${suspend} = off; then "\
-                    /*"run try_auto_burn; "*/\
-                "else if test ${suspend} = on; then "\
-                    "run cec_init;"\
-                    "systemoff; "\
-                "else if test ${suspend} = shutdown; then "\
-                    "run cec_init;"\
-                    "systemoff; "\
-                "fi; fi; fi; "\
-            "fi; fi; fi; "\
-            "\0"\
         "switch_bootmode="\
             "get_rebootmode;"\
             "setenv bootargs ${bootargs} reboot_mode=${reboot_mode};"\
-            "setenv ffv_freeze off;"\
             "echo reboot_mode : ${reboot_mode};"\
             "if test ${reboot_mode} = factory_reset; then "\
-                    "run recovery_from_flash;"\
+				"run recovery_from_flash;"\
             "else if test ${reboot_mode} = update; then "\
-                    "run update;"\
-            "else if test ${reboot_mode} = quiescent; then "\
-				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
-				"setenv vout_init enable;"\
-            "else if test ${reboot_mode} = recovery_quiescent; then "\
-				"setenv bootconfig ${bootconfig} androidboot.quiescent=1;"\
-				"setenv vout_init enable;"\
-                    "run recovery_from_flash;"\
+				"run update;"\
             "else if test ${reboot_mode} = cold_boot; then "\
-                    "echo cold boot: ffv_wake=${ffv_wake} "\
-                    "powermode=${powermode} suspend=${suspend};"\
-                    "if test ${ffv_wake} = on; then "\
-                        "if test ${powermode} = on; then "\
-                            "setenv bootargs ${bootargs} ffv_freeze=off; "\
-                        "else if test ${powermode} = standby; then "\
-                            "run ffv_freeze_action; "\
-                        "else if test ${powermode} = last; then "\
-                            "if test ${suspend} = off; then "\
-                                "setenv bootargs ${bootargs} ffv_freeze=off; "\
-                            "else if test ${suspend} = on; then "\
-                                "run ffv_freeze_action; "\
-                            "else if test ${suspend} = shutdown; then "\
-                                "run ffv_freeze_action; "\
-                            "fi; fi; fi; "\
-                        "fi; fi; fi; "\
-                    "else "\
-                        "run cold_boot_normal_check;"\
-                    "fi; "\
-            "else if test ${reboot_mode} = ffv_reboot; then "\
-                "if test ${ffv_wake} = on; then "\
-                    "run ffv_freeze_action; "\
-                "fi; "\
+				"echo cold boot "\
             "else if test ${reboot_mode} = fastboot; then "\
-                "fastboot 1;"\
-            "fi;fi;fi;fi;fi;fi;fi;"\
-            "\0" \
-        "reset_suspend="\
-            "if test ${ffv_freeze} != on; then "\
-                "if test ${suspend} = on || test ${suspend} = shutdown; then "\
-                    "setenv suspend off;"\
-                    "saveenv;"\
-                "fi;"\
-            "fi;"\
+				"fastboot 1;"\
+            "fi;fi;fi;fi;"\
             "\0" \
 		"storeboot="\
 			"run storeboot_base;"\
@@ -378,30 +281,7 @@
 			"run init_display_hdmitx;"\
 			"\0"\
         "check_display="\
-			"if test ${reboot_mode} = cold_boot; then "\
-				"if test ${powermode} = standby; then "\
-					"echo not init_display; "\
-				"else if test ${powermode} = last; then "\
-					"echo suspend=${suspend}; "\
-					"if test ${suspend} = off; then "\
-						"run init_display; "\
-					"else if test ${suspend} = on; then "\
-						"echo not init_display; "\
-					"else if test ${suspend} = shutdown; then "\
-						"echo not init_display; "\
-					"fi; fi; fi; "\
-				"else "\
-					"run init_display; "\
-				"fi; fi; "\
-			"else if test ${reboot_mode} = ffv_reboot; then "\
-				"if test ${ffv_wake} = on; then "\
-					"echo ffv reboot no display; "\
-				"else "\
-					"run init_display; "\
-				"fi; "\
-			"else "\
-				"run init_display; "\
-			"fi;fi; "\
+			"run init_display; "\
 			"\0"\
         "cmdline_keys="\
             "setenv region_code US;"\
@@ -442,7 +322,6 @@
             "run check_display;"\
             "run storeargs;"\
             "run wol_init;"\
-            "run reset_suspend;"\
             "run upgrade_key;"\
             "run switch_bootmode;"
 
