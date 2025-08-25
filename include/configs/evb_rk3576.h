@@ -15,7 +15,8 @@
 #define ROCKCHIP_DEVICE_SETTINGS \
 		"stdin=serial,usbkbd\0" \
 		"stdout=serial,vidconsole\0" \
-		"stderr=serial,vidconsole\0"
+		"stderr=serial,vidconsole\0" \
+		"update=gpio clear 86; gpio clear 82; gpio set 80; rockusb 0 mmc 0\0"
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
