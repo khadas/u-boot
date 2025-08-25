@@ -101,6 +101,8 @@
 		"echo Reboot test mode detected;"\
 		"setenv bootargs ${bootargs} reboot_test;" \
 	"fi;"\
+	"kbi init;"\
+	"kbi usid;"\
 	"\0"\
 	BOOTENV
 #endif /* !CONFIG_SPL_BUILD */
