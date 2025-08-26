@@ -9,7 +9,7 @@
 ifndef CONFIG_SPL_BUILD
 obj-y += init/
 obj-$(CONFIG_SUPPORT_USBPLUG) += usbplug/
-
+obj-$(CONFIG_$(SPL_)SMP) += smp/
 obj-y += main.o
 obj-y += exports.o
 obj-$(CONFIG_HASH) += hash.o

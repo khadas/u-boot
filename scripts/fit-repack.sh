@@ -6,9 +6,7 @@
 #
 set -e
 
-MKIMAGE="./tools/mkimage"
-UNPACK="./scripts/fit-unpack.sh"
-OFFS="0x1000"
+OFFS="0x1200"
 OUT="out/repack"
 ITB="out/repack/image.itb"
 ITS="out/repack/image.its"
@@ -66,8 +64,19 @@ function fit_repack()
 	ITB_KB=`expr ${IMG_BS} / ${COPIES} / 1024`
 
 	rm -rf ${OUT} && mkdir -p ${OUT}
+	UNPACK=$(find . -type f -name "fit-unpack.sh")
+	if [ -z ${UNPACK} ]; then
+		echo "ERROR: No fit-unpack.sh script"
+		exit 1
+	fi
 	${UNPACK} -f ${IMAGE} -o ${OUT}/
 	find ${DATA}/ -maxdepth 1 -type f | xargs cp -t ${OUT}/
+
+	MKIMAGE=$(find . -type f -name "mkimage")
+	if [ -z ${MKIMAGE} ]; then
+		echo "ERROR: No mkimage tool"
+		exit 1
+	fi
 
 	if fdtget -l ${IMAGE} /images/uboot >/dev/null 2>&1 ; then
 		rm -f ${IMAGE}

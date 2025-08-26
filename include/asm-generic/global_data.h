@@ -66,7 +66,7 @@ typedef struct global_data {
 	unsigned long env_addr;		/* Address  of Environment struct */
 	unsigned long env_valid;	/* Environment valid? enum env_valid */
 
-	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
+	uint64_t ram_top;		/* Top address of RAM used by U-Boot */
 	unsigned long ram_top_ext_size;	/* Extend size of RAM top */
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t ram_size;		/* RAM size */
@@ -136,6 +136,7 @@ typedef struct global_data {
 
 #ifdef CONFIG_BOOTSTAGE_PRINTF_TIMESTAMP
 	int new_line;
+	u64 last_us;
 #endif
 	struct pre_serial serial;
 	ulong sys_start_tick;		/* For report system start-up time */
@@ -185,6 +186,7 @@ typedef struct global_data {
 #ifdef CONFIG_ARCH_ROCKCHIP
 /* BL32 is enabled */
 #define GD_FLG_BL32_ENABLED	0x20000
+#define GD_FLG_SMP		0x40000
 #endif
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */

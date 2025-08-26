@@ -54,4 +54,5 @@ U_BOOT_CMD(
 	"     `blk#' to memory address `addr'\n"
 	"nvme write addr blk# cnt - write `cnt' blocks starting at block\n"
 	"     `blk#' from memory address `addr'"
+	"nvme write_zeroes blk# cnt - write `cnt' blocks of zeroes starting at block\n"
 );

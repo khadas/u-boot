@@ -16,8 +16,10 @@
 
 static char *cmdline;
 
-#if defined(CONFIG_ROCKCHIP_RV1106) || defined(CONFIG_ROCKCHIP_RV1103B)
-#define COMPRESS_LOAD_ADDR 0xa0000
+#if defined(CONFIG_ROCKCHIP_RV1106) || \
+    defined(CONFIG_ROCKCHIP_RV1103B) || \
+    defined(CONFIG_ROCKCHIP_RV1126B)
+#define COMPRESS_LOAD_ADDR (CONFIG_SYS_SDRAM_BASE + 0xa0000)
 #else
 #error	"Please Define COMPRESS_LOAD_ADDR !!!"
 #endif
@@ -130,7 +132,7 @@ int spl_load_meta(struct spl_image_info *spl_image, struct spl_load_info *info)
 	/* The first part offset starts at 0x0 offset. */
 	meta_startup_part_offset = (meta_startup_part_num - 1) * (meta_per_part_size / info->bl_len);
 
-	data = (char *)meta.load;
+	data = (char *)(uintptr_t)meta.load;
 	printf("Meta: 0x%08x - 0x%08x\n", meta.load, meta.load + meta.size);
 	if (info->read(info, sector + meta_startup_part_offset,
 		             DIV_ROUND_UP(MAX_META_SEGMENT_SIZE, info->bl_len), data)
@@ -139,9 +141,9 @@ int spl_load_meta(struct spl_image_info *spl_image, struct spl_load_info *info)
 		return -EIO;
 	}
 
-	meta_p = (struct meta_head *)meta.load;
+	meta_p = (struct meta_head *)(uintptr_t)meta.load;
 
-	cmd = (struct cmdline_info *)(meta_p->load + CMDLINE_OFFSET);
+	cmd = (struct cmdline_info *)(uintptr_t)(meta_p->load + CMDLINE_OFFSET);
 	if (cmd->tag == RK_CMDLINE) {
 		if (cmd->crc32 == crc32(0, (const unsigned char *)cmd, sizeof(struct cmdline_info) - 4))
 			cmdline = (char *)cmd->data;
@@ -160,7 +162,7 @@ int spl_load_meta(struct spl_image_info *spl_image, struct spl_load_info *info)
 			return -EIO;
 		}
 
-		memcpy((void *)(meta_p->load + SENSOR_IQ_BIN_OFFSET), data, meta_p->iq_item_size);
+		memcpy((void *)(uintptr_t)(meta_p->load + SENSOR_IQ_BIN_OFFSET), data, meta_p->iq_item_size);
 
 		if (rk_meta_iq_decom((meta_p->load + meta_p->comp_off),
 				     (unsigned long)(data + meta_p->comp_off -
@@ -174,7 +176,7 @@ int spl_load_meta(struct spl_image_info *spl_image, struct spl_load_info *info)
 		if (info->read(info,
 			             sector + meta_startup_part_offset + (MAX_META_SEGMENT_SIZE / info->bl_len),
 			             DIV_ROUND_UP(meta_iq_item_size, info->bl_len),
-			             (void *)(meta_p->load + MAX_META_SEGMENT_SIZE))
+			             (void *)(uintptr_t)(meta_p->load + MAX_META_SEGMENT_SIZE))
 			  != DIV_ROUND_UP(meta_iq_item_size, info->bl_len)) {
 			printf("%s: Failed to read\n", __func__);
 			return -EIO;

@@ -22,3 +22,4 @@ obj-$(CONFIG_ROCKCHIP_RV1103B) += pinctrl-rv1103b.o
 obj-$(CONFIG_ROCKCHIP_RV1106) += pinctrl-rv1106.o
 #obj-$(CONFIG_ROCKCHIP_RV1108) += pinctrl-rv1108.o
 obj-$(CONFIG_ROCKCHIP_RV1126) += pinctrl-rv1126.o
+obj-$(CONFIG_ROCKCHIP_RV1126B) += pinctrl-rv1126b.o

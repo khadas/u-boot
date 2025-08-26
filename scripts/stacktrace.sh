@@ -44,6 +44,9 @@ elif [ "${SYM_FILE}" = '' ] || [ ! -f ${SYM_FILE} ]; then
 	exit 1
 fi
 
+dos2unix ${INPUT_FILE}
+
+echo
 echo "SYMBOL File: ${SYM_FILE}"
 echo
 # Parse PC and LR

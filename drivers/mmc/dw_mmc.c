@@ -163,43 +163,19 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 	dwmci_writel(host, DWMCI_BYTCNT, data->blocksize * data->blocks);
 }
 
-#ifdef CONFIG_SPL_BUILD
-static unsigned int dwmci_get_drto(struct dwmci_host *host,
-				   const unsigned int size)
-{
-	unsigned int drto_clks;
-	unsigned int drto_div;
-	unsigned int drto_ms;
-
-	drto_clks = dwmci_readl(host, DWMCI_TMOUT) >> 8;
-	drto_div = (dwmci_readl(host, DWMCI_CLKDIV) & 0xff) * 2;
-	if (drto_div == 0)
-		drto_div = 1;
-
-	drto_ms = DIV_ROUND_UP_ULL((u64)MSEC_PER_SEC * drto_clks * drto_div,
-				   host->mmc->clock);
-
-	/* add a bit spare time */
-	drto_ms += 50;
-
-	return drto_ms;
-}
-#else
 static unsigned int dwmci_get_drto(struct dwmci_host *host,
 				   const unsigned int size)
 {
 	unsigned int timeout;
 
 	timeout = size * 8;	/* counting in bits */
-	timeout *= 10;		/* wait 10 times as long */
-	timeout /= host->mmc->clock;
 	timeout /= host->mmc->bus_width;
-	timeout *= 1000;	/* counting in msec */
-	timeout = (timeout < 10000) ? 10000 : timeout;
+	timeout *= 10;		/* wait 10 times as long */
+	timeout /= (host->mmc->clock / 1000); /* counting in msec */
+	timeout = (timeout < 1000) ? 1000 : timeout;
 
 	return timeout;
 }
-#endif
 
 static unsigned int dwmci_get_cto(struct dwmci_host *host)
 {
@@ -310,7 +286,6 @@ read_again:
 
 				dwmci_writel(host, DWMCI_RINTSTS,
 					     mask & (DWMCI_INTMSK_RXDR | DWMCI_INTMSK_DTO));
-				start = get_timer(0);
 			} else if (data->flags == MMC_DATA_WRITE &&
 				   (mask & DWMCI_INTMSK_TXDR)) {
 				while (size) {
@@ -340,7 +315,6 @@ write_again:
 				}
 				dwmci_writel(host, DWMCI_RINTSTS,
 					     DWMCI_INTMSK_TXDR);
-				start = get_timer(0);
 			}
 		}
 
@@ -537,13 +511,19 @@ static int dwmci_send_cmd_prepare(struct mmc *mmc, struct mmc_cmd *cmd,
 	unsigned int timeout = 500;
 	u32 mask;
 	ulong start = get_timer(0);
+	ulong mmc_idmac;
 	struct bounce_buffer bbstate;
 
-	cur_idmac = malloc(ROUND(DIV_ROUND_UP(data->blocks, 8) *
-			   sizeof(struct dwmci_idmac),
-			   ARCH_DMA_MINALIGN) + ARCH_DMA_MINALIGN - 1);
-	if (!cur_idmac)
-		return -ENODATA;
+	mmc_idmac = dev_read_u32_default(mmc->dev, "mmc-idmac", 0);
+	if (mmc_idmac) {
+		cur_idmac = (struct dwmci_idmac *)mmc_idmac;
+	} else {
+		cur_idmac = malloc(ROUND(DIV_ROUND_UP(data->blocks, 8) *
+			sizeof(struct dwmci_idmac),
+			ARCH_DMA_MINALIGN) + ARCH_DMA_MINALIGN - 1);
+		if (!cur_idmac)
+			return -ENODATA;
+	}
 
 	while (dwmci_readl(host, DWMCI_STATUS) & DWMCI_BUSY) {
 		if (get_timer(start) > timeout) {

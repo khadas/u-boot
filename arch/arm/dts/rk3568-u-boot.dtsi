@@ -73,26 +73,6 @@
 	status = "okay";
 };
 
-&usbdrd30 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
-&usbdrd_dwc3 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
-&usbhost30 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
-&usbhost_dwc3 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-};
-
 &usb2phy0 {
 	u-boot,dm-pre-reloc;
 	status = "okay";

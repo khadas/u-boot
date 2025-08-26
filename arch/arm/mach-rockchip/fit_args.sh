@@ -37,9 +37,12 @@ function help()
 	echo
 }
 
+DRAM_BASE=`sed -n "/CONFIG_SYS_SDRAM_BASE=/s/CONFIG_SYS_SDRAM_BASE=//p" ${srctree}/include/autoconf.mk|tr -d '\r'`
+
 if [ $# -eq 1 ]; then
 	# default
 	TEE_OFFSET=0x08400000
+	TEE_LOAD_ADDR="0x"$(echo "obase=16;$((DRAM_BASE+TEE_OFFSET))"|bc)
 else
 	# args
 	while [ $# -gt 0 ]; do
@@ -52,48 +55,56 @@ else
 				COMPRESSION=$2
 				shift 2
 				;;
+			-i0)
+				INIT0_LOAD_ADDR=$2
+				shift 2
+				;;
 			-m0)
-				MCU0_OFFSET=$2
+				MCU0_LOAD_ADDR=$2
 				shift 2
 				;;
 			-m1)
-				MCU1_OFFSET=$2
+				MCU1_LOAD_ADDR=$2
 				shift 2
 				;;
 			-m2)
-				MCU2_OFFSET=$2
+				MCU2_LOAD_ADDR=$2
 				shift 2
 				;;
 			-m3)
-				MCU3_OFFSET=$2
+				MCU3_LOAD_ADDR=$2
 				shift 2
 				;;
 			-m4)
-				MCU4_OFFSET=$2
+				MCU4_LOAD_ADDR=$2
 				shift 2
 				;;
 			-l0)
-				LOAD0_OFFSET=$2
+				LOAD0_LOAD_ADDR=$2
 				shift 2
 				;;
 			-l1)
-				LOAD1_OFFSET=$2
+				LOAD1_LOAD_ADDR=$2
 				shift 2
 				;;
 			-l2)
-				LOAD2_OFFSET=$2
+				LOAD2_LOAD_ADDR=$2
 				shift 2
 				;;
 			-l3)
-				LOAD3_OFFSET=$2
+				LOAD3_LOAD_ADDR=$2
 				shift 2
 				;;
 			-l4)
-				LOAD4_OFFSET=$2
+				LOAD4_LOAD_ADDR=$2
 				shift 2
 				;;
 			-t)
-				TEE_OFFSET=$2
+				TEE_LOAD_ADDR=$2
+				# Compatible leagcy: Offset
+				if ((TEE_LOAD_ADDR < DRAM_BASE));  then
+					TEE_LOAD_ADDR="0x"$(echo "obase=16;$((DRAM_BASE+$2))"|bc)
+				fi
 				shift 2
 				;;
 			*)
@@ -105,8 +116,6 @@ else
 	done
 fi
 
-# Base
-DARM_BASE=`sed -n "/CONFIG_SYS_SDRAM_BASE=/s/CONFIG_SYS_SDRAM_BASE=//p" ${srctree}/include/autoconf.mk|tr -d '\r'`
 if ! grep -q '^CONFIG_FIT_OMIT_UBOOT=y' .config ; then
 	UBOOT_LOAD_ADDR=`sed -n "/CONFIG_SYS_TEXT_BASE=/s/CONFIG_SYS_TEXT_BASE=//p" ${srctree}/include/autoconf.mk|tr -d '\r'`
 fi
@@ -121,43 +130,3 @@ elif grep -q '^CONFIG_ARM64_BOOT_AARCH32=y' .config ; then
 else
 	ARCH="arm"
 fi
-
-# tee
-if [ ! -z "${TEE_OFFSET}" ]; then
-	TEE_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+TEE_OFFSET))"|bc)
-fi
-
-# mcu
-if [ ! -z "${MCU0_OFFSET}" ]; then
-	MCU0_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$MCU0_OFFSET))"|bc)
-fi
-if [ ! -z "${MCU1_OFFSET}" ]; then
-	MCU1_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$MCU1_OFFSET))"|bc)
-fi
-if [ ! -z "${MCU2_OFFSET}" ]; then
-	MCU2_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$MCU2_OFFSET))"|bc)
-fi
-if [ ! -z "${MCU3_OFFSET}" ]; then
-	MCU3_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$MCU3_OFFSET))"|bc)
-fi
-if [ ! -z "${MCU4_OFFSET}" ]; then
-	MCU4_LOAD_ADDR="0x"$(echo "obase=16;$$((DARM_BASE+$MCU4_OFFSET))"|bc)
-fi
-
-# loadables
-if [ ! -z "${LOAD0_OFFSET}" ]; then
-	LOAD0_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$LOAD0_OFFSET))"|bc)
-fi
-if [ ! -z "${LOAD1_OFFSET}" ]; then
-	LOAD1_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$LOAD1_OFFSET))"|bc)
-fi
-if [ ! -z "${LOAD2_OFFSET}" ]; then
-	LOAD2_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$LOAD2_OFFSET))"|bc)
-fi
-if [ ! -z "${LOAD3_OFFSET}" ]; then
-	LOAD3_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$LOAD3_OFFSET))"|bc)
-fi
-if [ ! -z "${LOAD4_OFFSET}" ]; then
-	LOAD4_LOAD_ADDR="0x"$(echo "obase=16;$((DARM_BASE+$LOAD4_OFFSET))"|bc)
-fi
-# echo " ## $DARM_BASE, $UBOOT_LOAD_ADDR, $TEE_LOAD_ADDR, $MCU0_LOAD_ADDR, $MCU1_LOAD_ADDR, $MCU2_LOAD_ADDR, $MCU3_LOAD_ADDR, $MCU4_LOAD_ADDR"

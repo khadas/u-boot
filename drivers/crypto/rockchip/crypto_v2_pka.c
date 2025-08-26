@@ -15,14 +15,12 @@
 
 void rk_pka_ram_ctrl_enable(void)
 {
-	crypto_write((CRYPTO_RAM_PKA_RDY << CRYPTO_WRITE_MASK_SHIFT) |
-		     CRYPTO_RAM_PKA_RDY, CRYPTO_RAM_CTL);
+	crypto_write(CRYPTO_RAM_CTL_SEL_MASK | CRYPTO_RAM_CTL_PKA, CRYPTO_RAM_CTL);
 }
 
 void rk_pka_ram_ctrl_disable(void)
 {
-	crypto_write((CRYPTO_RAM_PKA_RDY << CRYPTO_WRITE_MASK_SHIFT),
-		     CRYPTO_RAM_CTL);
+	crypto_write(CRYPTO_RAM_CTL_SEL_MASK | CRYPTO_RAM_CTL_CPU, CRYPTO_RAM_CTL);
 }
 
 void rk_pka_wait_on_ram_ready(void)
@@ -493,6 +491,7 @@ u32 rk_pka_init(u32 regs_sizes_ptr[RK_PKA_MAX_REGS_COUNT], u32 count_of_sizes,
 void rk_pka_finish(void)
 {
 	RK_PKA_Terminate(0);
+	rk_pka_ram_ctrl_disable();
 	PKA_CLK_DISABLE();
 }
 
@@ -802,71 +801,6 @@ static int mpa_highest_bit_index(const struct mpa_num *src)
 	return (int)(rk_mpanum_size(src) - 1) * RK_WORD_SIZE + b;
 }
 
-/*get bignum data length*/
-static int rk_check_size(u32 *data, u32 max_word_size)
-{
-	for (int i = (max_word_size - 1); i >= 0; i--) {
-		if (data[i] == 0)
-			continue;
-		else
-			return (i + 1);
-	}
-	return 0;
-}
-
-int rk_mpa_alloc(struct mpa_num **mpa, void *data, u32 word_size)
-{
-	u32 alignment = sizeof(u32);
-	u32 byte_size = word_size * sizeof(u32);
-	struct mpa_num *tmp_mpa = NULL;
-
-	if (!mpa || word_size == 0)
-		return -EINVAL;
-
-	*mpa = NULL;
-
-	tmp_mpa = malloc(sizeof(*tmp_mpa));
-	if (!tmp_mpa)
-		return -ENOMEM;
-
-	memset(tmp_mpa, 0x00, sizeof(*tmp_mpa));
-
-	if (!data || (unsigned long)data % alignment) {
-		tmp_mpa->d = memalign(alignment, byte_size);
-		if (!tmp_mpa->d) {
-			free(tmp_mpa);
-			return -ENOMEM;
-		}
-
-		if (data)
-			memcpy(tmp_mpa->d, data, byte_size);
-		else
-			memset(tmp_mpa->d, 0x00, byte_size);
-
-		tmp_mpa->alloc = MPA_USE_ALLOC;
-	} else {
-		tmp_mpa->d = data;
-	}
-
-	tmp_mpa->size  = word_size;
-
-	*mpa = tmp_mpa;
-
-	return 0;
-}
-
-void rk_mpa_free(struct mpa_num **mpa)
-{
-	struct mpa_num *tmp_mpa = NULL;
-
-	if (mpa && (*mpa)) {
-		tmp_mpa = *mpa;
-		if (tmp_mpa->alloc == MPA_USE_ALLOC)
-			free(tmp_mpa->d);
-
-		free(tmp_mpa);
-	}
-}
 
 /* c = |a| + |b| */
 int rk_abs_add(void *a, void *b, void *c)

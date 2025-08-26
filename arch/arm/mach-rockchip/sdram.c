@@ -193,9 +193,9 @@ int dram_init(void)
 }
 #endif
 
-ulong board_get_usable_ram_top(ulong total_size)
+uint64_t board_get_usable_ram_top(ulong total_size)
 {
-	unsigned long top = CONFIG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE;
+	uint64_t top = CONFIG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE;
 
 	return (gd->ram_top > top) ? top : gd->ram_top;
 }

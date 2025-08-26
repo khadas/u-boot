@@ -106,6 +106,7 @@ int padding_pkcs_15_verify(struct image_sign_info *info,
 #if !defined(USE_HOSTCC)
 #ifdef CONFIG_SPL_FIT_HW_CRYPTO
 int rsa_burn_key_hash(struct image_sign_info *info);
+int rsa_burn_disable_upgrade(void);
 #endif
 #endif
 

@@ -85,12 +85,23 @@ void boot_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 	fdt_addr_t rsv_addr;
 	const void *prop;
 	int i = 0;
+	int parent;
+	int na, ns;
 
 	if (fdt_check_header(fdt_blob) != 0)
 		return;
 
 	rsv_offset = fdt_subnode_offset(fdt_blob, 0, "reserved-memory");
 	if (rsv_offset == -FDT_ERR_NOTFOUND)
+		return;
+
+	parent = fdt_parent_offset(fdt_blob, rsv_offset);
+	if (parent < 0)
+		return;
+
+	na = fdt_address_cells(fdt_blob, parent);
+	ns = fdt_size_cells(fdt_blob, parent);
+	if (na < 1 || ns < 0)
 		return;
 
 	for (offset = fdt_first_subnode(fdt_blob, rsv_offset);
@@ -100,9 +111,9 @@ void boot_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 		if (prop && !strcmp(prop, "disabled"))
 			continue;
 
-		rsv_addr = fdtdec_get_addr_size_auto_noparent(fdt_blob, offset,
-							      "reg", 0,
-							      &rsv_size, false);
+		rsv_addr = fdtdec_get_addr_size_fixed(fdt_blob, offset,
+					"reg", 0, na, ns, &rsv_size, false);
+
 		if (rsv_addr == FDT_ADDR_T_NONE || !rsv_size)
 			continue;
 
@@ -171,6 +182,8 @@ int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob)
 	static int rsv_done;
 	char resvname[32];
 	const void *prop;
+	int parent;
+	int na, ns;
 
 	if (fdt_check_header(fdt_blob) != 0 || rsv_done)
 		return -EINVAL;
@@ -192,6 +205,15 @@ int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob)
 	if (rsv_offset == -FDT_ERR_NOTFOUND)
 		return -EINVAL;
 
+	parent = fdt_parent_offset(fdt_blob, rsv_offset);
+	if (parent < 0)
+		return -EINVAL;
+
+	na = fdt_address_cells(fdt_blob, parent);
+	ns = fdt_size_cells(fdt_blob, parent);
+	if (na < 1 || ns < 0)
+		return -EINVAL;
+
 	for (offset = fdt_first_subnode(fdt_blob, rsv_offset);
 	     offset >= 0;
 	     offset = fdt_next_subnode(fdt_blob, offset)) {
@@ -199,9 +221,8 @@ int boot_fdt_add_sysmem_rsv_regions(void *fdt_blob)
 		if (prop && !strcmp(prop, "disabled"))
 			continue;
 
-		rsv_addr = fdtdec_get_addr_size_auto_noparent(fdt_blob, offset,
-							      "reg", 0,
-							      &rsv_size, false);
+		rsv_addr = fdtdec_get_addr_size_fixed(fdt_blob, offset,
+					"reg", 0, na, ns, &rsv_size, false);
 		/*
 		 * kernel will alloc reserved memory dynamically for the node
 		 * with start address from 0.

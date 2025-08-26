@@ -241,7 +241,7 @@ static int rockchip_mmc_set_phase(struct dwmci_host *host, bool sample, int degr
 	if (sample)
 		dwmci_writel(host, SDMMC_TIMING_CON1, HIWORD_UPDATE(raw_value, 0x07ff, 1));
 	else
-		dwmci_writel(host, SDMMC_TIMING_CON1, HIWORD_UPDATE(raw_value, 0x07ff, 1));
+		dwmci_writel(host, SDMMC_TIMING_CON0, HIWORD_UPDATE(raw_value, 0x07ff, 1));
 
 	debug("set %s_phase(%d) delay_nums=%u actual_degrees=%d\n",
 		sample ? "sample" : "drv", degrees, delay_num,
@@ -270,7 +270,7 @@ static int rockchip_dwmmc_execute_tuning(struct dwmci_host *host, u32 opcode)
 	int middle_phase, real_middle_phase;
 	ulong ts;
 
-	if (!(priv->sample_clk.dev))
+	if (!(priv->sample_clk.dev) && priv->usrid != USRID_INTER_PHASE)
 		return -EIO;
 	ts = get_timer(0);
 

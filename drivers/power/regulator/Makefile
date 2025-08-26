@@ -16,6 +16,7 @@ obj-$(CONFIG_REGULATOR_FAN53555) += fan53555_regulator.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_FIXED) += fixed.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR_GPIO) += gpio-regulator.o
 obj-$(CONFIG_REGULATOR_RK860X) += rk860x_regulator.o
+obj-$(CONFIG_REGULATOR_RK801) += rk801_regulator.o
 obj-$(CONFIG_REGULATOR_RK8XX) += rk8xx.o
 obj-$(CONFIG_REGULATOR_S5M8767) += s5m8767.o
 obj-$(CONFIG_REGULATOR_SY7636A) += sy7636a_regulator.o

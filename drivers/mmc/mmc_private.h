@@ -20,6 +20,7 @@ int mmc_send_cmd_prepare(struct mmc *mmc, struct mmc_cmd *cmd,
 #endif
 extern int mmc_send_status(struct mmc *mmc, int timeout);
 extern int mmc_set_blocklen(struct mmc *mmc, int len);
+int mmc_set_blockcount(struct mmc *mmc, unsigned int blkcnt, bool is_rel_write);
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 void mmc_adapter_card_type_ident(void);
 #endif

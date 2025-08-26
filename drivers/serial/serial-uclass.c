@@ -137,7 +137,14 @@ int serial_init(void)
 	return 0;
 }
 #else
-int serial_init(void) { return 0; }
+int serial_init(void)
+{
+#ifdef CONFIG_ROCKCHIP_VIDCONSOLE
+	gd->flags |= GD_FLG_SERIAL_READY;
+#endif
+
+	return 0;
+}
 #endif
 
 /* Called after relocation */

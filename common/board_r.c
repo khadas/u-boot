@@ -809,6 +809,14 @@ static int run_main_loop(void)
 	return 0;
 }
 
+static int console_initr_r(void)
+{
+	if (smp_event1(SEVT_3, STID_16))
+		return smp_event1(SEVT_1, STID_16);
+
+	return console_init_r();
+}
+
 /*
  * Over time we hope to remove these functions with code fragments and
  * stub funtcions, and instead call the relevant function directly.
@@ -976,7 +984,8 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_API
 	initr_api,
 #endif
-	console_init_r,		/* fully init console as a device */
+	console_initr_r,	/* fully init console as a device */
+
 #ifdef CONFIG_DISPLAY_BOARDINFO_LATE
 	console_announce_r,
 	show_board_info,

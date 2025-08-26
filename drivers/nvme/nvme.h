@@ -305,6 +305,24 @@ struct nvme_dsm_range {
 	__le64			slba;
 };
 
+struct nvme_write_zeroes_cmd {
+        __u8                    opcode;
+	__u8                    flags;
+	__u16                   command_id;
+	__le32                  nsid;
+	__u64                   rsvd2;
+	__le64                  metadata;
+	__le64                  prp1;
+	__le64                  prp2;
+	__le64                  slba;
+	__le16                  length;
+	__le16                  control;
+	__le32                  dsmgmt;
+	__le32                  reftag;
+	__le16                  apptag;
+	__le16                  appmask;
+};
+
 /* Admin commands */
 
 enum nvme_admin_opcode {
@@ -464,6 +482,7 @@ struct nvme_command {
 		struct nvme_download_firmware dlfw;
 		struct nvme_format_cmd format;
 		struct nvme_dsm_cmd dsm;
+		struct nvme_write_zeroes_cmd write_zeroes;
 		struct nvme_abort_cmd abort;
 	};
 };
@@ -605,6 +624,31 @@ enum {
 	NVME_CSTS_SHST_MASK	= 3 << 2,
 };
 
+#define NVME_QUIRK_DELAY_AMOUNT               2300
+
+/*
+ * List of workarounds for devices that required behavior not specified in
+ * the standard.
+ */
+enum nvme_quirks {
+	/*
+	 * The controller deterministically returns O's on reads to
+	 * logical blocks that deallocate was called on.
+	 */
+	NVME_QUIRK_DEALLOCATE_ZEROES            = (1 << 2),
+
+	/*
+	 * The controller needs a delay before starts checking the device
+	 * readiness, which is done by reading the NVME_CSTS_RDY bit.
+	 */
+	NVME_QUIRK_DELAY_BEFORE_CHK_RDY		= (1 << 3),
+
+	/*
+	 * Limit io queue depth to 32
+	 */
+	NVME_QUIRK_LIMIT_IOQD32			= (1 << 31),
+};
+
 /* Represents an NVM Express device. Each nvme_dev is a PCI function. */
 struct nvme_dev {
 	struct list_head node;
@@ -614,6 +658,7 @@ struct nvme_dev {
 	unsigned queue_count;
 	unsigned online_queues;
 	unsigned max_qid;
+	unsigned long quirks;
 	int q_depth;
 	u32 db_stride;
 	u32 ctrl_config;

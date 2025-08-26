@@ -904,6 +904,29 @@ static int rv1106_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 	return 0;
 }
 
+static int rv1126b_usb2phy_tuning(struct rockchip_usb2phy *rphy)
+{
+	/* Turn off differential receiver by default to save power */
+	phy_clear_bits(rphy->phy_base + 0x0030, BIT(2));
+	phy_clear_bits(rphy->phy_base + 0x0430, BIT(2));
+
+	/* Enable pre-emphasis during non-chirp phase */
+	phy_update_bits(rphy->phy_base, GENMASK(2, 0), 0x04);
+	phy_update_bits(rphy->phy_base + 0x0400, GENMASK(2, 0), 0x04);
+
+	/* Set HS eye height to 425mv(default is 400mv) */
+	phy_update_bits(rphy->phy_base + 0x0030, GENMASK(6, 4), (0x05 << 4));
+	phy_update_bits(rphy->phy_base + 0x0430, GENMASK(6, 4), (0x05 << 4));
+
+	/* Set Rx squelch trigger point configure to 112.5mv */
+	phy_update_bits(rphy->phy_base + 0x0004, GENMASK(7, 5), (0x00 << 5));
+	phy_update_bits(rphy->phy_base + 0x0008, GENMASK(0, 0), (0x00 << 0));
+	phy_update_bits(rphy->phy_base + 0x0404, GENMASK(7, 5), (0x00 << 5));
+	phy_update_bits(rphy->phy_base + 0x0408, GENMASK(0, 0), (0x00 << 0));
+
+	return 0;
+}
+
 static int rk3506_usb2phy_tuning(struct rockchip_usb2phy *rphy)
 {
 	/* Turn off otg0 port differential receiver in suspend mode */
@@ -1648,6 +1671,58 @@ static const struct rockchip_usb2phy_cfg rv1108_phy_cfgs[] = {
 	{ /* sentinel */ }
 };
 
+static const struct rockchip_usb2phy_cfg rv1126b_phy_cfgs[] = {
+	{
+		.reg		= 0x21400000,
+		.num_ports	= 2,
+		.phy_tuning	= rv1126b_usb2phy_tuning,
+		.clkout_ctl	= { 0x10028, 3, 3, 1, 0 },
+		.port_cfgs	= {
+			[USB2PHY_PORT_OTG] = {
+				.phy_sus	= { 0x10020, 8, 0, 0, 0x1d1 },
+				.bvalid_det_en	= { 0x10074, 2, 2, 0, 1 },
+				.bvalid_det_st	= { 0x10078, 2, 2, 0, 1 },
+				.bvalid_det_clr = { 0x1007c, 2, 2, 0, 1 },
+				.iddig_output	= { 0x10020, 10, 10, 0, 1 },
+				.iddig_en	= { 0x10020, 9, 9, 0, 1 },
+				.idfall_det_en	= { 0x10074, 5, 5, 0, 1 },
+				.idfall_det_st	= { 0x10078, 5, 5, 0, 1 },
+				.idfall_det_clr = { 0x1007c, 5, 5, 0, 1 },
+				.idrise_det_en	= { 0x10074, 4, 4, 0, 1 },
+				.idrise_det_st	= { 0x10078, 4, 4, 0, 1 },
+				.idrise_det_clr = { 0x1007c, 4, 4, 0, 1 },
+				.ls_det_en	= { 0x10074, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x10078, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x1007c, 0, 0, 0, 1 },
+				.utmi_avalid	= { 0x10110, 1, 1, 0, 1 },
+				.utmi_bvalid	= { 0x10110, 0, 0, 0, 1 },
+				.utmi_iddig	= { 0x10110, 6, 6, 0, 1 },
+				.utmi_ls	= { 0x10110, 5, 4, 0, 1 },
+			},
+			[USB2PHY_PORT_HOST] = {
+				.phy_sus	= { 0x1001c, 8, 0, 0x1d2, 0x1d1 },
+				.ls_det_en	= { 0x10090, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x10094, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x10098, 0, 0, 0, 1 },
+				.utmi_ls	= { 0x10110, 13, 12, 0, 1 },
+			}
+		},
+		.chg_det = {
+			.opmode		= { 0x10020, 3, 0, 5, 1 },
+			.cp_det		= { 0x10110, 19, 19, 0, 1 },
+			.dcp_det	= { 0x10110, 18, 18, 0, 1 },
+			.dp_det		= { 0x10110, 20, 20, 0, 1 },
+			.idm_sink_en	= { 0x1002c, 1, 1, 0, 1 },
+			.idp_sink_en	= { 0x1002c, 0, 0, 0, 1 },
+			.idp_src_en	= { 0x1002c, 2, 2, 0, 1 },
+			.rdm_pdwn_en	= { 0x1002c, 3, 3, 0, 1 },
+			.vdm_src_en	= { 0x1002c, 5, 5, 0, 1 },
+			.vdp_src_en	= { 0x1002c, 4, 4, 0, 1 },
+		},
+	},
+	{ /* sentinel */ }
+};
+
 static const struct rockchip_usb2phy_cfg rk3506_phy_cfgs[] = {
 	{
 		.reg = 0xff2b0000,
@@ -2064,6 +2139,9 @@ static const struct udevice_id rockchip_usb2phy_ids[] = {
 #endif
 #ifdef CONFIG_ROCKCHIP_RV1108
 	{ .compatible = "rockchip,rv1108-usb2phy", .data = (ulong)&rv1108_phy_cfgs },
+#endif
+#ifdef CONFIG_ROCKCHIP_RV1126B
+	{ .compatible = "rockchip,rv1126b-usb2phy", .data = (ulong)&rv1126b_phy_cfgs },
 #endif
 	{ }
 };

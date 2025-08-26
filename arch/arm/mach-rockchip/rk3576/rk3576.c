@@ -19,6 +19,8 @@
 #include <asm/arch/ioc_rk3576.h>
 #include <asm/arch/rockchip_smccc.h>
 #include <asm/system.h>
+#include <asm/arch/vendor.h>
+#include <optee_include/OpteeClientInterface.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -94,6 +96,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PMU1_CRU_GATE_CON03	0x080C
 #define PMU1_CRU_SOFTRST_CON03	0x0a0C
 
+#define SATA0_BASE_ADDR			0x2a240000
+#define SATA1_BASE_ADDR			0x2a250000
+#define SATA_PI				0xC
+#define SATA_PORT_CMD			0x118
+#define SATA_FBS_ENABLE			BIT(22)
+
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
 
@@ -121,7 +129,7 @@ static struct mm_region rk3576_mem_map[] = {
 	}, {
 		.virt = 0x100000000UL,
 		.phys = 0x100000000UL,
-		.size = 0x300000000UL,
+		.size = 0x400000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -402,6 +410,10 @@ int arch_cpu_init(void)
 	writel(0xffffff00, SYS_SGRF_BASE + SYS_SGRF_SOC_CON20);
 #endif
 
+	/* Enabled SDMMC iomux in default except FSPI1_M0 boot */
+	if (readl(TOP_IOC_BASE + GPIO2A_IOMUX_SEL_L) != 0x2222)
+		board_set_iomux(IF_TYPE_MMC, 1, 0);
+
 #if defined(CONFIG_ROCKCHIP_EMMC_IOMUX)
 	board_set_iomux(IF_TYPE_MMC, 0, 0);
 #elif defined(CONFIG_ROCKCHIP_SFC_IOMUX)
@@ -449,7 +461,52 @@ int rk_board_dm_fdt_fixup(const void *blob)
 		}
 	}
 
+	node = fdt_path_offset(blob, "/sata@2a240000");
+	if (node >= 0) {
+		/*
+		* Set SATA FBSCP and PORTS_IMPL for kernel drivers
+		*/
+		writel(SATA_FBS_ENABLE, SATA0_BASE_ADDR + SATA_PORT_CMD);
+		writel(1, SATA0_BASE_ADDR + SATA_PI);
+		writel(SATA_FBS_ENABLE, SATA1_BASE_ADDR + SATA_PORT_CMD);
+		writel(1, SATA1_BASE_ADDR + SATA_PI);
+	}
+
 	return 0;
 }
 #endif
 
+/* @brief: Fix up the device tree of gmac0
+ *
+ * This function enables GMAC0 after verifying the license.
+ *
+ * @param blob Pointer to the device tree blob
+ * @return 0 on success
+ **/
+#if defined(CONFIG_ROCKCHIP_VENDOR_PARTITION)
+int rk_board_fdt_fixup(const void *blob)
+{
+	char licence_str[1024] = {0};
+	int ret, size, node;
+
+	size = vendor_storage_read(MULTI_MODULE_KEY_ID, licence_str, 1024);
+	if (size > 0) {
+		ret = trusty_verify_config_ip(licence_str);
+		if (!ret)
+			printf("gmac0 can be enabled safely\n");
+		else
+			return 0;
+
+		node = fdt_path_offset(blob, "/ethernet@2a220000");
+		if (node < 0) {
+			printf("Error: /ethernet@2a220000 cannot find node\n");
+		} else {
+			ret = fdt_setprop_string((void *)blob, node, "status", "okay");
+			if (ret < 0)
+				printf("Error: /ethernet@2a220000 cannot set status property\n");
+		}
+	}
+
+	return 0;
+}
+#endif

@@ -158,6 +158,8 @@ static void __do_reset(struct usb_ep *ep, struct usb_request *req)
 
 	if (rkusb_rst_code == 0x03)
 		boot_flag = BOOT_BROM_DOWNLOAD;
+	else if (rkusb_rst_code == 0x06)
+		boot_flag = BOOT_LOADER;
 
 	rkusb_rst_code = 0; /* restore to default */
 	writel(boot_flag, (void *)CONFIG_ROCKCHIP_BOOT_MODE_REG);
@@ -600,15 +602,44 @@ static int rkusb_do_vs_write(struct fsg_common *common)
 				} else if (memcmp(data, "OTPK", 4) == 0) {
 					uint32_t key_len = vhead->size - 9;
 					uint8_t key_id = *((uint8_t *)data + 8);
-					if (key_len != 16 && key_len != 24 && key_len != 32) {
-						printf("check oem otp key size fail!\n");
-						curlun->sense_data = SS_WRITE_ERROR;
-						return -EIO;
+					if (key_len == 4 && memcmp(data + 9, "lock", 4) == 0) {
+						if (trusty_set_oem_hr_otp_read_lock(key_id) != 0) {
+							printf("trusty_set_oem_hr_otp_read_lock error!");
+							curlun->sense_data = SS_WRITE_ERROR;
+							return -EIO;
+						}
+					} else {
+						if (key_len != 16 && key_len != 24 && key_len != 32) {
+							printf("check oem otp key size fail!\n");
+							curlun->sense_data = SS_WRITE_ERROR;
+							return -EIO;
+						}
+						if (trusty_write_oem_otp_key(key_id, (uint8_t *)(data + 9), key_len) != 0) {
+							printf("trusty_write_oem_otp_key error!");
+							curlun->sense_data = SS_WRITE_ERROR;
+							return -EIO;
+						}
 					}
-					if (trusty_write_oem_otp_key(key_id, (uint8_t *)(data + 9), key_len) != 0) {
-						printf("trusty_write_oem_huk error!");
-						curlun->sense_data = SS_WRITE_ERROR;
-						return -EIO;
+				} else if (memcmp(data, "FWEK", 4) == 0) {
+					uint32_t key_len = vhead->size - 9;
+					uint8_t key_id = *((uint8_t *)data + 8);
+					if (key_len == 4 && memcmp(data + 9, "lock", 4) == 0) {
+						if (trusty_set_fw_encrypt_key_mask(key_id) != 0) {
+							printf("trusty_set_fw_encrypt_key_mask error!");
+							curlun->sense_data = SS_WRITE_ERROR;
+							return -EIO;
+						}
+					} else {
+						if (key_len != 16 && key_len != 32) {
+							printf("check FW encrypt key size fail!\n");
+							curlun->sense_data = SS_WRITE_ERROR;
+							return -EIO;
+						}
+						if (trusty_write_fw_encrypt_key(key_id, (uint8_t *)(data + 9), key_len) != 0) {
+							printf("trusty_write_fw_encrypt_key error!");
+							curlun->sense_data = SS_WRITE_ERROR;
+							return -EIO;
+						}
 					}
 				} else {
 					printf("Unknown tag\n");
@@ -828,6 +859,10 @@ static int rkusb_do_switch_storage(struct fsg_common *common)
 		scsi_scan(true);
 		break;
 #endif
+	case BOOT_TYPE_PCIE:
+		type = IF_TYPE_NVME;
+		devnum = 0;
+		break;
 	default:
 		printf("Bootdev 0x%x is not support\n", media);
 		return -ENODEV;

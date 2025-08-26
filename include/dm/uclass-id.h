@@ -114,6 +114,7 @@ enum uclass_id {
 	UCLASS_RNG,		/* Random Number Generator */
 	UCLASS_DMC,		/* Dynamic Memory Interface */
 	UCLASS_PD,		/* power delivery */
+	UCLASS_KEYLAD,		/* keylad used to transfer otp key */
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
 };

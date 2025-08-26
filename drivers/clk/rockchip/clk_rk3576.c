@@ -38,6 +38,7 @@ static struct rockchip_pll_rate_table rk3576_24m_pll_rates[] = {
 	RK3588_PLL_RATE(786000000, 1, 131, 2, 0),
 	RK3588_PLL_RATE(742500000, 4, 495, 2, 0),
 	RK3588_PLL_RATE(722534400, 8, 963, 2, 24850),
+	RK3588_PLL_RATE(610400000, 3, 305, 2, 13107),
 	RK3588_PLL_RATE(600000000, 2, 200, 2, 0),
 	RK3588_PLL_RATE(594000000, 2, 198, 2, 0),
 	RK3588_PLL_RATE(200000000, 3, 400, 4, 0),
@@ -1166,7 +1167,7 @@ static ulong rk3576_dclk_vop_get_clk(struct rk3576_clk_priv *priv, ulong clk_id)
 	return DIV_TO_RATE(parent, div);
 }
 
-#define RK3576_VOP_PLL_LIMIT_FREQ 600000000
+#define RK3576_VOP_PLL_LIMIT_FREQ 594000000
 
 static ulong rk3576_dclk_vop_set_clk(struct rk3576_clk_priv *priv,
 				     ulong clk_id, ulong rate)
@@ -2563,37 +2564,33 @@ static int rk3576_clk_probe(struct udevice *dev)
 	       RK3576_CRU_BASE + RK3576_MODE_CON0);
 	writel(BITS_WITH_WMASK(1, 0x3U, 8),
 	       RK3576_CRU_BASE + RK3576_MODE_CON0);
-	/* init cci */
-	writel(0xffff0000, RK3576_CRU_BASE + RK3576_CCI_CLKSEL_CON(4));
-	rockchip_pll_set_rate(&rk3576_pll_clks[BPLL], priv->cru,
-			      BPLL, LPLL_HZ);
-	if (!priv->armclk_enter_hz) {
-		ret = rockchip_pll_set_rate(&rk3576_pll_clks[LPLL], priv->cru,
-					    LPLL, LPLL_HZ);
-		priv->armclk_enter_hz =
-			rockchip_pll_get_rate(&rk3576_pll_clks[LPLL],
-					      priv->cru, LPLL);
-		priv->armclk_init_hz = priv->armclk_enter_hz;
-		rk_clrsetreg(&priv->cru->litclksel_con[0], CLK_LITCORE_DIV_MASK,
-			     0 << CLK_LITCORE_DIV_SHIFT);
-	}
-	/* init cci */
-	writel(0xffff20cb, RK3576_CRU_BASE + RK3576_CCI_CLKSEL_CON(4));
+	if (!(readl(RK3576_CRU_BASE + RK3576_LITCORE_CLKSEL_CON(0)) & CLK_LITCORE_SEL_MASK)) {
+		/* init cci */
+		writel(0xffff0000, RK3576_CRU_BASE + RK3576_CCI_CLKSEL_CON(4));
+		if (!priv->armclk_enter_hz) {
+			ret = rockchip_pll_set_rate(&rk3576_pll_clks[LPLL], priv->cru,
+						    LPLL, LPLL_HZ);
+			priv->armclk_enter_hz =
+				rockchip_pll_get_rate(&rk3576_pll_clks[LPLL],
+						      priv->cru, LPLL);
+			priv->armclk_init_hz = priv->armclk_enter_hz;
+			rk_clrsetreg(&priv->cru->litclksel_con[0], CLK_LITCORE_DIV_MASK,
+				     0 << CLK_LITCORE_DIV_SHIFT);
+		}
+		/* init cci */
+		writel(0xffff20cb, RK3576_CRU_BASE + RK3576_CCI_CLKSEL_CON(4));
 
-	/* Change bigcore rm from 4 to 3 */
-	writel(0x001c000c, RK3576_BIGCORE_GRF_BASE + 0x3c);
-	writel(0x001c000c, RK3576_BIGCORE_GRF_BASE + 0x44);
-	writel(0x00020002, RK3576_BIGCORE_GRF_BASE + 0x38);
-	udelay(1);
-	writel(0x00020000, RK3576_BIGCORE_GRF_BASE + 0x38);
-	/* Change litcore rm from 4 to 3 */
-	writel(0x001c000c, RK3576_LITCORE_GRF_BASE + 0x3c);
-	writel(0x001c000c, RK3576_LITCORE_GRF_BASE + 0x44);
-	writel(0x00020002, RK3576_LITCORE_GRF_BASE + 0x38);
-	udelay(1);
-	writel(0x00020000, RK3576_LITCORE_GRF_BASE + 0x38);
-	/* Change cci rm form 4 to 3 */
-	writel(0x001c000c, RK3576_CCI_GRF_BASE + 0x54);
+	}
+	if (!(readl(RK3576_CRU_BASE + RK3576_BIGCORE_CLKSEL_CON(0)) & CLK_BIGCORE_SEL_MASK)) {
+		rockchip_pll_set_rate(&rk3576_pll_clks[BPLL], priv->cru,
+		      BPLL, LPLL_HZ);
+		/* Change bigcore rm from 4 to 3 */
+		writel(0x001c000c, RK3576_BIGCORE_GRF_BASE + 0x3c);
+		writel(0x001c000c, RK3576_BIGCORE_GRF_BASE + 0x44);
+		writel(0x00020002, RK3576_BIGCORE_GRF_BASE + 0x38);
+		udelay(1);
+		writel(0x00020000, RK3576_BIGCORE_GRF_BASE + 0x38);
+	}
 #endif
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);

@@ -10,6 +10,12 @@ config CHARGER_BQ25890
 	help
 	  This adds support for BQ25890 charger support.
 
+config CHARGER_CPS5601X
+	bool "CPS5601X charger support"
+	depends on DM_FUEL_GAUGE
+	help
+	  This adds support for cps5601x charger support.
+
 config CHARGER_SC8551
 	bool "SC8551 charger support"
 	depends on DM_FUEL_GAUGE

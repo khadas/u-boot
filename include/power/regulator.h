@@ -250,6 +250,7 @@ struct dm_regulator_ops {
 	 * @return zero on success and other failed.
 	 */
 	int (*set_ramp_delay)(struct udevice *dev, u32 ramp_delay);
+	int (*get_ramp_delay)(struct udevice *dev, int old_uV, int new_uV);
 };
 
 /**

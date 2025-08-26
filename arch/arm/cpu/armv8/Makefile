@@ -19,6 +19,7 @@ obj-y	+= transition.o
 obj-y	+= fwcall.o
 obj-y	+= cpu-dt.o
 
+obj-$(CONFIG_$(SPL_)SMP)	+= spinlock.o uspinlock.o
 obj-$(CONFIG_ARM_SMCCC)		+= smccc-call.o
 
 ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)

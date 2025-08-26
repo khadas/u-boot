@@ -60,7 +60,7 @@ static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 	if (!plat->size)
 		return 0;
 
-	align = plat->align ? plat->align : 1 << 20;
+	align = plat->align ? plat->align : 2 << 20;	/* kernel cma alloc alignment. */
 	base = *addrp - plat->size;
 	base &= ~(align - 1);
 	plat->base = base;
@@ -87,13 +87,14 @@ int video_reserve(ulong *addrp)
 
 	size = DRM_ROCKCHIP_FB_SIZE + MEMORY_POOL_SIZE + cubic_lut_size;
 	*addrp = *addrp - size;
-	*addrp &= ~((1 << 20) - 1);
+	*addrp &= ~((2 << 20) - 1);	/* kernel cma alloc alignment. */
 	debug("Reserving %lx Bytes for video at: %lx\n", size, *addrp);
 #else
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
 		size = alloc_fb(dev, addrp);
+		*addrp &= ~((2 << 20) - 1);	/* kernel cma alloc alignment. */
 		debug("%s: Reserving %lx bytes at %lx for video device '%s'\n",
 		      __func__, size, *addrp, dev->name);
 	}

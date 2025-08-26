@@ -110,6 +110,41 @@ config SPL_ROCKCHIP_SECURE_OTP
 	help
 	  Support read & write secure otp in spl.
 
+config SPL_OTP_DISABLE_SD
+	bool "Rockchip disable sd upgrade Support"
+	depends on SPL_ROCKCHIP_SECURE_OTP
+	default n
+	help
+	  Support write otp to disable sd upgrade.
+
+config SPL_OTP_DISABLE_USB
+	bool "Rockchip disable usb upgrade Support"
+	depends on SPL_ROCKCHIP_SECURE_OTP
+	default n
+	help
+	  Support write otp to disable usb upgrade.
+
+config SPL_OTP_DISABLE_UART
+	bool "Rockchip disable uart upgrade Support"
+	depends on SPL_ROCKCHIP_SECURE_OTP
+	default n
+	help
+	  Support write otp to disable uart upgrade.
+
+config SPL_OTP_DISABLE_SPI2APB
+	bool "Rockchip disable spi2apb upgrade Support"
+	depends on SPL_ROCKCHIP_SECURE_OTP
+	default n
+	help
+	  Support write otp to disable spi2apb upgrade.
+
+config SPL_REVOKE_PUB_KEY
+	bool "Rockchip revoke current public key Support"
+	depends on SPL_ROCKCHIP_SECURE_OTP
+	default n
+	help
+	  Support write otp to revoke current public key.
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC

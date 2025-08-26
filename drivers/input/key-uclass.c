@@ -13,6 +13,8 @@
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define KEY_WARN(fmt, args...)	printf("Key Warn: "fmt, ##args)
 #define KEY_ERR(fmt, args...)	printf("Key Error: "fmt, ##args)
 #define KEY_DBG(fmt, args...)	 debug("Key Debug: "fmt, ##args)
@@ -34,7 +36,7 @@ uint64_t key_timer(uint64_t base)
 {
 	uint64_t cntpct;
 
-	cntpct = arch_counter_get_cntpct() / 24000UL;
+	cntpct = arch_counter_get_cntpct() / (gd->arch.timer_rate_hz / 1000);
 	return (cntpct > base) ? (cntpct - base) : 0;
 }
 

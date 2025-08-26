@@ -32,11 +32,18 @@ config TPL_MAX_SIZE
 	default 10240
 
 config ROCKCHIP_RK3326
-	bool "Support Rockchip RK3326 "
+	bool "Support Rockchip RK3326"
 	help
 	  RK3326 can use most code from PX30, but at some situations we have
 	  to distinguish between RK3326 and PX30, so this macro gives help.
 	  It is usually selected in rk3326 board defconfig.
+
+config ROCKCHIP_RK3358
+	bool "Support Rockchip RK3358"
+	help
+	  RK3358 can use most code from PX30, but at some situations we have
+	  to distinguish between RK3358 and PX30, so this macro gives help.
+	  It is usually selected in rk3358 board defconfig.
 endif
 
 config ROCKCHIP_RK3036
@@ -447,15 +454,15 @@ endif
 
 config ROCKCHIP_RK3562
 	bool "Support Rockchip RK3562"
-	select GICV2
-	select ARM64
 	select ARM_SMCCC
-	select SUPPORT_TPL
-	select SUPPORT_SPL
+	select ARM64 if !ARM64_BOOT_AARCH32
+	select GICV2 if !ARM64_BOOT_AARCH32
+	select SUPPORT_TPL if !ARM64_BOOT_AARCH32
+	select SUPPORT_SPL if !ARM64_BOOT_AARCH32
 	select TPL_TINY_FRAMEWORK if TPL
 	select DEBUG_UART_BOARD_INIT
-	imply TPL
-	imply SPL
+	imply TPL if !ARM64_BOOT_AARCH32
+	imply SPL if !ARM64_BOOT_AARCH32
 	imply TPL_SERIAL_SUPPORT
 	help
 	  The Rockchip RK3562 is a ARM-based SoC with a quad-core Cortex-A53.
@@ -709,6 +716,35 @@ config TPL_MAX_SIZE
 	default 32768
 endif
 
+config ROCKCHIP_RV1126B
+	bool "Support Rockchip RV1126B"
+	select ARM64 if !ARM64_BOOT_AARCH32
+	select GICV2 if !ARM64_BOOT_AARCH32
+	select ARM_SMCCC
+	select DEBUG_UART_BOARD_INIT
+	select ROCKCHIP_BROM_HELPER
+	select SUPPORT_TPL if !ARM64_BOOT_AARCH32
+	select SUPPORT_SPL if !ARM64_BOOT_AARCH32
+	select TPL_TINY_FRAMEWORK if TPL
+	imply TPL if !ARM64_BOOT_AARCH32
+	imply SPL if !ARM64_BOOT_AARCH32
+	imply TPL_SERIAL_SUPPORT
+	help
+	  The Rockchip RV1126B is a ARM-based SoC with a quad-core Cortex-A53.
+
+if ROCKCHIP_RV1126B
+
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
+
+config TPL_TEXT_BASE
+	default 0x3ffb1000
+
+config TPL_MAX_SIZE
+	default 61440
+
+endif
+
 config SPL_ROCKCHIP_BACK_TO_BROM
 	bool "SPL returns to bootrom"
 	default y if ROCKCHIP_RK3036
@@ -766,6 +802,7 @@ config ROCKCHIP_BOOT_MODE_REG
 	default 0xff020200 if ROCKCHIP_RV1106
 	default 0x10300580 if ROCKCHIP_RV1108
 	default 0xfe020200 if ROCKCHIP_RV1126
+	default 0x20130220 if ROCKCHIP_RV1126B
 	default 0
 	help
 	  The Soc will enter to different boot mode(defined in asm/arch/boot_mode.h)
@@ -795,6 +832,7 @@ config ROCKCHIP_STIMER_BASE
 	default 0xff590020 if ROCKCHIP_RV1106
 	default 0x10350020 if ROCKCHIP_RV1108
 	default 0xff670020 if ROCKCHIP_RV1126
+	default 0x20820000 if ROCKCHIP_RV1126B
 	default 0
 	help
 	  The secure timer inited in SPL/TPL in secure word, ARM generic timer
@@ -822,6 +860,7 @@ config ROCKCHIP_IRAM_START_ADDR
 	default 0xff6c0000 if ROCKCHIP_RV1106
 	default 0x10080000 if ROCKCHIP_RV1108
 	default 0xff700000 if ROCKCHIP_RV1126
+	default 0x3ffb0000 if ROCKCHIP_RV1126B
 	default 0
 	help
 	  The IRAM start addr is to locate variant of the boot device from
@@ -1276,5 +1315,6 @@ source "arch/arm/mach-rockchip/rv1103b/Kconfig"
 source "arch/arm/mach-rockchip/rv1106/Kconfig"
 source "arch/arm/mach-rockchip/rv1108/Kconfig"
 source "arch/arm/mach-rockchip/rv1126/Kconfig"
+source "arch/arm/mach-rockchip/rv1126b/Kconfig"
 
 endif

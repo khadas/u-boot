@@ -89,13 +89,9 @@
 #define WAKEUP_AOV_PARAM_MAX_SIZE	ITEM_SIZE
 
 #define SENSOR_IQ_BIN_OFFSET			(MAX_META_SEGMENT_SIZE)
-#define SENSOR_IQ_BIN_MAX_SIZE			(320 * 1024)
 
-#define SECONDARY_SENSOR_IQ_BIN_OFFSET			(SENSOR_IQ_BIN_OFFSET + SENSOR_IQ_BIN_MAX_SIZE)
-#define SECONDARY_SENSOR_IQ_BIN_MAX_SIZE		(SENSOR_IQ_BIN_MAX_SIZE)
-
-/* 512 - sizeof(tag/load/size/comp_type/comp_size/comp_off/crc32/meta_flags/iq_item_size/total_part_num/part_flag/part_reserved_size) */
-#define	META_HEAD_RESERVED_SIZE	   (116*4)
+/* 512 - sizeof(tag/load/size/comp_type/comp_size/comp_off/crc32/meta_flags/iq_item_size/total_part_num/part_flag/part_reserved_size/iqbin_max_size) */
+#define	META_HEAD_RESERVED_SIZE	   (115*4)
 #define META_READ_DONE_FLAG (1 << 0)
 
 #define AE_TABLE_SHARE2KERNEL_OFFSET	(PARAM_SHARE2KERNEL_OFFSET)
@@ -113,6 +109,7 @@ struct meta_head {
 	uint32_t total_part_num;
 	uint32_t part_flag;
 	uint32_t part_reserved_size;
+	uint32_t iqbin_max_size;
 	uint8_t  reserved[META_HEAD_RESERVED_SIZE];
 	uint32_t crc32;
 	uint32_t meta_flags;
@@ -125,4 +122,5 @@ struct cmdline_info {
 	uint32_t crc32;
 };
 
+void rk_meta_bootargs_append(void *fdt);
 #endif

@@ -173,11 +173,17 @@ fdt_addr_t fdtdec_get_addr_size_auto_noparent(const void *blob, int node,
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 		const char *prop_name, fdt_size_t *sizep)
 {
+#ifdef CONFIG_OF_ADDR_SIZE_AUTO_NOPARENT
+	/* In case of 64-bit U-Boot use 32-bit platform dtb */
+	return fdtdec_get_addr_size_auto_noparent(blob, node, prop_name,
+						  0, sizep, false);
+#else
 	int ns = sizep ? (sizeof(fdt_size_t) / sizeof(fdt32_t)) : 0;
 
 	return fdtdec_get_addr_size_fixed(blob, node, prop_name, 0,
 					  sizeof(fdt_addr_t) / sizeof(fdt32_t),
 					  ns, sizep, false);
+#endif
 }
 
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,

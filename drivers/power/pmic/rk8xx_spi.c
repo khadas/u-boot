@@ -211,6 +211,10 @@ static int rk8xx_spi_irq_chip_init(struct udevice *dev)
 #else
 static inline int rk8xx_spi_ofdata_to_platdata(struct udevice *dev)
 {
+	struct rk8xx_priv *rk8xx = dev_get_priv(dev);
+
+	rk8xx->rst_fun = dev_read_u32_default(dev, "pmic-reset-func", 0);
+
 	return 0;
 }
 

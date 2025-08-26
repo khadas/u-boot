@@ -38,15 +38,14 @@ int android_bootloader_message_load(
 	struct android_bootloader_message *message)
 {
 	ulong message_blocks = sizeof(struct android_bootloader_message) /
-	    part_info->blksz;
+			       part_info->blksz;
 	if (message_blocks > part_info->size) {
 		printf("misc partition too small.\n");
 		return -1;
 	}
 
 	if (blk_dread(dev_desc, part_info->start + android_bcb_msg_sector_offset(),
-	     message_blocks, message) !=
-	    message_blocks) {
+		      message_blocks, message) != message_blocks) {
 		printf("Could not read from misc partition\n");
 		return -1;
 	}
@@ -60,15 +59,15 @@ static int android_bootloader_message_write(
 	struct android_bootloader_message *message)
 {
 	ulong message_blocks = sizeof(struct android_bootloader_message) /
-	    part_info->blksz + android_bcb_msg_sector_offset();
+			       part_info->blksz;
 
 	if (message_blocks > part_info->size) {
 		printf("misc partition too small.\n");
 		return -1;
 	}
 
-	if (blk_dwrite(dev_desc, part_info->start, message_blocks, message) !=
-	    message_blocks) {
+	if (blk_dwrite(dev_desc, part_info->start + android_bcb_msg_sector_offset(),
+		       message_blocks, message) != message_blocks) {
 		printf("Could not write to misc partition\n");
 		return -1;
 	}
@@ -965,7 +964,7 @@ out:
 }
 #endif
 
-#if defined(CONFIG_CMD_DTIMG) && defined(CONFIG_OF_LIBFDT_OVERLAY)
+#if defined(CONFIG_OF_LIBFDT_OVERLAY)
 
 /*
  * Default return index 0.
@@ -1357,7 +1356,7 @@ int android_bootloader_boot_flow(struct blk_desc *dev_desc,
 
 	/* Set Android root variables. */
 	env_set_ulong("android_root_devnum", dev_desc->devnum);
-	env_set("android_slotsufix", slot_suffix);
+	env_set("android_slotsuffix", slot_suffix);
 
 #ifdef CONFIG_FASTBOOT_OEM_UNLOCK
 	/* read oem unlock status and attach to bootargs */

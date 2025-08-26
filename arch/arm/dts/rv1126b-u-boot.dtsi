@@ -1,0 +1,217 @@
+/*
+ * (C) Copyright 2025 Rockchip Electronics Co., Ltd
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	aliases {
+		mmc0 = &emmc;
+		mmc1 = &sdmmc0;
+	};
+
+	chosen {
+		stdout-path = &uart0;
+		u-boot,spl-boot-order = &sdmmc0, &spi_nand, &spi_nor, &emmc;
+	};
+
+	secure-otp@20b10000 {
+		compatible = "rockchip,rv1126b-secure-otp";
+		reg = <0x20b10000 0x10000>;
+		secure_conf = <0x2022001c>;
+		cru_rst_addr = <0x20200a00>;
+		mask_addr = <0x20ba0000>;
+		key_reader_addr = <0x20b20000>;
+		u-boot,dm-spl;
+		status = "okay";
+	};
+
+	crypto_s: crypto_s@20900000 {
+		compatible = "rockchip,crypto-ce";
+		reg = <0x20900000 0x2000>;
+		secure;
+		interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&cru ACLK_RKCE_S>, <&cru HCLK_RKCE_S>,
+			 <&cru CLK_PKA_RKCE_S>;
+		clock-names = "aclk", "hclk", "pka";
+		resets = <&cru SRST_PRESETN_RKCE>;
+		reset-names = "crypto-rst";
+		status = "disabled";
+	};
+
+	keylad: keylad@20920000 {
+		compatible = "rockchip,keylad";
+		reg = <0x20920000 0x2000>;
+		clocks = <&cru HCLK_KL_RKCE_S>, <&cru ACLK_RKCE_S>;
+		clock-names = "hclk", "aclk";
+		status = "disabled";
+	};
+};
+
+&gpio0 {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&gpio4 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&grf {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&ioc_grf {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&cru {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&crypto {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&crypto_s {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&keylad {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&psci {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&uart0 {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&hw_decompress {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&rng {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&fspi0 {
+	u-boot,dm-spl;
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	spi_nand: flash@0 {
+		u-boot,dm-spl;
+		compatible = "spi-nand";
+		reg = <0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <80000000>;
+	};
+
+	spi_nor: flash@1 {
+		u-boot,dm-spl;
+		compatible = "jedec,spi-nor";
+		label = "sfc_nor";
+		reg = <0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <80000000>;
+	};
+};
+
+&saradc0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&sdmmc0 {
+	bus-width = <4>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc0_bus4_pins &sdmmc0_cmd_pins &sdmmc0_clk_pins &sdmmc0_detn_pins>;
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&emmc {
+	mmc-ecsd = <0x47fffe00>;
+	mmc-idmac = <0x48000000>;
+	bus-width = <8>;
+	mmc-hs200-1_8v;
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&sdmmc0_pins {
+	u-boot,dm-spl;
+};
+
+&sdmmc0_bus4_pins {
+	u-boot,dm-spl;
+};
+
+&sdmmc0_cmd_pins {
+	u-boot,dm-spl;
+};
+
+&sdmmc0_clk_pins {
+	u-boot,dm-spl;
+};
+
+&sdmmc0_detn_pins {
+	u-boot,dm-spl;
+};
+
+&pinctrl {
+	u-boot,dm-spl;
+	status = "okay";
+};
+
+&pcfg_pull_up {
+	u-boot,dm-spl;
+};
+
+&pcfg_pull_none {
+	u-boot,dm-spl;
+};
+
+&usb2phy {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&usb2phy_otg {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};

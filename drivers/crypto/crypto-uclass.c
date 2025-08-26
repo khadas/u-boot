@@ -4,6 +4,7 @@
  */
 
 #include <crypto.h>
+#include <keylad.h>
 
 static const u8 null_hash_sha1_value[] = {
 	0xda, 0x39, 0xa3, 0xee, 0x5e, 0x6b, 0x4b, 0x0d,
@@ -69,6 +70,14 @@ u32 crypto_algo_nbits(u32 algo)
 		return 3072;
 	case CRYPTO_RSA4096:
 		return 4096;
+	case CRYPTO_SM2:
+		return 256;
+	case CRYPTO_ECC_192R1:
+		return 192;
+	case CRYPTO_ECC_224R1:
+		return 224;
+	case CRYPTO_ECC_256R1:
+		return 256;
 	}
 
 	printf("Unknown crypto algorithm: 0x%x\n", algo);
@@ -78,11 +87,20 @@ u32 crypto_algo_nbits(u32 algo)
 
 struct udevice *crypto_get_device(u32 capability)
 {
+	bool preferred_secure = false;
+	bool cur_secure = false;
 	const struct dm_crypto_ops *ops;
+	struct udevice *best_fit_dev = NULL;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
 	u32 cap;
+
+#if defined(CONFIG_SPL_BUILD)
+	preferred_secure = true;
+#else
+	preferred_secure = false;
+#endif
 
 	ret = uclass_get(UCLASS_CRYPTO, &uc);
 	if (ret)
@@ -95,12 +113,21 @@ struct udevice *crypto_get_device(u32 capability)
 		if (!ops || !ops->capability)
 			continue;
 
+		cur_secure = ops->is_secure ? ops->is_secure(dev) : false;
+
 		cap = ops->capability(dev);
-		if ((cap & capability) == capability)
-			return dev;
+		if ((cap & capability) == capability) {
+			if (!best_fit_dev) {
+				best_fit_dev = dev;
+				continue;
+			}
+
+			if (preferred_secure == cur_secure)
+				best_fit_dev = dev;
+		}
 	}
 
-	return NULL;
+	return best_fit_dev;
 }
 
 int crypto_sha_init(struct udevice *dev, sha_context *ctx)
@@ -264,6 +291,19 @@ int crypto_rsa_verify(struct udevice *dev, rsa_key *ctx, u8 *sign, u8 *output)
 	return ops->rsa_verify(dev, ctx, sign, output);
 }
 
+int crypto_ec_verify(struct udevice *dev, ec_key *ctx, u8 *hash, u32 hash_len, u8 *sign)
+{
+	const struct dm_crypto_ops *ops = device_get_ops(dev);
+
+	if (!ops || !ops->ec_verify)
+		return -ENOSYS;
+
+	if (!ctx || !ctx->x || !ctx->y || !ctx->y || !hash || hash_len == 0 || !sign)
+		return -EINVAL;
+
+	return ops->ec_verify(dev, ctx, hash, hash_len, sign);
+}
+
 int crypto_cipher(struct udevice *dev, cipher_context *ctx,
 		  const u8 *in, u8 *out, u32 len, bool enc)
 {
@@ -271,6 +311,9 @@ int crypto_cipher(struct udevice *dev, cipher_context *ctx,
 
 	if (!ops || !ops->cipher_crypt)
 		return -ENOSYS;
+
+	if (!ctx || !ctx->key || ctx->key_len == 0)
+		return -EINVAL;
 
 	return ops->cipher_crypt(dev, ctx, in, out, len, enc);
 }
@@ -282,6 +325,9 @@ int crypto_mac(struct udevice *dev, cipher_context *ctx,
 
 	if (!ops || !ops->cipher_mac)
 		return -ENOSYS;
+
+	if (!ctx || !ctx->key || ctx->key_len == 0)
+		return -EINVAL;
 
 	return ops->cipher_mac(dev, ctx, in, len, tag);
 }
@@ -295,7 +341,63 @@ int crypto_ae(struct udevice *dev, cipher_context *ctx,
 	if (!ops || !ops->cipher_ae)
 		return -ENOSYS;
 
+	if (!ctx || !ctx->key || ctx->key_len == 0)
+		return -EINVAL;
+
 	return ops->cipher_ae(dev, ctx, in, len, aad, aad_len, out, tag);
+}
+
+int crypto_fw_cipher(struct udevice *dev, cipher_fw_context *ctx,
+		     const u8 *in, u8 *out, u32 len, bool enc)
+{
+#if CONFIG_IS_ENABLED(DM_KEYLAD)
+	const struct dm_crypto_ops *ops = device_get_ops(dev);
+	struct udevice *keylad_dev;
+
+	if (!ops || !ops->cipher_fw_crypt)
+		return -ENOSYS;
+
+	if (!ops->is_secure || !ops->is_secure(dev)) {
+		printf("Only secure crypto support fwkey cipher.\n");
+		return -ENOSYS;
+	}
+
+	keylad_dev = keylad_get_device();
+	if (!keylad_dev) {
+		printf("No keylad device found.\n");
+		return -ENOSYS;
+	}
+
+	if (keylad_transfer_fwkey(keylad_dev, crypto_keytable_addr(dev),
+				  ctx->fw_keyid, ctx->key_len)) {
+		printf("Failed to transfer key from keylad.\n");
+		return -ENOSYS;
+	}
+
+	return ops->cipher_fw_crypt(dev, ctx, in, out, len, enc);
+#else
+	return -ENOSYS;
+#endif
+}
+
+ulong crypto_keytable_addr(struct udevice *dev)
+{
+	const struct dm_crypto_ops *ops = device_get_ops(dev);
+
+	if (!ops || !ops->keytable_addr)
+		return 0;
+
+	return ops->keytable_addr(dev);
+}
+
+bool crypto_is_secure(struct udevice *dev)
+{
+	const struct dm_crypto_ops *ops = device_get_ops(dev);
+
+	if (!ops || !ops->is_secure)
+		return false;
+
+	return ops->is_secure(dev);
 }
 
 UCLASS_DRIVER(crypto) = {

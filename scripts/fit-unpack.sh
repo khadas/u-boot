@@ -111,10 +111,40 @@ function gen_its()
 
 	# add placeholder
 	cp -a ${ITB} ${TMP_ITB}
+
+	# data and digest value
 	for NAME in `fdtget -l ${ITB} /images`; do
-		fdtput -t s ${TMP_ITB} /images/${NAME} data "/INCBIN/(${NAME})"
+		COMPRESSION=`fdtget -ts ${ITB} /images/${NAME} compression`
+		if [ "${COMPRESSION}" == "gzip" ] && fdtget -l "${TMP_ITB}" /images/${NAME}/digest >/dev/null 2>&1; then
+			fdtput -t s ${TMP_ITB} /images/${NAME} data "/INCBIN/(${NAME}.gz)"
+
+			mv ${OUT}/${NAME} ${OUT}/${NAME}.gz
+			gzip -dk ${OUT}/${NAME}.gz
+			openssl dgst -sha256 -binary -out ${OUT}/${NAME}.digest ${OUT}/${NAME}
+			fdtput -t s ${TMP_ITB} /images/${NAME}/digest digest "/INCBIN/(${NAME}.digest)"
+		elif [ "${COMPRESSION}" == "lzma" ] && fdtget -l "${TMP_ITB}" /images/${NAME}/digest >/dev/null 2>&1; then
+			fdtput -t s ${TMP_ITB} /images/${NAME} data "/INCBIN/(${NAME}.lzma)"
+
+			SIZE=`ls -l ${OUT}/${NAME} | awk '{ print $5 }'`
+			SIZE=$(echo "obase=10;$(($SIZE-4))"|bc)
+			cp ${OUT}/${NAME} ${OUT}/${NAME}.lzma.bak
+			dd if=${OUT}/${NAME} of=${OUT}/${NAME}.lzma bs=${SIZE} count=1 >/dev/null 2>&1
+			lzma -df ${OUT}/${NAME}.lzma
+			openssl dgst -sha256 -binary -out ${OUT}/${NAME}.digest ${OUT}/${NAME}
+			mv ${OUT}/${NAME}.lzma.bak ${OUT}/${NAME}.lzma
+			fdtput -t s ${TMP_ITB} /images/${NAME}/digest digest "/INCBIN/(${NAME}.digest)"
+		else
+			fdtput -t s ${TMP_ITB} /images/${NAME} data "/INCBIN/(${NAME})"
+		fi
 	done
-	dtc -I dtb -O dts ${TMP_ITB} -o ${ITS}
+
+	DTC=$(find . -type f -name "dtc")
+	if [ -z ${DTC} ]; then
+		echo "ERROR: No DTC tool"
+		exit 1
+	fi
+	${DTC} -I dtb -O dts ${TMP_ITB} -o ${ITS}
+
 	rm -f ${TMP_ITB}
 
 	# fixup placeholder: data = "/INCBIN/(...)"; -> data = /incbin/("...");
@@ -130,6 +160,9 @@ function gen_its()
 	sed -i "/hashed-nodes/d"	${ITS}
 	sed -i "/signer-version/d"	${ITS}
 	sed -i "/signer-name/d"		${ITS}
+	sed -i "/version/d"		${ITS}
+	sed -i "/totalsize/d"		${ITS}
+	sed -i "s/digest =/value =/g"	${ITS}
 }
 
 args_process $*

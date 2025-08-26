@@ -272,7 +272,7 @@ __weak int mach_cpu_init(void)
 }
 
 /* Get the top of usable RAM */
-__weak ulong board_get_usable_ram_top(ulong total_size)
+__weak uint64_t board_get_usable_ram_top(ulong total_size)
 {
 #ifdef CONFIG_SYS_SDRAM_BASE
 	/*

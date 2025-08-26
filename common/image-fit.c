@@ -31,6 +31,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <u-boot/md5.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
+#ifdef CONFIG_OPTEE_CLIENT
+#include <optee_include/OpteeClientInterface.h>
+#endif
 
 #define __round_mask(x, y) ((__typeof__(x))((y)-1))
 #define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
@@ -821,6 +824,24 @@ int fit_image_get_comp_addr(const void *fit, int noffset, ulong *comp)
 }
 
 /**
+ * fit_image_get_cipher_addr() - get cipher addr property for given component image node
+ * @fit: pointer to the FIT format image header
+ * @noffset: component image node offset
+ * @cipher: pointer to the uint32_t, will hold load address
+ *
+ * fit_image_get_cipher_addr() finds cipher address property in a given component
+ * image node. If the property is found, its value is returned to the caller.
+ *
+ * returns:
+ *     0, on success
+ *     -1, on failure
+ */
+int fit_image_get_cipher_addr(const void *fit, int noffset, ulong *cipher)
+{
+	return fit_image_get_address(fit, noffset, FIT_CIPHER_ADDR_PROP, cipher);
+}
+
+/**
  * fit_image_set_load() - set load addr property for given component image node
  * @fit: pointer to the FIT format image header
  * @noffset: component image node offset
@@ -1112,6 +1133,33 @@ static int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
 		*ignore = 0;
 	else
 		*ignore = *value;
+
+	return 0;
+}
+
+/**
+ * fit_image_cipher_get_algo - get cipher algorithm name
+ * @fit: pointer to the FIT format image header
+ * @noffset: cipher node offset
+ * @algo: double pointer to char, will hold pointer to the algorithm name
+ *
+ * fit_image_cipher_get_algo() finds cipher algorithm property in a given
+ * cipher node. If the property is found its data start address is returned
+ * to the caller.
+ *
+ * returns:
+ *     0, on success
+ *     -1, on failure
+ */
+int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo)
+{
+	int len;
+
+	*algo = (char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
+	if (!*algo) {
+		fit_get_debug(fit, noffset, FIT_ALGO_PROP, len);
+		return -1;
+	}
 
 	return 0;
 }
@@ -1502,6 +1550,107 @@ int fit_all_image_verify(const void *fit)
 	}
 	return 1;
 }
+
+#if !defined(USE_HOSTCC)
+#if defined(CONFIG_FIT_CIPHER)
+/*
+ * [aes-128-ctr] example:
+ *
+ * openssl rand -out aes128.key 16
+ *
+ * openssl dgst -sha256 -binary -out kernel.sha256 kernel
+ * openssl rand -out iv.bin 16
+ * openssl enc -aes-128-ctr -in kernel -out kernel.encrypt -K $(xxd -p aes128.key) -iv $(xxd -p iv.bin)
+ * openssl enc -aes-128-ctr -d -in kernel.encrypt -out kernel -K $(xxd -p aes128.key) -iv $(xxd -p iv.bin)
+ *
+ *
+ * Add a "cipher" node under kernel node, the "hash" node is optional.
+ *
+ * 	cipher {
+ *		algo = "aes128";
+ *		iv = /incbin/("./iv.bin");
+ *		hash {
+ *			algo = "sha256";
+ *			value = /incbin/("./kernel.sha256");
+ *		};
+ *	};
+ */
+static int fit_image_uncipher(const void *fit, int noffset,
+			      ulong cipher_addr, size_t cipher_sz,
+			      ulong uncipher_addr)
+{
+	rk_cipher_config config;
+	int cipher_noffset;
+	const char *node_name;
+	const void *iv;
+	char *algo_name;
+	char *err_msgp;
+	int key_len = 16;
+	int iv_len;
+	int ret;
+
+	node_name = fdt_get_name(fit, noffset, NULL);
+	cipher_noffset = fdt_subnode_offset(fit, noffset, FIT_CIPHER_NODENAME);
+
+	if (fit_image_cipher_get_algo(fit, cipher_noffset, &algo_name)) {
+		printf("Can't get cipher algo for image '%s'\n",
+		       node_name);
+		return -1;
+	}
+
+	if (strcmp(algo_name, "aes128")) {
+		printf("Invalid cipher algo '%s'\n", algo_name);
+		return -1;
+	}
+
+	iv = fdt_getprop(fit, cipher_noffset, "iv", &iv_len);
+	if (!iv) {
+		printf("Can't get IV for image '%s'\n", node_name);
+		return -1;
+	}
+
+	if (iv_len != key_len) {
+		printf("Len iv(%d) != key(%d) for image '%s'\n",
+		       iv_len, key_len, node_name);
+		return -1;
+	}
+
+	memset(&config, 0, sizeof(config));
+	config.algo      = RK_ALGO_AES;
+	config.mode      = RK_CIPHER_MODE_CTR;
+	config.operation = RK_MODE_DECRYPT;
+	config.key_len   = key_len;
+	memcpy(config.iv, iv, key_len);
+
+	/* uncipher */
+	ret = trusty_fw_key_cipher(RK_FW_KEY0, &config,
+				   (u32)cipher_addr, (u32)uncipher_addr,
+				   (u32)cipher_sz);
+	if (ret) {
+		printf("Uncipher data failed for image '%s', ret=%d\n",
+		       node_name, ret);
+		return ret;
+	}
+
+	/* verify uncipher data hash  */
+	noffset = fdt_subnode_offset(fit, cipher_noffset, FIT_HASH_NODENAME);
+	if (noffset > 0) {
+		ret = fit_image_check_hash(fit, noffset,
+					   (void *)uncipher_addr,
+					   cipher_sz, &err_msgp);
+		if (ret) {
+			printf("%s, uncipher data hash for image '%s', ret=%d\n",
+			       err_msgp, node_name, ret);
+			return ret;
+		} else {
+			puts("+");
+		}
+	}
+
+	return 0;
+}
+#endif
+#endif
 
 /**
  * fit_image_check_os - check whether image node is of a given os type
@@ -1942,6 +2091,11 @@ static int fit_image_select(const void *fit, int rd_noffset, int verify)
 	fit_image_print(fit, rd_noffset, "   ");
 #endif
 #endif
+
+#ifndef USE_HOSTCC
+	if (smp_event1(SEVT_3, STID_17))
+		return 0;
+#endif
 	if (verify) {
 		puts("   Verifying Hash Integrity ... ");
 		if (!fit_image_verify(fit, rd_noffset)) {
@@ -2202,14 +2356,33 @@ int fit_image_load_index(bootm_headers_t *images, ulong addr,
 		return -ENOENT;
 	}
 
-#if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
+#if !defined(USE_HOSTCC)
 	ret = fit_image_get_load(fit, noffset, &load);
 	if (ret < 0)
 		return ret;
 
+#if defined(CONFIG_FIT_CIPHER)
+	int cipher_noffset =
+		fdt_subnode_offset(fit, noffset, FIT_CIPHER_NODENAME);
+
+	if (cipher_noffset > 0) {
+		printf("   Decrypting Data ... ");
+		ret = fit_image_uncipher(fit, noffset, (ulong)buf, size, load);
+		if (ret) {
+			printf(" Error: %d\n", ret);
+			return -EACCES;
+		}
+		buf = (void *)load;
+		printf(" OK\n");
+	}
+#endif
+
+#if defined(CONFIG_FIT_IMAGE_POST_PROCESS)
 	/* perform any post-processing on the image data */
-	board_fit_image_post_process((void *)fit, noffset,
-				     &load, (ulong **)&buf, &size, NULL);
+	if (board_fit_image_post_process((void *)fit, noffset,
+					 &load, (ulong **)&buf, &size, NULL))
+		return -EINVAL;
+#endif
 #endif
 
 	len = (ulong)size;

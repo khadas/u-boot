@@ -342,6 +342,18 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
 	return blk_dwrite(desc, start, blkcnt, buffer);
 }
 
+ulong blk_write_zeroes_devnum(enum if_type if_type, int devnum, lbaint_t start,
+			      lbaint_t blkcnt)
+{
+	struct blk_desc *desc;
+	int ret;
+
+	ret = get_desc(if_type, devnum, &desc);
+	if (ret)
+		return ret;
+	return blk_dwrite_zeroes(desc, start, blkcnt);
+}
+
 ulong blk_erase_devnum(enum if_type if_type, int devnum, lbaint_t start,
 		       lbaint_t blkcnt)
 {
@@ -459,7 +471,11 @@ unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start,
 	if (blkcache_read(block_dev->if_type, block_dev->devnum,
 			  start, blkcnt, block_dev->blksz, buffer))
 		return blkcnt;
+
+	u_spin_lock(&block_dev->blk_lock);
 	blks_read = ops->read(dev, start, blkcnt, buffer);
+	u_spin_unlock(&block_dev->blk_lock);
+
 	if (blks_read == blkcnt)
 		blkcache_fill(block_dev->if_type, block_dev->devnum,
 			      start, blkcnt, block_dev->blksz, buffer);
@@ -472,12 +488,37 @@ unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
 {
 	struct udevice *dev = block_dev->bdev;
 	const struct blk_ops *ops = blk_get_ops(dev);
+	ulong ret;
 
 	if (!ops->write)
 		return -ENOSYS;
 
 	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
-	return ops->write(dev, start, blkcnt, buffer);
+
+	u_spin_lock(&block_dev->blk_lock);
+	ret = ops->write(dev, start, blkcnt, buffer);
+	u_spin_unlock(&block_dev->blk_lock);
+
+	return ret;
+}
+
+unsigned long blk_dwrite_zeroes(struct blk_desc *block_dev, lbaint_t start,
+			       lbaint_t blkcnt)
+{
+	struct udevice *dev = block_dev->bdev;
+	const struct blk_ops *ops = blk_get_ops(dev);
+	ulong ret;
+
+	if (!ops->write_zeroes)
+		return -ENOSYS;
+
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
+
+	u_spin_lock(&block_dev->blk_lock);
+	ret = ops->write_zeroes(dev, start, blkcnt);
+	u_spin_unlock(&block_dev->blk_lock);
+
+	return ret;
 }
 
 unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
@@ -485,12 +526,18 @@ unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 {
 	struct udevice *dev = block_dev->bdev;
 	const struct blk_ops *ops = blk_get_ops(dev);
+	ulong ret;
 
 	if (!ops->erase)
 		return -ENOSYS;
 
 	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
-	return ops->erase(dev, start, blkcnt);
+
+	u_spin_lock(&block_dev->blk_lock);
+	ret = ops->erase(dev, start, blkcnt);
+	u_spin_unlock(&block_dev->blk_lock);
+
+	return ret;
 }
 
 int blk_prepare_device(struct udevice *dev)

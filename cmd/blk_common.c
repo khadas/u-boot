@@ -92,6 +92,19 @@ int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 			printf("%ld blocks written: %s\n", n,
 			       n == cnt ? "OK" : "ERROR");
 			return n == cnt ? 0 : 1;
+		} else if (strcmp(argv[1], "write_zeroes") == 0) {
+			lbaint_t blk = simple_strtoul(argv[2], NULL, 16);
+			ulong cnt = simple_strtoul(argv[3], NULL, 16);
+			ulong n;
+
+			printf("\n%s write_zeroes: device %d block # "LBAFU", count %lu ... ",
+			       if_name, *cur_devnump, blk, cnt);
+
+			n = blk_write_zeroes_devnum(if_type, *cur_devnump, blk, cnt);
+
+			printf("%ld blocks written: %s\n", n,
+			       n == cnt ? "OK" : "ERROR");
+			return n == cnt ? 0 : 1;
 		} else if (strcmp(argv[1], "erase") == 0) {
 			lbaint_t blk = simple_strtoul(argv[2], NULL, 16);
 			ulong cnt = simple_strtoul(argv[3], NULL, 16);

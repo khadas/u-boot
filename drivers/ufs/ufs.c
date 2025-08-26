@@ -1940,7 +1940,9 @@ retry:
 
 	if (hba->dev_desc->w_spec_version == 0x2002)
 		if (hba->dev_desc->w_manufacturer_id == 0x250A ||
-		    hba->dev_desc->w_manufacturer_id == 0x9802)
+		    hba->dev_desc->w_manufacturer_id == 0x9802 ||
+		    hba->dev_desc->w_manufacturer_id == 0xD60C ||
+		    hba->dev_desc->w_manufacturer_id == 0x2C01)
 			hba->quirks |= UFSDEV_QUIRK_LUN_IN_SCSI_COMMANDS;
 
 	return ret;

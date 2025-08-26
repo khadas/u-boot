@@ -29,6 +29,8 @@
 #include <asm/arch/grf_rv1103b.h>
 #include <asm/arch/grf_rv1106.h>
 #include <asm/arch/grf_rv1126.h>
+#include <asm/arch/grf_rv1126b.h>
+#include <asm/arch/ioc_rv1126b.h>
 #include "dwc_eth_qos.h"
 #else
 #include <asm/arch/grf_px30.h>
@@ -889,6 +891,53 @@ static int rv1126_set_rgmii_speed(struct gmac_rockchip_platdata *pdata,
 		debug("Unknown phy speed: %d\n", priv->phy->speed);
 		return -EINVAL;
 	}
+
+	return 0;
+}
+
+static int rv1126b_set_rgmii_speed(struct gmac_rockchip_platdata *pdata,
+				   struct rockchip_eth_dev *dev)
+{
+	struct eqos_priv *priv = &dev->eqos;
+	struct rv1126b_vi_grf_reg *grf;
+	unsigned int div;
+
+	enum {
+		RV1126B_GMAC_CLK_RMII_DIV2 = BIT(5),
+		RV1126B_GMAC_CLK_RMII_DIV20 = 0,
+		RV1126B_GMAC_CLK_RMII_DIV_MASK = GENMASK(6, 5),
+		RV1126B_GMAC_CLK_RGMII_DIV1 = 0,
+		RV1126B_GMAC_CLK_RGMII_DIV5 = BIT(5) | BIT(6),
+		RV1126B_GMAC_CLK_RGMII_DIV50 = BIT(6),
+	};
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+
+	switch (priv->phy->speed) {
+	case 10:
+		if (pdata->phy_interface == PHY_INTERFACE_MODE_RMII)
+			div = RV1126B_GMAC_CLK_RMII_DIV20;
+		else
+			div = RV1126B_GMAC_CLK_RGMII_DIV50;
+		break;
+	case 100:
+		if (pdata->phy_interface == PHY_INTERFACE_MODE_RMII)
+			div = RV1126B_GMAC_CLK_RMII_DIV2;
+		else
+			div = RV1126B_GMAC_CLK_RGMII_DIV5;
+		break;
+	case 1000:
+		if (pdata->phy_interface != PHY_INTERFACE_MODE_RMII)
+			div = RV1126B_GMAC_CLK_RGMII_DIV1;
+		else
+			return -EINVAL;
+		break;
+	default:
+		debug("Unknown phy speed: %d\n", priv->phy->speed);
+		return -EINVAL;
+	}
+
+	rk_clrsetreg(&grf->gmac_grf_con0 + (0x50000 / 4), RV1126B_GMAC_CLK_RMII_DIV_MASK, div);
 
 	return 0;
 }
@@ -2036,6 +2085,146 @@ static void rv1126_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     (pdata->rx_delay << RV1126_M1_CLK_RX_DL_CFG_GMAC_SHIFT) |
 		     (pdata->tx_delay << RV1126_M1_CLK_TX_DL_CFG_GMAC_SHIFT));
 }
+
+static void rv1126b_gmac_integrated_phy_powerup(struct gmac_rockchip_platdata *pdata)
+{
+	struct rv1126b_vi_grf_reg *grf;
+	unsigned int value;
+
+	enum {
+		RV1126B_MACPHY_PHY_ID_SHIFT = 5,
+		RV1126B_MACPHY_PHY_ADDR_SHIFT = 0,
+	};
+
+	enum {
+		RV1126B_MACPHY_ENABLE_SHIFT = 31,
+		RV1126B_MACPHY_PHY_REVISION_SHIFT = 6,
+		RV1126B_MACPHY_PHY_MODEL_SHIFT = 0,
+	};
+
+	enum {
+		RV1126B_MACPHY_EXTCLK_SEL_INPUT = 0,
+		RV1126B_MACPHY_EXTCLK_SEL_OUTPUT = (1 << 8),
+		RV1126B_MACPHY_CLK_SEL_24M = 0,
+		RV1126B_MACPHY_CLK_SEL_50M = (1 << 11),
+	};
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+
+	writel(0, &grf->rkmacphy_grf_con1 + (0x50000 / 4));
+	reset_assert(&pdata->phy_reset);
+	udelay(20);
+	value = RV1126B_MACPHY_CLK_SEL_24M;
+	if (pdata->clock_input)
+		value |= RV1126B_MACPHY_EXTCLK_SEL_INPUT;
+	else
+		value |= RV1126B_MACPHY_EXTCLK_SEL_OUTPUT;
+	writel(value, &grf->rkmacphy_grf_con2 + (0x50000 / 4));
+
+	value = (0x200680 << RV1126B_MACPHY_PHY_ID_SHIFT) |
+		(0x2 << RV1126B_MACPHY_PHY_ADDR_SHIFT);
+	writel(value, &grf->rkmacphy_grf_con0 + (0x50000 / 4));
+
+	value = (0x10 << RV1126B_MACPHY_PHY_MODEL_SHIFT) |
+		(0x1 << RV1126B_MACPHY_PHY_REVISION_SHIFT) |
+		(0x1 << RV1126B_MACPHY_ENABLE_SHIFT);
+	writel(value, &grf->rkmacphy_grf_con1 + (0x50000 / 4));
+	udelay(100);
+	reset_deassert(&pdata->phy_reset);
+}
+
+static void rv1126b_set_to_rmii(struct gmac_rockchip_platdata *pdata)
+{
+	struct rv1126b_vi_grf_reg *grf;
+
+	enum {
+		RV1126B_GMAC_CLK_RMII_MODE_MASK = BIT(3),
+		RV1126B_GMAC_CLK_RMII_MODE = BIT(3),
+		RV1126B_GMAC_RK_MACPHY_ENABLE_MASK = BIT(15),
+		RV1126B_GMAC_RK_MACPHY_ENABLE = BIT(15),
+	};
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+
+	if (pdata->integrated_phy)
+		rk_clrsetreg(&grf->gmac_grf_con0 + (0x50000 / 4),
+			     RV1126B_GMAC_RK_MACPHY_ENABLE_MASK,
+			     RV1126B_GMAC_RK_MACPHY_ENABLE);
+
+	rk_clrsetreg(&grf->gmac_grf_con0 + (0x50000 / 4),
+		     RV1126B_GMAC_CLK_RMII_MODE_MASK,
+		     RV1126B_GMAC_CLK_RMII_MODE);
+};
+
+static void rv1126b_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
+{
+	struct rv1126b_vi_grf_reg *grf;
+	struct rv1126b_vccio5_ioc_reg *ioc0;
+	struct rv1126b_vccio6_ioc_reg *ioc1;
+	unsigned int rx_enable;
+	unsigned int rx_delay;
+
+	enum {
+		RV1126B_GMAC_RGMII_MODE_MASK = BIT(3),
+		RV1126B_GMAC_RGMII_MODE = 0x0,
+	};
+
+	enum {
+		RV1126B_GMAC_TXCLK_DLY_ENA_MASK = BIT(0),
+		RV1126B_GMAC_TXCLK_DLY_ENA_DISABLE = 0,
+		RV1126B_GMAC_TXCLK_DLY_ENA_ENABLE = BIT(0),
+
+		RV1126B_GMAC_RXCLK_DLY_ENA_MASK = BIT(1),
+		RV1126B_GMAC_RXCLK_DLY_ENA_DISABLE = 0,
+		RV1126B_GMAC_RXCLK_DLY_ENA_ENABLE = BIT(1),
+	};
+
+	enum {
+		RV1126B_GMAC_RX_DL_CFG_SHIFT = 0x8,
+		RV1126B_GMAC_RX_DL_CFG_MASK = GENMASK(15, 8),
+
+		RV1126B_GMAC_TX_DL_CFG_SHIFT = 0x0,
+		RV1126B_GMAC_TX_DL_CFG_MASK = GENMASK(7, 0),
+	};
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	ioc0 = syscon_get_first_range(ROCKCHIP_SYSCON_IOC);
+	ioc1 = syscon_get_first_range(ROCKCHIP_SYSCON_IOC);
+
+	rk_clrsetreg(&grf->gmac_grf_con0 + (0x50000 / 4),
+		     RV1126B_GMAC_RGMII_MODE_MASK,
+		     RV1126B_GMAC_RGMII_MODE);
+
+	if (pdata->rx_delay < 0) {
+		rx_enable = RV1126B_GMAC_RXCLK_DLY_ENA_DISABLE;
+		rx_delay = 0;
+	} else {
+		rx_enable = RV1126B_GMAC_RXCLK_DLY_ENA_ENABLE;
+		rx_delay = pdata->rx_delay << RV1126B_GMAC_RX_DL_CFG_SHIFT;
+	}
+
+	rk_clrsetreg(&ioc1->grf_gmacio_m0_con1 + (0x38000 / 4),
+		     RV1126B_GMAC_TXCLK_DLY_ENA_MASK |
+		     RV1126B_GMAC_RXCLK_DLY_ENA_MASK,
+		     rx_enable | RV1126B_GMAC_TXCLK_DLY_ENA_ENABLE);
+
+	rk_clrsetreg(&ioc0->grf_gmacio_m1_con1 + (0x30000 / 4),
+		     RV1126B_GMAC_TXCLK_DLY_ENA_MASK |
+		     RV1126B_GMAC_RXCLK_DLY_ENA_MASK,
+		     rx_enable | RV1126B_GMAC_TXCLK_DLY_ENA_ENABLE);
+
+	rk_clrsetreg(&ioc1->grf_gmacio_m0_con0 + (0x38000 / 4),
+		     RV1126B_GMAC_RX_DL_CFG_MASK |
+		     RV1126B_GMAC_TX_DL_CFG_MASK,
+		     (pdata->tx_delay << RV1126B_GMAC_TX_DL_CFG_SHIFT) |
+		     rx_delay);
+
+	rk_clrsetreg(&ioc0->grf_gmacio_m1_con0 + (0x30000 / 4),
+		     RV1126B_GMAC_RX_DL_CFG_MASK |
+		     RV1126B_GMAC_TX_DL_CFG_MASK,
+		     (pdata->tx_delay << RV1126B_GMAC_TX_DL_CFG_SHIFT) |
+		     rx_delay);
+}
 #endif
 
 #ifdef CONFIG_DWC_ETH_QOS
@@ -2188,6 +2377,24 @@ static void rk3588_set_clock_selection(struct gmac_rockchip_platdata *pdata)
 	}
 
 	rk_clrsetreg(&php_grf->clk_con1, mask, val);
+}
+
+static void rv1126b_set_clock_selection(struct gmac_rockchip_platdata *pdata)
+{
+	struct rv1126b_vi_grf_reg *grf;
+	unsigned int val;
+
+	enum {
+		RV1126B_GMAC_CLK_SELET_MASK = BIT(7),
+		RV1126B_GMAC_CLK_SELET_CRU = 0,
+		RV1126B_GMAC_CLK_SELET_IO = BIT(7),
+	};
+
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	val = pdata->clock_input ? RV1126B_GMAC_CLK_SELET_IO :
+				   RV1126B_GMAC_CLK_SELET_CRU;
+
+	rk_clrsetreg(&grf->gmac_grf_con0 + (0x50000 / 4), RV1126B_GMAC_CLK_SELET_MASK, val);
 }
 #endif
 
@@ -2490,6 +2697,14 @@ const struct rk_gmac_ops rv1126_gmac_ops = {
 	.set_to_rgmii = rv1126_set_to_rgmii,
 	.set_to_rmii = rv1126_set_to_rmii,
 };
+
+const struct rk_gmac_ops rv1126b_gmac_ops = {
+	.fix_mac_speed = rv1126b_set_rgmii_speed,
+	.set_to_rgmii = rv1126b_set_to_rgmii,
+	.set_to_rmii = rv1126b_set_to_rmii,
+	.set_clock_selection = rv1126b_set_clock_selection,
+	.integrated_phy_powerup = rv1126b_gmac_integrated_phy_powerup,
+};
 #endif
 
 static const struct udevice_id rockchip_gmac_ids[] = {
@@ -2582,6 +2797,11 @@ static const struct udevice_id rockchip_gmac_ids[] = {
 #ifdef CONFIG_ROCKCHIP_RV1126
 	{ .compatible = "rockchip,rv1126-gmac",
 	  .data = (ulong)&rv1126_gmac_ops },
+#endif
+
+#ifdef CONFIG_ROCKCHIP_RV1126B
+	{ .compatible = "rockchip,rv1126b-gmac",
+	  .data = (ulong)&rv1126b_gmac_ops },
 #endif
 #endif
 	{ }

@@ -289,8 +289,6 @@ static int spinand_read_from_cache_op(struct spinand_device *spinand,
 		if (ret)
 			return ret;
 
-		if (spinand->support_cont_read)
-			op.addr.nbytes = 3;
 		ret = spi_mem_exec_op(spinand->slave, &op);
 		if (ret)
 			return ret;
@@ -593,6 +591,7 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 	bool enable_ecc = false;
 	bool ecc_failed = false;
 	int ret = 0;
+	bool cont_real = spinand->support_cont_read;
 
 	if (ops->mode != MTD_OPS_RAW && spinand->eccinfo.ooblayout)
 		enable_ecc = true;
@@ -609,6 +608,12 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 		ret = spinand_ecc_enable(spinand, enable_ecc);
 		if (ret)
 			break;
+
+		/* For misaligned situations, temporarily disable the cont read capability */
+		if (iter.req.dataoffs)
+			spinand->support_cont_read = false;
+		else
+			spinand->support_cont_read = cont_real;
 
 		if (spinand->support_cont_read) {
 			iter.req.datalen = ops->len;
@@ -642,6 +647,8 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 #endif
 	if (ecc_failed && !ret)
 		ret = -EBADMSG;
+
+	spinand->support_cont_read = cont_real;
 
 	return ret ? ret : max_bitflips;
 }
@@ -920,6 +927,9 @@ static const struct spinand_manufacturer *spinand_manufacturers[] = {
 #endif
 #ifdef CONFIG_SPI_NAND_HIKSEMI
 	&hiksemi_spinand_manufacturer,
+#endif
+#ifdef CONFIG_SPI_NAND_KINGSTON
+	&kingston_spinand_manufacturer,
 #endif
 };
 
