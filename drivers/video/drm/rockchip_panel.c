@@ -26,6 +26,7 @@
 #include "rockchip_connector.h"
 #include "rockchip_panel.h"
 
+int is_mipi_lcd_exit = 0x0;
 struct rockchip_cmd_header {
 	u8 data_type;
 	u8 delay_ms;
@@ -292,12 +293,14 @@ static int rockchip_panel_send_dsi_cmds(struct mipi_dsi_device *dsi,
 	return 0;
 }
 
+extern int khadas_mipi_id;
 static void panel_simple_prepare(struct rockchip_panel *panel)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(panel->dev);
 	struct rockchip_panel_priv *priv = dev_get_priv(panel->dev);
 	struct mipi_dsi_device *dsi = dev_get_parent_platdata(panel->dev);
 	int ret;
+	u8 mode;
 
 	if (priv->prepared)
 		return;
@@ -314,6 +317,27 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 	if (plat->delay.init)
 		mdelay(plat->delay.init);
 
+	mipi_dsi_dcs_get_power_mode(dsi, &mode);
+	if(0x8 == mode){
+		is_mipi_lcd_exit = is_mipi_lcd_exit;
+	}
+	/*else{
+		if(2!=khadas_mipi_id){
+			is_mipi_lcd_exit = is_mipi_lcd_exit & 0xb;
+			run_command("fdt set /dsi@27d80000 status disabled", 0);
+			run_command("fdt set /dsi@27d80000/panel@0 status disabled", 0);
+			run_command("fdt set /dsi@27d80000/ports/port@0/endpoint@0 status disabled", 0);
+			run_command("fdt set /display-subsystem/route/route-dsi status disabled", 0);
+			printf("disabled dsi\n");
+		}
+		printf("is_mipi_lcd_exit=%x\n", is_mipi_lcd_exit);
+	}*/
+	printf("0x8===>mode: 0x%d is_mipi_lcd_exit=%d\n", mode,is_mipi_lcd_exit);
+       /*ret = mipi_dsi_dcs_read(dsi, 0xDA, &khadas_mipi_id, sizeof(khadas_mipi_id));
+       if (ret <= 0) {
+               printf("mipi_dsi_dcs_read ID ,error=%d!!\n", ret);
+       }
+       printf("hlm panel_simple_prepare() khadas_mipi_id=%d\n", khadas_mipi_id);*/
 	if (plat->on_cmds) {
 		if (priv->cmd_type == CMD_TYPE_SPI)
 			ret = rockchip_panel_send_spi_cmds(panel, panel->state,
@@ -326,7 +350,8 @@ static void panel_simple_prepare(struct rockchip_panel *panel)
 		if (ret)
 			printf("failed to send on cmds: %d\n", ret);
 	}
-
+	//mipi_dsi_dcs_get_power_mode(dsi, &mode);
+	//printf("0x9c===>mode: 0x%x\n", mode);
 	priv->prepared = true;
 }
 
@@ -409,12 +434,97 @@ static const struct rockchip_panel_funcs rockchip_panel_funcs = {
 	.disable = panel_simple_disable,
 };
 
+#ifdef CONFIG_DM_I2C
+#define TP_I2C_BUS_NUM 0
+#define TP05_CHIP_ADDR "0x38"
+#define TP10_CHIP_ADDR "0x14"
+static struct udevice *i2c_cur_bus;
+
+static int cmd_i2c_set_bus_num(unsigned int busnum)
+{
+    struct udevice *bus;
+    int ret;
+
+    ret = uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus);
+    if (ret) {
+        printf("%s: No bus %d\n", __func__, busnum);
+        return ret;
+    }
+    i2c_cur_bus = bus;
+
+    return 0;
+}
+
+static int i2c_get_cur_bus(struct udevice **busp)
+{
+	if (!i2c_cur_bus) {
+		if (cmd_i2c_set_bus_num(TP_I2C_BUS_NUM)) {
+		    printf("Default I2C bus %d not found\n",
+		           TP_I2C_BUS_NUM);
+		    return -ENODEV;
+		}
+	}
+
+    if (!i2c_cur_bus) {
+        puts("No I2C bus selected\n");
+        return -ENODEV;
+    }
+    *busp = i2c_cur_bus;
+
+    return 0;
+}
+
+static int i2c_get_cur_bus_chip(uint chip_addr, struct udevice **devp)
+{
+    struct udevice *bus;
+    int ret;
+
+    ret = i2c_get_cur_bus(&bus);
+    if (ret)
+        return ret;
+
+    return i2c_get_chip(bus, chip_addr, 1, devp);
+}
+#endif
+
+static int kbi_i2c_read(uint reg, const char *cp)
+{
+	int ret;
+	char val[64];
+	uchar   linebuf[1];
+	uchar chip;
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+#endif
+
+
+	chip = simple_strtoul(cp, NULL, 16);
+
+#ifdef CONFIG_DM_I2C
+	ret = i2c_get_cur_bus_chip(chip, &dev);
+	if (!ret)
+		ret = dm_i2c_read(dev, reg, (uint8_t *)linebuf, 1);
+#else
+	ret = i2c_read(chip, reg, 1, linebuf, 1);
+#endif
+
+	if (ret)
+		printf("Error reading the chip: %d\n",ret);
+	else {
+		sprintf(val, "%d", linebuf[0]);
+		ret = simple_strtoul(val, NULL, 10);
+
+	}
+	return ret;
+}
+
 static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rockchip_panel_plat *plat = dev_get_platdata(dev);
 	const void *data;
 	int len = 0;
 	int ret;
+	static bool first_flag = 1;
 
 	plat->power_invert = dev_read_bool(dev, "power-invert");
 
@@ -429,7 +539,33 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 						MEDIA_BUS_FMT_RBG888_1X24);
 	plat->bpc = dev_read_u32_default(dev, "bpc", 8);
 
-	data = dev_read_prop(dev, "panel-init-sequence", &len);
+	if(first_flag){
+		khadas_mipi_id = kbi_i2c_read(0xA8,TP05_CHIP_ADDR);
+		printf("TP05 id=0x%x\n",khadas_mipi_id);
+		if(khadas_mipi_id == 0x51){//old TS050
+			khadas_mipi_id = 1;
+		}else if(khadas_mipi_id == 0x79){//new TS050
+			khadas_mipi_id = 3;
+		}else{
+			khadas_mipi_id = kbi_i2c_read(0x9e,TP10_CHIP_ADDR);
+			printf("TP10 id=0x%x\n",khadas_mipi_id);
+			if(khadas_mipi_id == 0x00){//TS101
+				khadas_mipi_id = 2;
+			}else {
+				khadas_mipi_id = 0;
+			}
+		}
+		first_flag = 0;
+		printf("hlm khadas_mipi_id=%d\n",khadas_mipi_id);
+	}
+	if(3 == khadas_mipi_id){//new TS050
+		printf("new TS050 to parse panel init sequence2\n");
+		data = dev_read_prop(dev, "panel-init-sequence2", &len);
+	}
+	else{//old TS050
+		printf("old TS050 to parse panel init sequence\n");
+		data = dev_read_prop(dev, "panel-init-sequence", &len);
+	}
 	if (data) {
 		plat->on_cmds = calloc(1, sizeof(*plat->on_cmds));
 		if (!plat->on_cmds)

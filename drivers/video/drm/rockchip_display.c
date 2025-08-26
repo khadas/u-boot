@@ -64,7 +64,7 @@ static unsigned long memory_end;
 static char memory_compatible[32] = "rockchip,drm-logo";
 static struct base2_info base_parameter;
 static u32 align_size = PAGE_SIZE;
-
+int khadas_mipi_id = 0;
 /*
  * the phy types are used by different connectors in public.
  * The current version only has inno hdmi phy for hdmi and tve.
@@ -497,7 +497,14 @@ static int display_get_timing_from_dts(struct rockchip_panel *panel,
 	int ret;
 
 	mcu_panel = dev_read_subnode(panel->dev, "mcu-panel");
-	dt = dev_read_subnode(panel->dev, "display-timings");
+
+    if(khadas_mipi_id == 2){//TS101
+	       dt = dev_read_subnode(panel->dev, "display-timings1");
+	}else if(khadas_mipi_id == 3){//new TS050
+	       dt = dev_read_subnode(panel->dev, "display-timings2");
+	}else{//old TS050
+	       dt = dev_read_subnode(panel->dev, "display-timings");
+	}
 	if (ofnode_valid(dt)) {
 		ret = ofnode_parse_phandle_with_args(dt, "native-mode", NULL,
 						     0, 0, &args);
@@ -2452,12 +2459,12 @@ static int rockchip_display_probe(struct udevice *dev)
 		memset(s, 0, sizeof(*s));
 
 		INIT_LIST_HEAD(&s->head);
-		ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
+		/*ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
 		if (!ret)
 			memcpy(s->ulogo_name, name, strlen(name));
 		ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
 		if (!ret)
-			memcpy(s->klogo_name, name, strlen(name));
+			memcpy(s->klogo_name, name, strlen(name));*/
 		ret = ofnode_read_string_index(node, "logo,mode", 0, &name);
 		if (!strcmp(name, "fullscreen"))
 			s->logo_mode = ROCKCHIP_DISPLAY_FULLSCREEN;
@@ -2501,6 +2508,34 @@ static int rockchip_display_probe(struct udevice *dev)
 		s->crtc_state.crtc = crtc;
 		s->crtc_state.crtc_id = get_crtc_id(np_to_ofnode(ep_node), is_ports_node);
 		s->node = node;
+
+		if(s->crtc_state.crtc_id == 0){
+			ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);//0 degrees
+			if (!ret)
+				memcpy(s->ulogo_name, name, strlen(name));
+
+			ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
+			if (!ret)
+				memcpy(s->klogo_name, name, strlen(name));
+		}
+		else{
+			if(khadas_mipi_id == 2){
+				ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);//0 degrees
+				if (!ret)
+					memcpy(s->ulogo_name, name, strlen(name));
+				ret = ofnode_read_string_index(node, "logo,uboot", 0, &name);
+				if (!ret)
+					memcpy(s->klogo_name, name, strlen(name));
+			}
+			else{
+				ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);//90 degrees
+				if (!ret)
+					memcpy(s->ulogo_name, name, strlen(name));
+				ret = ofnode_read_string_index(node, "logo,kernel", 0, &name);
+				if (!ret)
+					memcpy(s->klogo_name, name, strlen(name));
+			}
+		}
 
 		if (is_ports_node) { /* only vop2 will get into here */
 			ofnode vp_node = np_to_ofnode(port_node);

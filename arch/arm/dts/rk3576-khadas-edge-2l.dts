@@ -34,3 +34,9 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2m0_xfer>;
 };
+
+&i2c0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0m1_xfer>;
+};
