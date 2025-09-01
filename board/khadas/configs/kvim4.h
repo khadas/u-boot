@@ -232,7 +232,7 @@
             "else if test ${reboot_mode} = update; then "\
 				"run update;"\
             "else if test ${reboot_mode} = cold_boot; then "\
-				"echo cold boot "\
+				"echo cold boot;"\
             "else if test ${reboot_mode} = fastboot; then "\
 				"fastboot 1;"\
             "fi;fi;fi;fi;"\
