@@ -230,13 +230,13 @@ int board_init(void)
 
 int board_late_init(void)
 {
+	// Set boot source
+	board_set_boot_source();
+
 	printf("board late init\n");
 	env_set("defenv_para", "-c -b0");
 	aml_board_late_init_front(NULL);
 	get_stick_reboot_flag_mbx();
-
-	// Set boot source
-	board_set_boot_source();
 
 	// Select fdtfile
 	select_fdtfile();
