@@ -219,7 +219,7 @@ static int ufs_rockchip_rk3576_init(struct ufs_hba *hba)
 	/* UFS PHY select 26M from ppll */
 	writel(0x00030002, 0x2722030C);
 	/* Set UFS_REFCLK, UFS_RSTN */
-	writel(0x00FF0011, 0x2604B398);
+	//writel(0x00FF0011, 0x2604B398);
 
 	/* Reset ufs controller and device */
 	reset_assert_bulk(&host->rsts);

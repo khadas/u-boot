@@ -241,5 +241,5 @@
 
 &ufs {
 	u-boot,dm-spl;
-	status = "okay";
+	status = "disabled";
 };
