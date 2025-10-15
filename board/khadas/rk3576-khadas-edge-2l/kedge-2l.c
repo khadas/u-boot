@@ -32,6 +32,9 @@ int rk_board_init(void)
 {
 	env_set("lcd_panel","ts050");
 
+	run_command("gpio set 78", 0);//GPIO2_B6 TYPEC0_PWR_EN
+	run_command("gpio set 83", 0);//GPIO2_C3 vcc 5v
+
     return 0;
 }
 
