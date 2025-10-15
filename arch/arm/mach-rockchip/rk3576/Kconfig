@@ -6,6 +6,12 @@ config TARGET_EVB_RK3576
 	help
 	  RK3576 EVB is a evaluation board for Rockchp RK3576.
 
+config TARGET_KEDGE_2L
+	bool "Khadas Edge 2L"
+	select BOARD_LATE_INIT
+	help
+	  Khadas Edge 2L
+
 config SYS_SOC
 	default "rockchip"
 
@@ -13,5 +19,6 @@ config SYS_MALLOC_F_LEN
 	default 0x400
 
 source board/rockchip/evb_rk3576/Kconfig
+source board/khadas/rk3576-khadas-edge-2l/Kconfig
 
 endif

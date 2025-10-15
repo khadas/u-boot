@@ -1,0 +1,15 @@
+if TARGET_KEDGE_2L
+
+config SYS_BOARD
+	default "rk3576-khadas-edge-2l"
+
+config SYS_VENDOR
+	default "khadas"
+
+config SYS_CONFIG_NAME
+	default "kedge-2l"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
