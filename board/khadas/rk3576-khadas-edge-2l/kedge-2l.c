@@ -28,6 +28,13 @@ static struct dwc3_device dwc3_device_data = {
 	.usb2_phyif_utmi_width = 16,
 };
 
+int rk_board_init(void)
+{
+	env_set("lcd_panel","ts050");
+
+    return 0;
+}
+
 int usb_gadget_handle_interrupts(int index)
 {
 	dwc3_uboot_handle_interrupt(0);
