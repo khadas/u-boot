@@ -14,7 +14,7 @@
 
 	chosen {
 		stdout-path = &uart0;
-		u-boot,spl-boot-order = &sdmmc, &spi_nand, &spi_nor, "same-as-spl";
+		u-boot,spl-boot-order = &sdmmc, &sdhci, &spi_nor, "same-as-spl";
 	};
 
 	secure-otp@2a480000 {
