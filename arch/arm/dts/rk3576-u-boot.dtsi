@@ -105,22 +105,14 @@
 	status = "okay";
 };
 
-&sfc0 {
+&sfc1 {
 	u-boot,dm-spl;
 	status = "okay";
 
 	#address-cells = <1>;
 	#size-cells = <0>;
-	spi_nand: flash@0 {
-		u-boot,dm-spl;
-		compatible = "spi-nand";
-		reg = <0>;
-		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <4>;
-		spi-max-frequency = <80000000>;
-	};
 
-	spi_nor: flash@1 {
+	spi_nor: flash@0 {
 		u-boot,dm-spl;
 		compatible = "jedec,spi-nor";
 		label = "sfc_nor";
