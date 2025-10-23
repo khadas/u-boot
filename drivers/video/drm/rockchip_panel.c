@@ -546,6 +546,8 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 			khadas_mipi_id = 1;
 		}else if(khadas_mipi_id == 0x79){//new TS050
 			khadas_mipi_id = 3;
+		}else if(khadas_mipi_id == 0x18){//new TS134
+			khadas_mipi_id = 5;
 		}else{
 			khadas_mipi_id = kbi_i2c_read(0x9e,TP10_CHIP_ADDR);
 			printf("TP10 id=0x%x\n",khadas_mipi_id);
@@ -561,12 +563,13 @@ static int rockchip_panel_ofdata_to_platdata(struct udevice *dev)
 	if(3 == khadas_mipi_id){//new TS050
 		printf("new TS050 to parse panel init sequence2\n");
 		data = dev_read_prop(dev, "panel-init-sequence2", &len);
-	}
-	else if(4 == khadas_mipi_id){//1200x1920
+	}else if(4 == khadas_mipi_id){//1200x1920
 		printf("1200x1920 to parse panel init sequence3\n");
 		data = dev_read_prop(dev, "panel-init-sequence3", &len);
-	}
-	else{//old TS050
+	}else if(5 == khadas_mipi_id){//1200x1920
+		printf("1200x1920 to parse panel init sequence4\n");
+		data = dev_read_prop(dev, "panel-init-sequence4", &len);
+	}else{//old TS050
 		printf("old TS050 to parse panel init sequence\n");
 		data = dev_read_prop(dev, "panel-init-sequence", &len);
 	}

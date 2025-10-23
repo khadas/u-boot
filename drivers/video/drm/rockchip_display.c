@@ -504,6 +504,8 @@ static int display_get_timing_from_dts(struct rockchip_panel *panel,
 	       dt = dev_read_subnode(panel->dev, "display-timings2");
 	}else if(khadas_mipi_id == 4){//1200x1920
 	       dt = dev_read_subnode(panel->dev, "display-timings3");
+	}else if(khadas_mipi_id == 5){//1200x1920
+	       dt = dev_read_subnode(panel->dev, "display-timings4");
 	}else{//old TS050
 	       dt = dev_read_subnode(panel->dev, "display-timings");
 	}
