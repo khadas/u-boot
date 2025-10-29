@@ -7,9 +7,13 @@
 #include <common.h>
 #include <dwc3-uboot.h>
 #include <usb.h>
+#include <i2c.h>
+#include <dm.h>
 #include <linux/usb/phy-rockchip-usbdp.h>
 #include <asm/io.h>
 #include <rockusb.h>
+
+#define TP_I2C_BUS_NUM 0
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,10 +34,48 @@ static struct dwc3_device dwc3_device_data = {
 
 int rk_board_init(void)
 {
-	env_set("lcd_panel","ts050");
+	// env_set("lcd_panel","newts050");
+	int ret = 0;
+	int res = 0;
+	struct udevice *bus;
+	struct udevice *dev;
+	uchar linebuf[1];
+	run_command("gpio set 83", 0);//GPIO2_C3 vcc 5v
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, TP_I2C_BUS_NUM, &bus);
+	if (ret) {
+		printf("%s: No bus %d\n", __func__, TP_I2C_BUS_NUM);
+		return 0;
+	}
+
+	ret = i2c_get_chip(bus, 0x38, 1, &dev);
+	if (!ret) {
+		res = dm_i2c_read(dev, 0xA8, linebuf, 1);
+		if (!res) {
+			printf("TP05 id=0x%x\n", linebuf[0]);
+			if (linebuf[0] == 0x51){//old ts050
+				env_set("lcd_panel","ts050");
+			} else if (linebuf[0] == 0x79) {//new ts050
+				env_set("lcd_panel","newts050");
+			}
+		}
+	}
+	if (ret || res) {
+		ret = i2c_get_chip(bus, 0x14, 1, &dev);
+		if (!ret) {
+			res = dm_i2c_read(dev, 0x9e, linebuf, 1);
+			if (!res) {
+				printf("TP10 id=0x%x\n", linebuf[0]);
+				if (linebuf[0] == 0x00) {//TS101
+					env_set("lcd_panel","ts101");
+				}
+			} else {
+				env_set("lcd_panel","null");
+			}
+		}
+	}
 
 	run_command("gpio set 78", 0);//GPIO2_B6 TYPEC0_PWR_EN
-	run_command("gpio set 83", 0);//GPIO2_C3 vcc 5v
 
     return 0;
 }
