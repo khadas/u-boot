@@ -34,12 +34,12 @@ static struct dwc3_device dwc3_device_data = {
 
 int rk_board_init(void)
 {
-	// env_set("lcd_panel","newts050");
 	int ret = 0;
 	int res = 0;
 	struct udevice *bus;
 	struct udevice *dev;
 	uchar linebuf[1];
+	u8 value = 0;
 	run_command("gpio set 83", 0);//GPIO2_C3 vcc 5v
 
 	ret = uclass_get_device_by_seq(UCLASS_I2C, TP_I2C_BUS_NUM, &bus);
@@ -55,8 +55,10 @@ int rk_board_init(void)
 			printf("TP05 id=0x%x\n", linebuf[0]);
 			if (linebuf[0] == 0x51){//old ts050
 				env_set("lcd_panel","ts050");
+				value = 1;
 			} else if (linebuf[0] == 0x79) {//new ts050
 				env_set("lcd_panel","newts050");
+				value = 1;
 			}
 		}
 	}
@@ -68,6 +70,7 @@ int rk_board_init(void)
 				printf("TP10 id=0x%x\n", linebuf[0]);
 				if (linebuf[0] == 0x00) {//TS101
 					env_set("lcd_panel","ts101");
+					value = 1;
 				}
 			} else {
 				env_set("lcd_panel","null");
@@ -76,6 +79,9 @@ int rk_board_init(void)
 	}
 
 	run_command("gpio set 78", 0);//GPIO2_B6 TYPEC0_PWR_EN
+
+	env_set_ulong("mipi_lcd_exist", value);
+	printf("mipi_lcd_exist : %d\n", value);
 
     return 0;
 }
