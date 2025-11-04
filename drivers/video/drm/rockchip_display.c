@@ -2334,6 +2334,7 @@ static int rockchip_display_probe(struct udevice *dev)
 	struct device_node *port_node, *vop_node, *ep_node, *port_parent_node;
 	struct public_phy_data *data;
 	bool is_ports_node = false;
+	char *mipi_lcd_exist_value;
 	ulong base = 0;
 
 #if defined(CONFIG_ROCKCHIP_RK3568)
@@ -2535,6 +2536,15 @@ static int rockchip_display_probe(struct udevice *dev)
 			free(s);
 			continue;
 		}
+
+		mipi_lcd_exist_value = env_get("mipi_lcd_exist");
+		if (s->conn_state.type == DRM_MODE_CONNECTOR_DSI) {
+			if(mipi_lcd_exist_value != NULL) {
+				if(!strcmp(mipi_lcd_exist_value, "0"))
+					continue;
+			}
+		}
+
 		list_add_tail(&s->head, &rockchip_display_list);
 	}
 
