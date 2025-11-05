@@ -510,7 +510,7 @@ static int display_get_timing_from_dts(struct rockchip_panel *panel,
 	}
 
 	mcu_panel = dev_read_subnode(panel->dev, "mcu-panel");
-	dt = dev_read_subnode(panel->dev, "display-timings");
+	// dt = dev_read_subnode(panel->dev, "display-timings");
 	if (ofnode_valid(dt)) {
 		ret = ofnode_parse_phandle_with_args(dt, "native-mode", NULL,
 						     0, 0, &args);
