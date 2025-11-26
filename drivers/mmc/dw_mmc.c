@@ -808,6 +808,7 @@ static int dwmci_init(struct mmc *mmc)
 	dwmci_writel(host, DWMCI_PWREN, 1);
 #endif
 
+	mdelay(100);
 	verid = dwmci_readl(host, DWMCI_VERID) & 0x0000ffff;
 	if (verid >= DW_MMC_240A)
 		dwmci_writel(host, DWMCI_CARDTHRCTL, DWMCI_CDTHRCTRL_CONFIG);
