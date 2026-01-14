@@ -894,10 +894,26 @@ int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		}
 	}
 #else
-	ret = run_command("rsvmem check", 0);
-	if (ret) {
-		puts("rsvmem check failed\n");
-		return ret;
+	int do_rsvmem_check = 1;
+
+	if (images->ft_addr && fdt_check_header(images->ft_addr) == 0) {
+		int len;
+		const void *prop = fdt_getprop(images->ft_addr, 0, "amlogic-dt-id", &len);
+
+		if (prop == NULL) {
+			printf("No amlogic-dt-id found (Mainline kernel detected), skipping rsvmem check.\n");
+			do_rsvmem_check = 0;
+		} else {
+			debug("Legacy kernel detected (amlogic-dt-id present), performing rsvmem check.\n");
+		}
+	}
+
+	if (do_rsvmem_check) {
+		ret = run_command("rsvmem check", 0);
+		if (ret) {
+			puts("rsvmem check failed\n");
+			return ret;
+		}
 	}
 #endif
 #endif
