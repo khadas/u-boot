@@ -591,12 +591,12 @@ static void set_mesg(struct fusb30x_chip *chip, int cmd, int is_DMT)
 			switch (CAP_POWER_TYPE(chip->rec_load[chip->pos_power - 1])) {
 			case 0:
 				/* Fixed Supply */
-				chip->send_load[0] |= ((CAP_FPDO_VOLTAGE(chip->rec_load[chip->pos_power - 1]) << 10) & 0x3ff);
+				chip->send_load[0] |= ((CAP_FPDO_VOLTAGE(chip->rec_load[chip->pos_power - 1]) << 10));
 				chip->send_load[0] |= (CAP_FPDO_CURRENT(chip->rec_load[chip->pos_power - 1]) & 0x3ff);
 				break;
 			case 1:
 				/* Battery */
-				chip->send_load[0] |= ((CAP_VPDO_VOLTAGE(chip->rec_load[chip->pos_power - 1]) << 10) & 0x3ff);
+				chip->send_load[0] |= ((CAP_VPDO_VOLTAGE(chip->rec_load[chip->pos_power - 1]) << 10));
 				chip->send_load[0] |= (CAP_VPDO_CURRENT(chip->rec_load[chip->pos_power - 1]) & 0x3ff);
 				break;
 			default:
