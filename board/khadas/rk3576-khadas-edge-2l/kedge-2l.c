@@ -83,6 +83,8 @@ int rk_board_init(void)
 	env_set_ulong("mipi_lcd_exist", value);
 	printf("mipi_lcd_exist : %d\n", value);
 
+	run_command("kbi usid", 0);//export usid to env
+
     return 0;
 }
 
