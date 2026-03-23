@@ -145,5 +145,7 @@ int rk_board_init(void)
 
 	set_hw_version();
 
+	run_command("kbi usid", 0);//export usid to env
+
 	return 0;
 }
