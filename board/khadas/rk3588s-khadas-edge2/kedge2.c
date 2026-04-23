@@ -12,6 +12,7 @@
 #include <adc.h>
 
 #define TP_I2C_BUS_NUM 6
+#define MCU_I2C_BUS_NUM 2
 
 #define HW_VERSION_ADC_VALUE_TOLERANCE  0x28
 #define HW_VERSION_ADC_VAL_EDGE2_V11    0x2b3
@@ -146,6 +147,26 @@ int rk_board_init(void)
 	set_hw_version();
 
 	run_command("kbi usid", 0);//export usid to env
+
+	/*Add bootmode to env*/
+	ret = uclass_get_device_by_seq(UCLASS_I2C, MCU_I2C_BUS_NUM, &bus);
+	if (ret) {
+		printf("%s: No bus %d\n", __func__, MCU_I2C_BUS_NUM);
+		return 0;
+	}
+
+	ret = i2c_get_chip(bus, 0x18, 1, &dev);
+	if (!ret) {
+		res = dm_i2c_read(dev, 0x20, linebuf, 1);
+		if (!res) {
+			printf("boot_mode=0x%x\n", linebuf[0]);
+			if (linebuf[0] == 0x00){        //boot from spi
+				env_set("bootmode","spi");
+			} else if (linebuf[0] == 0x1) {         //boot from emmc
+				env_set("bootmode","emmc");
+			}
+		}
+	}
 
 	return 0;
 }
