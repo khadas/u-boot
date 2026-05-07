@@ -425,6 +425,7 @@ int arch_cpu_init(void)
 	board_set_iomux(IF_TYPE_MTD, 0, 0);
 #endif /* #if defined(CONFIG_ROCKCHIP_EMMC_IOMUX) */
 
+	board_set_iomux(IF_TYPE_MTD, 0, 2);
 	return 0;
 }
 #endif
