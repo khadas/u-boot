@@ -1048,10 +1048,14 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			fdt_overlay_helper(cmdtp, label, fdtfile);
 #endif
 			char *mipi_lcd_exist_value = env_get("mipi_lcd_exist");
-			if(mipi_lcd_exist_value != NULL) {
-				if(!strcmp(mipi_lcd_exist_value, "0")) {
+			char *board_value = env_get("board");
+			if (mipi_lcd_exist_value != NULL && board_value != NULL) {
+				if (!strcmp(mipi_lcd_exist_value, "0")) {
 					printf("MIPI LCD not exist, disable lcd and touch panel nodes.\n");
-					run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /dsi@27d80000 status disabled; fdt set /i2c@27300000/ft5336@38 status disabled; fdt set /i2c@27300000/gt9xx@14 status disabled", 0);
+					if (!strcmp(board_value, "rk3576-khadas-edge-2l"))
+						run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /dsi@27d80000 status disabled; fdt set /i2c@27300000/ft5336@38 status disabled; fdt set /i2c@27300000/gt9xx@14 status disabled", 0);
+					else if(!strcmp(board_value, "rk3588s-khadas-edge2"))
+						run_command("fdt addr ${fdt_addr_r}; fdt resize 65536; fdt set /dsi@fde20000 status disabled; fdt set /i2c@fec80000/ft5336@38 status disabled; fdt set /i2c@fec80000/gt9xx@14 status disabled", 0);
 				}
 			}
 		} else {

@@ -98,6 +98,7 @@ int rk_board_init(void)
 	struct udevice *dev;
 	unsigned int val;
 	uchar linebuf[1];
+	u8 value = 0;
 
 	run_command("gpio set 130", 0);//GPIO4_A2 vcc 5v
 
@@ -114,8 +115,10 @@ int rk_board_init(void)
 			printf("TP05 id=0x%x\n", linebuf[0]);
 			if (linebuf[0] == 0x51){//old ts050
 				env_set("lcd_panel","ts050");
+				value = 1;
 			} else if (linebuf[0] == 0x79) {//new ts050
 				env_set("lcd_panel","newts050");
+				value = 1;
 			}
 		}
 	}
@@ -127,12 +130,17 @@ int rk_board_init(void)
 				printf("TP10 id=0x%x\n", linebuf[0]);
 				if (linebuf[0] == 0x00) {//TS101
 					env_set("lcd_panel","ts101");
+					value = 1;
 				}
 			} else {
 				env_set("lcd_panel","null");
+				value = 0;
 			}
 		}
 	}
+
+	env_set_ulong("mipi_lcd_exist", value);
+	printf("mipi_lcd_exist : %d\n", value);
 
 	ret = adc_channel_single_shot("saradc", 2, &val);
 	if (ret) {
