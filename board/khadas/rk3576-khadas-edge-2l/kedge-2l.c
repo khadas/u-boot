@@ -33,6 +33,17 @@ static struct dwc3_device dwc3_device_data = {
 	.usb2_phyif_utmi_width = 16,
 };
 
+int rk_board_late_init(void)
+{
+	// Set FAN test
+	run_command("i2c dev 2; i2c mw 18 96 1", 0);
+
+	// Set Green LED on
+	run_command("gpio set 80; gpio clear 82; gpio clear 86", 0);
+
+	return 0;
+}
+
 int rk_board_init(void)
 {
 	int ret = 0;
